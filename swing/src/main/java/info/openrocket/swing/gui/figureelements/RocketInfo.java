@@ -43,9 +43,9 @@ public class RocketInfo implements FigureElement {
 	private static final int MARGIN = 8;
 
 	// Font to use
-	private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
-	private Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
-	private Font boldFont = font.deriveFont(Font.BOLD);
+	private Font font = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 12.0f, 0.0f);
+	private Font smallFont = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 10.0f, 0.0f);
+	private Font boldFont = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 13.0f, 0.0f);
 	
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
@@ -652,10 +652,10 @@ public class RocketInfo implements FigureElement {
 		if (font.getSize2D() == size) {
 			return;
 		}
-		// Update the font sizes to whatever the currently selected font size is
-		font = font.deriveFont(size);
-		smallFont = smallFont.deriveFont((float)(size - 2.0));
-		boldFont = boldFont.deriveFont((float)(size + 2.0));
+		// Keep the figure overlay aligned with the UI font selection instead of the AWT fallback font.
+		font = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, size, 0.0f);
+		smallFont = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, (float) (size - 1.5), 0.0f);
+		boldFont = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, (float) (size + 1.5), 0.0f);
 	}
 		
 	private GlyphVector createText(String text) {

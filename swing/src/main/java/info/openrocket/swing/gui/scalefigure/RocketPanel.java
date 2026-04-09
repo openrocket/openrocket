@@ -2532,7 +2532,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				Math.max(0, color.getBlue() - 80));
 		g2.setColor(border);
 		g2.drawPolygon(xPts, yPts, 4);
-		g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 9));
+		g2.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 9.0f, 0.0f));
 		FontMetrics fm = g2.getFontMetrics();
 		int tx = (size - fm.stringWidth(number)) / 2;
 		int ty = half + fm.getAscent() / 2 - 1;

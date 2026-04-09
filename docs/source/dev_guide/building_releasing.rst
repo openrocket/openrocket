@@ -29,7 +29,9 @@ The root directory of the OpenRocket repository contains several Gradle files:
 - ``settings.gradle``: Used for multi-project build configurations to include which sub-projects should be part of the build.
   For OpenRocket, this file is used to identify the ``core`` and ``swing`` sub-projects.
 
-- ``gradle.properties``: Contains project-wide properties that can be accessed from the build script. For example, the version number of OpenRocket can be defined here.
+- ``gradle.properties``: Contains project-wide Gradle settings such as warning and parallel build configuration.
+
+- ``core/src/main/resources/build.properties``: Defines the OpenRocket version and other build metadata that are embedded in the application and library artifacts.
 
 - ``gradlew`` and ``gradlew.bat``: These are Gradle Wrapper scripts for Unix-based and Windows systems respectively.
   It allows users to run Gradle builds without requiring Gradle to be installed on the system.
@@ -115,6 +117,14 @@ Here are some of the most important Gradle tasks for OpenRocket:
       - Creates a distributable JAR file of OpenRocket (a combination of the *core* and *swing* JAR) at :file:`openrocket/build/libs/OpenRocket-<build-version>.jar`.
 
    *  - core
+      - ``publishToMavenLocal``
+      - Builds the Maven Central library artifacts for the ``info.openrocket:core`` module and installs them into the local Maven repository for validation.
+
+   *  - core
+      - ``publish``
+      - Publishes the ``info.openrocket:core`` library artifacts to the configured Sonatype repository. For release versions this also signs the artifacts.
+
+   *  - core
       - ``serializeEngines``
       - Fetch the latest thrust curves from ThrustCurve.org and store them in the OpenRocket SQLite motor database. The resulting ``.db`` file is saved in the ``src`` dir so it can be used for a build.
 
@@ -147,6 +157,228 @@ following command in the root directory of the OpenRocket repository:
 
       # On Windows:
       gradlew.bat run
+
+.. _maven-central-publishing:
+
+Maven Central Publishing
+========================
+
+OpenRocket now has two distinct release tracks:
+
+- **Current and future releases**: publish proper Maven artifacts from the Gradle build.
+- **Older releases**: backfill missing historical versions by checking out the exact tag, producing a Central-compliant bundle for that version, and uploading it once.
+
+The published Maven Central library artifact is currently ``info.openrocket:core``. The root ``shadowJar`` output remains the desktop application distribution artifact and should not be treated as the main Maven Central library coordinate. The ``:swing`` module can be added later if there is a clear need to support it as a separate public library.
+
+For development snapshots, use a Maven-style snapshot version ending in ``-SNAPSHOT`` in :file:`core/src/main/resources/build.properties`, for example ``26.xx-SNAPSHOT``. Do not use ``.SNAPSHOT`` because Sonatype's snapshot repository expects the Maven ``-SNAPSHOT`` suffix.
+
+Central prerequisites
+---------------------
+
+Before publishing to Maven Central, make sure the following are available:
+
+- a Sonatype Central account that is authorized for the ``info.openrocket`` namespace
+- a Central Portal user token generated from ``https://central.sonatype.com/usertoken``
+- ``SONATYPE_USERNAME`` and ``SONATYPE_PASSWORD`` environment variables, or matching Gradle properties ``sonatypeUsername`` and ``sonatypePassword``. These values must be the Portal token username and password, not your GitHub login, full name, or email address.
+- an ASCII-armored PGP private key in ``SIGNING_KEY`` and its passphrase in ``SIGNING_PASSWORD``, or matching Gradle properties ``signingKey`` and ``signingPassword``
+- Git submodules checked out, because ``:core:processResources`` copies files from the ``openrocket-database`` submodule
+
+You can log in to ``https://central.sonatype.com`` using GitHub, but API publishing still uses the generated Portal token rather than the interactive login credentials. If the ``info.openrocket`` namespace was migrated from OSSRH and does not appear under a GitHub-backed login, sign in with the original OSSRH-linked account or contact Central Support to restore namespace access.
+
+Signing key setup
+-----------------
+
+Sonatype requires every published file to be signed with OpenPGP, which means the build needs access to a private signing key and its passphrase.
+
+The OpenRocket Gradle build uses Gradle's in-memory signing support, so it expects:
+
+- ``SIGNING_KEY``: the ASCII-armored private key block
+- ``SIGNING_PASSWORD``: the passphrase that protects that private key
+
+A typical setup flow is:
+
+1. Generate a new key pair if you do not already have one:
+
+   .. code-block:: bash
+
+      gpg --full-generate-key
+
+   Use the OpenRocket release identity you want associated with published artifacts. Sonatype's GPG guidance notes that keys often default to an expiration date, so make sure the key remains valid for the expected release window.
+
+2. List the available secret keys and note the key ID:
+
+   .. code-block:: bash
+
+      gpg --list-secret-keys --keyid-format LONG
+
+3. Publish the public key to a public key server so consumers can verify the signatures:
+
+   .. code-block:: bash
+
+      gpg --keyserver keyserver.ubuntu.com --send-keys <KEY_ID>
+
+4. Export the private key in ASCII-armored form for Gradle:
+
+   .. code-block:: bash
+
+      gpg --armor --export-secret-keys <KEY_ID> > openrocket-signing-key.asc
+
+5. Store the exported private key content and its passphrase in your shell or CI secrets:
+
+   .. code-block:: bash
+
+      export SIGNING_KEY="$(cat openrocket-signing-key.asc)"
+      export SIGNING_PASSWORD='<key-passphrase>'
+
+In CI, store the full armored key block exactly as a multiline secret value. The passphrase is the one you entered when generating the GPG key.
+
+If the signing key expires, extend it with ``gpg --edit-key <KEY_ID>`` and publish the updated public key to the key server again before the next release.
+
+Current and future releases
+---------------------------
+
+The Gradle build publishes the ``:core`` module with:
+
+- the main JAR
+- ``-sources.jar``
+- ``-javadoc.jar``
+- a POM with the metadata required by Maven Central
+- PGP signatures for release builds
+
+Use the following process for new releases:
+
+1. Build and validate the library artifacts locally:
+
+   .. code-block:: bash
+
+      export SONATYPE_USERNAME='<portal-token-username>'
+      export SONATYPE_PASSWORD='<portal-token-password>'
+      export SIGNING_KEY='<ascii-armored-private-key>'
+      export SIGNING_PASSWORD='<pgp-passphrase>'
+
+      ./gradlew :core:publishToMavenLocal
+
+2. Publish the release artifacts to Sonatype's staging compatibility endpoint:
+
+   .. code-block:: bash
+
+      ./gradlew :core:publish
+
+   Release versions publish to ``https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/``.
+   Snapshot versions publish to ``https://central.sonatype.com/repository/maven-snapshots/``.
+
+3. Transfer the staged repository into the Central Portal. Gradle's built-in ``maven-publish`` support uploads the artifacts, but Sonatype still requires a separate manual upload API call so the deployment appears in the Portal:
+
+   .. code-block:: bash
+
+      AUTH=$(printf "%s:%s" "$SONATYPE_USERNAME" "$SONATYPE_PASSWORD" | base64)
+
+      curl -X POST \
+        -H "Authorization: Bearer $AUTH" \
+        "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/info.openrocket?publishing_type=automatic"
+
+   Use ``publishing_type=user_managed`` instead of ``automatic`` if you want to inspect and release the deployment manually in the Portal UI.
+
+4. Verify that the new version appears correctly in Central and that the published POM exposes the expected transitive dependencies for ``info.openrocket:core``.
+
+Checking whether publishing succeeded
+-------------------------------------
+
+Use different checks for snapshots and official releases.
+
+For ``-SNAPSHOT`` versions:
+
+1. Check the published snapshot metadata in the Central snapshot repository:
+
+   .. code-block:: text
+
+      https://central.sonatype.com/repository/maven-snapshots/info/openrocket/core/<version>/maven-metadata.xml
+
+   Example:
+
+   .. code-block:: text
+
+      https://central.sonatype.com/repository/maven-snapshots/info/openrocket/core/26.xx-SNAPSHOT/maven-metadata.xml
+
+2. Confirm that the metadata lists a timestamped snapshot build such as ``26.xx-20260409.121931-1`` and that the expected files are present:
+
+   - main JAR
+   - ``-sources.jar``
+   - ``-javadoc.jar``
+   - ``.pom``
+   - ``.module``
+
+3. Optionally verify consumption from another Gradle build:
+
+   .. code-block:: groovy
+
+      repositories {
+          maven {
+              name = "Central Portal Snapshots"
+              url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+              content {
+                  includeModule("info.openrocket", "core")
+              }
+          }
+          mavenCentral()
+      }
+
+      dependencies {
+          implementation("info.openrocket:core:<version>")
+      }
+
+``-SNAPSHOT`` publishes do not appear in the Central Portal deployments page and are not the same as final Maven Central releases.
+
+For official non-snapshot releases:
+
+1. Run ``./gradlew :core:publish``.
+2. Call the Sonatype manual upload endpoint described above.
+3. Open ``https://central.sonatype.com/publishing/deployments`` and confirm that the deployment for ``info.openrocket:core:<version>`` appears and passes validation.
+4. After release, verify that the final version is visible in the Central ecosystem and that the artifact can be resolved from ``mavenCentral()`` without the snapshot repository.
+
+Historical backfill
+-------------------
+
+Central artifacts are immutable. If a version already exists on Maven Central, do not attempt to republish or replace it.
+
+For historical versions that are missing from Central, work one release tag at a time:
+
+1. Check whether the version already exists on Central. Stop if it does.
+2. Check out the exact release tag that should be backfilled.
+3. Build artifacts that match that tag exactly.
+4. Publish that version once, without reusing files from newer releases.
+
+For Gradle-era tags, prefer the same ``:core`` publication flow described above.
+
+For older Ant-era tags, it is usually easier to create a Central bundle manually instead of retrofitting the modern Gradle publishing pipeline. Build the original binary JAR from that tag, generate a minimal compliant POM, create matching source and javadoc JARs from the checked-out source tree, sign every file, and upload the result as a bundle.
+
+A typical bundle layout looks like this:
+
+.. code-block:: text
+
+   info/openrocket/core/23.09/
+     core-23.09.jar
+     core-23.09.pom
+     core-23.09-sources.jar
+     core-23.09-javadoc.jar
+     core-23.09.jar.asc
+     core-23.09.pom.asc
+     core-23.09-sources.jar.asc
+     core-23.09-javadoc.jar.asc
+     core-23.09.jar.md5
+     core-23.09.jar.sha1
+     ...
+
+Upload the bundle with the Central Portal API:
+
+.. code-block:: bash
+
+   AUTH=$(printf "%s:%s" "$SONATYPE_USERNAME" "$SONATYPE_PASSWORD" | base64)
+
+   curl --request POST \
+     --header "Authorization: Bearer $AUTH" \
+     --form bundle=@central-bundle.zip \
+     "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
 
 install4j
 =========
@@ -240,6 +472,8 @@ with the new results) to ensure that they are up-to-date with the latest changes
    September 2023, the version number should be ``23.09``. If there are multiple releases in the same month, add an incremental number
    to the version number, e.g. ``23.09.01``.
 
+   Development snapshot builds that are meant for Sonatype snapshot publishing should use the same base version with a Maven snapshot suffix, for example ``26.xx-SNAPSHOT``.
+
    If a new release contains significant changes, it may be necessary to release alpha or beta versions first. In that case, the version
    number should be appended with ``.alpha.`` or ``.beta.`` plus an incremental number. For example, if the software is in beta stage
    in September 2023, the version number should be ``23.09.beta.01``. In general, alpha releases are not necessary. This is only for very rough releases.
@@ -257,7 +491,15 @@ with the new results) to ensure that they are up-to-date with the latest changes
 
 6. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under :menuselection:`Help --> About`.
 
-7. **Create the packaged installers** using install4j (see above).
+7. **Publish the Maven Central library artifacts**.
+
+   OpenRocket publishes ``info.openrocket:core`` from the Gradle ``:core`` module. Follow the process in :ref:`maven-central-publishing` to:
+
+   - run ``./gradlew :core:publishToMavenLocal``
+   - run ``./gradlew :core:publish``
+   - call the Sonatype manual upload endpoint to make the staged deployment appear in the Central Portal
+
+8. **Create the packaged installers** using install4j (see above).
 
    .. warning::
       Make sure to **enable code signing** for the installers.
@@ -265,14 +507,14 @@ with the new results) to ensure that they are up-to-date with the latest changes
       Make sure that `DS_Store <https://github.com/openrocket/openrocket/blob/unstable/install4j/23.09/macOS_resources/DS_Store>`__ for the macOS
       installer is updated. Instructions can be found `here <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
 
-8. **Add the macOS QuickLook extension** to the macOS DMG installers.
+9. **Add the macOS QuickLook extension** to the macOS DMG installers.
 
    Follow the instructions in the `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__
    to build, sign, notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
 
-9. **Test the installers** to ensure that they work correctly.
+10. **Test the installers** to ensure that they work correctly.
 
-10. **Prepare the website** *(for official releases only, not for alpha, beta, or release candidate releases)*.
+11. **Prepare the website** *(for official releases only, not for alpha, beta, or release candidate releases)*.
 
     The `source code for the website <https://github.com/openrocket/openrocket.github.io>`__ needs to be updated to point to the new release.
     Follow these steps:
@@ -289,7 +531,7 @@ with the new results) to ensure that they are up-to-date with the latest changes
        on the website. First update the ``development`` branch and test the changes on the website. In a later step, the
        changes will be merged to the ``master`` branch.
 
-11. **Publish the release on GitHub**.
+12. **Publish the release on GitHub**.
 
     Go to the `releases page <https://github.com/openrocket/openrocket/releases>`__. Click *Draft a new release*.
     Select *Choose a tag* and enter a new tag name, following the format ``release-<version number>``, e.g. ``release-23.09``.
@@ -306,13 +548,13 @@ with the new results) to ensure that they are up-to-date with the latest changes
 
     Click *Publish release*.
 
-12. **Push the changes to the website**
+13. **Push the changes to the website**
 
     First, build the ``development`` branch locally to verify that the changes that you made in step 9 are correct.
     If everything is working (test the download links, the release notes, and the What's new page), create a new PR
     that merges the changes from the ``development`` branch to the ``master`` branch.
 
-13. **Send out the release announcement**.
+14. **Send out the release announcement**.
 
     Send out the release announcement to the OpenRocket mailing list, the TRF forum, and the OpenRocket social media channels
     (Discord, Facebook...).
@@ -320,16 +562,16 @@ with the new results) to ensure that they are up-to-date with the latest changes
     The announcement should include the new features, bug fixes, and other changes that are part of the new release.
     Make sure to include the download links to the new release. Here is an `example announcement <https://www.rocketryforum.com/threads/announcement-openrocket-23-09-is-now-available-for-download.183186/>`__.
 
-14. **Merge the** ``unstable`` **branch to the** ``master`` **branch**.
+15. **Merge the** ``unstable`` **branch to the** ``master`` **branch**.
 
     After the release is published, merge the changes from the `unstable <https://github.com/openrocket/openrocket>`__ branch
     to the `master <https://github.com/openrocket/openrocket/tree/master>`__ branch.
 
-15. **Upload the new release to** `SourceForge <https://sourceforge.net/projects/openrocket/>`__.
+16. **Upload the new release to** `SourceForge <https://sourceforge.net/projects/openrocket/>`__.
 
     The downloads page on SourceForge is still very actively used, so be sure to upload the new release there as well.
 
-16. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.
+17. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.
 
 Snap
 ====

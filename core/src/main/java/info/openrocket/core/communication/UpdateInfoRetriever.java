@@ -372,6 +372,9 @@ public class UpdateInfoRetriever {
 				throw new UpdateCheckerException("Malformed release tag");
 			}
 
+			tag1 = normalizeReleaseTag(tag1);
+			tag2 = normalizeReleaseTag(tag2);
+
 			// Each tag should have the format 'XX.XX...' where 'XX' is a number or a text
 			// (e.g. 'alpha'). Separator '.'
 			// can also be '-'.
@@ -471,6 +474,27 @@ public class UpdateInfoRetriever {
 			}
 
 			return ReleaseStatus.LATEST;
+		}
+
+		/**
+		 * Normalize local development versions so the update checker accepts both legacy
+		 * ".SNAPSHOT" tags and Maven-style "-SNAPSHOT" tags. Development builds may also
+		 * embed a trailing Git hash after the snapshot marker for display purposes; that
+		 * hash is ignored for version comparisons.
+		 *
+		 * @param tag release tag to normalize
+		 * @return normalized release tag
+		 */
+		private static String normalizeReleaseTag(String tag) {
+			String normalized = tag.trim();
+			normalized = normalized.replace("-" + snapshotTag + "-", "." + snapshotTag + ".");
+			normalized = normalized.replace("-" + snapshotTag, "." + snapshotTag);
+
+			if (normalized.matches(".*\\." + snapshotTag + "[.-][0-9a-fA-F]{7,40}$")) {
+				normalized = normalized.replaceFirst("(\\." + snapshotTag + ")[.-][0-9a-fA-F]{7,40}$", "$1");
+			}
+
+			return normalized;
 		}
 
 		/**

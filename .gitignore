@@ -114,3 +114,6 @@ docs/build
 **/CLAUDE.md
 **/GEMINI.md
 **/.claude
+
+# Environment files
+**/.env

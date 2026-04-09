@@ -8,17 +8,11 @@ license: GPL-3.0-only
 summary: A free, fully featured model rocket simulator.
 description: |
   OpenRocket is a free, fully featured model rocket simulator.
-source-code:
-  - https://github.com/openrocket/openrocket
-contact:
-  - https://openrocket.info/contact.html
-website:
-  - https://openrocket.info/
-issues:
-  - https://github.com/openrocket/openrocket/issues
-donation:
-  - https://openrocket.info/donate.html
-  - https://opencollective.com/openrocket#category-CONTRIBUTE
+source-code: https://github.com/openrocket/openrocket
+contact: https://openrocket.info/contact.html
+website: https://openrocket.info/
+issues: https://github.com/openrocket/openrocket/issues
+donation: https://openrocket.info/donate.html
 
 architectures:
   - build-on: [amd64]
@@ -109,8 +103,8 @@ parts:
       BV="$(grep -E '^build\.version=' core/src/main/resources/build.properties | cut -d= -f2)"
       HASH="$(git rev-parse --short=7 HEAD 2>/dev/null || echo 0000000)"
 
-      if printf '%s' "$BV" | grep -q 'SNAPSHOT$'; then
-      VERSION="${BV%SNAPSHOT}-g${HASH}"     # e.g. 25.xx.-g1a2b3c4
+      if printf '%s' "$BV" | grep -q -- '-SNAPSHOT$'; then
+      VERSION="${BV%-SNAPSHOT}-g${HASH}"    # e.g. 25.xx-g1a2b3c4
       else
       VERSION="$BV"                         # e.g. 25.12
       fi

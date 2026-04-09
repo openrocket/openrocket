@@ -32,7 +32,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -2026,6 +2025,7 @@ public class UITheme {
     
     private static void preApplyTheme() {
         FlatAnimatedLafChange.showSnapshot();
+        GUIUtil.loadCustomFonts();
         FlatLaf.registerCustomDefaultsSource("themes");
     }
 
@@ -2041,10 +2041,6 @@ public class UITheme {
         String uiScale = String.valueOf(((SwingPreferences) Application.getPreferences()).getUIScale());
         log.info("Setting UI scale factor to {}", uiScale);
         System.setProperty("flatlaf.uiScale", uiScale);
-
-        // Load custom fonts
-        log.info("Loading custom fonts");
-        GUIUtil.loadCustomFonts();
 
         // Set the global font to
         int fontSize = prefs.getUIFontSize();
@@ -2087,22 +2083,11 @@ public class UITheme {
                     // Reuse the existing fontOffsets map logic here
                     offset = fontOffsets.getOrDefault(fontKey, 0.0f);
                 }
-                // Create a font with the letter spacing attribute
-                Map<TextAttribute, Object> attributes = new HashMap<>();
-                attributes.put(TextAttribute.FAMILY, fontStyle);
-                attributes.put(TextAttribute.SIZE, size + offset);
-                attributes.put(TextAttribute.TRACKING, letterSpacing);
-
-                Font newFont = Font.getFont(attributes);
-                UIManager.put(key, newFont);
+                UIManager.put(key, GUIUtil.createUIFont(fontStyle, size + offset, letterSpacing));
             }
         }
 
         // Set the default font
-        Map<TextAttribute, Object> attributes = new HashMap<>();
-        attributes.put(TextAttribute.FAMILY, fontStyle);
-        attributes.put(TextAttribute.SIZE, size);
-        attributes.put(TextAttribute.TRACKING, letterSpacing);
-        UIManager.put("defaultFont", Font.getFont(attributes));
+        UIManager.put("defaultFont", GUIUtil.createUIFont(fontStyle, size, letterSpacing));
     }
 }
