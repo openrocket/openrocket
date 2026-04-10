@@ -851,9 +851,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				this.hudPanel.setGLScenePanel(this);
 			}
 
-			if (hudEnabled) {
-				// --- Initialize HUD rendering objects ---
-				hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
+				if (hudEnabled) {
+					// --- Initialize HUD rendering objects ---
+					hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
 
 				// Set initial dimensions
 				lastFramebufferWidth = fbWidth;
@@ -866,12 +866,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				hudNeedsUpdate = false;
 			}
 
-			addInputListeners();
-			DemoFactory.setupDemoKeyboardHandling(this.keyboardHandler, scene3DOrchestrator.getScene(), scene3DOrchestrator);
+				addInputListeners();
+				DemoFactory.setupDemoKeyboardHandling(this.keyboardHandler, scene3DOrchestrator.getScene(), scene3DOrchestrator);
 
-			// Mark initialization complete - allows resize/render operations to proceed
-			glInitialized = true;
-			glInitLatch.countDown();
+				// Startup layout may have queued resize events before the GL pipeline existed.
+				// The orchestrator was just created with the current canvas size, so those
+				// requests are already reflected and must not trigger a second fit on the
+				// first interactive frame.
+				pendingWinWidth = winWidth;
+				pendingWinHeight = winHeight;
+				pendingFbWidth = fbWidth;
+				pendingFbHeight = fbHeight;
+				resizeRequested = false;
+
+				// Mark initialization complete - allows resize/render operations to proceed
+				glInitialized = true;
+				glInitLatch.countDown();
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
@@ -1265,18 +1275,19 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			return;
 		}
 
+		int currentWidth = Math.max(1, getWidth());
+		int currentHeight = Math.max(1, getHeight());
+		int[] currentFbSize = computeFramebufferSize(currentWidth, currentHeight);
+		int currentFbWidth = currentFbSize[0];
+		int currentFbHeight = currentFbSize[1];
+
 		int width = pendingWinWidth;
 		int height = pendingWinHeight;
 		int fbWidth = pendingFbWidth;
 		int fbHeight = pendingFbHeight;
+		ViewportDimensions viewport = scene3DOrchestrator.getViewport();
 
 		if (!resizeRequested) {
-			int currentWidth = Math.max(1, getWidth());
-			int currentHeight = Math.max(1, getHeight());
-			int[] fbSize = computeFramebufferSize(currentWidth, currentHeight);
-			int currentFbWidth = fbSize[0];
-			int currentFbHeight = fbSize[1];
-			ViewportDimensions viewport = scene3DOrchestrator.getViewport();
 			if (viewport.getWindowWidth() == currentWidth
 					&& viewport.getWindowHeight() == currentHeight
 					&& viewport.getFramebufferWidth() == currentFbWidth
@@ -1287,6 +1298,20 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			height = currentHeight;
 			fbWidth = currentFbWidth;
 			fbHeight = currentFbHeight;
+		} else if (width != currentWidth || height != currentHeight
+				|| fbWidth != currentFbWidth || fbHeight != currentFbHeight) {
+			// Resize events can be queued before the canvas reaches its final layout.
+			// Always prefer the live canvas dimensions over stale pending values.
+			width = currentWidth;
+			height = currentHeight;
+			fbWidth = currentFbWidth;
+			fbHeight = currentFbHeight;
+		} else if (viewport.getWindowWidth() == width
+				&& viewport.getWindowHeight() == height
+				&& viewport.getFramebufferWidth() == fbWidth
+				&& viewport.getFramebufferHeight() == fbHeight) {
+			resizeRequested = false;
+			return;
 		}
 
 		// If the framebuffer size wasn't captured on resize (EDT), query it now while the context is current
