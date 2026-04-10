@@ -221,6 +221,8 @@ public class CameraController implements CameraControls {
     @Override
     public void handlePan(float dx, float dy, int viewportWidth, int viewportHeight) {
         camera.pan(dx, dy, viewportWidth, viewportHeight);
+        // Keep the rocket rotation pivot aligned with the horizontally panned focus point.
+        scene.updateRocketPivotFromCamera();
         notifyCameraChanged();
     }
     
