@@ -1,9 +1,11 @@
 package info.openrocket.swing.gui.figure3d.scene.core;
 
+import info.openrocket.core.util.BoundingBox;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.basic.SphereGenerator;
 import info.openrocket.swing.gui.figure3d.core.geometry.basic.TubeGenerator;
+import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -49,8 +51,9 @@ public class LightVisualizer {
 	 * @param light the light source to create visual representations for
 	 * @return a list of SceneObjects that make up the visual marker (may include multiple objects for directional lights)
 	 */
-	public List<SceneObject> createVisualsForLight(Light light, Camera camera) {
+	public List<SceneObject> createVisualsForLight(Light light, Scene scene) {
 		List<SceneObject> visuals = new ArrayList<>();
+		Camera camera = scene.getCamera();
 
 		Appearance3D visualAppearance = createVisualizerAppearance(light.getColor(), 1.0f);
 		Appearance3D outlineAppearance = createVisualizerAppearance(OUTLINE_COLOR);
@@ -80,7 +83,8 @@ public class LightVisualizer {
 			// For a directional light, create a draggable "sun" sphere and a non-draggable "ray" line.
 			float sunDistance = 10.0f;
 			Vector3f lightDir = light.getDirection();
-			Vector3f sunPosition = new Vector3f(lightDir).negate().mul(sunDistance);
+			Vector3f lightAnchor = getLightAnchor(scene);
+			Vector3f sunPosition = new Vector3f(lightDir).negate().mul(sunDistance).add(lightAnchor);
 			Mesh sunOutlineMesh = SphereGenerator.create(SUN_OUTLINE_RADIUS,
 					RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
 			SceneObject sunOutline = new SceneObject(sunOutlineMesh, sunPosition, outlineAppearance);
@@ -104,8 +108,8 @@ public class LightVisualizer {
 			configureVisualizerObject(rayVisual, false);
 			visuals.add(rayVisual);
 
-			updateRayTransform(rayOutline, sunPosition);
-			updateRayTransform(rayVisual, sunPosition);
+			updateRayTransform(rayOutline, lightAnchor, sunPosition);
+			updateRayTransform(rayVisual, lightAnchor, sunPosition);
 
 			Mesh glyphCoreMesh = SphereGenerator.create(SUN_GLYPH_CORE_RADIUS,
 					RenderingConstants.LOW_SEGMENT_COUNT, RenderingConstants.LOW_SEGMENT_COUNT);
@@ -129,27 +133,33 @@ public class LightVisualizer {
 			// This listener will update the light, the sun, AND the ray.
 			sunVisual.setOnDragListener((newPosition) -> {
 				// Keep the sun a fixed distance from the origin for easier dragging
-				Vector3f newSunPos = new Vector3f(newPosition).normalize().mul(sunDistance);
+				Vector3f dragAnchor = getLightAnchor(scene);
+				Vector3f newSunPos = new Vector3f(newPosition).sub(dragAnchor);
+				if (newSunPos.lengthSquared() < 1.0e-6f) {
+					newSunPos.set(lightDir).negate();
+				}
+				newSunPos.normalize().mul(sunDistance).add(dragAnchor);
 
-				Vector3f newDirection = new Vector3f(newSunPos).negate().normalize();
+				Vector3f newDirection = new Vector3f(dragAnchor).sub(newSunPos).normalize();
 				light.setDirection(newDirection.x, newDirection.y, newDirection.z);
 				sunOutline.setPosition(newSunPos);
 				sunVisual.setPosition(newSunPos);
 				glyphCore.setPosition(newSunPos);
 
 				// Update the spoke glyph and connecting ray to follow the sun.
-					updateSunSpokes(sunSpokes, newSunPos, camera);
-					updateRayTransform(rayOutline, newSunPos);
-					updateRayTransform(rayVisual, newSunPos);
-				});
-			}
-			return visuals;
+				updateSunSpokes(sunSpokes, newSunPos, camera);
+				updateRayTransform(rayOutline, dragAnchor, newSunPos);
+				updateRayTransform(rayVisual, dragAnchor, newSunPos);
+			});
 		}
+		return visuals;
+	}
 
-	public void updateVisualsForLight(Light light, List<SceneObject> visuals, Camera camera) {
+	public void updateVisualsForLight(Light light, List<SceneObject> visuals, Scene scene) {
 		if (visuals == null || visuals.isEmpty()) {
 			return;
 		}
+		Camera camera = scene.getCamera();
 
 		if (light.getType() == Light.LightType.POINT) {
 			SceneObject pointOutline = visuals.get(0);
@@ -164,7 +174,8 @@ public class LightVisualizer {
 		}
 
 		float sunDistance = 10.0f;
-		Vector3f sunPosition = new Vector3f(light.getDirection()).negate().mul(sunDistance);
+		Vector3f lightAnchor = getLightAnchor(scene);
+		Vector3f sunPosition = new Vector3f(light.getDirection()).negate().mul(sunDistance).add(lightAnchor);
 		SceneObject sunOutline = visuals.get(0);
 		SceneObject rayOutline = visuals.get(1);
 		SceneObject rayVisual = visuals.get(2);
@@ -176,8 +187,8 @@ public class LightVisualizer {
 		sunOutline.setPosition(sunPosition);
 		sunVisual.setPosition(sunPosition);
 		glyphCore.setPosition(sunPosition);
-		updateRayTransform(rayVisual, sunPosition);
-		updateRayTransform(rayOutline, sunPosition);
+		updateRayTransform(rayVisual, lightAnchor, sunPosition);
+		updateRayTransform(rayOutline, lightAnchor, sunPosition);
 	}
 
 	private static Appearance3D createVisualizerAppearance(Vector3f color) {
@@ -205,13 +216,24 @@ public class LightVisualizer {
 	 * @param ray the SceneObject representing the directional light ray
 	 * @param sunPosition the current position of the "sun" visualizer that represents the light source
 	 */
-	private void updateRayTransform(SceneObject ray, Vector3f sunPosition) {
-		// The ray should point from the origin towards the sun.
-		Vector3f targetDir = new Vector3f(sunPosition).normalize();
-		// The center of the ray should be halfway between the origin and the sun.
-		Vector3f rayCenter = new Vector3f(sunPosition).mul(0.5f);
+	private void updateRayTransform(SceneObject ray, Vector3f anchorPosition, Vector3f sunPosition) {
+		Vector3f targetDir = new Vector3f(sunPosition).sub(anchorPosition).normalize();
+		Vector3f rayCenter = new Vector3f(anchorPosition).add(sunPosition).mul(0.5f);
 
 		updateSegmentTransform(ray, rayCenter, targetDir);
+	}
+
+	private Vector3f getLightAnchor(Scene scene) {
+		BoundingBox bounds = scene.getRocket().getBoundingBox();
+		if (bounds == null || bounds.isEmpty()) {
+			return new Vector3f();
+		}
+		Vector3f localCenter = new Vector3f(
+				(float) ((bounds.min.getX() + bounds.max.getX()) * 0.5 * RocketMeshBuilder.WORLD_SCALE),
+				(float) ((bounds.min.getY() + bounds.max.getY()) * 0.5 * RocketMeshBuilder.WORLD_SCALE),
+				(float) ((bounds.min.getZ() + bounds.max.getZ()) * 0.5 * RocketMeshBuilder.WORLD_SCALE)
+		);
+		return scene.transformRocketPoint(localCenter, new Vector3f());
 	}
 
 	private void updateSunSpokes(List<SceneObject> sunSpokes, Vector3f sunPosition, Camera camera) {

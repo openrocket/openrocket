@@ -168,7 +168,7 @@ public class LightManager implements LightController {
 		if (visuals == null) {
 			return;
 		}
-		lightVisualizer.updateVisualsForLight(light, visuals, scene.getCamera());
+		lightVisualizer.updateVisualsForLight(light, visuals, scene);
 	}
 
 	@Override
@@ -207,10 +207,10 @@ public class LightManager implements LightController {
 		if (shouldShow) {
 			List<SceneObject> existingVisuals = lightVisualsMap.get(light);
 			if (existingVisuals != null) {
-				lightVisualizer.updateVisualsForLight(light, existingVisuals, scene.getCamera());
+				lightVisualizer.updateVisualsForLight(light, existingVisuals, scene);
 				return;
 			}
-			List<SceneObject> visuals = lightVisualizer.createVisualsForLight(light, scene.getCamera());
+			List<SceneObject> visuals = lightVisualizer.createVisualsForLight(light, scene);
 			lightVisualsMap.put(light, visuals);
 			this.scene.addObjects(visuals);
 			return;
