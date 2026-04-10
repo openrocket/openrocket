@@ -2053,11 +2053,9 @@ public class UITheme {
         log.info("Setting global font to {} {} {}", fontSize, fontStyle, fontTracking);
         setGlobalFont(fontStyle, fontSize, (float) fontTracking);
 
-        // After applying the theme settings, notify listeners
-        Theme.notifyUIThemeChangeListeners();
-
         // Update all components
         FlatLaf.updateUI();
+        Theme.notifyUIThemeChangeListeners();
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
     }
 
