@@ -67,11 +67,16 @@ public class Scene3DOrchestrator {
 	 * @param newFbHeight The new framebuffer height in pixels
 	 */
 	public void resize(int newWinWidth, int newWinHeight, int newFbWidth, int newFbHeight) {
+		boolean wasZoomFitting = cameraController.isZoomFitting();
+
 		// Update viewport dimensions
 		viewport.update(newWinWidth, newWinHeight, newFbWidth, newFbHeight);
 		
 		// Propagate resize event to relevant components
 		cameraController.resize(viewport.getAspectRatio());
+		if (wasZoomFitting) {
+			cameraController.focusOnRocket();
+		}
 		inputHandler.updateDimensions(viewport);
 		if (renderer != null) {
 			renderer.resize(viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
