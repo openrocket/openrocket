@@ -949,6 +949,17 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JScrollPane ribbonScroll = new JScrollPane(ribbon,
 				JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED) {
+			private void applyBorderlessStyling() {
+				setBorder(null);
+				setViewportBorder(null);
+			}
+
+			@Override
+			public void updateUI() {
+				super.updateUI();
+				applyBorderlessStyling();
+			}
+
 			@Override
 			public Dimension getPreferredSize() {
 				Dimension d = super.getPreferredSize();
@@ -959,6 +970,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		};
 		ribbonScroll.setBorder(null);
+		ribbonScroll.setViewportBorder(null);
 		ribbonScroll.getHorizontalScrollBar().addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
