@@ -27,6 +27,7 @@ import javax.swing.event.ChangeListener;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.core.unit.Tick;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
