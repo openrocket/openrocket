@@ -199,6 +199,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 	private volatile Runnable renderActivityCallback;
+	private volatile Runnable renderRequestCallback;
 	private volatile Runnable uiThemeListener;
 	private final AtomicReference<ImageCaptureRequest> imageCaptureRequest = new AtomicReference<>();
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
@@ -356,6 +357,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 */
 	public void setRenderActivityCallback(Runnable callback) {
 		this.renderActivityCallback = callback;
+	}
+
+	public void setRenderRequestCallback(Runnable callback) {
+		this.renderRequestCallback = callback;
 	}
 
 	public void setBlankDefaultFramebufferCallback(Runnable callback) {
@@ -1631,13 +1636,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (uiThemeListener != null) {
 			return;
 		}
-		uiThemeListener = () -> {
+		uiThemeListener = () -> SwingUtilities.invokeLater(() -> {
 			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 			if (orchestrator == null) {
 				return;
 			}
 			orchestrator.enqueueGlTask(() -> applyThemeBackground(orchestrator.getScene()));
-		};
+			hudNeedsUpdate = true;
+			requestPeerBoundsSyncNow();
+			revalidate();
+			repaint();
+			markRenderActivity();
+			Runnable requestCallback = renderRequestCallback;
+			if (requestCallback != null) {
+				requestCallback.run();
+			}
+		});
 		UITheme.Theme.addUIThemeChangeListener(uiThemeListener);
 	}
 

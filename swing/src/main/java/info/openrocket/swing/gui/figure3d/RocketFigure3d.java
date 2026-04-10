@@ -149,6 +149,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		// Mark dirty whenever the user interacts (drag, scroll, resize, key) so the
 		// background thread renders on demand rather than unconditionally.
 		panel.setRenderActivityCallback(this::markDirty);
+		panel.setRenderRequestCallback(this::requestRenderNow);
 		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
@@ -178,6 +179,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			return;
 		}
 		failedPanel.setRenderActivityCallback(null);
+		failedPanel.setRenderRequestCallback(null);
 		failedPanel.setBlankDefaultFramebufferCallback(null);
 		remove(failedPanel);
 		glScenePanel = null;
