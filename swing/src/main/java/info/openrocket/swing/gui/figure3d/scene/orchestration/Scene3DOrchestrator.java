@@ -12,8 +12,10 @@ import info.openrocket.swing.gui.figure3d.rendering.Renderer;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraController;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraControls;
 import info.openrocket.swing.gui.figure3d.scene.controllers.DefaultSceneInputProcessor;
+import info.openrocket.swing.gui.figure3d.scene.controllers.LightController;
 import info.openrocket.swing.gui.figure3d.scene.controllers.SceneInputProcessor;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
+import info.openrocket.swing.gui.figure3d.scene.core.Light;
 import info.openrocket.swing.gui.figure3d.scene.core.Scene;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.ExportListener;
@@ -493,6 +495,15 @@ public class Scene3DOrchestrator {
 		// 3. Initialize controllers
 		this.cameraController = new CameraController(rocket, camera, scene, renderingConfiguration);
 		this.cameraController.initialize(rocket, viewport.getAspectRatio());
+		this.cameraController.addCameraChangeListener(ignored -> {
+			LightController lightController = this.scene.getLightController();
+			if (!lightController.areVisualizersVisible()) {
+				return;
+			}
+			for (Light light : lightController.getLights()) {
+				lightController.refreshVisualizer(light);
+			}
+		});
 		
         this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController,
 				renderingConfiguration);

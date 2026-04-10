@@ -28,6 +28,18 @@ import java.util.List;
  * system to provide intuitive light manipulation capabilities.</p>
  */
 public class LightVisualizer {
+	private static final Vector3f OUTLINE_COLOR = new Vector3f(0.08f, 0.08f, 0.08f);
+	private static final float POINT_RADIUS = 0.4f;
+	private static final float POINT_OUTLINE_RADIUS = 0.46f;
+	private static final float SUN_RADIUS = 0.5f;
+	private static final float SUN_OUTLINE_RADIUS = 0.535f;
+	private static final float SUN_GLYPH_CORE_RADIUS = 0.09f;
+	private static final int SUN_SPOKE_COUNT = 8;
+	private static final float SUN_SPOKE_RADIUS = 0.012f;
+	private static final float SUN_SPOKE_LENGTH = 0.09f;
+	private static final float SUN_SPOKE_GAP = 0.085f;
+	private static final float RAY_RADIUS = 0.012f;
+	private static final float RAY_OUTLINE_RADIUS = 0.021f;
 
 	/**
 	 * Creates one or more SceneObjects to visually represent a light source in the 3D scene.
@@ -37,20 +49,30 @@ public class LightVisualizer {
 	 * @param light the light source to create visual representations for
 	 * @return a list of SceneObjects that make up the visual marker (may include multiple objects for directional lights)
 	 */
-	public List<SceneObject> createVisualsForLight(Light light) {
+	public List<SceneObject> createVisualsForLight(Light light, Camera camera) {
 		List<SceneObject> visuals = new ArrayList<>();
 
-		Appearance3D visualAppearance = new Appearance3D(light.getColor());
-		visualAppearance.setUnlit(true); // The marker should not be affected by light.
+		Appearance3D visualAppearance = createVisualizerAppearance(light.getColor(), 1.0f);
+		Appearance3D outlineAppearance = createVisualizerAppearance(OUTLINE_COLOR);
+		Appearance3D rayAppearance = createVisualizerAppearance(light.getColor(), 1.0f);
 
 		if (light.getType() == Light.LightType.POINT) {
+			Mesh outlineMesh = SphereGenerator.create(POINT_OUTLINE_RADIUS,
+					RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
+			SceneObject pointOutline = new SceneObject(outlineMesh, light.getPosition(), outlineAppearance);
+			configureVisualizerObject(pointOutline, false);
+			visuals.add(pointOutline);
+
 			// For a point light, create a small sphere at its position.
-			Mesh sphereMesh = SphereGenerator.create(0.4f, RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
+			Mesh sphereMesh = SphereGenerator.create(POINT_RADIUS,
+					RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
 			SceneObject pointVisual = new SceneObject(sphereMesh, light.getPosition(), visualAppearance);
+			configureVisualizerObject(pointVisual, true);
 
 			// Define the drag behavior: update the light and the visualizer's position.
 			pointVisual.setOnDragListener((newPosition) -> {
 				light.setPosition(newPosition.x, newPosition.y, newPosition.z);
+				pointOutline.setPosition(newPosition);
 				pointVisual.setPosition(newPosition);
 			});
 			visuals.add(pointVisual);
@@ -59,15 +81,49 @@ public class LightVisualizer {
 			float sunDistance = 10.0f;
 			Vector3f lightDir = light.getDirection();
 			Vector3f sunPosition = new Vector3f(lightDir).negate().mul(sunDistance);
-			Mesh sunMesh = SphereGenerator.create(0.5f, RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
+			Mesh sunOutlineMesh = SphereGenerator.create(SUN_OUTLINE_RADIUS,
+					RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
+			SceneObject sunOutline = new SceneObject(sunOutlineMesh, sunPosition, outlineAppearance);
+			configureVisualizerObject(sunOutline, false);
+			visuals.add(sunOutline);
+
+			Mesh sunMesh = SphereGenerator.create(SUN_RADIUS,
+					RenderingConstants.HIGH_SEGMENT_COUNT, RenderingConstants.HIGH_SEGMENT_COUNT);
 			SceneObject sunVisual = new SceneObject(sunMesh, sunPosition, visualAppearance);
-			sunVisual.setSelectable(true);
+			configureVisualizerObject(sunVisual, true);
 
-			Mesh rayMesh = TubeGenerator.create(0.02f, 0.02f, 0, sunDistance, RenderingConstants.LOW_SEGMENT_COUNT, true);
-			SceneObject rayVisual = new SceneObject(rayMesh, new Vector3f(0,0,0), visualAppearance);
-			rayVisual.setSelectable(false); // The ray itself is not draggable.
+			Mesh rayOutlineMesh = TubeGenerator.create(RAY_OUTLINE_RADIUS, RAY_OUTLINE_RADIUS, 0, sunDistance,
+					RenderingConstants.LOW_SEGMENT_COUNT, true);
+			SceneObject rayOutline = new SceneObject(rayOutlineMesh, new Vector3f(0,0,0), outlineAppearance);
+			configureVisualizerObject(rayOutline, false);
+			visuals.add(rayOutline);
 
+			Mesh rayMesh = TubeGenerator.create(RAY_RADIUS, RAY_RADIUS, 0, sunDistance,
+					RenderingConstants.LOW_SEGMENT_COUNT, true);
+			SceneObject rayVisual = new SceneObject(rayMesh, new Vector3f(0,0,0), rayAppearance);
+			configureVisualizerObject(rayVisual, false);
+			visuals.add(rayVisual);
+
+			updateRayTransform(rayOutline, sunPosition);
 			updateRayTransform(rayVisual, sunPosition);
+
+			Mesh glyphCoreMesh = SphereGenerator.create(SUN_GLYPH_CORE_RADIUS,
+					RenderingConstants.LOW_SEGMENT_COUNT, RenderingConstants.LOW_SEGMENT_COUNT);
+			SceneObject glyphCore = new SceneObject(glyphCoreMesh, sunPosition, outlineAppearance);
+			configureVisualizerObject(glyphCore, false);
+			visuals.add(sunVisual);
+			visuals.add(glyphCore);
+
+			Mesh spokeMesh = TubeGenerator.create(SUN_SPOKE_RADIUS, SUN_SPOKE_RADIUS, 0, SUN_SPOKE_LENGTH,
+					RenderingConstants.LOW_SEGMENT_COUNT, true);
+			List<SceneObject> sunSpokes = new ArrayList<>();
+			for (int i = 0; i < SUN_SPOKE_COUNT; i++) {
+				SceneObject spoke = new SceneObject(spokeMesh, new Vector3f(0, 0, 0), outlineAppearance);
+				configureVisualizerObject(spoke, false);
+				sunSpokes.add(spoke);
+				visuals.add(spoke);
+			}
+				updateSunSpokes(sunSpokes, sunPosition, camera);
 
 			// Define the drag behavior for the sun sphere.
 			// This listener will update the light, the sun, AND the ray.
@@ -77,38 +133,67 @@ public class LightVisualizer {
 
 				Vector3f newDirection = new Vector3f(newSunPos).negate().normalize();
 				light.setDirection(newDirection.x, newDirection.y, newDirection.z);
+				sunOutline.setPosition(newSunPos);
 				sunVisual.setPosition(newSunPos);
+				glyphCore.setPosition(newSunPos);
 
-				// Also update the ray's transform to follow the sun ---
-				updateRayTransform(rayVisual, newSunPos);
-			});
-			visuals.add(sunVisual);
-			visuals.add(rayVisual);
+				// Update the spoke glyph and connecting ray to follow the sun.
+					updateSunSpokes(sunSpokes, newSunPos, camera);
+					updateRayTransform(rayOutline, newSunPos);
+					updateRayTransform(rayVisual, newSunPos);
+				});
+			}
+			return visuals;
 		}
-		return visuals;
-	}
 
-	public void updateVisualsForLight(Light light, List<SceneObject> visuals) {
+	public void updateVisualsForLight(Light light, List<SceneObject> visuals, Camera camera) {
 		if (visuals == null || visuals.isEmpty()) {
 			return;
 		}
 
 		if (light.getType() == Light.LightType.POINT) {
-			SceneObject pointVisual = visuals.get(0);
+			SceneObject pointOutline = visuals.get(0);
+			SceneObject pointVisual = visuals.get(1);
+			pointOutline.setPosition(light.getPosition());
 			pointVisual.setPosition(light.getPosition());
 			return;
 		}
 
-		if (visuals.size() < 2) {
+		if (visuals.size() < 3 + 2 + SUN_SPOKE_COUNT) {
 			return;
 		}
 
 		float sunDistance = 10.0f;
 		Vector3f sunPosition = new Vector3f(light.getDirection()).negate().mul(sunDistance);
-		SceneObject sunVisual = visuals.get(0);
-		SceneObject rayVisual = visuals.get(1);
+		SceneObject sunOutline = visuals.get(0);
+		SceneObject rayOutline = visuals.get(1);
+		SceneObject rayVisual = visuals.get(2);
+		SceneObject sunVisual = visuals.get(3);
+		SceneObject glyphCore = visuals.get(4);
+		List<SceneObject> sunSpokes = visuals.subList(5, 5 + SUN_SPOKE_COUNT);
+
+		updateSunSpokes(sunSpokes, sunPosition, camera);
+		sunOutline.setPosition(sunPosition);
 		sunVisual.setPosition(sunPosition);
+		glyphCore.setPosition(sunPosition);
 		updateRayTransform(rayVisual, sunPosition);
+		updateRayTransform(rayOutline, sunPosition);
+	}
+
+	private static Appearance3D createVisualizerAppearance(Vector3f color) {
+		return createVisualizerAppearance(color, 1.0f);
+	}
+
+	private static Appearance3D createVisualizerAppearance(Vector3f color, float opacity) {
+		Appearance3D appearance = new Appearance3D(color);
+		appearance.setUnlit(true);
+		appearance.setOpacity(opacity);
+		return appearance;
+	}
+
+	private static void configureVisualizerObject(SceneObject object, boolean selectable) {
+		object.setSelectable(selectable);
+		object.setRenderOnTop(true);
 	}
 
 	/**
@@ -126,7 +211,36 @@ public class LightVisualizer {
 		// The center of the ray should be halfway between the origin and the sun.
 		Vector3f rayCenter = new Vector3f(sunPosition).mul(0.5f);
 
-		Matrix4f modelMatrix = ray.getModelMatrix();
+		updateSegmentTransform(ray, rayCenter, targetDir);
+	}
+
+	private void updateSunSpokes(List<SceneObject> sunSpokes, Vector3f sunPosition, Camera camera) {
+		Vector3f planeNormal = new Vector3f(camera.getPosition()).sub(sunPosition);
+		if (planeNormal.lengthSquared() < 1.0e-6f) {
+			planeNormal.set(0.0f, 0.0f, 1.0f);
+		} else {
+			planeNormal.normalize();
+		}
+		Vector3f basisU = new Vector3f(planeNormal).cross(0.0f, 1.0f, 0.0f);
+		if (basisU.lengthSquared() < 1.0e-6f) {
+			basisU.set(planeNormal).cross(1.0f, 0.0f, 0.0f);
+		}
+		basisU.normalize();
+		Vector3f basisV = new Vector3f(planeNormal).cross(basisU).normalize();
+
+		float baseDistance = SUN_GLYPH_CORE_RADIUS + SUN_SPOKE_GAP + SUN_SPOKE_LENGTH * 0.5f;
+		for (int i = 0; i < sunSpokes.size(); i++) {
+			float angle = (float) (Math.PI * 2.0 * i / sunSpokes.size());
+			Vector3f spokeDir = new Vector3f(basisU).mul((float) Math.cos(angle))
+					.add(new Vector3f(basisV).mul((float) Math.sin(angle)))
+					.normalize();
+			Vector3f spokeCenter = new Vector3f(sunPosition).fma(baseDistance, spokeDir);
+			updateSegmentTransform(sunSpokes.get(i), spokeCenter, spokeDir);
+		}
+	}
+
+	private void updateSegmentTransform(SceneObject segment, Vector3f segmentCenter, Vector3f targetDir) {
+		Matrix4f modelMatrix = segment.getModelMatrix();
 
 		// The TubeGenerator creates a cylinder along the +X axis. We need a rotation that aims it along the targetDir.
 		// JOML's rotationTowards method rotates from the +Z axis. So, we first apply a corrective
@@ -138,7 +252,7 @@ public class LightVisualizer {
 		// Build the final transform: first translate to the center, then apply the rotation.
 		// This ensures the cylinder pivots correctly around its center point.
 		modelMatrix.identity()
-				.translate(rayCenter)
+				.translate(segmentCenter)
 				.mul(finalRotation);
 	}
 }
