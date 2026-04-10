@@ -242,7 +242,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			m.setPaint(color);
 			m.setLabelPaint(color);
 			m.setAlpha(0.7f);
-			m.setLabelFont(new Font("Dialog", Font.PLAIN, 13));
+			m.setLabelFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 13.0f, 0.0f));
 			plot.addDomainMarker(m);
 
 			if (t > plot.getDomainAxis().getUpperBound() - markerWidth) {
@@ -435,7 +435,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 			if (!abortString.toString().isEmpty()) {
 				TextTitle abortsTitle = new TextTitle(abortString.toString(),
-													  new Font(Font.SANS_SERIF, Font.BOLD, 14),
+													  GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 14.0f, 0.0f),
 													  UITheme.getColor(UITheme.Keys.ERROR),
 													  RectangleEdge.TOP,
 													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
@@ -492,4 +492,3 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		}
 	}
 }
-

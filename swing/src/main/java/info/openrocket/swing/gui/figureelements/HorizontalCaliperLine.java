@@ -124,9 +124,8 @@ public class HorizontalCaliperLine implements FigureElement {
 		// Update fonts
 		float handleFontSize = (float) (BASE_HANDLE_LABEL_FONT_SIZE * scale);
 		float indicatorFontSize = (float) (BASE_INDICATOR_LABEL_FONT_SIZE * scale);
-		Font baseFont = new Font(Font.SANS_SERIF, Font.BOLD, 12); // Base font
-		HANDLE_LABEL_FONT = baseFont.deriveFont(Font.BOLD, handleFontSize);
-		INDICATOR_LABEL_FONT = baseFont.deriveFont(Font.BOLD, indicatorFontSize);
+		HANDLE_LABEL_FONT = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, handleFontSize, 0.0f);
+		INDICATOR_LABEL_FONT = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, indicatorFontSize, 0.0f);
 	}
 
 	/**
@@ -577,4 +576,3 @@ public class HorizontalCaliperLine implements FigureElement {
 		g2Screen.drawString(hint, (float) hintX, (float) hintY);
 	}
 }
-

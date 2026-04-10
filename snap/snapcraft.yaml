@@ -8,17 +8,11 @@ license: GPL-3.0-only
 summary: A free, fully featured model rocket simulator.
 description: |
   OpenRocket is a free, fully featured model rocket simulator.
-source-code:
-  - https://github.com/openrocket/openrocket
-contact:
-  - https://openrocket.info/contact.html
-website:
-  - https://openrocket.info/
-issues:
-  - https://github.com/openrocket/openrocket/issues
-donation:
-  - https://openrocket.info/donate.html
-  - https://opencollective.com/openrocket#category-CONTRIBUTE
+source-code: https://github.com/openrocket/openrocket
+contact: https://openrocket.info/contact.html
+website: https://openrocket.info/
+issues: https://github.com/openrocket/openrocket/issues
+donation: https://openrocket.info/donate.html
 
 architectures:
   - build-on: [amd64]

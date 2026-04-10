@@ -6,7 +6,9 @@ export DESKTOP_SESSION=gnome
 export XDG_SESSION_DESKTOP=gnome
 export XDG_CURRENT_DESKTOP=GNOME
 
-JAVA_OPTS="-Dsun.java2d.xrender=true -Dprism.useFontConfig=false -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dswing.crossplatformlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Djava.io.tmpdir=$SNAP_USER_COMMON"
+# OpenRocket now manages its own FlatLaf look-and-feel and bundled UI fonts.
+# Keep Snap launcher options limited to generic rendering and sandbox paths.
+JAVA_OPTS="-Dsun.java2d.xrender=true -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Djava.io.tmpdir=$SNAP_USER_COMMON"
 
 ARCH="$(uname -m)"
 GC_OPTS=""
@@ -46,7 +48,4 @@ if ! snapctl is-connected dot-openrocket 2>/dev/null; then
 fi
 
 export _JAVA_OPTIONS=$JAVA_OPTS
-# Fix font / theme
-export JAVA_FONTS=$SNAP/usr/share/fonts/truetype
 exec $JAVA_BIN $GC_OPTS -jar $SNAP/OpenRocket.jar "$@"
-

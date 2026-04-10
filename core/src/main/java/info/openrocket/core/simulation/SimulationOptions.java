@@ -687,6 +687,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.geodeticComputation = src.geodeticComputation;
 		}
+		if (this.stepperMethodChoice != src.stepperMethodChoice) {
+			isChanged = true;
+			this.stepperMethodChoice = src.stepperMethodChoice;
+		}
 
 		if (!Objects.equals(this.dragLookupCsvPath, src.dragLookupCsvPath) || this.dragLookupTable != src.dragLookupTable) {
 			isChanged = true;
@@ -730,6 +734,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.maxSimulationTime, o.maxSimulationTime)) &&
+				this.stepperMethodChoice == o.stepperMethodChoice &&
 				this.windModelType == o.windModelType &&
 				this.averageWindModel.equals(o.averageWindModel) &&
 				this.multiLevelPinkNoiseWindModel.equals(o.multiLevelPinkNoiseWindModel) &&
@@ -832,6 +837,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    timeStep:  %f\n", timeStep))
 				.concat(String.format("    maxTime:  %f\n", maxSimulationTime))
 				.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
+				.concat(String.format("    stepperMethodChoice: %s\n", stepperMethodChoice))
 				.concat("]\n");
 	}
 

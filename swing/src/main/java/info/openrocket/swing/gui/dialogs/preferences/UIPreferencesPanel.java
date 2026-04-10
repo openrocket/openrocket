@@ -40,10 +40,10 @@ public class UIPreferencesPanel extends PreferencesPanel {
 
 	// Font weight options
 	public enum FontStyle {
-		LIGHT("Light", "Inter-Regular_Light"),
-		REGULAR("Regular", "Inter-Regular"),
-		MEDIUM("Medium", "Inter-Regular_Medium"),
-		BOLD("Bold", "Inter-Regular_Bold");
+		LIGHT("Light", GUIUtil.UI_FONT_STYLE_LIGHT),
+		REGULAR("Regular", GUIUtil.UI_FONT_STYLE_REGULAR),
+		MEDIUM("Medium", GUIUtil.UI_FONT_STYLE_MEDIUM),
+		BOLD("Bold", GUIUtil.UI_FONT_STYLE_BOLD);
 
 		private final String displayName;
 		private final String fontName;

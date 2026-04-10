@@ -453,10 +453,16 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	/**
 	 * Get the current font style used for the UI.
-	 * @return the current style weight (e.g. "Inter-Regular")
+	 * Legacy preference values are normalized to the canonical Inter style IDs when read.
+	 * @return the canonical stored style identifier
 	 */
 	public String getUIFontStyle() {
-		return getString(UI_FONT_STYLE, UIPreferencesPanel.FontStyle.REGULAR.getFontName());
+		String fontStyle = getString(UI_FONT_STYLE, UIPreferencesPanel.FontStyle.REGULAR.getFontName());
+		String normalizedFontStyle = normalizeUIFontStyle(fontStyle);
+		if (!normalizedFontStyle.equals(fontStyle)) {
+			putString(UI_FONT_STYLE, normalizedFontStyle);
+		}
+		return normalizedFontStyle;
 	}
 
 	/**
@@ -464,7 +470,32 @@ public class SwingPreferences extends ApplicationPreferences {
 	 * @param fontWeight the font weight to set
 	 */
 	public void setUIFontStyle(String fontWeight) {
-		putString(UI_FONT_STYLE, fontWeight);
+		putString(UI_FONT_STYLE, normalizeUIFontStyle(fontWeight));
+	}
+
+	/**
+	 * Converts legacy font identifiers to the canonical IDs used by the current UI.
+	 */
+	private static String normalizeUIFontStyle(String fontStyle) {
+		if ("Inter-Regular_Light".equals(fontStyle)) {
+			return GUIUtil.UI_FONT_STYLE_LIGHT;
+		}
+		if ("Inter-Regular_Medium".equals(fontStyle)) {
+			return GUIUtil.UI_FONT_STYLE_MEDIUM;
+		}
+		if ("Inter-Regular_Bold".equals(fontStyle)) {
+			return GUIUtil.UI_FONT_STYLE_BOLD;
+		}
+		if ("Inter-Regular".equals(fontStyle)) {
+			return GUIUtil.UI_FONT_STYLE_REGULAR;
+		}
+
+		for (UIPreferencesPanel.FontStyle style : UIPreferencesPanel.FontStyle.values()) {
+			if (style.getFontName().equals(fontStyle)) {
+				return fontStyle;
+			}
+		}
+		return GUIUtil.UI_FONT_STYLE_REGULAR;
 	}
 
 	/**

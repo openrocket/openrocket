@@ -9,6 +9,7 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.DecimalFormatter;
 import org.jfree.chart.ChartFactory;
@@ -92,8 +93,10 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				/*tooltips*/true,
 				/*urls*/false
 		);
-		this.chart.addSubtitle(new TextTitle(Util.formatHTMLString(config.getName())));
-		this.chart.getTitle().setFont(new Font("Dialog", Font.BOLD, 23));
+		TextTitle subtitle = new TextTitle(Util.formatHTMLString(config.getName()));
+		this.chart.addSubtitle(subtitle);
+		this.chart.getTitle().setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 23.0f, 0.0f));
+		subtitle.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 14.0f, 0.0f));
 		this.chart.setBackgroundPaint(new Color(240, 240, 240));
 		this.legendItems = new LegendItems();
 		LegendTitle legend = new LegendTitle(this.legendItems);
@@ -189,7 +192,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				NumberAxis axis = new PresetNumberAxis(min, max);
 				axis.setLabel(axisLabel[axisno]);
 				plot.setRangeAxis(axisno, axis);
-				axis.setLabelFont(new Font("Dialog", Font.BOLD, 14));
+				axis.setLabelFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 14.0f, 0.0f));
 
 				double domainMin = data[axisno].getDomainLowerBound(true);
 				double domainMax = data[axisno].getDomainUpperBound(true);
@@ -281,7 +284,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		plot.addDomainMarker(new ValueMarker(0));
 		plot.addRangeMarker(new ValueMarker(0));
 
-		plot.getDomainAxis().setLabelFont(new Font("Dialog", Font.BOLD, 14));
+		plot.getDomainAxis().setLabelFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 14.0f, 0.0f));
 	}
 
 	protected String getNameBasedOnIdxAndSeries(MetadataXYSeries ser, int dataIdx) {

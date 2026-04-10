@@ -166,6 +166,19 @@ public class SimulationTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testCopySimulationOptionsFromCopiesStepperMethodChoice() {
+		Simulation target = new Simulation(rocket);
+		target.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+		target.copySimulationOptionsFrom(simulation.getOptions());
+
+		assertEquals(SimulationStepperMethod.RK6,
+				target.getOptions().getSimulationStepperMethodChoice(),
+				"Bulk option copies must preserve the selected simulation stepper");
+	}
+
+	@Test
 	public void testAltitudeAboveSeaLevel() throws SimulationException {
 		double launchAltitude = 123;
 		simulation.getOptions().setLaunchAltitude(launchAltitude);
