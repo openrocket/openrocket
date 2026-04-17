@@ -937,6 +937,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						"On Wayland systems this requires XWayland to be running — " +
 						"ensure DISPLAY is set (e.g. DISPLAY=:0) or use a session that " +
 						"provides XWayland. Cause: {}", msg);
+			} else if (!glInitialized) {
+				log.error("3D view disabled: OpenGL context initialization failed. " +
+						"OpenGL 3.3 Core Profile is required. This can occur in virtual machines " +
+						"(e.g. VirtualBox, VMware) or with outdated graphics drivers. Cause: {}", msg, t);
 			} else {
 				log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
 				reportFatalRenderException(t);
