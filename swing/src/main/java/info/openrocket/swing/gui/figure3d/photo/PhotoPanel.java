@@ -2,6 +2,8 @@ package info.openrocket.swing.gui.figure3d.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
@@ -36,10 +38,13 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -54,6 +59,7 @@ import java.util.function.Consumer;
 public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Client {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
+	private static final Translator trans = Application.getTranslator();
 	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
 	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private static final double CAMERA_SETTINGS_EPSILON = 1.0e-6;
@@ -241,6 +247,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		glPanel = panel;
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		glPanel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		glPanel.setGlInitFailureCallback(() -> SwingUtilities.invokeLater(() -> showGLInitFailureUI(panel)));
 		attachInteractionSyncListener(glPanel);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		invalidateCachedSceneState();
@@ -419,6 +426,19 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		return "PhotoPanel";
 	}
 
+	private void showGLInitFailureUI(GLScenePanel failedPanel) {
+		if (glPanel == failedPanel) {
+			disposeCurrentCanvas(failedPanel);
+		}
+		JLabel label = new JLabel(trans.get("PhotoPanel.glInitFailed"));
+		label.setHorizontalAlignment(SwingConstants.CENTER);
+		JPanel fallback = new JPanel(new GridBagLayout());
+		fallback.add(label);
+		add(fallback, BorderLayout.CENTER);
+		revalidate();
+		repaint();
+	}
+
 	private void requestCanvasRebuild(GLScenePanel failedPanel) {
 		pendingCanvasRebuild.compareAndSet(null, failedPanel);
 	}
@@ -463,6 +483,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		glPanel = panel;
 		panel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		panel.setGlInitFailureCallback(() -> SwingUtilities.invokeLater(() -> showGLInitFailureUI(panel)));
 		attachInteractionSyncListener(panel);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		invalidateCachedSceneState();

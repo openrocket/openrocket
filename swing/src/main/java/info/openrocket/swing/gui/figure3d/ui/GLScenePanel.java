@@ -208,6 +208,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final AtomicBoolean startupBlankFramebufferRecoveryRequested = new AtomicBoolean(false);
 	private volatile int startupBlankFramebufferFrames = 0;
 	private volatile Runnable blankDefaultFramebufferCallback;
+	private volatile Runnable glInitFailureCallback;
 	private volatile Window ancestorWindow;
 	private final WindowAdapter ancestorWindowListener = new WindowAdapter() {
 		@Override
@@ -365,6 +366,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public void setBlankDefaultFramebufferCallback(Runnable callback) {
 		this.blankDefaultFramebufferCallback = callback;
+	}
+
+	public void setGlInitFailureCallback(Runnable callback) {
+		this.glInitFailureCallback = callback;
 	}
 
 	private void markRenderActivity() {
@@ -931,20 +936,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 				glInitFailed = true;
 				String msg = t.getMessage();
-				if ((t instanceof IllegalStateException || t instanceof RuntimeException)
-					&& msg != null && (msg.contains("GLX") || msg.contains("glX"))) {
-				log.error("3D view disabled: OpenGL/GLX initialization failed. " +
-						"On Wayland systems this requires XWayland to be running — " +
-						"ensure DISPLAY is set (e.g. DISPLAY=:0) or use a session that " +
-						"provides XWayland. Cause: {}", msg);
-			} else if (!glInitialized) {
-				log.error("3D view disabled: OpenGL context initialization failed. " +
-						"OpenGL 3.3 Core Profile is required. This can occur in virtual machines " +
-						"(e.g. VirtualBox, VMware) or with outdated graphics drivers. Cause: {}", msg, t);
-			} else {
-				log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
-				reportFatalRenderException(t);
-			}
+				if (!glInitialized) {
+					log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", msg, t);
+					Runnable failureCallback = glInitFailureCallback;
+					if (failureCallback != null) {
+						failureCallback.run();
+					}
+				} else {
+					log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
+					reportFatalRenderException(t);
+				}
 		} finally {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				RENDER_LOCK.unlock();
