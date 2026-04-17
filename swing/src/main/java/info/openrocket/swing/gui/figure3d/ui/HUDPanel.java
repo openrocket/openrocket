@@ -138,18 +138,18 @@ public class HUDPanel extends JPanel {
 		FlightConfiguration currentConfiguration = rocket.getSelectedConfiguration();
 		rocketInfo.setCurrentConfig(currentConfiguration);
 		rocketInfo.setCalculatingData(false);
-		if (document == null) {
-			return;
-		}
 
 		WarningSet warnings = new WarningSet();
 		FlightConditions conditions = new FlightConditions(currentConfiguration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
 		conditions.setAOA(0);
 		conditions.setRollRate(0);
-		RocketInfoContextHelper.calculateCp(currentConfiguration, conditions, warnings, aerodynamicCalculator, true);
-		rocketInfo.setWarnings(warnings);
-		RocketInfoContextHelper.applyCurrentConfigurationSimulation(document, currentConfiguration, rocketInfo);
+		RocketInfoContextHelper.computePhysics(currentConfiguration, conditions, warnings,
+				aerodynamicCalculator, true, rocketInfo);
+
+		if (document != null) {
+			RocketInfoContextHelper.applyCurrentConfigurationSimulation(document, currentConfiguration, rocketInfo);
+		}
 	}
 
 	/**

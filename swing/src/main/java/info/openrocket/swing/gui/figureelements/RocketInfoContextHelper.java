@@ -5,9 +5,14 @@ import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.MathUtil;
 
 /**
  * Shared helpers for populating {@link RocketInfo} from the current document/configuration context.
@@ -15,6 +20,51 @@ import info.openrocket.core.util.CoordinateIF;
 public final class RocketInfoContextHelper {
 
 	private RocketInfoContextHelper() {
+	}
+
+	/**
+	 * Computed physical properties of a rocket configuration.
+	 * The 2D view uses {@code cp} and {@code cg} for caret positioning; both views
+	 * use {@code length} to guard figure-level updates.
+	 */
+	public record RocketPhysics(CoordinateIF cp, CoordinateIF cg, double length) {}
+
+	/**
+	 * Computes the physical properties of {@code configuration} (length, diameter,
+	 * CG, CP, mass) and applies them to {@code rocketInfo}.  Returns the raw CP/CG
+	 * vectors and rocket length so callers can do view-specific work (e.g. 2D
+	 * projection, caret positioning) without re-computing.
+	 */
+	public static RocketPhysics computePhysics(
+			FlightConfiguration configuration,
+			FlightConditions conditions,
+			WarningSet warnings,
+			AerodynamicCalculator aerodynamicCalculator,
+			boolean useWorstCp,
+			RocketInfo rocketInfo) {
+
+		double length = configuration.getLength();
+
+		double diameter = Double.NaN;
+		for (RocketComponent c : configuration.getCoreComponents()) {
+			if (c instanceof SymmetricComponent sc) {
+				diameter = MathUtil.max(diameter, sc.getForeRadius() * 2, sc.getAftRadius() * 2);
+			}
+		}
+
+		CoordinateIF cp = calculateCp(configuration, conditions, warnings, aerodynamicCalculator, useWorstCp);
+		CoordinateIF cg = MassCalculator.calculateLaunch(configuration).getCM();
+		RigidBody emptyInfo = MassCalculator.calculateStructure(configuration);
+
+		rocketInfo.setLength(length);
+		rocketInfo.setDiameter(diameter);
+		rocketInfo.setCG(cg.getWeight() > MassCalculator.MIN_MASS ? cg.getX() : 0);
+		rocketInfo.setCP(cp.getWeight() > MathUtil.EPSILON ? cp.getX() : 0);
+		rocketInfo.setMassWithMotors(cg.getWeight());
+		rocketInfo.setMassWithoutMotors(emptyInfo.getMass());
+		rocketInfo.setWarnings(warnings);
+
+		return new RocketPhysics(cp, cg, length);
 	}
 
 	public static CoordinateIF calculateCp(

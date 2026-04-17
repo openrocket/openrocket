@@ -1504,51 +1504,29 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (!Double.isNaN(cpTheta)) {
 			conditions.setTheta(cpTheta);
-			cp = RocketInfoContextHelper.calculateCp(curConfig, conditions, warnings, aerodynamicCalculator, false);
-		} else {
-			cp = RocketInfoContextHelper.calculateCp(curConfig, conditions, warnings, aerodynamicCalculator, true);
 		}
 		extraText.setTheta(cpTheta);
+		RocketInfoContextHelper.RocketPhysics physics = RocketInfoContextHelper.computePhysics(
+				curConfig, conditions, warnings, aerodynamicCalculator, Double.isNaN(cpTheta), extraText);
+		cp = physics.cp();
+		cg = physics.cg();
+		double length = physics.length();
+		if (this.showWarnings != null) {
+			extraText.setShowWarnings(showWarnings.isSelected());
+		}
 		if (cp.getWeight() > MathUtil.EPSILON) {
 			cpx = cp.getX();
 			// map the 3D value into the 2D Display Panel
 			cpy = cp.getY() * Math.cos(rotation) + cp.getZ() * Math.sin(rotation);
 		}
-
-		cg = MassCalculator.calculateLaunch(curConfig).getCM();
 		if (cg.getWeight() > MassCalculator.MIN_MASS) {
 			cgx = cg.getX();
 			// map the 3D value into the 2D Display Panel
 			cgy = cg.getY() * Math.cos(rotation) + cg.getZ() * Math.sin(rotation);
 		}
-
 		// We need to flip the y coordinate if we are in top view
 		if (figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.TopView) {
 			cgy = -cgy;
-		}
-
-		double length = curConfig.getLength();
-
-		double diameter = Double.NaN;
-		for (RocketComponent c : curConfig.getCoreComponents()) {
-			if (c instanceof SymmetricComponent) {
-				double d1 = ((SymmetricComponent) c).getForeRadius() * 2;
-				double d2 = ((SymmetricComponent) c).getAftRadius() * 2;
-				diameter = MathUtil.max(diameter, d1, d2);
-			}
-		}
-
-		RigidBody emptyInfo = MassCalculator.calculateStructure(curConfig);
-
-		extraText.setCG(cgx);
-		extraText.setCP(cpx);
-		extraText.setLength(length);
-		extraText.setDiameter(diameter);
-		extraText.setMassWithMotors(cg.getWeight());
-		extraText.setMassWithoutMotors(emptyInfo.getMass());
-		extraText.setWarnings(warnings);
-		if (this.showWarnings != null) {
-			extraText.setShowWarnings(showWarnings.isSelected());
 		}
 
 		if (length > 0) {
