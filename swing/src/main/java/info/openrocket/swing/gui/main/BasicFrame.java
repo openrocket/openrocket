@@ -350,6 +350,7 @@ private static final Translator trans = Application.getTranslator();
 
 		this.validate();
 		vertical.setDividerLocation(0.4);
+		designPanel.setDividerLocation(0.4);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
