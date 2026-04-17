@@ -74,7 +74,8 @@ public class CaretsPass implements RenderPass {
     private final Rocket rocket;
     private Vector3f cgPosition = new Vector3f();
     private Vector3f cpPosition = new Vector3f();
-    private static final float FIXED_SCREEN_SCALE = 0.06f;
+    private static final float FIXED_SCREEN_SCALE = 42.0f;
+    private int viewportHeight = 1;
     private boolean cgValid = false;
     private boolean cpValid = false;
     private final Runnable uiThemeListener;
@@ -149,6 +150,7 @@ public class CaretsPass implements RenderPass {
         shader.setUniform("viewMatrix", viewMatrix);
         shader.setUniform("scaleWithView", config.getVisualEffects().isCaretScaleWithView() ? 1.0f : 0.0f);
         shader.setUniform("fixedScaleFactor", FIXED_SCREEN_SCALE);
+        shader.setUniform("viewportHeight", (float) viewportHeight);
 
         if (cgValid) {
             // Render CG
@@ -169,7 +171,7 @@ public class CaretsPass implements RenderPass {
 
     @Override
     public void resize(int width, int height) {
-        // No-op
+        this.viewportHeight = Math.max(1, height);
     }
 
     @Override

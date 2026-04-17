@@ -25,7 +25,8 @@ import static org.lwjgl.opengl.GL11.glEnable;
  */
 public class CameraPointOfInterestPass implements RenderPass {
 
-	private static final float FIXED_SCREEN_SCALE = 0.05f;
+	private static final float FIXED_SCREEN_SCALE = 25.0f;
+	private int viewportHeight = 1;
 
 	private final ShaderProgram shader;
 	private final Renderable markerMesh;
@@ -65,13 +66,14 @@ public class CameraPointOfInterestPass implements RenderPass {
 		shader.setUniform("color", markerColor);
 		shader.setUniform("scaleWithView", 0.0f);
 		shader.setUniform("fixedScaleFactor", FIXED_SCREEN_SCALE);
+		shader.setUniform("viewportHeight", (float) viewportHeight);
 		markerMesh.render();
 		glEnable(GL_DEPTH_TEST);
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// No-op
+		this.viewportHeight = Math.max(1, height);
 	}
 
 	@Override

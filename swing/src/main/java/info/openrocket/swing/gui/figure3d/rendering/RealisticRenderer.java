@@ -249,7 +249,9 @@ public class RealisticRenderer implements Renderer {
         geometryPasses.add(new BackgroundPass(textureStateManager));
         geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms, renderStats));
         this.caretsPass = new CaretsPass(rocket, config);
+        this.caretsPass.resize(initialWidth, initialHeight);
         this.cameraPointOfInterestPass = new CameraPointOfInterestPass(config);
+        this.cameraPointOfInterestPass.resize(initialWidth, initialHeight);
 
         // Initialize Post-Processing Passes
         this.ambientOcclusionPass = new AmbientOcclusionPass(screenQuadVAO, textureStateManager,
