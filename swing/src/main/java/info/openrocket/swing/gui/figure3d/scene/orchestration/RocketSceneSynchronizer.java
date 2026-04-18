@@ -102,7 +102,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		// Check for changes that only affect rendered appearance and not geometry/structure.
 		// These can be handled with a lightweight update and should not reset the camera.
 		if (isAppearanceOnlySceneChange(e)) {
-			queueAppearanceUpdate(e.getSource());
+			queueAppearanceUpdates(e.getSource());
 		} else {
 			queueRebuild(requestedCameraUpdate);
 		}
@@ -135,6 +135,21 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	public void dispose() {
 		rocket.removeComponentChangeListener(this);
 		pendingAppearanceUpdates.clear();
+	}
+
+	private void queueAppearanceUpdates(RocketComponent component) {
+		if (component == null) {
+			return;
+		}
+
+		queueAppearanceUpdate(component);
+
+		// Multi-component edits only emit a change event from the primary component.
+		// The additional selected components sit in configListeners with bypassed
+		// component events, so their scene objects must be refreshed explicitly.
+		for (RocketComponent listener : component.getConfigListeners()) {
+			queueAppearanceUpdate(listener);
+		}
 	}
 
 	private void queueAppearanceUpdate(RocketComponent component) {

@@ -1,0 +1,61 @@
+package info.openrocket.swing.gui.figure3d.scene.orchestration;
+
+import info.openrocket.core.appearance.Appearance;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.ORColor;
+import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
+import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.util.BaseTestCase;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class RocketSceneSynchronizerTest extends BaseTestCase {
+
+	@Test
+	void appearanceOnlyMultiEditRefreshesConfigListeners() {
+		RocketComponent primary = mock(RocketComponent.class);
+		RocketComponent listener = mock(RocketComponent.class);
+		when(primary.getConfigListeners()).thenReturn(List.of(listener));
+		when(listener.getConfigListeners()).thenReturn(Collections.emptyList());
+		when(primary.getAppearance()).thenReturn(new Appearance(new ORColor(0, 0, 255), 0.3));
+		when(listener.getAppearance()).thenReturn(new Appearance(new ORColor(0, 128, 255), 0.3));
+
+		SceneObject primaryObject = mock(SceneObject.class);
+		Appearance3D primaryAppearance = new Appearance3D();
+		when(primaryObject.getRocketComponent()).thenReturn(primary);
+		when(primaryObject.getAppearance()).thenReturn(primaryAppearance);
+
+		SceneObject listenerObject = mock(SceneObject.class);
+		Appearance3D listenerAppearance = new Appearance3D();
+		when(listenerObject.getRocketComponent()).thenReturn(listener);
+		when(listenerObject.getAppearance()).thenReturn(listenerAppearance);
+
+		SceneView scene = mock(SceneView.class);
+		when(scene.getObjects()).thenReturn(List.of(primaryObject, listenerObject));
+
+		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
+		doAnswer(invocation -> {
+			Runnable task = invocation.getArgument(0);
+			task.run();
+			return null;
+		}).when(orchestrator).enqueueGlTask(any(Runnable.class));
+
+		Rocket rocket = new Rocket();
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket);
+		synchronizer.componentChanged(new ComponentChangeEvent(primary, ComponentChangeEvent.NONFUNCTIONAL_CHANGE));
+
+		verify(primaryObject).setAppearance(primaryAppearance);
+		verify(listenerObject).setAppearance(listenerAppearance);
+	}
+}
