@@ -7,6 +7,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.core.geometry.RocketSceneSnapshot;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.core.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
@@ -50,7 +51,11 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final Rocket rocket;
 	private final ConcurrentLinkedQueue<RocketComponent> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
-	private final AtomicBoolean rebuildQueued = new AtomicBoolean(false);
+	// Holds the most recently captured rocket snapshot waiting to be applied on the GL thread.
+	// The invariant is: pendingSnapshot != null  iff  exactly one apply task is currently
+	// queued for it. New rebuild requests overwrite the pending snapshot so the GL thread
+	// always applies the freshest state without ever needing to read the rocket model itself.
+	private final AtomicReference<RocketSceneSnapshot> pendingSnapshot = new AtomicReference<>();
 	private final AtomicReference<CameraUpdateBehavior> pendingCameraUpdateBehavior =
 			new AtomicReference<>(CameraUpdateBehavior.NONE);
 	private volatile FlightConfigurationId lastSelectedConfigurationId;
@@ -153,7 +158,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private void queueAppearanceUpdate(RocketComponent component) {
-		if (component == null || rebuildQueued.get()) {
+		if (component == null || pendingSnapshot.get() != null) {
 			return;
 		}
 		pendingAppearanceUpdates.add(component);
@@ -164,7 +169,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	private void flushAppearanceUpdates() {
 		try {
-			if (rebuildQueued.get()) {
+			if (pendingSnapshot.get() != null) {
 				pendingAppearanceUpdates.clear();
 				return;
 			}
@@ -174,7 +179,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			}
 		} finally {
 			appearanceQueued.set(false);
-			if (!pendingAppearanceUpdates.isEmpty() && !rebuildQueued.get()) {
+			if (!pendingAppearanceUpdates.isEmpty() && pendingSnapshot.get() == null) {
 				if (appearanceQueued.compareAndSet(false, true)) {
 					scene3DOrchestrator.enqueueGlTask(this::flushAppearanceUpdates);
 				}
@@ -194,17 +199,27 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	private void queueRebuild(CameraUpdateBehavior requestedCameraUpdate) {
 		pendingCameraUpdateBehavior.accumulateAndGet(requestedCameraUpdate, CameraUpdateBehavior::merge);
-		if (!rebuildQueued.compareAndSet(false, true)) {
+
+		// Capture the rocket on the calling thread (the EDT, inside fireComponentChangeEvent's
+		// mutex) so the GL thread never reads mid-edit model state. If a snapshot is already
+		// pending, we just replace it — the queued GL task will pick up the latest one.
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket,
+				scene3DOrchestrator.getRenderingConfiguration());
+		RocketSceneSnapshot previous = pendingSnapshot.getAndSet(snapshot);
+		if (previous != null) {
 			return;
 		}
-		scene3DOrchestrator.enqueueGlTask(() -> {
-			try {
-				pendingAppearanceUpdates.clear();
-				rebuildRocketScene(pendingCameraUpdateBehavior.getAndSet(CameraUpdateBehavior.NONE));
-			} finally {
-				rebuildQueued.set(false);
-			}
-		});
+
+		scene3DOrchestrator.enqueueGlTask(this::flushRebuild);
+	}
+
+	private void flushRebuild() {
+		pendingAppearanceUpdates.clear();
+		RocketSceneSnapshot snapshot = pendingSnapshot.getAndSet(null);
+		if (snapshot == null) {
+			return;
+		}
+		applyRebuildSnapshot(snapshot, pendingCameraUpdateBehavior.getAndSet(CameraUpdateBehavior.NONE));
 	}
 
 	/**
@@ -271,7 +286,17 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		rebuildRocketScene(refocusCamera ? CameraUpdateBehavior.REFIT_IF_FIT : CameraUpdateBehavior.NONE);
 	}
 
+	// Synchronous rebuild on the calling thread, used by external one-shot triggers
+	// (Photo Studio settings, display dialogs, init) that arrange to be on the GL thread
+	// and depend on the scene being fully rebuilt before this returns. The snapshot is
+	// just an intermediate data structure here — it does not change threading semantics.
 	private void rebuildRocketScene(CameraUpdateBehavior cameraUpdateBehavior) {
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket,
+				scene3DOrchestrator.getRenderingConfiguration());
+		applyRebuildSnapshot(snapshot, cameraUpdateBehavior);
+	}
+
+	private void applyRebuildSnapshot(RocketSceneSnapshot snapshot, CameraUpdateBehavior cameraUpdateBehavior) {
 		lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
 		boolean hadSelection = !scene.getSelectedObjects().isEmpty();
 		Set<RocketComponent> selectedRocketComponents = captureSelectedRocketComponents();
@@ -304,8 +329,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		}
 		scene.getParticleEmitters().clear();
 
-		// Finally, tell the RocketMeshBuilder to recreate the rocket objects from the current rocket state.
-		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
+		// Apply the prebuilt snapshot — meshes and transforms are already computed against a
+		// consistent view of the rocket, so this never touches the live model on the GL thread.
+		RocketMeshBuilder.applySnapshot(scene, snapshot, scene3DOrchestrator.getRenderingConfiguration());
 		scene3DOrchestrator.applyRocketRotationToScene();
 		restoreSelectionAfterRebuild(hadSelection, selectedRocketComponents, persistentSelection);
 		if (cameraUpdateBehavior == CameraUpdateBehavior.RESET) {

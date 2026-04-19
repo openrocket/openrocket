@@ -45,6 +45,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -87,30 +88,86 @@ public abstract class RocketMeshBuilder {
 
 	/**
 	 * Populates the given scene with meshes generated from a Rocket data model.
-	 * 
+	 *
 	 * <p>This is the main entry point for converting a complete rocket design into 3D geometry.
 	 * It processes all visible components in the rocket hierarchy, generates appropriate meshes
 	 * for each component type, and adds them to the scene with correct positioning and scaling.</p>
-	 * 
+	 *
+	 * <p>This convenience method reads the rocket model on the calling thread; for incremental
+	 * rebuilds where the model is being concurrently edited (e.g. slider drags) the rocket read
+	 * and the scene mutation should be split between threads using
+	 * {@link #buildSnapshot(Rocket, RenderingConfiguration)} on the EDT and
+	 * {@link #applySnapshot(SceneView, RocketSceneSnapshot, RenderingConfiguration)} on the GL thread.</p>
+	 *
 	 * @param scene The scene to add the generated mesh objects to
 	 * @param rocket The rocket data model containing all component definitions
 	 * @param config The rendering configuration specifying visual options and quality settings
 	 */
 	public static void buildRocketMesh(SceneView scene, Rocket rocket, RenderingConfiguration config) {
+		applySnapshot(scene, buildSnapshot(rocket, config), config);
+	}
+
+	/**
+	 * Captures all rocket-derived data needed to (re)build the 3D scene into an immutable
+	 * snapshot. Intended to be called on the thread that owns the rocket model (the EDT for
+	 * the running app), so the snapshot reflects a consistent view of the rocket even when
+	 * it would otherwise be raced by edits before the GL thread renders.
+	 *
+	 * <p>This is pure CPU work: meshes and transforms are pre-computed but no GPU resources
+	 * are allocated. Pair with {@link #applySnapshot} to commit the snapshot to a scene on
+	 * the GL thread.</p>
+	 */
+	public static RocketSceneSnapshot buildSnapshot(Rocket rocket, RenderingConfiguration config) {
 		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
 		InstanceMap lowestMotorInstances = flightConfig.getLowestMotorInstances();
-		buildComponents(scene, flightConfig.getId(), flightConfig.getActiveInstances().entrySet(), config,
+		List<RocketSceneSnapshot.ComponentInstance> componentInstances = new ArrayList<>();
+		List<RocketSceneSnapshot.MotorInstance> motorInstances = new ArrayList<>();
+		collectInstances(componentInstances, motorInstances, flightConfig.getId(),
+				flightConfig.getActiveInstances().entrySet(), config,
 				RenderingConstants.WORLD_SCALE, lowestMotorInstances);
-		buildComponents(scene, flightConfig.getId(), flightConfig.getExtraRenderInstances().entrySet(), config,
+		collectInstances(componentInstances, motorInstances, flightConfig.getId(),
+				flightConfig.getExtraRenderInstances().entrySet(), config,
 				RenderingConstants.WORLD_SCALE, lowestMotorInstances);
+		return new RocketSceneSnapshot(componentInstances, motorInstances);
+	}
+
+	/**
+	 * Commits a previously-built {@link RocketSceneSnapshot} to the scene. Allocates GPU
+	 * resources (vertex buffers via {@link SceneObject}, textures via {@link AppearanceFactory})
+	 * and must run on the GL thread. The origin axes are also (re)added here since they are
+	 * not rocket-derived and don't need to be in the snapshot.
+	 */
+	public static void applySnapshot(SceneView scene, RocketSceneSnapshot snapshot, RenderingConfiguration config) {
+		IdentityHashMap<RocketComponent, Appearance3D> componentAppearances = new IdentityHashMap<>();
+		for (RocketSceneSnapshot.ComponentInstance ci : snapshot.getComponentInstances()) {
+			Appearance3D appearance = componentAppearances.computeIfAbsent(ci.component(), AppearanceFactory::createFrom);
+			SceneObject obj = new SceneObject(ci.component(), ci.mesh(), new Vector3f(0, 0, 0), appearance);
+			obj.getModelMatrix().set(ci.modelMatrix());
+			scene.addObject(obj);
+		}
+
+		for (RocketSceneSnapshot.MotorInstance mi : snapshot.getMotorInstances()) {
+			// Match legacy behavior: motor appearances are not shared across instances.
+			Appearance3D motorAppearance = AppearanceFactory.createFrom(mi.motor());
+			SceneObject motorObj = new SceneObject(mi.mountForSelectionGrouping(), mi.motorMesh(),
+					new Vector3f(0, 0, 0), motorAppearance);
+			motorObj.getModelMatrix().set(mi.modelMatrix());
+			scene.addObject(motorObj);
+
+			if (mi.particleEmitterPlan() != null) {
+				addParticles(scene, mi.particleEmitterPlan(), config);
+			}
+		}
 
 		createOriginAxes(scene, config, true, true);
 	}
 
-	private static void buildComponents(SceneView scene, FlightConfigurationId fcid,
-										Set<Entry<RocketComponent, ArrayList<InstanceContext>>> instanceEntries,
-										RenderingConfiguration config, float worldScale,
-										InstanceMap lowestMotorInstances) {
+	private static void collectInstances(List<RocketSceneSnapshot.ComponentInstance> componentInstances,
+										 List<RocketSceneSnapshot.MotorInstance> motorInstances,
+										 FlightConfigurationId fcid,
+										 Set<Entry<RocketComponent, ArrayList<InstanceContext>>> instanceEntries,
+										 RenderingConfiguration config, float worldScale,
+										 InstanceMap lowestMotorInstances) {
 		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : instanceEntries) {
 			RocketComponent component = entry.getKey();
 			if (!component.isVisible()) {
@@ -118,7 +175,8 @@ public abstract class RocketMeshBuilder {
 			}
 
 			try {
-				buildComponent(scene, fcid, component, entry.getValue(), config, worldScale, lowestMotorInstances);
+				collectComponent(componentInstances, motorInstances, fcid, component, entry.getValue(), config,
+						worldScale, lowestMotorInstances);
 			} catch (RuntimeException e) {
 				throw new BugException("Failed to build 3D mesh for component '" + component.getName()
 						+ "' (" + component.getClass().getSimpleName() + ")", e);
@@ -126,27 +184,21 @@ public abstract class RocketMeshBuilder {
 		}
 	}
 
-	/**
-	 * Build and place all instances of a RocketComponent in the scene.
-	 *
-	 * @param scene The scene to add the component meshes to.
-	 * @param component The RocketComponent to build.
-	 * @param config The render configuration
-	 * @param worldScale The scale factor to apply to the component's dimensions and positions.
-	 */
-	private static void buildComponent(SceneView scene, FlightConfigurationId fcid, RocketComponent component,
-									   List<InstanceContext> instanceContexts, RenderingConfiguration config,
-									   float worldScale, InstanceMap lowestMotorInstances) {
+	private static void collectComponent(List<RocketSceneSnapshot.ComponentInstance> componentInstances,
+										 List<RocketSceneSnapshot.MotorInstance> motorInstances,
+										 FlightConfigurationId fcid, RocketComponent component,
+										 List<InstanceContext> instanceContexts, RenderingConfiguration config,
+										 float worldScale, InstanceMap lowestMotorInstances) {
 		if (instanceContexts == null || instanceContexts.isEmpty()) {
 			return;
 		}
 
 		Mesh mesh = createComponentMesh(component, config);
-		if (mesh == null) {
+		boolean isMotorMount = component instanceof MotorMount;
+		if (mesh == null && !isMotorMount) {
 			return;
 		}
 
-		Appearance3D appearance = AppearanceFactory.createFrom(component);
 		double angleOffsetX = component instanceof RailButton ? component.getAngleOffset() : 0.0;
 
 		for (InstanceContext context : instanceContexts) {
@@ -156,48 +208,39 @@ public abstract class RocketMeshBuilder {
 					context.transform.getYrotation(),
 					context.transform.getZrotation());
 
-			// Create the SceneObject for the primary component
-			SceneObject obj = new SceneObject(component, mesh, new Vector3f(0, 0, 0), appearance);
-			configureComponentTransform(obj, instanceLocation, instanceAngle, component, worldScale);
-			scene.addObject(obj);
+			if (mesh != null) {
+				Matrix4f modelMatrix = computeComponentModelMatrix(instanceLocation, instanceAngle, component, worldScale);
+				componentInstances.add(new RocketSceneSnapshot.ComponentInstance(component, mesh, modelMatrix));
+			}
 
-			// Add motor
-			if (component instanceof MotorMount) {
-				buildMotor(scene, fcid, (RocketComponent & MotorMount) component, instanceLocation, instanceAngle,
+			if (isMotorMount) {
+				@SuppressWarnings("unchecked")
+				RocketSceneSnapshot.MotorInstance motor = collectMotor(fcid,
+						(RocketComponent & MotorMount) component, instanceLocation, instanceAngle,
 						worldScale, config, context, lowestMotorInstances);
+				if (motor != null) {
+					motorInstances.add(motor);
+				}
 			}
 		}
 	}
 
 	/**
-	 * Creates and adds a SceneObject for the motor within a MotorMount.
-	 *
-	 * @param scene The scene to add the motor object to.
-	 * @param mount The parent MotorMount component.
-	 * @param mountLocation The world-space location of the parent mount.
-	 * @param mountAngle The world-space angle of the parent mount.
-	 * @param worldScale The global world scale factor.
+	 * Captures all data required to build a single motor instance scene object and (optionally)
+	 * its exhaust particle emitter. Pure CPU; safe to call on the EDT.
 	 */
-	private static <T extends RocketComponent & MotorMount> void buildMotor(
-			SceneView scene, FlightConfigurationId fcid, T mount, CoordinateIF mountLocation, CoordinateIF mountAngle,
+	private static <T extends RocketComponent & MotorMount> RocketSceneSnapshot.MotorInstance collectMotor(
+			FlightConfigurationId fcid, T mount, CoordinateIF mountLocation, CoordinateIF mountAngle,
 			float worldScale, RenderingConfiguration config, InstanceContext context,
 			InstanceMap lowestMotorInstances) {
 		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
-		if (motorCfg == null) return;
+		if (motorCfg == null) return null;
 
 		Motor motor = motorCfg.getMotor();
-		if (motor == null) return;
+		if (motor == null) return null;
 
-		// 1. Create the motor mesh
 		Mesh motorMesh = MotorGenerator.create(motor, config);
 
-		// 2. Create the appearance
-		Appearance3D motorAppearance = AppearanceFactory.createFrom(motor);
-
-		// 3. Create the SceneObject, associating it with the parent mount for selection grouping
-		SceneObject motorObj = new SceneObject(mount, motorMesh, new Vector3f(0, 0, 0), motorAppearance);
-
-		// 4. Calculate the motor's absolute world position based on JOGL logic.
 		// The motor's position is relative to the mount's front end.
 		double motorFrontRelToMountFront = mount.getLength() + mount.getMotorOverhang() - motor.getLength();
 		// The motor mesh is centered, so we need to find the center position.
@@ -205,9 +248,6 @@ public abstract class RocketMeshBuilder {
 		// The mount location already represents this instance's front position in rocket coordinates.
 		CoordinateIF motorCenterAbsolute = mountLocation.add(motorCenterRelToMountFront, 0, 0);
 
-
-		// 5. Apply the transform to the motor object
-		Matrix4f modelMatrix = motorObj.getModelMatrix();
 		Vector3f positionInEngineCS = new Vector3f(
 				(float) motorCenterAbsolute.getX(),
 				(float) motorCenterAbsolute.getY(),
@@ -219,18 +259,29 @@ public abstract class RocketMeshBuilder {
 				.rotateY(-(float) mountAngle.getY())
 				.rotateZ(-(float) mountAngle.getZ());
 
-		modelMatrix.identity()
+		Matrix4f modelMatrix = new Matrix4f()
 				.translate(positionInEngineCS)
 				.mul(rotationMatrix)
 				.scale(worldScale);
 
-		scene.addObject(motorObj);
-
-		// 6. Create a particle emitter for the motor exhaust
 		String motorComponentId = generateMotorComponentId(fcid, mount);
+		RocketSceneSnapshot.ParticleEmitterPlan emitterPlan = null;
 		if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
-			addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+			emitterPlan = new RocketSceneSnapshot.ParticleEmitterPlan(
+					new Vector3f(positionInEngineCS), rotationMatrix, motor, motorComponentId, worldScale);
 		}
+
+		return new RocketSceneSnapshot.MotorInstance(mount, motorMesh, motor, modelMatrix, emitterPlan);
+	}
+
+	private static void addParticles(SceneView scene, RocketSceneSnapshot.ParticleEmitterPlan plan,
+									 RenderingConfiguration config) {
+		Vector3f positionInEngineCS = plan.motorCenterEngineCS();
+		Motor motor = plan.motor();
+		Matrix4f rotationMatrix = plan.motorRotationMatrix();
+		float worldScale = plan.worldScale();
+		String motorComponentId = plan.motorComponentId();
+		addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
 	}
 
 	private static void addParticles(SceneView scene, float worldScale, Vector3f positionInEngineCS, Motor motor,
@@ -293,15 +344,16 @@ public abstract class RocketMeshBuilder {
 	}
 
 	/**
-	 * Calculates and applies the world-space transformation for a SceneObject
-	 * based on its component data and coordinate system conventions.
+	 * Computes the world-space model matrix for a component instance.
+	 *
+	 * <p>Coordinate System and Handedness Conversion:</p>
+	 * <ul>
+	 *   <li>OpenRocket (LHS): +X=longitudinal, +Y=into screen, +Z=up(radial)</li>
+	 *   <li>Engine (RHS):     +X=right(radial), +Y=up(longitudinal), -Z=into screen</li>
+	 * </ul>
 	 */
-	private static void configureComponentTransform(SceneObject obj, CoordinateIF loc, CoordinateIF ang, RocketComponent component, float worldScale) {
-		Matrix4f modelMatrix = obj.getModelMatrix();
-
-		// Coordinate System and Handedness Conversion
-		// OpenRocket (LHS): +X=longitudinal, +Y=into screen, +Z=up(radial)
-		// Engine (RHS):     +X=right(radial), +Y=up(longitudinal), -Z=into screen
+	private static Matrix4f computeComponentModelMatrix(CoordinateIF loc, CoordinateIF ang,
+														RocketComponent component, float worldScale) {
 		double offsetX = (component instanceof Coaxial || component instanceof Transition || component instanceof MassObject) ? component.getLength() / 2.0 : 0;
 
 		Vector3f positionInEngineCS = new Vector3f(
@@ -315,7 +367,7 @@ public abstract class RocketMeshBuilder {
 				.rotateY(-(float)ang.getY())
 				.rotateZ(-(float)ang.getZ());
 
-		modelMatrix.identity()
+		return new Matrix4f()
 				.translate(positionInEngineCS)
 				.mul(rotationMatrix)
 				.scale(worldScale);
