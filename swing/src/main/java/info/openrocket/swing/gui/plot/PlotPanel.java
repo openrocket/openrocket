@@ -12,6 +12,7 @@ import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import net.miginfocom.swing.MigLayout;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -31,328 +32,431 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlotPanel<T extends DataType & Groupable<G>,
-		B extends DataBranch<T>,
-		G extends Group,
-		C extends PlotConfiguration<T, B>,
-		S extends PlotTypeSelector<T, G>> extends JPanel {
-	protected static final Translator trans = Application.getTranslator();
+        B extends DataBranch<T>,
+        G extends Group,
+        C extends PlotConfiguration<T, B>,
+        S extends PlotTypeSelector<T, G>> extends JPanel {
+    protected static final Translator trans = Application.getTranslator();
 
-	//// Custom
-	protected static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
-	/** The "Custom" configuration - not to be used for anything other than the title. */
-	private final C customConfiguration;
+    /// / Custom
+    protected static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
+    /**
+     * The "Custom" configuration - not to be used for anything other than the title.
+     */
+    private final C customConfiguration;
 
-	/** The array of presets for the combo box. */
-	private final C[] presetArray;
+    /**
+     * The array of presets for the combo box.
+     */
+    private final C[] presetArray;
 
-	private C defaultConfiguration;
-	private final List<PlotConfigurationListener<C>> configurationListeners = new ArrayList<>();
+    private final List<C> userPresets;
 
-	// Data types for the x and y axis + plot configuration
-	protected final T[] typesX;
-	protected final T[] typesY;
-	protected C configuration;
+    private C defaultConfiguration;
+    private final List<PlotConfigurationListener<C>> configurationListeners = new ArrayList<>();
 
-	protected final JComboBox<C> configurationSelector;
-	protected JComboBox<T> domainTypeSelector;
-	private UnitSelector domainUnitSelector;
-	private final JPanel typeSelectorPanel;
+    // Data types for the x and y axis + plot configuration
+    protected final T[] typesX;
+    protected final T[] typesY;
+    protected C configuration;
 
-	protected int modifying = 0;
+    protected final JComboBox<C> configurationSelector;
+    protected final JComboBox<C> userConfigurationSelector;
+    protected final DefaultComboBoxModel<C> userConfigurationModel;
 
-	public PlotPanel(T[] typesX, T[] typesY, C customConfiguration, C[] presets,
-					 C defaultConfiguration, Component[] extraWidgetsX, Component[] extraWidgetsY) {
-		super(new MigLayout("fill, ins n n 0 n"));
+    protected JComboBox<T> domainTypeSelector;
+    private UnitSelector domainUnitSelector;
+    private final JPanel typeSelectorPanel;
 
-		this.customConfiguration = customConfiguration;
-		this.presetArray = presets;
-		this.defaultConfiguration = defaultConfiguration;
-		this.typesX = typesX;
-		this.typesY = typesY;
+    protected int modifying = 0;
 
-		setConfiguration(defaultConfiguration);
+    public PlotPanel(T[] typesX, T[] typesY, C customConfiguration, C[] presets, List<C> userPresets,
+                     C defaultConfiguration, Component[] extraWidgetsX, Component[] extraWidgetsY) {
+        super(new MigLayout("fill, ins n n 0 n"));
 
-		////  Configuration selector
+        this.customConfiguration = customConfiguration;
+        this.presetArray = presets;
+        this.userPresets = userPresets;
+        this.defaultConfiguration = defaultConfiguration;
+        this.typesX = typesX;
+        this.typesY = typesY;
 
-		// Setup the combo box
-		configurationSelector = new JComboBox<>(presetArray);
-		for (C config : presetArray) {
-			if (config.getName().equals(configuration.getName())) {
-				configurationSelector.setSelectedItem(config);
-			}
-		}
+        setConfiguration(defaultConfiguration);
 
-		configurationSelector.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				// We are only concerned with ItemEvent.SELECTED to update
-				// the UI when the selected item changes.
-				// TODO - this should probably be implemented as an ActionListener instead
-				// of ItemStateListener.
-				if (e.getStateChange() == ItemEvent.DESELECTED) {
-					return;
-				}
-				if (modifying > 0)
-					return;
-				C conf = (C) configurationSelector.getSelectedItem();
-				if (conf == null || conf == customConfiguration)
-					return;
-				modifying++;
-				setConfiguration(conf.clone().resetUnits());
-				updatePlots();
-				modifying--;
-			}
-		});
-		//// Preset plot configurations:
-		this.add(new JLabel(trans.get("simplotpanel.lbl.Presetplotconf")), "spanx, split");
-		this.add(configurationSelector, "growx, wrap 20lp");
+        ////  Configuration selector
 
+        // Setup the combo box
+        configurationSelector = new JComboBox<>(presetArray);
+        for (C config : presetArray) {
+            if (config.getName().equals(configuration.getName())) {
+                configurationSelector.setSelectedItem(config);
+            }
+        }
 
-		this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
+        userConfigurationModel = new DefaultComboBoxModel<>();
+        userConfigurationModel.addElement(customConfiguration);
+        for (C config : userPresets) {
+            userConfigurationModel.addElement(config);
+        }
+        userConfigurationSelector = new JComboBox<>(userConfigurationModel);
 
+        configurationSelector.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                // We are only concerned with ItemEvent.SELECTED to update
+                // the UI when the selected item changes.
+                // TODO - this should probably be implemented as an ActionListener instead
+                // of ItemStateListener.
+                if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    return;
+                }
+                if (modifying > 0)
+                    return;
+                C conf = (C) configurationSelector.getSelectedItem();
+                if (conf == null)
+                    return;
+                modifying++;
+                setConfiguration(conf.clone().resetUnits());
+                userConfigurationSelector.setSelectedItem(customConfiguration);
+                updatePlots();
+                modifying--;
+            }
+        });
 
-		//// X axis
-		addXAxisSelector(typesX, extraWidgetsX);
+        userConfigurationSelector.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    return;
+                }
+                if (modifying > 0)
+                    return;
+                C conf = (C) userConfigurationSelector.getSelectedItem();
+                if (conf == null || conf == customConfiguration)
+                    return;
+                modifying++;
+                setConfiguration(conf);
+                configurationSelector.setSelectedIndex(-1);
+                updatePlots();
+                modifying--;
+            }
+        });
 
-		//// Y axis selector panel
-		typeSelectorPanel = addYAxisSelector(typesY, extraWidgetsY);
-	}
+        //// Preset plot configurations:
+        this.add(new JLabel(trans.get("simplotpanel.lbl.Presetplotconf")), "split 2");
+        this.add(configurationSelector, "growx, wrap");
 
-	protected void addXAxisSelector(T[] typesX, Component[] extraWidgetsX) {
-		//// X axis type:
-		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(typesX), trans.get("FlightDataComboBox.placeholder"));
-		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
-		domainTypeSelector.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (modifying > 0)
-					return;
-				T type = (T) domainTypeSelector.getSelectedItem();
-				if (type == null) {
-					return;
-				}
-				configuration.setDomainAxisType(type);
-				domainUnitSelector.setUnitGroup(type.getUnitGroup());
-				domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
-				setToCustom();
-			}
-		});
-		this.add(domainTypeSelector, "gapright para");
+        this.add(new JLabel(trans.get("simplotpanel.lbl.Userplotconf")), "split 2");
+        this.add(userConfigurationSelector, "growx, wrap");
 
-		//// Unit:
-		this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")));
-		domainUnitSelector = new UnitSelector(configuration.getDomainAxisType().getUnitGroup());
-		domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
-		domainUnitSelector.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (modifying > 0)
-					return;
-				configuration.setDomainAxisUnit(domainUnitSelector.getSelectedUnit());
-			}
-		});
-		this.add(domainUnitSelector, "width 40lp, gapright para");
+        JButton newConfigBtn = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
+        newConfigBtn.addActionListener(e -> onNewConfiguration());
 
-		// Extra X widgets
-		if (extraWidgetsX != null) {
-			for (int i = 0; i < extraWidgetsX.length; i++) {
-				if (i == extraWidgetsX.length - 1) {
-					this.add(extraWidgetsX[i], "growx, wrap");
-				} else {
-					this.add(extraWidgetsX[i], "growx, wrap unrel");
-				}
-			}
-		} else {
-			this.add(new JLabel(), "wrap unrel");
-		}
-	}
+        JButton renameConfigBtn = new JButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
+        renameConfigBtn.addActionListener(e -> onRenameConfiguration());
 
-	protected JPanel addYAxisSelector(T[] typesY, Component[] extraWidgetsY) {
-		final JPanel typeSelectorPanel;
-		//// Y axis types:
-		JPanel yPanel = new JPanel(new MigLayout("fill, ins 0"));
-		yPanel.add(new JLabel(trans.get("simplotpanel.lbl.Yaxistypes")), "wrap rel");
+        JButton deleteConfigBtn = new JButton(trans.get("edtmotorconfdlg.but.Deleteconfiguration"));
+        deleteConfigBtn.addActionListener(e -> onDeleteConfiguration());
 
-		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
-		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		yPanel.add(scroll, "pushy, grow 100");
-		if (extraWidgetsY != null) {
-			this.add(yPanel, "pushy, wmin 400lp, grow 100, gapright para");
-		} else {
-			this.add(yPanel, "pushy, spanx, wmin 400lp, grow 100, wrap");
-		}
+        this.add(newConfigBtn, "split 3, gapleft para");
+        this.add(renameConfigBtn, "gapleft para");
+        this.add(deleteConfigBtn, "gapleft para, wrap 20lp");
 
-		// Extra Y widgets
-		if (extraWidgetsY != null) {
-			JPanel extraYPanel = new JPanel(new MigLayout("fill, ins 0"));
-			for (Component widgetsY : extraWidgetsY) {
-				extraYPanel.add(widgetsY, "growx, wrap rel");
-			}
-			extraYPanel.add(new JPanel(), "pushy, grow 100"); 	// Fill up the rest of the vertical space
-			this.add(extraYPanel, "pushy, grow 100, wrap");
-		}
+        this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
 
+        //// X axis
+        addXAxisSelector(typesX, extraWidgetsX);
 
-		//// New Y axis plot type
-		JButton newYAxisBtn = new JButton(trans.get("simplotpanel.but.NewYaxisplottype"));
-		newYAxisBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (configuration.getDataCount() >= 15) {
-					JOptionPane.showMessageDialog(PlotPanel.this,
-							//// A maximum of 15 plots is allowed.
-							//// Cannot add plot
-							trans.get("simplotpanel.OptionPane.lbl1"),
-							trans.get("simplotpanel.OptionPane.lbl2"),
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
+        //// Y axis selector panel
+        typeSelectorPanel = addYAxisSelector(typesY, extraWidgetsY);
+    }
 
-				// Select new type smartly
-				T type = null;
-				for (T t : typesY) {
-					boolean used = false;
-					if (configuration.getDomainAxisType().equals(t)) {
-						used = true;
-					} else {
-						for (int i = 0; i < configuration.getDataCount(); i++) {
-							if (configuration.getType(i).equals(t)) {
-								used = true;
-								break;
-							}
-						}
-					}
+    private void onNewConfiguration() {
+        String name = JOptionPane.showInputDialog(this, trans.get("edtmotorconfdlg.lbl.Configname"));
+        if (name == null || name.trim().isEmpty()) {
+            return;
+        }
+        C newConfig = (C) configuration.clone();
+        newConfig.setName(name);
+        userPresets.add(newConfig);
+        userConfigurationModel.addElement(newConfig);
+        userConfigurationSelector.setSelectedItem(newConfig);
+    }
 
-					if (!used) {
-						type = t;
-						break;
-					}
-				}
-				if (type == null) {
-					type = typesY[0];
-				}
+    private void onRenameConfiguration() {
+        C selected = (C) userConfigurationSelector.getSelectedItem();
+        if (selected == null || selected == customConfiguration) {
+            return;
+        }
+        String name = JOptionPane.showInputDialog(this, trans.get("edtmotorconfdlg.lbl.Configname"), selected.getName());
+        if (name == null || name.trim().isEmpty()) {
+            return;
+        }
+        selected.setName(name);
+        userConfigurationSelector.repaint();
+    }
 
-				// Add new type
-				configuration.addPlotDataType(type);
-				setToCustom();
-				updatePlots();
-			}
-		});
-		this.add(newYAxisBtn, "spanx, pushx, left");
-		return typeSelectorPanel;
-	}
+    private void onDeleteConfiguration() {
+        C selected = (C) userConfigurationSelector.getSelectedItem();
+        if (selected == null || selected == customConfiguration) {
+            return;
+        }
+        userPresets.remove(selected);
+        userConfigurationModel.removeElement(selected);
 
-	public C getConfiguration() {
-		return configuration;
-	}
+        modifying++;
+        configuration = (C) selected.clone();
+        configuration.setName(CUSTOM);
+        userConfigurationSelector.setSelectedItem(customConfiguration);
+        modifying--;
+    }
 
-	protected void setConfiguration(C conf) {
-		boolean modified = false;
+    protected void addXAxisSelector(T[] typesX, Component[] extraWidgetsX) {
+        //// X axis type:
+        this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
+        domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(typesX), trans.get("FlightDataComboBox.placeholder"));
+        domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
+        domainTypeSelector.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (modifying > 0)
+                    return;
+                T type = (T) domainTypeSelector.getSelectedItem();
+                if (type == null) {
+                    return;
+                }
+                configuration.setDomainAxisType(type);
+                domainUnitSelector.setUnitGroup(type.getUnitGroup());
+                domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
+                setToCustom();
+            }
+        });
+        this.add(domainTypeSelector, "gapright para");
 
-		configuration = (C) conf.clone();
-		if (!Utils.contains(typesX, configuration.getDomainAxisType())) {
-			configuration.setDomainAxisType(typesX[0]);
-			modified = true;
-		}
+        //// Unit:
+        this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")));
+        domainUnitSelector = new UnitSelector(configuration.getDomainAxisType().getUnitGroup());
+        domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
+        domainUnitSelector.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (modifying > 0)
+                    return;
+                configuration.setDomainAxisUnit(domainUnitSelector.getSelectedUnit());
+            }
+        });
+        this.add(domainUnitSelector, "width 40lp, gapright para");
 
-		for (int i = 0; i < configuration.getDataCount(); i++) {
-			if (!Utils.contains(typesY, configuration.getType(i))) {
-				configuration.removePlotDataType(i);
-				i--;
-				modified = true;
-			}
-		}
+        // Extra X widgets
+        if (extraWidgetsX != null) {
+            for (int i = 0; i < extraWidgetsX.length; i++) {
+                if (i == extraWidgetsX.length - 1) {
+                    this.add(extraWidgetsX[i], "growx, wrap");
+                } else {
+                    this.add(extraWidgetsX[i], "growx, wrap unrel");
+                }
+            }
+        } else {
+            this.add(new JLabel(), "wrap unrel");
+        }
+    }
 
-		if (modified) {
-			configuration.setName(CUSTOM);
-		}
+    protected JPanel addYAxisSelector(T[] typesY, Component[] extraWidgetsY) {
+        final JPanel typeSelectorPanel;
+        //// Y axis types:
+        JPanel yPanel = new JPanel(new MigLayout("fill, ins 0"));
+        yPanel.add(new JLabel(trans.get("simplotpanel.lbl.Yaxistypes")), "wrap rel");
 
-		for (PlotConfigurationListener<C> listener : configurationListeners) {
-			listener.onPlotConfigurationChanged(configuration);
-		}
-	}
+        typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
+        JScrollPane scroll = new JScrollPane(typeSelectorPanel);
+        yPanel.add(scroll, "pushy, grow 100");
+        if (extraWidgetsY != null) {
+            this.add(yPanel, "pushy, wmin 400lp, grow 100, gapright para");
+        } else {
+            this.add(yPanel, "pushy, spanx, wmin 400lp, grow 100, wrap");
+        }
 
-	protected void setDefaultConfiguration(C newConfiguration) {
-		defaultConfiguration = newConfiguration;
-	}
-
-	protected void setToCustom() {
-		modifying++;
-		configuration.setName(CUSTOM);
-		configurationSelector.setSelectedItem(customConfiguration);
-		modifying--;
-	}
-
-	public JDialog doPlot(Window parent) {
-		throw new RuntimeException("Not implemented");
-	}
+        // Extra Y widgets
+        if (extraWidgetsY != null) {
+            JPanel extraYPanel = new JPanel(new MigLayout("fill, ins 0"));
+            for (Component widgetsY : extraWidgetsY) {
+                extraYPanel.add(widgetsY, "growx, wrap rel");
+            }
+            extraYPanel.add(new JPanel(), "pushy, grow 100");    // Fill up the rest of the vertical space
+            this.add(extraYPanel, "pushy, grow 100, wrap");
+        }
 
 
-	protected void updatePlots() {
-		if (domainTypeSelector != null) {
-			domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
-			domainUnitSelector.setUnitGroup(configuration.getDomainAxisType().getUnitGroup());
-			domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
-		}
+        //// New Y axis plot type
+        JButton newYAxisBtn = new JButton(trans.get("simplotpanel.but.NewYaxisplottype"));
+        newYAxisBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (configuration.getDataCount() >= 15) {
+                    JOptionPane.showMessageDialog(PlotPanel.this,
+                            //// A maximum of 15 plots is allowed.
+                            //// Cannot add plot
+                            trans.get("simplotpanel.OptionPane.lbl1"),
+                            trans.get("simplotpanel.OptionPane.lbl2"),
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-		typeSelectorPanel.removeAll();
-		for (int i = 0; i < configuration.getDataCount(); i++) {
-			T type = configuration.getType(i);
-			Unit unit = configuration.getUnit(i);
-			int axis = configuration.getAxis(i);
+                // Select new type smartly
+                T type = null;
+                for (T t : typesY) {
+                    boolean used = false;
+                    if (configuration.getDomainAxisType().equals(t)) {
+                        used = true;
+                    } else {
+                        for (int i = 0; i < configuration.getDataCount(); i++) {
+                            if (configuration.getType(i).equals(t)) {
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
 
-			S selector = createSelector(i, type, unit, axis);
-			addSelectionListeners(selector, i);
+                    if (!used) {
+                        type = t;
+                        break;
+                    }
+                }
+                if (type == null) {
+                    type = typesY[0];
+                }
 
-			typeSelectorPanel.add(selector, "wrap");
-		}
+                // Add new type
+                configuration.addPlotDataType(type);
+                setToCustom();
+                updatePlots();
+            }
+        });
+        this.add(newYAxisBtn, "spanx, pushx, left");
+        return typeSelectorPanel;
+    }
 
-		// In order to consistently update the UI, we need to validate before repaint.
-		typeSelectorPanel.validate();
-		typeSelectorPanel.repaint();
-	}
+    public C getConfiguration() {
+        return configuration;
+    }
 
-	protected S createSelector(int i, T type, Unit unit, int axis) {
-		return (S) new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(typesY));
-	}
+    protected void setConfiguration(C conf) {
+        boolean modified = false;
 
-	protected void addSelectionListeners(S selector, final int idx) {
-		// Type
-		selector.addTypeSelectionListener(e -> {
-			if (modifying > 0) return;
-			T selectedType = selector.getSelectedType();
-			configuration.setPlotDataType(idx, selectedType);
-			selector.setUnitGroup(selectedType.getUnitGroup());
-			configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
-			setToCustom();
-		});
+        configuration = conf;
 
-		// Unit
-		selector.addUnitSelectionListener(e -> {
-			if (modifying > 0) return;
-			configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
-		});
+        if (!Utils.contains(typesX, configuration.getDomainAxisType())) {
+            configuration = (C) configuration.clone();
+            configuration.setDomainAxisType(typesX[0]);
+            modified = true;
+        }
 
-		// Axis
-		selector.addAxisSelectionListener(e -> {
-			if (modifying > 0) return;
-			configuration.setPlotDataAxis(idx, selector.getSelectedAxis());
-		});
+        for (int i = 0; i < configuration.getDataCount(); i++) {
+            if (!Utils.contains(typesY, configuration.getType(i))) {
+                if (!modified) {
+                    configuration = (C) configuration.clone();
+                    modified = true;
+                }
+                configuration.removePlotDataType(i);
+                i--;
+            }
+        }
 
-		// Remove button
-		selector.addRemoveButtonListener(e -> {
-			configuration.removePlotDataType(idx);
-			setToCustom();
-			updatePlots();
-		});
-	}
+        if (modified) {
+            modifying++;
+            configuration.setName(CUSTOM);
+            userConfigurationSelector.setSelectedItem(customConfiguration);
+            modifying--;
+        }
 
-	public void addPlotConfigurationListener(PlotConfigurationListener<C> listener) {
-		this.configurationListeners.add(listener);
-	}
+        for (PlotConfigurationListener<C> listener : configurationListeners) {
+            listener.onPlotConfigurationChanged(configuration);
+        }
+    }
 
-	public interface PlotConfigurationListener<C extends PlotConfiguration<?, ?>> {
-		void onPlotConfigurationChanged(C newConfiguration);
-	}
+    protected void setDefaultConfiguration(C newConfiguration) {
+        defaultConfiguration = newConfiguration;
+    }
+
+    protected void setToCustom() {
+        C selected = (C) userConfigurationSelector.getSelectedItem();
+        if (selected == null || selected == customConfiguration) {
+            modifying++;
+            configuration.setName(CUSTOM);
+            userConfigurationSelector.setSelectedItem(customConfiguration);
+            modifying--;
+        }
+    }
+
+    public JDialog doPlot(Window parent) {
+        throw new RuntimeException("Not implemented");
+    }
+
+
+    protected void updatePlots() {
+        if (domainTypeSelector != null) {
+            domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
+            domainUnitSelector.setUnitGroup(configuration.getDomainAxisType().getUnitGroup());
+            domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
+        }
+
+        typeSelectorPanel.removeAll();
+        for (int i = 0; i < configuration.getDataCount(); i++) {
+            T type = configuration.getType(i);
+            Unit unit = configuration.getUnit(i);
+            int axis = configuration.getAxis(i);
+
+            S selector = createSelector(i, type, unit, axis);
+            addSelectionListeners(selector, i);
+
+            typeSelectorPanel.add(selector, "wrap");
+        }
+
+        // In order to consistently update the UI, we need to validate before repaint.
+        typeSelectorPanel.validate();
+        typeSelectorPanel.repaint();
+    }
+
+    protected S createSelector(int i, T type, Unit unit, int axis) {
+        return (S) new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(typesY));
+    }
+
+    protected void addSelectionListeners(S selector, final int idx) {
+        // Type
+        selector.addTypeSelectionListener(e -> {
+            if (modifying > 0) return;
+            T selectedType = selector.getSelectedType();
+            configuration.setPlotDataType(idx, selectedType);
+            selector.setUnitGroup(selectedType.getUnitGroup());
+            configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
+            setToCustom();
+        });
+
+        // Unit
+        selector.addUnitSelectionListener(e -> {
+            if (modifying > 0) return;
+            configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
+        });
+
+        // Axis
+        selector.addAxisSelectionListener(e -> {
+            if (modifying > 0) return;
+            configuration.setPlotDataAxis(idx, selector.getSelectedAxis());
+        });
+
+        // Remove button
+        selector.addRemoveButtonListener(e -> {
+            configuration.removePlotDataType(idx);
+            setToCustom();
+            updatePlots();
+        });
+    }
+
+    public void addPlotConfigurationListener(PlotConfigurationListener<C> listener) {
+        this.configurationListeners.add(listener);
+    }
+
+    public interface PlotConfigurationListener<C extends PlotConfiguration<?, ?>> {
+        void onPlotConfigurationChanged(C newConfiguration);
+    }
 }
