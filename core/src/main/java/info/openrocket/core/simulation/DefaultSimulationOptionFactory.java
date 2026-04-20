@@ -23,6 +23,10 @@ public class DefaultSimulationOptionFactory {
 	public static final String SIMCONDITION_ROD_LENGTH = "SimConditionsRodLength";
 	public static final String SIMCONDITION_ROD_ANGLE = "SimConditionsRodAngle";
 	public static final String SIMCONDITION_ROD_DIRECTION = "SimConditionsRodDirection";
+	public static final String SIMCONDITION_RECOVERY_SPEED_WARNING = "SimConditionsRecoverySpeedWarning";
+	public static final String SIMCONDITION_DROGUE_LOW_SPEED_WARNING = "SimConditionsDrogueLowSpeedWarning";
+	public static final String SIMCONDITION_RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING = "SimConditionsRecoveryDrogueMainHighSpeedWarning";
+	public static final String SIMCONDITION_RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING = "SimConditionsRecoveryDrogueMainLowSpeedWarning";
 
 	public DefaultSimulationOptionFactory(ApplicationPreferences prefs) {
 		this.prefs = prefs;
@@ -54,6 +58,10 @@ public class DefaultSimulationOptionFactory {
 			defaults.setLaunchRodAngle(prefs.getDouble(SIMCONDITION_ROD_ANGLE, defaults.getLaunchRodAngle()));
 			defaults.setLaunchRodDirection(
 					prefs.getDouble(SIMCONDITION_ROD_DIRECTION, defaults.getLaunchRodDirection()));
+			defaults.setRecoverySpeedWarning(prefs.getDouble(SIMCONDITION_RECOVERY_SPEED_WARNING, defaults.getRecoverySpeedWarning()));
+			defaults.setDrogueLowSpeedWarning(prefs.getDouble(SIMCONDITION_DROGUE_LOW_SPEED_WARNING, defaults.getDrogueLowSpeedWarning()));
+			defaults.setRecoveryDrogueMainHighSpeedWarning(prefs.getDouble(SIMCONDITION_RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, defaults.getRecoveryDrogueMainHighSpeedWarning()));
+			defaults.setRecoveryDrogueMainLowSpeedWarning(prefs.getDouble(SIMCONDITION_RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, defaults.getRecoveryDrogueMainLowSpeedWarning()));
 		}
 		return defaults;
 	}
@@ -76,5 +84,9 @@ public class DefaultSimulationOptionFactory {
 		prefs.putDouble(SIMCONDITION_ROD_LENGTH, newDefaults.getLaunchRodLength());
 		prefs.putDouble(SIMCONDITION_ROD_ANGLE, newDefaults.getLaunchRodAngle());
 		prefs.putDouble(SIMCONDITION_ROD_DIRECTION, newDefaults.getLaunchRodDirection());
+		prefs.putDouble(SIMCONDITION_RECOVERY_SPEED_WARNING, newDefaults.getRecoverySpeedWarning());
+		prefs.putDouble(SIMCONDITION_DROGUE_LOW_SPEED_WARNING, newDefaults.getDrogueLowSpeedWarning());
+		prefs.putDouble(SIMCONDITION_RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, newDefaults.getRecoveryDrogueMainHighSpeedWarning());
+		prefs.putDouble(SIMCONDITION_RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, newDefaults.getRecoveryDrogueMainLowSpeedWarning());
 	}
 }

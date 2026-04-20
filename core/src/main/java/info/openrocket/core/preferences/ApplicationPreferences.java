@@ -160,6 +160,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String GRAVITY_MODEL = "GravityModel";
 	public static final String CONSTANT_GRAVITY_VALUE = "ConstantGravityValue";
 	public static final String SIMULATION_STEPPER_METHOD = "SimulationStepperMethod";
+	public static final String RECOVERY_SPEED_WARNING = "RecoverySpeedWarning";
+	public static final String DROGUE_LOW_SPEED_WARNING = "DrogueLowSpeedWarning";
+	public static final String RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING = "RecoveryDrogueMainHighSpeedWarning";
+	public static final String RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING = "RecoveryDrogueMainLowSpeedWarning";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -719,6 +723,50 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (MathUtil.equals(this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME), maxTime))
 			return;
 		this.putDouble(SIMULATION_MAX_TIME, maxTime);
+		fireChangeEvent();
+	}
+
+	public double getRecoverySpeedWarning() {
+		return this.getDouble(RECOVERY_SPEED_WARNING, 20.0);
+	}
+
+	public void setRecoverySpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_SPEED_WARNING, 20.0), value))
+			return;
+		this.putDouble(RECOVERY_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getDrogueLowSpeedWarning() {
+		return this.getDouble(DROGUE_LOW_SPEED_WARNING, 3.048);
+	}
+
+	public void setDrogueLowSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(DROGUE_LOW_SPEED_WARNING, 3.048), value))
+			return;
+		this.putDouble(DROGUE_LOW_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainHighSpeedWarning() {
+		return this.getDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, 30.48);
+	}
+
+	public void setRecoveryDrogueMainHighSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, 30.48), value))
+			return;
+		this.putDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainLowSpeedWarning() {
+		return this.getDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, 15.24);
+	}
+
+	public void setRecoveryDrogueMainLowSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, 15.24), value))
+			return;
+		this.putDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, value);
 		fireChangeEvent();
 	}
 

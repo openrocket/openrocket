@@ -113,8 +113,27 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			// No recovery device
 			if (!simulationConfig.hasRecoveryDevice()) {
 				currentStatus.addWarning(Warning.NO_RECOVERY_DEVICE);
+			} else {
+				// Check for drogue without main
+				boolean configHasDrogue = false;
+				boolean configHasMain = false;
+				for (RocketComponent comp : simulationConfig.getActiveComponents()) {
+					if (comp instanceof RecoveryDevice rd) {
+						DeploymentConfiguration dc = rd.getDeploymentConfigurations().get(this.fcid);
+						if (dc.getDeployEvent() != DeploymentConfiguration.DeployEvent.NEVER) {
+							if (rd.isDrogue()) {
+								configHasDrogue = true;
+							} else {
+								configHasMain = true;
+							}
+						}
+					}
+				}
+				if (configHasDrogue && !configHasMain) {
+					currentStatus.addWarning(new Warning.RecoveryDrogueWithoutMain());
+				}
 			}
-			
+
 			currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
 			toSimulate.push(currentStatus);
 		
@@ -595,9 +614,40 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						currentStatus.addWarning(Warning.RECOVERY_LAUNCH_ROD);
 					}
 
-					// Check current velocity
-					if (currentStatus.getRocketVelocity().length() > 20) {
-						currentStatus.addWarning(new Warning.HighSpeedDeployment(currentStatus.getRocketVelocity().length(), c));
+					// Check current velocity against configured warning thresholds
+					final double deploySpeed = currentStatus.getRocketVelocity().length();
+					final SimulationConditions conds = currentStatus.getSimulationConditions();
+					boolean rocketHasDrogue = false;
+					for (RocketComponent comp : currentStatus.getConfiguration().getActiveComponents()) {
+						if (comp instanceof RecoveryDevice rd) {
+							DeploymentConfiguration dc = rd.getDeploymentConfigurations().get(this.fcid);
+							if (dc.getDeployEvent() != DeploymentConfiguration.DeployEvent.NEVER && rd.isDrogue()) {
+								rocketHasDrogue = true;
+								break;
+							}
+						}
+					}
+					if (!rocketHasDrogue) {
+						// Single-recovery design
+						if (deploySpeed > conds.getRecoverySpeedWarning()) {
+							currentStatus.addWarning(new Warning.RecoveryHighSpeedDeployment(deploySpeed, c));
+						}
+					} else {
+						RecoveryDevice deployingDevice = (RecoveryDevice) c;
+						if (deployingDevice.isDrogue()) {
+							DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
+							if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
+									&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
+								currentStatus.addWarning(new Warning.LowSpeedDrogueDeployment(deploySpeed, c));
+							}
+						} else {
+							if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
+								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
+							}
+							if (deploySpeed < conds.getRecoveryDrogueMainLowSpeedWarning()) {
+								currentStatus.addWarning(new Warning.LowSpeedMainDeployment(deploySpeed, c));
+							}
+						}
 					}
 
 					currentStatus.setLiftoff(true);

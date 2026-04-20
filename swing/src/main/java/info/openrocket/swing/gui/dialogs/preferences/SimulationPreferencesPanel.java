@@ -271,6 +271,59 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		sub.add(button, "align left");
 
+		// Recovery speed warnings panel
+		JPanel recoverySub = new JPanel(new MigLayout("fill"));
+		recoverySub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.RecoveryWarnings")));
+		this.add(recoverySub, "grow, aligny 0, gaptop para");
+
+		JPanel recoveryGrid = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
+
+		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
+		tip = trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning");
+		label.setToolTipText(tip);
+		recoveryGrid.add(label, "gapright para");
+		DoubleModel m_rsw = new DoubleModel(preferences, "RecoverySpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m_rsw.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		recoveryGrid.add(spin, "");
+		recoveryGrid.add(new UnitSelector(m_rsw), "wrap");
+
+		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
+		tip = trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning");
+		label.setToolTipText(tip);
+		recoveryGrid.add(label, "gapright para");
+		DoubleModel m_dlsw = new DoubleModel(preferences, "DrogueLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m_dlsw.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		recoveryGrid.add(spin, "");
+		recoveryGrid.add(new UnitSelector(m_dlsw), "wrap");
+
+		label = new JLabel(trans.get("simedtdlg.lbl.MainHighSpeedWarning"));
+		tip = trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning");
+		label.setToolTipText(tip);
+		recoveryGrid.add(label, "gapright para");
+		DoubleModel m_mhsw = new DoubleModel(preferences, "RecoveryDrogueMainHighSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m_mhsw.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		recoveryGrid.add(spin, "");
+		recoveryGrid.add(new UnitSelector(m_mhsw), "wrap");
+
+		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
+		tip = trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning");
+		label.setToolTipText(tip);
+		recoveryGrid.add(label, "gapright para");
+		DoubleModel m_mlsw = new DoubleModel(preferences, "RecoveryDrogueMainLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m_mlsw.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		recoveryGrid.add(spin, "");
+		recoveryGrid.add(new UnitSelector(m_mlsw), "wrap");
+
+		recoverySub.add(recoveryGrid, "spanx, wrap para");
+
 		/*
 		 * // // Simulation listeners sub = new JPanel(new
 		 * MigLayout("fill, gap 0 0")); // // Simulator listeners

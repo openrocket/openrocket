@@ -266,6 +266,14 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		deploymentPanel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap");
 
+		//// Is Drogue checkbox
+		JCheckBox drogueCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue"));
+		drogueCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue.ttip"));
+		drogueCheck.setSelected(streamer.isDrogue());
+		drogueCheck.addActionListener(e -> streamer.setDrogue(drogueCheck.isSelected()));
+		deploymentPanel.add(drogueCheck, "spanx, wrap");
+		order.add(drogueCheck);
+
 		panel.add(deploymentPanel, "growx");
 		primary.add(panel, "grow");
 		

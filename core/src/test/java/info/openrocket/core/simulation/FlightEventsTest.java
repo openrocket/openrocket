@@ -59,7 +59,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final InnerTube motorMountTube = (InnerTube) stage.getChild(1).getChild(2);
 		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
 
-		Warning warn = new Warning.HighSpeedDeployment(80.6, parachute);
+		Warning warn = new Warning.RecoveryHighSpeedDeployment(80.6, parachute);
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
@@ -134,7 +134,7 @@ public class FlightEventsTest extends BaseTestCase {
 		motorConfig.setIgnitionEvent(IgnitionEvent.NEVER);
 		sustainerMount.setMotorConfig(motorConfig, fcid);
 
-		Warning warn = new Warning.HighSpeedDeployment(53.2, chute);
+		Warning warn = new Warning.RecoveryHighSpeedDeployment(53.2, chute);
 
 		sim.simulate();
 
@@ -216,7 +216,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 		
-		Warning warn = new Warning.HighSpeedDeployment(53.2, sideChutes);
+		Warning warn = new Warning.RecoveryHighSpeedDeployment(53.2, sideChutes);
 		
 		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
@@ -352,5 +352,98 @@ public class FlightEventsTest extends BaseTestCase {
 		}
 		assertTrue(mismatches.isEmpty(), "Final flight data variables " + mismatches + " are NaN");
 		assertTrue(Double.isNaN(branch.getLast(FlightDataType.TYPE_TIME_STEP)), "Sim branch " + b + " final FlightDataType.TYPE_TIME_STEP isn't NaN");
+	}
+
+	/**
+	 * Test that the HighSpeedDeployment warning fires for a no-drogue design
+	 * when the configurable threshold is exceeded.
+	 */
+	@Test
+	public void testHighSpeedDeploymentNoDrogue() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions().setRecoverySpeedWarning(20.0);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		sim.simulate();
+
+		assertTrue(sim.getSimulatedData().getWarningSet().stream()
+						.anyMatch(w -> w instanceof Warning.RecoveryHighSpeedDeployment),
+				"Expected HighSpeedDeployment warning for no-drogue design");
+	}
+
+	/**
+	 * Test that no HighSpeedDeployment warning fires when the threshold is raised above the deploy speed.
+	 */
+	@Test
+	public void testNoHighSpeedDeploymentWithHighThreshold() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions().setRecoverySpeedWarning(200.0); // Very high threshold
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		sim.simulate();
+
+		assertTrue(sim.getSimulatedData().getWarningSet().stream()
+						.noneMatch(w -> w instanceof Warning.RecoveryHighSpeedDeployment),
+				"Expected no HighSpeedDeployment warning with high threshold");
+	}
+
+	/**
+	 * Test DrogueWithoutMain warning fires when drogue is configured but no main exists.
+	 */
+	@Test
+	public void testDrogueWithoutMain() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage stage = rocket.getStage(0);
+		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
+		parachute.setDrogue(true);
+
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		sim.simulate();
+
+		assertTrue(sim.getSimulatedData().getWarningSet().stream()
+						.anyMatch(w -> w instanceof Warning.RecoveryDrogueWithoutMain),
+				"Expected DrogueWithoutMain warning");
+	}
+
+	/**
+	 * Test that no DrogueWithoutMain when both drogue and main are present.
+	 */
+	@Test
+	public void testNoDrogueWithoutMainWhenMainExists() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage stage = rocket.getStage(0);
+		final BodyTube bodyTube = (BodyTube) stage.getChild(1);
+		final Parachute drogue = (Parachute) bodyTube.getChild(3);
+		drogue.setDrogue(true);
+
+		// Add a main parachute
+		Parachute main = new Parachute();
+		main.setDrogue(false);
+		DeploymentConfiguration mainDeploy = new DeploymentConfiguration();
+		mainDeploy.setDeployEvent(DeploymentConfiguration.DeployEvent.ALTITUDE);
+		mainDeploy.setDeployAltitude(300);
+		main.getDeploymentConfigurations().setDefault(mainDeploy);
+		bodyTube.addChild(main);
+
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		sim.simulate();
+
+		assertTrue(sim.getSimulatedData().getWarningSet().stream()
+						.noneMatch(w -> w instanceof Warning.RecoveryDrogueWithoutMain),
+				"Expected no DrogueWithoutMain warning when main exists");
 	}
 }
