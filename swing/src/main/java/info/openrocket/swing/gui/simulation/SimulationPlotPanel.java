@@ -68,7 +68,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	
 	/** The current default configuration, set each time a plot is made. */
 	private static SimulationPlotConfiguration DEFAULT_CONFIGURATION =
-			SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS[0].clone().resetUnits(); // Clone to avoid mutating the static template when resetting units
+			SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS[0].clone().resetUnits(); // Clone to avoid mutating the static template when resetting units.
 	
 	
 	private final Simulation simulation;
