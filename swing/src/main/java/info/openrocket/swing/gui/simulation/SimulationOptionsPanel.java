@@ -342,55 +342,52 @@ class SimulationOptionsPanel extends JPanel {
 			}
 		});
 
-		// Recovery speed warnings sub-panel (inside Simulator options)
-		JPanel recoveryWarningsPanel = new JPanel(new MigLayout("fill"));
-		recoveryWarningsPanel.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.RecoveryWarnings")));
-
-		JPanel recoveryWarningsGrid = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
+		// Recovery speed warnings - Single deployment (rows added directly into subsub for column alignment)
+		subsub.add(new StyledLabel(trans.get("simedtdlg.border.SingleDeployment"), Style.BOLD), "spanx, gaptop para, wrap rel");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
-		recoveryWarningsGrid.add(label, "gapright para");
+		subsub.add(label, "gapright para");
 		m = new DoubleModel(conditions, "RecoverySpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
-		recoveryWarningsGrid.add(spin, "");
-		recoveryWarningsGrid.add(new UnitSelector(m), "wrap");
+		subsub.add(spin, "");
+		subsub.add(new UnitSelector(m), "wrap");
+
+		// Recovery speed warnings - Dual deployment
+		subsub.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment"), Style.BOLD), "spanx, gaptop unrel, wrap rel");
+		subsub.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeploymentNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
-		recoveryWarningsGrid.add(label, "gapright para");
+		subsub.add(label, "gapright para");
 		m = new DoubleModel(conditions, "DrogueLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
-		recoveryWarningsGrid.add(spin, "");
-		recoveryWarningsGrid.add(new UnitSelector(m), "wrap");
+		subsub.add(spin, "");
+		subsub.add(new UnitSelector(m), "wrap");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainHighSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning"));
-		recoveryWarningsGrid.add(label, "gapright para");
+		subsub.add(label, "gapright para");
 		m = new DoubleModel(conditions, "RecoveryDrogueMainHighSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning"));
-		recoveryWarningsGrid.add(spin, "");
-		recoveryWarningsGrid.add(new UnitSelector(m), "wrap");
+		subsub.add(spin, "");
+		subsub.add(new UnitSelector(m), "wrap");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
-		recoveryWarningsGrid.add(label, "gapright para");
+		subsub.add(label, "gapright para");
 		m = new DoubleModel(conditions, "RecoveryDrogueMainLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
-		recoveryWarningsGrid.add(spin, "");
-		recoveryWarningsGrid.add(new UnitSelector(m), "wrap");
-
-		recoveryWarningsPanel.add(recoveryWarningsGrid, "spanx, wrap para");
-
-		sub.add(recoveryWarningsPanel, "spanx, growx, wrap para");
+		subsub.add(spin, "");
+		subsub.add(new UnitSelector(m), "wrap");
 
 		sub.add(resetBtn, "align left, split 2");
 		sub.add(saveBtn, "wrap");
