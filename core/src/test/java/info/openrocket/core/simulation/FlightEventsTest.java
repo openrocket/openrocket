@@ -375,6 +375,49 @@ public class FlightEventsTest extends BaseTestCase {
 	}
 
 	/**
+	 * Test that marking a parachute as isDrogueless forces the single-deployment warning path
+	 * even when a drogue is present in the design.
+	 */
+	@Test
+	public void testDroguelessOverridesForcesingleDeploymentWarning() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage stage = rocket.getStage(0);
+		final BodyTube bodytube = (BodyTube) stage.getChild(1);
+
+		// The existing parachute becomes the drogueless main
+		final Parachute main = (Parachute) bodytube.getChild(3);
+		main.setDrogueless(true);
+
+		// Add a second parachute and mark it as a drogue (apogee deploy)
+		Parachute drogue = new Parachute();
+		drogue.setDrogue(true);
+		DeploymentConfiguration drogueConfig = new DeploymentConfiguration();
+		drogueConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.APOGEE);
+		drogue.getDeploymentConfigurations().setDefault(drogueConfig);
+		bodytube.addChild(drogue);
+
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		// Set dual-deployment main threshold low so the warning fires for the drogueless device
+		sim.getOptions().setRecoveryDrogueMainHighSpeedWarning(1.0);
+		// Keep single-deployment threshold very high so it would NOT fire that path
+		sim.getOptions().setRecoverySpeedWarning(1000.0);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		sim.simulate();
+
+		// Should fire dual-deployment main overspeed warning (drogueless uses RecoveryDrogueMainHighSpeedWarning)
+		assertTrue(sim.getSimulatedData().getWarningSet().stream()
+					.anyMatch(w -> w instanceof Warning.HighSpeedMainDeployment),
+				"Expected HighSpeedMainDeployment warning for drogueless device in dual-deployment design");
+		// Should NOT fire single-deployment warning
+		assertTrue(sim.getSimulatedData().getWarningSet().stream()
+					.noneMatch(w -> w instanceof Warning.RecoveryHighSpeedDeployment),
+				"Expected no RecoveryHighSpeedDeployment warning for a drogueless device");
+	}
+
+	/**
 	 * Test that no HighSpeedDeployment warning fires when the threshold is raised above the deploy speed.
 	 */
 	@Test

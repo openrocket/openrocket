@@ -25,6 +25,9 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		if (dev.isDrogue()) {
 			elements.add("<isdrogue>true</isdrogue>");
 		}
+		if (dev.isDrogueless()) {
+			elements.add("<isdrogueless>true</isdrogueless>");
+		}
 
 		// NOTE: Default config must be BEFORE overridden config for proper backward
 		// compatibility later on

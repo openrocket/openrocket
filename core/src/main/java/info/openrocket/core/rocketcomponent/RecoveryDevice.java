@@ -27,6 +27,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	protected boolean cdAutomatic = true;
 	////
 	private boolean drogue = false;
+	private boolean drogueless = false;
 	////
 	private final Material.Surface defaultMaterial;
 	private Material.Surface material;
@@ -101,9 +102,25 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		this.drogue = drogue;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
-	
-	
+
+	public boolean isDrogueless() {
+		return drogueless;
+	}
+
+	public void setDrogueless(boolean drogueless) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setDrogueless(drogueless);
+			}
+		}
+		if (this.drogueless == drogueless)
+			return;
+		this.drogueless = drogueless;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+
+
 	public final Material getMaterial() {
 		return material;
 	}

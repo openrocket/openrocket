@@ -628,13 +628,19 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						}
 					}
 					if (!rocketHasDrogue) {
-						// Single-recovery design
+						// True single-deployment design: no drogue device anywhere
 						if (deploySpeed > conds.getRecoverySpeedWarning()) {
 							currentStatus.addWarning(new Warning.RecoveryHighSpeedDeployment(deploySpeed, c));
 						}
 					} else {
 						RecoveryDevice deployingDevice = (RecoveryDevice) c;
-						if (deployingDevice.isDrogue()) {
+						if (deployingDevice.isDrogueless()) {
+							// Main in a dual-deployment design deploying without drogue support —
+							// use the dual-deployment main overspeed threshold since it's free-falling
+							if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
+								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
+							}
+						} else if (deployingDevice.isDrogue()) {
 							DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
 							if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
 									&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
