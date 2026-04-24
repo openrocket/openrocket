@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -342,59 +343,65 @@ class SimulationOptionsPanel extends JPanel {
 			}
 		});
 
-		// Recovery speed warnings - Single deployment (rows added directly into subsub for column alignment)
-		subsub.add(new StyledLabel(trans.get("simedtdlg.border.SingleDeployment"), Style.BOLD), "spanx, gaptop para, wrap rel");
+		// Recovery speed warnings - tabbed by deployment type
+		JTabbedPane recoveryTabs = new JTabbedPane();
 
+		// --- Single deployment tab ---
+		JPanel singleTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
 		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
-		subsub.add(label, "gapright para");
+		singleTab.add(label, "gapright para");
 		m = new DoubleModel(conditions, "RecoverySpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
-		subsub.add(spin, "");
-		subsub.add(new UnitSelector(m), "wrap");
+		singleTab.add(spin, "");
+		singleTab.add(new UnitSelector(m), "wrap");
+		recoveryTabs.addTab(trans.get("simedtdlg.border.SingleDeployment"), singleTab);
 
-		// Recovery speed warnings - Dual deployment
-		subsub.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment"), Style.BOLD), "spanx, gaptop unrel, wrap rel");
+		// --- Dual deployment tab ---
+		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
 
 		// Drogue sub-section
-		subsub.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
-		subsub.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueNote"), -1, Style.ITALIC), "spanx, wrap rel");
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
-		subsub.add(label, "gapright para");
+		dualTab.add(label, "gapright para");
 		m = new DoubleModel(conditions, "DrogueLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
-		subsub.add(spin, "");
-		subsub.add(new UnitSelector(m), "wrap");
+		dualTab.add(spin, "");
+		dualTab.add(new UnitSelector(m), "wrap");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
-		subsub.add(label, "gapright para");
+		dualTab.add(label, "gapright para");
 		m = new DoubleModel(conditions, "RecoveryDrogueMainLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
-		subsub.add(spin, "");
-		subsub.add(new UnitSelector(m), "wrap");
+		dualTab.add(spin, "");
+		dualTab.add(new UnitSelector(m), "wrap");
 
 		// Drogue or Drogueless sub-section
-		subsub.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.DrogueOrDrogueless"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
-		subsub.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueOrDroguelessNote"), -1, Style.ITALIC), "spanx, wrap rel");
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.DrogueOrDrogueless"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueOrDroguelessNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainHighSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning"));
-		subsub.add(label, "gapright para");
+		dualTab.add(label, "gapright para");
 		m = new DoubleModel(conditions, "RecoveryDrogueMainHighSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning"));
-		subsub.add(spin, "");
-		subsub.add(new UnitSelector(m), "wrap");
+		dualTab.add(spin, "");
+		dualTab.add(new UnitSelector(m), "wrap");
+
+		recoveryTabs.addTab(trans.get("simedtdlg.border.DualDeployment"), dualTab);
+		subsub.add(recoveryTabs, "spanx, gaptop para, growx, wrap");
 
 		sub.add(resetBtn, "align left, split 2");
 		sub.add(saveBtn, "wrap");
