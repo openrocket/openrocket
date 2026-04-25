@@ -50,7 +50,14 @@ public class ColorConversion {
 			hexColor = hexColor.substring(1);
 		}
 		hexColor = hexColor.trim();
-		if (hexColor.length() != 6 || hexColor.matches("^#[0-9A-Fa-f]{6}$")) {
+		if (hexColor.matches("^[0-9A-Fa-f]{3}$")) {
+			hexColor = new StringBuilder(6)
+					.append(hexColor.charAt(0)).append(hexColor.charAt(0))
+					.append(hexColor.charAt(1)).append(hexColor.charAt(1))
+					.append(hexColor.charAt(2)).append(hexColor.charAt(2))
+					.toString();
+		}
+		else if (!hexColor.matches("^[0-9A-Fa-f]{6}$")) {
 			throw new IllegalArgumentException("Invalid hex color: " + hexColor);
 		}
 		int red = Integer.parseInt(hexColor.substring(0, 2), 16);
