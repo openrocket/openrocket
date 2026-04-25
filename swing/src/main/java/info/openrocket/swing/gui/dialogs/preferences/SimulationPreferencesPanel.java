@@ -273,6 +273,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
+		/*  DrogueLowSpeedWarning — commented out for now
 		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
 		tip = trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning");
 		label.setToolTipText(tip);
@@ -283,6 +284,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		spin.setToolTipText(tip);
 		dualTab.add(spin, "");
 		dualTab.add(new UnitSelector(m_dlsw), "wrap");
+		*/
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		tip = trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning");

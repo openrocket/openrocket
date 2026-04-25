@@ -641,11 +641,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
 							}
 						} else if (deployingDevice.isDrogue()) {
+							// DrogueLowSpeedWarning — commented out for now
+							/*
 							DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
 							if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
 									&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
 								currentStatus.addWarning(new Warning.LowSpeedDrogueDeployment(deploySpeed, c));
 							}
+							*/
 						} else {
 							if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
 								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));

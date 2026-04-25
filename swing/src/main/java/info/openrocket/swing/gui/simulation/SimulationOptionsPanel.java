@@ -321,7 +321,7 @@ class SimulationOptionsPanel extends JPanel {
 						ApplicationPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));
 				conditions.setRecoverySpeedWarning(preferences.getRecoverySpeedWarning());
-				conditions.setDrogueLowSpeedWarning(preferences.getDrogueLowSpeedWarning());
+				//conditions.setDrogueLowSpeedWarning(preferences.getDrogueLowSpeedWarning());
 				conditions.setRecoveryDrogueMainHighSpeedWarning(preferences.getRecoveryDrogueMainHighSpeedWarning());
 				conditions.setRecoveryDrogueMainLowSpeedWarning(preferences.getRecoveryDrogueMainLowSpeedWarning());
 			}
@@ -337,7 +337,7 @@ class SimulationOptionsPanel extends JPanel {
 				preferences.setMaxSimulationTime(conditions.getMaxSimulationTime());
 				preferences.setGeodeticComputation(conditions.getGeodeticComputation());
 				preferences.setRecoverySpeedWarning(conditions.getRecoverySpeedWarning());
-				preferences.setDrogueLowSpeedWarning(conditions.getDrogueLowSpeedWarning());
+				//preferences.setDrogueLowSpeedWarning(conditions.getDrogueLowSpeedWarning());
 				preferences.setRecoveryDrogueMainHighSpeedWarning(conditions.getRecoveryDrogueMainHighSpeedWarning());
 				preferences.setRecoveryDrogueMainLowSpeedWarning(conditions.getRecoveryDrogueMainLowSpeedWarning());
 			}
@@ -366,6 +366,7 @@ class SimulationOptionsPanel extends JPanel {
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
+		/*  DrogueLowSpeedWarning — commented out for now
 		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
 		dualTab.add(label, "gapright para");
@@ -375,6 +376,7 @@ class SimulationOptionsPanel extends JPanel {
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
 		dualTab.add(spin, "");
 		dualTab.add(new UnitSelector(m), "wrap");
+		*/
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
