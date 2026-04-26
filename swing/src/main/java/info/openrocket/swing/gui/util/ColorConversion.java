@@ -32,7 +32,17 @@ public class ColorConversion {
 		if (c == null) {
 			return null;
 		}
-		return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()).toUpperCase();
+		int r = c.getRed();
+		int g = c.getGreen();
+		int b = c.getBlue();
+		if (((r>>4) == (r&15)) &&
+			((g>>4) == (g&15)) &&
+			((b>>4) == (b&15))) {
+			return String.format("#%01X%01X%01X", r&15, g&15, b&15);
+		}
+		else {
+			return String.format("#%02X%02X%02X", r, g, b);
+		}
 	}
 
 	public static Color brightenColor(Color color, int amount) {
@@ -50,19 +60,24 @@ public class ColorConversion {
 			hexColor = hexColor.substring(1);
 		}
 		hexColor = hexColor.trim();
+		int red, green, blue;
 		if (hexColor.matches("^[0-9A-Fa-f]{3}$")) {
-			hexColor = new StringBuilder(6)
-					.append(hexColor.charAt(0)).append(hexColor.charAt(0))
-					.append(hexColor.charAt(1)).append(hexColor.charAt(1))
-					.append(hexColor.charAt(2)).append(hexColor.charAt(2))
-					.toString();
+			int color = Integer.parseInt(hexColor, 16);
+			red = (color >> 8);
+			red = (red << 4) + red;
+			green = (color >> 4) & 15;
+			green = (green << 4) + green;
+			blue = (color & 15);
+			blue = (blue << 4) + blue;
 		}
-		else if (!hexColor.matches("^[0-9A-Fa-f]{6}$")) {
+		else if (hexColor.matches("^[0-9A-Fa-f]{6}$")) {
+			red = Integer.parseInt(hexColor.substring(0, 2), 16);
+			green = Integer.parseInt(hexColor.substring(2, 4), 16);
+			blue = Integer.parseInt(hexColor.substring(4, 6), 16);
+		}
+		else {
 			throw new IllegalArgumentException("Invalid hex color: " + hexColor);
 		}
-		int red = Integer.parseInt(hexColor.substring(0, 2), 16);
-		int green = Integer.parseInt(hexColor.substring(2, 4), 16);
-		int blue = Integer.parseInt(hexColor.substring(4, 6), 16);
 		return new ORColor(red, green, blue);
 	}
 }
