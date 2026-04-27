@@ -48,10 +48,14 @@ import info.openrocket.swing.gui.components.UnitSelector;
 
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
+	private static final String PANEL_LAYOUT = "fillx, gap rel rel";
+	private static final String SECTION_LAYOUT = "fillx, gap rel rel";
+	private static final String WIND_SECTION_LAYOUT = "fillx";
+	private static final String FIELD_COLUMNS = "[grow][80lp!][32lp!][72lp!]";
 
 
 	SimulationConditionsPanel(final Simulation simulation) {
-		super(new MigLayout("fill, ins n n 0 n"));
+		super(new MigLayout(PANEL_LAYOUT));
 
 		SimulationOptions simulationOptions = simulation.getOptions();
 
@@ -84,10 +88,10 @@ public class SimulationConditionsPanel extends JPanel {
 		final ExtendedISAModel standardAtmosphere = new ExtendedISAModel();
 
 		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation, and direction
-		sub = new JPanel(new MigLayout("fill, ins 20 20 0 20", "[grow]", ""));
+		sub = new JPanel(new MigLayout(WIND_SECTION_LAYOUT, "[grow]", ""));
 		//// Wind
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Wind")));
-		parent.add(sub, "growx, split 2, aligny 0, flowy, gapright para");
+		parent.add(sub, "growx, split 2, aligny 0, flowy, gapright rel");
 
 		// Already create the models here for use in the wind direction widget
 		DoubleModel launchRodDirectionModel = new DoubleModel(target, "LaunchRodDirection", 1.0, UnitGroup.UNITS_ANGLE,
@@ -108,11 +112,10 @@ public class SimulationConditionsPanel extends JPanel {
 		}
 
 		//// Temperature and pressure
-		sub = new JPanel(new MigLayout("gap rel unrel",
-				"[][85lp!][35lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout(SECTION_LAYOUT, FIELD_COLUMNS, ""));
 		//// Atmospheric conditions
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Atmoscond")));
-		parent.add(sub, "growx, aligny 0, gapright para");
+		parent.add(sub, "growx, aligny 0");
 
 
 		BooleanModel isa = new BooleanModel(target, "ISAAtmosphere");
@@ -221,8 +224,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 
 		//// Launch site conditions
-		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][90lp!][30lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout(SECTION_LAYOUT, "[grow][85lp!][32lp!][72lp!]", ""));
 		//// Launch site
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Launchsite")));
 		parent.add(sub, "growx, split 2, aligny 0, flowy");
@@ -317,8 +319,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 
 		//// Launch rod
-		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][75lp!][30lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout(SECTION_LAYOUT, FIELD_COLUMNS, ""));
 		//// Launch rod
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Launchrod")));
 		parent.add(sub, "growx, aligny 0, wrap");
@@ -493,8 +494,8 @@ public class SimulationConditionsPanel extends JPanel {
 
 		JPanel windSettingsPanel = new JPanel(new CardLayout());
 
-		JPanel averagePanel = new JPanel(new MigLayout("fill, ins 0", "[grow][75lp!][30lp!][75lp!]", ""));
-		JPanel multiLevelPanel = new JPanel(new MigLayout("fill, ins 0"));
+		JPanel averagePanel = new JPanel(new MigLayout("fillx, ins 0, gap rel rel", FIELD_COLUMNS, ""));
+		JPanel multiLevelPanel = new JPanel(new MigLayout("fillx, ins 0, gap rel rel"));
 
 		addAverageWindSettings(averagePanel, target, intoWind, launchRodDirectionModel);
 		addMultiLevelSettings(multiLevelPanel, target);

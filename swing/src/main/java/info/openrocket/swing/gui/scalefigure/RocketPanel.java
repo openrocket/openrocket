@@ -2240,8 +2240,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ButtonGroup modeGroup = new ButtonGroup();
 		JRadioButton verticalRadio = new JRadioButton();
 		JRadioButton horizontalRadio = new JRadioButton();
-		JLabel verticalModeIcon = new JLabel(createCaliperDoubleArrowIcon(true, caliperColor));
-		JLabel horizontalModeIcon = new JLabel(createCaliperDoubleArrowIcon(false, caliperColor));
+		JLabel verticalModeIcon = new JLabel(createCaliperDoubleDiamondIcon(true, caliperColor));
+		JLabel horizontalModeIcon = new JLabel(createCaliperDoubleDiamondIcon(false, caliperColor));
 		verticalRadio.setToolTipText(trans.get("RocketPanel.radio.CaliperVertical.ttip"));
 		horizontalRadio.setToolTipText(trans.get("RocketPanel.radio.CaliperHorizontal.ttip"));
 		verticalModeIcon.setToolTipText(trans.get("RocketPanel.radio.CaliperVertical.ttip"));
@@ -2370,8 +2370,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			Color newValueFg = GUIUtil.getUITheme().getCaliperValueForegroundColor();
 			Color newDiamondLabelColor = GUIUtil.getUITheme().getCaliperDiamondLabelColor();
 
-			verticalModeIcon.setIcon(createCaliperDoubleArrowIcon(true, newCaliperColor));
-			horizontalModeIcon.setIcon(createCaliperDoubleArrowIcon(false, newCaliperColor));
+			verticalModeIcon.setIcon(createCaliperDoubleDiamondIcon(true, newCaliperColor));
+			horizontalModeIcon.setIcon(createCaliperDoubleDiamondIcon(false, newCaliperColor));
 
 			leftArrow.setIcon(createCaliperSingleArrowIcon(true, newCaliperColor));
 			rightArrow.setIcon(createCaliperSingleArrowIcon(false, newCaliperColor));
@@ -2440,38 +2440,40 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	/**
-	 * Create a twin-arrow icon for the caliper mode radio buttons.
-	 * Vertical mode shows two upward arrows side by side (↑↑);
-	 * horizontal mode shows two leftward arrows stacked (←←).
+	 * Create a twin-caliper (line + diamond) icon for the caliper mode radio buttons.
+	 * Vertical mode shows two upward calipers side by side (↑↑);
+	 * horizontal mode shows two leftward calipers stacked (←←).
 	 *
 	 * @param vertical true for vertical mode (↑↑), false for horizontal (←←)
-	 * @param color    the arrow color
-	 * @return an ImageIcon of the twin arrows
+	 * @param color    the caliper color
+	 * @return an ImageIcon of the twin calipers
 	 */
-	private ImageIcon createCaliperDoubleArrowIcon(boolean vertical, Color color) {
+	private ImageIcon createCaliperDoubleDiamondIcon(boolean vertical, Color color) {
 		int size = 16;
 		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = image.createGraphics();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(color);
 
-		int head = 4; // arrowhead depth
-		int hw = 3;   // arrowhead half-width
-		int stemTop = head + 1;
+		int head = 3; // diamond half-depth
+		int hw = 3;   // diamond half-width
+		int stemTop = head;
 		int stemBot = size - 2;
 
 		g2.setStroke(new BasicStroke(1.5f));
 		if (vertical) {
-			// Two upward arrows side by side at x=4 and x=11
+			// Two upward calipers side by side at x=4 and x=11
 			for (int cx : new int[]{4, 11}) {
-				g2.drawLine(cx, stemTop, cx, stemBot);
-				g2.fillPolygon(new int[]{cx - hw, cx, cx + hw}, new int[]{head, 0, head}, 3);
+				g2.drawLine(cx-1, stemTop, cx-1, stemBot);
+				g2.fillPolygon(new int[]{cx - hw - 1, cx, cx}, new int[]{head, 0, head*2}, 3);
+				g2.fillPolygon(new int[]{cx-1, cx + hw, cx-1}, new int[]{0, head, head*2}, 3);
 			}
 		} else {
-			// Two leftward arrows stacked at y=4 and y=11
+			// Two leftward calipers stacked at y=4 and y=11
 			for (int cy : new int[]{4, 11}) {
-				g2.drawLine(stemTop, cy, stemBot, cy);
-				g2.fillPolygon(new int[]{head, 0, head}, new int[]{cy - hw, cy, cy + hw}, 3);
+				g2.drawLine(stemTop, cy-1, stemBot, cy-1);
+				g2.fillPolygon(new int[]{head, 0, head*2}, new int[]{cy - hw - 1, cy, cy}, 3);
+				g2.fillPolygon(new int[]{0, head, head*2}, new int[]{cy-1, cy + hw, cy-1}, 3);
 			}
 		}
 
@@ -2493,16 +2495,18 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(color);
 
-		int head = 4;
+		int head = 5;
 		int cy = h / 2;
 
 		g2.setStroke(new BasicStroke(1.5f));
 		if (left) {
 			g2.drawLine(head, cy, w - 1, cy);
-			g2.fillPolygon(new int[]{head, 0, head}, new int[]{cy - head, cy, cy + head}, 3);
+			g2.fillPolygon(new int[]{head, 0, head}, new int[]{cy+1, cy+1, cy + 1 - head}, 3);
+			g2.fillPolygon(new int[]{head, 0, head}, new int[]{cy + head, cy, cy}, 3);
 		} else {
 			g2.drawLine(0, cy, w - head, cy);
-			g2.fillPolygon(new int[]{w - head, w, w - head}, new int[]{cy - head, cy, cy + head}, 3);
+			g2.fillPolygon(new int[]{w - head, w, w - head}, new int[]{cy+1, cy+1, cy+1 - head}, 3);
+			g2.fillPolygon(new int[]{w - head, w, w - head}, new int[]{cy + head, cy, cy}, 3);
 		}
 
 		g2.dispose();

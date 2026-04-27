@@ -128,6 +128,10 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 
 	@Override
 	public void setInstanceSeparation(final double _separation) {
+		if (MathUtil.equals(this.instanceSeparation, _separation)) {
+			return;
+		}
+
 		this.instanceSeparation = _separation;
 
 		for (RocketComponent listener : configListeners) {
@@ -135,6 +139,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 				((LineInstanceable) listener).setInstanceSeparation(_separation);
 			}
 		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	@Override
@@ -143,9 +149,12 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 			listener.setInstanceCount(newCount);
 		}
 
-		if (0 < newCount) {
-			this.instanceCount = newCount;
+		if (newCount == this.instanceCount || newCount <= 0) {
+			return;
 		}
+
+		this.instanceCount = newCount;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	@Override

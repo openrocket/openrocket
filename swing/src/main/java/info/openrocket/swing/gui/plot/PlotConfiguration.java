@@ -182,6 +182,10 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 	@SuppressWarnings("unchecked")
 	public <C extends PlotConfiguration<T, B>> C fillAutoAxes(B data) {
 		C config = (C) recursiveFillAutoAxes(data).getU();
+		if (config == null) {
+			// Keep plotting functional even if every axis combination scores as NaN/Infinity.
+			config = (C) this.cloneConfiguration();
+		}
 		config.fitAxes(data);
 		return config;
 	}
@@ -219,13 +223,25 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		for (int i = 0; i < axesCount; i++) {
 			copy.plotDataAxes.set(autoindex, i);
 			Pair<PlotConfiguration<T, B>, Double> result = copy.recursiveFillAutoAxes(data);
-			if (result.getV() > bestValue) {
+			if (best == null || isBetterGoodness(result.getV(), bestValue)) {
 				best = result.getU();
 				bestValue = result.getV();
 			}
 		}
 
 		return new Pair<>(best, bestValue);
+	}
+
+	/**
+	 * Prefer finite goodness values when choosing an automatic axis assignment.
+	 * If every candidate score is non-finite, keep the first result as a fallback
+	 * so plotting can continue instead of returning a null configuration.
+	 */
+	private boolean isBetterGoodness(double candidateValue, double bestValue) {
+		if (!Double.isFinite(candidateValue)) {
+			return false;
+		}
+		return !Double.isFinite(bestValue) || candidateValue > bestValue;
 	}
 
 

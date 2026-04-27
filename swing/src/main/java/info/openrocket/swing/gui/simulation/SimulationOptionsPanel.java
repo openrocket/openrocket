@@ -66,13 +66,18 @@ class SimulationOptionsPanel extends JPanel {
 	private static final long serialVersionUID = -5251458539346201239L;
 
 	private static final Translator trans = Application.getTranslator();
+	private static final String PANEL_LAYOUT = "fillx, gap rel rel";
+	private static final String OPTIONS_SECTION_LAYOUT = "fillx, gap rel rel";
+	private static final int EXTENSION_DESCRIPTION_ROWS = 3;
+	private static final int EXTENSION_DESCRIPTION_MIN_HEIGHT = 60;
+	private static final int EXTENSION_LIST_HEIGHT = 140;
 
 	private OpenRocketDocument document;
 	final Simulation simulation;
 	private final SimulationOptions options;
-
+	
 	private JLabel aerodynamicLookupSummaryIconLabel;
-
+	
 	private JPanel currentExtensions;
 	final JPopupMenu extensionMenu;
 	JMenu extensionMenuCopyExtension;
@@ -91,7 +96,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 
 	SimulationOptionsPanel(OpenRocketDocument document, final Simulation simulation) {
-		super(new MigLayout("fill, ins n n 0 n"));
+		super(new MigLayout(PANEL_LAYOUT));
 		this.document = document;
 		this.simulation = simulation;
 		this.options = simulation.getOptions();
@@ -107,8 +112,7 @@ class SimulationOptionsPanel extends JPanel {
 		BasicSlider slider;
 
 		// // Simulation options
-		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][65lp!][30lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout(OPTIONS_SECTION_LAYOUT));
 		// // Simulator options
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simopt")));
@@ -116,8 +120,8 @@ class SimulationOptionsPanel extends JPanel {
 
 		// Separate panel for computation methods, as they use a different
 		// layout
-		subsub = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
-
+		subsub = new JPanel(new MigLayout("fillx, ins 0, gap rel rel", "[grow][min!][]"));
+		
 		// // Calculation method:
 		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
 		label = new JLabel(trans.get("simedtdlg.lbl.Calcmethod"));
@@ -127,8 +131,8 @@ class SimulationOptionsPanel extends JPanel {
 		// // Extended Barrowman
 		label = new JLabel(trans.get("simedtdlg.lbl.ExtBarrowman"));
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, span 3, wrap");
-
+		subsub.add(label, "growx, spanx, wrap");
+		
 		// Simulation method
 		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1")
 				+ trans.get("simedtdlg.lbl.ttip.Simmethod2");
@@ -190,8 +194,8 @@ class SimulationOptionsPanel extends JPanel {
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
 		gcsTTipListener.actionPerformed(null);
-		subsub.add(gcsCombo, "span 3, wrap");
-
+		subsub.add(gcsCombo, "spanx, wrap");
+		
 		// // Gravity model:
 		label = new JLabel(trans.get("simedtdlg.lbl.GravityModel"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.GravityModel"));
@@ -215,8 +219,8 @@ class SimulationOptionsPanel extends JPanel {
 		};
 		gravityModelCombo.addActionListener(gravityModelTTipListener);
 		gravityModelTTipListener.actionPerformed(null);
-		subsub.add(gravityModelCombo, "span 3, wrap");
-
+		subsub.add(gravityModelCombo, "spanx, wrap");
+		
 		// // Constant gravity value:
 		gravityLabel = new JLabel(trans.get("simedtdlg.lbl.GravityValue"));
 		tip = trans.get("simedtdlg.lbl.ttip.GravityValue");
@@ -235,8 +239,8 @@ class SimulationOptionsPanel extends JPanel {
 		subsub.add(gravityUnit, "hidemode 3");
 		gravitySlider = new BasicSlider(m.getSliderModel(0, 20));
 		gravitySlider.setToolTipText(tip);
-		subsub.add(gravitySlider, "w 100, hidemode 3, wrap");
-
+		subsub.add(gravitySlider, "w 90lp, hidemode 3, wrap");
+		
 		// Update visibility of constant gravity components based on selected model
 		ActionListener gravityModelListener = new ActionListener() {
 			@Override
@@ -272,8 +276,8 @@ class SimulationOptionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		subsub.add(spin, "");
-
+		subsub.add(spin, "split 2");
+		
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
 		subsub.add(unit, "");
@@ -293,7 +297,7 @@ class SimulationOptionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		subsub.add(spin, "");
+		subsub.add(spin, "split 2");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -340,16 +344,16 @@ class SimulationOptionsPanel extends JPanel {
 
 
 		//// Simulation extensions
-		sub = new JPanel(new MigLayout("fill, gap 0 0"));
+		sub = new JPanel(new MigLayout("fillx, gap 0 0"));
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.SimExt")));
 		this.add(sub, "wmin 300lp, growx, growy");
-
-
-		DescriptionArea desc = new DescriptionArea(5);
+		
+		
+		DescriptionArea desc = new DescriptionArea(EXTENSION_DESCRIPTION_ROWS);
 		desc.setText(trans.get("simedtdlg.SimExt.desc"));
-		sub.add(desc, "aligny 0, hmin 100lp, growx, wrap para");
-
-
+		sub.add(desc, "aligny 0, hmin " + EXTENSION_DESCRIPTION_MIN_HEIGHT + "lp, growx, wrap rel");
+		
+		
 		final JButton addExtension = new JButton(trans.get("simedtdlg.SimExt.add"));
 		extensionMenu = getExtensionMenu();
 		addExtension.addActionListener(new ActionListener() {
@@ -362,7 +366,8 @@ class SimulationOptionsPanel extends JPanel {
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
 		scroll.setForeground(textColor);
-		scroll.setPreferredSize(new Dimension(scroll.getPreferredSize().width, 200));
+		scroll.setPreferredSize(new Dimension(scroll.getPreferredSize().width, EXTENSION_LIST_HEIGHT));
+		scroll.setMinimumSize(new Dimension(0, 90));
 		//  &#$%! scroll pane will not honor "growy"...
 		sub.add(scroll, "growx");
 

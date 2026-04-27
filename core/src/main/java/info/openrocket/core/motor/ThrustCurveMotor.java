@@ -288,9 +288,15 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				motor.designation = motor.code;
 			}
 
-			// If I don't have a motor common name (will be the case if I read the
-			// thrustcurve from a flle)
-			// apply the motor code simplification heuristics to generate a common name
+			// Normalize common name: if it matches the standard motor-designation pattern
+			// (e.g. "B6-0", "B6W", "H128W"), reduce it to just the letter+digits part
+			// ("B6", "H128"). Non-standard names (e.g. "RCS 18/20") are left unchanged.
+			if (!motor.commonName.isEmpty()) {
+				Matcher cnMatcher = SIMPLIFY_PATTERN.matcher(motor.commonName);
+				if (cnMatcher.matches()) {
+					motor.commonName = cnMatcher.group(1);
+				}
+			}
 			if (motor.commonName.isEmpty()) {
 				motor.commonName = simplifyDesignation(motor.designation);
 			}
