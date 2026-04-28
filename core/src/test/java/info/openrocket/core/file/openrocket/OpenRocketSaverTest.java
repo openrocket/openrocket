@@ -13,6 +13,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -465,6 +468,57 @@ public class OpenRocketSaverTest {
 	}
 	
 
+	/**
+	 * Verifies that re-saving an example file with STORAGE_DECIMAL_PLACES=6 keeps the
+	 * compressed file size within a reasonable multiple of the original (which was saved
+	 * with the old 3dp format).  This acts as a regression guard: if precision or data
+	 * volume accidentally balloons, this test fails before users notice multi-MB files.
+	 *
+	 * Baseline (3dp, on-disk): "A simple model rocket.ork" ≈ 53,634 B compressed,
+	 * 2,580 datapoints.  With 6dp the uncompressed XML grows slightly, but ZIP's
+	 * DEFLATE compression keeps the compressed delta much smaller.
+	 */
+	@Test
+	public void testSavedFileSizeWithSimulationData() {
+		String resourcePath = "/datafiles/examples/A simple model rocket.ork";
+		URL url = OpenRocketSaverTest.class.getResource(resourcePath);
+		assertNotNull(url, "Example file not found on classpath: " + resourcePath);
+
+		File originalFile;
+		try {
+			originalFile = new File(new URI(url.toString().replace(" ", "%20")));
+		} catch (URISyntaxException e) {
+			fail("Could not resolve example file URI: " + e.getMessage());
+			return;
+		}
+		long originalSize = originalFile.length();  // ~53,634 B (3dp format, on-disk)
+		assertTrue(originalSize > 0, "Original example file is empty or missing");
+
+		OpenRocketDocument doc = loadRocket(originalFile.getPath());
+		assertNotNull(doc);
+
+		// Save without simulation data — establishes the component-only baseline.
+		StorageOptions optsNoSim = new StorageOptions();
+		optsNoSim.setSaveSimulationData(false);
+		long sizeNoSim = saveRocketAsZip(doc, optsNoSim).length();
+
+		// Save with simulation data — datapoints written at STORAGE_DECIMAL_PLACES=6.
+		StorageOptions optsWithSim = new StorageOptions();
+		optsWithSim.setSaveSimulationData(true);
+		long sizeWithSim = saveRocketAsZip(doc, optsWithSim).length();
+
+		// Simulation data must actually contribute to the file size.
+		assertTrue(sizeWithSim > sizeNoSim,
+				String.format("File with sim data (%,d B) should exceed file without (%,d B)", sizeWithSim, sizeNoSim));
+
+		// With 6dp the file grows compared to the 3dp original, but ZIP compression
+		// keeps growth well bounded.  4× is generous enough to handle the precision
+		// increase while catching accidental format regressions (e.g. STORAGE_DECIMAL_PLACES=100).
+		assertTrue(sizeWithSim < originalSize * 4,
+				String.format("Re-saved file (%,d B) exceeds 4× the original 3dp file (%,d B); "
+						+ "check STORAGE_DECIMAL_PLACES or unexpected data-volume changes", sizeWithSim, originalSize));
+	}
+
 	@Test
 	public void testDatapointPrecision() {
 		// Build a minimal rocket
@@ -477,7 +531,7 @@ public class OpenRocketSaverTest {
 		OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 
 		// A time value in the 0.001–0.1 s range: %.3f would store "0.012" (off by ~0.345 ms)
-		// but STORAGE_DECIMAL_PLACES=8 stores "0.01234568" (within 2 ns of the original).
+		// but STORAGE_DECIMAL_PLACES=6 stores "0.012346" (within 1 µs of the original).
 		double precisionValue = 0.012345678;
 
 		FlightDataBranch branch = new FlightDataBranch("Sustainer",
@@ -511,9 +565,9 @@ public class OpenRocketSaverTest {
 		assertNotNull(times);
 		assertFalse(times.isEmpty());
 
-		// Tolerance of 1e-8 s (10 ns): passes with STORAGE_DECIMAL_PLACES=8,
+		// Tolerance of 1e-6 s (1 µs): passes with STORAGE_DECIMAL_PLACES=6,
 		// would fail with the old DEFAULT_DECIMAL_PLACES=3 which stores only "0.012".
-		assertEquals(precisionValue, times.get(0), 1e-8,
+		assertEquals(precisionValue, times.get(0), 1e-6,
 				"Time value lost precision in .ork round-trip — check STORAGE_DECIMAL_PLACES");
 	}
 
