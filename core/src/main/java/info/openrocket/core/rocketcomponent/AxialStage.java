@@ -15,6 +15,8 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	protected FlightConfigurableParameterSet<StageSeparationConfiguration> separations;
 	/** number of stages */
 	protected int stageNumber;
+	/** whether this stage uses a drogueless main deployment (main deploys without a drogue) */
+	protected boolean drogueless = false;
 	
 	/**
 	 * default constructor, builds a rocket with zero stages
@@ -85,6 +87,16 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	public boolean isStageActive(FlightConfiguration fc) {
 		return fc.isStageActive(getStageNumber());
+	}
+
+	public boolean isDrogueless() {
+		return drogueless;
+	}
+
+	public void setDrogueless(boolean drogueless) {
+		if (this.drogueless == drogueless) return;
+		this.drogueless = drogueless;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	@Override

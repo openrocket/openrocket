@@ -617,44 +617,50 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// Check current velocity against configured warning thresholds
 					final double deploySpeed = currentStatus.getRocketVelocity().length();
 					final SimulationConditions conds = currentStatus.getSimulationConditions();
-					boolean rocketHasDrogue = false;
-					for (RocketComponent comp : currentStatus.getConfiguration().getActiveComponents()) {
-						if (comp instanceof RecoveryDevice rd) {
-							DeploymentConfiguration dc = rd.getDeploymentConfigurations().get(this.fcid);
-							if (dc.getDeployEvent() != DeploymentConfiguration.DeployEvent.NEVER && rd.isDrogue()) {
-								rocketHasDrogue = true;
-								break;
-							}
-						}
-					}
-					if (!rocketHasDrogue) {
-						// True single-deployment design: no drogue device anywhere
-						if (deploySpeed > conds.getRecoverySpeedWarning()) {
-							currentStatus.addWarning(new Warning.RecoveryHighSpeedDeployment(deploySpeed, c));
+					final AxialStage deployingStage = c.getStage();
+					final RecoveryDevice deployingDevice = (RecoveryDevice) c;
+
+					if (deployingStage.isDrogueless()) {
+						// Drogueless stage: main deploys without a drogue — warn only if deploying too fast
+						if (!deployingDevice.isDrogue() && deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
+							currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
 						}
 					} else {
-						RecoveryDevice deployingDevice = (RecoveryDevice) c;
-						if (deployingDevice.isDrogueless()) {
-							// Main in a dual-deployment design deploying without drogue support —
-							// use the dual-deployment main overspeed threshold since it's free-falling
-							if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
-								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
+						// Auto-detect: scan active components in the deploying stage only for a drogue
+						boolean stageHasDrogue = false;
+						for (RocketComponent comp : currentStatus.getConfiguration().getActiveComponents()) {
+							if (comp instanceof RecoveryDevice rd && rd.getStage() == deployingStage) {
+								DeploymentConfiguration dc = rd.getDeploymentConfigurations().get(this.fcid);
+								if (dc.getDeployEvent() != DeploymentConfiguration.DeployEvent.NEVER && rd.isDrogue()) {
+									stageHasDrogue = true;
+									break;
+								}
 							}
-						} else if (deployingDevice.isDrogue()) {
-							// DrogueLowSpeedWarning — commented out for now
-							/*
-							DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
-							if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
-									&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
-								currentStatus.addWarning(new Warning.LowSpeedDrogueDeployment(deploySpeed, c));
+						}
+
+						if (stageHasDrogue) {
+							// Dual-deployment: warn on both high and low speed for the main chute
+							if (deployingDevice.isDrogue()) {
+								// DrogueLowSpeedWarning — commented out for now
+								/*
+								DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
+								if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
+										&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
+									currentStatus.addWarning(new Warning.LowSpeedDrogueDeployment(deploySpeed, c));
+								}
+								*/
+							} else {
+								if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
+									currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
+								}
+								if (deploySpeed < conds.getRecoveryDrogueMainLowSpeedWarning()) {
+									currentStatus.addWarning(new Warning.LowSpeedMainDeployment(deploySpeed, c));
+								}
 							}
-							*/
 						} else {
-							if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
-								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
-							}
-							if (deploySpeed < conds.getRecoveryDrogueMainLowSpeedWarning()) {
-								currentStatus.addWarning(new Warning.LowSpeedMainDeployment(deploySpeed, c));
+							// Single-deployment (no drogue, not drogueless): standard speed warning
+							if (deploySpeed > conds.getRecoverySpeedWarning()) {
+								currentStatus.addWarning(new Warning.RecoveryHighSpeedDeployment(deploySpeed, c));
 							}
 						}
 					}

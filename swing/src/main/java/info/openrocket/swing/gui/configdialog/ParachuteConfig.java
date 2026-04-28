@@ -31,9 +31,14 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.Parachute;
+import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
@@ -296,10 +301,40 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			JCheckBox drogueCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue"));
 			drogueCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue.ttip"));
 			drogueCheck.setSelected(parachute.isDrogue());
-			drogueCheck.addActionListener(e -> parachute.setDrogue(drogueCheck.isSelected()));
+			drogueCheck.addActionListener(e -> {
+				if (drogueCheck.isSelected()) {
+					AxialStage stage = parachute.getStage();
+					// Conflict: stage is marked drogueless
+					if (stage != null && stage.isDrogueless()) {
+						JOptionPane.showMessageDialog(
+								SwingUtilities.getWindowAncestor(drogueCheck),
+								String.format(trans.get("RecoveryDeviceCfg.dlg.StageIsDrogueless.msg"), stage.getName(), parachute.getName()),
+								trans.get("RecoveryDeviceCfg.dlg.StageIsDrogueless.title"),
+								JOptionPane.ERROR_MESSAGE);
+						drogueCheck.setSelected(false);
+						return;
+					}
+					// Conflict: another drogue already exists in this stage
+					if (stage != null) {
+						for (RocketComponent comp : stage) {
+							if (comp instanceof RecoveryDevice rd && rd != parachute && rd.isDrogue()) {
+								JOptionPane.showMessageDialog(
+										SwingUtilities.getWindowAncestor(drogueCheck),
+									String.format(trans.get("RecoveryDeviceCfg.dlg.AlreadyHasDrogue.msg"), stage.getName(), rd.getName()),
+										trans.get("RecoveryDeviceCfg.dlg.AlreadyHasDrogue.title"),
+										JOptionPane.ERROR_MESSAGE);
+								drogueCheck.setSelected(false);
+								return;
+							}
+						}
+					}
+				}
+				parachute.setDrogue(drogueCheck.isSelected());
+			});
 			deploymentPanel.add(drogueCheck, "spanx, wrap");
 			order.add(drogueCheck);
 
+			/* Drogueless checkbox — commented out for now
 			//// Is Drogueless checkbox
 			JCheckBox droguelessCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogueless"));
 			droguelessCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogueless.ttip"));
@@ -307,6 +342,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			droguelessCheck.addActionListener(e -> parachute.setDrogueless(droguelessCheck.isSelected()));
 			deploymentPanel.add(droguelessCheck, "spanx, wrap");
 			order.add(droguelessCheck);
+			*/
 
 			panel.add(deploymentPanel, "spanx, growx, wrap para");
 		}

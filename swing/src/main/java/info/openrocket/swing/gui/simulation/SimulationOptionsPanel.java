@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import info.openrocket.core.rocketcomponent.RocketComponent;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -362,21 +364,7 @@ class SimulationOptionsPanel extends JPanel {
 		// --- Dual deployment tab ---
 		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
 
-		// Drogue sub-section
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueNote"), -1, Style.ITALIC), "spanx, wrap rel");
-
-		/*  DrogueLowSpeedWarning — commented out for now
-		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
-		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
-		dualTab.add(label, "gapright para");
-		m = new DoubleModel(conditions, "DrogueLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning"));
-		dualTab.add(spin, "");
-		dualTab.add(new UnitSelector(m), "wrap");
-		*/
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), -1), "spanx, wrap para");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
@@ -387,10 +375,6 @@ class SimulationOptionsPanel extends JPanel {
 		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
 		dualTab.add(spin, "");
 		dualTab.add(new UnitSelector(m), "wrap");
-
-		// Drogue or Drogueless sub-section
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.DrogueOrDrogueless"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueOrDroguelessNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainHighSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning"));
