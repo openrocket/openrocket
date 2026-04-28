@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import info.openrocket.core.ServicesForTesting;
@@ -24,6 +25,10 @@ import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.simulation.FlightData;
+import info.openrocket.core.simulation.FlightDataBranch;
+import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.GeneralRocketSaver;
@@ -460,11 +465,63 @@ public class OpenRocketSaverTest {
 	}
 	
 
+	@Test
+	public void testDatapointPrecision() {
+		// Build a minimal rocket
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+		BodyTube tube = new BodyTube(0.3, 0.025, 0.002);
+		stage.addChild(tube);
+		rocket.enableEvents();
+		OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		// A time value in the 0.001–0.1 s range: %.3f would store "0.012" (off by ~0.345 ms)
+		// but STORAGE_DECIMAL_PLACES=8 stores "0.01234568" (within 2 ns of the original).
+		double precisionValue = 0.012345678;
+
+		FlightDataBranch branch = new FlightDataBranch("Sustainer",
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE);
+		branch.addPoint();
+		branch.setValue(FlightDataType.TYPE_TIME, precisionValue);
+		branch.setValue(FlightDataType.TYPE_ALTITUDE, 1000.123456789);
+		branch.immute();
+
+		FlightData flightData = new FlightData(branch);
+
+		Simulation sim = new Simulation(doc, rocket, Simulation.Status.UPTODATE, "precision test",
+				new SimulationOptions(), Collections.emptyList(), flightData);
+		doc.addSimulation(sim);
+
+		StorageOptions opts = new StorageOptions();
+		opts.setSaveSimulationData(true);
+		File file = saveRocket(doc, opts);
+
+		OpenRocketDocument loaded = loadRocket(file.getPath());
+		assertNotNull(loaded);
+		assertFalse(loaded.getSimulations().isEmpty());
+
+		FlightData loadedData = loaded.getSimulations().get(0).getSimulatedData();
+		assertNotNull(loadedData, "Simulation data must be saved when saveSimulationData=true");
+
+		FlightDataBranch loadedBranch = loadedData.getBranch(0);
+		assertNotNull(loadedBranch);
+
+		List<Double> times = loadedBranch.get(FlightDataType.TYPE_TIME);
+		assertNotNull(times);
+		assertFalse(times.isEmpty());
+
+		// Tolerance of 1e-8 s (10 ns): passes with STORAGE_DECIMAL_PLACES=8,
+		// would fail with the old DEFAULT_DECIMAL_PLACES=3 which stores only "0.012".
+		assertEquals(precisionValue, times.get(0), 1e-8,
+				"Time value lost precision in .ork round-trip — check STORAGE_DECIMAL_PLACES");
+	}
+
 	////////////////////////////////
 	/*
 	 * Utility Functions
 	 */
-	
+
 	private int getCalculatedFileVersion(OpenRocketDocument rocketDoc) {
 		int fileVersion = this.saver.testAccessor_calculateNecessaryFileVersion(rocketDoc, null);
 		return fileVersion;
