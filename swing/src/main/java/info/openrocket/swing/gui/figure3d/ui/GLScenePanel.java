@@ -99,10 +99,13 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL21.GL_PIXEL_UNPACK_BUFFER;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
@@ -152,6 +155,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private Shader hudShader;
 	private int hudVao;
 	private int hudVbo; // Store VBO reference for cleanup
+	// PBO for async HUD texture uploads. Orphaned + filled on the render thread,
+	// then glTexSubImage2D copies from PBO → texture asynchronously instead of
+	// stalling on a host-pointer DMA.
+	private int hudPbo;
+	private int hudPboCapacityBytes;
 	private ByteBuffer hudImageBuffer;
 	private IntBuffer hudIntBuffer; // Direct IntBuffer view for efficiency
 	private Graphics2D hudGraphics; // Reusable Graphics2D context
@@ -1044,6 +1052,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			// Create texture directly for THIS context - don't use shared pool
 			hudTexture = new Texture(hudWidth, hudHeight, true);
+
+			// Allocate the PBO at the same capacity as the host pixel buffer so
+			// glBufferData(orphan) → glBufferSubData(host) → glTexSubImage2D(0L)
+			// can stream uploads without ever stalling on prior GPU usage.
+			hudPbo = glGenBuffers();
+			hudPboCapacityBytes = paddedSize;
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, hudPbo);
+			glBufferData(GL_PIXEL_UNPACK_BUFFER, hudPboCapacityBytes, GL_STREAM_DRAW);
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 		}
 	}
 
@@ -1052,6 +1069,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Cleanup directly - don't return to shared pool
 			hudTexture.cleanup();
 			hudTexture = null;
+		}
+		if (hudPbo != 0) {
+			glDeleteBuffers(hudPbo);
+			hudPbo = 0;
+			hudPboCapacityBytes = 0;
 		}
 		if (hudImageBuffer != null) {
 			MemoryUtil.memFree(hudImageBuffer);
@@ -1286,9 +1308,29 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			hudBufferReady.set(false);
 
-			glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, hudImage.getWidth(), hudImage.getHeight(),
-					GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, hudImageBuffer);
+			int byteSize = hudImage.getWidth() * hudImage.getHeight() * 4;
+
+			if (hudPbo != 0) {
+				// Async path: orphan the PBO, copy host bytes into pinned memory, then
+				// glTexSubImage2D from the bound PBO returns immediately and the GPU
+				// performs the upload concurrently with subsequent rendering.
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, hudPbo);
+				glBufferData(GL_PIXEL_UNPACK_BUFFER, hudPboCapacityBytes, GL_STREAM_DRAW);
+				int oldLimit = hudImageBuffer.limit();
+				hudImageBuffer.limit(byteSize);
+				glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, hudImageBuffer);
+				hudImageBuffer.limit(oldLimit);
+
+				glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, hudImage.getWidth(), hudImage.getHeight(),
+						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0L);
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+			} else {
+				// Fallback if PBO allocation failed.
+				glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, hudImage.getWidth(), hudImage.getHeight(),
+						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, hudImageBuffer);
+			}
 		}
 	}
 
