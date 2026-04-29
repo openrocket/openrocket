@@ -275,10 +275,10 @@ public class FinSetGenerator {
 
 		// End caps
 		addFilletCaps(vertices, indices, grid, 0, rootPoints[0], finSet, parent, filletSegments, false,
-				globalMinX, globalSpanX, globalMinY, globalSpanY);
+				shapePoints, globalMinX, globalSpanX, globalMinY, globalSpanY);
 		addFilletCaps(vertices, indices, grid, filletXSegments, rootPoints[rootPoints.length - 1],
 				finSet, parent, filletSegments, true,
-				globalMinX, globalSpanX, globalMinY, globalSpanY);
+				shapePoints, globalMinX, globalSpanX, globalMinY, globalSpanY);
 
 		return new Mesh(vertices, indices);
 	}
@@ -286,13 +286,31 @@ public class FinSetGenerator {
 	private static void addFilletCaps(List<Vertex> vertices, List<Integer> indices, int[][] gridIndices,
 									  int segmentIndex, CoordinateIF rootPoint, FinSet finSet,
 									  SymmetricComponent parent, int arcSegments, boolean isEndCap,
+									  CoordinateIF[] shapePoints,
 									  float globalMinX, float globalSpanX, float globalMinY, float globalSpanY) {
 		float x = (float) rootPoint.getX();
 		float y = (float) rootPoint.getY(); // y-coordinate of the fin root from the 2D profile
 		float axialOffset = (float) finSet.getAxialOffset(AxialMethod.TOP);
 		float parentRadius = (float) parent.getRadius(x + axialOffset);
 
+		// The trailing cap sits at the seam where the fillet meets the trailing
+		// edge surface. Aligning its U coordinate and normal with that surface
+		// (perimeter-walk U + edge surface normal) keeps the texture and
+		// shading continuous across the fillet→edge boundary; otherwise the
+		// cap would jump to face-space U=1 and a ±X normal, producing a visible
+		// seam.
 		Vector3f normal = isEndCap ? new Vector3f(1, 0, 0) : new Vector3f(-1, 0, 0);
+		float capUOverride = Float.NaN;
+		if (isEndCap && shapePoints != null && shapePoints.length >= 2) {
+			int trailingIndex = findShapePointIndex(shapePoints, rootPoint);
+			if (trailingIndex >= 0) {
+				capUOverride = perimeterUAt(shapePoints, trailingIndex, globalSpanX);
+				Vector3f edgeNormal = trailingEdgeNormal(shapePoints, trailingIndex, (float) finSet.getThickness());
+				if (edgeNormal != null) {
+					normal = edgeNormal;
+				}
+			}
+		}
 
 		// Create vertices for the fillet edge and the new curved root edge
 		List<Integer> filletEdge = new ArrayList<>();
@@ -303,8 +321,8 @@ public class FinSetGenerator {
 			// Get the original vertex from the fillet strip
 			int originalVertexIndex = gridIndices[segmentIndex][arcSegments - j + arcSegments + 1];
 			Vector3f filletPos = vertices.get(originalVertexIndex).position;
-			Vector2f filletUV = new Vector2f((filletPos.x - globalMinX) / globalSpanX,
-					(filletPos.y - globalMinY) / globalSpanY);
+			float filletU = Float.isNaN(capUOverride) ? (filletPos.x - globalMinX) / globalSpanX : capUOverride;
+			Vector2f filletUV = new Vector2f(filletU, (filletPos.y - globalMinY) / globalSpanY);
 			filletEdge.add(vertices.size());
 			vertices.add(new Vertex(filletPos, normal, filletUV, 0));
 
@@ -314,9 +332,10 @@ public class FinSetGenerator {
 			float y_drop = (float) (Math.sqrt(Math.max(0, parentRadius * parentRadius - z_fillet * z_fillet)) - parentRadius);
 			float y_new = y + y_drop;
 
+			float rootU = Float.isNaN(capUOverride) ? (x - globalMinX) / globalSpanX : capUOverride;
 			rootEdge.add(vertices.size());
 			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal,
-					new Vector2f((x - globalMinX) / globalSpanX, (y_new - globalMinY) / globalSpanY), 0));
+					new Vector2f(rootU, (y_new - globalMinY) / globalSpanY), 0));
 		}
 
 		// Right side of fillet and root
@@ -324,8 +343,8 @@ public class FinSetGenerator {
 			// Get the original vertex from the fillet strip
 			int originalVertexIndex = gridIndices[segmentIndex][j];
 			Vector3f filletPos = vertices.get(originalVertexIndex).position;
-			Vector2f filletUV = new Vector2f((filletPos.x - globalMinX) / globalSpanX,
-					(filletPos.y - globalMinY) / globalSpanY);
+			float filletU = Float.isNaN(capUOverride) ? (filletPos.x - globalMinX) / globalSpanX : capUOverride;
+			Vector2f filletUV = new Vector2f(filletU, (filletPos.y - globalMinY) / globalSpanY);
 			filletEdge.add(vertices.size());
 			vertices.add(new Vertex(filletPos, normal, filletUV, 0));
 
@@ -335,9 +354,10 @@ public class FinSetGenerator {
 			float y_drop = (float) (Math.sqrt(Math.max(0, parentRadius * parentRadius - z_fillet * z_fillet)) - parentRadius);
 			float y_new = y + y_drop;
 
+			float rootU = Float.isNaN(capUOverride) ? (x - globalMinX) / globalSpanX : capUOverride;
 			rootEdge.add(vertices.size());
 			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal,
-					new Vector2f((x - globalMinX) / globalSpanX, (y_new - globalMinY) / globalSpanY), 0));
+					new Vector2f(rootU, (y_new - globalMinY) / globalSpanY), 0));
 		}
 
 		// Triangulate the left cap
@@ -391,6 +411,48 @@ public class FinSetGenerator {
 			}
 		}
 		return false;
+	}
+
+	private static int findShapePointIndex(CoordinateIF[] shapePoints, CoordinateIF target) {
+		final float tol = 1.0e-5f;
+		for (int i = 0; i < shapePoints.length; i++) {
+			if (Math.abs(shapePoints[i].getX() - target.getX()) < tol &&
+					Math.abs(shapePoints[i].getY() - target.getY()) < tol) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private static float perimeterUAt(CoordinateIF[] shapePoints, int targetIndex, float spanX) {
+		float accumulated = 0f;
+		for (int i = 0; i < shapePoints.length; i++) {
+			int end = (i + 1) % shapePoints.length;
+			float dx = (float) (shapePoints[end].getX() - shapePoints[i].getX());
+			float dy = (float) (shapePoints[end].getY() - shapePoints[i].getY());
+			float segLen = (float) Math.sqrt(dx * dx + dy * dy);
+			if (end == targetIndex) {
+				return (accumulated + segLen) / spanX;
+			}
+			accumulated += segLen;
+		}
+		return accumulated / spanX;
+	}
+
+	private static Vector3f trailingEdgeNormal(CoordinateIF[] shapePoints, int trailingIndex, float thickness) {
+		int prevIndex = (trailingIndex - 1 + shapePoints.length) % shapePoints.length;
+		Vector3f p1Front = new Vector3f(
+				(float) shapePoints[prevIndex].getX(), (float) shapePoints[prevIndex].getY(), thickness / 2f);
+		Vector3f p2Front = new Vector3f(
+				(float) shapePoints[trailingIndex].getX(), (float) shapePoints[trailingIndex].getY(), thickness / 2f);
+		Vector3f p1Back = new Vector3f(
+				(float) shapePoints[prevIndex].getX(), (float) shapePoints[prevIndex].getY(), -thickness / 2f);
+		Vector3f edge = new Vector3f(p2Front).sub(p1Front);
+		Vector3f normal = edge.cross(new Vector3f(p1Back).sub(p1Front));
+		if (normal.lengthSquared() < 1.0e-12f) {
+			return null;
+		}
+		return normal.normalize();
 	}
 
 	private static FinMeshData createShapeMesh(CoordinateIF[] shapePoints, FinSet finSet,
