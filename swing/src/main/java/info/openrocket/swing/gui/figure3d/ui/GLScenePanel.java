@@ -992,11 +992,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private void initHudTexture() {
 		synchronized (hudLock) {
 			hudBufferReady.set(false);
-			int[] fbSize = computeFramebufferSize();
-			int fbWidth = fbSize[0];
-			int fbHeight = fbSize[1];
+			// Size the HUD at logical window resolution and let the GPU bilinear-
+			// upscale at draw time. On HiDPI this is 4× less pixel data per upload
+			// than sizing it at framebuffer resolution.
+			int hudWidth = Math.max(1, getWidth());
+			int hudHeight = Math.max(1, getHeight());
 
-			if (fbWidth <= 0 || fbHeight <= 0) {
+			if (hudWidth <= 0 || hudHeight <= 0) {
 				cleanupHudResources();
 				return;
 			}
@@ -1004,20 +1006,20 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Check if we can reuse existing resources with padding
 			if (hudImage != null && hudImageBuffer != null) {
 				int currentCapacity = hudImageBuffer.capacity();
-				int requiredCapacity = fbWidth * fbHeight * 4;
+				int requiredCapacity = hudWidth * hudHeight * 4;
 
 				if (currentCapacity >= requiredCapacity && currentCapacity <= requiredCapacity * 1.25) {
 					// Cleanup old texture and create new one for THIS context
 					if (hudTexture != null) {
 						hudTexture.cleanup();
 					}
-					hudTexture = new Texture(fbWidth, fbHeight, true);
+					hudTexture = new Texture(hudWidth, hudHeight, true);
 
 					// Recreate BufferedImage with new size but keep buffer
 					if (hudGraphics != null) {
 						hudGraphics.dispose();
 					}
-					hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
+					hudImage = new BufferedImage(hudWidth, hudHeight, BufferedImage.TYPE_INT_ARGB);
 					hudGraphics = hudImage.createGraphics();
 					hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -1030,9 +1032,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			cleanupHudResources();
 
 			// Allocate with some padding to reduce future reallocations
-			int paddedSize = (int) (fbWidth * fbHeight * 4 * 1.1);    // 10% padding
+			int paddedSize = (int) (hudWidth * hudHeight * 4 * 1.1);    // 10% padding
 
-			hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
+			hudImage = new BufferedImage(hudWidth, hudHeight, BufferedImage.TYPE_INT_ARGB);
 			hudImageBuffer = MemoryUtil.memAlloc(paddedSize);
 			hudIntBuffer = hudImageBuffer.asIntBuffer();
 
@@ -1041,7 +1043,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 			// Create texture directly for THIS context - don't use shared pool
-			hudTexture = new Texture(fbWidth, fbHeight, true);
+			hudTexture = new Texture(hudWidth, hudHeight, true);
 		}
 	}
 
@@ -1249,11 +1251,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (windowHeight == 0) {
 				return;
 			}
-			int[] fbSize = computeFramebufferSize(windowWidth, windowHeight);
-			double dpiScale = (double) fbSize[1] / (double) windowHeight;
 
+			// HUD image is sized at logical window resolution; paint at 1:1 and
+			// let the GPU bilinear-upscale to framebuffer pixels at draw time.
 			hudGraphics.setTransform(hudGraphics.getDeviceConfiguration().getDefaultTransform());
-			hudGraphics.scale(dpiScale, dpiScale);
 
 			// Clear with transparent background
 			hudGraphics.setBackground(new Color(0, 0, 0, 0));
