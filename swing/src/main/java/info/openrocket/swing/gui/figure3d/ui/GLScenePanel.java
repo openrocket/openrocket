@@ -159,7 +159,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final AtomicBoolean hudPaintScheduled = new AtomicBoolean(false);
 	private final AtomicBoolean hudBufferReady = new AtomicBoolean(false);
 	private volatile long lastHudPaintTimeMs = 0;
-	private static final long MIN_HUD_PAINT_INTERVAL_MS = 33; // ~30 FPS max for EDT HUD painting
+	// Default throttle for low-priority HUD repaints. The HUD upload path is the
+	// dominant render-thread cost; 15 fps is visually ample for HUD content.
+	private static final long MIN_HUD_PAINT_INTERVAL_MS = 66;
 	private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
 	private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
 	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
@@ -1136,7 +1138,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				boolean hudPanelNeedsRepaint = hudPanel != null && hudPanel.needsRepaint();
 				boolean hudRepaintRequested = false;
 				if (hudNeedsUpdate || hudPanelNeedsRepaint) {
-					hudRepaintRequested = requestHudRepaint(hudPanelNeedsRepaint);
+					// While the camera is being dragged, the orientation gizmo wants
+					// to repaint every frame. Force those into the rate-limited path
+					// so the HUD upload doesn't block the render thread at 60 fps.
+					boolean highPriority = hudPanelNeedsRepaint && !cameraIsMoving;
+					hudRepaintRequested = requestHudRepaint(highPriority);
 				}
 				uploadHudTextureIfReady();
 				if (hudRepaintRequested) {
