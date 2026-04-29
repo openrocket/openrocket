@@ -137,7 +137,9 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
+	private static final boolean SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS =
+			SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
+	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND = SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS;
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
 	private final AtomicInteger paintCallCount = new AtomicInteger(0);
 	private final AtomicInteger swapCallCount = new AtomicInteger(0);
@@ -1220,7 +1222,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		} finally {
 			if (shouldSwap) {
 				swapCallCount.incrementAndGet();
-				swapBuffers();
+				// lwjgl3-awt's macOS swapBuffers() is glFlush(). On macOS 26, that can
+				// synchronously display the NSOpenGLView backing layer on this render
+				// thread and abort inside AppKit's main-thread check for setView:.
+				if (!SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS) {
+					swapBuffers();
+				}
 				visibleFrameRecoveryPending = !startupFrameVisible;
 			}
 		}
