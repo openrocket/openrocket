@@ -24,6 +24,21 @@ public interface CameraControls {
     void update();
     double getZoomScale();
     void setZoomScale(double scale);
+
+    /**
+     * Returns a multiplier in (0, 1] that slows orbit/rotate sensitivity as the
+     * user zooms in. At default zoom the factor is 1.0; deeper zooms shrink it
+     * proportionally, floored at 0.25 so motion never feels completely stuck.
+     * Without this compensation, drag-rotation feels hyper-sensitive at high
+     * zoom because each camera-degree maps to many more on-screen pixels.
+     */
+    default float computeZoomSensitivityFactor() {
+        double zoomScale = getZoomScale();
+        if (zoomScale <= 1.0 || Double.isNaN(zoomScale) || Double.isInfinite(zoomScale)) {
+            return 1.0f;
+        }
+        return (float) Math.max(0.25, 1.0 / zoomScale);
+    }
     boolean isZoomFitting();
     Camera getCamera();
     void addCameraChangeListener(Consumer<Camera> listener);

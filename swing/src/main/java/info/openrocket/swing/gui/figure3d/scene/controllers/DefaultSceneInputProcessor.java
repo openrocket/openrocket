@@ -124,7 +124,8 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
         if (dragDelta.dx != 0f || dragDelta.dy != 0f) {
             boolean rotateRocketOnDrag = renderingConfiguration.getVisualEffects().isRotateRocketOnDrag();
             float dragRotationSensitivity = CameraConstants.BASE_ROCKET_ROTATION_SENSITIVITY *
-                    renderingConfiguration.getVisualEffects().getDragRotationSensitivity();
+                    renderingConfiguration.getVisualEffects().getDragRotationSensitivity() *
+                    cameraController.computeZoomSensitivityFactor();
             if (inputState.isLightDragging) {
                 updateMainLightRadialAngle(dragDelta.dx, dragDelta.dy);
             } else if (inputState.isPanning) {

@@ -207,7 +207,8 @@ public class CameraController implements CameraControls {
     @Override
     public void handleOrbit(float dx, float dy) {
         float sensitivity = CameraConstants.BASE_VIEW_ROTATION_SENSITIVITY *
-                renderingConfiguration.getVisualEffects().getDragRotationSensitivity();
+                renderingConfiguration.getVisualEffects().getDragRotationSensitivity() *
+                computeZoomSensitivityFactor();
         camera.orbit(dx, dy, sensitivity);
         notifyCameraChanged();
     }
