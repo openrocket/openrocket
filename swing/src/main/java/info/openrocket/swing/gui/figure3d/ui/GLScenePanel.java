@@ -380,6 +380,20 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.renderRequestCallback = callback;
 	}
 
+	private void setCameraIsMoving(boolean moving) {
+		cameraIsMoving = moving;
+		// Tell the renderer to skip expensive post-processing while the user
+		// is dragging. The released-frame catches up automatically because
+		// mouseReleased() also calls markRenderActivity().
+		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+		if (orchestrator != null) {
+			Renderer renderer = orchestrator.getRenderer();
+			if (renderer != null) {
+				renderer.setInteractionMode(moving);
+			}
+		}
+	}
+
 	public void setBlankDefaultFramebufferCallback(Runnable callback) {
 		this.blankDefaultFramebufferCallback = callback;
 	}
@@ -658,7 +672,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					lastPoint = e.getPoint();
 					isDragging = false;
 					activeDragButton = e.getButton();
-					cameraIsMoving = true; // Start tracking camera movement
+					setCameraIsMoving(true); // Start tracking camera movement
 				}
 			}
 
@@ -684,7 +698,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
 					inputState.isLightDragging = false;
 					inputState.isPanning = false;
-					cameraIsMoving = false; // Stop tracking camera movement
+					setCameraIsMoving(false); // Stop tracking camera movement
 				}
 			}
 

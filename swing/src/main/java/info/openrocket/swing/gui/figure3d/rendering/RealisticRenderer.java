@@ -186,6 +186,7 @@ public class RealisticRenderer implements Renderer {
 	private final List<RenderPass> geometryPasses = new ArrayList<>();
     private final List<RenderPass> postProcessingPasses = new ArrayList<>();
     private MotionBlurPass motionBlurPass;
+    private volatile boolean interactionMode = false;
 
 	/**
 	 * Creates a new realistic renderer with the specified configuration and viewport dimensions.
@@ -339,15 +340,15 @@ public class RealisticRenderer implements Renderer {
         // 2. Run the post-processing chain
         int currentTexture = renderTarget.getColorTextureId();
 
-        if (config.getQuality().isAmbientOcclusionEnabled()) {
+        if (config.getQuality().isAmbientOcclusionEnabled() && !interactionMode) {
             ambientOcclusionPass.setInputTexture(currentTexture);
             ambientOcclusionPass.setDepthTexture(renderTarget.getDepthTextureId());
             ambientOcclusionPass.render(scene, windowManager, viewMatrix, projectionMatrix);
             currentTexture = ambientOcclusionPass.getOutputTexture();
         }
-        
+
         // Apply motion blur if enabled (only affects the rocket, not the background)
-        if (config.getVisualEffects().isMotionBlurEnabled()) {
+        if (config.getVisualEffects().isMotionBlurEnabled() && !interactionMode) {
 			motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
             motionBlurPass.setInputTexture(currentTexture);
             motionBlurPass.setDepthTexture(renderTarget.getDepthTextureId());
@@ -355,8 +356,12 @@ public class RealisticRenderer implements Renderer {
             motionBlurPass.render(scene, windowManager, viewMatrix, projectionMatrix);
             currentTexture = motionBlurPass.getOutputTexture();
         }
-        
+
         for (RenderPass pass : postProcessingPasses) {
+            // Outline pass is screen-space and full-frame; skip during interaction.
+            if (interactionMode && pass instanceof OutlinePass) {
+                continue;
+            }
             if (pass instanceof ScreenTexturePass screenPass) {
 				screenPass.setInputTexture(currentTexture);
                 pass.render(scene, windowManager, viewMatrix, projectionMatrix);
@@ -697,6 +702,11 @@ public class RealisticRenderer implements Renderer {
         if (config.getQuality().isFXAAEnabled()) {
             postProcessingPasses.add(fxaaPass);
         }
+	}
+
+	@Override
+	public void setInteractionMode(boolean active) {
+		this.interactionMode = active;
 	}
 
 	private int getRequestedSceneSampleCount() {

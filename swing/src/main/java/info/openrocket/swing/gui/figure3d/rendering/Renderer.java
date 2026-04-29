@@ -70,10 +70,17 @@ public interface Renderer {
 
 	/**
 	 * Cleans up all rendering resources and releases GPU memory.
-	 * 
+	 *
 	 * This method should be called when the renderer is no longer needed.
 	 * It releases all OpenGL resources including shaders, buffers, textures,
 	 * and framebuffer objects.
 	 */
 	void cleanup();
+
+	/**
+	 * Hint that the user is currently interacting with the camera. Implementations
+	 * may skip expensive post-processing passes (AO, motion blur, outline) while
+	 * this is true to keep drag-rotate / pan / zoom responsive.
+	 */
+	default void setInteractionMode(boolean active) {}
 }
