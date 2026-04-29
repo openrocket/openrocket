@@ -207,6 +207,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
 	private final AtomicBoolean startupBlankFramebufferRecoveryRequested = new AtomicBoolean(false);
 	private volatile int startupBlankFramebufferFrames = 0;
+	// Once startup visibility is confirmed, the per-frame glReadPixels probes are
+	// disabled — each readback stalls the GPU pipeline and they only exist to
+	// drive a one-shot recovery callback.
+	private volatile boolean startupFrameDetectionComplete = false;
+	private volatile int consecutiveVisibleStartupFrames = 0;
+	private static final int STARTUP_VISIBILITY_CONFIRM_FRAMES = 2;
 	private volatile Runnable blankDefaultFramebufferCallback;
 	private volatile Runnable glInitFailureCallback;
 	private volatile Window ancestorWindow;
@@ -383,6 +389,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		visibleFrameRecoveryPending = true;
 		startupBlankFramebufferFrames = 0;
 		startupBlankFramebufferRecoveryRequested.set(false);
+		startupFrameDetectionComplete = false;
+		consecutiveVisibleStartupFrames = 0;
 		hudNeedsUpdate = true;
 		markRenderActivity();
 		if (peerBoundsSyncEnabled) {
@@ -440,6 +448,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		visibleFrameRecoveryPending = true;
 		startupBlankFramebufferFrames = 0;
 		startupBlankFramebufferRecoveryRequested.set(false);
+		startupFrameDetectionComplete = false;
+		consecutiveVisibleStartupFrames = 0;
 		if (peerBoundsSyncEnabled) {
 			peerBoundsSyncAttempts.set(0);
 			schedulePeerBoundsSyncRetry(0);
@@ -1119,7 +1129,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// --- Main Display Rendering (if not exporting) --
 			renderer.render(sceneView, null, true);
 			renderer.presentResolvedToCurrentFramebuffer();
-			startupFrameVisible = detectStartupFrameVisibility(renderer);
+			startupFrameVisible = sampleStartupFrameVisibilityIfNeeded(renderer);
 
 			// --- 2D HUD Rendering - only update texture if needed ---
 			if (hudEnabled) {
@@ -1360,6 +1370,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		buffer.rewind();
 		return buffer;
+	}
+
+	private boolean sampleStartupFrameVisibilityIfNeeded(Renderer renderer) {
+		if (startupFrameDetectionComplete) {
+			return true;
+		}
+		boolean visible = detectStartupFrameVisibility(renderer);
+		if (visible) {
+			if (++consecutiveVisibleStartupFrames >= STARTUP_VISIBILITY_CONFIRM_FRAMES
+					|| startupBlankFramebufferRecoveryRequested.get()) {
+				startupFrameDetectionComplete = true;
+			}
+		} else {
+			consecutiveVisibleStartupFrames = 0;
+		}
+		return visible;
 	}
 
 	private boolean detectStartupFrameVisibility(Renderer renderer) {
