@@ -380,11 +380,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.renderRequestCallback = callback;
 	}
 
+	// Off by default — when enabled, the renderer skips AO / motion blur /
+	// outline passes during drag-rotate / pan / zoom for a fps boost at the
+	// cost of a visible quality drop. Toggleable via system property:
+	//   -Dopenrocket.figure3d.skipPostFxDuringInteraction=true
+	private static final boolean SKIP_POSTFX_DURING_INTERACTION =
+			Boolean.getBoolean("openrocket.figure3d.skipPostFxDuringInteraction");
+
 	private void setCameraIsMoving(boolean moving) {
 		cameraIsMoving = moving;
-		// Tell the renderer to skip expensive post-processing while the user
-		// is dragging. The released-frame catches up automatically because
-		// mouseReleased() also calls markRenderActivity().
+		if (!SKIP_POSTFX_DURING_INTERACTION) {
+			return;
+		}
 		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 		if (orchestrator != null) {
 			Renderer renderer = orchestrator.getRenderer();
