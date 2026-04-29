@@ -97,3 +97,4 @@ The following file format versions exist:
       Added <baserelativehumidity> to the atmosphere model in simulation conditions.
       Support 'auto' line length for parachute and shock cord.
       Added 2D and 3D background and text color preferences to <docprefs>.
+      Increased decimal precision of simulation <flightdata>, <event>, and <datapoint> values to 6 digits after the decimal point.
