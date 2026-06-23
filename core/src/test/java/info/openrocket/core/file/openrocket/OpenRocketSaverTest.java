@@ -13,6 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +47,8 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.simulation.extension.impl.ScriptingExtension;
 import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
@@ -155,6 +159,28 @@ public class OpenRocketSaverTest {
 			OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
 			assertNotNull(rocketDocLoaded);
 		}
+	}
+
+	@Test
+	public void testTriangularFinLeadingEdgeAngleRoundTrip() throws IOException {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCrossSection(FinSet.CrossSection.TRIANGULAR);
+		fins.setLeadingEdgeAngle(Math.toRadians(25.0));
+
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		String xml = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+
+		assertTrue(xml.contains("<crosssection>triangular</crosssection>"),
+				"Triangular fin cross-section should be written to .ork XML");
+		assertTrue(xml.contains("<leadingedgeangle>25.0</leadingedgeangle>"),
+				"Explicit triangular leading-edge angle should be written in degrees");
+
+		OpenRocketDocument loaded = loadRocket(file.getPath());
+		TrapezoidFinSet loadedFins = (TrapezoidFinSet) loaded.getRocket().getChild(0).getChild(1).getChild(0);
+		assertEquals(FinSet.CrossSection.TRIANGULAR, loadedFins.getCrossSection());
+		assertEquals(Math.toRadians(25.0), loadedFins.getLeadingEdgeAngle(), 1.0e-10);
 	}
 
 	@Test

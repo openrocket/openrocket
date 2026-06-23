@@ -670,6 +670,13 @@ The ``<ellipticalfinset>`` element defines the **Elliptical Fin Set** component:
       <height>0.05</height>
    </ellipticalfinset>
 
+The ``<crosssection>`` value for standard fin sets is one of ``square``,
+``rounded``, ``airfoil``, or ``triangular``.  For ``triangular`` cross sections,
+``<leadingedgeangle>`` may be written after ``<crosssection>``.  The value is the
+included angle, in degrees, between the top and bottom leading-edge bevel
+surfaces.  If omitted, OpenRocket uses its automatic triangular leading-edge
+angle.
+
 <tubefinset>
 """"""""""""
 

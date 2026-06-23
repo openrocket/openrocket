@@ -189,6 +189,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
 		}
 
+		addTriangularLeadingEdgeControls(panel);
+
 		mainPanel.add(panel, "aligny 0, gapright 40lp, grow");
 
 		// Right side panel

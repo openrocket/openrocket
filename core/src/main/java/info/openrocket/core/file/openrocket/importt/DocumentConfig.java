@@ -279,6 +279,9 @@ class DocumentConfig {
 		setters.put("FinSet:crosssection", new EnumSetter<>(
 				Reflection.findMethod(FinSet.class, "setCrossSection", FinSet.CrossSection.class),
 				FinSet.CrossSection.class));
+		// .ork stores the triangular leading-edge included angle in degrees.
+		setters.put("FinSet:leadingedgeangle", new DoubleSetter(
+				Reflection.findMethod(FinSet.class, "setLeadingEdgeAngle", double.class), Math.PI / 180.0));
 		setters.put("FinSet:cant", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setCantAngle", double.class), Math.PI / 180.0));
 		setters.put("FinSet:tabheight", new DoubleSetter(

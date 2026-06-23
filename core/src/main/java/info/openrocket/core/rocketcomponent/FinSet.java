@@ -37,6 +37,11 @@ public abstract class FinSet extends ExternalComponent
 	 */
 	public static final double MAX_CANT_RADIANS = (15.0 * Math.PI / 180);
 
+	// Triangular leading edges are parameterized by the full included angle
+	// between the two beveled surfaces.  A stored angle of zero uses this default.
+	public static final double DEFAULT_LEADING_EDGE_ANGLE = Math.toRadians(20);
+	public static final double MAX_LEADING_EDGE_ANGLE = Math.PI / 2;
+
 	/**
 	 * Maximum number of root points in the root geometry.
 	 */
@@ -46,13 +51,16 @@ public abstract class FinSet extends ExternalComponent
     public void setOverrideMass() {
     }
 
-    public enum CrossSection {
+	public enum CrossSection {
 		//// Square
 		SQUARE(trans.get("FinSet.CrossSection.SQUARE"), 1.00),
 		//// Rounded
 		ROUNDED(trans.get("FinSet.CrossSection.ROUNDED"), 0.99),
 		//// Airfoil
-		AIRFOIL(trans.get("FinSet.CrossSection.AIRFOIL"), 0.85);
+		AIRFOIL(trans.get("FinSet.CrossSection.AIRFOIL"), 0.85),
+		//// Triangular leading edge
+		// Starts from the square-plate section; only the leading edge is beveled.
+		TRIANGULAR(trans.get("FinSet.CrossSection.TRIANGULAR"), 1.00);
 		
 		private final String name;
 		private final double volume;
@@ -110,6 +118,12 @@ public abstract class FinSet extends ExternalComponent
 	 * The cross-section shape of the fins.
 	 */
 	private CrossSection crossSection = CrossSection.SQUARE;
+
+	/**
+	 * Included angle between the top and bottom surfaces of a triangular leading edge.
+	 * Zero means automatic.
+	 */
+	private double leadingEdgeAngle = 0;
 	
 	
 	/*
@@ -289,6 +303,81 @@ public abstract class FinSet extends ExternalComponent
 			return;
 		crossSection = cs;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public double getLeadingEdgeAngle() {
+		return leadingEdgeAngle;
+	}
+
+	public void setLeadingEdgeAngle(double angle) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof FinSet) {
+				((FinSet) listener).setLeadingEdgeAngle(angle);
+			}
+		}
+
+		// Keep zero as "automatic" so older designs and non-triangular fins do not
+		// gain a redundant leading-edge parameter.
+		double clamped;
+		if (angle <= 0 || Double.isNaN(angle)) {
+			clamped = 0;
+		} else {
+			clamped = MathUtil.clamp(angle, MathUtil.EPSILON, MAX_LEADING_EDGE_ANGLE);
+		}
+		if (MathUtil.equals(leadingEdgeAngle, clamped))
+			return;
+		leadingEdgeAngle = clamped;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+	public double getEffectiveLeadingEdgeAngle() {
+		return getEffectiveLeadingEdgeAngle(Double.POSITIVE_INFINITY);
+	}
+
+	public double getEffectiveLeadingEdgeAngle(double localChord) {
+		return getEffectiveLeadingEdgeAngle(leadingEdgeAngle, thickness, localChord);
+	}
+
+	public double getLeadingEdgeDistance() {
+		return leadingEdgeDistanceFromAngle(thickness, getEffectiveLeadingEdgeAngle());
+	}
+
+	public void setLeadingEdgeDistance(double distance) {
+		if (distance <= 0 || Double.isNaN(distance)) {
+			setLeadingEdgeAngle(0);
+		} else {
+			setLeadingEdgeAngle(leadingEdgeAngleFromDistance(thickness, distance));
+		}
+	}
+
+	public static double getEffectiveLeadingEdgeAngle(double angle, double thickness, double localChord) {
+		double effective = angle > 0 ? angle : DEFAULT_LEADING_EDGE_ANGLE;
+		effective = MathUtil.clamp(effective, MathUtil.EPSILON, MAX_LEADING_EDGE_ANGLE);
+		if (thickness <= MathUtil.EPSILON || localChord <= MathUtil.EPSILON || Double.isInfinite(localChord)) {
+			return effective;
+		}
+		// If the local chord is shorter than the requested bevel distance, increase
+		// the angle so the triangular nose still fits within the fin planform station.
+		double minimum = 2 * Math.atan((thickness / 2) / (0.5 * localChord));
+		return MathUtil.clamp(Math.max(effective, minimum), MathUtil.EPSILON, MAX_LEADING_EDGE_ANGLE);
+	}
+
+	public static double leadingEdgeDistanceFromAngle(double thickness, double angle) {
+		if (thickness <= MathUtil.EPSILON) {
+			return 0;
+		}
+		// For an isosceles triangular nose, tan(phi/2) = (thickness/2) / distance.
+		double effective = MathUtil.clamp(angle > 0 ? angle : DEFAULT_LEADING_EDGE_ANGLE,
+				MathUtil.EPSILON, MAX_LEADING_EDGE_ANGLE);
+		return (thickness / 2) / Math.tan(effective / 2);
+	}
+
+	public static double leadingEdgeAngleFromDistance(double thickness, double distance) {
+		if (thickness <= MathUtil.EPSILON || distance <= MathUtil.EPSILON) {
+			return 0;
+		}
+		return MathUtil.clamp(2 * Math.atan((thickness / 2) / distance),
+				MathUtil.EPSILON, MAX_LEADING_EDGE_ANGLE);
 	}
 	
 	public double getTabHeight() {
@@ -1556,6 +1645,7 @@ public abstract class FinSet extends ExternalComponent
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;
 		this.crossSection = src.crossSection;
+		this.leadingEdgeAngle = src.leadingEdgeAngle;
 		this.tabHeight = src.tabHeight;
 		this.tabLength = src.tabLength;
 		this.tabOffsetMethod = src.tabOffsetMethod;
@@ -1665,7 +1755,7 @@ public abstract class FinSet extends ExternalComponent
 	private void calculateCM(){
 		final CoordinateIF wettedCentroid = calculateSinglePlanformCentroid();
 		this.singlePlanformArea = wettedCentroid.getWeight();
-		final double wettedVolume = wettedCentroid.getWeight() * thickness * crossSection.getRelativeVolume();
+		final double wettedVolume = wettedCentroid.getWeight() * thickness * getFinVolumeFactor();
 		final double finBulkMass = wettedVolume * material.getDensity();
 		final CoordinateIF wettedCM = wettedCentroid.setWeight(finBulkMass);
 
@@ -1693,6 +1783,25 @@ public abstract class FinSet extends ExternalComponent
 		} else {
 			this.centerOfMass = eachFinCenterOfMass.setY(0.0).setWeight( eachFinMass * this.finCount);
 		}
+	}
+
+	private double getFinVolumeFactor() {
+		if (crossSection != CrossSection.TRIANGULAR) {
+			return crossSection.getRelativeVolume();
+		}
+		if (singlePlanformArea <= MathUtil.EPSILON || thickness <= MathUtil.EPSILON) {
+			return 1.0;
+		}
+		// Triangular sections are modeled as square fins with the leading-edge wedge
+		// removed.  The factor is an area-weighted approximation based on mean chord.
+		double meanChord = getLength();
+		if (meanChord <= MathUtil.EPSILON) {
+			meanChord = singlePlanformArea / Math.max(getSpan(), MathUtil.EPSILON);
+		}
+		double angle = getEffectiveLeadingEdgeAngle(meanChord);
+		double bevelLength = leadingEdgeDistanceFromAngle(thickness, angle);
+		double removedFraction = MathUtil.clamp(bevelLength / meanChord, 0, 1) / 2;
+		return 1 - removedFraction;
 	}
 	
 	// ============= Instanceable Interface Methods ===============

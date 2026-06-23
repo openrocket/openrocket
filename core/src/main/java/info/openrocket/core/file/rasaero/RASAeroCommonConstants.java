@@ -323,7 +323,14 @@ public class RASAeroCommonConstants {
     }
 
     public static String OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(FinSet.CrossSection crossSection, WarningSet warnings) {
-        if (FinSet.CrossSection.SQUARE.equals(crossSection)) {
+        if (FinSet.CrossSection.SQUARE.equals(crossSection) || FinSet.CrossSection.TRIANGULAR.equals(crossSection)) {
+            if (FinSet.CrossSection.TRIANGULAR.equals(crossSection)) {
+                // RASAero has no triangular leading-edge fin section, so warn and
+                // degrade to the closest supported section instead of silently changing it.
+                String msg = "RASAero export does not support triangular fin leading edges, exporting as Square.";
+                warnings.add(msg);
+                log.warn(msg);
+            }
             return CROSS_SECTION_SQUARE;
         } else if (FinSet.CrossSection.ROUNDED.equals(crossSection)) {
             return CROSS_SECTION_ROUNDED;
