@@ -654,7 +654,7 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)
 				sb.append(",");
-			sb.append(TextUtil.escapeXML(types[i].getName()));
+			sb.append(TextUtil.escapeXML(types[i].getSaveKey()));
 		}
 		sb.append("\">");
 		writeln(sb.toString());
