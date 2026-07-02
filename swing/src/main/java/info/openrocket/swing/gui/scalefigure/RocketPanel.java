@@ -194,6 +194,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 
 		public static VIEW_TYPE getDefaultViewType() {
+			// Debug hook: -Dopenrocket.debug.defaultViewType=Figure3D opens new
+			// documents directly in the given view (used for automated smoke runs).
+			VIEW_TYPE override = fromName(System.getProperty("openrocket.debug.defaultViewType"));
+			if (override != null && override != SEPARATOR) {
+				return override;
+			}
 			return SideView;
 		}
 
