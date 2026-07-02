@@ -254,6 +254,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		// --- Single deployment tab ---
 		JPanel singleTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
+		singleTab.add(new StyledLabel(trans.get("simedtdlg.lbl.SingleDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
 		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
 		tip = trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning");
 		label.setToolTipText(tip);
@@ -268,6 +269,8 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		// --- Dual deployment tab ---
 		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
+
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
 
 		// Drogue sub-section
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");

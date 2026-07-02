@@ -350,6 +350,7 @@ class SimulationOptionsPanel extends JPanel {
 
 		// --- Single deployment tab ---
 		JPanel singleTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
+		singleTab.add(new StyledLabel(trans.get("simedtdlg.lbl.SingleDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
 		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
 		singleTab.add(label, "gapright para");
@@ -364,6 +365,7 @@ class SimulationOptionsPanel extends JPanel {
 		// --- Dual deployment tab ---
 		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
 
+		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), -1), "spanx, wrap para");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
