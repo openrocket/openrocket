@@ -169,7 +169,7 @@ public class BackgroundPass implements RenderPass {
                 glClear(GL_DEPTH_BUFFER_BIT);
                 glDisable(GL_DEPTH_TEST);
                 checkerboardShader.use();
-                checkerboardShader.setUniform("bgColor", color);
+                checkerboardShader.setUniformVector4f("bgColor", color);
                 GL33.glUniform1f(checkerboardShader.getUniformLocation("scale"), 20.0f);
                 GL33.glBindVertexArray(gradientVao);
                 GL33.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -200,7 +200,7 @@ public class BackgroundPass implements RenderPass {
             glDisable(GL_DEPTH_TEST);
             imageShader.use();
             textureStateManager.bindTexture(0, GL_TEXTURE_2D, imageBackground.getTexture().getId());
-            imageShader.setUniform("backgroundImage", 0);
+            imageShader.setUniformInt("backgroundImage", 0);
             GL33.glBindVertexArray(gradientVao);
             GL33.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             GL33.glBindVertexArray(0);
@@ -213,20 +213,20 @@ public class BackgroundPass implements RenderPass {
             glDepthFunc(GL_LEQUAL);
             if (background instanceof SkyboxBackground skybox) {
                 skyboxShader.use();
-                skyboxShader.setUniform("view", new Matrix4f(new org.joml.Matrix3f(scene.getCamera().getViewMatrix())));
-                skyboxShader.setUniform("projection", scene.getCamera().getProjectionMatrix());
+                skyboxShader.setUniformMatrix4f("view", new Matrix4f(new org.joml.Matrix3f(scene.getCamera().getViewMatrix())));
+                skyboxShader.setUniformMatrix4f("projection", scene.getCamera().getProjectionMatrix());
                 textureStateManager.bindTexture(0, GL33.GL_TEXTURE_CUBE_MAP, skybox.getCubemapTexture().getId());
-                skyboxShader.setUniform("skybox", 0);
+                skyboxShader.setUniformInt("skybox", 0);
                 GL33.glBindVertexArray(skyboxVao);
                 GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, 36);
             } else {
                 HDRIBackground hdri = (HDRIBackground) background;
                 hdriShader.use();
-                hdriShader.setUniform("view", new Matrix4f(new org.joml.Matrix3f(scene.getCamera().getViewMatrix())));
-                hdriShader.setUniform("projection", scene.getCamera().getProjectionMatrix());
-                hdriShader.setUniform("exposure", 1.0f);
+                hdriShader.setUniformMatrix4f("view", new Matrix4f(new org.joml.Matrix3f(scene.getCamera().getViewMatrix())));
+                hdriShader.setUniformMatrix4f("projection", scene.getCamera().getProjectionMatrix());
+                hdriShader.setUniformFloat("exposure", 1.0f);
                 textureStateManager.bindTexture(0, GL_TEXTURE_2D, hdri.getHdriTexture().getId());
-                hdriShader.setUniform("equirectangularMap", 0);
+                hdriShader.setUniformInt("equirectangularMap", 0);
                 GL33.glBindVertexArray(skyboxVao);
                 GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, 36);
             }

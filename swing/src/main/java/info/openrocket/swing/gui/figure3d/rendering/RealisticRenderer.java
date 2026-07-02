@@ -448,12 +448,12 @@ public class RealisticRenderer implements Renderer {
 		mainShader.use();
 
 		// Camera uniforms
-		mainShader.setUniform(mainShaderUniforms.projection, projectionMatrix);
-		mainShader.setUniform(mainShaderUniforms.view, viewMatrix);
+		mainShader.setUniformMatrix4f(mainShaderUniforms.projection, projectionMatrix);
+		mainShader.setUniformMatrix4f(mainShaderUniforms.view, viewMatrix);
 		Vector3f cameraPos = camera.getPosition();
 		GL33.glUniform3f(mainShaderUniforms.viewPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
-		mainShader.setUniform(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
+		mainShader.setUniformMatrix4f(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
 		textureStateManager.bindTexture(2, GL33.GL_TEXTURE_2D, shadowPass.getDepthMapTexture());
 		GL33.glUniform1i(mainShaderUniforms.shadowMap, 2);
 		if (shadowPass.hasShadowMap()) {

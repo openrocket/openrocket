@@ -154,7 +154,7 @@ public class Shader implements GpuResource {
 	 * @param name   The name of the uniform in the shader.
 	 * @param matrix The Matrix4f to set.
 	 */
-	public void setUniform(String name, Matrix4f matrix) {
+	public void setUniformMatrix4f(String name, Matrix4f matrix) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
 			matrix.get(matrix4Buffer);
@@ -167,7 +167,7 @@ public class Shader implements GpuResource {
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
 	 */
-	public void setUniform(int location, Matrix4f matrix) {
+	public void setUniformMatrix4f(int location, Matrix4f matrix) {
 		if (location >= 0) {
 			matrix.get(matrix4Buffer);
 			glUniformMatrix4fv(location, false, matrix4Buffer);
@@ -179,7 +179,7 @@ public class Shader implements GpuResource {
 	 * @param name   The name of the uniform in the shader.
 	 * @param matrix The Matrix3f to set.
 	 */
-	public void setUniform(String name, Matrix3f matrix) {
+	public void setUniformMatrix3f(String name, Matrix3f matrix) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
 			matrix.get(matrix3Buffer);
@@ -192,7 +192,7 @@ public class Shader implements GpuResource {
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
 	 */
-	public void setUniform(int location, Matrix3f matrix) {
+	public void setUniformMatrix3f(int location, Matrix3f matrix) {
 		if (location >= 0) {
 			matrix.get(matrix3Buffer);
 			glUniformMatrix3fv(location, false, matrix3Buffer);
@@ -204,7 +204,7 @@ public class Shader implements GpuResource {
 	 * @param name The name of the uniform.
 	 * @param vector The vector to set.
 	 */
-	public void setUniform(String name, Vector4f vector) {
+	public void setUniformVector4f(String name, Vector4f vector) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
 			GL20.glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
@@ -216,7 +216,7 @@ public class Shader implements GpuResource {
 	 * @param name The name of the uniform.
 	 * @param vector The vector to set.
 	 */
-	public void setUniform(String name, Vector3f vector) {
+	public void setUniformVector3f(String name, Vector3f vector) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
 			GL20.glUniform3f(location, vector.x, vector.y, vector.z);
@@ -228,10 +228,24 @@ public class Shader implements GpuResource {
 	 * @param name The name of the uniform.
 	 * @param value The float value to set.
 	 */
-	public void setUniform(String name, float value) {
+	public void setUniformFloat(String name, float value) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
 			GL20.glUniform1f(location, value);
+		}
+	}
+
+	/**
+	 * Sets an int uniform by name. Also required for sampler and bool uniforms:
+	 * setting those with {@code glUniform1f} is a silent GL_INVALID_OPERATION
+	 * and the uniform keeps its previous value.
+	 * @param name The name of the uniform.
+	 * @param value The int value to set.
+	 */
+	public void setUniformInt(String name, int value) {
+		int location = getUniformLocation(name);
+		if (location >= 0) {
+			GL20.glUniform1i(location, value);
 		}
 	}
 

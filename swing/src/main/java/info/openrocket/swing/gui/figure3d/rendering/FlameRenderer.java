@@ -118,8 +118,8 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
     public void render(SceneView scene, Camera camera) {
         shader.use();
-        shader.setUniform(projectionMatrixLocation, camera.getProjectionMatrix());
-        shader.setUniform(viewMatrixLocation, camera.getViewMatrix());
+        shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
+        shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
         glUniform1f(timeLocation, System.currentTimeMillis() * 0.001f);
 
         glActiveTexture(GL_TEXTURE0);

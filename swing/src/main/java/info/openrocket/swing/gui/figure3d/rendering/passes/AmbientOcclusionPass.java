@@ -101,9 +101,9 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
-        shader.setUniform(projectionUniform, projectionMatrix);
+        shader.setUniformMatrix4f(projectionUniform, projectionMatrix);
         inverseProjection.set(projectionMatrix).invert();
-        shader.setUniform(inverseProjectionUniform, inverseProjection);
+        shader.setUniformMatrix4f(inverseProjectionUniform, inverseProjection);
         GL33.glUniform2f(screenSizeUniform, (float) screenWidth, (float) screenHeight);
         GL33.glUniform1f(radiusUniform, qualitySettings.getAmbientOcclusionRadius());
         GL33.glUniform1f(strengthUniform, qualitySettings.getAmbientOcclusionStrength());

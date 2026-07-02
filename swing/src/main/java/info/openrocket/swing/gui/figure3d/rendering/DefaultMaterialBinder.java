@@ -53,7 +53,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
                 : null;
 
         // Set object-specific matrices and flags
-        shader.setUniform(uniforms.model, obj.getModelMatrix());
+        shader.setUniformMatrix4f(uniforms.model, obj.getModelMatrix());
         GL33.glUniform1i(uniforms.isSelected, obj.isSelected() ? 1 : 0);
         GL33.glUniform1i(uniforms.isUnlit, appearance.isUnlit() ? 1 : 0);
         GL33.glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);
@@ -102,7 +102,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
         Matrix4f textureTransformMatrix = unfinishedMode
                 ? unfinishedAppearance.getTextureTransform().getTransformMatrix(new Matrix4f())
                 : appearance.getTextureTransform().getTransformMatrix(new Matrix4f());
-        shader.setUniform(uniforms.textureTransformMatrix, textureTransformMatrix);
+        shader.setUniformMatrix4f(uniforms.textureTransformMatrix, textureTransformMatrix);
 
         // Base texture
         if (!isFigureMode && renderStyle != Appearance3D.RenderStyle.WIREFRAME.ordinal()) {
@@ -128,7 +128,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
             Matrix4f decalTransformMatrix = unfinishedMode
                     ? unfinishedAppearance.getDecalTransform().getTransformMatrix(new Matrix4f())
                     : appearance.getDecalTransform().getTransformMatrix(new Matrix4f());
-            shader.setUniform(uniforms.decalTransformMatrix, decalTransformMatrix);
+            shader.setUniformMatrix4f(uniforms.decalTransformMatrix, decalTransformMatrix);
             textureBinder.bindTexture(1, GL33.GL_TEXTURE_2D, decal.getId());
             // Keep decal linework crisp when zoomed in.
             textureBinder.setTextureParams(decal.getId(), GL33.GL_CLAMP_TO_EDGE, GL33.GL_CLAMP_TO_EDGE,

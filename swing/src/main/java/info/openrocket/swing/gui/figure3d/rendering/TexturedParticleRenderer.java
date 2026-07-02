@@ -103,8 +103,8 @@ public class TexturedParticleRenderer {
      */
     public void render(Scene scene, Camera camera) {
         shader.use();
-        shader.setUniform("projection", camera.getProjectionMatrix());
-        shader.setUniform("view", camera.getViewMatrix());
+        shader.setUniformMatrix4f("projection", camera.getProjectionMatrix());
+        shader.setUniformMatrix4f("view", camera.getViewMatrix());
 
         glActiveTexture(GL_TEXTURE0);
         smokeTexture.bind();

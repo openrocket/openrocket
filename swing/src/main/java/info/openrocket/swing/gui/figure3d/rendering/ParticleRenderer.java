@@ -110,8 +110,8 @@ public class ParticleRenderer implements ParticleSystemRenderer {
      */
     public void render(SceneView scene, Camera camera) {
         shader.use();
-        shader.setUniform("projection", camera.getProjectionMatrix());
-        shader.setUniform("view", camera.getViewMatrix());
+        shader.setUniformMatrix4f("projection", camera.getProjectionMatrix());
+        shader.setUniformMatrix4f("view", camera.getViewMatrix());
 
         glEnable(GL_BLEND);
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

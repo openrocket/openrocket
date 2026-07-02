@@ -140,13 +140,13 @@ public class ShadowPass implements RenderPass {
         glCullFace(GL_BACK);
 
         depthShader.use();
-        depthShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
+        depthShader.setUniformMatrix4f("lightSpaceMatrix", lightSpaceMatrix);
 
         for (SceneObject object : scene.getObjects()) {
             if (shouldSkipObject(object)) {
                 continue;
             }
-            depthShader.setUniform("model", object.getModelMatrix());
+            depthShader.setUniformMatrix4f("model", object.getModelMatrix());
             object.getRenderableMesh().render();
         }
 

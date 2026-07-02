@@ -79,7 +79,7 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
         this.shader = new Shader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.shader.use();
-        this.shader.setUniform("screenTexture", 0); // Set texture unit once
+        this.shader.setUniformInt("screenTexture", 0); // Set texture unit once
         this.shader.unbind();
         resize(initialWidth, initialHeight);
     }
@@ -101,8 +101,8 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
-        shader.setUniform("rt_w", (float)screenWidth);
-        shader.setUniform("rt_h", (float)screenHeight);
+        shader.setUniformFloat("rt_w", (float)screenWidth);
+        shader.setUniformFloat("rt_h", (float)screenHeight);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, inputTexture);

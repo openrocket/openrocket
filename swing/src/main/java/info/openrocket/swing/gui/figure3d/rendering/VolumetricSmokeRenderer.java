@@ -174,8 +174,8 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
         }
 
         shader.use();
-        shader.setUniform(projectionMatrixLocation, camera.getProjectionMatrix());
-        shader.setUniform(viewMatrixLocation, camera.getViewMatrix());
+        shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
+        shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
         
         // Find the brightest flame to use as primary light source
         Vector3f flameLight = new Vector3f(10.0f, 10.0f, 10.0f); // Default light position

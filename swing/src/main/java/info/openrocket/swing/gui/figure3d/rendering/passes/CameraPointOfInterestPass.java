@@ -60,13 +60,13 @@ public class CameraPointOfInterestPass implements RenderPass {
 
 		glDisable(GL_DEPTH_TEST);
 		shader.use();
-		shader.setUniform("projectionMatrix", projectionMatrix);
-		shader.setUniform("viewMatrix", viewMatrix);
-		shader.setUniform("center", camera.getCenterOfInterest());
-		shader.setUniform("color", markerColor);
-		shader.setUniform("scaleWithView", 0.0f);
-		shader.setUniform("fixedScaleFactor", FIXED_SCREEN_SCALE);
-		shader.setUniform("viewportHeight", (float) viewportHeight);
+		shader.setUniformMatrix4f("projectionMatrix", projectionMatrix);
+		shader.setUniformMatrix4f("viewMatrix", viewMatrix);
+		shader.setUniformVector3f("center", camera.getCenterOfInterest());
+		shader.setUniformVector3f("color", markerColor);
+		shader.setUniformFloat("scaleWithView", 0.0f);
+		shader.setUniformFloat("fixedScaleFactor", FIXED_SCREEN_SCALE);
+		shader.setUniformFloat("viewportHeight", (float) viewportHeight);
 		markerMesh.render();
 		glEnable(GL_DEPTH_TEST);
 	}

@@ -227,13 +227,13 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
 
             // Render selected objects in white into the mask texture
             mainShader.use();
-            mainShader.setUniform(mainShaderUniforms.projection, projectionMatrix);
-            mainShader.setUniform(mainShaderUniforms.view, viewMatrix);
+            mainShader.setUniformMatrix4f(mainShaderUniforms.projection, projectionMatrix);
+            mainShader.setUniformMatrix4f(mainShaderUniforms.view, viewMatrix);
             glUniform1i(mainShaderUniforms.forceWhite, 1);
             glEnable(GL_DEPTH_TEST);
 
             for (SceneObject obj : selectedObjects) {
-                mainShader.setUniform(mainShaderUniforms.model, obj.getModelMatrix());
+                mainShader.setUniformMatrix4f(mainShaderUniforms.model, obj.getModelMatrix());
                 obj.getRenderableMesh().render();
             }
 

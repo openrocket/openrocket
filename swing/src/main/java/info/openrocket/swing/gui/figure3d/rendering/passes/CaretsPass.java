@@ -146,23 +146,23 @@ public class CaretsPass implements RenderPass {
     public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         glDisable(GL_DEPTH_TEST);
         shader.use();
-        shader.setUniform("projectionMatrix", projectionMatrix);
-        shader.setUniform("viewMatrix", viewMatrix);
-        shader.setUniform("scaleWithView", config.getVisualEffects().isCaretScaleWithView() ? 1.0f : 0.0f);
-        shader.setUniform("fixedScaleFactor", FIXED_SCREEN_SCALE);
-        shader.setUniform("viewportHeight", (float) viewportHeight);
+        shader.setUniformMatrix4f("projectionMatrix", projectionMatrix);
+        shader.setUniformMatrix4f("viewMatrix", viewMatrix);
+        shader.setUniformFloat("scaleWithView", config.getVisualEffects().isCaretScaleWithView() ? 1.0f : 0.0f);
+        shader.setUniformFloat("fixedScaleFactor", FIXED_SCREEN_SCALE);
+        shader.setUniformFloat("viewportHeight", (float) viewportHeight);
 
         if (cgValid) {
             // Render CG
-            shader.setUniform("center", scene.transformRocketPoint(cgPosition, transformedCgPosition));
-            shader.setUniform("color", cgColor);
+            shader.setUniformVector3f("center", scene.transformRocketPoint(cgPosition, transformedCgPosition));
+            shader.setUniformVector3f("color", cgColor);
             cgMesh.render();
         }
 
         if (cpValid) {
             // Render CP
-            shader.setUniform("center", scene.transformRocketPoint(cpPosition, transformedCpPosition));
-            shader.setUniform("color", cpColor);
+            shader.setUniformVector3f("center", scene.transformRocketPoint(cpPosition, transformedCpPosition));
+            shader.setUniformVector3f("color", cpColor);
             cpMesh.render();
         }
 
