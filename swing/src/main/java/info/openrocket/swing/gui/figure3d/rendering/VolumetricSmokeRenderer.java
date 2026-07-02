@@ -75,6 +75,13 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 
+    // Smoke quad vertex layout (independent of the mesh layout in Vertex)
+    private static final int POSITION_FLOATS = 3;
+    private static final int TEX_COORD_FLOATS = 2;
+    private static final int COLOR_FLOATS = 4;
+    private static final int FLOATS_PER_VERTEX = POSITION_FLOATS + TEX_COORD_FLOATS + COLOR_FLOATS;
+    private static final int VERTICES_PER_QUAD = 6;
+
     private final Shader shader;
     private final int vao;
     private final int vbo;
@@ -103,7 +110,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
      */
     public VolumetricSmokeRenderer() throws Exception {
         shader = new Shader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
-        buffer = MemoryUtil.memAllocFloat(maxQuads * 6 * 9); // 6 vertices per quad, 9 floats per vertex (3 pos + 2 tex + 4 color)
+        buffer = MemoryUtil.memAllocFloat(maxQuads * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
 
         // Cache uniform locations
         projectionMatrixLocation = shader.getUniformLocation("projection");
@@ -124,16 +131,19 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, buffer.capacity() * Float.BYTES, GL_DYNAMIC_DRAW);
 
+        int stride = FLOATS_PER_VERTEX * Float.BYTES;
+
         // Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 9 * Float.BYTES, 0);
+        glVertexAttribPointer(0, POSITION_FLOATS, GL_FLOAT, false, stride, 0);
         glEnableVertexAttribArray(0);
 
         // Texture coordinates
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 9 * Float.BYTES, 3 * Float.BYTES);
+        glVertexAttribPointer(1, TEX_COORD_FLOATS, GL_FLOAT, false, stride, POSITION_FLOATS * Float.BYTES);
         glEnableVertexAttribArray(1);
 
         // Color + alpha
-        glVertexAttribPointer(2, 4, GL_FLOAT, false, 9 * Float.BYTES, 5 * Float.BYTES);
+        glVertexAttribPointer(2, COLOR_FLOATS, GL_FLOAT, false, stride,
+                (POSITION_FLOATS + TEX_COORD_FLOATS) * Float.BYTES);
         glEnableVertexAttribArray(2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -14,26 +14,42 @@ import java.util.Arrays;
 
 /**
  * OpenGL-optimized mesh representation for hardware-accelerated rendering.
- * 
- * Converts application mesh data into GPU-resident vertex buffer objects (VBOs)
- * and vertex array objects (VAOs) for efficient rendering. Each vertex contains:
+ *
+ * Converts application mesh data into GPU-resident buffer objects using indexed
+ * (element-based) drawing:
+ * - A vertex buffer object (VBO) holds the packed vertex data
+ * - An element buffer object (EBO) holds the triangle indices
+ * - A vertex array object (VAO) captures the buffer bindings and attribute layout
+ *
+ * Each vertex is packed as {@link Vertex#FLOATS_PER_VERTEX} floats:
  * - 3D position (x, y, z)
  * - Surface normal (nx, ny, nz) for lighting calculations
  * - Texture coordinates (u, v) for material mapping
- * - Surface ID (packed as float) for material identification
- * 
+ * - Surface ID (an int packed as a float) for material identification
+ *
  * The mesh data is uploaded to GPU memory once during construction and can be
- * rendered multiple times with minimal CPU overhead using indexed drawing.
+ * rendered multiple times with minimal CPU overhead. Note that rendering is
+ * done exclusively through the EBO ({@code glDrawElements}); switching away
+ * from indexed drawing would require changing both the buffer setup and the
+ * draw calls, and OpenGL would give no error if they disagree.
  */
 public class RenderableMesh implements Renderable {
-	private final int vaoId;
-	private final int vboId;
-	private final int eboId;
-	private final int vertexCount;
+	// Byte offsets of each attribute within a packed vertex
+	private static final int POSITION_OFFSET_BYTES = 0;
+	private static final int NORMAL_OFFSET_BYTES = Vertex.POSITION_FLOATS * Float.BYTES;
+	private static final int TEX_COORD_OFFSET_BYTES = (Vertex.POSITION_FLOATS + Vertex.NORMAL_FLOATS) * Float.BYTES;
+	private static final int SURFACE_ID_OFFSET_BYTES =
+			(Vertex.POSITION_FLOATS + Vertex.NORMAL_FLOATS + Vertex.TEX_COORD_FLOATS) * Float.BYTES;
+	private static final int STRIDE_BYTES = Vertex.FLOATS_PER_VERTEX * Float.BYTES;
+
+	private final int vertexArrayObjectId;
+	private final int vertexBufferObjectId;
+	private final int elementBufferObjectId;
+	private final int indexCount;
 	private final Matrix4f scratchModelViewMatrix = new Matrix4f();
 	private final Matrix4f lastSortedModelViewMatrix = new Matrix4f();
 	private final Vector3f scratchCentroid = new Vector3f();
-	private int sortedEboId;
+	private int sortedElementBufferObjectId;
 	private List<Vertex> sortedVertices;
 	private List<Integer> sortedIndices;
 	private long[] triangleSortKeys;
@@ -42,59 +58,25 @@ public class RenderableMesh implements Renderable {
 
 	/**
 	 * Creates a new renderable mesh from application mesh data.
-	 * 
+	 *
 	 * Converts the mesh vertices and indices into OpenGL buffer objects
 	 * and sets up vertex attribute pointers for efficient rendering.
 	 * The vertex data is uploaded to GPU memory and the input mesh
 	 * can be safely discarded after construction.
-	 * 
+	 *
 	 * @param mesh The source mesh containing vertices and indices
 	 */
 	public RenderableMesh(Mesh mesh) {
-		// Vertex data has 9 floats: 3 pos, 3 norm, 2 uv, 1 surfaceID (packed as float)
-		List<Vertex> vertices = mesh.getVertices();
-		FloatBuffer vertexBuffer = MemoryUtil.memAllocFloat(vertices.size() * 9);
-		for (Vertex vertex : vertices) {
-			vertexBuffer.put(vertex.position.x).put(vertex.position.y).put(vertex.position.z);
-			vertexBuffer.put(vertex.normal.x).put(vertex.normal.y).put(vertex.normal.z);
-			vertexBuffer.put(vertex.texCoords.x).put(vertex.texCoords.y);
-			vertexBuffer.put(Float.intBitsToFloat(vertex.surfaceID)); // Pack int as float
-		}
-		vertexBuffer.flip();
+		FloatBuffer vertexBuffer = packVertexData(mesh.getVertices());
+		IntBuffer indexBuffer = packIndexData(mesh.getIndices());
+		this.indexCount = mesh.getIndices().size();
 
-		IntBuffer indexBuffer = MemoryUtil.memAllocInt(mesh.getIndices().size());
-		indexBuffer.put(mesh.getIndices().stream().mapToInt(i -> i).toArray());
-		indexBuffer.flip();
+		vertexArrayObjectId = GL33.glGenVertexArrays();
+		GL33.glBindVertexArray(vertexArrayObjectId);
 
-		this.vertexCount = mesh.getIndices().size();
-		int stride = 9 * Float.BYTES;
-
-		vaoId = GL33.glGenVertexArrays();
-		GL33.glBindVertexArray(vaoId);
-
-		vboId = GL33.glGenBuffers();
-		GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, vboId);
-		GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertexBuffer, GL33.GL_STATIC_DRAW);
-
-		eboId = GL33.glGenBuffers();
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, eboId);
-		GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL33.GL_STATIC_DRAW);
-
-		// Position attribute (location = 0)
-		GL33.glVertexAttribPointer(0, 3, GL33.GL_FLOAT, false, stride, 0);
-		GL33.glEnableVertexAttribArray(0);
-
-		// Normal attribute (location = 1)
-		GL33.glVertexAttribPointer(1, 3, GL33.GL_FLOAT, false, stride, 3 * Float.BYTES);
-		GL33.glEnableVertexAttribArray(1);
-
-		// Texture Coordinate attribute (location = 2)
-		GL33.glVertexAttribPointer(2, 2, GL33.GL_FLOAT, false, stride, 6 * Float.BYTES);
-		GL33.glEnableVertexAttribArray(2);
-
-		// Surface ID attribute (location = 3)
-		GL33.glVertexAttribPointer(3, 1, GL33.GL_FLOAT, false, stride, 8 * Float.BYTES);
-		GL33.glEnableVertexAttribArray(3);
+		vertexBufferObjectId = uploadVertexBuffer(vertexBuffer);
+		elementBufferObjectId = uploadElementBuffer(indexBuffer);
+		configureVertexAttributes();
 
 		GL33.glBindVertexArray(0);
 
@@ -105,17 +87,79 @@ public class RenderableMesh implements Renderable {
 	}
 
 	/**
-	 * Renders this mesh using indexed triangle drawing.
-	 * 
-	 * Binds the vertex array object and issues a draw call to render
-	 * all triangles in this mesh. The appropriate shader program should
-	 * be active before calling this method.
+	 * Packs the vertices into a tightly interleaved float buffer matching the
+	 * attribute layout set up in {@link #configureVertexAttributes()}.
+	 */
+	private static FloatBuffer packVertexData(List<Vertex> vertices) {
+		FloatBuffer vertexBuffer = MemoryUtil.memAllocFloat(vertices.size() * Vertex.FLOATS_PER_VERTEX);
+		for (Vertex vertex : vertices) {
+			vertexBuffer.put(vertex.position.x).put(vertex.position.y).put(vertex.position.z);
+			vertexBuffer.put(vertex.normal.x).put(vertex.normal.y).put(vertex.normal.z);
+			vertexBuffer.put(vertex.texCoords.x).put(vertex.texCoords.y);
+			vertexBuffer.put(Float.intBitsToFloat(vertex.surfaceID)); // Pack int as float
+		}
+		vertexBuffer.flip();
+		return vertexBuffer;
+	}
+
+	private static IntBuffer packIndexData(List<Integer> indices) {
+		IntBuffer indexBuffer = MemoryUtil.memAllocInt(indices.size());
+		indexBuffer.put(indices.stream().mapToInt(i -> i).toArray());
+		indexBuffer.flip();
+		return indexBuffer;
+	}
+
+	private static int uploadVertexBuffer(FloatBuffer vertexBuffer) {
+		int bufferId = GL33.glGenBuffers();
+		GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, bufferId);
+		GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertexBuffer, GL33.GL_STATIC_DRAW);
+		return bufferId;
+	}
+
+	private static int uploadElementBuffer(IntBuffer indexBuffer) {
+		int bufferId = GL33.glGenBuffers();
+		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, bufferId);
+		GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL33.GL_STATIC_DRAW);
+		return bufferId;
+	}
+
+	/**
+	 * Sets up the vertex attribute pointers for the currently bound VAO/VBO.
+	 * The attribute locations, sizes, and offsets must stay in sync with the
+	 * packing in {@link #packVertexData(List)} and the vertex shader inputs.
+	 */
+	private static void configureVertexAttributes() {
+		// Position attribute (location = 0)
+		GL33.glVertexAttribPointer(0, Vertex.POSITION_FLOATS, GL33.GL_FLOAT, false, STRIDE_BYTES, POSITION_OFFSET_BYTES);
+		GL33.glEnableVertexAttribArray(0);
+
+		// Normal attribute (location = 1)
+		GL33.glVertexAttribPointer(1, Vertex.NORMAL_FLOATS, GL33.GL_FLOAT, false, STRIDE_BYTES, NORMAL_OFFSET_BYTES);
+		GL33.glEnableVertexAttribArray(1);
+
+		// Texture coordinate attribute (location = 2)
+		GL33.glVertexAttribPointer(2, Vertex.TEX_COORD_FLOATS, GL33.GL_FLOAT, false, STRIDE_BYTES, TEX_COORD_OFFSET_BYTES);
+		GL33.glEnableVertexAttribArray(2);
+
+		// Surface ID attribute (location = 3)
+		GL33.glVertexAttribPointer(3, Vertex.SURFACE_ID_FLOATS, GL33.GL_FLOAT, false, STRIDE_BYTES, SURFACE_ID_OFFSET_BYTES);
+		GL33.glEnableVertexAttribArray(3);
+	}
+
+	/**
+	 * Renders this mesh using indexed (element-based) triangle drawing.
+	 *
+	 * Binds the vertex array object and element buffer object, then issues a
+	 * {@code glDrawElements} call to render all triangles in this mesh. This
+	 * draw call only works with the EBO setup done in the constructor; it
+	 * would silently render nothing if the element buffer were removed.
+	 * The appropriate shader program should be active before calling this method.
 	 */
     @Override
     public void render() {
-		GL33.glBindVertexArray(vaoId);
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, eboId);
-		GL33.glDrawElements(GL33.GL_TRIANGLES, vertexCount, GL33.GL_UNSIGNED_INT, 0);
+		GL33.glBindVertexArray(vertexArrayObjectId);
+		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, elementBufferObjectId);
+		GL33.glDrawElements(GL33.GL_TRIANGLES, indexCount, GL33.GL_UNSIGNED_INT, 0);
 		GL33.glBindVertexArray(0);
 	}
 
@@ -128,14 +172,14 @@ public class RenderableMesh implements Renderable {
 			sortedIndicesDirty = false;
 		}
 
-		GL33.glBindVertexArray(vaoId);
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedEboId);
-		GL33.glDrawElements(GL33.GL_TRIANGLES, vertexCount, GL33.GL_UNSIGNED_INT, 0);
+		GL33.glBindVertexArray(vertexArrayObjectId);
+		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
+		GL33.glDrawElements(GL33.GL_TRIANGLES, indexCount, GL33.GL_UNSIGNED_INT, 0);
 		GL33.glBindVertexArray(0);
 	}
 
 	private void ensureSortedResources(Mesh mesh) {
-		if (sortedEboId != 0) {
+		if (sortedElementBufferObjectId != 0) {
 			return;
 		}
 
@@ -144,8 +188,8 @@ public class RenderableMesh implements Renderable {
 		triangleSortKeys = new long[sortedIndices.size() / 3];
 		sortedIndexBuffer = MemoryUtil.memAllocInt(sortedIndices.size());
 
-		sortedEboId = GL33.glGenBuffers();
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedEboId);
+		sortedElementBufferObjectId = GL33.glGenBuffers();
+		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
 		GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, (long) sortedIndices.size() * Integer.BYTES, GL33.GL_DYNAMIC_DRAW);
 		sortedIndicesDirty = true;
 	}
@@ -181,7 +225,7 @@ public class RenderableMesh implements Renderable {
 		}
 		sortedIndexBuffer.flip();
 
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedEboId);
+		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
 		GL33.glBufferSubData(GL33.GL_ELEMENT_ARRAY_BUFFER, 0, sortedIndexBuffer);
 	}
 
@@ -200,12 +244,12 @@ public class RenderableMesh implements Renderable {
 	 */
     @Override
     public void cleanup() {
-		GL33.glDeleteBuffers(vboId);
-		GL33.glDeleteBuffers(eboId);
-		if (sortedEboId != 0) {
-			GL33.glDeleteBuffers(sortedEboId);
+		GL33.glDeleteBuffers(vertexBufferObjectId);
+		GL33.glDeleteBuffers(elementBufferObjectId);
+		if (sortedElementBufferObjectId != 0) {
+			GL33.glDeleteBuffers(sortedElementBufferObjectId);
 		}
-		GL33.glDeleteVertexArrays(vaoId);
+		GL33.glDeleteVertexArrays(vertexArrayObjectId);
 		if (sortedIndexBuffer != null) {
 			MemoryUtil.memFree(sortedIndexBuffer);
 		}
