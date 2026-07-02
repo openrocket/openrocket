@@ -52,4 +52,13 @@ public abstract class RenderingConstants {
 	public static final int DECAL_SURFACE_FORE = 4; 		// 0b0100
 	public static final int DECAL_SURFACE_AFT = 8; 			// 0b1000
 	public static final int DECAL_SURFACE_ALL = 0b1111;
+
+	/**
+	 * Vertex surface ID for faces that should never receive decals, such as the
+	 * edge band around a fin. The fragment shader tests
+	 * {@code (decalSurfaceMask & (1 << surfaceID)) != 0} before sampling the decal,
+	 * so this ID's bit (1 << 5 = 32) falls outside {@link #DECAL_SURFACE_ALL} and
+	 * is excluded from every decal mask.
+	 */
+	public static final int SURFACE_ID_EDGE = 5;
 }

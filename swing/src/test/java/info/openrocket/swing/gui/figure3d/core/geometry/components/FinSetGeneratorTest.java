@@ -4,8 +4,10 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FinSetGeneratorTest extends BaseTestCase {
 
 	private static final float EPSILON = 1.0e-5f;
+
+	@Test
+	void edgeFacesAreExcludedFromDecals() {
+		BodyTube parent = new BodyTube();
+		parent.setOuterRadius(0.05);
+		parent.setLength(0.5);
+
+		TrapezoidFinSet finSet = new TrapezoidFinSet();
+		finSet.setRootChord(0.20);
+		finSet.setTipChord(0.10);
+		finSet.setSweep(0.04);
+		finSet.setHeight(0.12);
+		finSet.setThickness(0.004);
+		parent.addChild(finSet);
+
+		Mesh mesh = FinSetGenerator.create(finSet, parent, RenderingConfiguration.builder().build());
+		assertNotNull(mesh);
+		assertFalse(mesh.getVertices().isEmpty());
+
+		int edgeVertexCount = 0;
+		for (Vertex vertex : mesh.getVertices()) {
+			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_EDGE) {
+				edgeVertexCount++;
+				// The edge band runs along the fin perimeter, so its normals lie in the fin plane
+				assertEquals(0.0f, vertex.normal.z, EPSILON,
+						"Edge-band vertices should have in-plane normals");
+			} else if (Math.abs(vertex.normal.z) > 0.99f) {
+				// Front/back faces must keep the default surface ID so they still receive decals
+				assertEquals(0, vertex.surfaceID, "Fin faces should keep the decal-receiving surface ID");
+			}
+		}
+		assertTrue(edgeVertexCount > 0, "Fin mesh should mark its edge band with the edge surface ID");
+	}
 
 	@Test
 	void filletTrailingCapUsesAdjacentEdgeAppearanceBasis() {
