@@ -19,7 +19,7 @@ public class VertexTest {
 		assertEquals(1, Vertex.SURFACE_ID_FLOATS);
 		assertEquals(Vertex.POSITION_FLOATS + Vertex.NORMAL_FLOATS + Vertex.TEX_COORD_FLOATS + Vertex.SURFACE_ID_FLOATS,
 				Vertex.FLOATS_PER_VERTEX);
-		// The shaders and RenderableMesh attribute pointers assume 9 floats per vertex.
+		// The shaders and GLRenderableMesh attribute pointers assume 9 floats per vertex.
 		assertEquals(9, Vertex.FLOATS_PER_VERTEX);
 	}
 }

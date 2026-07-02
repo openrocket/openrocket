@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
@@ -55,7 +55,7 @@ import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
  */
 public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 
-    private final Shader shader;
+    private final GLShader shader;
     private float blurFactor = 1f;
     private final Vector2f blurDirection = new Vector2f(1.0f, 0.0f);
     private final int screenQuadVAO;
@@ -78,7 +78,7 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
      * @throws Exception If shader compilation or framebuffer creation fails
      */
     public MotionBlurPass(int screenQuadVAO, int initialWidth, int initialHeight) throws Exception {
-        this.shader = new Shader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
+        this.shader = new GLShader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.shader.use();
         this.shader.setUniformInt("screenTexture", 0);

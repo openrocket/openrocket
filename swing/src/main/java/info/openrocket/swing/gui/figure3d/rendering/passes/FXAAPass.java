@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
@@ -56,7 +56,7 @@ import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
  */
 public class FXAAPass implements RenderPass, ScreenTexturePass {
 
-    private final Shader shader;
+    private final GLShader shader;
     private final int screenQuadVAO;
     private int inputTexture;
     private int fxaaFBO;
@@ -76,7 +76,7 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
      * @throws Exception If shader compilation or framebuffer creation fails
      */
     public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) throws Exception {
-        this.shader = new Shader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
+        this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.shader.use();
         this.shader.setUniformInt("screenTexture", 0); // Set texture unit once

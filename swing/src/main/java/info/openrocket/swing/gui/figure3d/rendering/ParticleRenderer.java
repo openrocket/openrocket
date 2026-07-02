@@ -60,7 +60,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class ParticleRenderer implements ParticleSystemRenderer {
 
-    private Shader shader;
+    private GLShader shader;
     private int vao;
     private int vbo;
     private FloatBuffer buffer;
@@ -76,7 +76,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
      * @throws Exception If shader compilation or OpenGL resource creation fails
      */
     public ParticleRenderer() throws Exception {
-        shader = new Shader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
+        shader = new GLShader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxParticles * 2 * 6); // 2 vertices per particle, 6 floats per vertex
 
         vao = glGenVertexArrays();
@@ -186,7 +186,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 
     @Override
     public String getRendererName() {
-        return "Basic Particle Renderer";
+        return "Basic Particle GLRenderer";
     }
 
     @Override

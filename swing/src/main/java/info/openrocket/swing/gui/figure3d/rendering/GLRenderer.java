@@ -6,12 +6,18 @@ import info.openrocket.swing.gui.figure3d.window.WindowManager;
 
 /**
  * Core interface for the OpenRocket 3D rendering system.
- * 
+ *
  * Defines the contract for rendering engines that transform 3D scene data into
  * 2D output. Implementations handle the complete rendering pipeline including
- * geometry rendering, lighting, materials, post-processing, and particle systems.
+ * geometry rendering, lighting, materials, and post-processing. Particle
+ * effects are not part of this contract; renderer implementations delegate
+ * them to the {@link ParticleSystemRenderer} instances they own.
+ *
+ * This interface is specific to the OpenGL 3.3 (LWJGL) backend: its methods
+ * expose GL concepts such as framebuffer and texture ids, so implementations
+ * are expected to be OpenGL-based.
  */
-public interface Renderer {
+public interface GLRenderer {
 	/**
 	 * Renders a single frame of the given scene to the active framebuffer.
 	 * 

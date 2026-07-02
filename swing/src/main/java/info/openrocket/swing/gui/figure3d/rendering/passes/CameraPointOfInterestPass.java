@@ -2,9 +2,9 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.components.CameraPointOfInterestGenerator;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
-import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -28,7 +28,7 @@ public class CameraPointOfInterestPass implements RenderPass {
 	private static final float FIXED_SCREEN_SCALE = 25.0f;
 	private int viewportHeight = 1;
 
-	private final Shader shader;
+	private final GLShader shader;
 	private final Renderable markerMesh;
 	private final RenderingConfiguration config;
 	private final Vector3f markerColor = new Vector3f(0.2f, 0.8f, 1.0f);
@@ -37,11 +37,11 @@ public class CameraPointOfInterestPass implements RenderPass {
 	public CameraPointOfInterestPass(RenderingConfiguration config) {
 		this.config = config;
 		try {
-			shader = new Shader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
+			shader = new GLShader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		this.markerMesh = new RenderableMesh(CameraPointOfInterestGenerator.create());
+		this.markerMesh = new GLRenderableMesh(CameraPointOfInterestGenerator.create());
 		updateColorFromTheme();
 		this.uiThemeListener = this::updateColorFromTheme;
 		UITheme.Theme.addUIThemeChangeListener(uiThemeListener);

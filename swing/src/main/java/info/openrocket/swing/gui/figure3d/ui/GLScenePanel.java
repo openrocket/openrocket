@@ -10,8 +10,8 @@ import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Renderer;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
@@ -154,7 +154,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final Object hudLock = new Object();
 	private BufferedImage hudImage;
 	private Texture hudTexture;
-	private Shader hudShader;
+	private GLShader hudShader;
 	private int hudVao;
 	private int hudVbo; // Store VBO reference for cleanup
 	// PBO for async HUD texture uploads. Orphaned + filled on the render thread,
@@ -396,7 +396,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 		if (orchestrator != null) {
-			Renderer renderer = orchestrator.getRenderer();
+			GLRenderer renderer = orchestrator.getRenderer();
 			if (renderer != null) {
 				renderer.setInteractionMode(moving);
 			}
@@ -901,7 +901,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 				if (hudEnabled) {
 					// --- Initialize HUD rendering objects ---
-					hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
+					hudShader = new GLShader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
 
 				// Set initial dimensions
 				lastFramebufferWidth = fbWidth;
@@ -1149,7 +1149,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			handlePendingResize();
 
-			Renderer renderer = scene3DOrchestrator.getRenderer();
+			GLRenderer renderer = scene3DOrchestrator.getRenderer();
 			SceneView sceneView = scene3DOrchestrator.getScene();
 
 			if (renderer == null || sceneView == null) {
@@ -1233,7 +1233,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	private void handleExport(SceneView sceneView, Renderer renderer) {
+	private void handleExport(SceneView sceneView, GLRenderer renderer) {
 		boolean renderBackground = !scene3DOrchestrator.isExportTransparent();
 		renderer.render(sceneView, null, renderBackground);
 
@@ -1426,7 +1426,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		resizeRequested = false;
 	}
 
-	private ByteBuffer captureResolvedFramebuffer(Renderer renderer, int width, int height) {
+	private ByteBuffer captureResolvedFramebuffer(GLRenderer renderer, int width, int height) {
 		if (width <= 0 || height <= 0) {
 			return null;
 		}
@@ -1448,7 +1448,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return buffer;
 	}
 
-	private boolean sampleStartupFrameVisibilityIfNeeded(Renderer renderer) {
+	private boolean sampleStartupFrameVisibilityIfNeeded(GLRenderer renderer) {
 		if (startupFrameDetectionComplete) {
 			return true;
 		}
@@ -1464,7 +1464,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return visible;
 	}
 
-	private boolean detectStartupFrameVisibility(Renderer renderer) {
+	private boolean detectStartupFrameVisibility(GLRenderer renderer) {
 		int[] defaultFbSize = computeFramebufferSize();
 		int currentFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
 		int[] resolvedCenter = sampleFramebufferCenterPixelRgba(renderer.getResolvedFramebufferId(), GL_COLOR_ATTACHMENT0,
@@ -1652,7 +1652,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					if (scene3DOrchestrator != null) {
 						try {
 							SceneView scene = scene3DOrchestrator.getScene();
-							Renderer renderer = scene3DOrchestrator.getRenderer();
+							GLRenderer renderer = scene3DOrchestrator.getRenderer();
 							if (scene != null) {
 								scene.cleanup();
 							}

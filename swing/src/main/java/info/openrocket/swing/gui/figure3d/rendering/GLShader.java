@@ -54,9 +54,9 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
  * with both named access (using caching) and direct location access for
  * maximum performance in render loops.
  */
-public class Shader implements GpuResource {
+public class GLShader implements GpuResource {
 
-	private static final Logger log = LoggerFactory.getLogger(Shader.class);
+	private static final Logger log = LoggerFactory.getLogger(GLShader.class);
 
 	private final int programId;
 	private final String vertexPath;
@@ -79,7 +79,7 @@ public class Shader implements GpuResource {
 	 * @param fragmentPath Path to fragment shader source file in resources
 	 * @throws ShaderException If shader loading, compilation, or linking fails
 	 */
-	public Shader(String vertexPath, String fragmentPath) {
+	public GLShader(String vertexPath, String fragmentPath) {
 		this.vertexPath = vertexPath;
 		this.fragmentPath = fragmentPath;
 
@@ -98,7 +98,7 @@ public class Shader implements GpuResource {
 		GLErrors.check("shader program creation (" + vertexPath + ", " + fragmentPath + ")");
 
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.PROGRAM, programId, vertexPath + " | " + fragmentPath);
-		log.debug("Shader program created successfully: id={}", programId);
+		log.debug("GLShader program created successfully: id={}", programId);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class Shader implements GpuResource {
 		if (glGetProgrami(newProgramId, GL_LINK_STATUS) == 0) {
 			String linkError = glGetProgramInfoLog(newProgramId, 1024);
 			glDeleteProgram(newProgramId);
-			log.error("Shader link error for {}, {}: {}", vertexPath, fragmentPath, linkError);
+			log.error("GLShader link error for {}, {}: {}", vertexPath, fragmentPath, linkError);
 			throw new ShaderException("Error linking shader program (" + vertexPath + ", " + fragmentPath + "): " + linkError);
 		}
 
@@ -342,10 +342,10 @@ public class Shader implements GpuResource {
 	 * @throws ShaderException If the file cannot be read
 	 */
 	private static String loadResource(String fileName) {
-		InputStream in = Shader.class.getResourceAsStream(fileName);
+		InputStream in = GLShader.class.getResourceAsStream(fileName);
 		if (in == null) {
-			log.error("Shader resource not found: {}", fileName);
-			throw new ShaderException("Shader resource not found: " + fileName);
+			log.error("GLShader resource not found: {}", fileName);
+			throw new ShaderException("GLShader resource not found: " + fileName);
 		}
 		try (Scanner scanner = new Scanner(in, StandardCharsets.UTF_8)) {
 			return scanner.useDelimiter("\\A").next();

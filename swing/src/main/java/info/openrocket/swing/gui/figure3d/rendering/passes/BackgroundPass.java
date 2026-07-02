@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
@@ -74,13 +74,13 @@ import static org.lwjgl.opengl.GL11.glEnable;
  */
 public class BackgroundPass implements RenderPass {
 
-    private final Shader gradientShader;
+    private final GLShader gradientShader;
     private final int gradientVao;
-    private final Shader imageShader;
-    private final Shader skyboxShader;
+    private final GLShader imageShader;
+    private final GLShader skyboxShader;
     private final int skyboxVao;
-    private final Shader hdriShader;
-    private final Shader checkerboardShader;
+    private final GLShader hdriShader;
+    private final GLShader checkerboardShader;
     private final TextureBinder textureStateManager;
 
     /**
@@ -94,11 +94,11 @@ public class BackgroundPass implements RenderPass {
      * @throws Exception If shader compilation or OpenGL resource creation fails
      */
     public BackgroundPass(TextureBinder textureStateManager) throws Exception {
-        gradientShader = new Shader("/shaders/background/gradient_vertex.glsl", "/shaders/background/gradient_fragment.glsl");
-        imageShader = new Shader("/shaders/background/image_vertex.glsl", "/shaders/background/image_fragment.glsl");
-        skyboxShader = new Shader("/shaders/background/skybox_vertex.glsl", "/shaders/background/skybox_fragment.glsl");
-        hdriShader = new Shader("/shaders/background/hdri_vertex.glsl", "/shaders/background/hdri_fragment.glsl");
-        checkerboardShader = new Shader("/shaders/background/checkerboard_vertex.glsl", "/shaders/background/checkerboard_fragment.glsl");
+        gradientShader = new GLShader("/shaders/background/gradient_vertex.glsl", "/shaders/background/gradient_fragment.glsl");
+        imageShader = new GLShader("/shaders/background/image_vertex.glsl", "/shaders/background/image_fragment.glsl");
+        skyboxShader = new GLShader("/shaders/background/skybox_vertex.glsl", "/shaders/background/skybox_fragment.glsl");
+        hdriShader = new GLShader("/shaders/background/hdri_vertex.glsl", "/shaders/background/hdri_fragment.glsl");
+        checkerboardShader = new GLShader("/shaders/background/checkerboard_vertex.glsl", "/shaders/background/checkerboard_fragment.glsl");
         this.textureStateManager = textureStateManager;
 
         // Gradient background VAO

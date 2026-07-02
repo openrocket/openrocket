@@ -33,7 +33,7 @@ import java.util.Arrays;
  * from indexed drawing would require changing both the buffer setup and the
  * draw calls, and OpenGL would give no error if they disagree.
  */
-public class RenderableMesh implements Renderable {
+public class GLRenderableMesh implements Renderable {
 	// Byte offsets of each attribute within a packed vertex
 	private static final int POSITION_OFFSET_BYTES = 0;
 	private static final int NORMAL_OFFSET_BYTES = Vertex.POSITION_FLOATS * Float.BYTES;
@@ -66,7 +66,7 @@ public class RenderableMesh implements Renderable {
 	 *
 	 * @param mesh The source mesh containing vertices and indices
 	 */
-	public RenderableMesh(Mesh mesh) {
+	public GLRenderableMesh(Mesh mesh) {
 		FloatBuffer vertexBuffer = packVertexData(mesh.getVertices());
 		IntBuffer indexBuffer = packIndexData(mesh.getIndices());
 		this.indexCount = mesh.getIndices().size();

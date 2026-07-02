@@ -45,7 +45,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class TexturedParticleRenderer {
 
-    private Shader shader;
+    private GLShader shader;
     private int vao;
     private int vbo;
     private FloatBuffer buffer;
@@ -62,7 +62,7 @@ public class TexturedParticleRenderer {
      * @throws Exception If shader compilation, texture loading, or OpenGL resource creation fails
      */
     public TexturedParticleRenderer() throws Exception {
-        shader = new Shader("/shaders/textured_particle_vertex.glsl", "/shaders/textured_particle_fragment.glsl");
+        shader = new GLShader("/shaders/textured_particle_vertex.glsl", "/shaders/textured_particle_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxParticles * 6 * 8); // 6 vertices per particle (2 triangles), 8 floats per vertex
         
         // Load smoke texture

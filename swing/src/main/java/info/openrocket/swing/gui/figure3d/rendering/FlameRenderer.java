@@ -58,7 +58,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
     /** Vertices per quad (two triangles). */
     private static final int VERTS_PER_QUAD = 6;
 
-    private final Shader shader;
+    private final GLShader shader;
     private final int vao;
     private final int vbo;
     private final FloatBuffer buffer;
@@ -74,7 +74,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
     private final int exposureScaleLocation;
 
     public FlameRenderer() throws Exception {
-        shader = new Shader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
+        shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
 
         // Cache uniform locations
@@ -289,7 +289,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
     @Override
     public String getRendererName() {
-        return "Flame Renderer";
+        return "Flame GLRenderer";
     }
 
     @Override

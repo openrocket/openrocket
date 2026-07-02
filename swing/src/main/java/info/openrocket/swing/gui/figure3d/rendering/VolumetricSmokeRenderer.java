@@ -82,7 +82,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
     private static final int FLOATS_PER_VERTEX = POSITION_FLOATS + TEX_COORD_FLOATS + COLOR_FLOATS;
     private static final int VERTICES_PER_QUAD = 6;
 
-    private final Shader shader;
+    private final GLShader shader;
     private final int vao;
     private final int vbo;
     private final FloatBuffer buffer;
@@ -109,7 +109,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
      * @throws Exception If shader compilation, texture loading, or OpenGL resource creation fails
      */
     public VolumetricSmokeRenderer() throws Exception {
-        shader = new Shader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
+        shader = new GLShader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxQuads * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
 
         // Cache uniform locations
@@ -379,7 +379,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 
     @Override
     public String getRendererName() {
-        return "Volumetric Smoke Renderer";
+        return "Volumetric Smoke GLRenderer";
     }
 
     @Override

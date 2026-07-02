@@ -1,8 +1,8 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.Light;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
@@ -68,7 +68,7 @@ public class ShadowPass implements RenderPass {
     private static final float MIN_DEPTH_RANGE = 24.0f;
     private static final float SHADOW_STRENGTH = 0.68f;
 
-    private final Shader depthShader;
+    private final GLShader depthShader;
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
     private final Matrix4f lightViewMatrix = new Matrix4f();
     private final Matrix4f lightProjectionMatrix = new Matrix4f();
@@ -98,7 +98,7 @@ public class ShadowPass implements RenderPass {
     private boolean hasValidShadow = false;
 
     public ShadowPass(int initialWidth, int initialHeight) throws Exception {
-        this.depthShader = new Shader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
+        this.depthShader = new GLShader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
         this.lastViewportWidth = initialWidth;
         this.lastViewportHeight = initialHeight;
         updateShadowMapSize(initialWidth, initialHeight);

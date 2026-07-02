@@ -14,9 +14,9 @@ import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.core.geometry.components.CGCaretGenerator;
 import info.openrocket.swing.gui.figure3d.core.geometry.components.CPCaretGenerator;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
-import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
@@ -61,7 +61,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
  */
 public class CaretsPass implements RenderPass {
 
-    private final Shader shader;
+    private final GLShader shader;
     private final Renderable cgMesh;
     private final Renderable cpMesh;
     private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f);
@@ -93,13 +93,13 @@ public class CaretsPass implements RenderPass {
         this.rocket = rocket;
         this.config = config;
         try {
-            shader = new Shader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
+            shader = new GLShader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         this.aerodynamicCalculator = new BarrowmanCalculator();
-        this.cgMesh = new RenderableMesh(CGCaretGenerator.create(config.getQuality().getQuality()));
-        this.cpMesh = new RenderableMesh(CPCaretGenerator.create(config.getQuality().getQuality()));
+        this.cgMesh = new GLRenderableMesh(CGCaretGenerator.create(config.getQuality().getQuality()));
+        this.cpMesh = new GLRenderableMesh(CPCaretGenerator.create(config.getQuality().getQuality()));
         updateColorsFromTheme();
         this.uiThemeListener = this::updateColorsFromTheme;
         UITheme.Theme.addUIThemeChangeListener(uiThemeListener);

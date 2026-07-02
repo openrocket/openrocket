@@ -14,7 +14,7 @@ import info.openrocket.swing.gui.figure3d.window.FramebufferAware;
 import info.openrocket.swing.gui.figure3d.window.GLFWWindowManager;
 import info.openrocket.swing.gui.figure3d.window.KeyboardEventSource;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
-import info.openrocket.swing.gui.figure3d.rendering.Renderer;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +122,7 @@ public class Standalone3DEngine implements Runnable {
 			}
 
 			// Handle PNG Export Request
-			Renderer renderer = scene3DOrchestrator.getRenderer();
+			GLRenderer renderer = scene3DOrchestrator.getRenderer();
 			if (scene3DOrchestrator.isExportRequested()) {
         int[] fbSize = ((FramebufferAware) windowManager).getFramebufferSize();
         glViewport(0, 0, fbSize[0], fbSize[1]);

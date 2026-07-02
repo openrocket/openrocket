@@ -72,7 +72,7 @@ public interface ParticleSystemRenderer {
 	 * Gets a human-readable name for this renderer type.
 	 * Useful for debugging and user interfaces.
 	 * 
-	 * @return Renderer name (e.g., "Flame Renderer", "Volumetric Smoke")
+	 * @return GLRenderer name (e.g., "Flame GLRenderer", "Volumetric Smoke")
 	 */
 	String getRendererName();
 	

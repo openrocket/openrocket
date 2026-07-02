@@ -53,17 +53,18 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
 /**
- * Main OpenGL renderer for a figure3d scene.
+ * Main OpenGL 3.3 renderer for a figure3d scene.
  *
  * Owns the scene shader, render passes, particle renderers, and offscreen targets
- * used to draw a single view.
+ * used to draw a single view. Like everything in this package, it talks directly
+ * to OpenGL through LWJGL and must run on a thread with a current GL context.
  */
-public class RealisticRenderer implements Renderer {
+public class RealisticRenderer implements GLRenderer {
 
 	private static final Logger log = LoggerFactory.getLogger(RealisticRenderer.class);
 	private static final int DEFAULT_SCENE_MSAA_SAMPLES = 4;
 
-	private final Shader mainShader;
+	private final GLShader mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
 
 	// Performance optimizations
@@ -84,7 +85,7 @@ public class RealisticRenderer implements Renderer {
 	private final ParticleRenderer particleRenderer;
 	private final VolumetricSmokeRenderer volumetricSmokeRenderer;
 	private final FlameRenderer flameRenderer;
-    private final Shader screenQuadShader;
+    private final GLShader screenQuadShader;
     private final CaretsPass caretsPass;
     private final CameraPointOfInterestPass cameraPointOfInterestPass;
     private final ShadowPass shadowPass;
@@ -142,7 +143,7 @@ public class RealisticRenderer implements Renderer {
 		 * 
 		 * @param shader The shader to resolve uniform locations for
 		 */
-		ShaderUniforms(Shader shader) {
+		ShaderUniforms(GLShader shader) {
 			this.projection = shader.getUniformLocation("projection");
 			this.view = shader.getUniformLocation("view");
 			this.model = shader.getUniformLocation("model");
@@ -206,13 +207,13 @@ public class RealisticRenderer implements Renderer {
 		this.screenHeight = initialHeight;
 
 		// Main shader for scene objects
-		mainShader = new Shader("/shaders/vertex.glsl", "/shaders/fragment.glsl");
+		mainShader = new GLShader("/shaders/vertex.glsl", "/shaders/fragment.glsl");
 		mainShaderUniforms = new ShaderUniforms(mainShader);
 
 		this.particleRenderer = new ParticleRenderer();
 		this.volumetricSmokeRenderer = new VolumetricSmokeRenderer();
 		this.flameRenderer = new FlameRenderer();
-		this.screenQuadShader = new Shader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/screen_quad_fragment.glsl");
+		this.screenQuadShader = new GLShader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/screen_quad_fragment.glsl");
 
 		// Create screen quad for post-processing
 		float[] quadVertices = {
@@ -227,9 +228,9 @@ public class RealisticRenderer implements Renderer {
 		};
 
 		screenQuadVAO = GL33.glGenVertexArrays();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, screenQuadVAO, "Renderer screenQuadVAO");
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, screenQuadVAO, "GLRenderer screenQuadVAO");
 		screenQuadVBO = GL33.glGenBuffers();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, screenQuadVBO, "Renderer screenQuadVBO");
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, screenQuadVBO, "GLRenderer screenQuadVBO");
 		GL33.glBindVertexArray(screenQuadVAO);
 		GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, screenQuadVBO);
 		GL33.glBufferData(GL33.GL_ARRAY_BUFFER, quadVertices, GL33.GL_STATIC_DRAW);

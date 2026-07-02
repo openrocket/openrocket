@@ -8,7 +8,7 @@ import info.openrocket.swing.gui.figure3d.core.math.DefaultRaycaster;
 import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
-import info.openrocket.swing.gui.figure3d.rendering.Renderer;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraController;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraControls;
 import info.openrocket.swing.gui.figure3d.scene.controllers.DefaultSceneInputProcessor;
@@ -39,7 +39,7 @@ public class Scene3DOrchestrator {
 	private static final Logger log = LoggerFactory.getLogger(Scene3DOrchestrator.class);
 
     public final SceneView scene;
-    private final Renderer renderer;
+    private final GLRenderer renderer;
 	private final RenderingConfiguration renderingConfiguration;
 	private final ViewportDimensions viewport;
     private final CameraControls cameraController;
@@ -237,7 +237,7 @@ public class Scene3DOrchestrator {
     /**
      * Exposes the renderer via its interface to reduce coupling.
      */
-    public Renderer getRenderer() {
+    public GLRenderer getRenderer() {
         return renderer;
     }
 
@@ -314,7 +314,7 @@ public class Scene3DOrchestrator {
 		private DisplaySettings.RenderMode renderMode = DisplaySettings.RenderMode.FINISHED;
 		private boolean performanceMode = false;
 		private boolean qualityMode = false;
-		private Renderer rendererOverride;
+		private GLRenderer rendererOverride;
 		
 		private Builder(Rocket rocket, ViewportDimensions viewport) {
 			this.rocket = rocket;
@@ -376,7 +376,7 @@ public class Scene3DOrchestrator {
 		/**
 		 * Overrides the renderer instance. Primarily intended for testing.
 		 */
-		public Builder withRenderer(Renderer renderer) {
+		public Builder withRenderer(GLRenderer renderer) {
 			this.rendererOverride = renderer;
 			return this;
 		}
@@ -465,7 +465,7 @@ public class Scene3DOrchestrator {
 	 * <p>Initialization sequence:</p>
 	 * <ol>
 	 *   <li>Core components (viewport, scene, configuration)</li>
-	 *   <li>Renderer with GPU resources</li>
+	 *   <li>GLRenderer with GPU resources</li>
 	 *   <li>Controllers for camera and input handling</li>
 	 *   <li>Synchronizer for rocket model integration</li>
 	 * </ol>
@@ -477,7 +477,7 @@ public class Scene3DOrchestrator {
 	 * @param config the rendering configuration settings
 	 * @throws Exception if any component fails to initialize properly
 	 */
-	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, SceneView scene, RenderingConfiguration config, Renderer rendererOverride) throws Exception {
+	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, SceneView scene, RenderingConfiguration config, GLRenderer rendererOverride) throws Exception {
 		// 1. Initialize core components
 		this.viewport = viewport;
 		this.scene = scene;

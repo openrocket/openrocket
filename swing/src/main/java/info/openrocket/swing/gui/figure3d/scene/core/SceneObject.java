@@ -6,7 +6,7 @@ import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.input.DragListener;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
-import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -70,7 +70,7 @@ public class SceneObject {
 		this.id = nextId++;
 		this.rocketComponent = component;
 		this.mesh = mesh;
-		this.renderableMesh = new RenderableMesh(mesh); // Create the renderable version here
+		this.renderableMesh = new GLRenderableMesh(mesh); // Create the renderable version here
 		this.modelMatrix.translate(position);
 		this.appearance = appearance;
 	}
@@ -209,7 +209,7 @@ public class SceneObject {
 
 	/**
 	 * Returns the renderable mesh, used by the renderer.
-	 * @return The RenderableMesh object.
+	 * @return The GLRenderableMesh object.
 	 */
 	public Renderable getRenderableMesh() {
 		return renderableMesh;

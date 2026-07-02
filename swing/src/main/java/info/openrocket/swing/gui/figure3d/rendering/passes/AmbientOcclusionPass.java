@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.Shader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
@@ -28,7 +28,7 @@ import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
  */
 public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 
-    private final Shader shader;
+    private final GLShader shader;
     private final TextureBinder textureStateManager;
     private final GraphicsQualitySettings qualitySettings;
     private final int screenQuadVAO;
@@ -53,7 +53,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 
     public AmbientOcclusionPass(int screenQuadVAO, TextureBinder textureStateManager,
                                 GraphicsQualitySettings qualitySettings, int initialWidth, int initialHeight) throws Exception {
-        this.shader = new Shader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/ambient_occlusion_fragment.glsl");
+        this.shader = new GLShader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/ambient_occlusion_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.textureStateManager = textureStateManager;
         this.qualitySettings = qualitySettings;
