@@ -75,9 +75,9 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
      * @param screenQuadVAO Vertex array object for full-screen quad rendering
      * @param initialWidth Initial framebuffer width in pixels
      * @param initialHeight Initial framebuffer height in pixels
-     * @throws Exception If shader compilation or framebuffer creation fails
+     * @throws ShaderException If shader compilation fails
      */
-    public MotionBlurPass(int screenQuadVAO, int initialWidth, int initialHeight) throws Exception {
+    public MotionBlurPass(int screenQuadVAO, int initialWidth, int initialHeight) {
         this.shader = new GLShader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.shader.use();

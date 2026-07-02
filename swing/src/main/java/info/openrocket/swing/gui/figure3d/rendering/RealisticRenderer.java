@@ -26,7 +26,6 @@ import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL33;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,23 +33,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_FILL;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColorMask;
 import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glDepthMask;
 import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glDrawBuffer;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glDeleteBuffers;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glUniform1f;
+import static org.lwjgl.opengl.GL20.glUniform1i;
+import static org.lwjgl.opengl.GL20.glUniform3f;
+import static org.lwjgl.opengl.GL20.glUniform4f;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
+import static org.lwjgl.opengl.GL30.glBindFramebuffer;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * Main OpenGL 3.3 renderer for a figure3d scene.
@@ -64,6 +93,23 @@ public class RealisticRenderer implements GLRenderer {
 	private static final Logger log = LoggerFactory.getLogger(RealisticRenderer.class);
 	private static final int DEFAULT_SCENE_MSAA_SAMPLES = 4;
 
+	// Shader resource paths
+	private static final String MAIN_VERTEX_SHADER_PATH = "/shaders/vertex.glsl";
+	private static final String MAIN_FRAGMENT_SHADER_PATH = "/shaders/fragment.glsl";
+	private static final String SCREEN_QUAD_VERTEX_SHADER_PATH = "/shaders/post/screen_quad_vertex.glsl";
+	private static final String SCREEN_QUAD_FRAGMENT_SHADER_PATH = "/shaders/post/screen_quad_fragment.glsl";
+
+	// Full-screen quad used by the post-processing passes (positions + texCoords)
+	private static final float[] SCREEN_QUAD_VERTICES = {
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			1.0f, -1.0f,  1.0f, 0.0f,
+
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			1.0f, -1.0f,  1.0f, 0.0f,
+			1.0f,  1.0f,  1.0f, 1.0f
+	};
+
 	private final GLShader mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
 
@@ -71,6 +117,10 @@ public class RealisticRenderer implements GLRenderer {
     private final TextureBinder textureStateManager = new TextureStateManager();
 	private final RenderStats renderStats = new RenderStats();
 
+	// Viewport dimensions the renderer was created with, kept around so the
+	// viewport can be restored to its initial state if ever needed.
+	private final int initialWidth;
+	private final int initialHeight;
 	private int screenWidth;
 	private int screenHeight;
 	private final RenderingConfiguration config;
@@ -199,78 +249,105 @@ public class RealisticRenderer implements GLRenderer {
 	 * @param rocket The rocket model to be rendered
 	 * @param initialWidth Initial viewport width in pixels
 	 * @param initialHeight Initial viewport height in pixels
-	 * @throws Exception If shader compilation or OpenGL resource creation fails
+	 * @throws ShaderException If shader compilation fails
 	 */
-	public RealisticRenderer(RenderingConfiguration config, Rocket rocket, int initialWidth, int initialHeight) throws Exception {
+	public RealisticRenderer(RenderingConfiguration config, Rocket rocket, int initialWidth, int initialHeight) {
 		this.config = config;
+		this.initialWidth = initialWidth;
+		this.initialHeight = initialHeight;
 		this.screenWidth = initialWidth;
 		this.screenHeight = initialHeight;
 
 		// Main shader for scene objects
-		mainShader = new GLShader("/shaders/vertex.glsl", "/shaders/fragment.glsl");
+		mainShader = new GLShader(MAIN_VERTEX_SHADER_PATH, MAIN_FRAGMENT_SHADER_PATH);
 		mainShaderUniforms = new ShaderUniforms(mainShader);
+		screenQuadShader = new GLShader(SCREEN_QUAD_VERTEX_SHADER_PATH, SCREEN_QUAD_FRAGMENT_SHADER_PATH);
 
-		this.particleRenderer = new ParticleRenderer();
-		this.volumetricSmokeRenderer = new VolumetricSmokeRenderer();
-		this.flameRenderer = new FlameRenderer();
-		this.screenQuadShader = new GLShader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/screen_quad_fragment.glsl");
+		particleRenderer = new ParticleRenderer();
+		volumetricSmokeRenderer = new VolumetricSmokeRenderer();
+		flameRenderer = new FlameRenderer();
 
-		// Create screen quad for post-processing
-		float[] quadVertices = {
-				// positions   // texCoords
-				-1.0f,  1.0f,  0.0f, 1.0f,
-				-1.0f, -1.0f,  0.0f, 0.0f,
-				1.0f, -1.0f,  1.0f, 0.0f,
+		ScreenQuad screenQuad = createScreenQuad();
+		screenQuadVAO = screenQuad.vao();
+		screenQuadVBO = screenQuad.vbo();
 
-				-1.0f,  1.0f,  0.0f, 1.0f,
-				1.0f, -1.0f,  1.0f, 0.0f,
-				1.0f,  1.0f,  1.0f, 1.0f
-		};
+		renderTarget = new OffscreenRenderTarget(initialWidth, initialHeight, getRequestedSceneSampleCount());
+		resolvedTextureId = renderTarget.getColorTextureId();
 
-		screenQuadVAO = GL33.glGenVertexArrays();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, screenQuadVAO, "GLRenderer screenQuadVAO");
-		screenQuadVBO = GL33.glGenBuffers();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, screenQuadVBO, "GLRenderer screenQuadVBO");
-		GL33.glBindVertexArray(screenQuadVAO);
-		GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, screenQuadVBO);
-		GL33.glBufferData(GL33.GL_ARRAY_BUFFER, quadVertices, GL33.GL_STATIC_DRAW);
-		GL33.glEnableVertexAttribArray(0);
-		GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 4 * Float.BYTES, 0);
-		GL33.glEnableVertexAttribArray(1);
-		GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 4 * Float.BYTES, 2 * Float.BYTES);
-		GL33.glBindVertexArray(0);
+		shadowPass = createShadowPass();
+		initGeometryPasses();
+		caretsPass = createCaretsPass(rocket);
+		cameraPointOfInterestPass = createCameraPointOfInterestPass();
 
-		// Initialize framebuffer
-		this.renderTarget = new OffscreenRenderTarget(initialWidth, initialHeight, getRequestedSceneSampleCount());
-		this.resolvedTextureId = renderTarget.getColorTextureId();
-        this.shadowPass = new ShadowPass(initialWidth, initialHeight);
-        this.shadowPass.setQuality(config.getQuality().getQuality());
-        this.shadowPass.setEnabled(config.getQuality().isShadowsEnabled());
+		// Post-processing passes
+		ambientOcclusionPass = new AmbientOcclusionPass(screenQuadVAO, textureStateManager,
+				config.getQuality(), initialWidth, initialHeight);
+		motionBlurPass = createMotionBlurPass();
+		outlinePass = new OutlinePass(mainShader, mainShaderUniforms, textureStateManager,
+				screenQuadVAO, selectionColor, initialWidth, initialHeight, screenQuadShader);
+		fxaaPass = new FXAAPass(screenQuadVAO, initialWidth, initialHeight);
 
-		// Initialize Render Passes
-        geometryPasses.add(new BackgroundPass(textureStateManager));
-        geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms, renderStats));
-        this.caretsPass = new CaretsPass(rocket, config);
-        this.caretsPass.resize(initialWidth, initialHeight);
-        this.cameraPointOfInterestPass = new CameraPointOfInterestPass(config);
-        this.cameraPointOfInterestPass.resize(initialWidth, initialHeight);
-
-        // Initialize Post-Processing Passes
-        this.ambientOcclusionPass = new AmbientOcclusionPass(screenQuadVAO, textureStateManager,
-                config.getQuality(), initialWidth, initialHeight);
-        this.motionBlurPass = new MotionBlurPass(screenQuadVAO, initialWidth, initialHeight);
-        this.motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
-        this.outlinePass = new OutlinePass(mainShader, mainShaderUniforms, textureStateManager,
-                screenQuadVAO, selectionColor, initialWidth, initialHeight, screenQuadShader);
-        this.fxaaPass = new FXAAPass(screenQuadVAO, initialWidth, initialHeight);
-        
-        // Apply initial settings
-        updatePostProcessingChain();
+		// Apply initial settings
+		updatePostProcessingChain();
 
 		GLErrors.check("renderer initialization");
 
 		// Add a configuration listener
 		config.addListener(this::onScenePropertiesChanged);
+	}
+
+	private record ScreenQuad(int vao, int vbo) {}
+
+	/**
+	 * Creates and uploads the full-screen quad used by the post-processing passes,
+	 * and configures its vertex attribute pointers (position + texCoord).
+	 */
+	private static ScreenQuad createScreenQuad() {
+		int vao = glGenVertexArrays();
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "GLRenderer screenQuadVAO");
+		int vbo = glGenBuffers();
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "GLRenderer screenQuadVBO");
+
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, SCREEN_QUAD_VERTICES, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, false, 4 * Float.BYTES, 0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * Float.BYTES, 2 * Float.BYTES);
+		glBindVertexArray(0);
+
+		return new ScreenQuad(vao, vbo);
+	}
+
+	private ShadowPass createShadowPass() {
+		ShadowPass pass = new ShadowPass(initialWidth, initialHeight);
+		pass.setQuality(config.getQuality().getQuality());
+		pass.setEnabled(config.getQuality().isShadowsEnabled());
+		return pass;
+	}
+
+	private void initGeometryPasses() {
+		geometryPasses.add(new BackgroundPass(textureStateManager));
+		geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms, renderStats));
+	}
+
+	private CaretsPass createCaretsPass(Rocket rocket) {
+		CaretsPass pass = new CaretsPass(rocket, config);
+		pass.resize(initialWidth, initialHeight);
+		return pass;
+	}
+
+	private CameraPointOfInterestPass createCameraPointOfInterestPass() {
+		CameraPointOfInterestPass pass = new CameraPointOfInterestPass(config);
+		pass.resize(initialWidth, initialHeight);
+		return pass;
+	}
+
+	private MotionBlurPass createMotionBlurPass() {
+		MotionBlurPass pass = new MotionBlurPass(screenQuadVAO, initialWidth, initialHeight);
+		pass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
+		return pass;
 	}
 
 	@Override
@@ -286,100 +363,131 @@ public class RealisticRenderer implements GLRenderer {
 		Camera camera = scene.getCamera();
 		camera.update();
 
-		final Matrix4f viewMatrix = camera.getViewMatrix();
-		final Matrix4f projectionMatrix = camera.getProjectionMatrix();
+		final Matrix4f cameraViewMatrix = camera.getViewMatrix();
+		final Matrix4f cameraProjectionMatrix = camera.getProjectionMatrix();
 
-		glEnable(GL_DEPTH_TEST);
-		if (config.getQuality().isBackfaceCullingEnabled() && !config.getDisplay().shouldDisableCulling()) {
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-		}
+		prepareFrameGLState();
 
 		// Update dynamic flame lighting
 		updateFlameLighting(scene);
 		shadowPass.setEnabled(config.getQuality().isShadowsEnabled());
 		shadowPass.setQuality(config.getQuality().getQuality());
-		shadowPass.render(scene, windowManager, viewMatrix, projectionMatrix);
+		shadowPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
 		glViewport(0, 0, screenWidth, screenHeight);
-		
+
 		// Prepare the main shader with uniforms that are constant for the frame
-		prepareShaderGlobals(scene, camera, viewMatrix, projectionMatrix);
+		prepareShaderGlobals(scene, camera, cameraViewMatrix, cameraProjectionMatrix);
 
 		// 1. Render the geometry passes to the main FBO
-        renderTarget.bind();
-        glViewport(0, 0, screenWidth, screenHeight);
-        if (!renderBackground) {
-            if (scene.getBackground() instanceof SolidColorBackground solidBackground) {
-                Vector4f color = solidBackground.getColor();
-                glClearColor(color.x, color.y, color.z, color.w);
-            } else {
-                glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            }
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        } else {
-            glClear(GL_COLOR_BUFFER_BIT);
-        }
-
-        for (RenderPass pass : geometryPasses) {
-            if (!renderBackground && pass instanceof BackgroundPass) {
-                continue;
-            }
-            pass.render(scene, windowManager, viewMatrix, projectionMatrix);
-        }
-
-        particleRenderer.render(scene, camera);
-        volumetricSmokeRenderer.render(scene, camera);
-        flameRenderer.render(scene, camera);
-        if (config.getVisualEffects().areCaretsVisible()) {
-            caretsPass.render(scene, windowManager, viewMatrix, projectionMatrix);
-        }
-        cameraPointOfInterestPass.render(scene, windowManager, viewMatrix, projectionMatrix);
-        renderTarget.unbind();
+		renderSceneToTarget(scene, windowManager, renderBackground, camera, cameraViewMatrix, cameraProjectionMatrix);
 
 		// Particle renderers bind textures directly, so invalidate the cache before any
 		// post-processing pass that relies on TextureStateManager.
 		textureStateManager.reset();
 
-        // 2. Run the post-processing chain
-        int currentTexture = renderTarget.getColorTextureId();
-
-        if (config.getQuality().isAmbientOcclusionEnabled() && !interactionMode) {
-            ambientOcclusionPass.setInputTexture(currentTexture);
-            ambientOcclusionPass.setDepthTexture(renderTarget.getDepthTextureId());
-            ambientOcclusionPass.render(scene, windowManager, viewMatrix, projectionMatrix);
-            currentTexture = ambientOcclusionPass.getOutputTexture();
-        }
-
-        // Apply motion blur if enabled (only affects the rocket, not the background)
-        if (config.getVisualEffects().isMotionBlurEnabled() && !interactionMode) {
-			motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
-            motionBlurPass.setInputTexture(currentTexture);
-            motionBlurPass.setDepthTexture(renderTarget.getDepthTextureId());
-            computeAndSetBlurDirection(scene, viewMatrix, projectionMatrix);
-            motionBlurPass.render(scene, windowManager, viewMatrix, projectionMatrix);
-            currentTexture = motionBlurPass.getOutputTexture();
-        }
-
-        for (RenderPass pass : postProcessingPasses) {
-            // Outline pass is screen-space and full-frame; skip during interaction.
-            if (interactionMode && pass instanceof OutlinePass) {
-                continue;
-            }
-            if (pass instanceof ScreenTexturePass screenPass) {
-				screenPass.setInputTexture(currentTexture);
-                pass.render(scene, windowManager, viewMatrix, projectionMatrix);
-                currentTexture = screenPass.getOutputTexture();
-            } else {
-                // This pass doesn't process the screen texture, just run it
-                pass.render(scene, windowManager, viewMatrix, projectionMatrix);
-            }
-        }
-
-        resolveFinalTexture(currentTexture);
+		// 2. Run the post-processing chain
+		int finalTexture = runPostProcessingChain(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		resolveFinalTexture(finalTexture);
 
 		GLErrors.debugCheck("frame render");
 
 		renderStats.frameTimeNanos = System.nanoTime() - startTime;
+	}
+
+	/**
+	 * Sets the fixed-function GL state (depth testing, face culling) for the frame.
+	 */
+	private void prepareFrameGLState() {
+		glEnable(GL_DEPTH_TEST);
+		if (config.getQuality().isBackfaceCullingEnabled() && !config.getDisplay().shouldDisableCulling()) {
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+		}
+	}
+
+	/**
+	 * Renders the geometry passes, particle systems, and overlay markers into the
+	 * off-screen render target.
+	 */
+	private void renderSceneToTarget(SceneView scene, WindowManager windowManager, boolean renderBackground,
+									 Camera camera, Matrix4f cameraViewMatrix, Matrix4f cameraProjectionMatrix) {
+		renderTarget.bind();
+		glViewport(0, 0, screenWidth, screenHeight);
+		clearRenderTarget(scene, renderBackground);
+
+		for (RenderPass pass : geometryPasses) {
+			if (!renderBackground && pass instanceof BackgroundPass) {
+				continue;
+			}
+			pass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		}
+
+		particleRenderer.render(scene, camera);
+		volumetricSmokeRenderer.render(scene, camera);
+		flameRenderer.render(scene, camera);
+		if (config.getVisualEffects().areCaretsVisible()) {
+			caretsPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		}
+		cameraPointOfInterestPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		renderTarget.unbind();
+	}
+
+	private void clearRenderTarget(SceneView scene, boolean renderBackground) {
+		if (!renderBackground) {
+			if (scene.getBackground() instanceof SolidColorBackground solidBackground) {
+				Vector4f color = solidBackground.getColor();
+				glClearColor(color.x, color.y, color.z, color.w);
+			} else {
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		} else {
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
+	}
+
+	/**
+	 * Runs the post-processing passes over the rendered scene texture.
+	 *
+	 * @return the texture id holding the final processed frame
+	 */
+	private int runPostProcessingChain(SceneView scene, WindowManager windowManager,
+									   Matrix4f cameraViewMatrix, Matrix4f cameraProjectionMatrix) {
+		int currentTexture = renderTarget.getColorTextureId();
+
+		if (config.getQuality().isAmbientOcclusionEnabled() && !interactionMode) {
+			ambientOcclusionPass.setInputTexture(currentTexture);
+			ambientOcclusionPass.setDepthTexture(renderTarget.getDepthTextureId());
+			ambientOcclusionPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			currentTexture = ambientOcclusionPass.getOutputTexture();
+		}
+
+		// Apply motion blur if enabled (only affects the rocket, not the background)
+		if (config.getVisualEffects().isMotionBlurEnabled() && !interactionMode) {
+			motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
+			motionBlurPass.setInputTexture(currentTexture);
+			motionBlurPass.setDepthTexture(renderTarget.getDepthTextureId());
+			computeAndSetBlurDirection(scene, cameraViewMatrix, cameraProjectionMatrix);
+			motionBlurPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			currentTexture = motionBlurPass.getOutputTexture();
+		}
+
+		for (RenderPass pass : postProcessingPasses) {
+			// Outline pass is screen-space and full-frame; skip during interaction.
+			if (interactionMode && pass instanceof OutlinePass) {
+				continue;
+			}
+			if (pass instanceof ScreenTexturePass screenPass) {
+				screenPass.setInputTexture(currentTexture);
+				pass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+				currentTexture = screenPass.getOutputTexture();
+			} else {
+				// This pass doesn't process the screen texture, just run it
+				pass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			}
+		}
+
+		return currentTexture;
 	}
 
 	/**
@@ -452,38 +560,38 @@ public class RealisticRenderer implements GLRenderer {
 		mainShader.setUniformMatrix4f(mainShaderUniforms.projection, projectionMatrix);
 		mainShader.setUniformMatrix4f(mainShaderUniforms.view, viewMatrix);
 		Vector3f cameraPos = camera.getPosition();
-		GL33.glUniform3f(mainShaderUniforms.viewPos, cameraPos.x, cameraPos.y, cameraPos.z);
+		glUniform3f(mainShaderUniforms.viewPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
 		mainShader.setUniformMatrix4f(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
-		textureStateManager.bindTexture(2, GL33.GL_TEXTURE_2D, shadowPass.getDepthMapTexture());
-		GL33.glUniform1i(mainShaderUniforms.shadowMap, 2);
+		textureStateManager.bindTexture(2, GL_TEXTURE_2D, shadowPass.getDepthMapTexture());
+		glUniform1i(mainShaderUniforms.shadowMap, 2);
 		if (shadowPass.hasShadowMap()) {
-			GL33.glUniform1i(mainShaderUniforms.shadowsEnabled, 1);
-			GL33.glUniform1i(mainShaderUniforms.shadowLightIndex, shadowPass.getShadowCastingLightIndex());
-			GL33.glUniform1f(mainShaderUniforms.shadowStrength, shadowPass.getShadowStrength());
+			glUniform1i(mainShaderUniforms.shadowsEnabled, 1);
+			glUniform1i(mainShaderUniforms.shadowLightIndex, shadowPass.getShadowCastingLightIndex());
+			glUniform1f(mainShaderUniforms.shadowStrength, shadowPass.getShadowStrength());
 		} else {
-			GL33.glUniform1i(mainShaderUniforms.shadowsEnabled, 0);
-			GL33.glUniform1i(mainShaderUniforms.shadowLightIndex, -1);
-			GL33.glUniform1f(mainShaderUniforms.shadowStrength, 0.0f);
+			glUniform1i(mainShaderUniforms.shadowsEnabled, 0);
+			glUniform1i(mainShaderUniforms.shadowLightIndex, -1);
+			glUniform1f(mainShaderUniforms.shadowStrength, 0.0f);
 		}
 
 		// --- Lighting ---
 		List<Light> lights = scene.getLightController().getLights();
 		int numActiveLights = Math.min(lights.size(), 10);
-		GL33.glUniform1i(mainShaderUniforms.numLights, numActiveLights);
+		glUniform1i(mainShaderUniforms.numLights, numActiveLights);
 
 		for (int i = 0; i < numActiveLights; i++) {
 			Light light = lights.get(i);
 			String lightUni = "lights[" + i + "].";
-			GL33.glUniform1i(mainShader.getUniformLocation(lightUni + "type"), light.getType().ordinal());
-			GL33.glUniform3f(mainShader.getUniformLocation(lightUni + "position"), light.getPosition().x, light.getPosition().y, light.getPosition().z);
-			GL33.glUniform3f(mainShader.getUniformLocation(lightUni + "direction"), light.getDirection().x, light.getDirection().y, light.getDirection().z);
-			GL33.glUniform3f(mainShader.getUniformLocation(lightUni + "color"), light.getColor().x, light.getColor().y, light.getColor().z);
+			glUniform1i(mainShader.getUniformLocation(lightUni + "type"), light.getType().ordinal());
+			glUniform3f(mainShader.getUniformLocation(lightUni + "position"), light.getPosition().x, light.getPosition().y, light.getPosition().z);
+			glUniform3f(mainShader.getUniformLocation(lightUni + "direction"), light.getDirection().x, light.getDirection().y, light.getDirection().z);
+			glUniform3f(mainShader.getUniformLocation(lightUni + "color"), light.getColor().x, light.getColor().y, light.getColor().z);
 		}
 
 		// Fog
 		if (scene.isFogEnabled()) {
-			GL33.glUniform1i(mainShaderUniforms.fogEnabled, 1);
+			glUniform1i(mainShaderUniforms.fogEnabled, 1);
 			final Vector3f fogColor;
 			if (scene.getBackground() instanceof SolidColorBackground) {
 				Vector4f bgColor = ((SolidColorBackground) scene.getBackground()).getColor();
@@ -493,17 +601,17 @@ public class RealisticRenderer implements GLRenderer {
 			} else {
 				fogColor = new Vector3f(0.5f, 0.6f, 0.7f);
 			}
-			GL33.glUniform3f(mainShaderUniforms.fogColor, fogColor.x, fogColor.y, fogColor.z);
-			GL33.glUniform1f(mainShaderUniforms.fogDensity, scene.getFogDensity());
+			glUniform3f(mainShaderUniforms.fogColor, fogColor.x, fogColor.y, fogColor.z);
+			glUniform1f(mainShaderUniforms.fogDensity, scene.getFogDensity());
 		} else {
-			GL33.glUniform1i(mainShaderUniforms.fogEnabled, 0);
+			glUniform1i(mainShaderUniforms.fogEnabled, 0);
 		}
 
-		GL33.glUniform4f(mainShaderUniforms.selectionColor, selectionColor.x, selectionColor.y,
+		glUniform4f(mainShaderUniforms.selectionColor, selectionColor.x, selectionColor.y,
 				selectionColor.z, selectionColor.w);
 
-		GL33.glUniform1f(mainShaderUniforms.ambientLightFactor, config.getVisualEffects().getAmbientLightFactor());
-		GL33.glUniform1i(mainShaderUniforms.enableRoughnessBump, config.getQuality().isRoughnessBumpEnabled() ? 1 : 0);
+		glUniform1f(mainShaderUniforms.ambientLightFactor, config.getVisualEffects().getAmbientLightFactor());
+		glUniform1i(mainShaderUniforms.enableRoughnessBump, config.getQuality().isRoughnessBumpEnabled() ? 1 : 0);
 	}
 	
 	/**
@@ -553,13 +661,13 @@ public class RealisticRenderer implements GLRenderer {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		screenQuadShader.use();
-		GL33.glActiveTexture(GL33.GL_TEXTURE0);
-		GL33.glBindTexture(GL33.GL_TEXTURE_2D, currentTexture);
-		GL33.glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, currentTexture);
+		glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
 
-		GL33.glBindVertexArray(screenQuadVAO);
-		GL33.glDrawArrays(GL_TRIANGLES, 0, 6);
-		GL33.glBindVertexArray(0);
+		glBindVertexArray(screenQuadVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
 
 		glEnable(GL_DEPTH_TEST);
 		renderTarget.unbind();
@@ -587,36 +695,36 @@ public class RealisticRenderer implements GLRenderer {
 			return;
 		}
 
-		int presentBuffer = GL33.glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
+		int presentBuffer = glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
 
-		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
-		GL33.glDrawBuffer(presentBuffer);
-		GL33.glDepthMask(true);
-		GL33.glColorMask(true, true, true, true);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDrawBuffer(presentBuffer);
+		glDepthMask(true);
+		glColorMask(true, true, true, true);
 		glViewport(0, 0, screenWidth, screenHeight);
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_SCISSOR_TEST);
 		glDisable(GL_STENCIL_TEST);
-		GL33.glDisable(GL33.GL_BLEND);
-		GL33.glDisable(GL_CULL_FACE);
-		GL33.glPolygonMode(GL33.GL_FRONT_AND_BACK, GL33.GL_FILL);
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		// Disable automatic sRGB conversion — apply it manually in the shader instead,
 		// so behaviour is consistent regardless of whether the default framebuffer is
 		// sRGB-capable (it is silently ignored on many Linux/GLX drivers).
 		glDisable(GL_FRAMEBUFFER_SRGB);
 
 		screenQuadShader.use();
-		GL33.glActiveTexture(GL33.GL_TEXTURE0);
-		GL33.glBindTexture(GL33.GL_TEXTURE_2D, resolvedTextureId);
-		GL33.glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
-		GL33.glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 1);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, resolvedTextureId);
+		glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
+		glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 1);
 
-		GL33.glBindVertexArray(screenQuadVAO);
-		GL33.glDrawArrays(GL_TRIANGLES, 0, 6);
-		GL33.glBindVertexArray(0);
+		glBindVertexArray(screenQuadVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
 
 		// Reset uniform and restore sRGB state for subsequent intermediate passes
-		GL33.glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 0);
+		glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 0);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glEnable(GL_DEPTH_TEST);
 	}
@@ -682,7 +790,7 @@ public class RealisticRenderer implements GLRenderer {
 		}
 		if (screenQuadVBO != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, screenQuadVBO);
-			GL33.glDeleteBuffers(screenQuadVBO);
+			glDeleteBuffers(screenQuadVBO);
 		}
 
 		textureStateManager.reset();

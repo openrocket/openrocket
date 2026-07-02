@@ -73,7 +73,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
     private final int flickerIntensityLocation;
     private final int exposureScaleLocation;
 
-    public FlameRenderer() throws Exception {
+    public FlameRenderer() {
         shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
 
@@ -289,7 +289,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
     @Override
     public String getRendererName() {
-        return "Flame GLRenderer";
+        return "Flame Renderer";
     }
 
     @Override

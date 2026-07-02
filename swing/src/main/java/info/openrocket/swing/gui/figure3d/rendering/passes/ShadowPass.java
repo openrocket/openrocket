@@ -97,7 +97,7 @@ public class ShadowPass implements RenderPass {
     private int shadowCastingLightIndex = -1;
     private boolean hasValidShadow = false;
 
-    public ShadowPass(int initialWidth, int initialHeight) throws Exception {
+    public ShadowPass(int initialWidth, int initialHeight) {
         this.depthShader = new GLShader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
         this.lastViewportWidth = initialWidth;
         this.lastViewportHeight = initialHeight;

@@ -52,7 +52,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
     private int screenHeight;
 
     public AmbientOcclusionPass(int screenQuadVAO, TextureBinder textureStateManager,
-                                GraphicsQualitySettings qualitySettings, int initialWidth, int initialHeight) throws Exception {
+                                GraphicsQualitySettings qualitySettings, int initialWidth, int initialHeight) {
         this.shader = new GLShader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/ambient_occlusion_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.textureStateManager = textureStateManager;

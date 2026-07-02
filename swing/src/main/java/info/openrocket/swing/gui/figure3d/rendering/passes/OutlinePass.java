@@ -141,11 +141,11 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
      * @param initialWidth Initial framebuffer width in pixels
      * @param initialHeight Initial framebuffer height in pixels
      * @param screenQuadShader GLShader for scene texture composition
-     * @throws Exception If shader compilation or framebuffer creation fails
+     * @throws ShaderException If shader compilation fails
      */
     public OutlinePass(GLShader mainShader, RealisticRenderer.ShaderUniforms mainShaderUniforms,
                        TextureBinder textureStateManager, int screenQuadVAO,
-                       Vector4f selectionColor, int initialWidth, int initialHeight, GLShader screenQuadShader) throws Exception {
+                       Vector4f selectionColor, int initialWidth, int initialHeight, GLShader screenQuadShader) {
         this.mainShader = mainShader;
         this.mainShaderUniforms = mainShaderUniforms;
         this.outlinePostProcessShader = new GLShader("/shaders/post/outline_vertex.glsl", "/shaders/post/outline_fragment.glsl");

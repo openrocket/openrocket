@@ -73,9 +73,9 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
      * @param screenQuadVAO Vertex array object for full-screen quad rendering
      * @param initialWidth Initial framebuffer width in pixels
      * @param initialHeight Initial framebuffer height in pixels
-     * @throws Exception If shader compilation or framebuffer creation fails
+     * @throws ShaderException If shader compilation fails
      */
-    public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) throws Exception {
+    public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) {
         this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.shader.use();

@@ -59,9 +59,9 @@ public class TexturedParticleRenderer {
      * for textured quad rendering, and loads particle textures. Configures vertex
      * attributes for position, texture coordinates, and color data.
      * 
-     * @throws Exception If shader compilation, texture loading, or OpenGL resource creation fails
+     * @throws ShaderException If shader compilation fails
      */
-    public TexturedParticleRenderer() throws Exception {
+    public TexturedParticleRenderer() {
         shader = new GLShader("/shaders/textured_particle_vertex.glsl", "/shaders/textured_particle_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxParticles * 6 * 8); // 6 vertices per particle (2 triangles), 8 floats per vertex
         

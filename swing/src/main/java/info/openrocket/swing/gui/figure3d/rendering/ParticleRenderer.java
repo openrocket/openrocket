@@ -73,9 +73,9 @@ public class ParticleRenderer implements ParticleSystemRenderer {
      * Initializes shaders, vertex buffers, and rendering state for line-based
      * particle rendering. Sets up vertex attributes for position and color data.
      * 
-     * @throws Exception If shader compilation or OpenGL resource creation fails
+     * @throws ShaderException If shader compilation fails
      */
-    public ParticleRenderer() throws Exception {
+    public ParticleRenderer() {
         shader = new GLShader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxParticles * 2 * 6); // 2 vertices per particle, 6 floats per vertex
 
@@ -186,7 +186,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 
     @Override
     public String getRendererName() {
-        return "Basic Particle GLRenderer";
+        return "Basic Particle Renderer";
     }
 
     @Override

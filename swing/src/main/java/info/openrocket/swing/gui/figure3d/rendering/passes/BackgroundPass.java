@@ -91,9 +91,9 @@ public class BackgroundPass implements RenderPass {
      * and skybox cubes.
      * 
      * @param textureStateManager Texture state manager for optimized texture binding
-     * @throws Exception If shader compilation or OpenGL resource creation fails
+     * @throws ShaderException If shader compilation fails
      */
-    public BackgroundPass(TextureBinder textureStateManager) throws Exception {
+    public BackgroundPass(TextureBinder textureStateManager) {
         gradientShader = new GLShader("/shaders/background/gradient_vertex.glsl", "/shaders/background/gradient_fragment.glsl");
         imageShader = new GLShader("/shaders/background/image_vertex.glsl", "/shaders/background/image_fragment.glsl");
         skyboxShader = new GLShader("/shaders/background/skybox_vertex.glsl", "/shaders/background/skybox_fragment.glsl");

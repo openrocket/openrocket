@@ -9,6 +9,10 @@ import org.joml.Matrix4f;
  * Interface for rendering different types of particle systems.
  * Implementations should handle specific particle types (flames, smoke, sparks, etc.)
  * and their unique rendering requirements.
+ *
+ * This is deliberately not a sub-interface of {@link GLRenderer}: particle
+ * renderers are owned and invoked by a {@link GLRenderer} implementation as
+ * part of its frame, rather than driving the full scene pipeline themselves.
  */
 public interface ParticleSystemRenderer {
 	
@@ -72,7 +76,7 @@ public interface ParticleSystemRenderer {
 	 * Gets a human-readable name for this renderer type.
 	 * Useful for debugging and user interfaces.
 	 * 
-	 * @return GLRenderer name (e.g., "Flame GLRenderer", "Volumetric Smoke")
+	 * @return Renderer name (e.g., "Flame Renderer", "Volumetric Smoke")
 	 */
 	String getRendererName();
 	
@@ -125,12 +129,19 @@ public interface ParticleSystemRenderer {
 	void cleanup();
 	
 	/**
+	 * Performance statistics for a particle renderer. A structured container
+	 * rather than a formatted string, so new stats can be added and presented
+	 * without reparsing.
+	 */
+	record PerformanceInfo(String rendererName, int maxParticles) {}
+
+	/**
 	 * Gets performance statistics for this renderer.
 	 * Useful for debugging and optimization.
-	 * 
-	 * @return Performance info string
+	 *
+	 * @return Performance info for this renderer
 	 */
-	default String getPerformanceInfo() {
-		return getRendererName() + " - Max Particles: " + getMaxParticles();
+	default PerformanceInfo getPerformanceInfo() {
+		return new PerformanceInfo(getRendererName(), getMaxParticles());
 	}
 }

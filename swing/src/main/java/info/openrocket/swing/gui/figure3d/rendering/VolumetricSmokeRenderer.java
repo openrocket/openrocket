@@ -106,9 +106,9 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
      * vertex buffers for billboard quad rendering, and loads smoke textures.
      * Caches uniform locations for efficient per-frame updates.
      * 
-     * @throws Exception If shader compilation, texture loading, or OpenGL resource creation fails
+     * @throws ShaderException If shader compilation fails
      */
-    public VolumetricSmokeRenderer() throws Exception {
+    public VolumetricSmokeRenderer() {
         shader = new GLShader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
         buffer = MemoryUtil.memAllocFloat(maxQuads * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
 
@@ -379,7 +379,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 
     @Override
     public String getRendererName() {
-        return "Volumetric Smoke GLRenderer";
+        return "Volumetric Smoke Renderer";
     }
 
     @Override
