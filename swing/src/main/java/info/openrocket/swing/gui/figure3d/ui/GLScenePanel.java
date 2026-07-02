@@ -514,7 +514,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	public void removeNotify() {
 		detachAncestorWindowListener();
-		super.removeNotify();
+		// super.removeNotify() disposes the native JAWT drawing surface; that must not
+		// overlap a render thread that is mid-frame on the same surface. Bounded wait:
+		// the peer teardown cannot be skipped, so proceed either way after the timeout.
+		boolean renderLockAcquired = false;
+		try {
+			renderLockAcquired = RENDER_LOCK.tryLock(CLEANUP_RENDER_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		try {
+			super.removeNotify();
+		} finally {
+			if (renderLockAcquired) {
+				RENDER_LOCK.unlock();
+			}
+		}
 	}
 
 	/**
@@ -697,13 +712,19 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				markRenderActivity();
+				// The canvas keeps receiving AWT events during teardown/rebuild,
+				// after cleanup() has released the orchestrator.
+				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+				if (orchestrator == null) {
+					return;
+				}
 				if (isTrackedDragButton(e)) {
 					// Track modifier state for multi-selection.
-					InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
+					InputState inputState = orchestrator.getInputHandler().getInputState();
 					inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
 					// Use Swing's built-in click count to detect double-clicks on left button.
 					if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-						scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
+						inputState.doubleClickPoint.set(e.getPoint());
 					}
 					pressPoint = e.getPoint();
 					lastPoint = e.getPoint();
@@ -716,23 +737,26 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				markRenderActivity();
+				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+				if (orchestrator == null) {
+					return;
+				}
 				if (isTrackedDragButton(e)) {
+					InputState inputState = orchestrator.getInputHandler().getInputState();
 					// We check for !isDragging to differentiate a click from a drag-release.
 					// A double-click will also fire this event for the second click.
 					if (!isDragging && pressPoint != null &&
 							(SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e))) {
-						InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
 						// Right-click popup selection mirrors the 2D view and does not use
 						// shift/meta as a multi-select modifier.
 						inputState.isShiftPressed = SwingUtilities.isLeftMouseButton(e) &&
 								(e.isShiftDown() || e.isMetaDown());
-						scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
+						inputState.clickPoint.set(pressPoint);
 						pendingSelectionClickEvent.set(e);
 					}
 					pressPoint = null;
 					isDragging = false;
 					activeDragButton = MouseEvent.NOBUTTON;
-					InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
 					inputState.isLightDragging = false;
 					inputState.isPanning = false;
 					setCameraIsMoving(false); // Stop tracking camera movement
@@ -742,14 +766,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				markRenderActivity();
+				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+				if (orchestrator == null) {
+					return;
+				}
 				if (isTrackedDragButton(activeDragButton) && pressPoint != null) {
+					InputState inputState = orchestrator.getInputHandler().getInputState();
 					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
 						isDragging = true;
-						scene3DOrchestrator.getInputHandler().getInputState().dragJustStarted = true;
+						inputState.dragJustStarted = true;
 					}
 
 					if (isDragging) {
-						InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
 						updateDragMode(inputState, e);
 
 						// Always update the drag delta
@@ -785,7 +813,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				markRenderActivity();
-				scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
+				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+				if (orchestrator == null) {
+					return;
+				}
+				orchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
 				hudNeedsUpdate = true; // Mark HUD for update on zoom
 			}
 		};
@@ -1503,7 +1535,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		boolean resolvedHasContent = hasVisiblePixelContent(resolvedCenter);
 		boolean defaultHasContent = hasVisiblePixelContent(presentedBackCenter) || hasVisiblePixelContent(presentedFrontCenter);
 		boolean startupFrameVisible = !resolvedHasContent || defaultHasContent;
-		handleBlankDefaultFramebufferDuringStartup(startupFrameVisible, resolvedHasContent);
+		// While a resize is in flight the rendered frame and the default framebuffer can
+		// disagree on size, making a blank center-pixel read meaningless. Such frames must
+		// not count toward the blank-canvas rebuild threshold, or a resize right after
+		// startup can trigger a needless (and state-destroying) canvas rebuild.
+		boolean sampleReliable = !resizeRequested
+				&& renderer.getRenderWidth() == defaultFbSize[0]
+				&& renderer.getRenderHeight() == defaultFbSize[1];
+		handleBlankDefaultFramebufferDuringStartup(startupFrameVisible, resolvedHasContent && sampleReliable);
 		return startupFrameVisible;
 	}
 
