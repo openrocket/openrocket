@@ -33,6 +33,10 @@ public class CameraController implements CameraControls {
     private final RenderingConfiguration renderingConfiguration;
     private final List<Consumer<Camera>> cameraChangeListeners = new CopyOnWriteArrayList<>();
     private float focusedDistance;
+    // Whether the camera should track the fitted distance. This is explicit state
+    // rather than "distance ≈ fitted distance" so that a resize-triggered re-fit
+    // cannot race with (and overwrite) a manual zoom that was applied in between.
+    private volatile boolean zoomFitting = true;
     
     /**
      * Constructs a new CameraController with the specified camera and scene references.
@@ -112,6 +116,7 @@ public class CameraController implements CameraControls {
         camera.fitBounds(dimensions);
         camera.resetViewOffset();
         focusedDistance = camera.getDistance();
+        zoomFitting = true;
         scene.updateRocketPivotFromCamera();
         notifyCameraChanged();
     }
@@ -133,6 +138,7 @@ public class CameraController implements CameraControls {
     @Override
     public void handleScroll(float scrollDelta) {
         camera.dolly(scrollDelta);
+        zoomFitting = false;
         notifyCameraChanged();
     }
 
@@ -145,6 +151,7 @@ public class CameraController implements CameraControls {
     public void handleScroll(float scrollDelta, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
         float prevDistance = camera.getDistance();
         camera.dolly(scrollDelta);
+        zoomFitting = false;
         float newDistance = camera.getDistance();
 
         // Only update pivot if the distance actually changed (i.e. not already at zoom limit).
@@ -251,6 +258,7 @@ public class CameraController implements CameraControls {
             return;
         }
         camera.setDistance((float) (focusedDistance / scale));
+        zoomFitting = Math.abs(scale - 1.0) < 0.01;
         notifyCameraChanged();
     }
 
@@ -259,7 +267,7 @@ public class CameraController implements CameraControls {
         if (focusedDistance <= 0.0f) {
             return true;
         }
-        return Math.abs(camera.getDistance() - focusedDistance) <= focusedDistance * 0.01f;
+        return zoomFitting;
     }
     
     /**
