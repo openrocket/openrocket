@@ -5,6 +5,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.GL40;
+import org.lwjgl.opengl.GL43;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,47 +77,56 @@ public class Shader implements GpuResource {
 	 *
 	 * @param vertexPath Path to vertex shader source file in resources
 	 * @param fragmentPath Path to fragment shader source file in resources
-	 * @throws Exception If shader loading, compilation, or linking fails
+	 * @throws ShaderException If shader loading, compilation, or linking fails
 	 */
-	public Shader(String vertexPath, String fragmentPath) throws Exception {
+	public Shader(String vertexPath, String fragmentPath) {
 		this.vertexPath = vertexPath;
 		this.fragmentPath = fragmentPath;
 
 		log.debug("Loading shader: vertex={}, fragment={}", vertexPath, fragmentPath);
 
-		String vertexShaderSource = loadResource(vertexPath);
-		String fragmentShaderSource = loadResource(fragmentPath);
-
-		int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource, vertexPath);
-		int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource, fragmentPath);
-
-		programId = glCreateProgram();
-		if (programId == 0) {
+		int vertexShader = compileShader(GL_VERTEX_SHADER, loadResource(vertexPath), vertexPath);
+		int fragmentShader = compileShader(GL_FRAGMENT_SHADER, loadResource(fragmentPath), fragmentPath);
+		try {
+			programId = linkProgram(vertexShader, fragmentShader);
+		} finally {
+			// The linked program keeps its own copy of the compiled stages.
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
-			throw new RuntimeException("Failed to create shader program for: " + vertexPath + ", " + fragmentPath);
 		}
-
-		glAttachShader(programId, vertexShader);
-		glAttachShader(programId, fragmentShader);
-		glLinkProgram(programId);
-
-		if (glGetProgrami(programId, GL_LINK_STATUS) == 0) {
-			String linkError = glGetProgramInfoLog(programId, 1024);
-			glDeleteShader(vertexShader);
-			glDeleteShader(fragmentShader);
-			glDeleteProgram(programId);
-			log.error("Shader link error for {}, {}: {}", vertexPath, fragmentPath, linkError);
-			throw new RuntimeException("Error linking shader program (" + vertexPath + ", " + fragmentPath + "): " + linkError);
-		}
-
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
 
 		GLErrors.check("shader program creation (" + vertexPath + ", " + fragmentPath + ")");
 
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.PROGRAM, programId, vertexPath + " | " + fragmentPath);
 		log.debug("Shader program created successfully: id={}", programId);
+	}
+
+	/**
+	 * Links the compiled shader stages into a program.
+	 *
+	 * @param vertexShader The compiled vertex shader ID
+	 * @param fragmentShader The compiled fragment shader ID
+	 * @return The linked program ID
+	 * @throws ShaderException If program creation or linking fails
+	 */
+	private int linkProgram(int vertexShader, int fragmentShader) {
+		int newProgramId = glCreateProgram();
+		if (newProgramId == 0) {
+			throw new ShaderException("Failed to create shader program for: " + vertexPath + ", " + fragmentPath);
+		}
+
+		glAttachShader(newProgramId, vertexShader);
+		glAttachShader(newProgramId, fragmentShader);
+		glLinkProgram(newProgramId);
+
+		if (glGetProgrami(newProgramId, GL_LINK_STATUS) == 0) {
+			String linkError = glGetProgramInfoLog(newProgramId, 1024);
+			glDeleteProgram(newProgramId);
+			log.error("Shader link error for {}, {}: {}", vertexPath, fragmentPath, linkError);
+			throw new ShaderException("Error linking shader program (" + vertexPath + ", " + fragmentPath + "): " + linkError);
+		}
+
+		return newProgramId;
 	}
 
 	/**
@@ -276,20 +288,21 @@ public class Shader implements GpuResource {
 	}
 
 	/**
-	 * Compiles a shader from source code.
+	 * Compiles a single shader stage from source code. Not limited to the stages
+	 * used by this class; any valid GL shader type can be compiled.
 	 *
-	 * @param type The shader type (GL_VERTEX_SHADER or GL_FRAGMENT_SHADER)
+	 * @param type The shader type (e.g. GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER)
 	 * @param source The shader source code
 	 * @param path The path to the shader file (for error reporting)
 	 * @return The compiled shader ID
-	 * @throws RuntimeException If compilation fails
+	 * @throws ShaderException If shader creation or compilation fails
 	 */
 	private static int compileShader(int type, String source, String path) {
-		String shaderTypeName = (type == GL_VERTEX_SHADER) ? "vertex" : "fragment";
+		String shaderTypeName = shaderTypeName(type);
 		int shaderId = glCreateShader(type);
 		if (shaderId == 0) {
 			log.error("Failed to create {} shader for: {}", shaderTypeName, path);
-			throw new RuntimeException("Error creating " + shaderTypeName + " shader for: " + path);
+			throw new ShaderException("Error creating " + shaderTypeName + " shader for: " + path);
 		}
 
 		glShaderSource(shaderId, source);
@@ -299,7 +312,7 @@ public class Shader implements GpuResource {
 			String error = glGetShaderInfoLog(shaderId, 2048);
 			glDeleteShader(shaderId); // Clean up on error
 			log.error("Compilation error in {} shader '{}': {}", shaderTypeName, path, error);
-			throw new RuntimeException("Error compiling " + shaderTypeName + " shader '" + path + "':\n" + error);
+			throw new ShaderException("Error compiling " + shaderTypeName + " shader '" + path + "':\n" + error);
 		}
 
 		log.debug("Compiled {} shader: {}", shaderTypeName, path);
@@ -307,23 +320,38 @@ public class Shader implements GpuResource {
 	}
 
 	/**
+	 * Maps a GL shader type constant to a human-readable name for error reporting.
+	 */
+	private static String shaderTypeName(int type) {
+		return switch (type) {
+			case GL_VERTEX_SHADER -> "vertex";
+			case GL_FRAGMENT_SHADER -> "fragment";
+			case GL32.GL_GEOMETRY_SHADER -> "geometry";
+			case GL40.GL_TESS_CONTROL_SHADER -> "tessellation control";
+			case GL40.GL_TESS_EVALUATION_SHADER -> "tessellation evaluation";
+			case GL43.GL_COMPUTE_SHADER -> "compute";
+			default -> String.format("unknown(0x%04X)", type);
+		};
+	}
+
+	/**
 	 * Loads a text resource from the classpath.
 	 *
 	 * @param fileName Path to the resource file
 	 * @return The complete file contents as a string
-	 * @throws Exception If the file cannot be read
+	 * @throws ShaderException If the file cannot be read
 	 */
-	private static String loadResource(String fileName) throws Exception {
+	private static String loadResource(String fileName) {
 		InputStream in = Shader.class.getResourceAsStream(fileName);
 		if (in == null) {
 			log.error("Shader resource not found: {}", fileName);
-			throw new RuntimeException("Shader resource not found: " + fileName);
+			throw new ShaderException("Shader resource not found: " + fileName);
 		}
 		try (Scanner scanner = new Scanner(in, StandardCharsets.UTF_8)) {
 			return scanner.useDelimiter("\\A").next();
 		} catch (Exception e) {
 			log.error("Failed to read shader resource '{}': {}", fileName, e.getMessage());
-			throw new RuntimeException("Failed to read shader resource '" + fileName + "'", e);
+			throw new ShaderException("Failed to read shader resource '" + fileName + "'", e);
 		}
 	}
 }
