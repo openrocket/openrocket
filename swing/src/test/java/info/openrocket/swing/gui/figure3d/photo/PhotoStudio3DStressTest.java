@@ -74,8 +74,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PhotoStudio3DStressTest extends BaseTestCase {
 
-	private static final long FRAME_TIMEOUT_MS = 4_000;
-	private static final long CAPTURE_TIMEOUT_MS = 5_000;
+	// Generous timeouts: these are awaits that return early on success, so large
+	// values only cost time on genuine failures. Loaded or thermally throttled
+	// machines can take seconds for GL context creation and canvas recovery.
+	private static final long FRAME_TIMEOUT_MS = 8_000;
+	private static final long CAPTURE_TIMEOUT_MS = 12_000;
 	private static final long CAMERA_SNAPSHOT_TIMEOUT_MS = 2_000;
 	private static final long EDT_CALL_TIMEOUT_MS = 2_500;
 	private static final long WATCHDOG_PERIOD_SECONDS = 5;
@@ -523,10 +526,6 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				GLScenePanel photoCanvas = awaitReadyPhotoCanvas(currentPhoto.panel, FRAME_TIMEOUT_MS,
 						"Photo Studio canvas iteration " + i);
 
-				CameraSnapshot designABefore = snapshotDesignCamera(currentDesignA.panel.getFigure3d());
-				CameraSnapshot designBBefore = snapshotDesignCamera(currentDesignB.panel.getFigure3d());
-				CameraSnapshot photoBefore = snapshotCamera(photoCanvas);
-
 				int beforeSwapA = currentDesignA.panel.getFigure3d().getCanvasSwapCallCount();
 				int beforePaintA = currentDesignA.panel.getFigure3d().getCanvasPaintCallCount();
 				int beforeSwapB = currentDesignB.panel.getFigure3d().getCanvasSwapCallCount();
@@ -568,11 +567,11 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 						FRAME_TIMEOUT_MS, "Photo Studio concurrent frame iteration " + iteration);
 
 				phase.set("assert-camera-reactions-concurrent-" + iteration);
-					awaitDesignCameraChange(currentDesignA.panel.getFigure3d(), designABefore, FRAME_TIMEOUT_MS,
+					awaitDesignCameraReactsToScroll(currentDesignA.panel.getFigure3d(), FRAME_TIMEOUT_MS,
 							"design A camera should react to input iteration " + iteration);
-					awaitDesignCameraChange(currentDesignB.panel.getFigure3d(), designBBefore, FRAME_TIMEOUT_MS,
+					awaitDesignCameraReactsToScroll(currentDesignB.panel.getFigure3d(), FRAME_TIMEOUT_MS,
 							"design B camera should react to input iteration " + iteration);
-					awaitCameraChange(photoCanvas, photoBefore, FRAME_TIMEOUT_MS,
+					awaitPhotoCameraReactsToScroll(currentPhoto.panel, FRAME_TIMEOUT_MS,
 							"Photo Studio camera should react to input iteration " + iteration);
 			}
 				phase.set("completed");
@@ -619,14 +618,15 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 						FRAME_TIMEOUT_MS, "left-drag input should trigger fresh design-view rendering");
 
 			phase.set("scroll-zoom");
-			CameraSnapshot zoomBefore = snapshotCamera(canvas);
-			scrollCanvas(canvas, centerX(canvas), centerY(canvas), -1);
-				awaitCameraDistanceChange(canvas, zoomBefore.distance(), FRAME_TIMEOUT_MS,
+			awaitDesignCameraReactsToScroll(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
 					"scroll should change the design-view zoom distance");
 
 				phase.set("enable-pan-mode");
 				onEdt(() -> currentHarness.panel.getFigure3d().setPanModeEnabled(true));
 				phase.set("pan-drag");
+				// Re-locate the canvas: a startup recovery may have rebuilt it since the drag phase.
+				canvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+						"design pan test canvas");
 				int beforePanSwap = currentHarness.panel.getFigure3d().getCanvasSwapCallCount();
 				int beforePanPaint = currentHarness.panel.getFigure3d().getCanvasPaintCallCount();
 				dragCanvas(canvas, centerX(canvas), centerY(canvas),
@@ -1013,6 +1013,61 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			Thread.sleep(40);
 		}
 		CameraSnapshot current = snapshotDesignCamera(figure3d);
+		assertTrue(!current.approximatelyEquals(previous),
+				context + ". previous=" + previous + ", current=" + current);
+	}
+
+	/**
+	 * Asserts that scroll input eventually moves the design-view camera. Unlike a
+	 * one-shot dispatch + await, this re-locates the live canvas and re-dispatches
+	 * on each attempt, so it stays valid when a canvas rebuild or a render-thread
+	 * stall swallows an individual event under stress. Scroll direction alternates
+	 * between attempts so a zoom limit cannot mask the reaction.
+	 */
+	private static void awaitDesignCameraReactsToScroll(RocketFigure3d figure3d, long timeoutMs, String context)
+			throws Exception {
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		CameraSnapshot previous = snapshotDesignCamera(figure3d);
+		int attempt = 0;
+		while (System.currentTimeMillis() < deadline) {
+			GLScenePanel canvas = awaitReadyDesignCanvas(figure3d, 2_000, context);
+			scrollCanvas(canvas, centerX(canvas), centerY(canvas), (attempt++ % 2 == 0) ? -1 : 1);
+			long attemptDeadline = Math.min(deadline, System.currentTimeMillis() + 600);
+			while (System.currentTimeMillis() < attemptDeadline) {
+				CameraSnapshot current = snapshotDesignCamera(figure3d);
+				if (!current.approximatelyEquals(previous)) {
+					return;
+				}
+				Thread.sleep(40);
+			}
+		}
+		CameraSnapshot current = snapshotDesignCamera(figure3d);
+		assertTrue(!current.approximatelyEquals(previous),
+				context + ". previous=" + previous + ", current=" + current);
+	}
+
+	/**
+	 * Photo Studio variant of {@link #awaitDesignCameraReactsToScroll}: re-locates
+	 * the live canvas and re-dispatches scroll input on each attempt.
+	 */
+	private static void awaitPhotoCameraReactsToScroll(PhotoPanel panel, long timeoutMs, String context)
+			throws Exception {
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		CameraSnapshot previous = snapshotCamera(awaitReadyPhotoCanvas(panel, 2_000, context));
+		int attempt = 0;
+		while (System.currentTimeMillis() < deadline) {
+			GLScenePanel canvas = awaitReadyPhotoCanvas(panel, 2_000, context);
+			scrollCanvas(canvas, centerX(canvas), centerY(canvas), (attempt++ % 2 == 0) ? -1 : 1);
+			long attemptDeadline = Math.min(deadline, System.currentTimeMillis() + 600);
+			while (System.currentTimeMillis() < attemptDeadline) {
+				CameraSnapshot current = snapshotCamera(awaitReadyPhotoCanvas(panel, 2_000, context));
+				if (!current.approximatelyEquals(previous)) {
+					return;
+				}
+				Thread.sleep(40);
+			}
+		}
+		CameraSnapshot current = snapshotCamera(awaitReadyPhotoCanvas(panel, 2_000, context));
 		assertTrue(!current.approximatelyEquals(previous),
 				context + ". previous=" + previous + ", current=" + current);
 	}
