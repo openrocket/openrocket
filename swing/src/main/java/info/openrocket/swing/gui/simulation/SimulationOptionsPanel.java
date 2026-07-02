@@ -29,6 +29,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -169,7 +170,7 @@ class SimulationOptionsPanel extends JPanel {
 		configureImmediateTooltipDelay(aerodynamicLookupSummaryIconLabel);
 		subsub.add(aerodynamicLookupSummaryIconLabel, "gapleft rel, wrap para");
 
-		sub.add(subsub, "spanx, wrap para");
+		sub.add(subsub, "spanx, wmin 0, wrap para");
 
 		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
@@ -350,7 +351,7 @@ class SimulationOptionsPanel extends JPanel {
 
 		// --- Single deployment tab ---
 		JPanel singleTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
-		singleTab.add(new StyledLabel(trans.get("simedtdlg.lbl.SingleDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
+		singleTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.SingleDeployment.desc"), Style.ITALIC), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
 		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
 		singleTab.add(label, "gapright para");
@@ -365,8 +366,8 @@ class SimulationOptionsPanel extends JPanel {
 		// --- Dual deployment tab ---
 		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
 
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), -1), "spanx, wrap para");
+		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.desc"), Style.ITALIC), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
+		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), Style.PLAIN), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
@@ -389,7 +390,7 @@ class SimulationOptionsPanel extends JPanel {
 		dualTab.add(new UnitSelector(m), "wrap");
 
 		recoveryTabs.addTab(trans.get("simedtdlg.border.DualDeployment"), dualTab);
-		subsub.add(recoveryTabs, "spanx, gaptop para, growx, wrap");
+		subsub.add(recoveryTabs, "spanx, gaptop para, growx, wmin 0, wrap");
 
 		sub.add(resetBtn, "align left, split 2");
 		sub.add(saveBtn, "wrap");
@@ -625,6 +626,45 @@ class SimulationOptionsPanel extends JPanel {
 		// Both needed:
 		this.revalidate();
 		this.repaint();
+	}
+
+	private JTextPane createWrappingInfoText(String text, Style style) {
+		JTextPane pane = new JTextPane();
+		pane.setEditable(false);
+		pane.setFocusable(false);
+		pane.setOpaque(false);
+		pane.setBorder(BorderFactory.createEmptyBorder());
+		pane.setContentType("text/html");
+		pane.setMinimumSize(new Dimension(0, 0));
+
+		String normalizedText = text == null ? "" : text;
+		String trimmed = normalizedText.trim().toLowerCase();
+		if (trimmed.startsWith("<html")) {
+			pane.setText(normalizedText);
+		} else {
+			String styleCss = "";
+			switch (style) {
+				case ITALIC:
+					styleCss = "font-style:italic;";
+					break;
+				case BOLD:
+					styleCss = "font-weight:bold;";
+					break;
+				case BOLD_ITALIC:
+					styleCss = "font-weight:bold;font-style:italic;";
+					break;
+				case PLAIN:
+				default:
+					break;
+			}
+
+			pane.setText("<html><body style='margin:0;" + styleCss + "'>"
+					+ escapeHtml(normalizedText).replace("\n", "<br>")
+					+ "</body></html>");
+		}
+
+		pane.setCaretPosition(0);
+		return pane;
 	}
 
 

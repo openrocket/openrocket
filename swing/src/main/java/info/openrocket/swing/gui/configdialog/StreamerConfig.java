@@ -26,10 +26,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
-import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
@@ -271,41 +267,13 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		deploymentPanel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap");
 
-		//// Is Drogue checkbox
+		//// Is Drogue checkbox — read-only; managed from the stage Recovery tab
 		JCheckBox drogueCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue"));
-		drogueCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue.ttip"));
+		drogueCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue.managedByStage.ttip"));
 		drogueCheck.setSelected(streamer.isDrogue());
-		drogueCheck.addActionListener(e -> {
-			if (drogueCheck.isSelected()) {
-				AxialStage stage = streamer.getStage();
-				// Conflict: stage is marked drogueless
-				if (stage != null && stage.isDrogueless()) {
-					JOptionPane.showMessageDialog(
-							SwingUtilities.getWindowAncestor(drogueCheck),
-							String.format(trans.get("RecoveryDeviceCfg.dlg.StageIsDrogueless.msg"), stage.getName(), streamer.getName()),
-							trans.get("RecoveryDeviceCfg.dlg.StageIsDrogueless.title"),
-							JOptionPane.ERROR_MESSAGE);
-					drogueCheck.setSelected(false);
-					return;
-				}
-				// Conflict: another drogue already exists in this stage
-				if (stage != null) {
-					for (RocketComponent comp : stage) {
-						if (comp instanceof RecoveryDevice rd && rd != streamer && rd.isDrogue()) {
-							JOptionPane.showMessageDialog(
-									SwingUtilities.getWindowAncestor(drogueCheck),
-								String.format(trans.get("RecoveryDeviceCfg.dlg.AlreadyHasDrogue.msg"), stage.getName(), rd.getName()),
-									trans.get("RecoveryDeviceCfg.dlg.AlreadyHasDrogue.title"),
-									JOptionPane.ERROR_MESSAGE);
-							drogueCheck.setSelected(false);
-							return;
-						}
-					}
-				}
-			}
-			streamer.setDrogue(drogueCheck.isSelected());
-		});
-		deploymentPanel.add(drogueCheck, "spanx, wrap");
+		drogueCheck.setEnabled(false);
+		deploymentPanel.add(drogueCheck, "spanx");
+		deploymentPanel.add(new StyledLabel(trans.get("RecoveryDeviceCfg.lbl.IsDrogue.managedByStage"), -1, StyledLabel.Style.ITALIC), "spanx, wrap");
 		order.add(drogueCheck);
 
 		/* Drogueless checkbox — commented out for now
