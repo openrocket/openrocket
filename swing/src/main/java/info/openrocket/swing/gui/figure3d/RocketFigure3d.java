@@ -8,6 +8,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
+import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
@@ -18,6 +19,7 @@ import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +101,25 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	// Starts true so the first frame renders immediately without an explicit trigger.
 	private volatile boolean dirty = true;
 	private final AtomicReference<GLScenePanel> pendingCanvasRebuild = new AtomicReference<>();
+	// Camera pose captured from a canvas that is about to be rebuilt, so the new
+	// canvas resumes at the same view instead of resetting to the default pose.
+	private final AtomicReference<CameraRestoreState> pendingCameraRestore = new AtomicReference<>();
+
+	private static final class CameraRestoreState {
+		private final float angleX;
+		private final float angleY;
+		private final float distance;
+		private final float fieldOfView;
+		private final Vector3f centerOfInterest;
+
+		private CameraRestoreState(Camera camera) {
+			this.angleX = camera.getAngleX();
+			this.angleY = camera.getAngleY();
+			this.distance = camera.getDistance();
+			this.fieldOfView = camera.getFieldOfView();
+			this.centerOfInterest = new Vector3f(camera.getCenterOfInterest());
+		}
+	}
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -158,6 +179,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			if (requestedZoomScale != null) {
 				orchestrator.getCameraController().setZoomScale(requestedZoomScale);
 			}
+			CameraRestoreState cameraRestore = pendingCameraRestore.getAndSet(null);
+			if (cameraRestore != null) {
+				restoreCamera(orchestrator, cameraRestore);
+			}
 			updateZoomState(orchestrator);
 		});
 		glScenePanel = panel;
@@ -178,6 +203,8 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (glScenePanel != failedPanel) {
 			return;
 		}
+		log.info("Rebuilding 3D canvas after blank-frame detection");
+		captureCameraForRestore(failedPanel);
 		failedPanel.setRenderActivityCallback(null);
 		failedPanel.setRenderRequestCallback(null);
 		failedPanel.setBlankDefaultFramebufferCallback(null);
@@ -267,6 +294,30 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		}
 		maybeInstallSelectionBridge(panel);
 		updateZoomState(panel.getScene3DOrchestrator());
+	}
+
+	private void captureCameraForRestore(GLScenePanel failedPanel) {
+		Scene3DOrchestrator orchestrator = failedPanel.getScene3DOrchestrator();
+		if (orchestrator == null || orchestrator.getCameraController() == null) {
+			return;
+		}
+		Camera camera = orchestrator.getCameraController().getCamera();
+		if (camera != null) {
+			pendingCameraRestore.set(new CameraRestoreState(camera));
+		}
+	}
+
+	private void restoreCamera(Scene3DOrchestrator orchestrator, CameraRestoreState state) {
+		Camera camera = orchestrator.getCameraController().getCamera();
+		if (camera == null) {
+			return;
+		}
+		camera.setCenterOfInterest(state.centerOfInterest);
+		camera.setAngleX(state.angleX);
+		camera.setAngleY(state.angleY);
+		camera.setFieldOfView(state.fieldOfView);
+		camera.setDistance(state.distance);
+		camera.update();
 	}
 
 	private void requestCanvasRebuild(GLScenePanel failedPanel) {
