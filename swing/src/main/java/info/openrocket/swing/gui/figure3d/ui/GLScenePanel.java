@@ -238,6 +238,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		public void windowDeiconified(WindowEvent e) {
 			handleWindowDeiconified();
 		}
+
+		@Override
+		public void windowActivated(WindowEvent e) {
+			// Some platforms restore a window without firing windowDeiconified
+			// (e.g. restoring via the taskbar on Windows). A single render nudge
+			// is cheap and refreshes the canvas without waiting for a user click.
+			markRenderActivity();
+		}
 	};
 
 	private static final class ImageCaptureRequest {
@@ -588,6 +596,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
 				&& visibleFrameRecoveryPending) {
 			log.warn("No completed 3D frame after startup recovery: {}", getDebugStateSummary());
+			// Repaint nudges did not produce a visible frame within the full recovery
+			// window. Escalate to a canvas rebuild — the same remedy that works when
+			// the user toggles the view type by hand.
+			Runnable callback = blankDefaultFramebufferCallback;
+			if (callback != null && startupBlankFramebufferRecoveryRequested.compareAndSet(false, true)) {
+				log.warn("Requesting 3D canvas rebuild after failed startup recovery");
+				callback.run();
+				markRenderActivity();
+			}
 		}
 	}
 
