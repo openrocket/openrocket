@@ -200,8 +200,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean glInitialized = false;
 	public volatile boolean glInitFailed = false;
 	private volatile boolean visibleFrameRecoveryPending = true;
+	// Swap count when the current recovery began; used to tell "no frame completes
+	// at all" (escalate to rebuild) apart from "frames complete but look blank"
+	// (handled by the framebuffer probes).
+	private volatile int recoveryBaselineSwapCount = 0;
 	private static final Semaphore INIT_SEMAPHORE = new Semaphore(1, true);
 	private static final ReentrantLock RENDER_LOCK = new ReentrantLock(true);
+	// How long cleanup() waits for an in-flight render before giving up on
+	// in-context GL resource cleanup (leaking is better than a native crash).
+	private static final long CLEANUP_RENDER_LOCK_TIMEOUT_MS = 2000;
 	// LWJGL capabilities are thread-local; store per-canvas so we can render multiple canvases on one thread.
 	private volatile GLCapabilities glCapabilities;
 
@@ -428,6 +435,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private void beginVisibleFrameRecovery() {
 		visibleFrameRecoveryPending = true;
+		recoveryBaselineSwapCount = swapCallCount.get();
 		startupBlankFramebufferFrames = 0;
 		startupBlankFramebufferRecoveryRequested.set(false);
 		startupFrameDetectionComplete = false;
@@ -487,6 +495,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		super.addNotify();
 		updateAncestorWindowListener();
 		visibleFrameRecoveryPending = true;
+		recoveryBaselineSwapCount = swapCallCount.get();
 		startupBlankFramebufferFrames = 0;
 		startupBlankFramebufferRecoveryRequested.set(false);
 		startupFrameDetectionComplete = false;
@@ -596,11 +605,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
 				&& visibleFrameRecoveryPending) {
 			log.warn("No completed 3D frame after startup recovery: {}", getDebugStateSummary());
-			// Repaint nudges did not produce a visible frame within the full recovery
-			// window. Escalate to a canvas rebuild — the same remedy that works when
-			// the user toggles the view type by hand.
+			// Repaint nudges did not produce any completed frame within the full
+			// recovery window. Escalate to a canvas rebuild — the same remedy that
+			// works when the user toggles the view type by hand. Frames that complete
+			// but look blank are left to the framebuffer probes instead.
 			Runnable callback = blankDefaultFramebufferCallback;
-			if (callback != null && startupBlankFramebufferRecoveryRequested.compareAndSet(false, true)) {
+			if (swapCallCount.get() == recoveryBaselineSwapCount
+					&& callback != null && startupBlankFramebufferRecoveryRequested.compareAndSet(false, true)) {
 				log.warn("Requesting 3D canvas rebuild after failed startup recovery");
 				callback.run();
 				markRenderActivity();
@@ -968,9 +979,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		int paintBefore = paintCallCount.get();
 		int swapBefore = swapCallCount.get();
 		try {
-			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				RENDER_LOCK.lock();
-			}
+			// Serialize JAWT drawing-surface acquisition across render threads and
+			// cleanup: concurrent surface access from two threads crashes natively
+			// (SIGBUS/SIGSEGV in JAWT_DrawingSurface_GetDrawingSurfaceInfo).
+			RENDER_LOCK.lock();
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
 			super.render();
 			if (peerBoundsSyncEnabled && renderCount == 1) {
@@ -1007,9 +1019,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					reportFatalRenderException(t);
 				}
 		} finally {
-			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				RENDER_LOCK.unlock();
-			}
+			RENDER_LOCK.unlock();
 		}
 	}
 
@@ -1662,49 +1672,26 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		boolean canAttemptContextCleanup = isDisplayable() && getWidth() > 0 && getHeight() > 0;
 		if (canAttemptContextCleanup) {
-			// Try to clean up GL resources within context.
-			// This path can crash on macOS if called after peer teardown has started.
+			// runInContext acquires the native JAWT drawing surface; doing that while a
+			// render thread is mid-frame on the same surface crashes natively. Take the
+			// shared render lock (bounded, so the EDT can't hang on a stuck render) and
+			// skip the in-context cleanup if a render never finishes.
+			boolean renderLockAcquired = false;
 			try {
-				runInContext(() -> {
-					if (scene3DOrchestrator != null) {
-						try {
-							SceneView scene = scene3DOrchestrator.getScene();
-							GLRenderer renderer = scene3DOrchestrator.getRenderer();
-							if (scene != null) {
-								scene.cleanup();
-							}
-							if (renderer != null) {
-								renderer.cleanup();
-							}
-						} catch (Exception e) {
-							log.warn("Error cleaning 3D resources: {}", e.getMessage());
-						}
-					}
-					if (hudVao != 0) {
-						GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, hudVao);
-						glDeleteVertexArrays(hudVao);
-						hudVao = 0;
-					}
-					if (hudVbo != 0) {
-						GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, hudVbo);
-						glDeleteBuffers(hudVbo);
-						hudVbo = 0;
-					}
-					if (hudShader != null) {
-						hudShader.cleanup();
-						hudShader = null;
-					}
-					if (hudTexture != null) {
-						hudTexture.cleanup();
-						hudTexture = null;
-					}
-				});
-			} catch (Exception e) {
-				log.warn("GL context unavailable during cleanup, some GL resources may leak: {}", e.getMessage());
+				renderLockAcquired = RENDER_LOCK.tryLock(CLEANUP_RENDER_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
-			// Do not call disposeCanvas() here. Swing/AWTGLCanvas will tear down the native
-			// drawing surface during removeNotify(), and forcing disposal earlier can double-free
-			// the JAWT surface on macOS during window close.
+			if (renderLockAcquired) {
+				try {
+					cleanupGLResourcesInContext();
+				} finally {
+					RENDER_LOCK.unlock();
+				}
+			} else {
+				log.warn("Render still in progress during cleanup; skipping in-context GL cleanup, " +
+						"some GL resources may leak");
+			}
 		} else {
 			log.debug("Skipping runInContext cleanup for non-displayable canvas");
 		}
@@ -1733,6 +1720,55 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			glCapabilities = null;
 
 		GpuResourceTracker.logLiveResources("Swing canvas cleanup (other canvases may still be active)", false);
+	}
+
+	/**
+	 * Releases GL-side resources with the context current. Must be called with
+	 * {@link #RENDER_LOCK} held. This path can crash on macOS if called after
+	 * peer teardown has started, hence the displayability check in {@link #cleanup()}.
+	 * Do not call disposeCanvas() here: Swing/AWTGLCanvas tears down the native
+	 * drawing surface during removeNotify(), and forcing disposal earlier can
+	 * double-free the JAWT surface on macOS during window close.
+	 */
+	private void cleanupGLResourcesInContext() {
+		try {
+			runInContext(() -> {
+				if (scene3DOrchestrator != null) {
+					try {
+						SceneView scene = scene3DOrchestrator.getScene();
+						GLRenderer renderer = scene3DOrchestrator.getRenderer();
+						if (scene != null) {
+							scene.cleanup();
+						}
+						if (renderer != null) {
+							renderer.cleanup();
+						}
+					} catch (Exception e) {
+						log.warn("Error cleaning 3D resources: {}", e.getMessage());
+					}
+				}
+				if (hudVao != 0) {
+					GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, hudVao);
+					glDeleteVertexArrays(hudVao);
+					hudVao = 0;
+				}
+				if (hudVbo != 0) {
+					GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, hudVbo);
+					glDeleteBuffers(hudVbo);
+					hudVbo = 0;
+				}
+				if (hudShader != null) {
+					hudShader.cleanup();
+					hudShader = null;
+				}
+				if (hudTexture != null) {
+					hudTexture.cleanup();
+					hudTexture = null;
+				}
+			});
+		} catch (Exception e) {
+			log.warn("GL context unavailable during cleanup, some GL resources may leak: {}", e.getMessage());
+		}
 	}
 
 	public int getRenderCallCount() {
