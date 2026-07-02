@@ -51,7 +51,7 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
  * with both named access (using caching) and direct location access for
  * maximum performance in render loops.
  */
-public class Shader implements ShaderProgram {
+public class Shader implements GpuResource {
 
 	private static final Logger log = LoggerFactory.getLogger(Shader.class);
 
@@ -120,7 +120,6 @@ public class Shader implements ShaderProgram {
 	/**
 	 * Activates this shader program for subsequent rendering operations.
 	 */
-	@Override
 	public void use() {
 		glUseProgram(programId);
 	}
@@ -128,7 +127,6 @@ public class Shader implements ShaderProgram {
 	/**
 	 * Deactivates the current shader program.
 	 */
-	@Override
 	public void unbind() {
 		glUseProgram(0);
 	}
@@ -138,7 +136,6 @@ public class Shader implements ShaderProgram {
 	 * 
 	 * @return The OpenGL program ID
 	 */
-	@Override
 	public int getProgramId() {
 		return programId;
 	}
@@ -148,7 +145,6 @@ public class Shader implements ShaderProgram {
 	 * @param name The uniform name
 	 * @return The uniform location, or -1 if not found
 	 */
-	@Override
 	public int getUniformLocation(String name) {
 		return uniformLocationCache.computeIfAbsent(name, n -> glGetUniformLocation(programId, n));
 	}
@@ -158,7 +154,6 @@ public class Shader implements ShaderProgram {
 	 * @param name   The name of the uniform in the shader.
 	 * @param matrix The Matrix4f to set.
 	 */
-	@Override
 	public void setUniform(String name, Matrix4f matrix) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
@@ -172,7 +167,6 @@ public class Shader implements ShaderProgram {
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
 	 */
-	@Override
 	public void setUniform(int location, Matrix4f matrix) {
 		if (location >= 0) {
 			matrix.get(matrix4Buffer);
@@ -185,7 +179,6 @@ public class Shader implements ShaderProgram {
 	 * @param name   The name of the uniform in the shader.
 	 * @param matrix The Matrix3f to set.
 	 */
-	@Override
 	public void setUniform(String name, Matrix3f matrix) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
@@ -199,7 +192,6 @@ public class Shader implements ShaderProgram {
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
 	 */
-	@Override
 	public void setUniform(int location, Matrix3f matrix) {
 		if (location >= 0) {
 			matrix.get(matrix3Buffer);
@@ -212,7 +204,6 @@ public class Shader implements ShaderProgram {
 	 * @param name The name of the uniform.
 	 * @param vector The vector to set.
 	 */
-	@Override
 	public void setUniform(String name, Vector4f vector) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
@@ -225,7 +216,6 @@ public class Shader implements ShaderProgram {
 	 * @param name The name of the uniform.
 	 * @param vector The vector to set.
 	 */
-	@Override
 	public void setUniform(String name, Vector3f vector) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
@@ -238,7 +228,6 @@ public class Shader implements ShaderProgram {
 	 * @param name The name of the uniform.
 	 * @param value The float value to set.
 	 */
-	@Override
 	public void setUniform(String name, float value) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
@@ -251,7 +240,6 @@ public class Shader implements ShaderProgram {
 	 * Call this after shader creation for frequently used uniforms.
 	 * @param uniformNames Array of uniform names to cache
 	 */
-	@Override
 	public void cacheUniformLocations(String... uniformNames) {
 		for (String name : uniformNames) {
 			getUniformLocation(name); // This will cache the location

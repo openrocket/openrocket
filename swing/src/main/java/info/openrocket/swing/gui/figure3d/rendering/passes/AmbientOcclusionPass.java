@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
@@ -28,7 +28,7 @@ import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
  */
 public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 
-    private final ShaderProgram shader;
+    private final Shader shader;
     private final TextureBinder textureStateManager;
     private final GraphicsQualitySettings qualitySettings;
     private final int screenQuadVAO;

@@ -16,7 +16,7 @@ import info.openrocket.swing.gui.figure3d.core.geometry.components.CPCaretGenera
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
@@ -61,7 +61,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
  */
 public class CaretsPass implements RenderPass {
 
-    private final ShaderProgram shader;
+    private final Shader shader;
     private final Renderable cgMesh;
     private final Renderable cpMesh;
     private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f);

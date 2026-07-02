@@ -4,7 +4,7 @@ import info.openrocket.swing.gui.figure3d.core.geometry.components.CameraPointOf
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -28,7 +28,7 @@ public class CameraPointOfInterestPass implements RenderPass {
 	private static final float FIXED_SCREEN_SCALE = 25.0f;
 	private int viewportHeight = 1;
 
-	private final ShaderProgram shader;
+	private final Shader shader;
 	private final Renderable markerMesh;
 	private final RenderingConfiguration config;
 	private final Vector3f markerColor = new Vector3f(0.2f, 0.8f, 1.0f);

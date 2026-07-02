@@ -60,7 +60,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class ParticleRenderer implements ParticleSystemRenderer {
 
-    private ShaderProgram shader;
+    private Shader shader;
     private int vao;
     private int vbo;
     private FloatBuffer buffer;

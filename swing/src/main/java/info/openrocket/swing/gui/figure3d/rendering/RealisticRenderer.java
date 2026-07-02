@@ -63,7 +63,7 @@ public class RealisticRenderer implements Renderer {
 	private static final Logger log = LoggerFactory.getLogger(RealisticRenderer.class);
 	private static final int DEFAULT_SCENE_MSAA_SAMPLES = 4;
 
-	private final ShaderProgram mainShader;
+	private final Shader mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
 
 	// Performance optimizations
@@ -84,7 +84,7 @@ public class RealisticRenderer implements Renderer {
 	private final ParticleRenderer particleRenderer;
 	private final VolumetricSmokeRenderer volumetricSmokeRenderer;
 	private final FlameRenderer flameRenderer;
-    private final ShaderProgram screenQuadShader;
+    private final Shader screenQuadShader;
     private final CaretsPass caretsPass;
     private final CameraPointOfInterestPass cameraPointOfInterestPass;
     private final ShadowPass shadowPass;
@@ -142,7 +142,7 @@ public class RealisticRenderer implements Renderer {
 		 * 
 		 * @param shader The shader to resolve uniform locations for
 		 */
-		ShaderUniforms(ShaderProgram shader) {
+		ShaderUniforms(Shader shader) {
 			this.projection = shader.getUniformLocation("projection");
 			this.view = shader.getUniformLocation("view");
 			this.model = shader.getUniformLocation("model");

@@ -36,7 +36,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
 
     @Override
     public void bind(SceneObject obj,
-                     ShaderProgram shader,
+                     Shader shader,
                      RealisticRenderer.ShaderUniforms uniforms,
                      RenderingConfiguration config,
                      TextureBinder textureBinder) {

@@ -2,7 +2,7 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
@@ -102,9 +102,9 @@ import static org.lwjgl.opengl.GL30.glUniform4f;
  */
 public class OutlinePass implements RenderPass, ScreenTexturePass {
 
-    private final ShaderProgram mainShader;
+    private final Shader mainShader;
     private final RealisticRenderer.ShaderUniforms mainShaderUniforms;
-    private final ShaderProgram outlinePostProcessShader;
+    private final Shader outlinePostProcessShader;
     private final TextureBinder textureStateManager;
     private final int screenQuadVAO;
     private int outlineFBO;
@@ -119,7 +119,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
     private int screenHeight;
     private int inputTexture;
     private boolean hasSelection;
-    private final ShaderProgram screenQuadShader;
+    private final Shader screenQuadShader;
     private final int screenTextureUniform;
     private final int selectionTextureUniform;
     private final int outlineColorUniform;
@@ -143,9 +143,9 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
      * @param screenQuadShader Shader for scene texture composition
      * @throws Exception If shader compilation or framebuffer creation fails
      */
-    public OutlinePass(ShaderProgram mainShader, RealisticRenderer.ShaderUniforms mainShaderUniforms,
+    public OutlinePass(Shader mainShader, RealisticRenderer.ShaderUniforms mainShaderUniforms,
                        TextureBinder textureStateManager, int screenQuadVAO,
-                       Vector4f selectionColor, int initialWidth, int initialHeight, ShaderProgram screenQuadShader) throws Exception {
+                       Vector4f selectionColor, int initialWidth, int initialHeight, Shader screenQuadShader) throws Exception {
         this.mainShader = mainShader;
         this.mainShaderUniforms = mainShaderUniforms;
         this.outlinePostProcessShader = new Shader("/shaders/post/outline_vertex.glsl", "/shaders/post/outline_fragment.glsl");

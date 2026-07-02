@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
@@ -55,7 +55,7 @@ import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
  */
 public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 
-    private final ShaderProgram shader;
+    private final Shader shader;
     private float blurFactor = 1f;
     private final Vector2f blurDirection = new Vector2f(1.0f, 0.0f);
     private final int screenQuadVAO;

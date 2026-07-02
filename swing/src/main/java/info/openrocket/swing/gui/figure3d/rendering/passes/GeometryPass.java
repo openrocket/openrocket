@@ -9,7 +9,7 @@ import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
@@ -78,7 +78,7 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
  */
 public class GeometryPass implements RenderPass {
 
-    private final ShaderProgram mainShader;
+    private final Shader mainShader;
     private final RenderingConfiguration config;
     private final TextureBinder textureStateManager;
     private final RealisticRenderer.ShaderUniforms mainShaderUniforms;
@@ -94,7 +94,7 @@ public class GeometryPass implements RenderPass {
      * @param mainShaderUniforms Cached uniform locations for performance
      * @param renderStats Statistics collector for performance monitoring
      */
-    public GeometryPass(ShaderProgram mainShader, RenderingConfiguration config,
+    public GeometryPass(Shader mainShader, RenderingConfiguration config,
 						TextureBinder textureStateManager, RealisticRenderer.ShaderUniforms mainShaderUniforms,
 						RealisticRenderer.RenderStats renderStats) {
         this.mainShader = mainShader;

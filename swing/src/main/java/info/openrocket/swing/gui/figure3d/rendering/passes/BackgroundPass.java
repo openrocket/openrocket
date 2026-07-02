@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.Shader;
-import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
+import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
@@ -74,13 +74,13 @@ import static org.lwjgl.opengl.GL11.glEnable;
  */
 public class BackgroundPass implements RenderPass {
 
-    private final ShaderProgram gradientShader;
+    private final Shader gradientShader;
     private final int gradientVao;
-    private final ShaderProgram imageShader;
-    private final ShaderProgram skyboxShader;
+    private final Shader imageShader;
+    private final Shader skyboxShader;
     private final int skyboxVao;
-    private final ShaderProgram hdriShader;
-    private final ShaderProgram checkerboardShader;
+    private final Shader hdriShader;
+    private final Shader checkerboardShader;
     private final TextureBinder textureStateManager;
 
     /**

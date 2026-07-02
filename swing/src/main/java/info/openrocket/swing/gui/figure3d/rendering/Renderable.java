@@ -3,8 +3,7 @@ package info.openrocket.swing.gui.figure3d.rendering;
 /**
  * Minimal contract for renderable GPU-backed resources.
  */
-public interface Renderable {
+public interface Renderable extends GpuResource {
     void render();
-    void cleanup();
 }
 
