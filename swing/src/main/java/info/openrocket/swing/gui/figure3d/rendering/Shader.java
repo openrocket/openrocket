@@ -111,6 +111,8 @@ public class Shader implements ShaderProgram {
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 
+		GLErrors.check("shader program creation (" + vertexPath + ", " + fragmentPath + ")");
+
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.PROGRAM, programId, vertexPath + " | " + fragmentPath);
 		log.debug("Shader program created successfully: id={}", programId);
 	}

@@ -144,6 +144,8 @@ public class OffscreenRenderTarget {
 		}
 
 		GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		GLErrors.check("off-screen render target creation");
 	}
 
 	private void initializeMultisampleAttachments() {

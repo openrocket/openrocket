@@ -266,6 +266,8 @@ public class RealisticRenderer implements Renderer {
         // Apply initial settings
         updatePostProcessingChain();
 
+		GLErrors.check("renderer initialization");
+
 		// Add a configuration listener
 		config.addListener(this::onScenePropertiesChanged);
 	}
@@ -373,6 +375,8 @@ public class RealisticRenderer implements Renderer {
         }
 
         resolveFinalTexture(currentTexture);
+
+		GLErrors.debugCheck("frame render");
 
 		renderStats.frameTimeNanos = System.nanoTime() - startTime;
 	}

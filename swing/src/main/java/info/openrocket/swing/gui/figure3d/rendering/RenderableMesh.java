@@ -100,6 +100,8 @@ public class RenderableMesh implements Renderable {
 
 		MemoryUtil.memFree(vertexBuffer);
 		MemoryUtil.memFree(indexBuffer);
+
+		GLErrors.check("mesh buffer upload");
 	}
 
 	/**
