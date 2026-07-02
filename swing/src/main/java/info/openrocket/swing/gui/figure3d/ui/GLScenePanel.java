@@ -39,6 +39,7 @@ import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Point;
@@ -55,6 +56,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -94,6 +96,7 @@ import static org.lwjgl.opengl.GL11.glTexSubImage2D;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 import static org.lwjgl.opengl.GL12.GL_BGRA;
+import static org.lwjgl.opengl.GL21.GL_PIXEL_PACK_BUFFER;
 import static org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
@@ -139,10 +142,36 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
 	private static final boolean SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS =
 			SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
-	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND = SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS;
+	// On macOS the NSOpenGLView layer cannot present frames: its display path runs
+	// -[NSOpenGLContext setView:] which aborts in AppKit's main-thread check when
+	// triggered from the render thread (via glFlush) or from the EDT's CoreAnimation
+	// commits. Instead of presenting through the layer, read the finished frame back
+	// from the offscreen FBO and paint it with Java2D, and keep the native GL layer
+	// hidden so AppKit never displays it.
+	private static final boolean PRESENT_VIA_IMAGE_ON_MACOS = SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS;
+	// The peer-bounds nudge workaround repositioned the native GL layer after
+	// layout changes. With image presentation the layer is permanently hidden and
+	// AWT draws the frame itself, so the nudges (and the resize churn plus flicker
+	// they cause during view switches) are no longer needed.
+	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
+			SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS && !PRESENT_VIA_IMAGE_ON_MACOS;
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
 	private final AtomicInteger paintCallCount = new AtomicInteger(0);
 	private final AtomicInteger swapCallCount = new AtomicInteger(0);
+
+	// Image-presentation state (macOS): the render thread reads the resolved FBO into
+	// a staging image and publishes it here; the EDT paints it in paint(). Two images
+	// are ping-ponged so the EDT never draws one that is being overwritten.
+	private volatile BufferedImage presentedImage;
+	private BufferedImage presentedImageA;
+	private BufferedImage presentedImageB;
+	private ByteBuffer presentReadbackBuffer;
+	private volatile boolean presentedImageHasContent = false;
+	private volatile boolean nativeGLLayerHidden = false;
+	// The strategy's surface outlives the canvas being hidden (macOS heavyweights
+	// share the window surface), so it is disposed on hide and recreated on the
+	// next presented frame; see handleShowingChanged().
+	private volatile BufferStrategy presentStrategy;
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -297,7 +326,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.keyboardHandler = new KeyboardHandler();
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
-		setIgnoreRepaint(true);
+		// With image presentation the frame is painted by AWT via paint(), so
+		// repaint events must be processed rather than ignored.
+		setIgnoreRepaint(!PRESENT_VIA_IMAGE_ON_MACOS);
 
 		addHierarchyListener(e -> {
 			long changeFlags = e.getChangeFlags();
@@ -307,6 +338,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			if ((changeFlags & HierarchyEvent.SHOWING_CHANGED) != 0) {
 				handleShowingChanged();
+				// lwjgl3-awt's own hierarchy listener un-hides the native GL layer on
+				// every showing change; re-hide it afterwards (invokeLater runs after
+				// all hierarchy listeners of this event have executed).
+				if (PRESENT_VIA_IMAGE_ON_MACOS && nativeGLLayerHidden) {
+					SwingUtilities.invokeLater(this::hideNativeGLLayer);
+				}
 			}
 		});
 
@@ -484,10 +521,38 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		peerBoundsSyncAttempts.set(0);
 		if (!isShowing()) {
 			startupRecoveryGeneration.incrementAndGet();
+			if (PRESENT_VIA_IMAGE_ON_MACOS) {
+				// The last presented frame otherwise stays on screen over the view
+				// that replaced this canvas (e.g. the 2D card): release the strategy
+				// surface and repaint the visible ancestor so the region is redrawn.
+				BufferStrategy strategy = presentStrategy;
+				presentStrategy = null;
+				if (strategy != null) {
+					strategy.dispose();
+				}
+				repaintShowingAncestor();
+				Timer repairTimer = new Timer(100, evt -> {
+					if (!isShowing()) {
+						repaintShowingAncestor();
+					}
+				});
+				repairTimer.setRepeats(false);
+				repairTimer.start();
+			}
 			return;
 		}
 
 		beginVisibleFrameRecovery();
+	}
+
+	private void repaintShowingAncestor() {
+		Container ancestor = getParent();
+		while (ancestor != null && !ancestor.isShowing()) {
+			ancestor = ancestor.getParent();
+		}
+		if (ancestor != null) {
+			ancestor.repaint();
+		}
 	}
 
 	@Override
@@ -990,6 +1055,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				// Mark initialization complete - allows resize/render operations to proceed
 				glInitialized = true;
 				glInitLatch.countDown();
+
+				if (PRESENT_VIA_IMAGE_ON_MACOS) {
+					// The native GL layer must never be displayed; frames are painted
+					// via paint() instead. Hide it once the view exists.
+					SwingUtilities.invokeLater(this::hideNativeGLLayer);
+				}
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
@@ -1234,7 +1305,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			// --- Main Display Rendering (if not exporting) --
 			renderer.render(sceneView, null, true);
-			renderer.presentResolvedToCurrentFramebuffer();
+			if (PRESENT_VIA_IMAGE_ON_MACOS) {
+				presentFrameViaImage(renderer);
+			} else {
+				renderer.presentResolvedToCurrentFramebuffer();
+			}
 			startupFrameVisible = sampleStartupFrameVisibilityIfNeeded(renderer);
 
 			// --- 2D HUD Rendering - only update texture if needed ---
@@ -1248,32 +1323,37 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					boolean highPriority = hudPanelNeedsRepaint && !cameraIsMoving;
 					hudRepaintRequested = requestHudRepaint(highPriority);
 				}
-				uploadHudTextureIfReady();
 				if (hudRepaintRequested) {
 					hudNeedsUpdate = false;
 				}
 
-				if (hudTexture != null && hudShader != null) {
-					// Set GL state for 2D rendering
-					glDisable(GL_DEPTH_TEST);
-					glEnable(GL_BLEND);
-					glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+				// With image presentation the HUD image is composited in paint()
+				// instead of being uploaded and drawn as a GL overlay.
+				if (!PRESENT_VIA_IMAGE_ON_MACOS) {
+					uploadHudTextureIfReady();
 
-					hudShader.use();
+					if (hudTexture != null && hudShader != null) {
+						// Set GL state for 2D rendering
+						glDisable(GL_DEPTH_TEST);
+						glEnable(GL_BLEND);
+						glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
+						hudShader.use();
 
-					glBindVertexArray(hudVao);
-					glDrawArrays(GL_TRIANGLES, 0, 6);
-					glBindVertexArray(0);
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
 
-					// Restore GL state
-					glEnable(GL_DEPTH_TEST);
-					glDisable(GL_BLEND);
+						glBindVertexArray(hudVao);
+						glDrawArrays(GL_TRIANGLES, 0, 6);
+						glBindVertexArray(0);
+
+						// Restore GL state
+						glEnable(GL_DEPTH_TEST);
+						glDisable(GL_BLEND);
+					}
+					// HUD rendering binds textures directly; reset cached state before next 3D frame.
+					renderer.resetTextureState();
 				}
-				// HUD rendering binds textures directly; reset cached state before next 3D frame.
-				renderer.resetTextureState();
 			}
 			shouldSwap = true;
 		} catch (Exception ex) {
@@ -1289,6 +1369,208 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 				visibleFrameRecoveryPending = !startupFrameVisible;
 			}
+		}
+	}
+
+	/**
+	 * Reads the finished frame back from the renderer's resolved FBO and publishes
+	 * it for {@link #paint(Graphics)} to draw. Used on macOS, where presenting via
+	 * the NSOpenGLView layer aborts inside AppKit (see PRESENT_VIA_IMAGE_ON_MACOS).
+	 * Runs on the render thread with the GL context current.
+	 */
+	private void presentFrameViaImage(GLRenderer renderer) {
+		int width = renderer.getRenderWidth();
+		int height = renderer.getRenderHeight();
+		if (width <= 0 || height <= 0) {
+			return;
+		}
+
+		int requiredBytes = width * height * 4;
+		if (presentReadbackBuffer == null || presentReadbackBuffer.capacity() < requiredBytes) {
+			if (presentReadbackBuffer != null) {
+				MemoryUtil.memFree(presentReadbackBuffer);
+			}
+			presentReadbackBuffer = MemoryUtil.memAlloc(requiredBytes);
+		}
+		presentReadbackBuffer.clear();
+
+		int previousFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
+		int previousReadBuffer = glGetInteger(GL_READ_BUFFER);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderer.getResolvedFramebufferId());
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		// BGRA + INT_8_8_8_8_REV packs each pixel as a native-order int that matches
+		// the TYPE_INT_* layout, so rows can be bulk-copied without per-pixel swizzling.
+		glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, presentReadbackBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
+		glReadBuffer(previousReadBuffer);
+
+		IntBuffer pixels = presentReadbackBuffer.asIntBuffer();
+		presentedImageHasContent = pixels.get((height / 2) * width + width / 2) != 0;
+
+		BufferedImage staging = nextPresentStagingImage(width, height);
+		int[] target = ((DataBufferInt) staging.getRaster().getDataBuffer()).getData();
+		for (int y = 0; y < height; y++) {
+			// GL rows are bottom-up; images are top-down
+			pixels.get(target, (height - 1 - y) * width, width);
+		}
+
+		presentedImage = staging;
+		showPresentedFrame();
+	}
+
+	/**
+	 * Draws the published frame to the screen through a double-buffered
+	 * {@link BufferStrategy}, directly from the render thread. Going through
+	 * repaint()/paint() instead makes the view flicker during interaction: the
+	 * peer erases the damaged region to the background color before paint()
+	 * gets to draw the frame.
+	 */
+	private void showPresentedFrame() {
+		if (!isShowing()) {
+			// A frame finishing right as the user switches to the 2D view must not
+			// blit over the newly shown card.
+			return;
+		}
+		try {
+			BufferStrategy strategy = presentStrategy;
+			if (strategy == null) {
+				if (!isDisplayable()) {
+					return;
+				}
+				createBufferStrategy(2);
+				strategy = getBufferStrategy();
+				presentStrategy = strategy;
+				if (strategy == null) {
+					repaint();
+					return;
+				}
+			}
+			do {
+				do {
+					Graphics g = strategy.getDrawGraphics();
+					try {
+						paintPresentedFrame(g);
+					} finally {
+						g.dispose();
+					}
+				} while (strategy.contentsRestored());
+				if (!isShowing()) {
+					return;
+				}
+				strategy.show();
+			} while (strategy.contentsLost());
+		} catch (Exception e) {
+			// Peer not ready for a buffer strategy yet — fall back to a plain repaint.
+			repaint();
+		}
+	}
+
+	/**
+	 * Returns the ping-pong image the render thread may write to (the one the EDT
+	 * is not currently painting), recreating it if the frame size changed.
+	 */
+	private BufferedImage nextPresentStagingImage(int width, int height) {
+		BufferedImage current = presentedImage;
+		BufferedImage staging = (current == presentedImageA) ? presentedImageB : presentedImageA;
+		if (staging == null || staging.getWidth() != width || staging.getHeight() != height) {
+			// INT_RGB so the frame is drawn opaque, ignoring the FBO's alpha channel
+			staging = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			if (current == presentedImageA) {
+				presentedImageB = staging;
+			} else {
+				presentedImageA = staging;
+			}
+		}
+		return staging;
+	}
+
+	/**
+	 * Composites the latest presented frame and the HUD into the given graphics.
+	 */
+	private void paintPresentedFrame(Graphics g) {
+		int width = getWidth();
+		int height = getHeight();
+		BufferedImage image = presentedImage;
+		if (image == null) {
+			g.setColor(getBackground());
+			g.fillRect(0, 0, width, height);
+			return;
+		}
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		// The image is at framebuffer (HiDPI) resolution; drawing at the logical
+		// size maps it 1:1 onto the physical pixels of the scaled Graphics.
+		g2.drawImage(image, 0, 0, width, height, null);
+		if (hudEnabled) {
+			synchronized (hudLock) {
+				if (hudImage != null) {
+					g2.drawImage(hudImage, 0, 0, width, height, null);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void paint(Graphics g) {
+		if (!PRESENT_VIA_IMAGE_ON_MACOS) {
+			super.paint(g);
+			return;
+		}
+		// Expose/damage repaint while the render loop is idle: draw the last frame.
+		paintPresentedFrame(g);
+	}
+
+	@Override
+	public void update(Graphics g) {
+		if (PRESENT_VIA_IMAGE_ON_MACOS) {
+			// Skip AWT's implicit background clear to avoid flicker between frames.
+			paint(g);
+		} else {
+			super.update(g);
+		}
+	}
+
+	/**
+	 * Hides the CALayer of the NSOpenGLView that lwjgl3-awt attaches over this
+	 * canvas. The layer never receives frames in image-presentation mode, and any
+	 * attempt by AppKit to display it (from the render thread or from the EDT's
+	 * CoreAnimation commits) trips a main-thread assertion on recent macOS.
+	 * Hiding it both reveals the Java2D-painted frame and prevents those aborts.
+	 */
+	private void hideNativeGLLayer() {
+		if (!PRESENT_VIA_IMAGE_ON_MACOS || platformCanvas == null) {
+			return;
+		}
+		try {
+			// lwjgl3-awt installs its own hierarchy listener that un-hides the GL
+			// layer whenever the canvas becomes showing again, which flashes the
+			// empty (white) layer during 2D/3D view switches. Remove it: the layer
+			// must never become visible in image-presentation mode.
+			for (java.awt.event.HierarchyListener listener : getHierarchyListeners()) {
+				if (listener.getClass().getName().startsWith("org.lwjgl.opengl.awt.")) {
+					removeHierarchyListener(listener);
+				}
+			}
+
+			java.lang.reflect.Field viewField = platformCanvas.getClass().getDeclaredField("view");
+			viewField.setAccessible(true);
+			long view = ((Number) viewField.get(platformCanvas)).longValue();
+			if (view == 0L) {
+				return;
+			}
+			long objcMsgSend = org.lwjgl.system.macosx.ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend");
+			long layer = org.lwjgl.system.JNI.invokePPP(view,
+					org.lwjgl.system.macosx.ObjCRuntime.sel_getUid("layer"), objcMsgSend);
+			if (layer == 0L) {
+				return;
+			}
+			org.lwjgl.system.JNI.invokePPPV(layer,
+					org.lwjgl.system.macosx.ObjCRuntime.sel_getUid("setHidden:"), 1L, objcMsgSend);
+			org.lwjgl.awt.MacOSX.caFlush();
+			nativeGLLayerHidden = true;
+		} catch (Throwable t) {
+			log.warn("Could not hide native GL layer; the 3D view may stay blank: {}", t.toString());
 		}
 	}
 
@@ -1511,7 +1793,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (startupFrameDetectionComplete) {
 			return true;
 		}
-		boolean visible = detectStartupFrameVisibility(renderer);
+		// With image presentation, whatever was read back is exactly what paint()
+		// shows — no need for (and no meaning in) probing the default framebuffer.
+		boolean visible = PRESENT_VIA_IMAGE_ON_MACOS
+				? presentedImageHasContent
+				: detectStartupFrameVisibility(renderer);
 		if (visible) {
 			if (++consecutiveVisibleStartupFrames >= STARTUP_VISIBILITY_CONFIRM_FRAMES
 					|| startupBlankFramebufferRecoveryRequested.get()) {
@@ -1724,6 +2010,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (renderLockAcquired) {
 				try {
 					cleanupGLResourcesInContext();
+					// Only safe to free while no render is in flight — the render
+					// thread reads into this buffer during presentFrameViaImage().
+					if (presentReadbackBuffer != null) {
+						MemoryUtil.memFree(presentReadbackBuffer);
+						presentReadbackBuffer = null;
+					}
 				} finally {
 					RENDER_LOCK.unlock();
 				}
