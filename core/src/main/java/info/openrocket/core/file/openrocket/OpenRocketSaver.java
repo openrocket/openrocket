@@ -461,25 +461,25 @@ public class OpenRocketSaver extends RocketSaver {
 		if (data != null) {
 			String str = "<flightdata";
 			if (!Double.isNaN(data.getMaxAltitude()))
-				str += " maxaltitude=\"" + TextUtil.doubleToString(data.getMaxAltitude()) + "\"";
+				str += " maxaltitude=\"" + TextUtil.doubleToString(data.getMaxAltitude(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getMaxVelocity()))
-				str += " maxvelocity=\"" + TextUtil.doubleToString(data.getMaxVelocity()) + "\"";
+				str += " maxvelocity=\"" + TextUtil.doubleToString(data.getMaxVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getMaxAcceleration()))
-				str += " maxacceleration=\"" + TextUtil.doubleToString(data.getMaxAcceleration()) + "\"";
+				str += " maxacceleration=\"" + TextUtil.doubleToString(data.getMaxAcceleration(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getMaxMachNumber()))
-				str += " maxmach=\"" + TextUtil.doubleToString(data.getMaxMachNumber()) + "\"";
+				str += " maxmach=\"" + TextUtil.doubleToString(data.getMaxMachNumber(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getTimeToApogee()))
-				str += " timetoapogee=\"" + TextUtil.doubleToString(data.getTimeToApogee()) + "\"";
+				str += " timetoapogee=\"" + TextUtil.doubleToString(data.getTimeToApogee(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getFlightTime()))
-				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime()) + "\"";
+				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getGroundHitVelocity()))
-				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity()) + "\"";
+				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getLaunchRodVelocity()))
-				str += " launchrodvelocity=\"" + TextUtil.doubleToString(data.getLaunchRodVelocity()) + "\"";
+				str += " launchrodvelocity=\"" + TextUtil.doubleToString(data.getLaunchRodVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getDeploymentVelocity()))
-				str += " deploymentvelocity=\"" + TextUtil.doubleToString(data.getDeploymentVelocity()) + "\"";
+				str += " deploymentvelocity=\"" + TextUtil.doubleToString(data.getDeploymentVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getOptimumDelay()))
-				str += " optimumdelay=\"" + TextUtil.doubleToString(data.getOptimumDelay()) + "\"";
+				str += " optimumdelay=\"" + TextUtil.doubleToString(data.getOptimumDelay(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			str += ">";
 			writeln(str);
 			indent++;
@@ -690,7 +690,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime()) + "\" "
+			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime(), TextUtil.STORAGE_DECIMAL_PLACES) + "\" "
 				+ "type=\"" + enumToXMLName(event.getType()) + "\" "
 				+ "id=\"" + event.getID().toString() + "\"";
 			
@@ -760,7 +760,7 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int j = 0; j < data.size(); j++) {
 			if (j > 0)
 				sb.append(",");
-			sb.append(TextUtil.doubleToString(data.get(j).get(index)));
+			sb.append(TextUtil.doubleToString(data.get(j).get(index), TextUtil.STORAGE_DECIMAL_PLACES));
 		}
 		sb.append("</datapoint>");
 		writeln(sb.toString());

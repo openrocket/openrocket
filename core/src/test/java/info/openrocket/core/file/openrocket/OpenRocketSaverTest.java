@@ -14,7 +14,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import info.openrocket.core.ServicesForTesting;
@@ -26,6 +30,10 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.PlotAppearance;
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.simulation.FlightData;
+import info.openrocket.core.simulation.FlightDataBranch;
+import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.GeneralRocketSaver;
@@ -464,7 +472,6 @@ public class OpenRocketSaverTest {
 		assertEquals(3, loadedTCM.getTimePoints().length);
 	}
 	
-
 	@Test
 	public void testPlotAppearanceSavedAndLoaded() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -571,11 +578,114 @@ public class OpenRocketSaverTest {
 		assertEquals(LineStyle.DASHDOT, appearance.getLineStyle());
 	}
 
+	/**
+	 * Verifies that re-saving an example file with STORAGE_DECIMAL_PLACES=6 keeps the
+	 * compressed file size within a reasonable multiple of the original (which was saved
+	 * with the old 3dp format).  This acts as a regression guard: if precision or data
+	 * volume accidentally balloons, this test fails before users notice multi-MB files.
+	 *
+	 * Baseline (3dp, on-disk): "A simple model rocket.ork" ≈ 53,634 B compressed,
+	 * 2,580 datapoints.  With 6dp the uncompressed XML grows slightly, but ZIP's
+	 * DEFLATE compression keeps the compressed delta much smaller.
+	 */
+	@Test
+	public void testSavedFileSizeWithSimulationData() {
+		String resourcePath = "/datafiles/examples/A simple model rocket.ork";
+		URL url = OpenRocketSaverTest.class.getResource(resourcePath);
+		assertNotNull(url, "Example file not found on classpath: " + resourcePath);
+
+		File originalFile;
+		try {
+			originalFile = new File(new URI(url.toString().replace(" ", "%20")));
+		} catch (URISyntaxException e) {
+			fail("Could not resolve example file URI: " + e.getMessage());
+			return;
+		}
+		long originalSize = originalFile.length();  // ~53,634 B (3dp format, on-disk)
+		assertTrue(originalSize > 0, "Original example file is empty or missing");
+
+		OpenRocketDocument doc = loadRocket(originalFile.getPath());
+		assertNotNull(doc);
+
+		// Save without simulation data — establishes the component-only baseline.
+		StorageOptions optsNoSim = new StorageOptions();
+		optsNoSim.setSaveSimulationData(false);
+		long sizeNoSim = saveRocketAsZip(doc, optsNoSim).length();
+
+		// Save with simulation data — datapoints written at STORAGE_DECIMAL_PLACES=6.
+		StorageOptions optsWithSim = new StorageOptions();
+		optsWithSim.setSaveSimulationData(true);
+		long sizeWithSim = saveRocketAsZip(doc, optsWithSim).length();
+
+		// Simulation data must actually contribute to the file size.
+		assertTrue(sizeWithSim > sizeNoSim,
+				String.format("File with sim data (%,d B) should exceed file without (%,d B)", sizeWithSim, sizeNoSim));
+
+		// With 6dp the file grows compared to the 3dp original, but ZIP compression
+		// keeps growth well bounded.  4× is generous enough to handle the precision
+		// increase while catching accidental format regressions (e.g. STORAGE_DECIMAL_PLACES=100).
+		assertTrue(sizeWithSim < originalSize * 4,
+				String.format("Re-saved file (%,d B) exceeds 4× the original 3dp file (%,d B); "
+						+ "check STORAGE_DECIMAL_PLACES or unexpected data-volume changes", sizeWithSim, originalSize));
+	}
+
+	@Test
+	public void testDatapointPrecision() {
+		// Build a minimal rocket
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+		BodyTube tube = new BodyTube(0.3, 0.025, 0.002);
+		stage.addChild(tube);
+		rocket.enableEvents();
+		OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		// A time value in the 0.001–0.1 s range: %.3f would store "0.012" (off by ~0.345 ms)
+		// but STORAGE_DECIMAL_PLACES=6 stores "0.012346" (within 1 µs of the original).
+		double precisionValue = 0.012345678;
+
+		FlightDataBranch branch = new FlightDataBranch("Sustainer",
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE);
+		branch.addPoint();
+		branch.setValue(FlightDataType.TYPE_TIME, precisionValue);
+		branch.setValue(FlightDataType.TYPE_ALTITUDE, 1000.123456789);
+		branch.immute();
+
+		FlightData flightData = new FlightData(branch);
+
+		Simulation sim = new Simulation(doc, rocket, Simulation.Status.UPTODATE, "precision test",
+				new SimulationOptions(), Collections.emptyList(), flightData);
+		doc.addSimulation(sim);
+
+		StorageOptions opts = new StorageOptions();
+		opts.setSaveSimulationData(true);
+		File file = saveRocket(doc, opts);
+
+		OpenRocketDocument loaded = loadRocket(file.getPath());
+		assertNotNull(loaded);
+		assertFalse(loaded.getSimulations().isEmpty());
+
+		FlightData loadedData = loaded.getSimulations().get(0).getSimulatedData();
+		assertNotNull(loadedData, "Simulation data must be saved when saveSimulationData=true");
+
+		FlightDataBranch loadedBranch = loadedData.getBranch(0);
+		assertNotNull(loadedBranch);
+
+		List<Double> times = loadedBranch.get(FlightDataType.TYPE_TIME);
+		assertNotNull(times);
+		assertFalse(times.isEmpty());
+
+		// Tolerance of 1e-6 s (1 µs): passes with STORAGE_DECIMAL_PLACES=6,
+		// would fail with the old DEFAULT_DECIMAL_PLACES=3 which stores only "0.012".
+		assertEquals(precisionValue, times.get(0), 1e-6,
+				"Time value lost precision in .ork round-trip — check STORAGE_DECIMAL_PLACES");
+	}
+
 	////////////////////////////////
 	/*
 	 * Utility Functions
 	 */
-	
+
 	private int getCalculatedFileVersion(OpenRocketDocument rocketDoc) {
 		int fileVersion = this.saver.testAccessor_calculateNecessaryFileVersion(rocketDoc, null);
 		return fileVersion;
