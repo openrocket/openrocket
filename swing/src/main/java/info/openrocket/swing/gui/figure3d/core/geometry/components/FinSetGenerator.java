@@ -17,6 +17,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +36,13 @@ import java.util.Map;
  */
 public class FinSetGenerator {
 
+	private static final Logger log = LoggerFactory.getLogger(FinSetGenerator.class);
 	private static final GeometryFactory geometryFactory = new GeometryFactory();
-	private static final float EPSILON = 1e-9f;
+	private static final float POINT_EPSILON = 1e-9f;
+	private static final double PLANFORM_INTERSECTION_EPSILON = 1e-6;
+	private static final float PLANFORM_SPAN_EPSILON = 1e-6f;
+	private static final float NORMAL_LENGTH_SQUARED_EPSILON = 1e-12f;
+	private static final double TRIANGULATION_WELD_EPSILON = 1e-6;
 
 	// Data structure to store curved root connection information
 	private static class CurvedRootInfo {
@@ -104,8 +111,8 @@ public class FinSetGenerator {
 		}
 		float spanX = maxX - minX;
 		float spanY = maxY - minY;
-		if (Math.abs(spanX) < EPSILON) spanX = 1.0f;
-		if (Math.abs(spanY) < EPSILON) spanY = 1.0f;
+		if (Math.abs(spanX) < POINT_EPSILON) spanX = 1.0f;
+		if (Math.abs(spanY) < POINT_EPSILON) spanY = 1.0f;
 
 		if (finShape.length >= 3) {
 			FinMeshData finMeshData = createShapeMesh(finShape, finSet, minX, spanX, minY, spanY, false, parent,
@@ -188,7 +195,6 @@ public class FinSetGenerator {
 				// --- Clamp X to fin span at this Y for ALL rings except the base (j==filletSegments) ---
 				float clampedX = currentX;
 				if (j < filletSegments) {
-					final double EPS = 1e-6;
 					float yRow = y_ring;
 
 					float xMin = Float.POSITIVE_INFINITY;
@@ -201,18 +207,18 @@ public class FinSetGenerator {
 						CoordinateIF b = shapePoints[(k + 1) % shapePoints.length];
 						double ya = a.getY(), yb = b.getY();
 
-						double ylo = Math.min(ya, yb) - EPS;
-						double yhi = Math.max(ya, yb) + EPS;
+						double ylo = Math.min(ya, yb) - PLANFORM_INTERSECTION_EPSILON;
+						double yhi = Math.max(ya, yb) + PLANFORM_INTERSECTION_EPSILON;
 						if (yRow < ylo || yRow > yhi) continue;
 
-						if (Math.abs(ya - yb) < EPS) {
+						if (Math.abs(ya - yb) < PLANFORM_INTERSECTION_EPSILON) {
 							hadHorizontal = true;
 							float xa = (float) a.getX(), xb = (float) b.getX();
 							xMin = Math.min(xMin, Math.min(xa, xb));
 							xMax = Math.max(xMax, Math.max(xa, xb));
 						} else {
 							double te = (yRow - ya) / (yb - ya);
-							if (te >= -EPS && te <= 1.0 + EPS) {
+							if (te >= -PLANFORM_INTERSECTION_EPSILON && te <= 1.0 + PLANFORM_INTERSECTION_EPSILON) {
 								float xHit = (float) (a.getX() + te * (b.getX() - a.getX()));
 								xMin = Math.min(xMin, xHit);
 								xMax = Math.max(xMax, xHit);
@@ -221,7 +227,7 @@ public class FinSetGenerator {
 						}
 					}
 
-					boolean spanOK = (hadHorizontal || hits >= 2) && (xMax - xMin) > 1e-6f
+					boolean spanOK = (hadHorizontal || hits >= 2) && (xMax - xMin) > PLANFORM_SPAN_EPSILON
 							&& Float.isFinite(xMin) && Float.isFinite(xMax);
 					if (spanOK) {
 						if (clampedX < xMin) clampedX = xMin;
@@ -449,7 +455,7 @@ public class FinSetGenerator {
 				(float) shapePoints[prevIndex].getX(), (float) shapePoints[prevIndex].getY(), -thickness / 2f);
 		Vector3f edge = new Vector3f(p2Front).sub(p1Front);
 		Vector3f normal = edge.cross(new Vector3f(p1Back).sub(p1Front));
-		if (normal.lengthSquared() < 1.0e-12f) {
+		if (normal.lengthSquared() < NORMAL_LENGTH_SQUARED_EPSILON) {
 			return null;
 		}
 		return normal.normalize();
@@ -494,7 +500,7 @@ public class FinSetGenerator {
 			CoordinateIF p1 = shapePoints[i];
 			CoordinateIF p2 = shapePoints[(i + 1) % shapePoints.length];
 
-			if (new Vector3f((float)p1.getX(), (float)p1.getY(), 0).equals(new Vector3f((float)p2.getX(), (float)p2.getY(), 0), EPSILON)) {
+			if (new Vector3f((float)p1.getX(), (float)p1.getY(), 0).equals(new Vector3f((float)p2.getX(), (float)p2.getY(), 0), POINT_EPSILON)) {
 				segmentTypes[i] = SegmentType.DEGENERATE;
 				segmentLengths[i] = 0;
 				continue;
@@ -502,7 +508,7 @@ public class FinSetGenerator {
 			segmentLengths[i] = (float) Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
 
 			// A segment is a root if both its points are in the explicit root point set.
-			if (isRootPoint(p1, rootPoints, EPSILON) && isRootPoint(p2, rootPoints, EPSILON)) {
+			if (isRootPoint(p1, rootPoints, POINT_EPSILON) && isRootPoint(p2, rootPoints, POINT_EPSILON)) {
 				segmentTypes[i] = SegmentType.ROOT;
 			} else {
 				segmentTypes[i] = SegmentType.SIDE;
@@ -845,7 +851,7 @@ public class FinSetGenerator {
 			Vector3f normal = v_link.cross(v_edge).normalize();
 
 			// Fallback for co-linear points that can occur at the seam
-			if (Float.isNaN(normal.x) || normal.length() < EPSILON) {
+			if (Float.isNaN(normal.x) || normal.length() < POINT_EPSILON) {
 				Vector3f p_curr_normal = meshData.vertices.get(currentEdgeIndices.get(i)).normal;
 				Vector3f p_prev_normal = meshData.vertices.get(prevEdgeIndices.get(i)).normal;
 				normal = new Vector3f(p_curr_normal).add(p_prev_normal).normalize();
@@ -956,7 +962,6 @@ public class FinSetGenerator {
 	}
 
 	private static float[] xRangeOnPolygonAtY(Coordinate[] poly, float y) {
-		final double EPS = 1e-6;
 		float xMin = Float.POSITIVE_INFINITY, xMax = Float.NEGATIVE_INFINITY;
 
 		for (int k = 0; k < poly.length; k++) {
@@ -964,16 +969,16 @@ public class FinSetGenerator {
 			double ya = a.y, yb = b.y;
 
 			// Check if horizontal ray at Y crosses segment [a,b]
-			double ylo = Math.min(ya, yb) - EPS, yhi = Math.max(ya, yb) + EPS;
+			double ylo = Math.min(ya, yb) - PLANFORM_INTERSECTION_EPSILON, yhi = Math.max(ya, yb) + PLANFORM_INTERSECTION_EPSILON;
 			if (y < ylo || y > yhi) continue;
 
-			if (Math.abs(ya - yb) < EPS) {
+			if (Math.abs(ya - yb) < PLANFORM_INTERSECTION_EPSILON) {
 				// Horizontal edge: include its X extents
 				xMin = Math.min(xMin, (float)Math.min(a.x, b.x));
 				xMax = Math.max(xMax, (float)Math.max(a.x, b.x));
 			} else {
 				double t = (y - ya) / (yb - ya);
-				if (t >= -EPS && t <= 1 + EPS) {
+				if (t >= -PLANFORM_INTERSECTION_EPSILON && t <= 1 + PLANFORM_INTERSECTION_EPSILON) {
 					float x = (float)(a.x + t * (b.x - a.x));
 					xMin = Math.min(xMin, x);
 					xMax = Math.max(xMax, x);
@@ -985,9 +990,9 @@ public class FinSetGenerator {
 	}
 
 	private static List<Integer> triangulateWithJTS(CoordinateIF[] polygonPoints) {
-		Map<String, Integer> coordIndexMap = new HashMap<>();
+		Map<Long, Integer> coordIndexMap = new HashMap<>();
 		for (int i = 0; i < polygonPoints.length; i++) {
-			coordIndexMap.put(polygonPoints[i].getX() + "," + polygonPoints[i].getY(), i);
+			coordIndexMap.putIfAbsent(quantizedCoordinateKey(polygonPoints[i].getX(), polygonPoints[i].getY()), i);
 		}
 
 		org.locationtech.jts.geom.Coordinate[] jtsCoords = new org.locationtech.jts.geom.Coordinate[polygonPoints.length + 1];
@@ -1002,20 +1007,41 @@ public class FinSetGenerator {
 
 		Geometry triangles = builder.getTriangles(geometryFactory);
 		List<Integer> indices = new ArrayList<>();
+		int droppedTriangles = 0;
 
 		for (int i = 0; i < triangles.getNumGeometries(); i++) {
 			Polygon tri = (Polygon) triangles.getGeometryN(i);
 			if (polygon.contains(tri.getInteriorPoint())) {
 				org.locationtech.jts.geom.Coordinate[] triCoords = tri.getCoordinates();
+				int[] mappedIndices = new int[3];
+				boolean mapped = true;
 				for (int j = 0; j < 3; j++) {
-					String key = triCoords[j].x + "," + triCoords[j].y;
-					if (coordIndexMap.containsKey(key)) {
-						indices.add(coordIndexMap.get(key));
+					Integer mappedIndex = coordIndexMap.get(quantizedCoordinateKey(triCoords[j].x, triCoords[j].y));
+					if (mappedIndex == null) {
+						mapped = false;
+						break;
 					}
+					mappedIndices[j] = mappedIndex;
+				}
+				if (mapped) {
+					indices.add(mappedIndices[0]);
+					indices.add(mappedIndices[1]);
+					indices.add(mappedIndices[2]);
+				} else {
+					droppedTriangles++;
 				}
 			}
 		}
+		if (droppedTriangles > 0) {
+			log.warn("Dropped {} fin triangulation triangle(s) because JTS returned unmapped vertices", droppedTriangles);
+		}
 		return indices;
+	}
+
+	private static long quantizedCoordinateKey(double x, double y) {
+		long quantizedX = Math.round(x / TRIANGULATION_WELD_EPSILON);
+		long quantizedY = Math.round(y / TRIANGULATION_WELD_EPSILON);
+		return (quantizedX << 32) ^ (quantizedY & 0xffffffffL);
 	}
 
 	private static class FinMeshData {

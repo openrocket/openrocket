@@ -2,7 +2,9 @@ package info.openrocket.swing.gui.figure3d.core.geometry.components;
 
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
@@ -106,6 +108,33 @@ class FinSetGeneratorTest extends BaseTestCase {
 			assertEquals(expectedNormal.x, vertex.normal.x, EPSILON, "Trailing cap should inherit the edge normal");
 			assertEquals(expectedNormal.y, vertex.normal.y, EPSILON, "Trailing cap should inherit the edge normal");
 			assertEquals(expectedNormal.z, vertex.normal.z, EPSILON, "Trailing cap should inherit the edge normal");
+		}
+	}
+
+	@Test
+	void triangulatesFinWithCoincidentPlanformPoints() {
+		BodyTube parent = new BodyTube();
+		parent.setOuterRadius(0.05);
+		parent.setLength(0.5);
+
+		FreeformFinSet finSet = new FreeformFinSet();
+		parent.addChild(finSet);
+		finSet.setThickness(0.004);
+		finSet.setPoints(new CoordinateIF[] {
+				Coordinate.ZERO,
+				new Coordinate(0.06, 0.12),
+				new Coordinate(0.0600003, 0.1200002),
+				new Coordinate(0.16, 0.05),
+				new Coordinate(0.22, 0.0)
+		}, false);
+
+		Mesh mesh = FinSetGenerator.create(finSet, parent, RenderingConfiguration.builder().build());
+		assertNotNull(mesh);
+		assertFalse(mesh.getVertices().isEmpty());
+		assertFalse(mesh.getIndices().isEmpty());
+		assertEquals(0, mesh.getIndices().size() % 3, "Fin mesh should contain complete triangles");
+		for (int index : mesh.getIndices()) {
+			assertTrue(index >= 0 && index < mesh.getVertices().size(), "Triangle index should refer to a vertex");
 		}
 	}
 
