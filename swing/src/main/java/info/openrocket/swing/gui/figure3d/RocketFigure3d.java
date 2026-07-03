@@ -47,8 +47,8 @@ import java.util.stream.Collectors;
  * Swing adapter for the new GLScenePanel renderer.
  *
  * <p>The previous adapter introduced extra render threads and schedulers on top of
- * AWTGLCanvas. The embedded Swing path still prefers the EDT by default, but macOS
- * uses a dedicated scheduler to avoid UI stalls when the native canvas blocks.</p>
+ * AWTGLCanvas. The embedded Swing path uses a shared scheduler so all canvases
+ * serialize native drawing-surface access.</p>
  */
 public class RocketFigure3d extends JPanel implements SharedCanvasRenderScheduler.Client {
 
@@ -328,10 +328,14 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (!pendingCanvasRebuild.compareAndSet(panel, null)) {
 			return false;
 		}
-		try {
-			SwingUtilities.invokeAndWait(() -> rebuildCanvasAfterBlankDefaultFramebuffer(panel));
-		} catch (Exception e) {
-			log.warn("Failed to rebuild blank 3D canvas", e);
+		if (SwingUtilities.isEventDispatchThread()) {
+			rebuildCanvasAfterBlankDefaultFramebuffer(panel);
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(() -> rebuildCanvasAfterBlankDefaultFramebuffer(panel));
+			} catch (Exception e) {
+				log.warn("Failed to rebuild blank 3D canvas", e);
+			}
 		}
 		return true;
 	}

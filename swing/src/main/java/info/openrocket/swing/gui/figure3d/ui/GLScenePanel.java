@@ -318,6 +318,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public GLScenePanel(Rocket rocket, HUDPanel hudPanel, boolean enablePeerBoundsSync) {
 		super(createGLData());
+		if (PRESENT_VIA_IMAGE_ON_MACOS) {
+			platformCanvas = new MacOSXImageSafeGLCanvas();
+		}
 
 		this.rocket = rocket;
 		this.hudPanel = hudPanel;
@@ -962,6 +965,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	protected void beforeRender() {
 		super.beforeRender();
+		if (PRESENT_VIA_IMAGE_ON_MACOS && !nativeGLLayerHidden) {
+			// AWTGLCanvas creates the NSOpenGLView in beforeRender(). Hide the
+			// native layer immediately, before the EDT can commit a CoreAnimation
+			// transaction that tries to display it and calls setView: off AppKit.
+			hideNativeGLLayer();
+		}
 		// When multiple AWTGLCanvas instances are rendered from the same thread (e.g. on macOS),
 		// the active OpenGL context changes between calls. LWJGL requires updating the
 		// thread-local capabilities to match the current context.
@@ -1567,7 +1576,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			org.lwjgl.system.JNI.invokePPPV(layer,
 					org.lwjgl.system.macosx.ObjCRuntime.sel_getUid("setHidden:"), 1L, objcMsgSend);
-			org.lwjgl.awt.MacOSX.caFlush();
+			// Do not force CATransaction.flush() here. On macOS 26 the flush can
+			// synchronously display _NSOpenGLViewBackingLayer on this Java thread,
+			// which calls -[NSOpenGLContext setView:] and aborts outside AppKit's
+			// main thread. The next normal AppKit transaction will commit hidden=true.
 			nativeGLLayerHidden = true;
 		} catch (Throwable t) {
 			log.warn("Could not hide native GL layer; the 3D view may stay blank: {}", t.toString());
