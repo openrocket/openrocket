@@ -75,6 +75,19 @@ public class Texture {
 		GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, textureId);
 	}
 
+	/**
+	 * Releases the GL handle generated at the start of a constructor when loading
+	 * fails partway through, so the handle is not leaked and {@link #bind()} /
+	 * consumers checking {@link #getId()} see an invalid (0) texture instead of a
+	 * half-built one. Only for use before {@code trackCreation} has run.
+	 */
+	private void abandonTexture() {
+		if (textureId != 0) {
+			glDeleteTextures(textureId);
+			textureId = 0;
+		}
+	}
+
 	private static String normalizeResourcePath(String path) {
 		String normalized = path.replace("\\", "/");
 		if (normalized.startsWith("/")) {
@@ -282,6 +295,7 @@ public class Texture {
 			STBImage.stbi_image_free(image);
 			trackCreation("file:" + filePath);
 		} catch (Exception e) {
+			abandonTexture();
 			log.error("Exception while loading texture: {}", e.getMessage());
 		}
 	}
@@ -360,6 +374,9 @@ public class Texture {
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, w.get(0), h.get(0), 0, format, GL_UNSIGNED_BYTE, image);
 				STBImage.stbi_image_free(image);
 			}
+		} catch (RuntimeException e) {
+			abandonTexture();
+			throw e;
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -467,6 +484,9 @@ public class Texture {
 			}
 
 			STBImage.stbi_image_free(atlasBuffer);
+		} catch (RuntimeException e) {
+			abandonTexture();
+			throw e;
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -510,6 +530,9 @@ public class Texture {
 			this.internalFormat = GL_RGB32F;
 			this.format = GL_RGB;
 			STBImage.stbi_image_free(image);
+		} catch (RuntimeException e) {
+			abandonTexture();
+			throw e;
 		}
 
 		// Set these parameters to prevent seams.
@@ -554,6 +577,9 @@ public class Texture {
 			this.format = GL_RGBA;
 			glGenerateMipmap(GL_TEXTURE_2D);
 			STBImage.stbi_image_free(image);
+		} catch (RuntimeException e) {
+			abandonTexture();
+			throw e;
 		} finally {
 			STBImage.stbi_set_flip_vertically_on_load(false);
 		}
