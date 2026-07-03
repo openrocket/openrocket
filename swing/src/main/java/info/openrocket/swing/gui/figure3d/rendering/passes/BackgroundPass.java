@@ -76,9 +76,11 @@ public class BackgroundPass implements RenderPass {
 
     private final GLShader gradientShader;
     private final int gradientVao;
+    private final int gradientVbo;
     private final GLShader imageShader;
     private final GLShader skyboxShader;
     private final int skyboxVao;
+    private final int skyboxVbo;
     private final GLShader hdriShader;
     private final GLShader checkerboardShader;
     private final TextureBinder textureStateManager;
@@ -105,7 +107,7 @@ public class BackgroundPass implements RenderPass {
         float[] gradientQuadVertices = { -1.0f,  1.0f, -1.0f, -1.0f, 1.0f,  1.0f, 1.0f, -1.0f };
         FloatBuffer quadVboBuffer = MemoryUtil.memAllocFloat(gradientQuadVertices.length).put(gradientQuadVertices).flip();
         gradientVao = GL33.glGenVertexArrays();
-        int gradientVbo = GL33.glGenBuffers();
+        gradientVbo = GL33.glGenBuffers();
         GL33.glBindVertexArray(gradientVao);
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, gradientVbo);
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, quadVboBuffer, GL33.GL_STATIC_DRAW);
@@ -136,7 +138,7 @@ public class BackgroundPass implements RenderPass {
                 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f
         };
         skyboxVao = GL33.glGenVertexArrays();
-        int skyboxVbo = GL33.glGenBuffers();
+        skyboxVbo = GL33.glGenBuffers();
         GL33.glBindVertexArray(skyboxVao);
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, skyboxVbo);
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, skyboxVertices, GL33.GL_STATIC_DRAW);
@@ -251,6 +253,8 @@ public class BackgroundPass implements RenderPass {
         hdriShader.cleanup();
         checkerboardShader.cleanup();
         GL33.glDeleteVertexArrays(gradientVao);
+        GL33.glDeleteBuffers(gradientVbo);
         GL33.glDeleteVertexArrays(skyboxVao);
+        GL33.glDeleteBuffers(skyboxVbo);
     }
 }

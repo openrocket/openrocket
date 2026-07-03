@@ -8,8 +8,8 @@ import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.core.geometry.components.CGCaretGenerator;
 import info.openrocket.swing.gui.figure3d.core.geometry.components.CPCaretGenerator;
@@ -79,6 +79,7 @@ public class CaretsPass implements RenderPass {
     private boolean cgValid = false;
     private boolean cpValid = false;
     private final Runnable uiThemeListener;
+    private final StateChangeListener rocketChangeListener;
 
     /**
      * Creates a new carets pass for the given scene and configuration.
@@ -105,7 +106,8 @@ public class CaretsPass implements RenderPass {
         UITheme.Theme.addUIThemeChangeListener(uiThemeListener);
 
         // Add a listener to update positions when the rocket changes
-        this.rocket.addChangeListener(e -> updatePositions());
+        this.rocketChangeListener = e -> updatePositions();
+        this.rocket.addChangeListener(rocketChangeListener);
         // Initial calculation
         updatePositions();
     }
@@ -179,6 +181,7 @@ public class CaretsPass implements RenderPass {
         shader.cleanup();
         cgMesh.cleanup();
         cpMesh.cleanup();
+        rocket.removeChangeListener(rocketChangeListener);
         UITheme.Theme.removeUIThemeChangeListener(uiThemeListener);
     }
 
