@@ -2002,6 +2002,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 			// Set the custom text colors (when set, applies to all text types)
 			extraText.setCustomTextColors(textColor2D, textColor3D);
+			if (figure3d != null) {
+				figure3d.setCustomTextColor(textColor3D);
+			}
 
 			// Set the current view type
 			extraText.set3DView(is3d);

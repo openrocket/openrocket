@@ -124,6 +124,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
 		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
+		this.rocketInfo.set3DView(true);
 		this.hudPanel = new HUDPanel(document, rocketInfo);
 		this.enable3d = is3dEnabled();
 		setLayout(new BorderLayout());
@@ -474,6 +475,12 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			panel.markHudForUpdate();
 			panel.repaint();
 		}
+	}
+
+	public void setCustomTextColor(Color color) {
+		rocketInfo.setCustomTextColors(null, color);
+		rocketInfo.set3DView(true);
+		updateFigure();
 	}
 
 	// Compatibility methods expected by RocketPanel.

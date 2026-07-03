@@ -922,10 +922,10 @@ public class DisplaySettingsDialog extends JDialog {
 
 			// Set the colors directly (bypassing updateTextColors priority logic)
 			rocketPanel.getExtraText().setCustomTextColors(textColor2D, textColor3D);
+			rocketPanel.getFigure3d().setCustomTextColor(textColor3D);
 			// Restore view state (updateTextColors would do this, but we skip it to avoid overwriting colors)
 			rocketPanel.getExtraText().set3DView(currentIs3DView);
 			rocketPanel.getFigure().repaint();
-			rocketPanel.getFigure3d().updateFigure();
 		} else {
 			// Fallback to normal update
 			updateAction.run();
