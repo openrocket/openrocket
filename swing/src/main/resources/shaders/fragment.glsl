@@ -383,10 +383,7 @@ void main()
         finalColorRGBA.rgb *= 0.78;
     }
 
-    // 4. Apply selection
-    if (isSelected) {
-        finalColorRGBA = mix(finalColorRGBA, selectionColor, 0);
-    }
+    // Selection feedback for shaded geometry is handled by OutlinePass.
 
     // 5. Apply fog
     if (fogEnabled) {
