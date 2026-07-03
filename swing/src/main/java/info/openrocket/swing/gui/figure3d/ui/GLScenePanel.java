@@ -2074,6 +2074,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						if (renderer != null) {
 							renderer.cleanup();
 						}
+						scene3DOrchestrator.getDecalTextureCache().cleanup();
 					} catch (Exception e) {
 						log.warn("Error cleaning 3D resources: {}", e.getMessage());
 					}

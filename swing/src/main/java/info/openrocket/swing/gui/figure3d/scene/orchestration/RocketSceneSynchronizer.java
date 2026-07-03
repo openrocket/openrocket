@@ -241,6 +241,11 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * @param component the RocketComponent whose appearance should be updated
 	 */
 	private void updateComponentAppearance(RocketComponent component) {
+		AppearanceFactory.withDecalTextureCache(scene3DOrchestrator.getDecalTextureCache(),
+				() -> updateComponentAppearanceWithCache(component));
+	}
+
+	private void updateComponentAppearanceWithCache(RocketComponent component) {
 		if (component == null) return;
 
 		// Find the current appearance object to clean it up later.
@@ -339,7 +344,8 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 		// Apply the prebuilt snapshot — meshes and transforms are already computed against a
 		// consistent view of the rocket, so this never touches the live model on the GL thread.
-		RocketMeshBuilder.applySnapshot(scene, snapshot, scene3DOrchestrator.getRenderingConfiguration());
+		AppearanceFactory.withDecalTextureCache(scene3DOrchestrator.getDecalTextureCache(),
+				() -> RocketMeshBuilder.applySnapshot(scene, snapshot, scene3DOrchestrator.getRenderingConfiguration()));
 		scene3DOrchestrator.applyRocketRotationToScene();
 		restoreSelectionAfterRebuild(hadSelection, selectedRocketComponents, persistentSelection);
 		if (cameraUpdateBehavior == CameraUpdateBehavior.RESET) {

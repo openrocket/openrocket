@@ -41,10 +41,12 @@ public class Appearance3D implements Material {
 
 	// --- Texture & Decal Properties ---
 	private Texture texture;
+	private boolean ownsTexture = true;
 	private DecalImage textureSourceImage;
 	private TextureMode textureMode = TextureMode.STRETCH;
 	private final TextureTransform textureTransform = new TextureTransform();
 	private Texture decalTexture;
+	private boolean ownsDecalTexture = true;
 	private final TextureTransform decalTransform = new TextureTransform();
 	private int decalSurfaceMask = DECAL_SURFACE_ALL; // Default to all surfaces
 
@@ -91,10 +93,22 @@ public class Appearance3D implements Material {
 		this.specularColor.set(specularColor);
 	}
 	public void setTexture(Texture texture) {
+		setTexture(texture, true);
+	}
+	public void setTexture(Texture texture, boolean ownsTexture) {
 		this.texture = texture;
+		this.ownsTexture = ownsTexture;
 	}
 	public void setTextureSourceImage(DecalImage textureSourceImage) {
 		this.textureSourceImage = textureSourceImage;
+	}
+	public void clearTexture() {
+		if (texture != null && ownsTexture) {
+			texture.cleanup();
+		}
+		texture = null;
+		textureSourceImage = null;
+		ownsTexture = true;
 	}
 	public void setUnlit(boolean unlit) {
 		isUnlit = unlit;
@@ -118,7 +132,11 @@ public class Appearance3D implements Material {
 		setDecal(decalTexture, position, scale, DECAL_SURFACE_ALL);
 	}
 	public void setDecal(Texture decalTexture, Vector2f position, Vector2f scale, int surfaceMask) {
+		setDecal(decalTexture, position, scale, surfaceMask, true);
+	}
+	public void setDecal(Texture decalTexture, Vector2f position, Vector2f scale, int surfaceMask, boolean ownsDecalTexture) {
 		this.decalTexture = decalTexture;
+		this.ownsDecalTexture = ownsDecalTexture;
 		this.decalTransform.offset = position;
 		this.decalTransform.scale = scale;
 		this.decalSurfaceMask = surfaceMask;
@@ -158,7 +176,7 @@ public class Appearance3D implements Material {
 	public TextureTransform getDecalTransform() { return decalTransform; }
 
 	public void cleanup() {
-		if (texture != null) texture.cleanup();
-		if (decalTexture != null) decalTexture.cleanup();
+		if (texture != null && ownsTexture) texture.cleanup();
+		if (decalTexture != null && ownsDecalTexture) decalTexture.cleanup();
 	}
 }

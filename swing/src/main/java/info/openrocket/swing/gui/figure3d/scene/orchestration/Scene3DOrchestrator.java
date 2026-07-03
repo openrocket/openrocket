@@ -7,6 +7,7 @@ import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
 import info.openrocket.swing.gui.figure3d.core.math.DefaultRaycaster;
 import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.input.InputState;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraController;
@@ -47,6 +48,7 @@ public class Scene3DOrchestrator {
 	private final ConcurrentLinkedQueue<Runnable> glTaskQueue = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean shutdown = new AtomicBoolean(false);
 	private final RocketSceneSynchronizer rocketSynchronizer;
+	private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
 
     private volatile boolean exportRequested = false;
     private volatile boolean exportTransparent = false;
@@ -240,6 +242,10 @@ public class Scene3DOrchestrator {
     public GLRenderer getRenderer() {
         return renderer;
     }
+
+	public AppearanceFactory.DecalTextureCache getDecalTextureCache() {
+		return decalTextureCache;
+	}
 
 	/**
 	 * Enqueues work that must run on the GL/render thread.

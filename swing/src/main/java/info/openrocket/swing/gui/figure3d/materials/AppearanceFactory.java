@@ -8,6 +8,7 @@ import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
 import org.joml.Vector3f;
@@ -15,8 +16,13 @@ import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A factory class to create engine-specific Appearance objects
@@ -29,6 +35,40 @@ public abstract class AppearanceFactory {
 	private static final double[] ROUGHNESS_SIZES = {0.5e-6, 500e-6};
 	private static final float[] STRENGTH_VALUES = {0.0f, 1.2f};
 	private static final float[] SCALE_VALUES    = {0.0f, 50.0f};
+	private static final DecalTextureCache DEFAULT_DECAL_TEXTURE_CACHE = new DecalTextureCache();
+	private static final ThreadLocal<DecalTextureCache> ACTIVE_DECAL_TEXTURE_CACHE = new ThreadLocal<>();
+
+	@FunctionalInterface
+	interface TextureLoader {
+		Texture load(DecalImage decalImage);
+	}
+
+	public static DecalTextureCache createDecalTextureCache() {
+		return new DecalTextureCache();
+	}
+
+	public static void withDecalTextureCache(DecalTextureCache cache, Runnable task) {
+		if (cache == null) {
+			task.run();
+			return;
+		}
+		DecalTextureCache previous = ACTIVE_DECAL_TEXTURE_CACHE.get();
+		ACTIVE_DECAL_TEXTURE_CACHE.set(cache);
+		try {
+			task.run();
+		} finally {
+			if (previous == null) {
+				ACTIVE_DECAL_TEXTURE_CACHE.remove();
+			} else {
+				ACTIVE_DECAL_TEXTURE_CACHE.set(previous);
+			}
+		}
+	}
+
+	private static DecalTextureCache getActiveDecalTextureCache() {
+		DecalTextureCache cache = ACTIVE_DECAL_TEXTURE_CACHE.get();
+		return cache != null ? cache : DEFAULT_DECAL_TEXTURE_CACHE;
+	}
 
 	/**
 	 * Creates and configures an engine-specific Appearance object based on an
@@ -88,12 +128,7 @@ public abstract class AppearanceFactory {
 		if (orDecal != null && orDecal.getImage() != null) {
 			updateTexture(engineAppearance, orDecal);
 		} else {
-			Texture existingTexture = engineAppearance.getTexture();
-			if (existingTexture != null) {
-				existingTexture.cleanup();
-			}
-			engineAppearance.setTexture(null);
-			engineAppearance.setTextureSourceImage(null);
+			engineAppearance.clearTexture();
 		}
 
 		// Roughness
@@ -106,12 +141,11 @@ public abstract class AppearanceFactory {
 	private static void updateTexture(Appearance3D engineAppearance, Decal orDecal) {
 		DecalImage decalImage = orDecal.getImage();
 		Texture engineTexture = engineAppearance.getTexture();
-		if (engineTexture == null || engineAppearance.getTextureSourceImage() != decalImage) {
-			if (engineTexture != null) {
-				engineTexture.cleanup();
-			}
-			engineTexture = loadTexture(decalImage);
-			engineAppearance.setTexture(engineTexture);
+		if (engineTexture == null || engineAppearance.getTextureSourceImage() != decalImage
+				|| !isCachedTextureCurrent(decalImage, engineTexture)) {
+			engineAppearance.clearTexture();
+			engineTexture = getCachedTexture(decalImage);
+			engineAppearance.setTexture(engineTexture, false);
 			engineAppearance.setTextureSourceImage(decalImage);
 		}
 
@@ -132,7 +166,161 @@ public abstract class AppearanceFactory {
 		}
 	}
 
-	private static Texture loadTexture(DecalImage decalImage) {
+	private static Texture getCachedTexture(DecalImage decalImage) {
+		return getActiveDecalTextureCache().getTexture(decalImage);
+	}
+
+	private static boolean isCachedTextureCurrent(DecalImage decalImage, Texture texture) {
+		return getActiveDecalTextureCache().isCurrent(decalImage, texture);
+	}
+
+	public static void clearCachedDecalTextures() {
+		getActiveDecalTextureCache().cleanup();
+	}
+
+	static void setTextureLoaderForTesting(TextureLoader loader) {
+		DEFAULT_DECAL_TEXTURE_CACHE.setTextureLoaderForTesting(loader);
+	}
+
+	static void clearCachedDecalTexturesForTesting(boolean cleanupTextures) {
+		DEFAULT_DECAL_TEXTURE_CACHE.clearForTesting(cleanupTextures);
+	}
+
+	public static class DecalTextureCache {
+		private final Object lock = new Object();
+		private final Map<DecalImage, CachedDecalTexture> cache = new IdentityHashMap<>();
+		private final Map<DecalImage, DecalImageState> imageStates = new IdentityHashMap<>();
+		private final List<Texture> staleTextures = new ArrayList<>();
+		private TextureLoader textureLoader = AppearanceFactory::loadTextureUncached;
+
+		private Texture getTexture(DecalImage decalImage) {
+			DecalImageState state;
+			long versionToken;
+			synchronized (lock) {
+				state = getDecalImageState(decalImage);
+				versionToken = getVersionToken(decalImage, state);
+				CachedDecalTexture cached = cache.get(decalImage);
+				if (cached != null && cached.versionToken == versionToken) {
+					return cached.texture;
+				}
+			}
+
+			Texture texture = textureLoader.load(decalImage);
+
+			synchronized (lock) {
+				state = getDecalImageState(decalImage);
+				versionToken = getVersionToken(decalImage, state);
+				CachedDecalTexture cached = cache.get(decalImage);
+				if (cached != null && cached.versionToken == versionToken) {
+					if (texture != null) {
+						staleTextures.add(texture);
+					}
+					return cached.texture;
+				}
+				if (cached != null) {
+					staleTextures.add(cached.texture);
+				}
+				if (texture != null) {
+					cache.put(decalImage, new CachedDecalTexture(texture, versionToken));
+				} else {
+					cache.remove(decalImage);
+				}
+				return texture;
+			}
+		}
+
+		private boolean isCurrent(DecalImage decalImage, Texture texture) {
+			synchronized (lock) {
+				DecalImageState state = getDecalImageState(decalImage);
+				CachedDecalTexture cached = cache.get(decalImage);
+				return cached != null
+						&& cached.texture == texture
+						&& cached.versionToken == getVersionToken(decalImage, state);
+			}
+		}
+
+		private DecalImageState getDecalImageState(DecalImage decalImage) {
+			DecalImageState state = imageStates.get(decalImage);
+			if (state == null) {
+				state = new DecalImageState();
+				imageStates.put(decalImage, state);
+				decalImage.addChangeListener(state.listener);
+			}
+			return state;
+		}
+
+		private long getVersionToken(DecalImage decalImage, DecalImageState state) {
+			long token = state.changeVersion;
+			File decalFile = decalImage.getDecalFile();
+			if (decalFile != null) {
+				token = 31 * token + decalFile.getAbsolutePath().hashCode();
+				token = 31 * token + decalFile.lastModified();
+				token = 31 * token + decalFile.length();
+			}
+			return token;
+		}
+
+		public void cleanup() {
+			clear(true);
+		}
+
+		private void setTextureLoaderForTesting(TextureLoader loader) {
+			synchronized (lock) {
+				textureLoader = loader != null ? loader : AppearanceFactory::loadTextureUncached;
+			}
+		}
+
+		private void clearForTesting(boolean cleanupTextures) {
+			clear(cleanupTextures);
+			synchronized (lock) {
+				textureLoader = AppearanceFactory::loadTextureUncached;
+			}
+		}
+
+		private void clear(boolean cleanupTextures) {
+			synchronized (lock) {
+				if (cleanupTextures) {
+					for (CachedDecalTexture cached : cache.values()) {
+						if (cached.texture != null) {
+							cached.texture.cleanup();
+						}
+					}
+					for (Texture staleTexture : staleTextures) {
+						if (staleTexture != null) {
+							staleTexture.cleanup();
+						}
+					}
+				}
+				for (Map.Entry<DecalImage, DecalImageState> entry : imageStates.entrySet()) {
+					entry.getKey().removeChangeListener(entry.getValue().listener);
+				}
+				cache.clear();
+				staleTextures.clear();
+				imageStates.clear();
+			}
+		}
+
+		private class DecalImageState {
+			private int changeVersion;
+			private final StateChangeListener listener = e -> {
+				synchronized (lock) {
+					changeVersion++;
+				}
+			};
+		}
+	}
+
+	private static class CachedDecalTexture {
+		private final Texture texture;
+		private final long versionToken;
+
+		private CachedDecalTexture(Texture texture, long versionToken) {
+			this.texture = texture;
+			this.versionToken = versionToken;
+		}
+	}
+
+	private static Texture loadTextureUncached(DecalImage decalImage) {
 		ByteBuffer buffer = null;
 		try {
 			try (InputStream stream = decalImage.getBytes()) {

@@ -33,6 +33,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
     private static final Map<Class<? extends RocketComponent>, ORColor> FIGURE_DEFAULT_COLOR_CACHE = new HashMap<>();
     // Unfinished appearances own GL textures, so they must stay scoped to a single renderer/context.
     private final Map<Class<? extends RocketComponent>, Appearance3D> unfinishedAppearanceCache = new HashMap<>();
+    private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
 
     @Override
     public void bind(SceneObject obj,
@@ -49,7 +50,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
         Appearance3D unfinishedAppearance = unfinishedMode && obj.getRocketComponent() != null
                 ? unfinishedAppearanceCache.computeIfAbsent(
                         obj.getRocketComponent().getClass(),
-                        k -> AppearanceFactory.createDefaultFrom(obj.getRocketComponent()))
+                        k -> createDefaultAppearance(obj.getRocketComponent()))
                 : null;
 
         // Set object-specific matrices and flags
@@ -211,12 +212,20 @@ public class DefaultMaterialBinder implements MaterialBinder {
         return new Vector3f(shine, shine, shine);
     }
 
+    private Appearance3D createDefaultAppearance(RocketComponent component) {
+        final Appearance3D[] appearance = new Appearance3D[1];
+        AppearanceFactory.withDecalTextureCache(decalTextureCache,
+                () -> appearance[0] = AppearanceFactory.createDefaultFrom(component));
+        return appearance[0];
+    }
+
     @Override
     public void cleanup() {
         for (Appearance3D appearance : unfinishedAppearanceCache.values()) {
             appearance.cleanup();
         }
         unfinishedAppearanceCache.clear();
+        decalTextureCache.cleanup();
     }
 
 }
