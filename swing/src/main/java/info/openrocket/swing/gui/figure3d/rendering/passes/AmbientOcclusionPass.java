@@ -12,15 +12,10 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 
 /**
@@ -32,6 +27,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
     private final TextureBinder textureStateManager;
     private final GraphicsQualitySettings qualitySettings;
     private final int screenQuadVAO;
+    private final PostProcessRenderTarget target;
     private final Matrix4f inverseProjection = new Matrix4f();
 
     private final int projectionUniform;
@@ -46,10 +42,6 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 
     private int inputTexture;
     private int depthTexture;
-    private int outputFBO;
-    private int outputTexture;
-    private int screenWidth;
-    private int screenHeight;
 
     public AmbientOcclusionPass(int screenQuadVAO, TextureBinder textureStateManager,
                                 GraphicsQualitySettings qualitySettings, int initialWidth, int initialHeight) {
@@ -57,6 +49,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         this.screenQuadVAO = screenQuadVAO;
         this.textureStateManager = textureStateManager;
         this.qualitySettings = qualitySettings;
+        this.target = new PostProcessRenderTarget("Ambient occlusion", initialWidth, initialHeight);
 
         this.projectionUniform = shader.getUniformLocation("projection");
         this.inverseProjectionUniform = shader.getUniformLocation("inverseProjection");
@@ -72,8 +65,6 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         GL33.glUniform1i(screenTextureUniform, 0);
         GL33.glUniform1i(depthTextureUniform, 1);
         shader.unbind();
-
-        resize(initialWidth, initialHeight);
     }
 
     @Override
@@ -87,7 +78,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 
     @Override
     public int getOutputTexture() {
-        return outputTexture;
+        return target.getColorTextureId();
     }
 
     @Override
@@ -96,15 +87,15 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
             return;
         }
 
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, outputFBO);
-        GL33.glClear(GL_COLOR_BUFFER_BIT);
+        target.bind();
+        glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
         shader.setUniformMatrix4f(projectionUniform, projectionMatrix);
         inverseProjection.set(projectionMatrix).invert();
         shader.setUniformMatrix4f(inverseProjectionUniform, inverseProjection);
-        GL33.glUniform2f(screenSizeUniform, (float) screenWidth, (float) screenHeight);
+        GL33.glUniform2f(screenSizeUniform, (float) target.getWidth(), (float) target.getHeight());
         GL33.glUniform1f(radiusUniform, qualitySettings.getAmbientOcclusionRadius());
         GL33.glUniform1f(strengthUniform, qualitySettings.getAmbientOcclusionStrength());
         GL33.glUniform1f(biasUniform, qualitySettings.getAmbientOcclusionBias());
@@ -115,56 +106,21 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         textureStateManager.bindTexture(1, GL_TEXTURE_2D, depthTexture);
         textureStateManager.setTextureParams(depthTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
 
-        GL33.glBindVertexArray(screenQuadVAO);
-        GL33.glDrawArrays(GL_TRIANGLES, 0, 6);
-        GL33.glBindVertexArray(0);
+        PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
 
         shader.unbind();
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
+        target.unbind();
         glEnable(GL_DEPTH_TEST);
     }
 
     @Override
     public void resize(int width, int height) {
-        this.screenWidth = width;
-        this.screenHeight = height;
-
-        cleanupFramebuffer();
-        createFramebuffer();
-    }
-
-    private void createFramebuffer() {
-        outputFBO = GL33.glGenFramebuffers();
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, outputFBO);
-
-        outputTexture = GL33.glGenTextures();
-        GL33.glBindTexture(GL_TEXTURE_2D, outputTexture);
-        GL33.glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        GL33.glFramebufferTexture2D(GL33.GL_FRAMEBUFFER, GL33.GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexture, 0);
-
-        if (GL33.glCheckFramebufferStatus(GL33.GL_FRAMEBUFFER) != GL33.GL_FRAMEBUFFER_COMPLETE) {
-            throw new IllegalStateException("Ambient occlusion framebuffer is not complete");
-        }
-
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
-    }
-
-    private void cleanupFramebuffer() {
-        if (outputFBO != 0) {
-            GL33.glDeleteFramebuffers(outputFBO);
-            outputFBO = 0;
-        }
-        if (outputTexture != 0) {
-            GL33.glDeleteTextures(outputTexture);
-            outputTexture = 0;
-        }
+        target.resize(width, height);
     }
 
     @Override
     public void cleanup() {
         shader.cleanup();
-        cleanupFramebuffer();
+        target.cleanup();
     }
 }

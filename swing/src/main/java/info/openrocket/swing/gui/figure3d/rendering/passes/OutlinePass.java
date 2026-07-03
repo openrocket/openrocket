@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
@@ -9,7 +10,6 @@ import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
-import java.nio.FloatBuffer;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
@@ -17,7 +17,6 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_ONE;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
@@ -28,14 +27,12 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glGenTextures;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
@@ -51,7 +48,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
 import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 import static org.lwjgl.opengl.GL30.glBindRenderbuffer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL30.glDeleteFramebuffers;
 import static org.lwjgl.opengl.GL30.glDeleteRenderbuffers;
@@ -106,9 +102,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
     private final GLShader outlinePostProcessShader;
     private final TextureBinder textureStateManager;
     private final int screenQuadVAO;
-    private int outlineFBO;
-    private int outlineColorTexture;
-    private int outlineDepthTexture;
+    private final PostProcessRenderTarget outlineTarget;
     private int maskFBO;
     private int maskTexture;
     private int maskDepthRBO;
@@ -154,7 +148,8 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         this.selectionColor = selectionColor;
         this.screenWidth = initialWidth;
         this.screenHeight = initialHeight;
-        createFramebuffer(initialWidth, initialHeight);
+        this.outlineTarget = new PostProcessRenderTarget("Outline output", initialWidth, initialHeight);
+        createMaskFramebuffer(initialWidth, initialHeight);
 
         this.screenTextureUniform = screenQuadShader.getUniformLocation("screenTexture");
         this.selectionTextureUniform = outlinePostProcessShader.getUniformLocation("selectionTexture");
@@ -163,38 +158,32 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         this.screenSizeUniform = outlinePostProcessShader.getUniformLocation("screenSize");
     }
 
-    private void createFramebuffer(int width, int height) {
-        // Create outline FBO
-        outlineFBO = glGenFramebuffers();
-        glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
-        outlineColorTexture = createTexture(width, height, GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outlineColorTexture, 0);
-        outlineDepthTexture = createTexture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, outlineDepthTexture, 0);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw new RuntimeException("Outline framebuffer is not complete!");
-        }
-
-        // Create mask FBO
+    private void createMaskFramebuffer(int width, int height) {
         maskFBO = glGenFramebuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.FRAMEBUFFER, maskFBO,
+                "Outline mask framebuffer " + width + "x" + height);
         glBindFramebuffer(GL_FRAMEBUFFER, maskFBO);
-        maskTexture = createTexture(width, height, GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE);
+        maskTexture = createTexture(width, height, GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE, "Outline mask texture");
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, maskTexture, 0);
         maskDepthRBO = glGenRenderbuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.RENDERBUFFER, maskDepthRBO,
+                "Outline mask depth renderbuffer");
         glBindRenderbuffer(GL_RENDERBUFFER, maskDepthRBO);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, maskDepthRBO);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw new RuntimeException("Mask framebuffer is not complete!");
+            cleanupMaskFramebuffer();
+            throw new IllegalStateException("Mask framebuffer is not complete");
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    private int createTexture(int width, int height, int internalFormat, int format, int type) {
+    private int createTexture(int width, int height, int internalFormat, int format, int type, String label) {
         int texture = glGenTextures();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, texture, label);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, (FloatBuffer) null);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, (java.nio.ByteBuffer) null);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -210,9 +199,9 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         // Always composite through the outline FBO so selected and non-selected frames
         // follow the same presentation path.
         // 1. Bind the outline FBO to draw the final result of this pass
-        glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
+        outlineTarget.bind();
         glViewport(0, 0, screenWidth, screenHeight);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         // 2. Draw the input texture (the scene from the previous pass) into our FBO
         drawScreenTexture(inputTexture);
@@ -239,12 +228,12 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
             glUniform1i(mainShaderUniforms.forceWhite, 0);
 
             // Now, blend the outlines onto our main FBO
-            glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
+            outlineTarget.bind();
             renderOutlinePostProcess(screenWidth, screenHeight, maskTexture);
         }
 
         // Unbind FBO, ready for the next pass
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        outlineTarget.unbind();
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -252,8 +241,9 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
     public void resize(int width, int height) {
         this.screenWidth = width;
         this.screenHeight = height;
-        cleanupFramebuffers();
-        createFramebuffer(width, height);
+        outlineTarget.resize(width, height);
+        cleanupMaskFramebuffer();
+        createMaskFramebuffer(width, height);
     }
 
     @Override
@@ -263,7 +253,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
 
     @Override
     public int getOutputTexture() {
-        return outlineColorTexture;
+        return outlineTarget.getColorTextureId();
     }
 
     /**
@@ -276,9 +266,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         screenQuadShader.use();
         textureStateManager.bindTexture(0, GL_TEXTURE_2D, textureId);
         glUniform1i(screenTextureUniform, 0);
-        glBindVertexArray(screenQuadVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
+        PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
     }
 
     /**
@@ -306,9 +294,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         glUniform1f(outlineWidthUniform, SELECTION_OUTLINE_WIDTH);
         glUniform2f(screenSizeUniform, (float)width, (float)height);
 
-        glBindVertexArray(screenQuadVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
+        PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
 
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
@@ -317,15 +303,25 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
     @Override
     public void cleanup() {
         outlinePostProcessShader.cleanup();
-        cleanupFramebuffers();
+        outlineTarget.cleanup();
+        cleanupMaskFramebuffer();
     }
 
-    private void cleanupFramebuffers() {
-        glDeleteFramebuffers(outlineFBO);
-        glDeleteTextures(outlineColorTexture);
-        glDeleteTextures(outlineDepthTexture);
-        glDeleteFramebuffers(maskFBO);
-        glDeleteTextures(maskTexture);
-        glDeleteRenderbuffers(maskDepthRBO);
+    private void cleanupMaskFramebuffer() {
+        if (maskFBO != 0) {
+            GpuResourceTracker.release(GpuResourceTracker.ResourceType.FRAMEBUFFER, maskFBO);
+            glDeleteFramebuffers(maskFBO);
+            maskFBO = 0;
+        }
+        if (maskTexture != 0) {
+            GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, maskTexture);
+            glDeleteTextures(maskTexture);
+            maskTexture = 0;
+        }
+        if (maskDepthRBO != 0) {
+            GpuResourceTracker.release(GpuResourceTracker.ResourceType.RENDERBUFFER, maskDepthRBO);
+            glDeleteRenderbuffers(maskDepthRBO);
+            maskDepthRBO = 0;
+        }
     }
 }

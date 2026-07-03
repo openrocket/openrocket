@@ -69,7 +69,9 @@ public class TexturedParticleRenderer {
         smokeTexture = new Texture("/textures/smoke2.png");
 
         vao = glGenVertexArrays();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "TexturedParticleRenderer vao");
         vbo = glGenBuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "TexturedParticleRenderer vbo");
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -208,7 +210,9 @@ public class TexturedParticleRenderer {
     public void cleanup() {
         shader.cleanup();
         smokeTexture.cleanup();
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
         glDeleteVertexArrays(vao);
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vbo);
         glDeleteBuffers(vbo);
         MemoryUtil.memFree(buffer);
     }

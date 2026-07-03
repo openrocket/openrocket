@@ -127,7 +127,9 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
         smokeTexture = new Texture("/textures/smoke2.png");
 
         vao = glGenVertexArrays();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "VolumetricSmokeRenderer vao");
         vbo = glGenBuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "VolumetricSmokeRenderer vbo");
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -403,7 +405,9 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
     public void cleanup() {
         shader.cleanup();
         smokeTexture.cleanup();
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
         glDeleteVertexArrays(vao);
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vbo);
         glDeleteBuffers(vbo);
         MemoryUtil.memFree(buffer);
     }

@@ -4,23 +4,16 @@ import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 
 /**
  * Fast Approximate Anti-Aliasing (FXAA) post-processing pass.
@@ -58,11 +51,8 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
 
     private final GLShader shader;
     private final int screenQuadVAO;
+    private final PostProcessRenderTarget target;
     private int inputTexture;
-    private int fxaaFBO;
-    private int fxaaTexture;
-    private int screenWidth;
-    private int screenHeight;
 
     /**
      * Creates a new FXAA post-processing pass.
@@ -78,10 +68,10 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
     public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) {
         this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
+        this.target = new PostProcessRenderTarget("FXAA", initialWidth, initialHeight);
         this.shader.use();
         this.shader.setUniformInt("screenTexture", 0); // Set texture unit once
         this.shader.unbind();
-        resize(initialWidth, initialHeight);
     }
 
     @Override
@@ -91,82 +81,37 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
 
     @Override
     public int getOutputTexture() {
-        return fxaaTexture;
+        return target.getColorTextureId();
     }
 
     @Override
     public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, fxaaFBO);
-        GL33.glClear(GL_COLOR_BUFFER_BIT);
+        target.bind();
+        glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
-        shader.setUniformFloat("rt_w", (float)screenWidth);
-        shader.setUniformFloat("rt_h", (float)screenHeight);
+        shader.setUniformFloat("rt_w", (float) target.getWidth());
+        shader.setUniformFloat("rt_h", (float) target.getHeight());
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, inputTexture);
 
-        GL33.glBindVertexArray(screenQuadVAO);
-        GL33.glDrawArrays(GL_TRIANGLES, 0, 6);
-        GL33.glBindVertexArray(0);
+        PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
 
         shader.unbind();
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
+        target.unbind();
         glEnable(GL_DEPTH_TEST);
     }
 
     @Override
     public void resize(int width, int height) {
-        this.screenWidth = width;
-        this.screenHeight = height;
-
-        cleanupFramebuffer();
-        createFramebuffer();
-    }
-
-    /**
-     * Creates the FXAA output framebuffer and associated textures.
-     * 
-     * Sets up a complete framebuffer with RGB color attachment for storing
-     * the anti-aliased output. Uses linear filtering for smooth results.
-     */
-    private void createFramebuffer() {
-        fxaaFBO = GL33.glGenFramebuffers();
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, fxaaFBO);
-
-        fxaaTexture = GL33.glGenTextures();
-        GL33.glBindTexture(GL_TEXTURE_2D, fxaaTexture);
-        GL33.glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        GL33.glFramebufferTexture2D(GL33.GL_FRAMEBUFFER, GL33.GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fxaaTexture, 0);
-
-        if (GL33.glCheckFramebufferStatus(GL33.GL_FRAMEBUFFER) != GL33.GL_FRAMEBUFFER_COMPLETE) {
-            throw new RuntimeException("FXAA Framebuffer is not complete!");
-        }
-
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
-    }
-
-    /**
-     * Releases FXAA framebuffer resources.
-     * 
-     * Deletes the framebuffer object and associated color texture to prevent
-     * GPU memory leaks during resize operations or cleanup.
-     */
-    private void cleanupFramebuffer() {
-        if (fxaaFBO != 0) {
-            GL33.glDeleteFramebuffers(fxaaFBO);
-        }
-        if (fxaaTexture != 0) {
-            GL33.glDeleteTextures(fxaaTexture);
-        }
+        target.resize(width, height);
     }
 
     @Override
     public void cleanup() {
         shader.cleanup();
-        cleanupFramebuffer();
+        target.cleanup();
     }
 }

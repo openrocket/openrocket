@@ -92,7 +92,9 @@ public class FlameRenderer implements ParticleSystemRenderer {
         flameTexture = new Texture("/textures/smoke2.png");
 
         vao = glGenVertexArrays();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "FlameRenderer vao");
         vbo = glGenBuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "FlameRenderer vbo");
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -322,7 +324,9 @@ public class FlameRenderer implements ParticleSystemRenderer {
     public void cleanup() {
         shader.cleanup();
         flameTexture.cleanup();
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
         glDeleteVertexArrays(vao);
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vbo);
         glDeleteBuffers(vbo);
         MemoryUtil.memFree(buffer);
     }

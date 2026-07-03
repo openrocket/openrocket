@@ -80,7 +80,9 @@ public class ParticleRenderer implements ParticleSystemRenderer {
         buffer = MemoryUtil.memAllocFloat(maxParticles * 2 * 6); // 2 vertices per particle, 6 floats per vertex
 
         vao = glGenVertexArrays();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "ParticleRenderer vao");
         vbo = glGenBuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "ParticleRenderer vbo");
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -207,7 +209,9 @@ public class ParticleRenderer implements ParticleSystemRenderer {
     @Override
     public void cleanup() {
         shader.cleanup();
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
         glDeleteVertexArrays(vao);
+        GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vbo);
         glDeleteBuffers(vbo);
         MemoryUtil.memFree(buffer);
     }
