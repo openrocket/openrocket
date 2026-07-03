@@ -873,7 +873,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private void updateTextColors() {
 		rocketPanel.updateTextColors();
 		rocketPanel.getFigure().repaint();
-		rocketPanel.getFigure3d().repaint();
+		rocketPanel.getFigure3d().updateFigure();
 	}
 	
 	/**
@@ -925,7 +925,7 @@ public class DisplaySettingsDialog extends JDialog {
 			// Restore view state (updateTextColors would do this, but we skip it to avoid overwriting colors)
 			rocketPanel.getExtraText().set3DView(currentIs3DView);
 			rocketPanel.getFigure().repaint();
-			rocketPanel.getFigure3d().repaint();
+			rocketPanel.getFigure3d().updateFigure();
 		} else {
 			// Fallback to normal update
 			updateAction.run();
