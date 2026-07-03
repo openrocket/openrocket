@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.materials;
 
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
+import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -83,6 +84,7 @@ public class Texture {
 	 */
 	private void abandonTexture() {
 		if (textureId != 0) {
+			TextureStateManager.evictDeletedTexture(textureId);
 			glDeleteTextures(textureId);
 			textureId = 0;
 		}
@@ -667,6 +669,7 @@ public class Texture {
 	public void cleanup() {
 		if (textureId != 0) {
 			trackRelease();
+			TextureStateManager.evictDeletedTexture(textureId);
 			glDeleteTextures(textureId);
 			textureId = 0;
 		}

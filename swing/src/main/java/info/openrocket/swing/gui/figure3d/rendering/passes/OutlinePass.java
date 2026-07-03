@@ -4,6 +4,7 @@ import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
+import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import org.joml.Matrix4f;
@@ -314,6 +315,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         }
         if (maskTexture != 0) {
             GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, maskTexture);
+            TextureStateManager.evictDeletedTexture(maskTexture);
             glDeleteTextures(maskTexture);
             maskTexture = 0;
         }

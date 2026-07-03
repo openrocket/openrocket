@@ -115,7 +115,8 @@ public class DefaultMaterialBinder implements MaterialBinder {
                 Appearance3D.TextureMode textureMode = unfinishedMode ? unfinishedAppearance.getTextureMode() : appearance.getTextureMode();
                 int wrapMode = (textureMode == Appearance3D.TextureMode.STRETCH) ? GL33.GL_CLAMP_TO_EDGE : GL_REPEAT;
                 // Enable sharper close-up texture inspection while keeping trilinear mipmapping at distance.
-                textureBinder.setTextureParams(tex.getId(), wrapMode, wrapMode, GL33.GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+                textureBinder.setTextureParams(GL33.GL_TEXTURE_2D, tex.getId(), wrapMode, wrapMode,
+                        GL33.GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
                 GL33.glUniform1i(uniforms.textureSampler, 0);
                 GL33.glUniform1i(uniforms.hasTexture, 1);
             } else {
@@ -134,8 +135,8 @@ public class DefaultMaterialBinder implements MaterialBinder {
             shader.setUniformMatrix4f(uniforms.decalTransformMatrix, decalTransformMatrix);
             textureBinder.bindTexture(1, GL33.GL_TEXTURE_2D, decal.getId());
             // Keep decal linework crisp when zoomed in.
-            textureBinder.setTextureParams(decal.getId(), GL33.GL_CLAMP_TO_EDGE, GL33.GL_CLAMP_TO_EDGE,
-                    GL33.GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+            textureBinder.setTextureParams(GL33.GL_TEXTURE_2D, decal.getId(), GL33.GL_CLAMP_TO_EDGE,
+                    GL33.GL_CLAMP_TO_EDGE, GL33.GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
             GL33.glUniform1i(uniforms.decalSampler, 1);
             GL33.glUniform1i(uniforms.hasDecal, 1);
             GL33.glUniform1i(uniforms.decalSurfaceMask, unfinishedMode ? unfinishedAppearance.getDecalSurfaceMask() : appearance.getDecalSurfaceMask());

@@ -1,10 +1,12 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
@@ -23,7 +25,7 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
  * 
  * Features:
  * - Tracks active texture unit to minimize glActiveTexture calls
- * - Caches texture bindings per unit to avoid redundant glBindTexture calls
+ * - Caches texture bindings per unit and texture target to avoid redundant glBindTexture calls
  * - Caches texture parameters to avoid redundant glTexParameteri calls
  * - Supports up to 32 texture units for complex multi-texture rendering
  * 
@@ -32,7 +34,9 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
  */
 public class TextureStateManager implements TextureBinder {
 	private static final int MAX_TEXTURE_UNITS = 32;
-	private final int[] boundTextures = new int[MAX_TEXTURE_UNITS];
+	private static final Set<TextureStateManager> MANAGERS = Collections.newSetFromMap(new WeakHashMap<>());
+
+	private final Map<Integer, int[]> boundTexturesByType = new HashMap<>();
 	private int activeTextureUnit = -1;
 
 	/**
@@ -48,15 +52,56 @@ public class TextureStateManager implements TextureBinder {
 		int magFilter = -1;
 	}
 
-	// Map texture ID to its cached parameters
-	private final Map<Integer, TextureParams> textureParamsCache = new HashMap<>();
+	// Map texture target + ID to its cached parameters.
+	private final Map<Long, TextureParams> textureParamsCache = new HashMap<>();
 
 	/**
 	 * Creates a new texture state manager with all texture units unbound.
 	 */
 	public TextureStateManager() {
-		// Initialize all texture units as unbound
-		Arrays.fill(boundTextures, -1);
+		synchronized (MANAGERS) {
+			MANAGERS.add(this);
+		}
+	}
+
+	public static void evictDeletedTexture(int textureId) {
+		if (textureId == 0) {
+			return;
+		}
+		synchronized (MANAGERS) {
+			for (TextureStateManager manager : MANAGERS) {
+				manager.evictTexture(textureId);
+			}
+		}
+	}
+
+	public void evictTexture(int textureId) {
+		for (int[] boundTextures : boundTexturesByType.values()) {
+			for (int i = 0; i < boundTextures.length; i++) {
+				if (boundTextures[i] == textureId) {
+					boundTextures[i] = -1;
+				}
+			}
+		}
+		textureParamsCache.keySet().removeIf(key -> textureIdFromKey(key) == textureId);
+	}
+
+	private int[] bindingsFor(int textureType) {
+		int[] boundTextures = boundTexturesByType.get(textureType);
+		if (boundTextures == null) {
+			boundTextures = new int[MAX_TEXTURE_UNITS];
+			Arrays.fill(boundTextures, -1);
+			boundTexturesByType.put(textureType, boundTextures);
+		}
+		return boundTextures;
+	}
+
+	private static long cacheKey(int textureType, int textureId) {
+		return ((long) textureType << 32) ^ Integer.toUnsignedLong(textureId);
+	}
+
+	private static int textureIdFromKey(long key) {
+		return (int) key;
 	}
 
 	/**
@@ -79,6 +124,8 @@ public class TextureStateManager implements TextureBinder {
 			activeTextureUnit = unit;
 		}
 
+		int[] boundTextures = bindingsFor(textureType);
+
 		// Only bind if not already bound
 		if (boundTextures[unit] != textureId) {
 			glBindTexture(textureType, textureId);
@@ -92,6 +139,7 @@ public class TextureStateManager implements TextureBinder {
 	 * Reduces redundant glTexParameteri calls by tracking the current
 	 * parameter values for each texture.
 	 * 
+	 * @param textureType The OpenGL texture target to update
 	 * @param textureId The texture ID to set parameters for
 	 * @param wrapS Texture wrap mode for S coordinate
 	 * @param wrapT Texture wrap mode for T coordinate
@@ -99,38 +147,39 @@ public class TextureStateManager implements TextureBinder {
 	 * @param magFilter Magnification filter mode
 	 */
     @Override
-    public void setTextureParams(int textureId, int wrapS, int wrapT, int minFilter, int magFilter) {
-		TextureParams params = textureParamsCache.computeIfAbsent(textureId, k -> new TextureParams());
+    public void setTextureParams(int textureType, int textureId, int wrapS, int wrapT, int minFilter, int magFilter) {
+		TextureParams params = textureParamsCache.computeIfAbsent(cacheKey(textureType, textureId), k -> new TextureParams());
 
 		if (params.wrapS != wrapS) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+			glTexParameteri(textureType, GL_TEXTURE_WRAP_S, wrapS);
 			params.wrapS = wrapS;
 		}
 
 		if (params.wrapT != wrapT) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+			glTexParameteri(textureType, GL_TEXTURE_WRAP_T, wrapT);
 			params.wrapT = wrapT;
 		}
 
 		if (params.minFilter != minFilter) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+			glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, minFilter);
 			params.minFilter = minFilter;
 		}
 
 		if (params.magFilter != magFilter) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+			glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, magFilter);
 			params.magFilter = magFilter;
 		}
 	}
 
 	/**
-	 * Unbinds any texture from the specified texture unit.
+	 * Unbinds any texture from the specified target on the texture unit.
 	 * 
 	 * @param unit The texture unit to unbind
+	 * @param textureType The OpenGL texture target to unbind
 	 */
     @Override
-    public void unbindTexture(int unit) {
-		bindTexture(unit, GL_TEXTURE_2D, 0);
+    public void unbindTexture(int unit, int textureType) {
+		bindTexture(unit, textureType, 0);
 	}
 
 	/**
@@ -141,7 +190,7 @@ public class TextureStateManager implements TextureBinder {
 	 */
     @Override
 	public void reset() {
-		Arrays.fill(boundTextures, -1);
+		boundTexturesByType.clear();
 		textureParamsCache.clear();
 		// Force the next bind to reselect the real GL active texture unit. Direct-render
 		// paths (particles, post-processing, HUD) may have changed it behind this cache.

@@ -226,11 +226,13 @@ public class OffscreenRenderTarget {
 		}
 		if (colorTextureId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, colorTextureId);
+			TextureStateManager.evictDeletedTexture(colorTextureId);
 			GL33.glDeleteTextures(colorTextureId);
 			colorTextureId = 0;
 		}
 		if (depthTextureId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, depthTextureId);
+			TextureStateManager.evictDeletedTexture(depthTextureId);
 			GL33.glDeleteTextures(depthTextureId);
 			depthTextureId = 0;
 		}

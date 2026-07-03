@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
+import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
@@ -104,6 +105,7 @@ final class PostProcessRenderTarget {
 		}
 		if (colorTextureId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, colorTextureId);
+			TextureStateManager.evictDeletedTexture(colorTextureId);
 			GL33.glDeleteTextures(colorTextureId);
 			colorTextureId = 0;
 		}

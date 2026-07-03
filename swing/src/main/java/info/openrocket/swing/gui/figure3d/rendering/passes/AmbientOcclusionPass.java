@@ -101,9 +101,11 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         GL33.glUniform1i(sampleCountUniform, qualitySettings.getAmbientOcclusionSampleCount());
 
         textureStateManager.bindTexture(0, GL_TEXTURE_2D, inputTexture);
-        textureStateManager.setTextureParams(inputTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
+        textureStateManager.setTextureParams(GL_TEXTURE_2D, inputTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
+                GL_LINEAR, GL_LINEAR);
         textureStateManager.bindTexture(1, GL_TEXTURE_2D, depthTexture);
-        textureStateManager.setTextureParams(depthTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST);
+        textureStateManager.setTextureParams(GL_TEXTURE_2D, depthTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
+                GL_NEAREST, GL_NEAREST);
 
         PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
 

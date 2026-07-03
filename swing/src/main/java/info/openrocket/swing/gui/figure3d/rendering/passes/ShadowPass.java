@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import info.openrocket.swing.gui.figure3d.scene.core.Light;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
@@ -383,6 +384,7 @@ public class ShadowPass implements RenderPass {
             depthMapFbo = 0;
         }
         if (depthMapTexture != 0) {
+            TextureStateManager.evictDeletedTexture(depthMapTexture);
             glDeleteTextures(depthMapTexture);
             depthMapTexture = 0;
         }
