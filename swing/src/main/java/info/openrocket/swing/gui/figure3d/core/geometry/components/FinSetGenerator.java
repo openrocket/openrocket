@@ -960,34 +960,6 @@ public class FinSetGenerator {
 		return (nextIndex == currentIndex) ? -1 : nextIndex;
 	}
 
-	private static float[] xRangeOnPolygonAtY(Coordinate[] poly, float y) {
-		float xMin = Float.POSITIVE_INFINITY, xMax = Float.NEGATIVE_INFINITY;
-
-		for (int k = 0; k < poly.length; k++) {
-			Coordinate a = poly[k], b = poly[(k + 1) % poly.length];
-			double ya = a.y, yb = b.y;
-
-			// Check if horizontal ray at Y crosses segment [a,b]
-			double ylo = Math.min(ya, yb) - PLANFORM_INTERSECTION_EPSILON, yhi = Math.max(ya, yb) + PLANFORM_INTERSECTION_EPSILON;
-			if (y < ylo || y > yhi) continue;
-
-			if (Math.abs(ya - yb) < PLANFORM_INTERSECTION_EPSILON) {
-				// Horizontal edge: include its X extents
-				xMin = Math.min(xMin, (float)Math.min(a.x, b.x));
-				xMax = Math.max(xMax, (float)Math.max(a.x, b.x));
-			} else {
-				double t = (y - ya) / (yb - ya);
-				if (t >= -PLANFORM_INTERSECTION_EPSILON && t <= 1 + PLANFORM_INTERSECTION_EPSILON) {
-					float x = (float)(a.x + t * (b.x - a.x));
-					xMin = Math.min(xMin, x);
-					xMax = Math.max(xMax, x);
-				}
-			}
-		}
-		if (!Float.isFinite(xMin)) return new float[]{0f, 0f};
-		return new float[]{xMin, xMax};
-	}
-
 	private static IntList triangulateWithJTS(CoordinateIF[] polygonPoints) {
 		Map<Long, Integer> coordIndexMap = new HashMap<>();
 		for (int i = 0; i < polygonPoints.length; i++) {

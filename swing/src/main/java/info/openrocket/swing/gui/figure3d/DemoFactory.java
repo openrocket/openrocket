@@ -6,7 +6,6 @@ import info.openrocket.core.appearance.defaults.DefaultAppearance;
 import info.openrocket.core.appearance.defaults.FileDecalImage;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
-import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
@@ -263,17 +262,6 @@ public class DemoFactory {
 
 		parent.addChild(finSet); // Attach fins to the parent
 		return finSet;
-	}
-
-	private Rocket loadRocketFromFile(File file) {
-		try {
-			GeneralRocketLoader loader = new GeneralRocketLoader(file);
-			OpenRocketDocument document = loader.load();
-			return document.getRocket();
-		} catch (Exception e) {
-			log.error("Failed to load rocket from file: {}", e.getMessage(), e);
-			return null;
-		}
 	}
 
 	public static void setupTerrain(Scene scene) {

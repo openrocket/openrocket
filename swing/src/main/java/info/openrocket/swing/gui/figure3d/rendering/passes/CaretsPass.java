@@ -16,7 +16,6 @@ import info.openrocket.swing.gui.figure3d.core.geometry.components.CPCaretGenera
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
-import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;

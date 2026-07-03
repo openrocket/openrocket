@@ -176,17 +176,6 @@ public class Camera {
 	}
 	
 	/**
-	 * Toggles between perspective and orthographic projection.
-	 */
-	public void toggleProjection() {
-		if (projectionType == CameraConstants.ProjectionType.PERSPECTIVE) {
-			setProjectionType(CameraConstants.ProjectionType.ORTHOGRAPHIC);
-		} else {
-			setProjectionType(CameraConstants.ProjectionType.PERSPECTIVE);
-		}
-	}
-	
-	/**
 	 * Updates the projection matrix based on the current projection type and parameters.
 	 */
 	private void updateProjectionMatrix() {
@@ -434,40 +423,6 @@ public class Camera {
 	}
 
 	/**
-	 * Moves the camera and its target point left or right.
-	 *
-	 * @param amount The distance to move. Positive is right, negative is left.
-	 */
-	public void truck(float amount) {
-		if (fixedCenterOfInterest) {
-			return;
-		}
-		Vector3f right = new Vector3f();
-		viewMatrix.positiveX(right);
-		centerOfInterest.add(right.mul(amount));
-	}
-
-	/**
-	 * Moves the camera and its target point straight up or down along the world's Y-axis.
-	 * @param amount The distance to move. Positive is up, negative is down.
-	 */
-	public void pedestal(float amount) {
-		if (fixedCenterOfInterest) {
-			return;
-		}
-		// Directly modify the Y component of the center of interest.
-		centerOfInterest.add(0, amount, 0);
-	}
-
-	/**
-	 * Orbits the camera horizontally around the center of interest by a given angle.
-	 * @param angle The angle to rotate in radians. Positive is right, negative is left.
-	 */
-	public void orbitYaw(float angle) {
-		this.angleX += angle;
-	}
-
-	/**
 	 * Updates the camera's internal state and view matrix.
 	 * This method should be called every frame to ensure camera transformations
 	 * are properly calculated and applied to the rendering pipeline.
@@ -682,24 +637,6 @@ public class Camera {
 		}
 		
 		/**
-		 * Configures the camera for wide-angle viewing.
-		 * @return This builder instance
-		 */
-		public Builder withWideAngle() {
-			this.fov = (float) Math.toRadians(60);
-			return this;
-		}
-		
-		/**
-		 * Configures the camera for telephoto viewing.
-		 * @return This builder instance
-		 */
-		public Builder withTelephoto() {
-			this.fov = (float) Math.toRadians(15);
-			return this;
-		}
-
-		/**
 		 * Sets the projection type for the camera.
 		 * 
 		 * @param projectionType the projection type (PERSPECTIVE or ORTHOGRAPHIC)
@@ -709,17 +646,6 @@ public class Camera {
 			this.projectionType = projectionType;
 			return this;
 		}
-		
-		/**
-		 * Configures the camera for architectural viewing (minimal perspective distortion).
-		 * @return This builder instance
-		 */
-		public Builder withArchitecturalView() {
-			this.fov = (float) Math.toRadians(30);
-			this.initialAngleY = 0.0f; // Horizontal view
-			return this;
-		}
-		
 		/**
 		 * Builds the Camera with the configured settings.
 		 * @return A new Camera instance

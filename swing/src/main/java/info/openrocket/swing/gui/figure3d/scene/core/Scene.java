@@ -612,60 +612,6 @@ public class Scene implements SceneView {
 		}
 		
 		/**
-		 * Configures the scene for outdoor lighting (bright, sun-like light).
-		 * @return This builder instance
-		 */
-		public Builder withOutdoorLighting() {
-			this.lights.clear();
-			this.lights.add(Light.directional()
-				.withDirection(-0.3f, -1.0f, -0.4f)
-				.withColor(1.0f, 0.95f, 0.8f)
-				.build()); // Sun-like
-			this.lights.add(Light.directional()
-				.withDirection(0.2f, 0.5f, 0.3f)
-				.withColor(0.3f, 0.4f, 0.6f)
-				.build()); // Sky fill
-			this.background = new SolidColorBackground(0.6f, 0.8f, 1.0f); // Sky blue
-			return this;
-		}
-		
-		/**
-		 * Configures the scene for studio lighting (multiple controlled lights).
-		 * @return This builder instance
-		 */
-		public Builder withStudioLighting() {
-			this.lights.clear();
-			this.lights.add(Light.directional()
-				.withDirection(-0.7f, -0.5f, -0.5f)
-				.withColor(1.0f, 1.0f, 1.0f)
-				.build()); // Key light
-			this.lights.add(Light.directional()
-				.withDirection(0.5f, -0.3f, 0.8f)
-				.withColor(0.6f, 0.6f, 0.8f)
-				.build()); // Fill light
-			this.lights.add(Light.directional()
-				.withDirection(0.0f, 0.8f, -1.0f)
-				.withColor(0.4f, 0.4f, 0.4f)
-				.build()); // Rim light
-			this.background = new SolidColorBackground(0.15f, 0.15f, 0.15f); // Dark gray
-			return this;
-		}
-		
-		/**
-		 * Configures the scene for dramatic lighting (high contrast).
-		 * @return This builder instance
-		 */
-		public Builder withDramaticLighting() {
-			this.lights.clear();
-			this.lights.add(Light.directional()
-				.withDirection(-1.0f, -0.2f, -0.3f)
-				.withColor(1.2f, 1.0f, 0.8f)
-				.build()); // Strong side light
-			this.background = new SolidColorBackground(0.05f, 0.05f, 0.1f); // Very dark
-			return this;
-		}
-		
-		/**
 		 * Builds the Scene with the configured settings.
 		 * @return A new Scene instance
 		 */
