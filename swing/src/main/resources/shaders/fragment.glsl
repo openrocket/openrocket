@@ -281,8 +281,8 @@ void main()
         return; // Exit immediately
     }
 
-    // 2 = DECAL_SURFACE_INSIDE (RenderingConstants.DECAL_SURFACE_INSIDE)
-    if (hideInnerSurfaces && v_surfaceID == 2) {
+    // 1 = RenderingConstants.SURFACE_ID_INSIDE
+    if (hideInnerSurfaces && v_surfaceID == 1) {
         discard;
     }
     // ----------------------------------------------------------------

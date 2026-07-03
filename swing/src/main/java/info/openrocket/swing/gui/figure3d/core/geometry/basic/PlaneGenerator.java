@@ -34,13 +34,13 @@ public class PlaneGenerator implements GeometryGenerator {
 
 		// Define the 4 vertices of the plane
 		vertices.add(new Vertex(new Vector3f(-halfWidth, 0, halfDepth), new Vector3f(0, 1, 0), new Vector2f(0, 0),
-				RenderingConstants.DECAL_SURFACE_OUTSIDE));           // 0: Top-left
+				RenderingConstants.SURFACE_ID_OUTSIDE));           // 0: Top-left
 		vertices.add(new Vertex(new Vector3f(-halfWidth, 0, -halfDepth), new Vector3f(0, 1, 0), new Vector2f(0, tilingV),
-				RenderingConstants.DECAL_SURFACE_OUTSIDE));      // 1: Bottom-left
+				RenderingConstants.SURFACE_ID_OUTSIDE));      // 1: Bottom-left
 		vertices.add(new Vertex(new Vector3f(halfWidth, 0, -halfDepth), new Vector3f(0, 1, 0), new Vector2f(tilingU, tilingV),
-				RenderingConstants.DECAL_SURFACE_OUTSIDE)); // 2: Bottom-right
+				RenderingConstants.SURFACE_ID_OUTSIDE)); // 2: Bottom-right
 		vertices.add(new Vertex(new Vector3f(halfWidth, 0, halfDepth), new Vector3f(0, 1, 0), new Vector2f(tilingU, 0),
-				RenderingConstants.DECAL_SURFACE_OUTSIDE));      // 3: Top-right
+				RenderingConstants.SURFACE_ID_OUTSIDE));      // 3: Top-right
 
 		// Define the two triangles based on the desired winding order.
 		if (windingOrder == GeometryConstants.WindingOrder.COUNTER_CLOCKWISE) {

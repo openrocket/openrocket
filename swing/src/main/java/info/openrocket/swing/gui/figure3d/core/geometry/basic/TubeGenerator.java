@@ -369,14 +369,14 @@ public class TubeGenerator implements GeometryGenerator {
 
 				Vector3f nOuter = new Vector3f(avgOuterSlope, cos, sin).normalize();
 				Vector3f pOuter = new Vector3f(x, currentPoint.radius * cos, currentPoint.radius * sin);
-				vertexList.add(new Vertex(pOuter, nOuter, new Vector2f(u, v), RenderingConstants.DECAL_SURFACE_OUTSIDE));
+				vertexList.add(new Vertex(pOuter, nOuter, new Vector2f(u, v), RenderingConstants.SURFACE_ID_OUTSIDE));
 
 				// Inner vertices are now always generated for a hollow tube to ensure consistent data layout.
 				if (!isFilled) {
 					RadiusPoint currentInnerPoint = innerProfile.get(i);
 					Vector3f nInner = new Vector3f(-avgInnerSlope, -cos, -sin).normalize();
 					Vector3f pInner = new Vector3f(innerX, currentInnerPoint.radius * cos, currentInnerPoint.radius * sin);
-					vertexList.add(new Vertex(pInner, nInner, new Vector2f(u, v), RenderingConstants.DECAL_SURFACE_INSIDE));
+					vertexList.add(new Vertex(pInner, nInner, new Vector2f(u, v), RenderingConstants.SURFACE_ID_INSIDE));
 				}
 			}
 		}
@@ -462,7 +462,7 @@ public class TubeGenerator implements GeometryGenerator {
 		boolean isCCWCulling = isFore && !isXRayCutaway || !isFore && isXRayCutaway;
 
 		Vector3f normal = new Vector3f(isCCWCulling ? -1 : 1, 0, 0);
-		int surfaceID = isFore ? RenderingConstants.DECAL_SURFACE_FORE : RenderingConstants.DECAL_SURFACE_AFT;
+		int surfaceID = isFore ? RenderingConstants.SURFACE_ID_FORE : RenderingConstants.SURFACE_ID_AFT;
 		vertexList.add(new Vertex(new Vector3f(x, 0, 0), normal, new Vector2f(0.5f, 0.5f), surfaceID));
 		for (int i = 0; i <= numSegments; i++) {
 			float theta = (float) (2.0 * Math.PI * i / numSegments);
@@ -487,7 +487,7 @@ public class TubeGenerator implements GeometryGenerator {
 		boolean isCCWCulling = isFore && !isXRayCutaway || !isFore && isXRayCutaway;
 
 		Vector3f normal = new Vector3f(isCCWCulling ? -1 : 1, 0, 0);
-		int surfaceID = isFore ? RenderingConstants.DECAL_SURFACE_FORE : RenderingConstants.DECAL_SURFACE_AFT;
+		int surfaceID = isFore ? RenderingConstants.SURFACE_ID_FORE : RenderingConstants.SURFACE_ID_AFT;
 		for (int i = 0; i < numSegments; i++) {
 			float theta1 = (float) (2.0 * Math.PI * i / numSegments);
 			float theta2 = (float) (2.0 * Math.PI * (i + 1) / numSegments);
