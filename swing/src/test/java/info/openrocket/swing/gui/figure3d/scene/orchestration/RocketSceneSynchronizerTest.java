@@ -8,6 +8,7 @@ import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,5 +59,21 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 
 		verify(primaryObject).setAppearance(primaryAppearance);
 		verify(listenerObject).setAppearance(listenerAppearance);
+	}
+
+	@Test
+	void rebuildEventsCoalesceBeforeBuildingQueuedSnapshots() {
+		SceneView scene = mock(SceneView.class);
+		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
+		when(orchestrator.getRenderingConfiguration()).thenReturn(RenderingConfiguration.builder().build());
+
+		Rocket rocket = new Rocket();
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket);
+
+		ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
+		synchronizer.componentChanged(event);
+		synchronizer.componentChanged(event);
+
+		verify(orchestrator, times(1)).enqueueGlTask(any(Runnable.class));
 	}
 }
