@@ -19,6 +19,7 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
@@ -124,6 +125,7 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
         shader.unbind();
         glActiveTexture(GL_TEXTURE0);
         GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
+        glEnable(GL_DEPTH_TEST);
     }
 
     @Override

@@ -246,6 +246,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
 
         // Unbind FBO, ready for the next pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glEnable(GL_DEPTH_TEST);
     }
 
     @Override

@@ -20,6 +20,7 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 
@@ -121,6 +122,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 
         shader.unbind();
         GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
+        glEnable(GL_DEPTH_TEST);
     }
 
     @Override

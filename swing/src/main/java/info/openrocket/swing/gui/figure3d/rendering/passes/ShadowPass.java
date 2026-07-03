@@ -24,10 +24,12 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_POLYGON_OFFSET_FILL;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glGetIntegerv;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.glIsEnabled;
 import static org.lwjgl.opengl.GL11.glPolygonOffset;
@@ -129,6 +131,18 @@ public class ShadowPass implements RenderPass {
 
         boolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
         int previousCullFaceMode = glGetInteger(GL_CULL_FACE_MODE);
+        int previousViewportX;
+        int previousViewportY;
+        int previousViewportWidth;
+        int previousViewportHeight;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            java.nio.IntBuffer previousViewport = stack.mallocInt(4);
+            glGetIntegerv(GL_VIEWPORT, previousViewport);
+            previousViewportX = previousViewport.get(0);
+            previousViewportY = previousViewport.get(1);
+            previousViewportWidth = previousViewport.get(2);
+            previousViewportHeight = previousViewport.get(3);
+        }
         glViewport(0, 0, shadowMapSize, shadowMapSize);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -157,6 +171,7 @@ public class ShadowPass implements RenderPass {
             glCullFace(previousCullFaceMode);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(previousViewportX, previousViewportY, previousViewportWidth, previousViewportHeight);
     }
 
     private boolean shouldSkipObject(SceneObject object) {
