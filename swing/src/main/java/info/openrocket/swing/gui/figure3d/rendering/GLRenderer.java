@@ -2,7 +2,6 @@ package info.openrocket.swing.gui.figure3d.rendering;
 
 
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 
 /**
  * Core interface for the OpenRocket 3D rendering system.
@@ -26,16 +25,15 @@ public interface GLRenderer {
 	 * and post-processing effects.
 	 * 
 	 * @param scene The scene containing geometry, lights, camera, and particle systems to render
-	 * @param windowManager The window manager for viewport and context information
 	 * @param renderBackground Whether to render the scene background or leave it transparent
 	 */
-    void render(SceneView scene, WindowManager windowManager, boolean renderBackground);
+    void render(SceneView scene, boolean renderBackground);
 
 	/**
 	 * Draws the last rendered off-screen frame into the currently bound framebuffer.
 	 * 
 	 * Implementations typically use a full-screen quad to display the resolved
-	 * color texture that was produced during {@link #render(SceneView, WindowManager, boolean)}.
+	 * color texture that was produced during {@link #render(SceneView, boolean)}.
 	 */
 	void presentResolvedToCurrentFramebuffer();
 

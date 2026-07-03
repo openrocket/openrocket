@@ -3,10 +3,8 @@ package info.openrocket.swing.gui.figure3d.input;
 import info.openrocket.swing.gui.figure3d.window.CursorQuery;
 
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_ALT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
@@ -67,7 +65,7 @@ public class MouseInputHandler implements InputHandler {
                 activeDragButton = button;
                 
                 // Update shift key state for multi-selection
-                inputState.isShiftPressed = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_SHIFT);
+                inputState.isShiftPressed = keyboardHandler.isKeyPressed(KeyEvent.VK_SHIFT);
             } else if (action == GLFW_RELEASE) {
                 // On release, we determine if it was a click or a double-click.
                 if (!isDragging && pressPoint != null) {
@@ -156,8 +154,8 @@ public class MouseInputHandler implements InputHandler {
 
     private void updateDragMode() {
         boolean isRightDrag = activeDragButton == GLFW_MOUSE_BUTTON_RIGHT;
-        boolean isAltDrag = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_ALT);
+        boolean isAltDrag = keyboardHandler.isKeyPressed(KeyEvent.VK_ALT);
         inputState.isLightDragging = isRightDrag || isAltDrag;
-        inputState.isPanning = !inputState.isLightDragging && keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_CONTROL);
+        inputState.isPanning = !inputState.isLightDragging && keyboardHandler.isKeyPressed(KeyEvent.VK_CONTROL);
     }
 }

@@ -2,7 +2,6 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -85,7 +84,7 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
     }
 
     @Override
-    public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+    public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         target.bind();
         glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);

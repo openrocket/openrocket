@@ -8,7 +8,6 @@ import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -47,7 +46,7 @@ public class CameraPointOfInterestPass implements RenderPass {
 	}
 
 	@Override
-	public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+	public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
 		if (!config.getVisualEffects().isCameraPointOfInterestVisible()) {
 			return;
 		}

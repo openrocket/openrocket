@@ -22,7 +22,6 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -381,7 +380,7 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	@Override
-    public void render(SceneView scene, WindowManager windowManager, boolean renderBackground) {
+    public void render(SceneView scene, boolean renderBackground) {
 		renderStats.reset();
 		long startTime = System.nanoTime();
 
@@ -402,21 +401,21 @@ public class RealisticRenderer implements GLRenderer {
 		updateFlameLighting(scene);
 		shadowPass.setEnabled(config.getQuality().isShadowsEnabled());
 		shadowPass.setQuality(config.getQuality().getQuality());
-		shadowPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		shadowPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		glViewport(0, 0, screenWidth, screenHeight);
 
 		// Prepare the main shader with uniforms that are constant for the frame
 		prepareShaderGlobals(scene, camera, cameraViewMatrix, cameraProjectionMatrix);
 
 		// 1. Render the geometry passes to the main FBO
-		renderSceneToTarget(scene, windowManager, renderBackground, camera, cameraViewMatrix, cameraProjectionMatrix);
+		renderSceneToTarget(scene, renderBackground, camera, cameraViewMatrix, cameraProjectionMatrix);
 
 		// Particle renderers bind textures directly, so invalidate the cache before any
 		// post-processing pass that relies on TextureStateManager.
 		textureStateManager.reset();
 
 		// 2. Run the post-processing chain
-		int finalTexture = runPostProcessingChain(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		int finalTexture = runPostProcessingChain(scene, cameraViewMatrix, cameraProjectionMatrix);
 		resolveFinalTexture(finalTexture);
 
 		GLErrors.debugCheck("frame render");
@@ -439,7 +438,7 @@ public class RealisticRenderer implements GLRenderer {
 	 * Renders the geometry passes, particle systems, and overlay markers into the
 	 * off-screen render target.
 	 */
-	private void renderSceneToTarget(SceneView scene, WindowManager windowManager, boolean renderBackground,
+	private void renderSceneToTarget(SceneView scene, boolean renderBackground,
 									 Camera camera, Matrix4f cameraViewMatrix, Matrix4f cameraProjectionMatrix) {
 		renderTarget.bind();
 		glViewport(0, 0, screenWidth, screenHeight);
@@ -449,16 +448,16 @@ public class RealisticRenderer implements GLRenderer {
 			if (!renderBackground && pass instanceof BackgroundPass) {
 				continue;
 			}
-			pass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		}
 
 		particleRenderer.render(scene, camera);
 		volumetricSmokeRenderer.render(scene, camera);
 		flameRenderer.render(scene, camera);
 		if (config.getVisualEffects().areCaretsVisible()) {
-			caretsPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			caretsPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		}
-		cameraPointOfInterestPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+		cameraPointOfInterestPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		renderTarget.unbind();
 	}
 
@@ -481,14 +480,14 @@ public class RealisticRenderer implements GLRenderer {
 	 *
 	 * @return the texture id holding the final processed frame
 	 */
-	private int runPostProcessingChain(SceneView scene, WindowManager windowManager,
+	private int runPostProcessingChain(SceneView scene,
 									   Matrix4f cameraViewMatrix, Matrix4f cameraProjectionMatrix) {
 		int currentTexture = renderTarget.getColorTextureId();
 
 		if (config.getQuality().isAmbientOcclusionEnabled() && !interactionMode) {
 			ambientOcclusionPass.setInputTexture(currentTexture);
 			ambientOcclusionPass.setDepthTexture(renderTarget.getDepthTextureId());
-			ambientOcclusionPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			ambientOcclusionPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 			currentTexture = ambientOcclusionPass.getOutputTexture();
 		}
 
@@ -498,7 +497,7 @@ public class RealisticRenderer implements GLRenderer {
 			motionBlurPass.setInputTexture(currentTexture);
 			motionBlurPass.setDepthTexture(renderTarget.getDepthTextureId());
 			computeAndSetBlurDirection(scene, cameraViewMatrix, cameraProjectionMatrix);
-			motionBlurPass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+			motionBlurPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 			currentTexture = motionBlurPass.getOutputTexture();
 		}
 
@@ -509,11 +508,11 @@ public class RealisticRenderer implements GLRenderer {
 			}
 			if (pass instanceof ScreenTexturePass screenPass) {
 				screenPass.setInputTexture(currentTexture);
-				pass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+				pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 				currentTexture = screenPass.getOutputTexture();
 			} else {
 				// This pass doesn't process the screen texture, just run it
-				pass.render(scene, windowManager, cameraViewMatrix, cameraProjectionMatrix);
+				pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 			}
 		}
 

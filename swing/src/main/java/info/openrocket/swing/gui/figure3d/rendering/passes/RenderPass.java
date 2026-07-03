@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 
 /**
@@ -32,11 +31,10 @@ public interface RenderPass {
      * own render targets.
      * 
      * @param scene The scene containing objects, lights, and other render data
-     * @param windowManager The window manager for viewport and context information
      * @param viewMatrix The camera view transformation matrix
      * @param projectionMatrix The camera projection matrix
      */
-    void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix);
+    void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix);
 
     /**
      * Handles viewport size changes by resizing render targets and resources.

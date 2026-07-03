@@ -104,7 +104,7 @@ public class Standalone3DEngine implements Runnable {
 				// 3. Redraw the scene immediately within the callback.
 				// This is critical because the main loop is paused during the resize.
 				scene3DOrchestrator.update();
-				scene3DOrchestrator.getRenderer().render(scene3DOrchestrator.getScene(), windowManager, true);
+				scene3DOrchestrator.getRenderer().render(scene3DOrchestrator.getScene(), true);
 				windowManager.swapBuffers();
 			}
 		});
@@ -128,7 +128,7 @@ public class Standalone3DEngine implements Runnable {
         glViewport(0, 0, fbSize[0], fbSize[1]);
 
 				// Render the scene for export
-				renderer.render(scene3DOrchestrator.getScene(), windowManager, !scene3DOrchestrator.isExportTransparent());
+				renderer.render(scene3DOrchestrator.getScene(), !scene3DOrchestrator.isExportTransparent());
 
 				// Export from the resolved off-screen buffer
 				try {
@@ -151,7 +151,7 @@ public class Standalone3DEngine implements Runnable {
 			glViewport(0, 0, fbSize[0], fbSize[1]);
 
 			scene3DOrchestrator.update();
-			renderer.render(scene3DOrchestrator.getScene(), windowManager, true);
+			renderer.render(scene3DOrchestrator.getScene(), true);
 			renderer.presentResolvedToCurrentFramebuffer();
 			windowManager.swapBuffers();
 			updateFpsCounter();

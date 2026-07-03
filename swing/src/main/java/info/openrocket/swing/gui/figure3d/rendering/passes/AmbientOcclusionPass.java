@@ -4,7 +4,6 @@ import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL33;
 
@@ -82,7 +81,7 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
     }
 
     @Override
-    public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+    public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         if (inputTexture == 0 || depthTexture == 0) {
             return;
         }

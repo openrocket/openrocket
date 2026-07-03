@@ -20,7 +20,7 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 
 	/**
 	 * Processes raw GLFW key events and updates internal key state.
-	 * @param key the GLFW key code
+	 * @param key the AWT {@code KeyEvent.VK_*}-style key code
 	 * @param action GLFW_PRESS or GLFW_RELEASE
 	 */
     @Override
@@ -38,7 +38,7 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 
 	/**
 	 * Registers an action to execute once per key press.
-	 * @param key the GLFW key code
+	 * @param key the AWT {@code KeyEvent.VK_*}-style key code
 	 * @param action the action to execute
 	 */
 	public void addSinglePressAction(int key, Runnable action) {
@@ -47,7 +47,7 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 
 	/**
 	 * Registers an action to execute continuously while key is held.
-	 * @param key the GLFW key code
+	 * @param key the AWT {@code KeyEvent.VK_*}-style key code
 	 * @param action the action to execute repeatedly
 	 */
 	public void addPressAndHoldAction(int key, Runnable action) {

@@ -56,22 +56,6 @@ public interface WindowManager {
 	int[] getWindowSize();
 
 	/**
-	 * Gets the current window width in screen coordinates.
-	 *
-	 * @return The width of the window in screen coordinates.
-	 */
-	@Deprecated
-	int getWidth();
-
-	/**
-	 * Gets the current window height in screen coordinates.
-	 *
-	 * @return The height of the window in screen coordinates.
-	 */
-	@Deprecated
-	int getHeight();
-
-	/**
 	 * Sets the title of the window.
 	 * @param title The new title for the window.
 	 */

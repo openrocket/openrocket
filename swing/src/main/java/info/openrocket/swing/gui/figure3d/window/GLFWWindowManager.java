@@ -8,10 +8,17 @@ import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryUtil;
 
+import java.awt.event.KeyEvent;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_ALT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_ALT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_CONTROL;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_FORWARD_COMPAT;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_PROFILE;
@@ -130,7 +137,7 @@ public class GLFWWindowManager implements WindowManager, FramebufferAware, Curso
      */
     public void setupKeyboardCallbacks(KeyboardListener listener) {
         glfwSetKeyCallback(window, (windowHandle, key, scancode, action, mods) -> {
-            listener.handleKeyEvent(key, action);
+            listener.handleKeyEvent(toKeyEventCode(key), action);
         });
 
         // Clear key states when window loses focus to prevent stale key states
@@ -139,6 +146,15 @@ public class GLFWWindowManager implements WindowManager, FramebufferAware, Curso
                 listener.clearAllKeyStates();
             }
         });
+    }
+
+    private static int toKeyEventCode(int glfwKey) {
+        return switch (glfwKey) {
+            case GLFW_KEY_LEFT_SHIFT, GLFW_KEY_RIGHT_SHIFT -> KeyEvent.VK_SHIFT;
+            case GLFW_KEY_LEFT_CONTROL, GLFW_KEY_RIGHT_CONTROL -> KeyEvent.VK_CONTROL;
+            case GLFW_KEY_LEFT_ALT, GLFW_KEY_RIGHT_ALT -> KeyEvent.VK_ALT;
+            default -> glfwKey;
+        };
     }
     
     /**
@@ -164,37 +180,13 @@ public class GLFWWindowManager implements WindowManager, FramebufferAware, Curso
      */
     @Override
     public int[] getWindowSize() {
-        int width = getWidth();
-        int height = getHeight();
-		return new int[]{width, height};
-    }
-
-    /**
-     * Gets the current window width in screen coordinates.
-     *
-     * @return The width of the window in screen coordinates
-     */
-    @Override
-    public int getWidth() {
         IntBuffer widthBuffer = MemoryUtil.memAllocInt(1);
-        glfwGetWindowSize(window, widthBuffer, null);
-        int width = widthBuffer.get(0);
-        MemoryUtil.memFree(widthBuffer);
-        return width;
-    }
-
-    /**
-     * Gets the current window height in screen coordinates.
-     *
-     * @return The height of the window in screen coordinates
-     */
-    @Override
-    public int getHeight() {
         IntBuffer heightBuffer = MemoryUtil.memAllocInt(1);
-        glfwGetWindowSize(window, null, heightBuffer);
-        int height = heightBuffer.get(0);
+        glfwGetWindowSize(window, widthBuffer, heightBuffer);
+        int[] result = {widthBuffer.get(0), heightBuffer.get(0)};
+        MemoryUtil.memFree(widthBuffer);
         MemoryUtil.memFree(heightBuffer);
-        return height;
+		return result;
     }
 
     /**

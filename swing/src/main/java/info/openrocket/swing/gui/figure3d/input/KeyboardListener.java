@@ -6,7 +6,7 @@ package info.openrocket.swing.gui.figure3d.input;
 public interface KeyboardListener {
     /**
      * Process a raw key event.
-     * @param key GLFW key code
+     * @param key AWT {@code KeyEvent.VK_*}-style key code
      * @param action GLFW_PRESS or GLFW_RELEASE
      */
     void handleKeyEvent(int key, int action);
@@ -16,4 +16,3 @@ public interface KeyboardListener {
      */
     void clearAllKeyStates();
 }
-

@@ -6,7 +6,6 @@ import info.openrocket.swing.gui.figure3d.scene.core.Light;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
@@ -111,7 +110,7 @@ public class ShadowPass implements RenderPass {
     }
 
     @Override
-    public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+    public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         if (!shadowsEnabled) {
             resetShadowState();
             return;

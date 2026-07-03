@@ -9,7 +9,6 @@ import info.openrocket.swing.gui.figure3d.rendering.backgrounds.ImageBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SkyboxBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
-import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -172,7 +171,7 @@ public class BackgroundPass implements RenderPass {
     }
 
     @Override
-    public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+    public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         renderBackground(scene, scene.getBackground());
     }
 

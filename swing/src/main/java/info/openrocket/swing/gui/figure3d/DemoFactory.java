@@ -45,18 +45,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_C;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_F;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_T;
 
 /**
  * A factory for creating demo content, separating it from the core engine logic.
@@ -369,7 +362,7 @@ public class DemoFactory {
 	 */
     public static void setupDemoKeyboardHandling(KeyBindings handler, SceneView scene, Scene3DOrchestrator scene3DOrchestrator) {
 		// Change Nose Cone Length with 'G'
-		handler.addSinglePressAction(GLFW_KEY_G, () -> {
+		handler.addSinglePressAction(KeyEvent.VK_G, () -> {
 			scene.getObjects().stream()
 					.filter(obj -> obj.getRocketComponent() instanceof NoseCone)
 					.findFirst()
@@ -377,7 +370,7 @@ public class DemoFactory {
 		});
 
 		// Change Nose Cone Color with 'C'
-		handler.addSinglePressAction(GLFW_KEY_C, () -> {
+		handler.addSinglePressAction(KeyEvent.VK_C, () -> {
 			scene.getObjects().stream()
 					.filter(obj -> obj.getRocketComponent() instanceof NoseCone)
 					.findFirst()
@@ -394,7 +387,7 @@ public class DemoFactory {
 		});
 
 		// Cycle through TextureModes with 'T'
-		handler.addSinglePressAction(GLFW_KEY_T, () -> {
+		handler.addSinglePressAction(KeyEvent.VK_T, () -> {
 			scene.getSelectedObjects().stream()
 					.filter(obj -> obj.getRocketComponent() instanceof BodyTube)
 					.findFirst()
@@ -409,11 +402,11 @@ public class DemoFactory {
 		});
 
 		// Focus on rocket with 'F'
-		handler.addSinglePressAction(GLFW_KEY_F, scene3DOrchestrator::focusOnRocket);
+		handler.addSinglePressAction(KeyEvent.VK_F, scene3DOrchestrator::focusOnRocket);
 
 		// Export with 'E'
-		handler.addSinglePressAction(GLFW_KEY_E, () -> {
-			boolean isShiftDown = handler.isKeyPressed(GLFW_KEY_LEFT_SHIFT) || handler.isKeyPressed(GLFW_KEY_RIGHT_SHIFT);
+		handler.addSinglePressAction(KeyEvent.VK_E, () -> {
+			boolean isShiftDown = handler.isKeyPressed(KeyEvent.VK_SHIFT);
 			scene3DOrchestrator.requestExport(isShiftDown); // Request transparent export if Shift is held
 		});
 	}

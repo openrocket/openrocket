@@ -1304,7 +1304,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 
 			// --- Main Display Rendering (if not exporting) --
-			renderer.render(sceneView, null, true);
+			renderer.render(sceneView, true);
 			if (PRESENT_VIA_IMAGE_ON_MACOS) {
 				presentFrameViaImage(renderer);
 			} else {
@@ -1576,7 +1576,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private void handleExport(SceneView sceneView, GLRenderer renderer) {
 		boolean renderBackground = !scene3DOrchestrator.isExportTransparent();
-		renderer.render(sceneView, null, renderBackground);
+		renderer.render(sceneView, renderBackground);
 
 		int exportWidth = renderer.getRenderWidth();
 		int exportHeight = renderer.getRenderHeight();
