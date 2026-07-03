@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -113,8 +114,10 @@ public class SwingPreferences extends ApplicationPreferences {
 	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
 	private Preferences PREFNODE;
-	
-	
+
+	private final Map<String, Set<String>> cachedNodeKeys = new HashMap<>();
+
+
 	public SwingPreferences() {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
@@ -183,6 +186,7 @@ public class SwingPreferences extends ApplicationPreferences {
 				root.node(NODENAME).removeNode();
 			}
 			PREFNODE = root.node(NODENAME);
+			cachedNodeKeys.clear();
 			UnitGroup.resetDefaultUnits();
 			storeDefaultUnits();
 			log.info("Cleared preferences");
@@ -196,20 +200,43 @@ public class SwingPreferences extends ApplicationPreferences {
 	 */
 	private void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
+		cacheKeyAdded(PREFNODE, "OpenRocketVersion");
 	}
 
 	/**
 	 * Checks if a certain key exists in the node
+	 * Results are cached per node path and updated incrementally on writes to avoid
+	 * repeated native disk I/O from AbstractPreferences.keys().
 	 * @param node node to check the keys of.
 	 * @param key key to check
 	 * @return true if the key is stored in the preferences, false otherwise
 	 */
 	private boolean keyExists(Preferences node, String key) {
-		try {
-			return Arrays.asList(node.keys()).contains(key);
-		} catch (BackingStoreException e) {
-			e.printStackTrace();
-			return false;
+		String path = node.absolutePath();
+		Set<String> keys = cachedNodeKeys.get(path);
+		if (keys == null) {
+			try {
+				keys = new HashSet<>(Arrays.asList(node.keys()));
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+				return false;
+			}
+			cachedNodeKeys.put(path, keys);
+		}
+		return keys.contains(key);
+	}
+
+	private void cacheKeyAdded(Preferences node, String key) {
+		Set<String> keys = cachedNodeKeys.get(node.absolutePath());
+		if (keys != null) {
+			keys.add(key);
+		}
+	}
+
+	private void cacheKeyRemoved(Preferences node, String key) {
+		Set<String> keys = cachedNodeKeys.get(node.absolutePath());
+		if (keys != null) {
+			keys.remove(key);
 		}
 	}
 
@@ -224,6 +251,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public String getString(String key, String def) {
 		if (!keyExists(PREFNODE, key) && key != null && def != null) {
 			PREFNODE.put(key, def);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -232,12 +260,13 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		return PREFNODE.get(key, def);
 	}
-	
+
 	@Override
 	public String getString(String directory, String key, String defaultValue) {
 		Preferences p = PREFNODE.node(directory);
 		if (!keyExists(p, key) && key != null && defaultValue != null) {
 			p.put(key, defaultValue);
+			cacheKeyAdded(p, key);
 			try {
 				p.flush();
 			} catch (BackingStoreException e) {
@@ -257,19 +286,23 @@ public class SwingPreferences extends ApplicationPreferences {
 	public void putString(String key, String value) {
 		if (value == null) {
 			PREFNODE.remove(key);
+			cacheKeyRemoved(PREFNODE, key);
 		} else {
 			PREFNODE.put(key, value);
+			cacheKeyAdded(PREFNODE, key);
 		}
 		storeVersion();
 	}
-	
+
 	@Override
 	public void putString(String directory, String key, String value) {
 		Preferences p = PREFNODE.node(directory);
 		if (value == null) {
 			p.remove(key);
+			cacheKeyRemoved(p, key);
 		} else {
 			p.put(key, value);
+			cacheKeyAdded(p, key);
 		}
 		storeVersion();
 	}
@@ -287,6 +320,7 @@ public class SwingPreferences extends ApplicationPreferences {
 		if (!keyExists(PREFNODE, key) && key != null) {
 			// Save the default value
 			PREFNODE.putBoolean(key, def);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -305,6 +339,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	@Override
 	public void putBoolean(String key, boolean value) {
 		PREFNODE.putBoolean(key, value);
+		cacheKeyAdded(PREFNODE, key);
 		storeVersion();
 	}
 
@@ -312,6 +347,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public int getInt(String key, int defaultValue) {
 		if (!keyExists(PREFNODE, key) && key != null) {
 			PREFNODE.putInt(key, defaultValue);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -320,10 +356,11 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		return PREFNODE.getInt(key, defaultValue);
 	}
-	
+
 	@Override
 	public void putInt(String key, int value) {
 		PREFNODE.putInt(key, value);
+		cacheKeyAdded(PREFNODE, key);
 		storeVersion();
 	}
 
@@ -331,6 +368,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public double getDouble(String key, double defaultValue) {
 		if (!keyExists(PREFNODE, key) && key != null) {
 			PREFNODE.putDouble(key, defaultValue);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -339,10 +377,11 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		return PREFNODE.getDouble(key, defaultValue);
 	}
-	
+
 	@Override
 	public void putDouble(String key, double value) {
 		PREFNODE.putDouble(key, value);
+		cacheKeyAdded(PREFNODE, key);
 		storeVersion();
 	}
 	
