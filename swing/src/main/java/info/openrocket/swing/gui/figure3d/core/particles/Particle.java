@@ -18,6 +18,9 @@ public class Particle implements Cloneable {
     public Vector3f angularVelocity;
 
     private float maxLife;
+    private final Vector3f scratchVector = new Vector3f();
+    private final Vector3f scratchAxis = new Vector3f();
+    private final Quaternionf scratchRotation = new Quaternionf();
 
     /**
      * Creates a particle with basic properties and default orientation.
@@ -86,15 +89,16 @@ public class Particle implements Cloneable {
     public boolean update(float deltaTime, Vector3f gravity) {
         life -= deltaTime;
         if (life > 0) {
-            velocity.add(gravity.mul(deltaTime, new Vector3f()));
-            position.add(velocity.mul(deltaTime, new Vector3f()));
+            velocity.add(scratchVector.set(gravity).mul(deltaTime));
+            position.add(scratchVector.set(velocity).mul(deltaTime));
             
             // Update 3D rotation using angular velocity
-            if (angularVelocity.lengthSquared() > 0) {
-                float angle = angularVelocity.length() * deltaTime;
-                Vector3f axis = new Vector3f(angularVelocity).normalize();
-                Quaternionf deltaRotation = new Quaternionf().rotateAxis(angle, axis);
-                orientation.mul(deltaRotation);
+            float angularSpeedSquared = angularVelocity.lengthSquared();
+            if (angularSpeedSquared > 0) {
+                float angularSpeed = (float) Math.sqrt(angularSpeedSquared);
+                float angle = angularSpeed * deltaTime;
+                scratchAxis.set(angularVelocity).mul(1.0f / angularSpeed);
+                orientation.mul(scratchRotation.identity().rotateAxis(angle, scratchAxis));
             }
             
             return true;

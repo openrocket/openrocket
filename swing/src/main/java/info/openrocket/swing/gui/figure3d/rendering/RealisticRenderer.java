@@ -92,6 +92,7 @@ public class RealisticRenderer implements GLRenderer {
 
 	private static final Logger log = LoggerFactory.getLogger(RealisticRenderer.class);
 	private static final int DEFAULT_SCENE_MSAA_SAMPLES = 4;
+	private static final int MAX_SHADER_LIGHTS = 10;
 
 	// Shader resource paths
 	private static final String MAIN_VERTEX_SHADER_PATH = "/shaders/vertex.glsl";
@@ -112,6 +113,12 @@ public class RealisticRenderer implements GLRenderer {
 
 	private final GLShader mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
+	private final Vector3f cameraPosition = new Vector3f();
+	private final Vector3f scratchFogColor = new Vector3f();
+	private final Vector3f blurRocketAxis = new Vector3f();
+	private final Vector4f blurOrigin = new Vector4f();
+	private final Vector4f blurTip = new Vector4f();
+	private final Matrix4f blurViewProjection = new Matrix4f();
 
 	// Performance optimizations
     private final TextureBinder textureStateManager = new TextureStateManager();
@@ -136,6 +143,8 @@ public class RealisticRenderer implements GLRenderer {
 	private final VolumetricSmokeRenderer volumetricSmokeRenderer;
 	private final FlameRenderer flameRenderer;
     private final GLShader screenQuadShader;
+	private final int screenQuadTextureLocation;
+	private final int screenQuadApplyGammaCorrectionLocation;
     private final CaretsPass caretsPass;
     private final CameraPointOfInterestPass cameraPointOfInterestPass;
     private final ShadowPass shadowPass;
@@ -187,6 +196,7 @@ public class RealisticRenderer implements GLRenderer {
 		public final int enableRoughnessBump;
 		public final int hideInnerSurfaces;
 		public final int xrayMode;
+		public final LightUniforms[] lights = new LightUniforms[MAX_SHADER_LIGHTS];
 
 		/**
 		 * Creates a new uniform location cache for the given shader.
@@ -231,6 +241,24 @@ public class RealisticRenderer implements GLRenderer {
 			this.enableRoughnessBump = shader.getUniformLocation("enableRoughnessBump");
 			this.hideInnerSurfaces = shader.getUniformLocation("hideInnerSurfaces");
 			this.xrayMode = shader.getUniformLocation("xrayMode");
+			for (int i = 0; i < lights.length; i++) {
+				lights[i] = new LightUniforms(shader, i);
+			}
+		}
+
+		public static class LightUniforms {
+			public final int type;
+			public final int position;
+			public final int direction;
+			public final int color;
+
+			LightUniforms(GLShader shader, int index) {
+				String prefix = "lights[" + index + "].";
+				this.type = shader.getUniformLocation(prefix + "type");
+				this.position = shader.getUniformLocation(prefix + "position");
+				this.direction = shader.getUniformLocation(prefix + "direction");
+				this.color = shader.getUniformLocation(prefix + "color");
+			}
 		}
 	}
 
@@ -262,6 +290,8 @@ public class RealisticRenderer implements GLRenderer {
 		mainShader = new GLShader(MAIN_VERTEX_SHADER_PATH, MAIN_FRAGMENT_SHADER_PATH);
 		mainShaderUniforms = new ShaderUniforms(mainShader);
 		screenQuadShader = new GLShader(SCREEN_QUAD_VERTEX_SHADER_PATH, SCREEN_QUAD_FRAGMENT_SHADER_PATH);
+		screenQuadTextureLocation = screenQuadShader.getUniformLocation("screenTexture");
+		screenQuadApplyGammaCorrectionLocation = screenQuadShader.getUniformLocation("applyGammaCorrection");
 
 		particleRenderer = new ParticleRenderer();
 		volumetricSmokeRenderer = new VolumetricSmokeRenderer();
@@ -512,11 +542,11 @@ public class RealisticRenderer implements GLRenderer {
 
 		// The rocket axis is along X in model space.
 		// Extract the X-axis direction from the model matrix (first column).
-		Vector3f rocketAxis = new Vector3f(rocketModel.m00(), rocketModel.m01(), rocketModel.m02()).normalize();
+		Vector3f rocketAxis = blurRocketAxis.set(rocketModel.m00(), rocketModel.m01(), rocketModel.m02()).normalize();
 
 		// Pick a reference point (center of the rocket in world space)
-		Vector4f origin = new Vector4f(rocketModel.m30(), rocketModel.m31(), rocketModel.m32(), 1.0f);
-		Vector4f tip = new Vector4f(
+		Vector4f origin = blurOrigin.set(rocketModel.m30(), rocketModel.m31(), rocketModel.m32(), 1.0f);
+		Vector4f tip = blurTip.set(
 				origin.x + rocketAxis.x,
 				origin.y + rocketAxis.y,
 				origin.z + rocketAxis.z,
@@ -524,7 +554,7 @@ public class RealisticRenderer implements GLRenderer {
 		);
 
 		// Transform both points to clip space
-		Matrix4f vp = new Matrix4f(projectionMatrix).mul(viewMatrix);
+		Matrix4f vp = blurViewProjection.set(projectionMatrix).mul(viewMatrix);
 		vp.transform(origin);
 		vp.transform(tip);
 
@@ -559,7 +589,7 @@ public class RealisticRenderer implements GLRenderer {
 		// Camera uniforms
 		mainShader.setUniformMatrix4f(mainShaderUniforms.projection, projectionMatrix);
 		mainShader.setUniformMatrix4f(mainShaderUniforms.view, viewMatrix);
-		Vector3f cameraPos = camera.getPosition();
+		Vector3f cameraPos = camera.getPosition(cameraPosition);
 		glUniform3f(mainShaderUniforms.viewPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
 		mainShader.setUniformMatrix4f(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
@@ -577,29 +607,32 @@ public class RealisticRenderer implements GLRenderer {
 
 		// --- Lighting ---
 		List<Light> lights = scene.getLightController().getLights();
-		int numActiveLights = Math.min(lights.size(), 10);
+		int numActiveLights = Math.min(lights.size(), MAX_SHADER_LIGHTS);
 		glUniform1i(mainShaderUniforms.numLights, numActiveLights);
 
 		for (int i = 0; i < numActiveLights; i++) {
 			Light light = lights.get(i);
-			String lightUni = "lights[" + i + "].";
-			glUniform1i(mainShader.getUniformLocation(lightUni + "type"), light.getType().ordinal());
-			glUniform3f(mainShader.getUniformLocation(lightUni + "position"), light.getPosition().x, light.getPosition().y, light.getPosition().z);
-			glUniform3f(mainShader.getUniformLocation(lightUni + "direction"), light.getDirection().x, light.getDirection().y, light.getDirection().z);
-			glUniform3f(mainShader.getUniformLocation(lightUni + "color"), light.getColor().x, light.getColor().y, light.getColor().z);
+			ShaderUniforms.LightUniforms lightUniforms = mainShaderUniforms.lights[i];
+			Vector3f lightPosition = light.getPosition();
+			Vector3f lightDirection = light.getDirection();
+			Vector3f lightColor = light.getColor();
+			glUniform1i(lightUniforms.type, light.getType().ordinal());
+			glUniform3f(lightUniforms.position, lightPosition.x, lightPosition.y, lightPosition.z);
+			glUniform3f(lightUniforms.direction, lightDirection.x, lightDirection.y, lightDirection.z);
+			glUniform3f(lightUniforms.color, lightColor.x, lightColor.y, lightColor.z);
 		}
 
 		// Fog
 		if (scene.isFogEnabled()) {
 			glUniform1i(mainShaderUniforms.fogEnabled, 1);
-			final Vector3f fogColor;
+			final Vector3f fogColor = scratchFogColor;
 			if (scene.getBackground() instanceof SolidColorBackground) {
 				Vector4f bgColor = ((SolidColorBackground) scene.getBackground()).getColor();
-				fogColor = new Vector3f(bgColor.x, bgColor.y, bgColor.z);
+				fogColor.set(bgColor.x, bgColor.y, bgColor.z);
 			} else if (scene.getBackground() instanceof GradientBackground) {
-				fogColor = ((GradientBackground) scene.getBackground()).getBottomColor();
+				fogColor.set(((GradientBackground) scene.getBackground()).getBottomColor());
 			} else {
-				fogColor = new Vector3f(0.5f, 0.6f, 0.7f);
+				fogColor.set(0.5f, 0.6f, 0.7f);
 			}
 			glUniform3f(mainShaderUniforms.fogColor, fogColor.x, fogColor.y, fogColor.z);
 			glUniform1f(mainShaderUniforms.fogDensity, scene.getFogDensity());
@@ -663,7 +696,7 @@ public class RealisticRenderer implements GLRenderer {
 		screenQuadShader.use();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, currentTexture);
-		glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
+		glUniform1i(screenQuadTextureLocation, 0);
 
 		glBindVertexArray(screenQuadVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -716,15 +749,15 @@ public class RealisticRenderer implements GLRenderer {
 		screenQuadShader.use();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, resolvedTextureId);
-		glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
-		glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 1);
+		glUniform1i(screenQuadTextureLocation, 0);
+		glUniform1i(screenQuadApplyGammaCorrectionLocation, 1);
 
 		glBindVertexArray(screenQuadVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 
 		// Reset uniform and restore sRGB state for subsequent intermediate passes
-		glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 0);
+		glUniform1i(screenQuadApplyGammaCorrectionLocation, 0);
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glEnable(GL_DEPTH_TEST);
 	}

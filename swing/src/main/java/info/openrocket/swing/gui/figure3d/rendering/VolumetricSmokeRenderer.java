@@ -98,6 +98,8 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
     private final int lightIntensityLocation;
     private final int ambientLightLocation;
     private final int lightSensitivityLocation;
+    private final Vector3f scratchFlameLight = new Vector3f();
+    private final Vector3f scratchFlameLightColor = new Vector3f();
 
     /**
      * Creates a new volumetric smoke renderer with lighting integration.
@@ -178,8 +180,8 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
         shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
         
         // Find the brightest flame to use as primary light source
-        Vector3f flameLight = new Vector3f(10.0f, 10.0f, 10.0f); // Default light position
-        Vector3f flameLightColor = new Vector3f(1.0f, 0.9f, 0.8f); // Default warm light
+        Vector3f flameLight = scratchFlameLight.set(10.0f, 10.0f, 10.0f); // Default light position
+        Vector3f flameLightColor = scratchFlameLightColor.set(1.0f, 0.9f, 0.8f); // Default warm light
         float flameLightIntensity = 2.0f; // Default intensity
         
         // Look for flame emitters to use as dynamic light sources
@@ -191,8 +193,8 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
                 
                 if (intensity > maxFlameIntensity) {
                     maxFlameIntensity = intensity;
-                    flameLight = flameEmitter.calculateLightPosition();
-                    flameLightColor = new Vector3f(1.0f, 0.6f, 0.2f); // Orange flame light
+                    flameLight = flameEmitter.calculateLightPosition(scratchFlameLight);
+                    flameLightColor = scratchFlameLightColor.set(1.0f, 0.6f, 0.2f); // Orange flame light
                     flameLightIntensity = intensity + 1.0f; // Add base intensity
                 }
             }

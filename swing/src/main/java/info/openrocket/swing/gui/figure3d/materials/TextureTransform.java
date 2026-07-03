@@ -14,6 +14,9 @@ public class TextureTransform {
 	public Vector2f scale = new Vector2f(1.0f, 1.0f);
 	public float rotation = 0.0f; // In radians
 	private boolean scaleFromTop = true;
+	private final Matrix4f legacyMatrix = new Matrix4f();
+	private final Matrix4f flipUvMatrix = new Matrix4f();
+	private final Matrix4f halfTurnMatrix = new Matrix4f();
 
 	public void setScaleFromTop(boolean scaleFromTop) {
 		this.scaleFromTop = scaleFromTop;
@@ -28,8 +31,7 @@ public class TextureTransform {
 	 */
 	public Matrix4f getTransformMatrix(Matrix4f dest) {
 		// T(-center) * R * T(center) * S * T(offset)
-		Matrix4f legacy = new Matrix4f()
-				.identity()
+		legacyMatrix.identity()
 				.translate(-center.x, -center.y, 0.0f)
 				.rotate(rotation, 0, 0, 1)
 				.translate(center.x, center.y, 0.0f)
@@ -39,22 +41,20 @@ public class TextureTransform {
 		// The new renderer's UV axes are flipped relative to the legacy JOGL path.
 		// Conjugate the full legacy transform by a UV flip so offset, scale origin,
 		// center and rotation all match the old visual behavior together.
-		Matrix4f flipUV = new Matrix4f()
-				.identity()
+		flipUvMatrix.identity()
 				.translate(1.0f, 1.0f, 0.0f)
 				.scale(-1.0f, -1.0f, 1.0f);
 
-		dest.set(flipUV)
-				.mul(legacy)
-				.mul(flipUV);
+		dest.set(flipUvMatrix)
+				.mul(legacyMatrix)
+				.mul(flipUvMatrix);
 
 		if (!scaleFromTop) {
-			Matrix4f halfTurn = new Matrix4f()
-					.identity()
+			halfTurnMatrix.identity()
 					.translate(0.5f, 0.5f, 0.0f)
 					.rotate((float) Math.PI, 0, 0, 1)
 					.translate(-0.5f, -0.5f, 0.0f);
-			dest.mul(halfTurn);
+			dest.mul(halfTurnMatrix);
 		}
 
 		return dest;

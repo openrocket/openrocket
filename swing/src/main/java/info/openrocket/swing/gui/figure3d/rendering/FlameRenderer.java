@@ -72,6 +72,10 @@ public class FlameRenderer implements ParticleSystemRenderer {
     private final int flameTextureLocation;
     private final int flickerIntensityLocation;
     private final int exposureScaleLocation;
+    private final Vector3f cameraPosition = new Vector3f();
+    private final Vector3f billboardToCamera = new Vector3f();
+    private final Vector3f billboardRight = new Vector3f();
+    private final Vector3f billboardUp = new Vector3f();
 
     public FlameRenderer() {
         shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
@@ -140,7 +144,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
         buffer.clear();
         int vertexCount = 0;
 
-        Vector3f cameraPos = camera.getPosition();
+        Vector3f cameraPos = camera.getPosition(cameraPosition);
 
         for (ParticleEmitter emitter : scene.getParticleEmitters()) {
             if (!(emitter instanceof FlameEmitter flameEmitter)) continue;
@@ -219,50 +223,57 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
     private int createParticleBillboard(Vector3f position, float size, float alpha,
                                          Vector3f color, float ageRatio, Vector3f cameraPos) {
-        Vector3f toCamera = new Vector3f(cameraPos).sub(position);
-        if (toCamera.lengthSquared() < 0.001f) {
-            toCamera.set(0, 0, 1);
+        billboardToCamera.set(cameraPos).sub(position);
+        if (billboardToCamera.lengthSquared() < 0.001f) {
+            billboardToCamera.set(0, 0, 1);
         } else {
-            toCamera.normalize();
+            billboardToCamera.normalize();
         }
 
-        Vector3f worldUp = new Vector3f(0, 1, 0);
-        Vector3f right = new Vector3f(worldUp).cross(toCamera);
-        if (right.lengthSquared() < 0.001f) {
-            right.set(1, 0, 0);
+        billboardRight.set(0, 1, 0).cross(billboardToCamera);
+        if (billboardRight.lengthSquared() < 0.001f) {
+            billboardRight.set(1, 0, 0);
         } else {
-            right.normalize();
+            billboardRight.normalize();
         }
 
-        Vector3f up = new Vector3f(toCamera).cross(right).normalize();
-
-        right.mul(size);
-        up.mul(size);
-
-        Vector3f[] v = {
-            new Vector3f(position).sub(right).sub(up),
-            new Vector3f(position).add(right).sub(up),
-            new Vector3f(position).add(right).add(up),
-            new Vector3f(position).sub(right).add(up)
-        };
-
-        float[][] uv = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+        billboardUp.set(billboardToCamera).cross(billboardRight).normalize();
+        billboardRight.mul(size);
+        billboardUp.mul(size);
 
         // Two triangles
-        addVertex(v[0], uv[0], color, alpha, ageRatio);
-        addVertex(v[1], uv[1], color, alpha, ageRatio);
-        addVertex(v[2], uv[2], color, alpha, ageRatio);
+        addVertex(position.x - billboardRight.x - billboardUp.x,
+                position.y - billboardRight.y - billboardUp.y,
+                position.z - billboardRight.z - billboardUp.z,
+                0.0f, 0.0f, color, alpha, ageRatio);
+        addVertex(position.x + billboardRight.x - billboardUp.x,
+                position.y + billboardRight.y - billboardUp.y,
+                position.z + billboardRight.z - billboardUp.z,
+                1.0f, 0.0f, color, alpha, ageRatio);
+        addVertex(position.x + billboardRight.x + billboardUp.x,
+                position.y + billboardRight.y + billboardUp.y,
+                position.z + billboardRight.z + billboardUp.z,
+                1.0f, 1.0f, color, alpha, ageRatio);
 
-        addVertex(v[0], uv[0], color, alpha, ageRatio);
-        addVertex(v[2], uv[2], color, alpha, ageRatio);
-        addVertex(v[3], uv[3], color, alpha, ageRatio);
+        addVertex(position.x - billboardRight.x - billboardUp.x,
+                position.y - billboardRight.y - billboardUp.y,
+                position.z - billboardRight.z - billboardUp.z,
+                0.0f, 0.0f, color, alpha, ageRatio);
+        addVertex(position.x + billboardRight.x + billboardUp.x,
+                position.y + billboardRight.y + billboardUp.y,
+                position.z + billboardRight.z + billboardUp.z,
+                1.0f, 1.0f, color, alpha, ageRatio);
+        addVertex(position.x - billboardRight.x + billboardUp.x,
+                position.y - billboardRight.y + billboardUp.y,
+                position.z - billboardRight.z + billboardUp.z,
+                0.0f, 1.0f, color, alpha, ageRatio);
 
         return 6;
     }
 
-    private void addVertex(Vector3f position, float[] texCoord, Vector3f color, float alpha, float ageRatio) {
-        buffer.put(position.x).put(position.y).put(position.z);
-        buffer.put(texCoord[0]).put(texCoord[1]);
+    private void addVertex(float x, float y, float z, float u, float v, Vector3f color, float alpha, float ageRatio) {
+        buffer.put(x).put(y).put(z);
+        buffer.put(u).put(v);
         buffer.put(color.x).put(color.y).put(color.z).put(alpha);
         buffer.put(ageRatio);
     }

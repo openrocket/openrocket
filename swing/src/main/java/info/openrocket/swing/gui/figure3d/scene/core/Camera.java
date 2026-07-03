@@ -38,6 +38,7 @@ public class Camera {
 	// Horizontal pan goes to centerOfInterest.x; vertical pan goes here.
 	private final Vector3f viewOffset = new Vector3f();
 	private final Vector3f scratchLookAt = new Vector3f();
+	private final Vector3f scratchUp = new Vector3f();
 	private float distance;
 	private float angleX; // Yaw
 	private float angleY; // Pitch
@@ -494,16 +495,15 @@ public class Camera {
 		// Choose up vector: legacy photo-studio mode uses a fixed world-up (0,1,0) to match
 		// the old JOGL gluLookAt behaviour exactly; normal interactive mode uses an orbit-up
 		// computed from yaw/pitch so crossing ±90° pitch stays continuous without snapping.
-		Vector3f up;
 		if (forceFixedUp) {
-			up = new Vector3f(0, 1, 0);
+			scratchUp.set(0, 1, 0);
 		} else {
-			up = new Vector3f(-sinYaw * sinPitch, cosPitch, -cosYaw * sinPitch).normalize();
+			scratchUp.set(-sinYaw * sinPitch, cosPitch, -cosYaw * sinPitch).normalize();
 		}
 
 		// LookAt target is the orbit pivot shifted by the same viewOffset.
 		scratchLookAt.set(centerOfInterest).add(viewOffset);
-		viewMatrix.identity().lookAt(position, scratchLookAt, up);
+		viewMatrix.identity().lookAt(position, scratchLookAt, scratchUp);
 	}
 
 	/**
@@ -540,6 +540,13 @@ public class Camera {
 	 */
 	public Vector3f getPosition() {
 		return new Vector3f(position);
+	}
+
+	public Vector3f getPosition(Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		return destination.set(position);
 	}
 	
 	/**

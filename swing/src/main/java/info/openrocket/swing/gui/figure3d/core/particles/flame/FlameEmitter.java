@@ -19,6 +19,10 @@ public class FlameEmitter extends ParticleEmitter {
     private final float lightIntensity;
     private final float sizeMultiplier;
     private final float exposureScale;
+    private final Vector3f scratchLightPosition = new Vector3f();
+    private final Vector3f scratchWeightedPosition = new Vector3f();
+    private final Vector3f scratchBaseColor = new Vector3f();
+    private final Vector3f scratchFlameColor = new Vector3f();
     
     private Light flameLight;
 
@@ -58,28 +62,32 @@ public class FlameEmitter extends ParticleEmitter {
      * Calculate the average light position and intensity from all flame particles
      */
     public Vector3f calculateLightPosition() {
+        return calculateLightPosition(new Vector3f());
+    }
+
+    public Vector3f calculateLightPosition(Vector3f destination) {
         if (particles.isEmpty()) {
-            return new Vector3f(emitterPosition);
+            return destination.set(emitterPosition);
         }
         
-        Vector3f avgPosition = new Vector3f();
+        destination.zero();
         float totalWeight = 0.0f;
         
         for (Particle particle : particles) {
             float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
             float weight = 1.0f - ageRatio; // Younger particles contribute more
             
-            avgPosition.add(new Vector3f(particle.getPosition()).mul(weight));
+            destination.add(scratchWeightedPosition.set(particle.getPosition()).mul(weight));
             totalWeight += weight;
         }
         
         if (totalWeight > 0) {
-            avgPosition.div(totalWeight);
+            destination.div(totalWeight);
         } else {
-            avgPosition.set(emitterPosition);
+            destination.set(emitterPosition);
         }
         
-        return avgPosition;
+        return destination;
     }
     
     /**
@@ -116,13 +124,13 @@ public class FlameEmitter extends ParticleEmitter {
         boolean shouldHaveLight = intensity > 0.1f;
         
         if (shouldHaveLight) {
-            Vector3f position = calculateLightPosition();
+            Vector3f position = calculateLightPosition(scratchLightPosition);
             
             // Color the dynamic light from the configured flame particle color range.
             float lightIntensity = Math.min(intensity * 8.0f, 3.0f); // Cap at 3.0 for bright but not overwhelming
-            Vector3f baseColor = new Vector3f(settings.maxColor).mul(0.65f)
-                    .add(new Vector3f(settings.minColor).mul(0.35f));
-            Vector3f flameColor = new Vector3f(baseColor).mul(lightIntensity);
+            scratchBaseColor.set(settings.maxColor).mul(0.65f)
+                    .add(scratchFlameColor.set(settings.minColor).mul(0.35f));
+            Vector3f flameColor = scratchFlameColor.set(scratchBaseColor).mul(lightIntensity);
             
             if (flameLight == null) {
                 // Create new light

@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.core.particles;
 
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -56,25 +57,10 @@ public abstract class ParticleEmitter {
             return;
         }
         
-        // Update existing particles
-		particles.removeIf(p -> !p.update(deltaTime, settings.gravity));
+        updateParticleList(deltaTime);
 
         // Create new particles
-        if (!settings.burst || (settings.burst && particles.isEmpty())) { // For burst, create particles only once
-            timeSinceLastCreation += deltaTime;
-            float qualityAdjustedCreationRate = settings.getQualityAdjustedCreationRate();
-            int newParticles = (int) (timeSinceLastCreation * qualityAdjustedCreationRate);
-            if (newParticles > 0) {
-                for (int i = 0; i < newParticles; i++) {
-                    createParticle();
-                }
-                timeSinceLastCreation -= newParticles / qualityAdjustedCreationRate;
-                if (settings.burst) {
-                    // Stop creating particles after the burst by effectively setting creationRate to 0
-                    timeSinceLastCreation = Float.NEGATIVE_INFINITY;
-                }
-            }
-        }
+        emitPendingParticles(deltaTime);
     }
 
     /**
@@ -158,24 +144,10 @@ public abstract class ParticleEmitter {
         while (currentTime < targetTime) {
             float deltaTime = Math.min(timeStep, targetTime - currentTime);
             
-            // Update existing particles
-            particles.removeIf(p -> !p.update(deltaTime, settings.gravity));
+            updateParticleList(deltaTime);
 
             // Create new particles
-            if (!settings.burst || (settings.burst && particles.isEmpty())) {
-                timeSinceLastCreation += deltaTime;
-                float qualityAdjustedCreationRate = settings.getQualityAdjustedCreationRate();
-                int newParticles = (int) (timeSinceLastCreation * qualityAdjustedCreationRate);
-                if (newParticles > 0) {
-                    for (int i = 0; i < newParticles; i++) {
-                        createParticle();
-                    }
-                    timeSinceLastCreation -= newParticles / qualityAdjustedCreationRate;
-                    if (settings.burst) {
-                        timeSinceLastCreation = Float.NEGATIVE_INFINITY;
-                    }
-                }
-            }
+            emitPendingParticles(deltaTime);
             
             currentTime += deltaTime;
         }
@@ -183,6 +155,45 @@ public abstract class ParticleEmitter {
         // Copy current particles to static particles
         for (Particle p : particles) {
             staticParticles.add(p.clone());
+        }
+    }
+
+    private void updateParticleList(float deltaTime) {
+        for (int i = particles.size() - 1; i >= 0; i--) {
+            if (!particles.get(i).update(deltaTime, settings.gravity)) {
+                particles.remove(i);
+            }
+        }
+    }
+
+    private void emitPendingParticles(float deltaTime) {
+        if (settings.burst && !particles.isEmpty()) {
+            return;
+        }
+
+        timeSinceLastCreation += deltaTime;
+        float qualityAdjustedCreationRate = settings.getQualityAdjustedCreationRate();
+        if (qualityAdjustedCreationRate <= 0.0f) {
+            return;
+        }
+
+        int requestedParticles = (int) (timeSinceLastCreation * qualityAdjustedCreationRate);
+        int availableSlots = RenderingConstants.DEFAULT_MAX_PARTICLES - particles.size();
+        int newParticles = Math.min(requestedParticles, Math.max(0, availableSlots));
+        if (newParticles <= 0) {
+            if (availableSlots <= 0) {
+                timeSinceLastCreation = Math.min(timeSinceLastCreation, 1.0f / qualityAdjustedCreationRate);
+            }
+            return;
+        }
+
+        for (int i = 0; i < newParticles; i++) {
+            createParticle();
+        }
+        timeSinceLastCreation -= newParticles / qualityAdjustedCreationRate;
+        if (settings.burst) {
+            // Stop creating particles after the burst by effectively setting creationRate to 0
+            timeSinceLastCreation = Float.NEGATIVE_INFINITY;
         }
     }
 

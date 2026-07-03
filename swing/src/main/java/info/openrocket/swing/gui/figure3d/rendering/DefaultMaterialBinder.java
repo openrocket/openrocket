@@ -34,6 +34,8 @@ public class DefaultMaterialBinder implements MaterialBinder {
     // Unfinished appearances own GL textures, so they must stay scoped to a single renderer/context.
     private final Map<Class<? extends RocketComponent>, Appearance3D> unfinishedAppearanceCache = new HashMap<>();
     private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
+    private final Matrix4f textureTransformMatrix = new Matrix4f();
+    private final Matrix4f decalTransformMatrix = new Matrix4f();
 
     @Override
     public void bind(SceneObject obj,
@@ -101,8 +103,8 @@ public class DefaultMaterialBinder implements MaterialBinder {
         }
 
         Matrix4f textureTransformMatrix = unfinishedMode
-                ? unfinishedAppearance.getTextureTransform().getTransformMatrix(new Matrix4f())
-                : appearance.getTextureTransform().getTransformMatrix(new Matrix4f());
+                ? unfinishedAppearance.getTextureTransform().getTransformMatrix(this.textureTransformMatrix)
+                : appearance.getTextureTransform().getTransformMatrix(this.textureTransformMatrix);
         shader.setUniformMatrix4f(uniforms.textureTransformMatrix, textureTransformMatrix);
 
         // Base texture
@@ -127,8 +129,8 @@ public class DefaultMaterialBinder implements MaterialBinder {
         Texture decal = isFigureMode ? null : unfinishedMode ? unfinishedAppearance.getDecalTexture() : appearance.getDecalTexture();
         if (decal != null) {
             Matrix4f decalTransformMatrix = unfinishedMode
-                    ? unfinishedAppearance.getDecalTransform().getTransformMatrix(new Matrix4f())
-                    : appearance.getDecalTransform().getTransformMatrix(new Matrix4f());
+                    ? unfinishedAppearance.getDecalTransform().getTransformMatrix(this.decalTransformMatrix)
+                    : appearance.getDecalTransform().getTransformMatrix(this.decalTransformMatrix);
             shader.setUniformMatrix4f(uniforms.decalTransformMatrix, decalTransformMatrix);
             textureBinder.bindTexture(1, GL33.GL_TEXTURE_2D, decal.getId());
             // Keep decal linework crisp when zoomed in.

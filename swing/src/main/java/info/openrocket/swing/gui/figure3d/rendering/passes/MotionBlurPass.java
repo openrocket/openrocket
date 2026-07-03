@@ -66,6 +66,10 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
     private int motionBlurTexture;
     private int screenWidth;
     private int screenHeight;
+    private final int blurFactorLocation;
+    private final int blurDirectionLocation;
+    private final int screenTextureLocation;
+    private final int depthTextureLocation;
 
     /**
      * Creates a new motion blur post-processing pass.
@@ -81,9 +85,13 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
     public MotionBlurPass(int screenQuadVAO, int initialWidth, int initialHeight) {
         this.shader = new GLShader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
+        this.blurFactorLocation = shader.getUniformLocation("blurFactor");
+        this.blurDirectionLocation = shader.getUniformLocation("blurDirection");
+        this.screenTextureLocation = shader.getUniformLocation("screenTexture");
+        this.depthTextureLocation = shader.getUniformLocation("depthTexture");
         this.shader.use();
-        this.shader.setUniformInt("screenTexture", 0);
-        GL33.glUniform1i(this.shader.getUniformLocation("depthTexture"), 1);
+        GL33.glUniform1i(screenTextureLocation, 0);
+        GL33.glUniform1i(depthTextureLocation, 1);
         this.shader.unbind();
         resize(initialWidth, initialHeight);
     }
@@ -109,8 +117,8 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
-        shader.setUniformFloat("blurFactor", blurFactor);
-        GL33.glUniform2f(shader.getUniformLocation("blurDirection"), blurDirection.x, blurDirection.y);
+        GL33.glUniform1f(blurFactorLocation, blurFactor);
+        GL33.glUniform2f(blurDirectionLocation, blurDirection.x, blurDirection.y);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, inputTexture);
