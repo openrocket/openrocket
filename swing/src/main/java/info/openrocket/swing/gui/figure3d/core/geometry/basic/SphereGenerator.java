@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.core.geometry.basic;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.GeometryGenerator;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Vector2f;
@@ -30,7 +31,7 @@ public class SphereGenerator implements GeometryGenerator {
 							  float startStackAngleRad, float endStackAngleRad,
 							  float startSectorAngleRad, float endSectorAngleRad) {
 		List<Vertex> vertices = new ArrayList<>();
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 
 		// Ensure valid angles
 		startStackAngleRad = Math.max(0, startStackAngleRad);

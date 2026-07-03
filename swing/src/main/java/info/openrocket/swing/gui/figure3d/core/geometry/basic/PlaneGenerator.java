@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d.core.geometry.basic;
 import info.openrocket.swing.gui.figure3d.constants.GeometryConstants;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.geometry.GeometryGenerator;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Vector2f;
@@ -27,7 +28,7 @@ public class PlaneGenerator implements GeometryGenerator {
 	 */
 	public static Mesh create(float width, float depth, float tilingU, float tilingV, GeometryConstants.WindingOrder windingOrder) {
 		List<Vertex> vertices = new ArrayList<>();
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 
 		float halfWidth = width / 2;
 		float halfDepth = depth / 2;

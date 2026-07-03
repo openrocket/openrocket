@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -51,7 +52,7 @@ public class GLRenderableMesh implements Renderable {
 	private final Vector3f scratchCentroid = new Vector3f();
 	private int sortedElementBufferObjectId;
 	private List<Vertex> sortedVertices;
-	private List<Integer> sortedIndices;
+	private IntList sortedIndices;
 	private long[] triangleSortKeys;
 	private IntBuffer sortedIndexBuffer;
 	private boolean sortedIndicesDirty = true;
@@ -102,9 +103,11 @@ public class GLRenderableMesh implements Renderable {
 		return vertexBuffer;
 	}
 
-	private static IntBuffer packIndexData(List<Integer> indices) {
+	private static IntBuffer packIndexData(IntList indices) {
 		IntBuffer indexBuffer = MemoryUtil.memAllocInt(indices.size());
-		indexBuffer.put(indices.stream().mapToInt(i -> i).toArray());
+		for (int i = 0; i < indices.size(); i++) {
+			indexBuffer.put(indices.get(i));
+		}
 		indexBuffer.flip();
 		return indexBuffer;
 	}

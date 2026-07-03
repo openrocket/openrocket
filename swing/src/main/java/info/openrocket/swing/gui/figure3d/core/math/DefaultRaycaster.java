@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.core.math;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
@@ -68,7 +69,7 @@ public class DefaultRaycaster implements Raycaster {
         float closestDistance = -1.0f;
 
         List<Vertex> vertices = mesh.getVertices();
-        List<Integer> indices = mesh.getIndices();
+        IntList indices = mesh.getIndices();
 
         for (int i = 0; i < indices.size(); i += 3) {
             Vector3f v0 = new Vector3f(vertices.get(indices.get(i)).position);
@@ -116,4 +117,3 @@ public class DefaultRaycaster implements Raycaster {
         return rayDirection;
     }
 }
-

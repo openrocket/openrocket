@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.export;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class ObjExporter implements MeshExporter {
 		Map<String, Integer> normIndexMap = new HashMap<>();
 
 		// Process the mesh data to populate the lists and maps
-		List<Integer> meshIndices = mesh.getIndices();
+		IntList meshIndices = mesh.getIndices();
 		List<Vertex> meshVertices = mesh.getVertices();
 
 		for (int i = 0; i < meshIndices.size(); i += 3) {

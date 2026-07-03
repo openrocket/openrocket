@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.core.geometry.components;
 
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
@@ -17,7 +18,7 @@ public class CGCaretGenerator {
 
     public static Mesh create(GraphicsQualitySettings.RenderQuality renderQuality) {
         List<Vertex> vertices = new ArrayList<>();
-        List<Integer> indices = new ArrayList<>();
+        IntList indices = new IntList();
 
         final int segments = switch (renderQuality) {
             case LOW -> RenderingConstants.LOW_SEGMENT_COUNT;
@@ -39,7 +40,7 @@ public class CGCaretGenerator {
         return new Mesh(vertices, indices);
     }
 
-    private static void generatePieSlice(List<Vertex> vertices, List<Integer> indices, float radius, int segments, float startAngle) {
+    private static void generatePieSlice(List<Vertex> vertices, IntList indices, float radius, int segments, float startAngle) {
         int baseIndex = vertices.size();
         Vector3f normal = new Vector3f(0, 0, 1);
         Vector2f texCoords = new Vector2f(0, 0);
@@ -63,7 +64,7 @@ public class CGCaretGenerator {
         }
     }
 
-    private static void generateQuarterAnnulus(List<Vertex> vertices, List<Integer> indices, float radius, float borderThicknessRatio, int segments, float startAngle) {
+    private static void generateQuarterAnnulus(List<Vertex> vertices, IntList indices, float radius, float borderThicknessRatio, int segments, float startAngle) {
         int baseIndex = vertices.size();
         float innerRadius = radius * (1 - borderThicknessRatio);
         Vector3f normal = new Vector3f(0, 0, 1);
@@ -97,7 +98,7 @@ public class CGCaretGenerator {
         }
     }
 
-    private static void generateRing(List<Vertex> vertices, List<Integer> indices, float outerRadius, float innerRadius, int segments) {
+    private static void generateRing(List<Vertex> vertices, IntList indices, float outerRadius, float innerRadius, int segments) {
         int baseIndex = vertices.size();
         Vector3f normal = new Vector3f(0, 0, 1);
         Vector2f texCoords = new Vector2f(0, 0);

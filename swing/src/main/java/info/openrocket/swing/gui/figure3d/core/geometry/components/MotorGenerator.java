@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.core.geometry.components;
 
 import info.openrocket.core.motor.Motor;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -25,7 +26,7 @@ public class MotorGenerator {
 	 */
 	public static Mesh create(Motor motor, RenderingConfiguration config) {
 		List<Vertex> vertices = new ArrayList<>();
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 
 		float length = (float) motor.getLength();
 		float radius = (float) motor.getDiameter() / 2.0f;

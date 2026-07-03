@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Mesh {
 	private final List<Vertex> vertices;
-	private final List<Integer> indices;
+	private final IntList indices;
 	private final Vector3f boundsMin;
 	private final Vector3f boundsMax;
 
@@ -20,7 +20,7 @@ public class Mesh {
 	 * @param vertices The list of vertices that make up the mesh.
 	 * @param indices The list of indices that define the faces of the mesh.
 	 */
-	public Mesh(List<Vertex> vertices, List<Integer> indices) {
+	public Mesh(List<Vertex> vertices, IntList indices) {
 		this.vertices = vertices;
 		this.indices = indices;
 		this.boundsMin = new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
@@ -45,7 +45,7 @@ public class Mesh {
 	/**
 	 * @return The list of indices for the mesh.
 	 */
-	public List<Integer> getIndices() {
+	public IntList getIndices() {
 		return indices;
 	}
 

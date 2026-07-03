@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.core.geometry.components;
 
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import info.openrocket.swing.gui.figure3d.core.geometry.basic.SphereGenerator;
@@ -29,7 +30,7 @@ public class RailButtonGenerator {
 	 */
 	public static Mesh create(RailButton railButton, RenderingConfiguration config) {
 		List<Vertex> combinedVertices = new ArrayList<>();
-		List<Integer> combinedIndices = new ArrayList<>();
+		IntList combinedIndices = new IntList();
 
 		final int segments = switch (config.getQuality().getQuality()) {
 			case LOW -> RenderingConstants.LOW_SEGMENT_COUNT;
@@ -179,9 +180,7 @@ public class RailButtonGenerator {
 				Vector3f rotatedNormal = new Vector3f(v.normal.x, v.normal.z, -v.normal.y);
 				combinedVertices.add(new Vertex(finalPos, rotatedNormal, v.texCoords, v.surfaceID));
 			}
-			for (Integer index : hemisphereMesh.getIndices()) {
-				combinedIndices.add(index + screwVertexOffset);
-			}
+			combinedIndices.addAllOffset(hemisphereMesh.getIndices(), screwVertexOffset);
 
 			// Create a closing disk for the base of the hemisphere
 			int capVertexOffset = combinedVertices.size();
@@ -223,7 +222,7 @@ public class RailButtonGenerator {
 	 * @param subMesh The mesh to add (assumed to be generated along the X-axis).
 	 * @param yTranslation The Y translation to apply to the sub-mesh's center.
 	 */
-	private static void addMeshToCombined(List<Vertex> combinedVertices, List<Integer> combinedIndices, Mesh subMesh, float yTranslation) {
+	private static void addMeshToCombined(List<Vertex> combinedVertices, IntList combinedIndices, Mesh subMesh, float yTranslation) {
 		int vertexOffset = combinedVertices.size();
 		for (Vertex v : subMesh.getVertices()) {
 			// Rotate +90 degrees around Z to align X-generated mesh with Y-axis
@@ -234,8 +233,6 @@ public class RailButtonGenerator {
 			Vector3f newPos = rotatedPos.add(0, yTranslation, 0);
 			combinedVertices.add(new Vertex(newPos, rotatedNormal, v.texCoords, v.surfaceID));
 		}
-		for (Integer index : subMesh.getIndices()) {
-			combinedIndices.add(index + vertexOffset);
-		}
+		combinedIndices.addAllOffset(subMesh.getIndices(), vertexOffset);
 	}
 }

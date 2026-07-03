@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.core.geometry.basic;
 
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 
@@ -32,7 +33,7 @@ public class AxesGenerator {
 
 		// Add shaft vertices and indices
 		List<Vertex> combinedVertices = new ArrayList<>(shaftMesh.getVertices());
-		List<Integer> combinedIndices = new ArrayList<>(shaftMesh.getIndices());
+		IntList combinedIndices = new IntList(shaftMesh.getIndices());
 
 		// Offset for the head's vertices
 		int headVertexOffset = combinedVertices.size();
@@ -44,9 +45,7 @@ public class AxesGenerator {
 		}
 
 		// Add head indices, applying the offset
-		for (Integer index : headMesh.getIndices()) {
-			combinedIndices.add(index + headVertexOffset);
-		}
+		combinedIndices.addAllOffset(headMesh.getIndices(), headVertexOffset);
 
 		return new Mesh(combinedVertices, combinedIndices);
 	}

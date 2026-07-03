@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.core.geometry.components;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -21,7 +22,7 @@ public final class CameraPointOfInterestGenerator {
 
 	public static Mesh create() {
 		List<Vertex> vertices = new ArrayList<>();
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 		Vector3f normal = new Vector3f(0, 0, 1);
 		Vector2f texCoords = new Vector2f(0, 0);
 
@@ -33,7 +34,7 @@ public final class CameraPointOfInterestGenerator {
 		return new Mesh(vertices, indices);
 	}
 
-	private static void addRectangle(List<Vertex> vertices, List<Integer> indices,
+	private static void addRectangle(List<Vertex> vertices, IntList indices,
 			float minX, float minY, float maxX, float maxY, Vector3f normal, Vector2f texCoords) {
 		int baseIndex = vertices.size();
 		vertices.add(new Vertex(new Vector3f(minX, minY, 0.0f), normal, texCoords, 0));

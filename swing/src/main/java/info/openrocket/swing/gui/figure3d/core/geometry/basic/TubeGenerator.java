@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.core.geometry.basic;
 
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.geometry.GeometryGenerator;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Vector2f;
@@ -41,7 +42,7 @@ public class TubeGenerator implements GeometryGenerator {
 	public static Mesh create(List<RadiusPoint> outerProfile, float wallThickness, float length, int numSegments,
 							  boolean isFilled, Shoulder foreShoulder, Shoulder aftShoulder, boolean isXRayCutaway) {
 		List<Vertex> vertexList = new ArrayList<>();
-		List<Integer> indexList = new ArrayList<>();
+		IntList indexList = new IntList();
 
 		boolean hasForeShoulder = foreShoulder != null && foreShoulder.length() > 0 && foreShoulder.radius() > 0;
 		boolean hasAftShoulder = aftShoulder != null && aftShoulder.length() > 0 && aftShoulder.radius() > 0;
@@ -71,7 +72,7 @@ public class TubeGenerator implements GeometryGenerator {
 					(float) foreShoulder.length(), numSegments, false, isXRayCutaway);
 
 			List<Vertex> shoulderVertices = new ArrayList<>(shoulderMesh.getVertices());
-			List<Integer> newShoulderIndices = new ArrayList<>();
+			IntList newShoulderIndices = new IntList();
 			int verticesPerRing = 2 * (numSegments + 1);
 			int wallIndexCount = 12 * numSegments;
 
@@ -93,7 +94,7 @@ public class TubeGenerator implements GeometryGenerator {
 				}
 
 				// 2. Rebuild index list with walls and two new filled caps.
-				newShoulderIndices.addAll(shoulderMesh.getIndices().subList(0, wallIndexCount)); // Walls
+				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
 
 				// 3. Generate new vertices and indices for the caps.
 				int capVertexOffset = shoulderVertices.size();
@@ -117,8 +118,8 @@ public class TubeGenerator implements GeometryGenerator {
 					}
 				}
 				int capIndexCount = 6 * numSegments;
-				newShoulderIndices.addAll(shoulderMesh.getIndices().subList(0, wallIndexCount)); // Walls
-				newShoulderIndices.addAll(shoulderMesh.getIndices().subList(wallIndexCount, wallIndexCount + capIndexCount)); // Fore ring cap
+				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
+				newShoulderIndices.addAll(shoulderMesh.getIndices(), wallIndexCount, wallIndexCount + capIndexCount); // Fore ring cap
 			}
 
 			// Translate the modified shoulder into position.
@@ -127,9 +128,7 @@ public class TubeGenerator implements GeometryGenerator {
 				v.position.x += shoulderTranslateX;
 				vertexList.add(v);
 			}
-			for (Integer index : newShoulderIndices) {
-				indexList.add(index + shoulderVertexOffset);
-			}
+			indexList.addAllOffset(newShoulderIndices, shoulderVertexOffset);
 		}
 
 
@@ -147,7 +146,7 @@ public class TubeGenerator implements GeometryGenerator {
 					(float) aftShoulder.length(), numSegments, false, isXRayCutaway);
 
 			List<Vertex> shoulderVertices = new ArrayList<>(shoulderMesh.getVertices());
-			List<Integer> newShoulderIndices = new ArrayList<>();
+			IntList newShoulderIndices = new IntList();
 			int verticesPerRing = 2 * (numSegments + 1);
 			int wallIndexCount = 12 * numSegments;
 			int capIndexCount = 6 * numSegments;
@@ -170,7 +169,7 @@ public class TubeGenerator implements GeometryGenerator {
 				}
 
 				// 2. Rebuild index list with walls and two new filled caps.
-				newShoulderIndices.addAll(shoulderMesh.getIndices().subList(0, wallIndexCount)); // Walls
+				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
 
 				// 3. Generate new vertices and indices for the caps.
 				int capVertexOffset = shoulderVertices.size();
@@ -193,8 +192,9 @@ public class TubeGenerator implements GeometryGenerator {
 						v.position.x -= (float) aftShoulder.thickness();
 					}
 				}
-				newShoulderIndices.addAll(shoulderMesh.getIndices().subList(0, wallIndexCount)); // Walls
-				newShoulderIndices.addAll(shoulderMesh.getIndices().subList(wallIndexCount + capIndexCount, wallIndexCount + 2 * capIndexCount)); // Aft ring cap
+				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
+				newShoulderIndices.addAll(shoulderMesh.getIndices(), wallIndexCount + capIndexCount,
+						wallIndexCount + 2 * capIndexCount); // Aft ring cap
 			}
 
 
@@ -203,9 +203,7 @@ public class TubeGenerator implements GeometryGenerator {
 				v.position.x += shoulderTranslateX;
 				vertexList.add(v);
 			}
-			for (Integer index : newShoulderIndices) {
-				indexList.add(index + shoulderVertexOffset);
-			}
+			indexList.addAllOffset(newShoulderIndices, shoulderVertexOffset);
 		}
 
 		return new Mesh(vertexList, indexList);
@@ -215,7 +213,7 @@ public class TubeGenerator implements GeometryGenerator {
 	 * Creates the connection plates between a tube and a shoulder.
 	 * Generates two separate rings: one for the outer shells and one for the inner shells at a different depth.
 	 */
-	private static void addShoulderConnector(List<Vertex> vertexList, List<Integer> indexList,
+	private static void addShoulderConnector(List<Vertex> vertexList, IntList indexList,
 											 float xOuter, float tubeOuterR, float shoulderOuterR,
 											 float xInner, float tubeInnerR, float shoulderInnerR,
 											 int segments, boolean isFore, boolean isTubeFilled) {
@@ -276,7 +274,7 @@ public class TubeGenerator implements GeometryGenerator {
 	public static Mesh create(float foreOuterRadius, float aftOuterRadius, float wallThickness, float length,
 							  int numSegments, boolean isFilled, boolean capFore, boolean capAft) {
 		List<Vertex> vertexList = new ArrayList<>();
-		List<Integer> indexList = new ArrayList<>();
+		IntList indexList = new IntList();
 		List<RadiusPoint> profile = List.of(
 				new RadiusPoint(0.0f, foreOuterRadius),
 				new RadiusPoint(1.0f, aftOuterRadius)
@@ -285,7 +283,7 @@ public class TubeGenerator implements GeometryGenerator {
 		return new Mesh(vertexList, indexList);
 	}
 
-	private static void createFromProfile(List<Vertex> vertexList, List<Integer> indexList, List<RadiusPoint> outerProfile,
+	private static void createFromProfile(List<Vertex> vertexList, IntList indexList, List<RadiusPoint> outerProfile,
 										  float wallThickness, float length, int numSegments, boolean isFilled,
 										  int vertexStartIndex, boolean capFore, boolean capAft,
 										  Shoulder foreShoulder, Shoulder aftShoulder, boolean isXRayCutaway) {
@@ -442,12 +440,12 @@ public class TubeGenerator implements GeometryGenerator {
 		return avgOuterSlope;
 	}
 
-	private static void addQuadIndices(List<Integer> indices, int p1, int p2, int p3, int p4) {
+	private static void addQuadIndices(IntList indices, int p1, int p2, int p3, int p4) {
 		indices.add(p1); indices.add(p2); indices.add(p3);
 		indices.add(p1); indices.add(p3); indices.add(p4);
 	}
 
-	private static void addQuad(List<Integer> indices, int p1, int p2, int p3, int p4, boolean isFore) {
+	private static void addQuad(IntList indices, int p1, int p2, int p3, int p4, boolean isFore) {
 		if (isFore) {
 			indices.add(p1); indices.add(p2); indices.add(p3);
 			indices.add(p1); indices.add(p3); indices.add(p4);
@@ -457,7 +455,7 @@ public class TubeGenerator implements GeometryGenerator {
 		}
 	}
 
-	private static void generateFilledCap(List<Vertex> vertexList, List<Integer> indexList, float radius, float x,
+	private static void generateFilledCap(List<Vertex> vertexList, IntList indexList, float radius, float x,
 										  int numSegments, boolean isFore, boolean isXRayCutaway, int capOffset) {
 		boolean isCCWCulling = isFore && !isXRayCutaway || !isFore && isXRayCutaway;
 
@@ -482,7 +480,7 @@ public class TubeGenerator implements GeometryGenerator {
 		}
 	}
 
-	private static void generateRingCap(List<Vertex> vertexList, List<Integer> indexList, float outerR, float innerR,
+	private static void generateRingCap(List<Vertex> vertexList, IntList indexList, float outerR, float innerR,
 										float x, int numSegments, boolean isFore, boolean isXRayCutaway) {
 		boolean isCCWCulling = isFore && !isXRayCutaway || !isFore && isXRayCutaway;
 

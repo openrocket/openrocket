@@ -7,6 +7,7 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
@@ -98,7 +99,7 @@ public class FinSetGenerator {
 		}
 
 		if (combinedShape.isEmpty()) {
-			return new Mesh(new ArrayList<>(), new ArrayList<>());
+			return new Mesh(new ArrayList<>(), new IntList());
 		}
 
 		float minX = Float.MAX_VALUE, maxX = Float.MIN_VALUE;
@@ -128,14 +129,12 @@ public class FinSetGenerator {
 			if (filletMesh != null && !filletMesh.getVertices().isEmpty()) {
 				int offset = combinedMeshData.vertices.size();
 				combinedMeshData.vertices.addAll(filletMesh.getVertices());
-				for (int index : filletMesh.getIndices()) {
-					combinedMeshData.indices.add(offset + index);
-				}
+				combinedMeshData.indices.addAllOffset(filletMesh.getIndices(), offset);
 			}
 		}
 
 		if (combinedMeshData.vertices.isEmpty()) {
-			return new Mesh(new ArrayList<>(), new ArrayList<>());
+			return new Mesh(new ArrayList<>(), new IntList());
 		}
 
 		return new Mesh(combinedMeshData.vertices, combinedMeshData.indices);
@@ -148,7 +147,7 @@ public class FinSetGenerator {
 		if (filletRadius <= 0) return null;
 
 		List<Vertex> vertices = new ArrayList<>();
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 
 		float finThickness = (float) finSet.getThickness();
 		CoordinateIF[] rootPoints = finSet.getRootPoints();
@@ -289,7 +288,7 @@ public class FinSetGenerator {
 		return new Mesh(vertices, indices);
 	}
 
-	private static void addFilletCaps(List<Vertex> vertices, List<Integer> indices, int[][] gridIndices,
+	private static void addFilletCaps(List<Vertex> vertices, IntList indices, int[][] gridIndices,
 									  int segmentIndex, CoordinateIF rootPoint, FinSet finSet,
 									  SymmetricComponent parent, int arcSegments, boolean isEndCap,
 									  CoordinateIF[] shapePoints,
@@ -481,7 +480,7 @@ public class FinSetGenerator {
 		}
 
 		// Triangulate the main front and back faces
-		List<Integer> triangleIndices = triangulateWithJTS(shapePoints);
+		IntList triangleIndices = triangulateWithJTS(shapePoints);
 		for (int i = 0; i < triangleIndices.size(); i += 3) {
 			meshData.addTriangle(triangleIndices.get(i), triangleIndices.get(i + 1), triangleIndices.get(i + 2));
 			meshData.addTriangle(backFaceOffset + triangleIndices.get(i), backFaceOffset + triangleIndices.get(i + 2),
@@ -989,7 +988,7 @@ public class FinSetGenerator {
 		return new float[]{xMin, xMax};
 	}
 
-	private static List<Integer> triangulateWithJTS(CoordinateIF[] polygonPoints) {
+	private static IntList triangulateWithJTS(CoordinateIF[] polygonPoints) {
 		Map<Long, Integer> coordIndexMap = new HashMap<>();
 		for (int i = 0; i < polygonPoints.length; i++) {
 			coordIndexMap.putIfAbsent(quantizedCoordinateKey(polygonPoints[i].getX(), polygonPoints[i].getY()), i);
@@ -1006,7 +1005,7 @@ public class FinSetGenerator {
 		builder.setSites(polygon);
 
 		Geometry triangles = builder.getTriangles(geometryFactory);
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 		int droppedTriangles = 0;
 
 		for (int i = 0; i < triangles.getNumGeometries(); i++) {
@@ -1046,12 +1045,10 @@ public class FinSetGenerator {
 
 	private static class FinMeshData {
 		List<Vertex> vertices = new ArrayList<>();
-		List<Integer> indices = new ArrayList<>();
+		IntList indices = new IntList();
 
 		void addTriangle(int i1, int i2, int i3) {
-			indices.add(i1);
-			indices.add(i2);
-			indices.add(i3);
+			indices.addTriangle(i1, i2, i3);
 		}
 	}
 }
