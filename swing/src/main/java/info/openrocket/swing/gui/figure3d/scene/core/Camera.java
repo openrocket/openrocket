@@ -28,6 +28,9 @@ import org.joml.Vector3f;
  */
 public class Camera {
 
+	private static final float FIT_MIN_ZOOM_FACTOR = 0.05f;
+	private static final float FIT_MAX_ZOOM_FACTOR = 2.0f;
+
 	private final Vector3f position = new Vector3f();
 	private boolean fixedCenterOfInterest;
 	private final Vector3f centerOfInterest = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -279,8 +282,10 @@ public class Camera {
 		float newDistance = Math.max(distanceForHeight, distanceForWidth);
 		newDistance *= CameraConstants.ZOOM_PADDING_FACTOR; // Add padding
 
-		this.maxZoom = newDistance * 2.0f; // Set max zoom to twice the calculated distance
-		this.distance = Math.max(minZoom, Math.min(maxZoom, newDistance)); // Clamp zoom
+		float fittedDistance = Math.max(CameraConstants.MIN_DISTANCE, newDistance);
+		this.minZoom = Math.max(CameraConstants.MIN_DISTANCE, fittedDistance * FIT_MIN_ZOOM_FACTOR);
+		this.maxZoom = Math.max(this.minZoom * FIT_MAX_ZOOM_FACTOR, fittedDistance * FIT_MAX_ZOOM_FACTOR);
+		this.distance = Math.max(minZoom, Math.min(maxZoom, fittedDistance)); // Clamp zoom
 
 		updateProjectionMatrix();
 		updateViewMatrix();
@@ -534,7 +539,7 @@ public class Camera {
 	 * @return the camera's 3D position vector
 	 */
 	public Vector3f getPosition() {
-		return position;
+		return new Vector3f(position);
 	}
 	
 	/**
