@@ -679,10 +679,12 @@ public class Texture {
 
 		public static Texture acquire(int width, int height) {
 			String key = width + "x" + height;
-			Queue<Texture> queue = pool.get(key);
+			synchronized (pool) {
+				Queue<Texture> queue = pool.get(key);
 
-			if (queue != null && !queue.isEmpty()) {
-				return queue.poll();
+				if (queue != null && !queue.isEmpty()) {
+					return queue.poll();
+				}
 			}
 
 			return new Texture(width, height, true);
@@ -692,13 +694,15 @@ public class Texture {
 			if (texture.width <= 0 || texture.height <= 0) return;
 
 			String key = texture.width + "x" + texture.height;
-			Queue<Texture> queue = pool.computeIfAbsent(key, k -> new LinkedList<>());
+			synchronized (pool) {
+				Queue<Texture> queue = pool.computeIfAbsent(key, k -> new LinkedList<>());
 
-			if (queue.size() < MAX_POOL_SIZE) {
-				queue.offer(texture);
-			} else {
-				texture.cleanup();
+				if (queue.size() < MAX_POOL_SIZE) {
+					queue.offer(texture);
+					return;
+				}
 			}
+			texture.cleanup();
 		}
 	}
 }

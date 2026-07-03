@@ -53,7 +53,7 @@ public class Scene3DOrchestrator {
     private final List<ExportListener> exportListeners = new ArrayList<>();
 
 	private long lastFrameTime;
-	private PlaybackClock playbackClock = null;
+	private volatile PlaybackClock playbackClock = null;
 
 	/**
 	 * Updates the orchestrator's knowledge of the window and framebuffer dimensions.
@@ -520,11 +520,13 @@ public class Scene3DOrchestrator {
 		if (provider == null) {
 			throw new IllegalArgumentException("pose provider null");
 		}
-		for (var obj : scene.getObjects()) {
-			if (obj.getRocketComponent() != null) {
-				obj.setPoseProvider(provider);
+		enqueueGlTask(() -> {
+			for (var obj : scene.getObjects()) {
+				if (obj.getRocketComponent() != null) {
+					obj.setPoseProvider(provider);
+				}
 			}
-		}
+		});
 		this.playbackClock = new PlaybackClock(provider.getStartTime(), provider.getEndTime());
 	}
 

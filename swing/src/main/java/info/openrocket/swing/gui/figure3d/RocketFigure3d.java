@@ -83,10 +83,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	private final List<ComponentSelectionListener> selectionListeners = new CopyOnWriteArrayList<>();
 	private final List<StateChangeListener> changeListeners = new CopyOnWriteArrayList<>();
 
-	private GLScenePanel glScenePanel;
-	private boolean renderingEnabled = false;
-	private boolean disposed = false;
-	private boolean selectionBridgeInstalled = false;
+	private volatile GLScenePanel glScenePanel;
+	private volatile boolean renderingEnabled = false;
+	private volatile boolean disposed = false;
+	private volatile boolean selectionBridgeInstalled = false;
 	private RocketComponent[] pendingSelection;
 	private boolean glFailureLogged = false;
 	private boolean glNativesUnavailable = false;
