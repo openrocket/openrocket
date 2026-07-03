@@ -69,6 +69,8 @@ public class ShadowPass implements RenderPass {
     private static final float MIN_NEAR_PLANE = 0.5f;
     private static final float MIN_DEPTH_RANGE = 24.0f;
     private static final float SHADOW_STRENGTH = 0.68f;
+    private static final long HASH_OFFSET = 0xcbf29ce484222325L;
+    private static final long HASH_PRIME = 0x100000001b3L;
 
     private final GLShader depthShader;
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
@@ -98,6 +100,8 @@ public class ShadowPass implements RenderPass {
     private boolean shadowsEnabled = true;
     private int shadowCastingLightIndex = -1;
     private boolean hasValidShadow = false;
+    private boolean shadowMapDirty = true;
+    private long lastShadowSignature = Long.MIN_VALUE;
 
     public ShadowPass(int initialWidth, int initialHeight) {
         this.depthShader = new GLShader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
@@ -122,6 +126,11 @@ public class ShadowPass implements RenderPass {
 
         activeLightDirection.set(selection.direction());
         shadowCastingLightIndex = selection.index();
+        long shadowSignature = computeShadowSignature(scene, selection);
+        if (hasValidShadow && !shadowMapDirty && shadowSignature == lastShadowSignature) {
+            return;
+        }
+
         if (!buildLightSpaceMatrix(scene, selection.direction())) {
             resetShadowState();
             return;
@@ -172,6 +181,8 @@ public class ShadowPass implements RenderPass {
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(previousViewportX, previousViewportY, previousViewportWidth, previousViewportHeight);
+        lastShadowSignature = shadowSignature;
+        shadowMapDirty = false;
     }
 
     private boolean shouldSkipObject(SceneObject object) {
@@ -300,6 +311,73 @@ public class ShadowPass implements RenderPass {
         }
     }
 
+    private long computeShadowSignature(SceneView scene, LightSelection selection) {
+        long hash = HASH_OFFSET;
+        hash = hashInt(hash, currentQuality == null ? -1 : currentQuality.ordinal());
+        hash = hashInt(hash, shadowMapSize);
+        hash = hashInt(hash, selection.index());
+        hash = hashVector(hash, selection.direction());
+
+        List<SceneObject> objects = scene.getObjects();
+        hash = hashInt(hash, objects.size());
+        for (SceneObject object : objects) {
+            hash = hashInt(hash, object.getId());
+            hash = hashBoolean(hash, object.isRenderOnTop());
+            hash = hashBoolean(hash, object.getAppearance().isUnlit());
+            hash = hashFloat(hash, object.getAppearance().getOpacity());
+
+            if (shouldSkipObject(object) || object.getMesh() == null) {
+                hash = hashBoolean(hash, false);
+                continue;
+            }
+
+            hash = hashBoolean(hash, true);
+            hash = hashInt(hash, System.identityHashCode(object.getMesh()));
+            hash = hashMatrix(hash, object.getModelMatrix());
+        }
+        return hash;
+    }
+
+    private static long hashMatrix(long hash, Matrix4f matrix) {
+        hash = hashFloat(hash, matrix.m00());
+        hash = hashFloat(hash, matrix.m01());
+        hash = hashFloat(hash, matrix.m02());
+        hash = hashFloat(hash, matrix.m03());
+        hash = hashFloat(hash, matrix.m10());
+        hash = hashFloat(hash, matrix.m11());
+        hash = hashFloat(hash, matrix.m12());
+        hash = hashFloat(hash, matrix.m13());
+        hash = hashFloat(hash, matrix.m20());
+        hash = hashFloat(hash, matrix.m21());
+        hash = hashFloat(hash, matrix.m22());
+        hash = hashFloat(hash, matrix.m23());
+        hash = hashFloat(hash, matrix.m30());
+        hash = hashFloat(hash, matrix.m31());
+        hash = hashFloat(hash, matrix.m32());
+        hash = hashFloat(hash, matrix.m33());
+        return hash;
+    }
+
+    private static long hashVector(long hash, Vector3f vector) {
+        hash = hashFloat(hash, vector.x);
+        hash = hashFloat(hash, vector.y);
+        hash = hashFloat(hash, vector.z);
+        return hash;
+    }
+
+    private static long hashFloat(long hash, float value) {
+        return hashInt(hash, Float.floatToIntBits(value));
+    }
+
+    private static long hashBoolean(long hash, boolean value) {
+        return hashInt(hash, value ? 1 : 0);
+    }
+
+    private static long hashInt(long hash, int value) {
+        hash ^= Integer.toUnsignedLong(value);
+        return hash * HASH_PRIME;
+    }
+
     @Override
     public void cleanup() {
         if (depthMapFbo != 0) {
@@ -365,6 +443,7 @@ public class ShadowPass implements RenderPass {
         }
 
         GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        markShadowMapDirty();
     }
 
     private void updateShadowMapSize(int width, int height) {
@@ -391,12 +470,18 @@ public class ShadowPass implements RenderPass {
         if (previousSize != shadowMapSize) {
             initializeFramebuffer();
         }
+        markShadowMapDirty();
     }
 
     public void setEnabled(boolean enabled) {
+        if (shadowsEnabled == enabled) {
+            return;
+        }
         shadowsEnabled = enabled;
         if (!enabled) {
             resetShadowState();
+        } else {
+            markShadowMapDirty();
         }
     }
 
@@ -405,6 +490,12 @@ public class ShadowPass implements RenderPass {
         shadowCastingLightIndex = -1;
         activeLightDirection.zero();
         lightSpaceMatrix.identity();
+        markShadowMapDirty();
+    }
+
+    private void markShadowMapDirty() {
+        shadowMapDirty = true;
+        lastShadowSignature = Long.MIN_VALUE;
     }
 
     private float snapProjectionCenter(float center, float span) {
