@@ -365,8 +365,8 @@ class SimulationOptionsPanel extends JPanel {
 
 		// --- Dual deployment tab ---
 		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
-
 		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.desc"), Style.ITALIC), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
+
 		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), Style.PLAIN), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
