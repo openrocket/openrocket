@@ -1,9 +1,10 @@
 package info.openrocket.core.file.openrocket;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.document.PlotAppearance;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataBranch;
@@ -53,11 +55,14 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.extension.impl.ScriptingExtension;
 import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.LineStyle;
+import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.TestRockets;
 
 import org.junit.jupiter.api.AfterEach;
@@ -467,6 +472,111 @@ public class OpenRocketSaverTest {
 		assertEquals(3, loadedTCM.getTimePoints().length);
 	}
 	
+	@Test
+	public void testPlotAppearanceSavedAndLoaded() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		Simulation sim = new Simulation(rocket);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		// Set appearance for altitude (symbol "h"): custom color + dashed line
+		sim.setPlotAppearance(FlightDataType.TYPE_ALTITUDE,
+				new PlotAppearance(new ORColor(255, 0, 128, 200), LineStyle.DASHED));
+
+		// Set appearance for velocity (symbol "Vz"): color only, no line style override
+		sim.setPlotAppearance(FlightDataType.TYPE_VELOCITY_Z,
+				new PlotAppearance(new ORColor(0, 100, 200), null));
+
+		// Set appearance for acceleration (symbol "Az"): line style only, no color
+		sim.setPlotAppearance(FlightDataType.TYPE_ACCELERATION_Z,
+				new PlotAppearance(null, LineStyle.DOTTED));
+
+		rocketDoc.addSimulation(sim);
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument loaded = loadRocket(file.getPath());
+
+		assertEquals(1, loaded.getSimulations().size());
+		Simulation loadedSim = loaded.getSimulations().get(0);
+
+		// Verify altitude appearance (color + line style)
+		PlotAppearance altAppearance = loadedSim.getPlotAppearance(FlightDataType.TYPE_ALTITUDE);
+		assertNotNull(altAppearance, "Altitude appearance should have been saved");
+		assertNotNull(altAppearance.getColor(), "Altitude color should have been saved");
+		assertEquals(255, altAppearance.getColor().getRed());
+		assertEquals(0, altAppearance.getColor().getGreen());
+		assertEquals(128, altAppearance.getColor().getBlue());
+		assertEquals(200, altAppearance.getColor().getAlpha());
+		assertEquals(LineStyle.DASHED, altAppearance.getLineStyle());
+
+		// Verify velocity appearance (color only)
+		PlotAppearance velAppearance = loadedSim.getPlotAppearance(FlightDataType.TYPE_VELOCITY_Z);
+		assertNotNull(velAppearance, "Velocity appearance should have been saved");
+		assertNotNull(velAppearance.getColor(), "Velocity color should have been saved");
+		assertEquals(0, velAppearance.getColor().getRed());
+		assertEquals(100, velAppearance.getColor().getGreen());
+		assertEquals(200, velAppearance.getColor().getBlue());
+		assertEquals(255, velAppearance.getColor().getAlpha());
+		// Line style was null, so it should not be set
+		assertNull(velAppearance.getLineStyle());
+
+		// Verify acceleration appearance (line style only)
+		PlotAppearance accAppearance = loadedSim.getPlotAppearance(FlightDataType.TYPE_ACCELERATION_Z);
+		assertNotNull(accAppearance, "Acceleration appearance should have been saved");
+		assertNull(accAppearance.getColor(), "Acceleration color should be null");
+		assertEquals(LineStyle.DOTTED, accAppearance.getLineStyle());
+	}
+
+	@Test
+	public void testPlotAppearanceNotSavedWhenEmpty() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		Simulation sim = new Simulation(rocket);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+
+		// Set an empty appearance (both null) — should not be persisted
+		sim.setPlotAppearance(FlightDataType.TYPE_ALTITUDE, new PlotAppearance(null, null));
+
+		rocketDoc.addSimulation(sim);
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument loaded = loadRocket(file.getPath());
+
+		Simulation loadedSim = loaded.getSimulations().get(0);
+		assertNull(loadedSim.getPlotAppearance(FlightDataType.TYPE_ALTITUDE),
+				"Empty appearance should not be persisted");
+	}
+
+	@Test
+	public void testPlotAppearancePreservedAcrossMultipleSaves() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		Simulation sim = new Simulation(rocket);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		sim.setPlotAppearance(FlightDataType.TYPE_ALTITUDE,
+				new PlotAppearance(new ORColor(10, 20, 30, 40), LineStyle.DASHDOT));
+		rocketDoc.addSimulation(sim);
+
+		// First round-trip
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument loaded = loadRocket(file.getPath());
+
+		// Second round-trip
+		file = saveRocket(loaded, new StorageOptions());
+		loaded = loadRocket(file.getPath());
+
+		Simulation loadedSim = loaded.getSimulations().get(0);
+		PlotAppearance appearance = loadedSim.getPlotAppearance(FlightDataType.TYPE_ALTITUDE);
+		assertNotNull(appearance, "Appearance should survive two round-trips");
+		assertEquals(10, appearance.getColor().getRed());
+		assertEquals(20, appearance.getColor().getGreen());
+		assertEquals(30, appearance.getColor().getBlue());
+		assertEquals(40, appearance.getColor().getAlpha());
+		assertEquals(LineStyle.DASHDOT, appearance.getLineStyle());
+	}
 
 	/**
 	 * Verifies that re-saving an example file with STORAGE_DECIMAL_PLACES=6 keeps the

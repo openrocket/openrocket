@@ -97,4 +97,12 @@ The following file format versions exist:
       Added <baserelativehumidity> to the atmosphere model in simulation conditions.
       Support 'auto' line length for parachute and shock cord.
       Added 2D and 3D background and text color preferences to <docprefs>.
+      Added per-simulation plot appearance overrides (<plotappearance>) to the
+      <simulation> element. Contains <series> elements keyed by FlightDataType
+      symbol, with optional color (red, green, blue, alpha attributes) and
+      linestyle attributes.
+      Format: <plotappearance>
+                <series symbol="h" linestyle="dashed" red="255" green="0" blue="128" alpha="200"/>
+                <series symbol="Vz" red="0" green="100" blue="200" alpha="255"/>
+              </plotappearance>
       Increased decimal precision of simulation <flightdata>, <event>, and <datapoint> values to 6 digits after the decimal point.

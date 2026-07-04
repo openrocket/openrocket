@@ -40,6 +40,8 @@ import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
+import info.openrocket.core.document.PlotAppearance;
+import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.Simulation;
@@ -64,6 +66,7 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
+	private static final String NODE_PLOT_DEFAULT_APPEARANCES = "PlotDefaultAppearances";
 	public static final String UI_SCALE = "UIScaling";
 	private static final String UI_FONT_SIZE = "UIFontSize";
 	public static final String UI_FONT_STYLE = "UIFontStyle";
@@ -1121,5 +1124,77 @@ public class SwingPreferences extends ApplicationPreferences {
 		for (Manufacturer m : manus) {
 			prefs.putBoolean(m.getSimpleName(), true);
 		}
+	}
+
+	/**
+	 * Return the user-defined application-level default plot appearance for the given flight data type,
+	 * or {@code null} if no default has been set.
+	 * <p>
+	 * Keyed by {@link FlightDataType#getName()}.
+	 * Color is stored as {@code "r,g,b"} (via {@link #parseColor}) and line style as its enum name.
+	 */
+	public PlotAppearance getDefaultPlotAppearance(FlightDataType type) {
+		if (type == null) {
+			return null;
+		}
+
+		String key = type.getName();
+		if (key == null || key.isEmpty()) {
+			return null;
+		}
+
+		String colorStr = getString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".color", null);
+		String lineStyleStr = getString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".lineStyle", null);
+		// No entry stored yet for this type.
+		if (colorStr == null && lineStyleStr == null) {
+			return null;
+		}
+
+		ORColor color = parseColor(colorStr);
+		LineStyle lineStyle = null;
+		if (lineStyleStr != null) {
+			try {
+				lineStyle = LineStyle.valueOf(lineStyleStr);
+			} catch (IllegalArgumentException ignored) {
+				// Unknown value in prefs: treat as absent.
+			}
+		}
+		PlotAppearance result = new PlotAppearance(color, lineStyle);
+
+		return result.isEmpty() ? null : result;
+	}
+
+	/**
+	 * Store a user-defined application-level default plot appearance for the given flight data type.
+	 * <p>
+	 * Keyed by {@link FlightDataType#getName()}.
+	 * Pass {@code null} (or an empty appearance) to clear the stored default.
+	 * Color is stored as {@code "r,g,b"} (via {@link #stringifyColor}); {@code null} color removes the color entry.
+	 * Line style is stored as its enum name; {@code null} line style removes the entry.
+	 */
+	public void setDefaultPlotAppearance(FlightDataType type, PlotAppearance appearance) {
+		if (type == null) {
+			return;
+		}
+
+		String key = type.getName();
+		if (key == null || key.isEmpty()) {
+			return;
+		}
+
+		// Null or empty appearance clears any previously stored default.
+		if (appearance == null || appearance.isEmpty()) {
+			putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".color", null);
+			putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".lineStyle", null);
+			return;
+		}
+		// Store color as "r,g,b", or remove the key if no color override is set.
+		ORColor color = appearance.getColor();
+		putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".color",
+				color != null ? stringifyColor(color) : null);
+		// Store line style by name, or remove the key if not set.
+		LineStyle lineStyle = appearance.getLineStyle();
+		putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".lineStyle",
+				lineStyle != null ? lineStyle.name() : null);
 	}
 }

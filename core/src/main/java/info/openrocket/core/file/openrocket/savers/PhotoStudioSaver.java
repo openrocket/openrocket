@@ -73,8 +73,7 @@ public class PhotoStudioSaver {
     private static void emitColor(String elementName, List<String> elements, String content) {
         ORColor color = getColor(content);
         if (color != null) {
-            elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-                    + "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
+            elements.add("<" + elementName + " " + color.toXMLAttributes() + "/>");
         } else
             elements.add(String.format("<%s></%s>", elementName));
     }

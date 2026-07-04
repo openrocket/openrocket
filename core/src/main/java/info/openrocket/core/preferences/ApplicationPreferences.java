@@ -188,7 +188,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// SVG export options
 	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
-  public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
+    public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
 	public static final String SVG_CROSSHAIR_COLOR = "SVGCrosshairColor";
 	public static final String SVG_CROSSHAIR_SIZE = "SVGCrosshairSize";
 	public static final String SVG_SHOW_LABELS = "SVGShowLabels";
