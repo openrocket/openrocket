@@ -79,6 +79,7 @@ import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_ONE;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
@@ -915,6 +916,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		data.minorVersion = 3;
 		data.profile = GLData.Profile.CORE;
 		data.doubleBuffer = true;
+		data.debug = GLDebug.isDebugRequested();
 		// Default-framebuffer MSAA is disabled — see getRequestedSampleCount().
 		data.samples = getRequestedSampleCount();
 		data.sRGB = true;
@@ -1376,7 +1378,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				if (!SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS) {
 					swapBuffers();
 				}
-				visibleFrameRecoveryPending = !startupFrameVisible;
+				// Keep recovery active until visibility is confirmed, not just until one
+				// pre-swap back-buffer sample has content. Some AWT peers need a follow-up
+				// render before the first completed frame is actually presented.
+				visibleFrameRecoveryPending = !startupFrameDetectionComplete;
 			}
 		}
 	}
@@ -1789,7 +1794,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		int previousReadBuffer = glGetInteger(GL_READ_BUFFER);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
-		glReadBuffer(framebufferId == 0 ? GL_FRONT : GL_COLOR_ATTACHMENT0);
+		glReadBuffer(framebufferId == 0 ? getDefaultFramebufferColorBuffer() : GL_COLOR_ATTACHMENT0);
 
 		ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
 		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -1826,12 +1831,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		int currentFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
 		int[] resolvedCenter = sampleFramebufferCenterPixelRgba(renderer.getResolvedFramebufferId(), GL_COLOR_ATTACHMENT0,
 				renderer.getRenderWidth(), renderer.getRenderHeight());
-		int[] presentedBackCenter = sampleFramebufferCenterPixelRgba(currentFramebuffer, GL_BACK,
-				defaultFbSize[0], defaultFbSize[1]);
-		int[] presentedFrontCenter = sampleFramebufferCenterPixelRgba(currentFramebuffer, GL_FRONT,
+		int[] presentedCenter = sampleFramebufferCenterPixelRgba(currentFramebuffer, getDefaultFramebufferColorBuffer(),
 				defaultFbSize[0], defaultFbSize[1]);
 		boolean resolvedHasContent = hasVisiblePixelContent(resolvedCenter);
-		boolean defaultHasContent = hasVisiblePixelContent(presentedBackCenter) || hasVisiblePixelContent(presentedFrontCenter);
+		boolean defaultHasContent = hasVisiblePixelContent(presentedCenter);
 		boolean startupFrameVisible = !resolvedHasContent || defaultHasContent;
 		// While a resize is in flight the rendered frame and the default framebuffer can
 		// disagree on size, making a blank center-pixel read meaningless. Such frames must
@@ -1842,6 +1845,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				&& renderer.getRenderHeight() == defaultFbSize[1];
 		handleBlankDefaultFramebufferDuringStartup(startupFrameVisible, resolvedHasContent && sampleReliable);
 		return startupFrameVisible;
+	}
+
+	private int getDefaultFramebufferColorBuffer() {
+		return glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
 	}
 
 	private void handleBlankDefaultFramebufferDuringStartup(boolean startupFrameVisible, boolean resolvedHasContent) {

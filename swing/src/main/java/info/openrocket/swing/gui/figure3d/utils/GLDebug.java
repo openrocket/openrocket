@@ -88,7 +88,7 @@ public final class GLDebug {
 		}
 	}
 
-	private static boolean isDebugRequested() {
+	public static boolean isDebugRequested() {
 		String env = System.getenv("OPENROCKET_GL_DEBUG");
 		boolean envEnabled = env != null && env.equalsIgnoreCase("true");
 		return envEnabled || Boolean.getBoolean("openrocket.gl.debug");

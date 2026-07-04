@@ -646,6 +646,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	public void updateFigures() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(this::updateFigures);
+			return;
+		}
 		if (!is3d)
 			figure.updateFigure();
 		else
@@ -2672,10 +2676,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/**
 	 * Create a twin-arrow icon for the caliper mode radio buttons.
-	 * Vertical mode shows two upward arrows side by side (↑↑);
-	 * horizontal mode shows two leftward arrows stacked (←←).
+	 * Vertical mode shows two upward arrows side by side; horizontal mode shows
+	 * two leftward arrows stacked.
 	 *
-	 * @param vertical true for vertical mode (↑↑), false for horizontal (←←)
+	 * @param vertical true for vertical mode, false for horizontal
 	 * @param color    the arrow color
 	 * @return an ImageIcon of the twin arrows
 	 */
@@ -2711,9 +2715,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	/**
-	 * Create a single-headed arrow icon (← or →) for the caliper distance display.
+	 * Create a single-headed arrow icon for the caliper distance display.
 	 *
-	 * @param left  true for a left-pointing arrow (←), false for right-pointing (→)
+	 * @param left  true for a left-pointing arrow, false for right-pointing
 	 * @param color the arrow color
 	 * @return an ImageIcon of the single-headed arrow
 	 */
