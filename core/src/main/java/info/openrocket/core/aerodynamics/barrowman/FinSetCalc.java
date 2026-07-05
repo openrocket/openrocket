@@ -36,15 +36,12 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected double cosGamma = Double.NaN; // Cosine of midchord sweep angle
 	protected double cosGammaLead = Double.NaN; // Cosine of leading edge sweep angle
 	protected double rollSum = Double.NaN; // Roll damping sum term
-	protected double rollProjectedArea = Double.NaN; // Area seen by roll flow, including triangular leading-edge projection.
-	protected double rollMacSpan = Double.NaN; // Spanwise center of the roll-projected area.
 	
 	protected int interferenceFinCount = -1; // No. of fins in interference
 	
 	protected double[] chordLead = new double[DIVISIONS];
 	protected double[] chordTrail = new double[DIVISIONS];
 	protected double[] chordLength = new double[DIVISIONS];
-	protected double[] rollChordLength = new double[DIVISIONS]; // Local chord used in roll damping/forcing integrals.
 	
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
@@ -175,10 +172,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 		//			conditions.getRefLength();
 		// With body-fin interference effect:
-		// Triangular leading edges add projected area ahead of the rectangular plate.
-		// Use that area for roll moments without changing the normal-force planform.
-		double rollAreaRatio = finArea > MathUtil.EPSILON ? rollProjectedArea / finArea : 1;
-		forces.setCrollForce((rollMacSpan + r) * cna1 * rollAreaRatio * (1 + tau) * cantAngle /
+		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle /
 				conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
@@ -265,7 +259,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		Arrays.fill(chordLead, Double.POSITIVE_INFINITY);
 		Arrays.fill(chordTrail, Double.NEGATIVE_INFINITY);
 		Arrays.fill(chordLength, 0);
-		Arrays.fill(rollChordLength, 0);
 		
 		for (int point = 1; point < points.length; point++) {
 			double x1 = points[point - 1].getX();
@@ -339,29 +332,22 @@ public class FinSetCalc extends RocketComponentCalc {
 		macLength = 0;
 		macLead = 0;
 		macSpan = 0;
-		rollMacSpan = 0;
 		cosGamma = 0;
 		cosGammaLead = 0;
 		rollSum = 0;
 		double area = 0;
-		rollProjectedArea = 0;
 		double radius = component.getFinFront().getY();
 		
 		final double dy = span / (DIVISIONS - 1);
 		for (int i = 0; i < DIVISIONS; i++) {
 			double length = chordTrail[i] - chordLead[i];
-			// Roll uses the physical projection of the leading-edge wedge; pitch/yaw
-			// terms keep using the original planform chord.
-			rollChordLength[i] = calculateRollProjectedChordLength(chordLength[i]);
 			double y = i * dy;
 			
 			macLength += length * length;
 			macSpan += y * length;
-			rollMacSpan += y * rollChordLength[i];
 			macLead += chordLead[i] * length;
 			area += length;
-			rollProjectedArea += rollChordLength[i];
-			rollSum += rollChordLength[i] * pow2(radius + y);
+			rollSum += chordLength[i] * pow2(radius + y);
 			
 			if (i > 0) {
 				double dx = (chordTrail[i] + chordLead[i]) / 2 - (chordTrail[i - 1] + chordLead[i - 1]) / 2;
@@ -381,10 +367,8 @@ public class FinSetCalc extends RocketComponentCalc {
 		macLength *= dy;
 		//logger.debug("macLength = {}", macLength);
 		macSpan *= dy;
-		rollMacSpan *= dy;
 		macLead *= dy;
 		area *= dy;
-		rollProjectedArea *= dy;
 		rollSum *= dy;
 		if (area > MathUtil.EPSILON) {
 			macLength /= area;
@@ -395,27 +379,8 @@ public class FinSetCalc extends RocketComponentCalc {
 			macSpan = 0;
 			macLead = 0;
 		}
-		if (rollProjectedArea > MathUtil.EPSILON) {
-			rollMacSpan /= rollProjectedArea;
-		} else {
-			rollProjectedArea = area;
-			rollMacSpan = macSpan;
-		}
 		cosGamma /= (DIVISIONS - 1);
 		cosGammaLead /= (DIVISIONS - 1);
-	}
-
-	private double calculateRollProjectedChordLength(double planformChord) {
-		if (crossSection != FinSet.CrossSection.TRIANGULAR ||
-				planformChord <= MathUtil.EPSILON || thickness <= MathUtil.EPSILON) {
-			return planformChord;
-		}
-		// The extra projected area is the distance from the square section's leading
-		// face to the triangular nose vertex, capped by the local chord near tips.
-		double angle = FinSet.getEffectiveLeadingEdgeAngle(leadingEdgeAngle, thickness, planformChord);
-		double bevelLength = FinSet.leadingEdgeDistanceFromAngle(thickness, angle);
-		bevelLength = MathUtil.clamp(bevelLength, 0, planformChord);
-		return planformChord + bevelLength;
 	}
 	
 	///////////////  CNa1 calculation  ////////////////
@@ -508,7 +473,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			for (int i = 0; i < DIVISIONS; i++) {
 				double dist = bodyRadius + span * i / DIVISIONS;
 				double aoa = Math.min(absRate * dist / conditions.getVelocity(), 15 * Math.PI / 180);
-				sum += rollChordLength[i] * dist * aoa;
+				sum += chordLength[i] * dist * aoa;
 			}
 			sum = sum * (span / DIVISIONS) * 2 * Math.PI / conditions.getBeta() /
 					(conditions.getRefArea() * conditions.getRefLength());
@@ -534,7 +499,7 @@ public class FinSetCalc extends RocketComponentCalc {
 				double angle = rollRate * (bodyRadius + y) / vel;
 				
 				sum += (k1 * angle + k2 * angle * angle + k3 * angle * angle * angle)
-						* rollChordLength[i] * (bodyRadius + y);
+						* chordLength[i] * (bodyRadius + y);
 			}
 			
 			return sum * span / (DIVISIONS - 1) /

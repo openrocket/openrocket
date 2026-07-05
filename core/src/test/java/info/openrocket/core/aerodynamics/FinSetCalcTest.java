@@ -315,9 +315,10 @@ public class FinSetCalcTest {
 	}
 
 	@Test
-	public void testTriangularLeadingEdgeIncreasesProjectedRollDampingArea() {
+	public void testTriangularLeadingEdgePreservesRollPlanformArea() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCantAngle(Math.toRadians(5));
 
 		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
 		conditions.setMach(0.3);
@@ -333,8 +334,10 @@ public class FinSetCalcTest {
 		AerodynamicForces triangularForces = new AerodynamicForces();
 		new FinSetCalc(fins).calculateNonaxialForces(conditions, Transformation.IDENTITY, triangularForces, warnings);
 
-		assertTrue(triangularForces.getCrollDamp() > squareForces.getCrollDamp(),
-				"Triangular leading-edge projected area should contribute to roll damping");
+		assertEquals(squareForces.getCrollDamp(), triangularForces.getCrollDamp(), EPSILON,
+				"Triangular leading edge should not change roll damping planform area");
+		assertEquals(squareForces.getCrollForce(), triangularForces.getCrollForce(), EPSILON,
+				"Triangular leading edge should not change canted roll forcing planform area");
 	}
 
 	/**
