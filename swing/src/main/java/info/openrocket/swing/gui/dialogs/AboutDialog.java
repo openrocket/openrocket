@@ -49,6 +49,7 @@ public class AboutDialog extends JDialog {
 		"<b>Translations by:</b><br><br>" +
 		"Tripoli France (French)<br>" +
 		"Stefan Lobas / ERIG e.V. (German)<br>" +
+		"taotieren (Simplified Chinese)<br>" +
 		"Tripoli Spain (Spanish)<br>" +
 		"Sky Dart Team / Ruslan V. Uss (Russian)<br>" +
 		"Mauro Biasutti (Italian)<br>" +

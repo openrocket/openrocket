@@ -18,6 +18,11 @@ import info.openrocket.core.file.RocketLoadException;
 import info.openrocket.core.logging.MessagePriority;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.preset.ComponentPreset;
@@ -35,6 +40,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,8 +58,10 @@ public class ExampleFilesTest extends BaseTestCase {
 	private static volatile boolean initialized = false;
 	private static Path coreModuleRoot;
 	private static Injector previousInjector;
+	private static final String NO_MOTORS = "[No motors]";
 
 	private static final Map<String, ExpectedWarnings> EXPECTATIONS = new HashMap<>();
+	private static final Map<String, ExpectedFlightConfigurations> EXPECTED_FLIGHT_CONFIGURATIONS = new HashMap<>();
 	static {
 		EXPECTATIONS.put("A simple model rocket.ork", ExpectedWarnings.builder()
 				.openWarnings(0, 0, 0)
@@ -117,7 +125,7 @@ public class ExampleFilesTest extends BaseTestCase {
 		EXPECTATIONS.put("Chute release.ork", ExpectedWarnings.builder()
 				.openWarnings(0, 0, 0)
 				.simulationWarnings("Simulation 2", 0, 0, 0)
-				.simulationWarnings("Simulation 3", 0, 1, 0)
+				.simulationWarnings("Simulation 3", 0, 0, 0)
 				.build());
 
 		EXPECTATIONS.put("Dual parachute deployment.ork", ExpectedWarnings.builder()
@@ -156,10 +164,7 @@ public class ExampleFilesTest extends BaseTestCase {
 
 		EXPECTATIONS.put("Pods--powered with recovery deployment.ork", ExpectedWarnings.builder()
 				.openWarnings(0, 0, 0)
-				.simulationWarnings("BoosterOnly [Turn off Sustainer]", 0, 0, 0)
-				.simulationWarnings("Powered Pods with Recovery Devices", 0, 0, 0)
-				.simulationWarnings("Sustainer Only [Turn Off Booster]", 0, 0, 0)
-				.simulationWarnings("Unpowered Pods", 0, 0, 0)
+				.simulationWarnings("Simulation 1", 0, 0, 0)
 				.build());
 
 		// ----------------------------
@@ -189,6 +194,153 @@ public class ExampleFilesTest extends BaseTestCase {
 				.simulationWarnings("Simulation 5", 0, 0, 0)
 				.build());
 
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("3D printable nose cone and fins.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[A8-3]", "Inner Tube -> A8-3 x1")
+				.configuration("[B6-4]", "Inner Tube -> B6-4 x1")
+				.configuration("[C6-3]", "Inner Tube -> C6-3 x1")
+				.configuration("[C6-5]", "Inner Tube -> C6-5 x1")
+				.configuration("[C6-7]", "Inner Tube -> C6-7 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("A simple model rocket.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[A8-3]", "Inner Tube -> A8-3 x1")
+				.configuration("[B4-4]", "Inner Tube -> B4-4 x1")
+				.configuration("[C6-3]", "Inner Tube -> C6-3 x1")
+				.configuration("[C6-5]", "Inner Tube -> C6-5 x1")
+				.configuration("[C6-7]", "Inner Tube -> C6-7 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("ARC payload rocket.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[None; F50-9]", "Inner Tube -> F50-9 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Airstart timing.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[3\u00d7 I211-P, K550-P]",
+						"38mm airstart -> I211-P x3",
+						"54mm center -> K550-P x1")
+				.configuration("Airstart @2s",
+						"38mm airstart -> I211-P x3",
+						"54mm center -> K550-P x1")
+				.configuration("Airstart @1s",
+						"38mm airstart -> I211-P x3",
+						"54mm center -> K550-P x1")
+				.configuration("airstart @4s",
+						"38mm airstart -> I211-P x3",
+						"54mm center -> K550-P x1")
+				.configuration("airstart @6s",
+						"38mm airstart -> I211-P x3",
+						"54mm center -> K550-P x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Base drag hack (short-wide).ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[C11-5]", "24mm Motor Mount Tube -> C11-5 x1")
+				.configuration("[D12-3]", "24mm Motor Mount Tube -> D12-3 x1")
+				.configuration("[E12-4]", "24mm Motor Mount Tube -> E12-4 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Chute release.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[G40-7]", "Inner Tube -> G40-7 x1")
+				.configuration("[G80-10]", "Inner Tube -> G80-10 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Clustered motors.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[4\u00d7 A8-3]", "Clustered Inner Tube -> A8-3 x4")
+				.configuration("[4\u00d7 B4-4]", "Clustered Inner Tube -> B4-4 x4")
+				.configuration("[4\u00d7 C6-3]", "Clustered Inner Tube -> C6-3 x4")
+				.configuration("[4\u00d7 C6-5]", "Clustered Inner Tube -> C6-5 x4")
+				.configuration("[4\u00d7 C6-7]", "Clustered Inner Tube -> C6-7 x4")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Deployable payload.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[None; A8-3]", "Inner Tube -> A8-3 x1")
+				.configuration("[None; B4-4]", "Inner Tube -> B4-4 x1")
+				.configuration("[None; C6-3]", "Inner Tube -> C6-3 x1")
+				.configuration("[None; C6-5]", "Inner Tube -> C6-5 x1")
+				.configuration("[None; C6-7]", "Inner Tube -> C6-7 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Dual parachute deployment.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[H669-P]", "Inner Tube -> H669-P x1")
+				.configuration("[H242-P]", "Inner Tube -> H242-P x1")
+				.configuration("[J570-P]", "Inner Tube -> J570-P x1")
+				.configuration("[H999-P]", "Inner Tube -> H999-P x1")
+				.configuration("[I1299-P]", "Inner Tube -> I1299-P x1")
+				.configuration("[G64-P]", "Inner Tube -> G64-P x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Parallel booster staging.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[I115-10; 2\u00d7 E12-0]",
+						"Body Tube -> I115-10 x1",
+						"Booster Motor Tube -> E12-0 x2")
+				.configuration("[I115-10; None]", "Body Tube -> I115-10 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Pods--airframes and winglets.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[A8-3]", "18mm Motor mount -> A8-3 x1")
+				.configuration("[B6-4]", "18mm Motor mount -> B6-4 x1")
+				.configuration("[C6-5]", "18mm Motor mount -> C6-5 x1")
+				.configuration("[C12-6]", "18mm Motor mount -> C12-6 x1")
+				.configuration("[D16-6]", "18mm Motor mount -> D16-6 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Pods--powered with recovery deployment.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[2\u00d7 A10-3, A8-P]",
+						"Inner Tube -> A10-3 x2",
+						"Inner Tube -> A8-P x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Simulation extensions.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[L540-P]", "Inner Tube -> L540-P x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Simulation scripting.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[L540-P]", "Inner Tube -> L540-P x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Three stage low power rocket.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[A8-5; B6-0; B6-0]",
+						"Inner Tube -> A8-5 x1",
+						"Inner Tube -> B6-0 x1",
+						"Inner Tube -> B6-0 x1")
+				.configuration("[C6-5; B6-0; B6-0]",
+						"Inner Tube -> B6-0 x1",
+						"Inner Tube -> B6-0 x1",
+						"Inner Tube -> C6-5 x1")
+				.configuration("[C6-7; C6-0; C6-0]",
+						"Inner Tube -> C6-0 x1",
+						"Inner Tube -> C6-0 x1",
+						"Inner Tube -> C6-7 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Tube fin rocket.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[D12-7]", "Body tube -> D12-7 x1")
+				.build());
+
+		EXPECTED_FLIGHT_CONFIGURATIONS.put("Two stage high power rocket.ork", ExpectedFlightConfigurations.builder()
+				.configuration(NO_MOTORS)
+				.configuration("[H148R-0; H148R-0]",
+						"Booster motor mount -> H148-0 x1",
+						"Sustainer Motor Mount -> H148-0 x1")
+				.configuration("[I59WN-P; I357T-14]",
+						"Booster motor mount -> I357-14 x1",
+						"Sustainer Motor Mount -> I59-P x1")
+				.build());
 	}
 
 	@BeforeAll
@@ -249,15 +401,28 @@ public class ExampleFilesTest extends BaseTestCase {
 	public void openAndSimulateExampleFileHasNoWarnings(Path orkFile) throws RocketLoadException {
 		String fileName = orkFile.getFileName().toString();
 		ExpectedWarnings expected = EXPECTATIONS.get(fileName);
+		ExpectedFlightConfigurations expectedFlightConfigurations = EXPECTED_FLIGHT_CONFIGURATIONS.get(fileName);
 
 		GeneralRocketLoader loader = new GeneralRocketLoader(orkFile.toFile());
 		OpenRocketDocument doc = loader.load();
+		Rocket rocket = doc.getRocket();
 
 		WarningCounts openWarnings = countRelevantWarnings(loader.getWarnings());
 		if (expected != null) {
 			assertEquals(expected.openWarnings, openWarnings, () -> "Warnings when opening " + orkFile + " (expected=" + expected.openWarnings +
 					", actual=" + openWarnings + "):\n" + formatWarnings(loader.getWarnings()));
 		}
+
+		List<FlightConfigurationSnapshot> actualFlightConfigurations = describeFlightConfigurations(rocket);
+		if (expectedFlightConfigurations == null) {
+			fail("Missing expected flight configuration data for example file: " + fileName +
+					".\n\n" + flightConfigurationExpectationSnippet(fileName, actualFlightConfigurations));
+		}
+		assertEquals(expectedFlightConfigurations.configurations, actualFlightConfigurations,
+				() -> "Flight configurations when opening " + orkFile +
+						" did not match expected values.\n\nExpected:\n" +
+						formatFlightConfigurations(expectedFlightConfigurations.configurations) +
+						"\nActual:\n" + formatFlightConfigurations(actualFlightConfigurations));
 
 		Map<String, WarningCounts> actualSimWarnings = new HashMap<>();
 		for (Simulation simulation : doc.getSimulations()) {
@@ -291,6 +456,27 @@ public class ExampleFilesTest extends BaseTestCase {
 			fail("Missing expected warnings configuration for example file: " + fileName +
 					".\n\n" + expectationSnippet(fileName, openWarnings, actualSimWarnings));
 		}
+	}
+
+	private static List<FlightConfigurationSnapshot> describeFlightConfigurations(Rocket rocket) {
+		List<FlightConfigurationSnapshot> configurations = new ArrayList<>();
+		for (FlightConfiguration configuration : rocket.getFlightConfigurations()) {
+			configurations.add(new FlightConfigurationSnapshot(configuration.getName(),
+					describeActiveMotors(configuration.getActiveMotors())));
+		}
+		return List.copyOf(configurations);
+	}
+
+	private static List<String> describeActiveMotors(Collection<MotorConfiguration> activeMotors) {
+		List<String> motors = new ArrayList<>();
+		for (MotorConfiguration motorConfiguration : activeMotors) {
+			MotorMount mount = motorConfiguration.getMount();
+			RocketComponent component = (RocketComponent) mount;
+			motors.add(component.getName() + " -> " + motorConfiguration.toMotorName() +
+					" x" + mount.getMotorCountIncludingAssemblyCopies());
+		}
+		motors.sort(Comparator.naturalOrder());
+		return List.copyOf(motors);
 	}
 
 	private static WarningCounts countRelevantWarnings(WarningSet warnings) {
@@ -399,6 +585,36 @@ public class ExampleFilesTest extends BaseTestCase {
 		return sb.toString();
 	}
 
+	private static String flightConfigurationExpectationSnippet(String fileName, List<FlightConfigurationSnapshot> configurations) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("EXPECTED_FLIGHT_CONFIGURATIONS.put(\"").append(fileName)
+				.append("\", ExpectedFlightConfigurations.builder()\n");
+		for (FlightConfigurationSnapshot configuration : configurations) {
+			sb.append("\t\t.configuration(\"").append(configuration.name).append("\"");
+			for (String motor : configuration.motors) {
+				sb.append(", \"").append(motor).append("\"");
+			}
+			sb.append(")\n");
+		}
+		sb.append("\t\t.build());\n");
+		return sb.toString();
+	}
+
+	private static String formatFlightConfigurations(List<FlightConfigurationSnapshot> configurations) {
+		StringBuilder sb = new StringBuilder();
+		for (FlightConfigurationSnapshot configuration : configurations) {
+			sb.append("- ").append(configuration.name).append("\n");
+			if (configuration.motors.isEmpty()) {
+				sb.append("  <no active motors>\n");
+				continue;
+			}
+			for (String motor : configuration.motors) {
+				sb.append("  ").append(motor).append("\n");
+			}
+		}
+		return sb.toString();
+	}
+
 	private static final class WarningCounts {
 		private static final WarningCounts MISSING = new WarningCounts(-1, -1, -1);
 
@@ -439,6 +655,34 @@ public class ExampleFilesTest extends BaseTestCase {
 		}
 	}
 
+	private static final class FlightConfigurationSnapshot {
+		private final String name;
+		private final List<String> motors;
+
+		private FlightConfigurationSnapshot(String name, List<String> motors) {
+			this.name = name;
+			this.motors = List.copyOf(motors);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof FlightConfigurationSnapshot other)) {
+				return false;
+			}
+			return this.name.equals(other.name) && this.motors.equals(other.motors);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = name.hashCode();
+			result = 31 * result + motors.hashCode();
+			return result;
+		}
+	}
+
 	private static final class ExpectedWarnings {
 		private final WarningCounts openWarnings;
 		private final Map<String, WarningCounts> simulationWarnings;
@@ -468,6 +712,33 @@ public class ExampleFilesTest extends BaseTestCase {
 
 			private ExpectedWarnings build() {
 				return new ExpectedWarnings(openWarnings, Map.copyOf(simulationWarnings));
+			}
+		}
+	}
+
+	private static final class ExpectedFlightConfigurations {
+		private final List<FlightConfigurationSnapshot> configurations;
+
+		private ExpectedFlightConfigurations(List<FlightConfigurationSnapshot> configurations) {
+			this.configurations = List.copyOf(configurations);
+		}
+
+		private static Builder builder() {
+			return new Builder();
+		}
+
+		private static final class Builder {
+			private final List<FlightConfigurationSnapshot> configurations = new ArrayList<>();
+
+			private Builder configuration(String configurationName, String... motors) {
+				List<String> motorList = new ArrayList<>(List.of(motors));
+				motorList.sort(Comparator.naturalOrder());
+				this.configurations.add(new FlightConfigurationSnapshot(configurationName, motorList));
+				return this;
+			}
+
+			private ExpectedFlightConfigurations build() {
+				return new ExpectedFlightConfigurations(configurations);
 			}
 		}
 	}

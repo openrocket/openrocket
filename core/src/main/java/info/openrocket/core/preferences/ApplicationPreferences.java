@@ -78,8 +78,6 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
     public static final String PLOT_SHOW_EVENTS = "ShowPlotEvents";
-    
-    public static final String CALIPER_OPEN_MINIMIZED = "CaliperOpenMinimized";
 
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
 
@@ -200,7 +198,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// SVG export options
 	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
-  public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
+    public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
 	public static final String SVG_CROSSHAIR_COLOR = "SVGCrosshairColor";
 	public static final String SVG_CROSSHAIR_SIZE = "SVGCrosshairSize";
 	public static final String SVG_SHOW_LABELS = "SVGShowLabels";

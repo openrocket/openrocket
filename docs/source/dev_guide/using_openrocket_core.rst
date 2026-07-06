@@ -17,23 +17,76 @@ The OpenRocket core module provides the fundamental rocket simulation functional
 Maven/Gradle Dependencies
 -------------------------
 
-To use OpenRocket core in your project, add it as a dependency:
+OpenRocket Core is published to Maven Central as ``info.openrocket:core``.
+
+To use OpenRocket Core in your project, add ``mavenCentral()`` and declare the dependency with the released version you want to consume.
 
 **Maven:**
 
 .. code-block:: xml
 
+   <repositories>
+       <repository>
+           <id>central</id>
+           <url>https://repo.maven.apache.org/maven2/</url>
+       </repository>
+   </repositories>
+
    <dependency>
        <groupId>info.openrocket</groupId>
-       <artifactId>openrocket-core</artifactId>
-       <version>YOUR_VERSION</version>
+       <artifactId>core</artifactId>
+       <version>24.12</version>
    </dependency>
 
 **Gradle:**
 
 .. code-block:: groovy
 
-   implementation 'info.openrocket:openrocket-core:YOUR_VERSION'
+   repositories {
+       mavenCentral()
+   }
+
+   dependencies {
+       implementation 'info.openrocket:core:24.12'
+   }
+
+**Gradle Kotlin DSL:**
+
+.. code-block:: kotlin
+
+   repositories {
+       mavenCentral()
+   }
+
+   dependencies {
+       implementation("info.openrocket:core:24.12")
+   }
+
+For published development snapshots, add Sonatype's snapshot repository and depend on a ``-SNAPSHOT`` version:
+
+.. code-block:: groovy
+
+   repositories {
+       maven {
+           name = "Central Portal Snapshots"
+           url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+           content {
+               includeModule("info.openrocket", "core")
+           }
+       }
+       mavenCentral()
+   }
+
+   dependencies {
+       implementation 'info.openrocket:core:26.xx-SNAPSHOT'
+   }
+
+Manual JAR Usage
+----------------
+
+If you prefer not to use Maven or Gradle dependency resolution, you can still use the OpenRocket Core JAR directly by adding it and its runtime dependencies to your application's classpath.
+
+For most external Java applications, the Maven Central dependency shown above is the recommended approach because it automatically resolves the required transitive dependencies.
 
 Basic Usage
 -----------
