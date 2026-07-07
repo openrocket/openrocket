@@ -171,7 +171,7 @@ class SimulationOptionsPanel extends JPanel {
 		configureImmediateTooltipDelay(aerodynamicLookupSummaryIconLabel);
 		subsub.add(aerodynamicLookupSummaryIconLabel, "gapleft rel, wrap para");
 
-		sub.add(subsub, "spanx, wmin 0, wrap para");
+		sub.add(subsub, "spanx, growx, wmin 0, wrap para");
 
 		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
