@@ -63,7 +63,6 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 	
 	private JPanel recoveryTab(AxialStage stage) {
 		JPanel panel = new JPanel(new MigLayout("fillx"));
-		final String DROGUELESS_OPTION = trans.get("AxialStageConfig.recovery.combo.Drogueless");
 
 		panel.add(new StyledLabel(trans.get("AxialStageConfig.recovery.lbl.title"), Style.BOLD),
 				"spanx, gaptop unrel, wrap rel");
@@ -97,11 +96,13 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		group.add(dualRadio);
 
 		// --- Device combo box ---
-		@SuppressWarnings("unchecked")
 		JComboBox<Object> deviceCombo = new JComboBox<>();
-		deviceCombo.addItem(DROGUELESS_OPTION);
-		for (RecoveryDevice rd : devices) {
-			deviceCombo.addItem(rd);
+		for (RecoveryDevice device : devices) {
+			deviceCombo.addItem(device);
+		}
+		final boolean hasDevices = !devices.isEmpty();
+		if (!hasDevices) {
+			deviceCombo.addItem(trans.get("AxialStageConfig.recovery.combo.NoDevices"));
 		}
 		deviceCombo.setRenderer(new DefaultListCellRenderer() {
 			@Override
@@ -118,49 +119,47 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		});
 
 		// Set initial radio/combo state
-		if (stage.isDrogueless()) {
-			dualRadio.setSelected(true);
-			deviceCombo.setSelectedItem(DROGUELESS_OPTION);
-			deviceCombo.setEnabled(true);
-		} else if (currentDrogue != null) {
+		if (currentDrogue != null) {
 			dualRadio.setSelected(true);
 			deviceCombo.setSelectedItem(currentDrogue);
 			deviceCombo.setEnabled(true);
 		} else {
 			standardRadio.setSelected(true);
-			deviceCombo.setSelectedItem(DROGUELESS_OPTION);
 			deviceCombo.setEnabled(false);
+			if (hasDevices) {
+				deviceCombo.setSelectedItem(devices.get(0));
+			}
+		}
+		if (!hasDevices) {
+			dualRadio.setEnabled(false);
 		}
 
 		// --- Radio listeners ---
 		standardRadio.addActionListener(e -> {
 			clearStageDrogue(stage);
-			stage.setDrogueless(false);
 			deviceCombo.setEnabled(false);
 		});
 
 		dualRadio.addActionListener(e -> {
+			if (!hasDevices) {
+				standardRadio.setSelected(true);
+				return;
+			}
 			deviceCombo.setEnabled(true);
 			Object selected = deviceCombo.getSelectedItem();
 			clearStageDrogue(stage);
 			if (selected instanceof RecoveryDevice rd) {
-				stage.setDrogueless(false);
 				rd.setDrogue(true);
-			} else {
-				stage.setDrogueless(true);
 			}
 		});
 
 		// --- Combo listener ---
 		deviceCombo.addActionListener(e -> {
-			if (dualRadio.isSelected()) {
+			if (dualRadio.isSelected() && hasDevices) {
 				clearStageDrogue(stage);
 				Object selected = deviceCombo.getSelectedItem();
 				if (selected instanceof RecoveryDevice rd) {
-					stage.setDrogueless(false);
 					rd.setDrogue(true);
-				} else {
-					stage.setDrogueless(true);
 				}
 			}
 		});

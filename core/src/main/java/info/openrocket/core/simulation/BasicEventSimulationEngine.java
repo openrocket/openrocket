@@ -620,48 +620,44 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					final AxialStage deployingStage = c.getStage();
 					final RecoveryDevice deployingDevice = (RecoveryDevice) c;
 
-					if (deployingStage.isDrogueless()) {
-						// Drogueless stage: main deploys without a drogue — warn only if deploying too fast
-						if (!deployingDevice.isDrogue() && deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
-							currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
-						}
-					} else {
-						// Auto-detect: scan active components in the deploying stage only for a drogue
-						boolean stageHasDrogue = false;
-						for (RocketComponent comp : currentStatus.getConfiguration().getActiveComponents()) {
-							if (comp instanceof RecoveryDevice rd && rd.getStage() == deployingStage) {
-								DeploymentConfiguration dc = rd.getDeploymentConfigurations().get(this.fcid);
-								if (dc.getDeployEvent() != DeploymentConfiguration.DeployEvent.NEVER && rd.isDrogue()) {
-									stageHasDrogue = true;
-									break;
-								}
+					
+					// Auto-detect: scan active components in the deploying stage only for a drogue
+					boolean stageHasDrogue = false;
+					for (RocketComponent comp : currentStatus.getConfiguration().getActiveComponents()) {
+						if (comp instanceof RecoveryDevice rd && rd.getStage() == deployingStage) {
+							DeploymentConfiguration dc = rd.getDeploymentConfigurations().get(this.fcid);
+							if (dc.getDeployEvent() != DeploymentConfiguration.DeployEvent.NEVER && rd.isDrogue()) {
+								stageHasDrogue = true;
+								break;
 							}
 						}
+					}
 
-						if (stageHasDrogue) {
-							// Dual-deployment: warn on both high and low speed for the main chute
-							if (deployingDevice.isDrogue()) {
-								// DrogueLowSpeedWarning — commented out for now
-								/*
-								DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
-								if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
-										&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
-									currentStatus.addWarning(new Warning.LowSpeedDrogueDeployment(deploySpeed, c));
-								}
-								*/
-							} else {
-								if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
-									currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
-								}
-								if (deploySpeed < conds.getRecoveryDrogueMainLowSpeedWarning()) {
-									currentStatus.addWarning(new Warning.LowSpeedMainDeployment(deploySpeed, c));
-								}
+					if (stageHasDrogue) {
+						// Dual-deployment: warn on both high and low speed for the main chute
+						if (deployingDevice.isDrogue()) {
+							// DrogueLowSpeedWarning — commented out for now
+							/*
+							DeploymentConfiguration dc = deployingDevice.getDeploymentConfigurations().get(this.fcid);
+							if (dc.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE
+									&& deploySpeed < conds.getDrogueLowSpeedWarning()) {
+								currentStatus.addWarning(new Warning.LowSpeedDrogueDeployment(deploySpeed, c));
 							}
-						} else {
-							// Single-deployment (no drogue, not drogueless): standard speed warning
-							if (deploySpeed > conds.getRecoverySpeedWarning()) {
-								currentStatus.addWarning(new Warning.RecoveryHighSpeedDeployment(deploySpeed, c));
+							*/
+						} 
+						else {
+							if (deploySpeed > conds.getRecoveryDrogueMainHighSpeedWarning()) {
+								currentStatus.addWarning(new Warning.HighSpeedMainDeployment(deploySpeed, c));
 							}
+							if (deploySpeed < conds.getRecoveryDrogueMainLowSpeedWarning()) {
+								currentStatus.addWarning(new Warning.LowSpeedMainDeployment(deploySpeed, c));
+							}
+						}
+					} 
+					else {
+						// Single-deployment (no drogue): standard speed warning
+						if (deploySpeed > conds.getRecoverySpeedWarning()) {
+							currentStatus.addWarning(new Warning.RecoveryHighSpeedDeployment(deploySpeed, c));
 						}
 					}
 

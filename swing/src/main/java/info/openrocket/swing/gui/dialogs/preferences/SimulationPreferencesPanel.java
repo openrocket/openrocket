@@ -272,23 +272,6 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.desc"), -1, Style.ITALIC), "spanx, wrap para");
 
-		// Drogue sub-section
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.Drogue"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueNote"), -1, Style.ITALIC), "spanx, wrap rel");
-
-		/*  DrogueLowSpeedWarning — commented out for now
-		label = new JLabel(trans.get("simedtdlg.lbl.DrogueLowSpeedWarning"));
-		tip = trans.get("simedtdlg.lbl.ttip.DrogueLowSpeedWarning");
-		label.setToolTipText(tip);
-		dualTab.add(label, "gapright para");
-		DoubleModel m_dlsw = new DoubleModel(preferences, "DrogueLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
-		spin = new JSpinner(m_dlsw.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(tip);
-		dualTab.add(spin, "");
-		dualTab.add(new UnitSelector(m_dlsw), "wrap");
-		*/
-
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		tip = trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning");
 		label.setToolTipText(tip);
@@ -299,10 +282,6 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		spin.setToolTipText(tip);
 		dualTab.add(spin, "");
 		dualTab.add(new UnitSelector(m_mlsw), "wrap");
-
-		// Drogue or Drogueless sub-section
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.border.DualDeployment.DrogueOrDrogueless"), -1, Style.BOLD), "spanx, gaptop unrel, wrap rel");
-		dualTab.add(new StyledLabel(trans.get("simedtdlg.lbl.DualDeployment.DrogueOrDroguelessNote"), -1, Style.ITALIC), "spanx, wrap rel");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainHighSpeedWarning"));
 		tip = trans.get("simedtdlg.lbl.ttip.MainHighSpeedWarning");

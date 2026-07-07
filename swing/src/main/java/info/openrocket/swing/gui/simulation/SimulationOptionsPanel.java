@@ -33,6 +33,7 @@ import javax.swing.JTextPane;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.text.View;
 
 import info.openrocket.core.aerodynamics.lookup.MachAoALookup;
 import info.openrocket.core.document.OpenRocketDocument;
@@ -351,7 +352,7 @@ class SimulationOptionsPanel extends JPanel {
 
 		// --- Single deployment tab ---
 		JPanel singleTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
-		singleTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.SingleDeployment.desc"), Style.ITALIC), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
+		singleTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.SingleDeployment.desc"), Style.ITALIC), "spanx, growx, wmin 0, wrap para");
 		label = new JLabel(trans.get("simedtdlg.lbl.RecoverySpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.RecoverySpeedWarning"));
 		singleTab.add(label, "gapright para");
@@ -365,9 +366,9 @@ class SimulationOptionsPanel extends JPanel {
 
 		// --- Dual deployment tab ---
 		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
-		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.desc"), Style.ITALIC), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
+		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.desc2"), Style.ITALIC), "spanx, growx, wmin 0, wrap para");
 
-		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), Style.PLAIN), "spanx, growx, pushx, w 0:100%:100%, wmin 0, wrap para");
+		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), Style.PLAIN), "spanx, growx, wmin 0, wrap para");
 
 		label = new JLabel(trans.get("simedtdlg.lbl.MainLowSpeedWarning"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.MainLowSpeedWarning"));
@@ -629,7 +630,29 @@ class SimulationOptionsPanel extends JPanel {
 	}
 
 	private JTextPane createWrappingInfoText(String text, Style style) {
-		JTextPane pane = new JTextPane();
+		JTextPane pane = new JTextPane() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Dimension getPreferredSize() {
+				Dimension d = super.getPreferredSize();
+				// An HTML JTextPane reports a large "natural" preferred width (it prefers
+				// to keep text on one line). If that width is allowed to influence the
+				// enclosing layout, the panel - which lives inside a JScrollPane and is
+				// therefore sized to its preferred width - keeps growing wider on every
+				// re-layout (e.g. each recovery tab switch). Report only the minimum
+				// wrap width so the pane never drives the container wider, and derive the
+				// height from the width actually allocated so the text isn't clipped.
+				View view = getUI().getRootView(this);
+				int width = getWidth();
+				if (width > 0) {
+					view.setSize(width, Float.MAX_VALUE);
+					d.height = (int) Math.ceil(view.getPreferredSpan(View.Y_AXIS));
+				}
+				d.width = (int) Math.ceil(view.getMinimumSpan(View.X_AXIS));
+				return d;
+			}
+		};
 		pane.setEditable(false);
 		pane.setFocusable(false);
 		pane.setOpaque(false);

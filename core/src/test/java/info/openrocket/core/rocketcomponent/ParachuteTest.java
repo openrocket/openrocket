@@ -74,47 +74,6 @@ public class ParachuteTest extends BaseTestCase {
 				"Loaded parachute should keep auto line length");
 	}
 
-	@Test
-	public void testDroguelessDefaultFalse() {
-		Parachute parachute = new Parachute();
-		assertFalse(parachute.isDrogueless(), "isDrogueless should default to false");
-	}
-
-	@Test
-	public void testDroguelessSetGet() {
-		Parachute parachute = new Parachute();
-		parachute.setDrogueless(true);
-		assertTrue(parachute.isDrogueless(), "isDrogueless should be true after setDrogueless(true)");
-		parachute.setDrogueless(false);
-		assertFalse(parachute.isDrogueless(), "isDrogueless should be false after setDrogueless(false)");
-	}
-
-	@Test
-	public void testDroguelessSaveLoad() {
-		OpenRocketDocument document = createDocumentWithRecoveryComponents();
-		Parachute parachute = findComponent(document.getRocket(), Parachute.class);
-		parachute.setDrogueless(true);
-
-		OpenRocketDocument loadedDocument = saveAndLoad(document);
-		Parachute loadedParachute = findComponent(loadedDocument.getRocket(), Parachute.class);
-
-		assertTrue(loadedParachute.isDrogueless(), "isDrogueless should persist through save/load");
-	}
-
-	@Test
-	public void testDroguelessFalseNotSaved() {
-		// When isDrogueless is false (default), it should not be written to the file,
-		// and after loading the default of false should still apply.
-		OpenRocketDocument document = createDocumentWithRecoveryComponents();
-		Parachute parachute = findComponent(document.getRocket(), Parachute.class);
-		parachute.setDrogueless(false);
-
-		OpenRocketDocument loadedDocument = saveAndLoad(document);
-		Parachute loadedParachute = findComponent(loadedDocument.getRocket(), Parachute.class);
-
-		assertFalse(loadedParachute.isDrogueless(), "isDrogueless false should persist through save/load");
-	}
-
 	private OpenRocketDocument createDocumentWithRecoveryComponents() {
 		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
 		Rocket rocket = document.getRocket();

@@ -302,16 +302,6 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			deploymentPanel.add(new StyledLabel(trans.get("RecoveryDeviceCfg.lbl.IsDrogue.managedByStage"), -1, StyledLabel.Style.ITALIC), "spanx, wrap");
 			order.add(drogueCheck);
 
-			/* Drogueless checkbox — commented out for now
-			//// Is Drogueless checkbox
-			JCheckBox droguelessCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogueless"));
-			droguelessCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogueless.ttip"));
-			droguelessCheck.setSelected(parachute.isDrogueless());
-			droguelessCheck.addActionListener(e -> parachute.setDrogueless(droguelessCheck.isSelected()));
-			deploymentPanel.add(droguelessCheck, "spanx, wrap");
-			order.add(droguelessCheck);
-			*/
-
 			panel.add(deploymentPanel, "spanx, growx, wrap para");
 		}
 
