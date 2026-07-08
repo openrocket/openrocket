@@ -58,7 +58,7 @@ The easiest way to get familiar with OpenRocket is to open one of our in-program
 
 ![Get started with the example designs](.github/getting-started.png)
 
-Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, ... Explore the impact of your changes and, most importantly, enjoy the process! 😊
+Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, and more. Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
 ---
 

@@ -307,8 +307,7 @@ public class RocketComponentSaver {
 	
 	private final static void emitColor(String elementName, List<String> elements, ORColor color, int indents) {
 		if (color != null) {
-			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " " + color.toXMLAttributes() + "/>");
 		}
 	}
 
