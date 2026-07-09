@@ -259,10 +259,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	}
 
 	protected List<T> getSelectedComponents() {
-		int[] cols = Arrays.stream(table.getSelectedColumns()).map(table::convertRowIndexToModel).toArray();
+		int[] cols = Arrays.stream(table.getSelectedColumns()).map(table::convertColumnIndexToModel).toArray();
 		int[] rows = Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).toArray();
 		if (Arrays.stream(cols).min().isEmpty() || Arrays.stream(rows).min().isEmpty() ||
-				Arrays.stream(cols).min().getAsInt() < 0 || Arrays.stream(rows).min().getAsInt() < 0) {
+				Arrays.stream(cols).min().getAsInt() < 0 || Arrays.stream(rows).min().getAsInt() < 0 ||
+				Arrays.stream(cols).max().getAsInt() >= table.getColumnCount() || Arrays.stream(rows).max().getAsInt() >= table.getRowCount()) {
 			return null;
 		}
 		List<T> components = new ArrayList<>();
