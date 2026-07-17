@@ -27,11 +27,19 @@ public final class Figure3DPreferences {
 
 	public static void applyDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
 		apply(config, load(preferences));
+		applyInteractionEffectPreference(config, preferences);
 	}
 
 	public static void applyDefaults(RenderingConfiguration config, DocumentPreferences documentPreferences,
 			ApplicationPreferences preferences) {
 		apply(config, load(documentPreferences, preferences));
+		applyInteractionEffectPreference(config, preferences);
+	}
+
+	private static void applyInteractionEffectPreference(RenderingConfiguration config,
+			ApplicationPreferences preferences) {
+		config.getQuality().setReduceEffectsDuringInteraction(
+				shouldReduceEffectsDuringInteraction(preferences));
 	}
 
 	public static void apply(RenderingConfiguration config, Values values) {
@@ -209,6 +217,10 @@ public final class Figure3DPreferences {
 		return preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLE_AMBIENT_OCCLUSION, false);
 	}
 
+	public static boolean shouldReduceEffectsDuringInteraction(ApplicationPreferences preferences) {
+		return preferences.shouldReduceEffectsDuring3DInteraction();
+	}
+
 	public static boolean isRoughnessBumpEnabled(ApplicationPreferences preferences) {
 		return preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLE_ROUGHNESS_BUMP, true);
 	}
@@ -219,6 +231,10 @@ public final class Figure3DPreferences {
 
 	public static void setAmbientOcclusionEnabled(ApplicationPreferences preferences, boolean enabled) {
 		preferences.putBoolean(ApplicationPreferences.OPENGL_ENABLE_AMBIENT_OCCLUSION, enabled);
+	}
+
+	public static void setReduceEffectsDuringInteraction(ApplicationPreferences preferences, boolean enabled) {
+		preferences.setReduceEffectsDuring3DInteraction(enabled);
 	}
 
 	public static void setRoughnessBumpEnabled(ApplicationPreferences preferences, boolean enabled) {

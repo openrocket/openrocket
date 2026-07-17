@@ -26,6 +26,7 @@ public class GraphicsQualitySettings {
     public static final boolean DEFAULT_FXAA = true;
     public static final boolean DEFAULT_SHADOWS = false;
     public static final boolean DEFAULT_AMBIENT_OCCLUSION = false;
+    public static final boolean DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION = false;
 
     /**
      * Defines overall rendering quality levels that affect multiple visual aspects.
@@ -48,6 +49,7 @@ public class GraphicsQualitySettings {
     private boolean enableFXAA = DEFAULT_FXAA; // Fast Approximate Anti-Aliasing
     private boolean shadowsEnabled = DEFAULT_SHADOWS;
     private boolean ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
+    private volatile boolean reduceEffectsDuringInteraction = DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION;
 
     // Render Quality
     
@@ -202,6 +204,24 @@ public class GraphicsQualitySettings {
     }
 
     /**
+     * Checks whether costly effects should be suspended while the user moves the camera.
+     *
+     * @return true when interaction rendering should favor stability and responsiveness
+     */
+    public boolean shouldReduceEffectsDuringInteraction() {
+        return reduceEffectsDuringInteraction;
+    }
+
+    /**
+     * Selects whether shadows and costly post-processing are suspended during camera interaction.
+     *
+     * @param reduce true to reduce effects until the interaction ends
+     */
+    public void setReduceEffectsDuringInteraction(boolean reduce) {
+        this.reduceEffectsDuringInteraction = reduce;
+    }
+
+    /**
      * Returns the SSAO sample count to use for the current quality level.
      *
      * @return number of SSAO kernel samples
@@ -260,5 +280,6 @@ public class GraphicsQualitySettings {
         enableFXAA = DEFAULT_FXAA;
         shadowsEnabled = DEFAULT_SHADOWS;
         ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
+        reduceEffectsDuringInteraction = DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION;
     }
 }

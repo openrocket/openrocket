@@ -1,9 +1,11 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
 import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.figure3d.DemoFactory;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
@@ -15,6 +17,7 @@ import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackgr
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
@@ -253,6 +256,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Runnable renderActivityCallback;
 	private volatile Runnable renderRequestCallback;
 	private volatile Runnable uiThemeListener;
+	private volatile StateChangeListener graphicsPreferencesListener;
+	private volatile ApplicationPreferences listenedApplicationPreferences;
 	private final AtomicReference<ImageCaptureRequest> imageCaptureRequest = new AtomicReference<>();
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
@@ -1037,6 +1042,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			//RocketMeshBuilder.createOriginAxes(scene, true, true);
 			applyThemeBackground(scene);
 			installThemeListener();
+			installGraphicsPreferencesListener();
 
 			// Focus on the rocket
 			scene3DOrchestrator.focusOnRocket();
@@ -2033,6 +2039,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		hudPaintScheduled.set(false);
 		hudBufferReady.set(false);
 		uninstallThemeListener();
+		uninstallGraphicsPreferencesListener();
 		if (scene3DOrchestrator != null) {
 			scene3DOrchestrator.shutdown();
 		}
@@ -2219,6 +2226,54 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			UITheme.Theme.removeUIThemeChangeListener(uiThemeListener);
 			uiThemeListener = null;
 		}
+	}
+
+	private void installGraphicsPreferencesListener() {
+		if (graphicsPreferencesListener != null) {
+			return;
+		}
+		ApplicationPreferences preferences = Application.getPreferences();
+		if (preferences == null) {
+			return;
+		}
+		StateChangeListener listener = event -> applyInteractionEffectPreference(preferences);
+		listenedApplicationPreferences = preferences;
+		graphicsPreferencesListener = listener;
+		preferences.addChangeListener(listener);
+	}
+
+	private void applyInteractionEffectPreference(ApplicationPreferences preferences) {
+		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+		if (orchestrator == null) {
+			return;
+		}
+		boolean reduceEffects = Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences);
+		if (orchestrator.getRenderingConfiguration().getQuality()
+				.shouldReduceEffectsDuringInteraction() == reduceEffects) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> {
+			if (orchestrator != scene3DOrchestrator) {
+				return;
+			}
+			if (orchestrator.getRenderingConfiguration().getQuality()
+					.shouldReduceEffectsDuringInteraction() == reduceEffects) {
+				return;
+			}
+			orchestrator.getRenderingConfiguration().getQuality().setReduceEffectsDuringInteraction(reduceEffects);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+		markRenderActivity();
+	}
+
+	private void uninstallGraphicsPreferencesListener() {
+		StateChangeListener listener = graphicsPreferencesListener;
+		ApplicationPreferences preferences = listenedApplicationPreferences;
+		if (listener != null && preferences != null) {
+			preferences.removeChangeListener(listener);
+		}
+		graphicsPreferencesListener = null;
+		listenedApplicationPreferences = null;
 	}
 
 }

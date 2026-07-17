@@ -249,6 +249,21 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				enableGLModel.addEnableComponent(enableAmbientOcclusion);
 				add(enableAmbientOcclusion, "span 2, wrap");
 
+				// Reduce costly effects while interacting with the 3D view
+				final JCheckBox reduceEffectsDuringInteraction = new JCheckBox(
+						trans.get("pref.dlg.opengl.but.reduceEffectsDuringInteraction"));
+				reduceEffectsDuringInteraction.setSelected(
+						Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences));
+				reduceEffectsDuringInteraction.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Figure3DPreferences.setReduceEffectsDuringInteraction(preferences,
+								reduceEffectsDuringInteraction.isSelected());
+					}
+				});
+				enableGLModel.addEnableComponent(reduceEffectsDuringInteraction);
+				add(reduceEffectsDuringInteraction, "span 2, wrap");
+
 				// Enable surface roughness
 				final JCheckBox enableRoughness = new JCheckBox(trans.get("pref.dlg.opengl.but.enableRoughness"));
 				enableRoughness.setSelected(Figure3DPreferences.isRoughnessBumpEnabled(preferences));

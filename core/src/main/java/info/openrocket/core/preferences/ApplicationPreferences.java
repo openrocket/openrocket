@@ -133,6 +133,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String OPENGL_RENDER_QUALITY = "OpenGLRenderQuality";
 	public static final String OPENGL_ENABLE_SHADOWS = "OpenGLShadowsEnabled";
 	public static final String OPENGL_ENABLE_AMBIENT_OCCLUSION = "OpenGLAmbientOcclusionEnabled";
+	public static final String OPENGL_REDUCE_EFFECTS_DURING_INTERACTION =
+			"OpenGLReduceEffectsDuringInteraction";
 	public static final String OPENGL_ENABLE_ROUGHNESS_BUMP = "OpenGLRoughnessBumpEnabled";
 	public static final String OPENGL_SHOW_ORIGIN_AXES = "OpenGLShowOriginAxes";
 	public static final String OPENGL_SHOW_LIGHT_VISUALIZERS = "OpenGLShowLightVisualizers";
@@ -229,6 +231,18 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public abstract boolean getBoolean(String key, boolean defaultValue);
 	
 	public abstract void putBoolean(String key, boolean value);
+
+	public boolean shouldReduceEffectsDuring3DInteraction() {
+		return getBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, false);
+	}
+
+	public void setReduceEffectsDuring3DInteraction(boolean enabled) {
+		if (shouldReduceEffectsDuring3DInteraction() == enabled) {
+			return;
+		}
+		putBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, enabled);
+		fireChangeEvent();
+	}
 	
 	public abstract int getInt(String key, int defaultValue);
 	

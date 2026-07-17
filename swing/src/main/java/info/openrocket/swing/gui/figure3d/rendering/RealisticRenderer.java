@@ -401,7 +401,7 @@ public class RealisticRenderer implements GLRenderer {
 		updateFlameLighting(scene);
 		// Rebuilding a complex shadow map for every mouse event can keep weaker
 		// Windows drivers continuously saturated. The first idle frame recreates it.
-		shadowPass.setEnabled(config.getQuality().isShadowsEnabled() && !interactionMode);
+		shadowPass.setEnabled(config.getQuality().isShadowsEnabled() && !shouldReduceInteractionEffects());
 		shadowPass.setQuality(config.getQuality().getQuality());
 		shadowPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		glViewport(0, 0, screenWidth, screenHeight);
@@ -485,8 +485,9 @@ public class RealisticRenderer implements GLRenderer {
 	private int runPostProcessingChain(SceneView scene,
 									   Matrix4f cameraViewMatrix, Matrix4f cameraProjectionMatrix) {
 		int currentTexture = renderTarget.getColorTextureId();
+		boolean reduceInteractionEffects = shouldReduceInteractionEffects();
 
-		if (config.getQuality().isAmbientOcclusionEnabled() && !interactionMode) {
+		if (config.getQuality().isAmbientOcclusionEnabled() && !reduceInteractionEffects) {
 			ambientOcclusionPass.setInputTexture(currentTexture);
 			ambientOcclusionPass.setDepthTexture(renderTarget.getDepthTextureId());
 			ambientOcclusionPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
@@ -494,7 +495,7 @@ public class RealisticRenderer implements GLRenderer {
 		}
 
 		// Apply motion blur if enabled (only affects the rocket, not the background)
-		if (config.getVisualEffects().isMotionBlurEnabled() && !interactionMode) {
+		if (config.getVisualEffects().isMotionBlurEnabled() && !reduceInteractionEffects) {
 			motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
 			motionBlurPass.setInputTexture(currentTexture);
 			motionBlurPass.setDepthTexture(renderTarget.getDepthTextureId());
@@ -505,7 +506,7 @@ public class RealisticRenderer implements GLRenderer {
 
 		for (RenderPass pass : postProcessingPasses) {
 			// Outline pass is screen-space and full-frame; skip during interaction.
-			if (interactionMode && pass instanceof OutlinePass) {
+			if (reduceInteractionEffects && pass instanceof OutlinePass) {
 				continue;
 			}
 			if (pass instanceof ScreenTexturePass screenPass) {
@@ -519,6 +520,10 @@ public class RealisticRenderer implements GLRenderer {
 		}
 
 		return currentTexture;
+	}
+
+	private boolean shouldReduceInteractionEffects() {
+		return interactionMode && config.getQuality().shouldReduceEffectsDuringInteraction();
 	}
 
 	/**

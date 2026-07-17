@@ -21,6 +21,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.ServicesForTesting;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
@@ -36,6 +37,7 @@ import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
+import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.util.BaseTestCase;
@@ -676,6 +678,35 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		}
 	}
 
+	@Test
+	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void openDesignViewAppliesInteractionEffectPreferenceChanges() throws Exception {
+		assumeUiEnvironment();
+		ApplicationPreferences preferences = Application.getPreferences();
+		boolean originalValue = Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences);
+		DesignHarness harness = null;
+		try {
+			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, false);
+			harness = createDesignHarness();
+			DesignHarness currentHarness = harness;
+			waitForShowing(currentHarness.panel, 2_000,
+					"Design view should become visible before preference listener test");
+			onEdt(() -> currentHarness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D));
+			awaitFresh3DFrame(currentHarness.panel.getFigure3d(), -1, -1, FRAME_TIMEOUT_MS,
+					"initial preference listener frame");
+			awaitInteractionEffectReduction(currentHarness.panel.getFigure3d(), false, FRAME_TIMEOUT_MS);
+
+			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, true);
+			awaitInteractionEffectReduction(currentHarness.panel.getFigure3d(), true, FRAME_TIMEOUT_MS);
+
+			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, false);
+			awaitInteractionEffectReduction(currentHarness.panel.getFigure3d(), false, FRAME_TIMEOUT_MS);
+		} finally {
+			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, originalValue);
+			disposeDesignHarness(harness);
+		}
+	}
+
 	/**
 	 * Exercises all three design 3D render modes on the real WGL/JAWT surface
 	 * while user input, heavyweight-canvas resizing, and CardLayout visibility
@@ -786,8 +817,29 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		orchestrator.enqueueGlTask(() -> {
 			orchestrator.getRenderingConfiguration().getQuality().setShadowsEnabled(true);
 			orchestrator.getRenderingConfiguration().getQuality().setAmbientOcclusionEnabled(true);
+			orchestrator.getRenderingConfiguration().getQuality().setReduceEffectsDuringInteraction(true);
 			orchestrator.getRenderingConfiguration().notifyListeners();
 		});
+	}
+
+	private static void awaitInteractionEffectReduction(RocketFigure3d figure3d, boolean expected,
+			long timeoutMs) throws Exception {
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		while (System.currentTimeMillis() < deadline) {
+			GLScenePanel canvas = currentDesignCanvas(figure3d);
+			Scene3DOrchestrator orchestrator = canvas != null ? canvas.getScene3DOrchestrator() : null;
+			if (isCanvasReady(canvas) && orchestrator != null
+					&& orchestrator.getRenderingConfiguration().getQuality()
+							.shouldReduceEffectsDuringInteraction() == expected) {
+				return;
+			}
+			Thread.sleep(25);
+		}
+		GLScenePanel canvas = currentDesignCanvas(figure3d);
+		assertNotNull(canvas, "Preference change lost the live GL canvas");
+		assertEquals(expected, canvas.getScene3DOrchestrator().getRenderingConfiguration().getQuality()
+				.shouldReduceEffectsDuringInteraction(),
+				"Open 3D view did not apply the interaction-effect preference change");
 	}
 
 	private static void awaitDesignRenderMode(RocketFigure3d figure3d, RocketPanel.VIEW_TYPE viewType,
