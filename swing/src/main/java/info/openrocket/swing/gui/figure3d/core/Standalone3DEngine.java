@@ -2,7 +2,6 @@ package info.openrocket.swing.gui.figure3d.core;
 
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.swing.gui.figure3d.DemoFactory;
-import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.export.ImageExporter;
 import info.openrocket.swing.gui.figure3d.export.PngExporter;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
@@ -67,8 +66,7 @@ public class Standalone3DEngine implements Runnable {
 				.withQualityMode()
 				.build();
 		SceneView scene = scene3DOrchestrator.getScene();
-		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
-		scene3DOrchestrator.applyRocketRotationToScene();
+		scene3DOrchestrator.rebuildRocketScene(false);
 		DemoFactory.setupBackground(scene, 1);
 		scene3DOrchestrator.focusOnRocket();
 

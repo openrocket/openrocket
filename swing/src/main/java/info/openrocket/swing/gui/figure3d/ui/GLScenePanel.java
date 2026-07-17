@@ -5,7 +5,6 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.swing.gui.figure3d.DemoFactory;
-import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
@@ -1012,9 +1011,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					.build();
 			SceneView scene = scene3DOrchestrator.getScene();
 
-			// Create the scene mesh
-			RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
-			scene3DOrchestrator.applyRocketRotationToScene();
+			// Create the scene mesh through the orchestrator so context-owned textures
+			// use this canvas's decal cache rather than the process-wide fallback cache.
+			scene3DOrchestrator.rebuildRocketScene(false);
 			//RocketMeshBuilder.createOriginAxes(scene, true, true);
 			applyThemeBackground(scene);
 			installThemeListener();
