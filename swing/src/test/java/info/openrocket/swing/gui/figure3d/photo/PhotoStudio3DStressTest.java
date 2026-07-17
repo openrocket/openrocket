@@ -1,5 +1,9 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -27,6 +31,7 @@ import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Miramar;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
+import info.openrocket.swing.gui.figure3d.rendering.GLErrors;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
@@ -38,6 +43,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -59,6 +65,7 @@ import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.CountDownLatch;
@@ -69,6 +76,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -82,6 +90,12 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	private static final long CAMERA_SNAPSHOT_TIMEOUT_MS = 2_000;
 	private static final long EDT_CALL_TIMEOUT_MS = 2_500;
 	private static final long WATCHDOG_PERIOD_SECONDS = 5;
+	private static final int WINDOWS_INTERACTION_STRESS_CYCLES =
+			Math.max(1, Integer.getInteger("openrocket.test.windows3d.cycles", 12));
+	private static final boolean WINDOWS_INTERACTION_PEER_CHURN =
+			Boolean.getBoolean("openrocket.test.windows3d.peerChurn");
+	private static final int BLANK_FRAMEBUFFER_RECOVERY_STRESS_CYCLES =
+			Math.max(1, Integer.getInteger("openrocket.test.figure3d.recoveryCycles", 8));
 	private static final Sky[] TEST_SKIES = {
 			Mountains.instance,
 			Meadow.instance,
@@ -272,7 +286,8 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
 
 		PhotoHarness harness;
-		try (DiagnosticWatchdog ignored = startWatchdog(
+		try (ErrorLogCapture glErrors = ErrorLogCapture.attach(GLErrors.class);
+			 DiagnosticWatchdog ignored = startWatchdog(
 				"repeatedBlankFramebufferRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain",
 				phase::get,
 				() -> describePhotoHarness(harnessRef.get()))) {
@@ -287,7 +302,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				awaitFreshPhotoFrame(currentHarness.panel, null, -1, -1, FRAME_TIMEOUT_MS,
 						"initial Photo Studio frame before forced recovery");
 
-				for (int i = 0; i < 8; i++) {
+				for (int i = 0; i < BLANK_FRAMEBUFFER_RECOVERY_STRESS_CYCLES; i++) {
 					final int iteration = i;
 					GLScenePanel failedCanvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
 							"Photo Studio canvas before forced recovery cycle " + iteration);
@@ -322,6 +337,8 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			} finally {
 				disposePhotoHarness(harness);
 			}
+			assertFalse(glErrors.hasErrors(),
+					"OpenGL errors were hidden by the asynchronous render task runner:\n" + glErrors.describe());
 		}
 	}
 
@@ -650,6 +667,99 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * Exercises the real WGL/JAWT surface while user input, heavyweight-canvas
+	 * resizing, and CardLayout visibility changes overlap.  A native Windows
+	 * graphics crash cannot be caught by JUnit; it is reported by Gradle as a
+	 * crashed test worker.  The Java assertions also catch the recoverable form
+	 * of the failure, where GLScenePanel marks the renderer as failed instead of
+	 * terminating the VM.
+	 */
+	@Test
+	@Timeout(value = 150, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void windowsDesignViewInteractionDuringResizeAndViewSwitchingKeepsRendererAlive() throws Exception {
+		assumeWindowsUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-windows-interaction-harness");
+		AtomicReference<DesignHarness> harnessRef = new AtomicReference<>();
+
+		DesignHarness harness = null;
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"windowsDesignViewInteractionDuringResizeAndViewSwitchingKeepsRendererAlive",
+				phase::get,
+				() -> describeDesignHarness(harnessRef.get()))) {
+			harness = createDesignHarness();
+			harnessRef.set(harness);
+			final DesignHarness currentHarness = harness;
+			try {
+				phase.set("await-windows-design-showing");
+				waitForShowing(currentHarness.panel, 2_000,
+						"Windows design view should become visible before interaction stress test");
+				phase.set("enable-windows-design-3d");
+				onEdt(() -> currentHarness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D));
+				phase.set("await-windows-initial-frame");
+				awaitFresh3DFrame(currentHarness.panel.getFigure3d(), -1, -1, FRAME_TIMEOUT_MS,
+						"initial Windows design-view frame");
+
+				for (int i = 0; i < WINDOWS_INTERACTION_STRESS_CYCLES; i++) {
+					final int iteration = i;
+					GLScenePanel canvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+							"Windows interaction canvas iteration " + iteration);
+					int beforeSwap = canvas.getSwapCallCount();
+					int beforePaint = canvas.getPaintCallCount();
+					int beforeRender = canvas.getRenderCallCount();
+					int x = centerX(canvas);
+					int y = centerY(canvas);
+
+					phase.set("windows-orbit-resize-burst-" + iteration);
+					dragCanvasWhileResizingWindow(canvas, currentHarness.frame,
+							x, y, x + 70, y + 45, MouseEvent.BUTTON1, 0, iteration);
+
+					phase.set("windows-pan-light-scroll-burst-" + iteration);
+					dragCanvas(canvas, x, y, x - 48, y + 32,
+							MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK);
+					dragCanvas(canvas, x, y, x + 42, y - 36, MouseEvent.BUTTON2, 0);
+					dragCanvas(canvas, x, y, x - 36, y - 30, MouseEvent.BUTTON3, 0);
+					for (int wheel = 0; wheel < 6; wheel++) {
+						scrollCanvas(canvas, x, y, (wheel & 1) == 0 ? -1 : 1);
+					}
+					clickCanvas(canvas, x, y, MouseEvent.BUTTON1, 0);
+					if (WINDOWS_INTERACTION_PEER_CHURN) {
+						phase.set("windows-native-peer-churn-" + iteration);
+						churnWindowsNativePeer(currentHarness.frame, iteration);
+					}
+
+					// Hiding the heavyweight canvas directly after an input burst makes the
+					// CardLayout transition overlap any frame already in progress.
+					phase.set("windows-hide-3d-" + iteration);
+					onEdt(() -> currentHarness.panel.setViewType(RocketPanel.VIEW_TYPE.SideView));
+					Thread.sleep(20);
+					phase.set("windows-restore-3d-" + iteration);
+					onEdt(() -> {
+						currentHarness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D);
+						moveFrameToDisplay(currentHarness.frame, iteration);
+						currentHarness.frame.validate();
+						currentHarness.frame.repaint();
+					});
+
+					phase.set("await-windows-recovery-frame-" + iteration);
+					awaitFresh3DFrame(currentHarness.panel.getFigure3d(), beforeSwap, beforePaint,
+							FRAME_TIMEOUT_MS, "Windows interaction frame iteration " + iteration);
+					GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+							"Windows active canvas after interaction iteration " + iteration);
+					assertFalse(activeCanvas.glInitFailed,
+							"Windows GL renderer failed after interaction iteration " + iteration + ": "
+									+ activeCanvas.getDebugStateSummary());
+					assertTrue(activeCanvas != canvas || activeCanvas.getRenderCallCount() > beforeRender,
+							"Interaction burst did not reach the Windows render thread: "
+									+ activeCanvas.getDebugStateSummary());
+				}
+				phase.set("completed");
+			} finally {
+				disposeDesignHarness(harness);
+			}
+		}
+	}
+
 	private static void mutatePhotoSettings(PhotoSettings settings, int iteration) {
 		settings.setAdjusting(true);
 		settings.setBackgroundType(PhotoSettings.BackgroundType.values()[iteration % PhotoSettings.BackgroundType.values().length]);
@@ -682,6 +792,12 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	private static void assumeUiEnvironment() {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"3D stress test requires a live graphical environment");
+	}
+
+	private static void assumeWindowsUiEnvironment() {
+		assumeUiEnvironment();
+		Assumptions.assumeTrue(SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS,
+				"WGL/JAWT interaction stress test only applies to Windows");
 	}
 
 	private static PhotoHarness createPhotoHarness(String frameTitle) throws Exception {
@@ -1184,6 +1300,69 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		dispatchMouseEvent(canvas, MouseEvent.MOUSE_RELEASED, endX, endY, button, modifiersEx, when + 70);
 	}
 
+	private static void dragCanvasWhileResizingWindow(GLScenePanel canvas, JFrame frame,
+			int startX, int startY, int endX, int endY, int button, int modifiersEx, int iteration) throws Exception {
+		long when = System.currentTimeMillis();
+		dispatchMouseEvent(canvas, MouseEvent.MOUSE_PRESSED, startX, startY, button, modifiersEx, when);
+		int dragModifiers = modifiersEx | buttonMask(button);
+		int steps = 24;
+		for (int step = 1; step <= steps; step++) {
+			final int dragStep = step;
+			int x = startX + (endX - startX) * step / steps;
+			int y = startY + (endY - startY) * step / steps;
+			onEdt("dispatch Windows resize/drag step " + step, () -> {
+				if (dragStep % 4 == 0) {
+					frame.setSize(880 + ((iteration + dragStep) % 4) * 45,
+							620 + ((iteration + dragStep) % 3) * 35);
+					frame.validate();
+				}
+				MouseEvent event = new MouseEvent(
+						canvas,
+						MouseEvent.MOUSE_DRAGGED,
+						when + 5L * dragStep,
+						dragModifiers,
+						x,
+						y,
+						x,
+						y,
+						0,
+						false,
+						button);
+				canvas.dispatchEvent(event);
+			});
+			// Let the 60 Hz render thread consume intermediate input and resize
+			// states instead of coalescing the complete gesture into one frame.
+			Thread.sleep(4);
+		}
+		dispatchMouseEvent(canvas, MouseEvent.MOUSE_RELEASED, endX, endY, button, modifiersEx,
+				when + 5L * (steps + 1));
+	}
+
+	private static void churnWindowsNativePeer(JFrame frame, int iteration) throws Exception {
+		switch (iteration % 3) {
+			case 0 -> onEdt("iconify Windows 3D frame", () -> frame.setState(JFrame.ICONIFIED));
+			case 1 -> onEdt("hide Windows 3D frame", () -> frame.setVisible(false));
+			default -> onEdt("maximize Windows 3D frame", () -> frame.setExtendedState(JFrame.MAXIMIZED_BOTH));
+		}
+		Thread.sleep(60);
+		onEdt("restore Windows 3D frame", () -> {
+			frame.setExtendedState(JFrame.NORMAL);
+			frame.setVisible(true);
+			frame.validate();
+			frame.repaint();
+		});
+	}
+
+	private static void moveFrameToDisplay(JFrame frame, int iteration) {
+		java.awt.GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+		if (devices.length == 0) {
+			return;
+		}
+		java.awt.Rectangle bounds = devices[iteration % devices.length].getDefaultConfiguration().getBounds();
+		frame.setLocation(bounds.x + 60 + (iteration % 4) * 12,
+				bounds.y + 60 + (iteration % 3) * 10);
+	}
+
 	private static void scrollCanvas(GLScenePanel canvas, int x, int y, int wheelRotation) throws Exception {
 		onEdt("dispatch mouse wheel event", () -> {
 			long when = System.currentTimeMillis();
@@ -1337,6 +1516,44 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	}
 
 	private record DesignHarness(JFrame frame, RocketPanel panel) {
+	}
+
+	private static final class ErrorLogCapture extends AppenderBase<ILoggingEvent> implements AutoCloseable {
+		private final Logger logger;
+		private final CopyOnWriteArrayList<String> messages = new CopyOnWriteArrayList<>();
+
+		private ErrorLogCapture(Logger logger) {
+			this.logger = logger;
+		}
+
+		private static ErrorLogCapture attach(Class<?> loggerClass) {
+			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
+			ErrorLogCapture capture = new ErrorLogCapture(logger);
+			capture.start();
+			logger.addAppender(capture);
+			return capture;
+		}
+
+		@Override
+		protected void append(ILoggingEvent eventObject) {
+			if (eventObject.getLevel().isGreaterOrEqual(Level.ERROR)) {
+				messages.add(eventObject.getFormattedMessage());
+			}
+		}
+
+		private boolean hasErrors() {
+			return !messages.isEmpty();
+		}
+
+		private String describe() {
+			return String.join(System.lineSeparator(), messages);
+		}
+
+		@Override
+		public void close() {
+			logger.detachAppender(this);
+			stop();
+		}
 	}
 
 	@SafeVarargs
