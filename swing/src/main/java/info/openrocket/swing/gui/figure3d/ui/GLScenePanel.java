@@ -201,6 +201,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Default throttle for low-priority HUD repaints. The HUD upload path is the
 	// dominant render-thread cost; 15 fps is visually ample for HUD content.
 	private static final long MIN_HUD_PAINT_INTERVAL_MS = 66;
+	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
 	private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
 	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
@@ -216,6 +217,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	// Camera tracking for HUD updates - volatile for thread safety between EDT and render timer
 	private volatile boolean cameraIsMoving = false;
+	private volatile boolean dragInteractionActive = false;
+	private volatile boolean wheelInteractionActive = false;
+	private final Timer wheelInteractionEndTimer;
 
 	// Resize coordination between EDT and render thread
 	private volatile boolean resizeRequested = false;
@@ -327,6 +331,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.hudEnabled = hudPanel != null;
 		this.peerBoundsSyncEnabled = NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && enablePeerBoundsSync;
 		this.keyboardHandler = new KeyboardHandler();
+		this.wheelInteractionEndTimer = new Timer(WHEEL_INTERACTION_IDLE_MS, e -> {
+			wheelInteractionActive = false;
+			updateCameraInteractionMode();
+			hudNeedsUpdate = true;
+			// Render one full-quality frame after the wheel has been idle long enough
+			// to consider the zoom gesture complete.
+			markRenderActivity();
+		});
+		this.wheelInteractionEndTimer.setRepeats(false);
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		// With image presentation the frame is painted by AWT via paint(), so
@@ -437,18 +450,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.renderRequestCallback = callback;
 	}
 
-	// Off by default — when enabled, the renderer skips AO / motion blur /
-	// outline passes during drag-rotate / pan / zoom for a fps boost at the
-	// cost of a visible quality drop. Toggleable via system property:
-	//   -Dopenrocket.figure3d.skipPostFxDuringInteraction=true
-	private static final boolean SKIP_POSTFX_DURING_INTERACTION =
-			Boolean.getBoolean("openrocket.figure3d.skipPostFxDuringInteraction");
+	// Track camera interaction independently of the renderer preference so the
+	// configured quality policy can decide whether any effects are suspended.
+	private void setDragInteractionActive(boolean active) {
+		dragInteractionActive = active;
+		updateCameraInteractionMode();
+	}
 
-	private void setCameraIsMoving(boolean moving) {
+	private void beginWheelInteraction() {
+		wheelInteractionActive = true;
+		updateCameraInteractionMode();
+		wheelInteractionEndTimer.restart();
+	}
+
+	private void updateCameraInteractionMode() {
+		boolean moving = dragInteractionActive || wheelInteractionActive;
 		cameraIsMoving = moving;
-		if (!SKIP_POSTFX_DURING_INTERACTION) {
-			return;
-		}
 		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 		if (orchestrator != null) {
 			GLRenderer renderer = orchestrator.getRenderer();
@@ -779,7 +796,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				markRenderActivity();
 				// The canvas keeps receiving AWT events during teardown/rebuild,
 				// after cleanup() has released the orchestrator.
 				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
@@ -798,13 +814,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					lastPoint = e.getPoint();
 					isDragging = false;
 					activeDragButton = e.getButton();
-					setCameraIsMoving(true); // Start tracking camera movement
+					setDragInteractionActive(true);
 				}
+				markRenderActivity();
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				markRenderActivity();
 				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 				if (orchestrator == null) {
 					return;
@@ -827,13 +843,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					activeDragButton = MouseEvent.NOBUTTON;
 					inputState.isLightDragging = false;
 					inputState.isPanning = false;
-					setCameraIsMoving(false); // Stop tracking camera movement
+					setDragInteractionActive(false);
 				}
+				// Mark dirty after leaving interaction mode so the release frame is
+				// guaranteed to use the user's full quality settings.
+				markRenderActivity();
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				markRenderActivity();
 				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 				if (orchestrator == null) {
 					return;
@@ -855,6 +873,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					}
 					lastPoint = e.getPoint();
 				}
+				markRenderActivity();
 			}
 
 			private void updateDragMode(InputState inputState, MouseEvent e) {
@@ -880,13 +899,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				markRenderActivity();
 				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 				if (orchestrator == null) {
 					return;
 				}
 				orchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
+				beginWheelInteraction();
 				hudNeedsUpdate = true; // Mark HUD for update on zoom
+				markRenderActivity();
 			}
 		};
 		addMouseListener(mouseAdapter);
@@ -2004,6 +2024,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public void cleanup() {
 		// Prevent any further rendering/resize operations
+		wheelInteractionEndTimer.stop();
+		dragInteractionActive = false;
+		wheelInteractionActive = false;
+		updateCameraInteractionMode();
 		glInitialized = false;
 		startupRecoveryGeneration.incrementAndGet();
 		hudPaintScheduled.set(false);
@@ -2196,4 +2220,5 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			uiThemeListener = null;
 		}
 	}
+
 }

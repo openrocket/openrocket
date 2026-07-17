@@ -399,7 +399,9 @@ public class RealisticRenderer implements GLRenderer {
 
 		// Update dynamic flame lighting
 		updateFlameLighting(scene);
-		shadowPass.setEnabled(config.getQuality().isShadowsEnabled());
+		// Rebuilding a complex shadow map for every mouse event can keep weaker
+		// Windows drivers continuously saturated. The first idle frame recreates it.
+		shadowPass.setEnabled(config.getQuality().isShadowsEnabled() && !interactionMode);
 		shadowPass.setQuality(config.getQuality().getQuality());
 		shadowPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		glViewport(0, 0, screenWidth, screenHeight);

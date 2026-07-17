@@ -35,6 +35,7 @@ import info.openrocket.swing.gui.figure3d.rendering.GLErrors;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.util.BaseTestCase;
@@ -76,6 +77,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -90,8 +92,15 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	private static final long CAMERA_SNAPSHOT_TIMEOUT_MS = 2_000;
 	private static final long EDT_CALL_TIMEOUT_MS = 2_500;
 	private static final long WATCHDOG_PERIOD_SECONDS = 5;
+	private static final RocketPanel.VIEW_TYPE[] WINDOWS_3D_VIEW_TYPES = {
+			RocketPanel.VIEW_TYPE.Figure3D,
+			RocketPanel.VIEW_TYPE.Unfinished,
+			RocketPanel.VIEW_TYPE.Finished
+	};
 	private static final int WINDOWS_INTERACTION_STRESS_CYCLES =
-			Math.max(1, Integer.getInteger("openrocket.test.windows3d.cycles", 12));
+			Math.max(WINDOWS_3D_VIEW_TYPES.length, Integer.getInteger("openrocket.test.windows3d.cycles", 12));
+	private static final int WINDOWS_SUSTAINED_INPUT_STEPS =
+			Math.max(24, Integer.getInteger("openrocket.test.windows3d.inputSteps", 160));
 	private static final boolean WINDOWS_INTERACTION_PEER_CHURN =
 			Boolean.getBoolean("openrocket.test.windows3d.peerChurn");
 	private static final int BLANK_FRAMEBUFFER_RECOVERY_STRESS_CYCLES =
@@ -668,8 +677,9 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	}
 
 	/**
-	 * Exercises the real WGL/JAWT surface while user input, heavyweight-canvas
-	 * resizing, and CardLayout visibility changes overlap.  A native Windows
+	 * Exercises all three design 3D render modes on the real WGL/JAWT surface
+	 * while user input, heavyweight-canvas resizing, and CardLayout visibility
+	 * changes overlap. A native Windows
 	 * graphics crash cannot be caught by JUnit; it is reported by Gradle as a
 	 * crashed test worker.  The Java assertions also catch the recoverable form
 	 * of the failure, where GLScenePanel marks the renderer as failed instead of
@@ -687,23 +697,28 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				"windowsDesignViewInteractionDuringResizeAndViewSwitchingKeepsRendererAlive",
 				phase::get,
 				() -> describeDesignHarness(harnessRef.get()))) {
-			harness = createDesignHarness();
+			harness = createDesignHarness(loadWindowsCrashReproductionDocumentUnchecked());
 			harnessRef.set(harness);
 			final DesignHarness currentHarness = harness;
 			try {
 				phase.set("await-windows-design-showing");
 				waitForShowing(currentHarness.panel, 2_000,
 						"Windows design view should become visible before interaction stress test");
-				phase.set("enable-windows-design-3d");
-				onEdt(() -> currentHarness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D));
-				phase.set("await-windows-initial-frame");
-				awaitFresh3DFrame(currentHarness.panel.getFigure3d(), -1, -1, FRAME_TIMEOUT_MS,
-						"initial Windows design-view frame");
-
 				for (int i = 0; i < WINDOWS_INTERACTION_STRESS_CYCLES; i++) {
 					final int iteration = i;
+					RocketPanel.VIEW_TYPE viewType = WINDOWS_3D_VIEW_TYPES[iteration % WINDOWS_3D_VIEW_TYPES.length];
+					int beforeModeSwap = currentHarness.panel.getFigure3d().getCanvasSwapCallCount();
+					int beforeModePaint = currentHarness.panel.getFigure3d().getCanvasPaintCallCount();
+					phase.set("enable-windows-" + viewType.name() + "-" + iteration);
+					onEdt(() -> currentHarness.panel.setViewType(viewType));
+					awaitDesignRenderMode(currentHarness.panel.getFigure3d(), viewType, FRAME_TIMEOUT_MS,
+							"before interaction iteration " + iteration);
+					awaitFresh3DFrame(currentHarness.panel.getFigure3d(), beforeModeSwap, beforeModePaint,
+							FRAME_TIMEOUT_MS, "Windows " + viewType.name() + " frame iteration " + iteration);
 					GLScenePanel canvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
-							"Windows interaction canvas iteration " + iteration);
+							"Windows " + viewType.name() + " interaction canvas iteration " + iteration);
+					assertDesignRenderMode(canvas, viewType, "before interaction iteration " + iteration);
+					enableReportedWindowsEffects(canvas);
 					int beforeSwap = canvas.getSwapCallCount();
 					int beforePaint = canvas.getPaintCallCount();
 					int beforeRender = canvas.getRenderCallCount();
@@ -714,14 +729,13 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					dragCanvasWhileResizingWindow(canvas, currentHarness.frame,
 							x, y, x + 70, y + 45, MouseEvent.BUTTON1, 0, iteration);
 
-					phase.set("windows-pan-light-scroll-burst-" + iteration);
-					dragCanvas(canvas, x, y, x - 48, y + 32,
-							MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK);
+					phase.set("windows-sustained-ctrl-pan-circle-" + iteration);
+					panCanvasInCircles(canvas, x, y, WINDOWS_SUSTAINED_INPUT_STEPS, iteration);
+					phase.set("windows-sustained-wheel-zoom-" + iteration);
+					scrollCanvasInBursts(canvas, x, y, WINDOWS_SUSTAINED_INPUT_STEPS, iteration);
+					phase.set("windows-light-and-middle-pan-" + iteration);
 					dragCanvas(canvas, x, y, x + 42, y - 36, MouseEvent.BUTTON2, 0);
 					dragCanvas(canvas, x, y, x - 36, y - 30, MouseEvent.BUTTON3, 0);
-					for (int wheel = 0; wheel < 6; wheel++) {
-						scrollCanvas(canvas, x, y, (wheel & 1) == 0 ? -1 : 1);
-					}
 					clickCanvas(canvas, x, y, MouseEvent.BUTTON1, 0);
 					if (WINDOWS_INTERACTION_PEER_CHURN) {
 						phase.set("windows-native-peer-churn-" + iteration);
@@ -735,29 +749,79 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					Thread.sleep(20);
 					phase.set("windows-restore-3d-" + iteration);
 					onEdt(() -> {
-						currentHarness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D);
+						currentHarness.panel.setViewType(viewType);
 						moveFrameToDisplay(currentHarness.frame, iteration);
 						currentHarness.frame.validate();
 						currentHarness.frame.repaint();
 					});
 
 					phase.set("await-windows-recovery-frame-" + iteration);
+					awaitDesignRenderMode(currentHarness.panel.getFigure3d(), viewType, FRAME_TIMEOUT_MS,
+							"after interaction iteration " + iteration);
 					awaitFresh3DFrame(currentHarness.panel.getFigure3d(), beforeSwap, beforePaint,
 							FRAME_TIMEOUT_MS, "Windows interaction frame iteration " + iteration);
 					GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
 							"Windows active canvas after interaction iteration " + iteration);
+					assertDesignRenderMode(activeCanvas, viewType, "after interaction iteration " + iteration);
 					assertFalse(activeCanvas.glInitFailed,
 							"Windows GL renderer failed after interaction iteration " + iteration + ": "
 									+ activeCanvas.getDebugStateSummary());
 					assertTrue(activeCanvas != canvas || activeCanvas.getRenderCallCount() > beforeRender,
 							"Interaction burst did not reach the Windows render thread: "
 									+ activeCanvas.getDebugStateSummary());
+					assertTrue(snapshotCamera(activeCanvas).isFiniteAndValid(),
+							"Windows camera became non-finite after " + viewType.name()
+									+ " interaction iteration " + iteration);
 				}
 				phase.set("completed");
 			} finally {
 				disposeDesignHarness(harness);
 			}
 		}
+	}
+
+	private static void enableReportedWindowsEffects(GLScenePanel canvas) {
+		Scene3DOrchestrator orchestrator = canvas.getScene3DOrchestrator();
+		assertNotNull(orchestrator, "Windows effect setup lost its scene orchestrator");
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getQuality().setShadowsEnabled(true);
+			orchestrator.getRenderingConfiguration().getQuality().setAmbientOcclusionEnabled(true);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+	}
+
+	private static void awaitDesignRenderMode(RocketFigure3d figure3d, RocketPanel.VIEW_TYPE viewType,
+			long timeoutMs, String context) throws Exception {
+		DisplaySettings.RenderMode expected = expectedRenderMode(viewType);
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		while (System.currentTimeMillis() < deadline) {
+			GLScenePanel canvas = currentDesignCanvas(figure3d);
+			Scene3DOrchestrator orchestrator = canvas != null ? canvas.getScene3DOrchestrator() : null;
+			if (isCanvasReady(canvas) && orchestrator != null
+					&& orchestrator.getRenderingConfiguration().getDisplay().getMode() == expected) {
+				return;
+			}
+			Thread.sleep(25);
+		}
+		GLScenePanel canvas = currentDesignCanvas(figure3d);
+		assertDesignRenderMode(canvas, viewType, context);
+	}
+
+	private static void assertDesignRenderMode(GLScenePanel canvas, RocketPanel.VIEW_TYPE viewType, String context) {
+		assertNotNull(canvas, context + " lost its GL canvas");
+		Scene3DOrchestrator orchestrator = canvas.getScene3DOrchestrator();
+		assertNotNull(orchestrator, context + " lost its scene orchestrator");
+		assertEquals(expectedRenderMode(viewType), orchestrator.getRenderingConfiguration().getDisplay().getMode(),
+				context + " did not apply " + viewType.name());
+	}
+
+	private static DisplaySettings.RenderMode expectedRenderMode(RocketPanel.VIEW_TYPE viewType) {
+		return switch (viewType) {
+			case Figure3D -> DisplaySettings.RenderMode.XRAY;
+			case Unfinished -> DisplaySettings.RenderMode.UNFINISHED;
+			case Finished -> DisplaySettings.RenderMode.FINISHED;
+			default -> throw new IllegalArgumentException("Not a 3D view type: " + viewType.name());
+		};
 	}
 
 	private static void mutatePhotoSettings(PhotoSettings settings, int iteration) {
@@ -822,9 +886,12 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	}
 
 	private static DesignHarness createDesignHarness() throws Exception {
+		return createDesignHarness(loadMotorizedDocumentUnchecked());
+	}
+
+	private static DesignHarness createDesignHarness(OpenRocketDocument document) throws Exception {
 		AtomicReference<DesignHarness> harnessRef = new AtomicReference<>();
 		onEdt("create design-view harness", () -> {
-			OpenRocketDocument document = loadMotorizedDocumentUnchecked();
 			RocketPanel panel = new RocketPanel(document);
 			panel.setPreferredSize(new Dimension(900, 620));
 
@@ -1338,6 +1405,47 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				when + 5L * (steps + 1));
 	}
 
+	private static void panCanvasInCircles(GLScenePanel canvas, int centerX, int centerY,
+			int steps, int iteration) throws Exception {
+		int radiusX = Math.max(24, Math.min(90, centerX / 3));
+		int radiusY = Math.max(18, Math.min(70, centerY / 3));
+		long when = System.currentTimeMillis();
+		int startX = centerX + radiusX;
+		int startY = centerY;
+		dispatchMouseEvent(canvas, MouseEvent.MOUSE_PRESSED, startX, startY,
+				MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK, when);
+		int modifiers = InputEvent.CTRL_DOWN_MASK | InputEvent.BUTTON1_DOWN_MASK;
+		double revolutions = 6.0 + (iteration % 3);
+		for (int step = 1; step <= steps; step++) {
+			double angle = Math.PI * 2.0 * revolutions * step / steps;
+			int x = centerX + (int) Math.round(radiusX * Math.cos(angle));
+			int y = centerY + (int) Math.round(radiusY * Math.sin(angle));
+			dispatchMouseEvent(canvas, MouseEvent.MOUSE_DRAGGED, x, y,
+					MouseEvent.BUTTON1, modifiers, when + 4L * step);
+			// The reported crash needs sustained input. Give the render thread time to
+			// consume intermediate deltas instead of collapsing the circle into one pan.
+			Thread.sleep(4);
+		}
+		dispatchMouseEvent(canvas, MouseEvent.MOUSE_RELEASED, startX, startY,
+				MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK, when + 4L * (steps + 1));
+	}
+
+	private static void scrollCanvasInBursts(GLScenePanel canvas, int centerX, int centerY,
+			int steps, int iteration) throws Exception {
+		int radiusX = Math.max(16, Math.min(60, centerX / 4));
+		int radiusY = Math.max(12, Math.min(45, centerY / 4));
+		int directionSpan = Math.max(6, steps / 8);
+		for (int step = 0; step < steps; step++) {
+			double angle = Math.PI * 2.0 * (step + iteration * directionSpan) / directionSpan;
+			int x = centerX + (int) Math.round(radiusX * Math.cos(angle));
+			int y = centerY + (int) Math.round(radiusY * Math.sin(angle));
+			int wheelRotation = ((step / directionSpan) & 1) == 0 ? -1 : 1;
+			scrollCanvas(canvas, x, y, wheelRotation);
+			// Alternating immediately would cancel in InputState before a frame sees it.
+			Thread.sleep(4);
+		}
+	}
+
 	private static void churnWindowsNativePeer(JFrame frame, int iteration) throws Exception {
 		switch (iteration % 3) {
 			case 0 -> onEdt("iconify Windows 3D frame", () -> frame.setState(JFrame.ICONIFIED));
@@ -1518,6 +1626,18 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	private record DesignHarness(JFrame frame, RocketPanel panel) {
 	}
 
+	private static OpenRocketDocument loadWindowsCrashReproductionDocumentUnchecked() {
+		String resource = "/datafiles/examples/Pods--airframes and winglets.ork";
+		try (InputStream stream = Objects.requireNonNull(
+				GeneralRocketLoader.class.getResourceAsStream(resource),
+				"Windows crash reproduction example is missing: " + resource)) {
+			return new GeneralRocketLoader(new File("Pods--airframes and winglets.ork"))
+					.load(stream, "Pods--airframes and winglets.ork");
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to load Windows crash reproduction example", e);
+		}
+	}
+
 	private static final class ErrorLogCapture extends AppenderBase<ILoggingEvent> implements AutoCloseable {
 		private final Logger logger;
 		private final CopyOnWriteArrayList<String> messages = new CopyOnWriteArrayList<>();
@@ -1624,6 +1744,16 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 	private record CameraSnapshot(float angleX, float angleY, float distance,
 			float centerX, float centerY, float centerZ) {
+		private boolean isFiniteAndValid() {
+			return Float.isFinite(angleX)
+					&& Float.isFinite(angleY)
+					&& Float.isFinite(distance)
+					&& Float.isFinite(centerX)
+					&& Float.isFinite(centerY)
+					&& Float.isFinite(centerZ)
+					&& distance > 0.0f;
+		}
+
 		private boolean approximatelyEquals(CameraSnapshot other) {
 			return Math.abs(angleX - other.angleX) <= 0.001f
 					&& Math.abs(angleY - other.angleY) <= 0.001f
