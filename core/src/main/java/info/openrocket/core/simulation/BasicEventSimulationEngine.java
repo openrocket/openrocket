@@ -308,8 +308,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						// If we're stable, put a warning about large AOA
 						// note -- if cp is NaN (which it is while on the rod) cg > cp is false
 						if (cg > cp) {
-							// Not stable, so transition to tumbling
-							currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+							// Not stable, so transition to tumbling.
+							// Gated on recordWarnings() so the brief, geometrically unavoidable
+							// high-AOA transient just after launch rod clearance (while weathercocking
+							// into the wind) does not trigger a spurious tumble -- and, under thrust,
+							// an unrecoverable TUMBLE_UNDER_THRUST abort. See issue #3183.
+							if (currentStatus.recordWarnings()) {
+								currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+							}
 						} else {
 							// Stable, so warning about AOA
 							if (currentStatus.recordWarnings()) {
