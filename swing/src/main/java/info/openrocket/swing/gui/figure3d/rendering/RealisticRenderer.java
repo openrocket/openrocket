@@ -91,6 +91,12 @@ public class RealisticRenderer implements GLRenderer {
 
 	private static final Logger log = LoggerFactory.getLogger(RealisticRenderer.class);
 	private static final int DEFAULT_SCENE_MSAA_SAMPLES = 4;
+	/**
+	 * Multisampled colour and depth renderbuffers cost samples x 8 bytes per pixel,
+	 * so 4x sampling at a scaled laptop resolution is around 166 MB on its own.
+	 * Halving it keeps edge quality usable on GPUs that share system memory.
+	 */
+	private static final int CONSTRAINED_SCENE_MSAA_SAMPLES = 2;
 	private static final int MAX_SHADER_LIGHTS = 10;
 
 	// Shader resource paths
@@ -127,6 +133,7 @@ public class RealisticRenderer implements GLRenderer {
 	// viewport can be restored to its initial state if ever needed.
 	private final int initialWidth;
 	private final int initialHeight;
+	private final GpuMemoryProfile gpuMemoryProfile;
 	private int screenWidth;
 	private int screenHeight;
 	private final RenderingConfiguration config;
@@ -285,6 +292,11 @@ public class RealisticRenderer implements GLRenderer {
 		this.screenWidth = initialWidth;
 		this.screenHeight = initialHeight;
 
+		// Detected before any target is allocated, because it decides how large
+		// the scene target and the shadow map are allowed to be.
+		this.gpuMemoryProfile = GpuMemoryProfile.detect();
+		log.info("3D render memory profile: {}", gpuMemoryProfile);
+
 		// Main shader for scene objects
 		mainShader = new GLShader(MAIN_VERTEX_SHADER_PATH, MAIN_FRAGMENT_SHADER_PATH);
 		mainShaderUniforms = new ShaderUniforms(mainShader);
@@ -350,7 +362,7 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	private ShadowPass createShadowPass() {
-		ShadowPass pass = new ShadowPass(initialWidth, initialHeight);
+		ShadowPass pass = new ShadowPass(initialWidth, initialHeight, gpuMemoryProfile.isConstrained());
 		pass.setQuality(config.getQuality().getQuality());
 		pass.setEnabled(config.getQuality().isShadowsEnabled());
 		return pass;
@@ -861,11 +873,29 @@ public class RealisticRenderer implements GLRenderer {
 		this.interactionMode = active;
 	}
 
+	/**
+	 * @return the memory profile detected for this context, for diagnostics
+	 */
+	public GpuMemoryProfile getGpuMemoryProfile() {
+		return gpuMemoryProfile;
+	}
+
+	/**
+	 * @return the multisample count the scene target actually allocated, which may
+	 *         be below the requested count when the driver or the memory profile
+	 *         caps it
+	 */
+	public int getSceneSampleCount() {
+		return renderTarget.getSamples();
+	}
+
 	private int getRequestedSceneSampleCount() {
 		if (!config.getQuality().isFXAAEnabled()) {
 			return 0;
 		}
 
+		// An explicit override is a diagnostic knob and deliberately outranks the
+		// memory profile, so a constrained device can still be asked for 8x.
 		String override = System.getProperty("openrocket.figure3d.msaaSamples");
 		if (override != null) {
 			try {
@@ -875,7 +905,9 @@ public class RealisticRenderer implements GLRenderer {
 			}
 		}
 
-		return DEFAULT_SCENE_MSAA_SAMPLES;
+		return gpuMemoryProfile.isConstrained()
+				? CONSTRAINED_SCENE_MSAA_SAMPLES
+				: DEFAULT_SCENE_MSAA_SAMPLES;
 	}
 
 	/**

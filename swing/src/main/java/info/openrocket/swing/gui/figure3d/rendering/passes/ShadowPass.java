@@ -58,6 +58,12 @@ public class ShadowPass implements RenderPass {
 
     private static final int MIN_SHADOW_MAP_SIZE = 1024;
     private static final int MAX_SHADOW_MAP_SIZE = 4096;
+    /**
+     * Upper bound on GPUs that share system memory. A 4096 depth map costs 64 MB
+     * on its own, which is a large share of what an integrated GPU can hold once
+     * the scene and post-processing targets are also resident.
+     */
+    private static final int CONSTRAINED_MAX_SHADOW_MAP_SIZE = 2048;
     private static final float MIN_LIGHT_DISTANCE = 28.0f;
     private static final float LIGHT_DISTANCE_MARGIN = 18.0f;
     private static final float MIN_SHADOW_WORLD_SIZE = 6.0f;
@@ -72,6 +78,7 @@ public class ShadowPass implements RenderPass {
     private static final long HASH_PRIME = 0x100000001b3L;
 
     private final GLShader depthShader;
+    private final int maxShadowMapSize;
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
     private final Matrix4f lightViewMatrix = new Matrix4f();
     private final Matrix4f lightProjectionMatrix = new Matrix4f();
@@ -103,7 +110,18 @@ public class ShadowPass implements RenderPass {
     private long lastShadowSignature = Long.MIN_VALUE;
 
     public ShadowPass(int initialWidth, int initialHeight) {
+        this(initialWidth, initialHeight, false);
+    }
+
+    /**
+     * @param memoryConstrained caps the depth map at
+     *                          {@value #CONSTRAINED_MAX_SHADOW_MAP_SIZE} instead of
+     *                          {@value #MAX_SHADOW_MAP_SIZE}, for GPUs that carve
+     *                          their memory out of system RAM
+     */
+    public ShadowPass(int initialWidth, int initialHeight, boolean memoryConstrained) {
         this.depthShader = new GLShader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
+        this.maxShadowMapSize = memoryConstrained ? CONSTRAINED_MAX_SHADOW_MAP_SIZE : MAX_SHADOW_MAP_SIZE;
         this.lastViewportWidth = initialWidth;
         this.lastViewportHeight = initialHeight;
         updateShadowMapSize(initialWidth, initialHeight);
@@ -449,7 +467,7 @@ public class ShadowPass implements RenderPass {
     private void updateShadowMapSize(int width, int height) {
         int targetSize = Math.max(width, height);
         targetSize = (int) (targetSize * resolutionScale);
-        targetSize = Math.max(MIN_SHADOW_MAP_SIZE, Math.min(MAX_SHADOW_MAP_SIZE, targetSize));
+        targetSize = Math.max(MIN_SHADOW_MAP_SIZE, Math.min(maxShadowMapSize, targetSize));
         shadowMapSize = targetSize;
     }
 

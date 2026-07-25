@@ -33,6 +33,8 @@ import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
 import info.openrocket.swing.gui.figure3d.rendering.GLErrors;
+import info.openrocket.swing.gui.figure3d.rendering.GpuMemoryProfile;
+import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
@@ -1033,6 +1035,89 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Verifies the constrained-GPU path. Integrated GPUs get a smaller scene target
+	 * and shadow map so the effect chain fits in shared system memory; the reduced
+	 * chain still has to render every design view without failing the context.
+	 */
+	@Test
+	@Timeout(value = 5, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void constrainedGpuProfileReducesSamplingAndStillRendersEveryDesignView() throws Exception {
+		assumeUiEnvironment();
+		String previousForcedProfile = System.getProperty(GpuMemoryProfile.FORCE_PROFILE_PROPERTY);
+		// The scene target is allocated when the renderer is constructed, so this
+		// has to be in place before the harness creates its canvas.
+		System.setProperty(GpuMemoryProfile.FORCE_PROFILE_PROPERTY, "true");
+
+		DesignHarness harness = null;
+		try {
+			harness = createDesignHarness();
+			DesignHarness currentHarness = harness;
+			waitForShowing(currentHarness.panel, 2_000,
+					"Design view should become visible before constrained-profile checks");
+
+			for (RocketPanel.VIEW_TYPE viewType : WINDOWS_3D_VIEW_TYPES) {
+				onEdt(() -> currentHarness.panel.setViewType(viewType));
+				awaitDesignRenderMode(currentHarness.panel.getFigure3d(), viewType, FRAME_TIMEOUT_MS,
+						"before constrained-profile rendering in " + viewType.name());
+				GLScenePanel canvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+						viewType.name() + " constrained-profile canvas");
+				// Shadows and ambient occlusion are the passes the reduced budget has
+				// to keep affordable, so leave them on.
+				configureReportedWindowsEffects(canvas, false, true, true);
+
+				int beforeSwap = canvas.getSwapCallCount();
+				int beforePaint = canvas.getPaintCallCount();
+				// An idle 3D view does not redraw on its own, so drive a short pan to
+				// force the reduced chain through a real frame.
+				panCanvasInCircles(canvas, centerX(canvas), centerY(canvas), 48, 0);
+				awaitFresh3DFrame(currentHarness.panel.getFigure3d(), beforeSwap, beforePaint, FRAME_TIMEOUT_MS,
+						viewType.name() + " frame under constrained profile");
+
+				GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(),
+						FRAME_TIMEOUT_MS, viewType.name() + " canvas after constrained rendering");
+				assertFalse(activeCanvas.glInitFailed,
+						"Constrained profile failed the GL renderer in " + viewType.name() + ": "
+								+ activeCanvas.getDebugStateSummary());
+				assertConstrainedSceneSampling(activeCanvas, viewType);
+			}
+
+			// The bug report dialog reads this from the EDT with no GL context, so it
+			// has to serve the values cached when the context was created.
+			String bugReportLine = GpuMemoryProfile.describeForBugReport();
+			assertTrue(bugReportLine.contains("memory profile: constrained"),
+					"Bug report should name the active memory profile: " + bugReportLine);
+			assertFalse(bugReportLine.contains("not initialized"),
+					"Bug report should describe the device once a 3D view has opened: " + bugReportLine);
+			assertFalse(bugReportLine.contains("unknown / unknown"),
+					"Bug report should carry real GL device strings: " + bugReportLine);
+		} finally {
+			if (previousForcedProfile == null) {
+				System.clearProperty(GpuMemoryProfile.FORCE_PROFILE_PROPERTY);
+			} else {
+				System.setProperty(GpuMemoryProfile.FORCE_PROFILE_PROPERTY, previousForcedProfile);
+			}
+			disposeDesignHarness(harness);
+		}
+	}
+
+	private static void assertConstrainedSceneSampling(GLScenePanel canvas, RocketPanel.VIEW_TYPE viewType)
+			throws Exception {
+		Scene3DOrchestrator orchestrator = canvas.getScene3DOrchestrator();
+		assertNotNull(orchestrator, "Constrained-profile check lost its scene orchestrator");
+		if (!(orchestrator.getRenderer() instanceof RealisticRenderer renderer)) {
+			return;
+		}
+
+		assertTrue(renderer.getGpuMemoryProfile().isConstrained(),
+				"Forced constrained profile did not reach the renderer in " + viewType.name() + ": "
+						+ renderer.getGpuMemoryProfile());
+		// A driver may resolve the request down further, but never up.
+		assertTrue(renderer.getSceneSampleCount() <= 2,
+				"Constrained profile kept " + renderer.getSceneSampleCount()
+						+ "x scene sampling in " + viewType.name());
 	}
 
 	/**
