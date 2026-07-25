@@ -119,6 +119,15 @@ tasks.withType(JavaExec).configureEach {
 tasks.withType(Test).configureEach {
     dependsOn(extractLwjglNatives)
     systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
+
+    // Gradle does not hand command-line -D flags to the forked test JVM, so without
+    // this the 3D stress knobs (soak durations, frame geometry, MSAA sample count,
+    // effect isolation, UI scaling) silently run at their defaults. Forward only the
+    // prefixes those tests read; the values also become task inputs, so changing a
+    // knob correctly re-runs the test instead of reporting it UP-TO-DATE.
+    ['openrocket.test.', 'openrocket.figure3d.', 'sun.java2d.'].each { prefix ->
+        systemProperties(providers.systemPropertiesPrefixedBy(prefix).get())
+    }
 }
 
 dependencies {

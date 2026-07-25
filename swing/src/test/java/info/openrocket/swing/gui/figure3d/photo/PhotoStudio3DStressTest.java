@@ -38,6 +38,8 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
+import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
+import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.util.BaseTestCase;
@@ -46,6 +48,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.JComponent;
@@ -103,6 +108,28 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			Math.max(WINDOWS_3D_VIEW_TYPES.length, Integer.getInteger("openrocket.test.windows3d.cycles", 12));
 	private static final int WINDOWS_SUSTAINED_INPUT_STEPS =
 			Math.max(24, Integer.getInteger("openrocket.test.windows3d.inputSteps", 160));
+	private static final int WINDOWS_PAN_SOAK_SECONDS_PER_VIEW =
+			Math.max(1, Integer.getInteger("openrocket.test.windows3d.panSecondsPerView", 10));
+	private static final int WINDOWS_GESTURE_SOAK_SECONDS_PER_MODE =
+			Math.max(1, Integer.getInteger("openrocket.test.windows3d.gestureSecondsPerMode", 3));
+	private static final boolean WINDOWS_PAN_SOAK_SHADOWS =
+			Boolean.parseBoolean(System.getProperty("openrocket.test.windows3d.shadows", "true"));
+	private static final boolean WINDOWS_PAN_SOAK_AMBIENT_OCCLUSION =
+			Boolean.parseBoolean(System.getProperty("openrocket.test.windows3d.ambientOcclusion", "true"));
+	private static final boolean WINDOWS_PAN_SOAK_RESIZE_CHURN =
+			Boolean.getBoolean("openrocket.test.windows3d.resizeChurn");
+	private static final int WINDOWS_PAN_SOAK_RESIZE_INTERVAL_MS =
+			Math.max(100, Integer.getInteger("openrocket.test.windows3d.resizeIntervalMs", 500));
+	private static final int WINDOWS_SOAK_FRAME_WIDTH =
+			Integer.getInteger("openrocket.test.windows3d.frameWidth", 0);
+	private static final int WINDOWS_SOAK_FRAME_HEIGHT =
+			Integer.getInteger("openrocket.test.windows3d.frameHeight", 0);
+	private static final int WINDOWS_SOAK_FRAME_MINIMUM_WIDTH = 900;
+	private static final int WINDOWS_SOAK_FRAME_MINIMUM_HEIGHT = 620;
+	private static final int WINDOWS_MULTI_CONTEXT_COUNT = Math.max(WINDOWS_3D_VIEW_TYPES.length,
+			Math.min(6, Integer.getInteger("openrocket.test.windows3d.contexts", WINDOWS_3D_VIEW_TYPES.length)));
+	private static final int WINDOWS_MULTI_CONTEXT_SECONDS =
+			Math.max(1, Integer.getInteger("openrocket.test.windows3d.contextSeconds", 10));
 	private static final boolean WINDOWS_INTERACTION_PEER_CHURN =
 			Boolean.getBoolean("openrocket.test.windows3d.peerChurn");
 	private static final int BLANK_FRAMEBUFFER_RECOVERY_STRESS_CYCLES =
@@ -811,14 +838,282 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * Keeps a real Windows 3D canvas under continuous mouse input for a wall-clock
+	 * duration. The shorter interaction test above deliberately overlaps input with
+	 * canvas lifecycle changes; this test instead reproduces the reported steady
+	 * panning workload, with all expensive effects left active during interaction.
+	 */
+	@Test
+	@Timeout(value = 30, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void windowsSustainedPanningWithFullEffectsKeepsRendererAlive() throws Exception {
+		assumeWindowsUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-windows-pan-soak-harness");
+		AtomicReference<DesignHarness> harnessRef = new AtomicReference<>();
+
+		DesignHarness harness = null;
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"windowsSustainedPanningWithFullEffectsKeepsRendererAlive",
+				phase::get,
+				() -> describeDesignHarness(harnessRef.get()))) {
+			harness = createDesignHarness(loadWindowsCrashReproductionDocumentUnchecked());
+			harnessRef.set(harness);
+			DesignHarness currentHarness = harness;
+			try {
+				waitForShowing(currentHarness.panel, 2_000,
+						"Windows design view should become visible before sustained panning");
+				Dimension maximumFrameSize = prepareWindowsSoakFrame(currentHarness, "pan-soak");
+				for (RocketPanel.VIEW_TYPE viewType : WINDOWS_3D_VIEW_TYPES) {
+					phase.set("enable-windows-pan-soak-" + viewType.name());
+					onEdt(() -> currentHarness.panel.setViewType(viewType));
+					awaitDesignRenderMode(currentHarness.panel.getFigure3d(), viewType, FRAME_TIMEOUT_MS,
+							"before sustained panning in " + viewType.name());
+					GLScenePanel canvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+							viewType.name() + " sustained-panning canvas");
+					configureReportedWindowsEffects(canvas, false,
+							WINDOWS_PAN_SOAK_SHADOWS, WINDOWS_PAN_SOAK_AMBIENT_OCCLUSION);
+					logWindowsGlEnvironment(canvas, viewType);
+					int beforeSwap = canvas.getSwapCallCount();
+					int beforePaint = canvas.getPaintCallCount();
+					int beforeRender = canvas.getRenderCallCount();
+
+					panCanvasForDuration(canvas, currentHarness.frame, maximumFrameSize,
+							WINDOWS_PAN_SOAK_SECONDS_PER_VIEW, viewType, phase);
+
+					awaitFresh3DFrame(currentHarness.panel.getFigure3d(), beforeSwap, beforePaint,
+							FRAME_TIMEOUT_MS, viewType.name() + " frame after sustained panning");
+					GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(),
+							FRAME_TIMEOUT_MS, viewType.name() + " canvas after sustained panning");
+					assertFalse(activeCanvas.glInitFailed,
+							"Windows GL renderer failed during sustained " + viewType.name() + " panning: "
+									+ activeCanvas.getDebugStateSummary());
+					assertTrue(activeCanvas != canvas || activeCanvas.getRenderCallCount() > beforeRender,
+							"Sustained panning did not reach the Windows render thread: "
+									+ activeCanvas.getDebugStateSummary());
+					assertTrue(snapshotCamera(activeCanvas).isFiniteAndValid(),
+							"Windows camera became non-finite during sustained " + viewType.name() + " panning");
+				}
+				phase.set("completed");
+			} finally {
+				disposeDesignHarness(harness);
+			}
+		}
+	}
+
+	/**
+	 * Exercises every held design-view drag mode. Rotating the rocket and moving
+	 * the light invalidate scene-dependent shadow work that camera-only panning
+	 * can leave cached, so these gestures cover a materially different GPU load.
+	 */
+	@Test
+	@Timeout(value = 30, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void windowsSustainedRotatePanAndLightDragWithFullEffectsKeepsRendererAlive() throws Exception {
+		assumeWindowsUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-windows-gesture-soak-harness");
+		AtomicReference<DesignHarness> harnessRef = new AtomicReference<>();
+
+		DesignHarness harness = null;
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"windowsSustainedRotatePanAndLightDragWithFullEffectsKeepsRendererAlive",
+				phase::get,
+				() -> describeDesignHarness(harnessRef.get()))) {
+			harness = createDesignHarness(loadWindowsCrashReproductionDocumentUnchecked());
+			harnessRef.set(harness);
+			DesignHarness currentHarness = harness;
+			try {
+				waitForShowing(currentHarness.panel, 2_000,
+						"Windows design view should become visible before sustained gesture stress");
+				Dimension maximumFrameSize = prepareWindowsSoakFrame(currentHarness, "gesture-soak");
+
+				for (RocketPanel.VIEW_TYPE viewType : WINDOWS_3D_VIEW_TYPES) {
+					phase.set("enable-windows-gesture-soak-" + viewType.name());
+					onEdt(() -> currentHarness.panel.setViewType(viewType));
+					awaitDesignRenderMode(currentHarness.panel.getFigure3d(), viewType, FRAME_TIMEOUT_MS,
+							"before sustained gestures in " + viewType.name());
+					GLScenePanel canvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+							viewType.name() + " sustained-gesture canvas");
+					configureReportedWindowsEffects(canvas, false, true, true);
+					configureRotateRocketOnDrag(canvas, true);
+					logWindowsGlEnvironment(canvas, viewType);
+
+					for (WindowsDragMode dragMode : WindowsDragMode.values()) {
+						int beforeRender = canvas.getRenderCallCount();
+						dragCanvasForDuration(canvas, currentHarness.frame, maximumFrameSize,
+								WINDOWS_GESTURE_SOAK_SECONDS_PER_MODE, viewType, dragMode, phase);
+						assertFalse(canvas.glInitFailed,
+								"Windows GL renderer failed during sustained " + dragMode.label + " in "
+										+ viewType.name() + ": " + canvas.getDebugStateSummary());
+						assertTrue(canvas.getRenderCallCount() > beforeRender,
+								"Sustained " + dragMode.label + " did not reach the Windows render thread: "
+										+ canvas.getDebugStateSummary());
+						assertTrue(snapshotCamera(canvas).isFiniteAndValid(),
+								"Camera became non-finite during sustained " + dragMode.label + " in "
+										+ viewType.name());
+					}
+				}
+				phase.set("completed");
+			} finally {
+				disposeDesignHarness(harness);
+			}
+		}
+	}
+
+	/**
+	 * Keeps several Windows WGL contexts active on the shared render thread while
+	 * every context receives a held pan gesture and its framebuffer is repeatedly
+	 * resized. Each of the three design render modes is always represented.
+	 */
+	@Test
+	@Timeout(value = 30, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void windowsConcurrent3DContextsWithFullEffectsStayAliveDuringPanAndResize() throws Exception {
+		assumeWindowsUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-windows-multi-context-harnesses");
+		CopyOnWriteArrayList<DesignHarness> harnesses = new CopyOnWriteArrayList<>();
+
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"windowsConcurrent3DContextsWithFullEffectsStayAliveDuringPanAndResize",
+				phase::get,
+				() -> describeDesignHarnesses(harnesses))) {
+			try {
+				for (int i = 0; i < WINDOWS_MULTI_CONTEXT_COUNT; i++) {
+					phase.set("create-windows-multi-context-harness-" + i);
+					DesignHarness harness = createDesignHarness(loadWindowsCrashReproductionDocumentUnchecked());
+					harnesses.add(harness);
+					final int contextIndex = i;
+					onEdt("position Windows multi-context frame " + contextIndex, () -> {
+						harness.frame.setTitle("PhotoStudio3DStressTest-context-" + contextIndex);
+						harness.frame.setSize(1_100, 760);
+						harness.frame.setLocation(30 + (contextIndex % 2) * 820,
+								30 + (contextIndex / 2) * 520);
+						harness.frame.validate();
+					});
+					waitForShowing(harness.panel, 2_000,
+							"Windows multi-context design view " + contextIndex + " should be visible");
+				}
+
+				CopyOnWriteArrayList<MultiContextGesture> gestures = new CopyOnWriteArrayList<>();
+				for (int i = 0; i < harnesses.size(); i++) {
+					DesignHarness harness = harnesses.get(i);
+					RocketPanel.VIEW_TYPE viewType = WINDOWS_3D_VIEW_TYPES[i % WINDOWS_3D_VIEW_TYPES.length];
+					phase.set("enable-windows-multi-context-" + i + "-" + viewType.name());
+					onEdt(() -> harness.panel.setViewType(viewType));
+					awaitDesignRenderMode(harness.panel.getFigure3d(), viewType, FRAME_TIMEOUT_MS,
+							"before concurrent panning in context " + i);
+					awaitFresh3DFrame(harness.panel.getFigure3d(), -1, -1, FRAME_TIMEOUT_MS,
+							"initial concurrent frame for context " + i);
+					GLScenePanel canvas = awaitReadyDesignCanvas(harness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+							"Windows multi-context canvas " + i);
+					configureReportedWindowsEffects(canvas, false, true, true);
+					logWindowsGlEnvironment(canvas, viewType);
+					gestures.add(createMultiContextGesture(harness, canvas, viewType, i));
+				}
+
+				panAndResizeConcurrentContexts(gestures, WINDOWS_MULTI_CONTEXT_SECONDS, phase);
+
+				for (MultiContextGesture gesture : gestures) {
+					phase.set("assert-windows-multi-context-" + gesture.contextIndex);
+					GLScenePanel activeCanvas = awaitReadyDesignCanvas(
+							gesture.harness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
+							"Windows multi-context canvas after panning " + gesture.contextIndex);
+					assertFalse(activeCanvas.glInitFailed,
+							"Windows GL renderer failed in concurrent context " + gesture.contextIndex + ": "
+									+ activeCanvas.getDebugStateSummary());
+					assertTrue(activeCanvas.getRenderCallCount() > gesture.initialRenderCount,
+							"Concurrent context did not render during pan/resize stress: "
+									+ activeCanvas.getDebugStateSummary());
+					assertTrue(snapshotCamera(activeCanvas).isFiniteAndValid(),
+							"Camera became non-finite in concurrent context " + gesture.contextIndex);
+					assertDesignRenderMode(activeCanvas, gesture.viewType,
+							"after concurrent pan/resize in context " + gesture.contextIndex);
+				}
+				phase.set("completed");
+			} finally {
+				for (int i = harnesses.size() - 1; i >= 0; i--) {
+					disposeDesignHarness(harnesses.get(i));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sizes a soak frame the way the reported Windows workload runs it: maximized by
+	 * default, or forced to an explicit oversized geometry when the frame dimensions
+	 * are supplied. Larger frames raise the physical framebuffer that shadow maps,
+	 * ambient occlusion and the multisampled offscreen buffers must cover, so this
+	 * is shared by every sustained-gesture test rather than owned by one of them.
+	 *
+	 * @return the frame size that resize churn should treat as its upper bound
+	 */
+	private static Dimension prepareWindowsSoakFrame(DesignHarness harness, String label) throws Exception {
+		onEdt("maximize Windows " + label + " frame", () -> {
+			harness.frame.setExtendedState(harness.frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+			harness.frame.validate();
+		});
+		Thread.sleep(250);
+		if (WINDOWS_SOAK_FRAME_WIDTH > 0 || WINDOWS_SOAK_FRAME_HEIGHT > 0) {
+			assertTrue(WINDOWS_SOAK_FRAME_WIDTH >= WINDOWS_SOAK_FRAME_MINIMUM_WIDTH
+							&& WINDOWS_SOAK_FRAME_HEIGHT >= WINDOWS_SOAK_FRAME_MINIMUM_HEIGHT,
+					"Both Windows soak frame dimensions must be set and at least "
+							+ WINDOWS_SOAK_FRAME_MINIMUM_WIDTH + "x" + WINDOWS_SOAK_FRAME_MINIMUM_HEIGHT);
+			onEdt("apply oversized Windows " + label + " frame", () -> {
+				harness.frame.setExtendedState(JFrame.NORMAL);
+				harness.frame.setSize(WINDOWS_SOAK_FRAME_WIDTH, WINDOWS_SOAK_FRAME_HEIGHT);
+				harness.frame.validate();
+			});
+			Thread.sleep(250);
+		}
+		return onEdt("capture Windows " + label + " frame size", () -> harness.frame.getSize());
+	}
+
 	private static void enableReportedWindowsEffects(GLScenePanel canvas) {
+		configureReportedWindowsEffects(canvas, true, true, true);
+	}
+
+	private static void configureReportedWindowsEffects(GLScenePanel canvas,
+			boolean reduceEffectsDuringInteraction, boolean shadowsEnabled, boolean ambientOcclusionEnabled) {
 		Scene3DOrchestrator orchestrator = canvas.getScene3DOrchestrator();
 		assertNotNull(orchestrator, "Windows effect setup lost its scene orchestrator");
 		orchestrator.enqueueGlTask(() -> {
-			orchestrator.getRenderingConfiguration().getQuality().setShadowsEnabled(true);
-			orchestrator.getRenderingConfiguration().getQuality().setAmbientOcclusionEnabled(true);
-			orchestrator.getRenderingConfiguration().getQuality().setReduceEffectsDuringInteraction(true);
+			GraphicsQualitySettings quality = orchestrator.getRenderingConfiguration().getQuality();
+			quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
+			quality.setRoughnessBumpEnabled(true);
+			quality.setFXAAEnabled(true);
+			quality.setShadowsEnabled(shadowsEnabled);
+			quality.setAmbientOcclusionEnabled(ambientOcclusionEnabled);
+			quality.setReduceEffectsDuringInteraction(reduceEffectsDuringInteraction);
 			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+	}
+
+	private static void configureRotateRocketOnDrag(GLScenePanel canvas, boolean enabled) {
+		Scene3DOrchestrator orchestrator = canvas.getScene3DOrchestrator();
+		assertNotNull(orchestrator, "Windows drag setup lost its scene orchestrator");
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getVisualEffects().setRotateRocketOnDrag(enabled);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+	}
+
+	private static void logWindowsGlEnvironment(GLScenePanel canvas, RocketPanel.VIEW_TYPE viewType) {
+		Scene3DOrchestrator orchestrator = canvas.getScene3DOrchestrator();
+		assertNotNull(orchestrator, "Windows GL environment logging lost its scene orchestrator");
+		orchestrator.enqueueGlTask(() -> {
+			ViewportDimensions viewport = orchestrator.getViewport();
+			GraphicsQualitySettings quality = orchestrator.getRenderingConfiguration().getQuality();
+			System.out.println("Windows 3D stress environment [" + viewType.name() + "]: vendor="
+					+ GL11.glGetString(GL11.GL_VENDOR)
+					+ ", renderer=" + GL11.glGetString(GL11.GL_RENDERER)
+					+ ", OpenGL=" + GL11.glGetString(GL11.GL_VERSION)
+					+ ", GLSL=" + GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION)
+					+ ", window=" + viewport.getWindowWidth() + "x" + viewport.getWindowHeight()
+					+ ", framebuffer=" + viewport.getFramebufferWidth() + "x" + viewport.getFramebufferHeight()
+					+ ", maxTexture=" + GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE)
+					+ ", maxRenderbuffer=" + GL11.glGetInteger(GL30.GL_MAX_RENDERBUFFER_SIZE)
+					+ ", maxSamples=" + GL11.glGetInteger(GL30.GL_MAX_SAMPLES)
+					+ ", shadows=" + quality.isShadowsEnabled()
+					+ ", ambientOcclusion=" + quality.isAmbientOcclusionEnabled()
+					+ ", reduceDuringInteraction=" + quality.shouldReduceEffectsDuringInteraction());
+			System.out.flush();
 		});
 	}
 
@@ -1482,6 +1777,184 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK, when + 4L * (steps + 1));
 	}
 
+	private static void panCanvasForDuration(GLScenePanel canvas, JFrame frame, Dimension maximumFrameSize,
+			int durationSeconds, RocketPanel.VIEW_TYPE viewType, AtomicReference<String> phase) throws Exception {
+		dragCanvasForDuration(canvas, frame, maximumFrameSize, durationSeconds, viewType,
+				WindowsDragMode.PAN, phase);
+	}
+
+	private static void dragCanvasForDuration(GLScenePanel canvas, JFrame frame, Dimension maximumFrameSize,
+			int durationSeconds, RocketPanel.VIEW_TYPE viewType, WindowsDragMode dragMode,
+			AtomicReference<String> phase) throws Exception {
+		int centerX = centerX(canvas);
+		int centerY = centerY(canvas);
+		int radiusX = Math.max(24, Math.min(90, centerX / 3));
+		int radiusY = Math.max(18, Math.min(70, centerY / 3));
+		int startX = centerX + radiusX;
+		int startY = centerY;
+		int modifiers = dragMode.modifiersEx | buttonMask(dragMode.button);
+		long startNanos = System.nanoTime();
+		long durationNanos = TimeUnit.SECONDS.toNanos(durationSeconds);
+		long deadlineNanos = startNanos + durationNanos;
+		long nextHealthCheckNanos = startNanos + TimeUnit.SECONDS.toNanos(1);
+		long resizeIntervalNanos = TimeUnit.MILLISECONDS.toNanos(WINDOWS_PAN_SOAK_RESIZE_INTERVAL_MS);
+		long nextResizeNanos = startNanos + resizeIntervalNanos;
+		int lastRenderCount = canvas.getRenderCallCount();
+		int resizeIteration = 0;
+
+		dispatchMouseEvent(canvas, MouseEvent.MOUSE_PRESSED, startX, startY,
+				dragMode.button, dragMode.modifiersEx, System.currentTimeMillis());
+		try {
+			while (System.nanoTime() < deadlineNanos) {
+				long nowNanos = System.nanoTime();
+				double elapsedSeconds = (nowNanos - startNanos) / 1_000_000_000.0;
+				double angle = Math.PI * 2.0 * elapsedSeconds / 4.0;
+				int x = centerX + (int) Math.round(radiusX * Math.cos(angle));
+				int y = centerY + (int) Math.round(radiusY * Math.sin(angle));
+				dispatchMouseEvent(canvas, MouseEvent.MOUSE_DRAGGED, x, y,
+						dragMode.button, modifiers, System.currentTimeMillis());
+				if (WINDOWS_PAN_SOAK_RESIZE_CHURN && nowNanos >= nextResizeNanos) {
+					phase.set("windows-drag-resize-" + viewType.name() + "-" + dragMode.label + "-"
+							+ resizeIteration);
+					resizePanSoakFrame(frame, maximumFrameSize, resizeIteration++);
+					nextResizeNanos = nowNanos + resizeIntervalNanos;
+				}
+
+				if (nowNanos >= nextHealthCheckNanos) {
+					int elapsedWholeSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(nowNanos - startNanos);
+					phase.set("windows-drag-soak-" + viewType.name() + "-" + dragMode.label + "-"
+							+ elapsedWholeSeconds + "s-of-" + durationSeconds + "s");
+					assertFalse(canvas.glInitFailed,
+							"Windows GL renderer failed during " + viewType.name() + " " + dragMode.label + " at "
+									+ elapsedWholeSeconds + " seconds: " + canvas.getDebugStateSummary());
+					int renderCount = canvas.getRenderCallCount();
+					assertTrue(renderCount > lastRenderCount,
+							"Windows render thread stopped during " + viewType.name() + " " + dragMode.label + " at "
+									+ elapsedWholeSeconds + " seconds: " + canvas.getDebugStateSummary());
+					assertTrue(snapshotCamera(canvas).isFiniteAndValid(),
+							"Windows camera became non-finite during " + viewType.name() + " " + dragMode.label + " at "
+									+ elapsedWholeSeconds + " seconds");
+					lastRenderCount = renderCount;
+					nextHealthCheckNanos = nowNanos + TimeUnit.SECONDS.toNanos(1);
+				}
+				// Keep input close to a real 60 Hz mouse stream so the renderer remains
+				// continuously loaded for the requested wall-clock duration.
+				Thread.sleep(16);
+			}
+		} finally {
+			dispatchMouseEvent(canvas, MouseEvent.MOUSE_RELEASED, startX, startY,
+					dragMode.button, dragMode.modifiersEx, System.currentTimeMillis());
+		}
+	}
+
+	private static void resizePanSoakFrame(JFrame frame, Dimension maximumFrameSize, int iteration) throws Exception {
+		int[] scalePercent = {55, 95, 70, 100};
+		int scale = scalePercent[iteration % scalePercent.length];
+		int targetWidth = Math.max(WINDOWS_SOAK_FRAME_MINIMUM_WIDTH, maximumFrameSize.width * scale / 100);
+		int targetHeight = Math.max(WINDOWS_SOAK_FRAME_MINIMUM_HEIGHT, maximumFrameSize.height * scale / 100);
+		onEdt("resize Windows pan-soak frame " + iteration, () -> {
+			frame.setExtendedState(JFrame.NORMAL);
+			frame.setSize(targetWidth, targetHeight);
+			frame.validate();
+		});
+	}
+
+	private static MultiContextGesture createMultiContextGesture(DesignHarness harness, GLScenePanel canvas,
+			RocketPanel.VIEW_TYPE viewType, int contextIndex) {
+		int centerX = centerX(canvas);
+		int centerY = centerY(canvas);
+		int radiusX = Math.max(24, Math.min(90, centerX / 3));
+		int radiusY = Math.max(18, Math.min(70, centerY / 3));
+		return new MultiContextGesture(harness, canvas, viewType, contextIndex,
+				centerX, centerY, radiusX, radiusY, canvas.getRenderCallCount());
+	}
+
+	private static void panAndResizeConcurrentContexts(CopyOnWriteArrayList<MultiContextGesture> gestures,
+			int durationSeconds, AtomicReference<String> phase) throws Exception {
+		long startNanos = System.nanoTime();
+		long deadlineNanos = startNanos + TimeUnit.SECONDS.toNanos(durationSeconds);
+		long nextResizeNanos = startNanos + TimeUnit.MILLISECONDS.toNanos(WINDOWS_PAN_SOAK_RESIZE_INTERVAL_MS);
+		long nextHealthCheckNanos = startNanos + TimeUnit.SECONDS.toNanos(2);
+		int[] lastRenderCounts = new int[gestures.size()];
+		int resizeIteration = 0;
+		for (MultiContextGesture gesture : gestures) {
+			lastRenderCounts[gesture.contextIndex] = gesture.canvas.getRenderCallCount();
+			dispatchMouseEvent(gesture.canvas, MouseEvent.MOUSE_PRESSED,
+					gesture.centerX + gesture.radiusX, gesture.centerY,
+					MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK, System.currentTimeMillis());
+		}
+
+		try {
+			while (System.nanoTime() < deadlineNanos) {
+				long nowNanos = System.nanoTime();
+				double elapsedSeconds = (nowNanos - startNanos) / 1_000_000_000.0;
+				for (MultiContextGesture gesture : gestures) {
+					double phaseOffset = Math.PI * 2.0 * gesture.contextIndex / gestures.size();
+					double angle = Math.PI * 2.0 * elapsedSeconds / 4.0 + phaseOffset;
+					int x = gesture.centerX + (int) Math.round(gesture.radiusX * Math.cos(angle));
+					int y = gesture.centerY + (int) Math.round(gesture.radiusY * Math.sin(angle));
+					dispatchMouseEvent(gesture.canvas, MouseEvent.MOUSE_DRAGGED, x, y,
+							MouseEvent.BUTTON1,
+							InputEvent.CTRL_DOWN_MASK | InputEvent.BUTTON1_DOWN_MASK,
+							System.currentTimeMillis());
+				}
+
+				if (nowNanos >= nextResizeNanos) {
+					phase.set("windows-multi-context-resize-" + resizeIteration);
+					resizeConcurrentContextFrames(gestures, resizeIteration++);
+					nextResizeNanos = nowNanos
+							+ TimeUnit.MILLISECONDS.toNanos(WINDOWS_PAN_SOAK_RESIZE_INTERVAL_MS);
+				}
+
+				if (nowNanos >= nextHealthCheckNanos) {
+					int elapsedWholeSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(nowNanos - startNanos);
+					phase.set("windows-multi-context-health-" + elapsedWholeSeconds + "s-of-"
+							+ durationSeconds + "s");
+					for (MultiContextGesture gesture : gestures) {
+						assertFalse(gesture.canvas.glInitFailed,
+								"Windows GL renderer failed in concurrent context " + gesture.contextIndex
+										+ " at " + elapsedWholeSeconds + " seconds: "
+										+ gesture.canvas.getDebugStateSummary());
+						int renderCount = gesture.canvas.getRenderCallCount();
+						assertTrue(renderCount > lastRenderCounts[gesture.contextIndex],
+								"Windows render thread stopped in concurrent context " + gesture.contextIndex
+										+ " at " + elapsedWholeSeconds + " seconds: "
+										+ gesture.canvas.getDebugStateSummary());
+						assertTrue(snapshotCamera(gesture.canvas).isFiniteAndValid(),
+								"Camera became non-finite in concurrent context " + gesture.contextIndex
+										+ " at " + elapsedWholeSeconds + " seconds");
+						lastRenderCounts[gesture.contextIndex] = renderCount;
+					}
+					nextHealthCheckNanos = nowNanos + TimeUnit.SECONDS.toNanos(2);
+				}
+				Thread.sleep(16);
+			}
+		} finally {
+			for (MultiContextGesture gesture : gestures) {
+				dispatchMouseEvent(gesture.canvas, MouseEvent.MOUSE_RELEASED,
+						gesture.centerX + gesture.radiusX, gesture.centerY,
+						MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK, System.currentTimeMillis());
+			}
+		}
+	}
+
+	private static void resizeConcurrentContextFrames(CopyOnWriteArrayList<MultiContextGesture> gestures,
+			int iteration) throws Exception {
+		int[][] sizes = {
+				{900, 620},
+				{1_250, 850},
+				{1_000, 700},
+				{1_400, 920}
+		};
+		onEdt("resize concurrent Windows 3D frames " + iteration, () -> {
+			for (MultiContextGesture gesture : gestures) {
+				int[] size = sizes[(iteration + gesture.contextIndex) % sizes.length];
+				gesture.harness.frame.setSize(size[0], size[1]);
+				gesture.harness.frame.validate();
+			}
+		});
+	}
+
 	private static void scrollCanvasInBursts(GLScenePanel canvas, int centerX, int centerY,
 			int steps, int iteration) throws Exception {
 		int radiusX = Math.max(16, Math.min(60, centerX / 4));
@@ -1678,6 +2151,27 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	private record DesignHarness(JFrame frame, RocketPanel panel) {
 	}
 
+	private record MultiContextGesture(DesignHarness harness, GLScenePanel canvas,
+			RocketPanel.VIEW_TYPE viewType, int contextIndex,
+			int centerX, int centerY, int radiusX, int radiusY, int initialRenderCount) {
+	}
+
+	private enum WindowsDragMode {
+		ROTATE_ROCKET("rotate-rocket", MouseEvent.BUTTON1, 0),
+		PAN("pan-camera", MouseEvent.BUTTON1, InputEvent.CTRL_DOWN_MASK),
+		MOVE_LIGHT("move-light", MouseEvent.BUTTON3, 0);
+
+		private final String label;
+		private final int button;
+		private final int modifiersEx;
+
+		WindowsDragMode(String label, int button, int modifiersEx) {
+			this.label = label;
+			this.button = button;
+			this.modifiersEx = modifiersEx;
+		}
+	}
+
 	private static OpenRocketDocument loadWindowsCrashReproductionDocumentUnchecked() {
 		String resource = "/datafiles/examples/Pods--airframes and winglets.ork";
 		try (InputStream stream = Objects.requireNonNull(
@@ -1752,6 +2246,17 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		return "designFrame={" + describeComponent(harness.frame)
 				+ "}, designPanel={" + describeComponent(harness.panel)
 				+ "}, figure3d={" + harness.panel.getFigure3d().getCanvasDebugState() + "}";
+	}
+
+	private static String describeDesignHarnesses(CopyOnWriteArrayList<DesignHarness> harnesses) {
+		StringBuilder state = new StringBuilder("designHarnesses=");
+		for (int i = 0; i < harnesses.size(); i++) {
+			if (i > 0) {
+				state.append(System.lineSeparator());
+			}
+			state.append('[').append(i).append("] ").append(describeDesignHarness(harnesses.get(i)));
+		}
+		return state.toString();
 	}
 
 	private static String describeComponent(Component component) {
