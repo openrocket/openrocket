@@ -129,21 +129,19 @@ public class ArrayUtils {
 	 * zero
 	 */
 	public static double trapz(double[] y, double dt) {
-		double stop = (y.length - 1) * dt;
-
 		if (y.length <= 1 || dt <= 0)
 			return 0;
 
-		double[] x = range(0, stop, dt);
-
+		// The samples are evenly spaced, so the width of every interval is dt.  Building
+		// the matching x array first only risked it coming out a point short of y.
 		double sum = 0.0;
-		for (int i = 1; i < x.length; i++) {
-			double temp = (x[i] - x[i - 1]) * (y[i] + y[i - 1]);
+		for (int i = 1; i < y.length; i++) {
+			double temp = y[i] + y[i - 1];
 			if (!Double.isNaN(temp)) {
 				sum += temp;
 			}
 		}
-		return sum * 0.5;
+		return sum * 0.5 * dt;
 	}
 
 	/**
