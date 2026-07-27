@@ -385,7 +385,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public final boolean getLaunchIntoWind() {
-		return this.getBoolean(LAUNCH_INTO_WIND, false);
+		return this.getBoolean(LAUNCH_INTO_WIND, true);
 	}
 	
 	public final void setLaunchIntoWind(boolean check) {
@@ -463,7 +463,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	
 	public double getLaunchRodDirection() {
-		if (this.getBoolean(LAUNCH_INTO_WIND, false)) {
+		if (getLaunchIntoWind()) {
 			// When launching into wind, sync the launch rod direction with wind direction
 			double windDirection = this.getDouble(WIND_DIRECTION, Math.PI / 2);
 			this.setLaunchRodDirection(windDirection);
