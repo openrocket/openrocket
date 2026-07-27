@@ -66,6 +66,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		options.setISAAtmosphere(preferences.isISAAtmosphere());
 		options.setLaunchTemperature(preferences.getLaunchTemperature());
 		options.setLaunchPressure(preferences.getLaunchPressure());
+		options.setLaunchRelativeHumidity(preferences.getLaunchRelativeHumidity());
 		options.setLaunchIntoWind(preferences.getLaunchIntoWind());
 		options.setLaunchRodLength(preferences.getLaunchRodLength());
 		options.setLaunchRodAngle(preferences.getLaunchRodAngle());
@@ -75,6 +76,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		options.getAverageWindModel().setAverage(preferences.getAverageWindModel().getAverage());
 		options.getAverageWindModel().setStandardDeviation(preferences.getAverageWindModel().getStandardDeviation());
 		options.getAverageWindModel().setTurbulenceIntensity(preferences.getAverageWindModel().getTurbulenceIntensity());
+		options.getAverageWindModel().setDirection(preferences.getAverageWindModel().getDirection());
 		
 		// Save to DefaultSimulationOptionFactory
 		DefaultSimulationOptionFactory factory = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);

@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation;
 
+import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.preferences.ApplicationPreferences;
 
 import com.google.inject.Inject;
@@ -35,46 +36,57 @@ public class DefaultSimulationOptionFactory {
 	public SimulationOptions getDefault() {
 		SimulationOptions defaults = new SimulationOptions();
 		if (prefs != null) {
+			PinkNoiseWindModel preferredWind = prefs.getAverageWindModel();
+			PinkNoiseWindModel defaultWind = defaults.getAverageWindModel();
+			defaultWind.setAverage(preferredWind.getAverage());
+			defaultWind.setStandardDeviation(preferredWind.getStandardDeviation());
+			defaultWind.setDirection(preferredWind.getDirection());
 
-			defaults.getAverageWindModel().setAverage(prefs.getAverageWindModel().getAverage());
-			defaults.getAverageWindModel().setStandardDeviation(prefs.getAverageWindModel().getStandardDeviation());
-			defaults.getAverageWindModel().setTurbulenceIntensity(prefs.getAverageWindModel().getTurbulenceIntensity());
+			defaults.setLaunchLatitude(prefs.getLaunchLatitude());
+			defaults.setLaunchLongitude(prefs.getLaunchLongitude());
+			defaults.setLaunchAltitude(prefs.getLaunchAltitude());
 
-			defaults.setLaunchLatitude(prefs.getDouble(SIMCONDITION_SITE_LAT, defaults.getLaunchLatitude()));
-			defaults.setLaunchLongitude(prefs.getDouble(SIMCONDITION_SITE_LON, defaults.getLaunchLongitude()));
-			defaults.setLaunchAltitude(prefs.getDouble(SIMCONDITION_SITE_ALT, defaults.getLaunchAltitude()));
+			defaults.setISAAtmosphere(prefs.isISAAtmosphere());
+			defaults.setLaunchTemperature(prefs.getLaunchTemperature());
+			defaults.setLaunchPressure(prefs.getLaunchPressure());
+			defaults.setLaunchRelativeHumidity(prefs.getLaunchRelativeHumidity());
 
-			defaults.setISAAtmosphere(prefs.getBoolean(SIMCONDITION_ATMOS_STD, defaults.isISAAtmosphere()));
-			defaults.setLaunchTemperature(prefs.getDouble(SIMCONDITION_ATMOS_TEMP, defaults.getLaunchTemperature()));
-			defaults.setLaunchPressure(prefs.getDouble(SIMCONDITION_ATMOS_PRESSURE, defaults.getLaunchPressure()));
-			defaults.setLaunchRelativeHumidity(prefs.getDouble(SIMCONDITION_ATMOS_RELATIVE_HUMIDITY, defaults.getLaunchRelativeHumidity()));
-
-			defaults.setLaunchIntoWind(prefs.getBoolean(SIMCONDITION_ROD_INTO_WIND, defaults.getLaunchIntoWind()));
-			defaults.setLaunchRodLength(prefs.getDouble(SIMCONDITION_ROD_LENGTH, defaults.getLaunchRodLength()));
-			defaults.setLaunchRodAngle(prefs.getDouble(SIMCONDITION_ROD_ANGLE, defaults.getLaunchRodAngle()));
-			defaults.setLaunchRodDirection(
-					prefs.getDouble(SIMCONDITION_ROD_DIRECTION, defaults.getLaunchRodDirection()));
+			defaults.setLaunchIntoWind(prefs.getLaunchIntoWind());
+			defaults.setLaunchRodLength(prefs.getLaunchRodLength());
+			defaults.setLaunchRodAngle(prefs.getLaunchRodAngle());
+			defaults.setLaunchRodDirection(prefs.getLaunchRodDirection());
 		}
 		return defaults;
 	}
 
+	/**
+	 * Stores the supplied launch conditions as the application launch preferences.
+	 * These are the same preferences shown on the Launch preferences panel and used
+	 * by {@link #getDefault()}.
+	 *
+	 * @param newDefaults the simulation conditions to store
+	 */
 	public void saveDefault(SimulationOptions newDefaults) {
+		PinkNoiseWindModel newWind = newDefaults.getAverageWindModel();
+		PinkNoiseWindModel preferredWind = prefs.getAverageWindModel();
+		preferredWind.setAverage(newWind.getAverage());
+		preferredWind.setStandardDeviation(newWind.getStandardDeviation());
+		preferredWind.setDirection(newWind.getDirection());
 
-		prefs.putDouble(SIMCONDITION_WIND_SPEED, newDefaults.getAverageWindModel().getAverage());
-		prefs.putDouble(SIMCONDITION_WIND_STDDEV, newDefaults.getAverageWindModel().getStandardDeviation());
-		prefs.putDouble(SIMCONDITION_WIND_TURB, newDefaults.getAverageWindModel().getTurbulenceIntensity());
+		// Write the values directly so saving a default does not trigger dependent
+		// atmosphere updates or apply the narrower launch-preference angle clamp.
+		prefs.putDouble(ApplicationPreferences.LAUNCH_LATITUDE, newDefaults.getLaunchLatitude());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_LONGITUDE, newDefaults.getLaunchLongitude());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_ALTITUDE, newDefaults.getLaunchAltitude());
+		prefs.putBoolean(ApplicationPreferences.LAUNCH_USE_ISA, newDefaults.isISAAtmosphere());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_TEMPERATURE, newDefaults.getLaunchTemperature());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_PRESSURE, newDefaults.getLaunchPressure());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_RELATIVE_HUMIDITY,
+				newDefaults.getLaunchRelativeHumidity());
 
-		prefs.putDouble(SIMCONDITION_SITE_LAT, newDefaults.getLaunchLatitude());
-		prefs.putDouble(SIMCONDITION_SITE_LON, newDefaults.getLaunchLongitude());
-		prefs.putDouble(SIMCONDITION_SITE_ALT, newDefaults.getLaunchAltitude());
-		prefs.putBoolean(SIMCONDITION_ATMOS_STD, newDefaults.isISAAtmosphere());
-		prefs.putDouble(SIMCONDITION_ATMOS_TEMP, newDefaults.getLaunchTemperature());
-		prefs.putDouble(SIMCONDITION_ATMOS_PRESSURE, newDefaults.getLaunchPressure());
-		prefs.putDouble(SIMCONDITION_ATMOS_RELATIVE_HUMIDITY, newDefaults.getLaunchRelativeHumidity());
-
-		prefs.putBoolean(SIMCONDITION_ROD_INTO_WIND, newDefaults.getLaunchIntoWind());
-		prefs.putDouble(SIMCONDITION_ROD_LENGTH, newDefaults.getLaunchRodLength());
-		prefs.putDouble(SIMCONDITION_ROD_ANGLE, newDefaults.getLaunchRodAngle());
-		prefs.putDouble(SIMCONDITION_ROD_DIRECTION, newDefaults.getLaunchRodDirection());
+		prefs.putBoolean(ApplicationPreferences.LAUNCH_INTO_WIND, newDefaults.getLaunchIntoWind());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_ROD_LENGTH, newDefaults.getLaunchRodLength());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_ROD_ANGLE, newDefaults.getLaunchRodAngle());
+		prefs.putDouble(ApplicationPreferences.LAUNCH_ROD_DIRECTION, newDefaults.getLaunchRodDirection());
 	}
 }
