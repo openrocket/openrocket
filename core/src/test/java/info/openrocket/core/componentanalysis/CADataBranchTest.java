@@ -104,6 +104,15 @@ class CADataBranchTest {
 	}
 
 	@Test
+	void getTypesHandlesDomainAndComponentTypesTogether() {
+		CADataBranch sweep = new CADataBranch("sweep", CADomainDataType.MACH);
+		sweep.addPoint();
+		sweep.setValue(CADataType.CP_X, component, 1.0);
+
+		assertEquals(2, sweep.getTypes().length);
+	}
+
+	@Test
 	void missingComponentDataReturnsNaN() {
 		assertTrue(Double.isNaN(branch.getMinimum(CADataType.CP_X, component)));
 		assertTrue(Double.isNaN(branch.getMaximum(CADataType.CP_X, component)));
