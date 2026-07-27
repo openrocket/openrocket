@@ -7,10 +7,21 @@ public class ArrayUtils {
 	/**
 	 * Returns a double array with values from start to end with given step.
 	 * Starts exactly at start and stops at the multiple of step <= stop.
+	 * An empty array is returned if the step is not positive, if either bound is
+	 * NaN, or if stop is before start.
 	 */
 	public static double[] range(double start, double stop, double step) {
 
-		int size = (int) Math.floor(((stop - start) / step)) + 1;
+		if (!(step > 0) || Double.isNaN(start) || Double.isNaN(stop)) {
+			return new double[0];
+		}
+
+		double count = Math.floor((stop - start) / step) + 1;
+		if (!(count > 0)) {
+			return new double[0];
+		}
+
+		int size = (int) count;
 
 		// System.out.println("Range from "+start+" to "+stop+" step "+step+" has length
 		// "+size);
@@ -28,24 +39,32 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Return the mean of an array
+	 * Return the mean of an array, ignoring any NaN values.
+	 * Returns NaN if the array contains no usable values.
 	 */
 	public static double mean(double[] vals) {
 		double subtotal = 0;
+		int count = 0;
 		for (double val : vals) {
 			if (!Double.isNaN(val)) {
 				subtotal += val;
+				count++;
 			}
 		}
-		subtotal = subtotal / vals.length;
-		return subtotal;
+		if (count == 0) {
+			return Double.NaN;
+		}
+		return subtotal / count;
 	}
 
 	/**
-	 * Returns the maximum value in the array.
+	 * Returns the maximum value in the array, or NaN if the array is empty.
 	 */
 
 	public static double max(double[] vals) {
+		if (vals.length == 0) {
+			return Double.NaN;
+		}
 		double m = vals[0];
 		for (int i = 1; i < vals.length; i++)
 			m = Math.max(m, vals[i]);
@@ -53,10 +72,13 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Returns the minimum value in the array.
+	 * Returns the minimum value in the array, or NaN if the array is empty.
 	 */
 
 	public static double min(double[] vals) {
+		if (vals.length == 0) {
+			return Double.NaN;
+		}
 		double m = vals[0];
 		for (int i = 1; i < vals.length; i++)
 			m = Math.min(m, vals[i]);
@@ -64,19 +86,25 @@ public class ArrayUtils {
 	}
 
 	/**
-	 * Returns the variance of the array of doubles
+	 * Returns the variance of the array of doubles, ignoring any NaN values.
+	 * Returns NaN if the array contains no usable values.
 	 */
 	public static double variance(double[] vals) {
 		double mu = mean(vals);
 		double sumsq = 0.0;
 		double temp = 0;
+		int count = 0;
 		for (double val : vals) {
 			if (!Double.isNaN(val)) {
 				temp = (mu - val);
 				sumsq += temp * temp;
+				count++;
 			}
 		}
-		return sumsq / (vals.length);
+		if (count == 0) {
+			return Double.NaN;
+		}
+		return sumsq / count;
 	}
 
 	/**
