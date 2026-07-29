@@ -84,7 +84,7 @@ public class LicenseDialog extends JDialog {
 			"<br>" +
 			"Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this work except in compliance with the License. " +
 			"You may view the License " +
-			"<a href=\"" + jarUrl + "!/datafiles/presets/LICENSE\">here</a>.<br>" +
+			"<a href=\"" + jarUrl + "!/datafiles/components/database/LICENSE\">here</a>.<br>" +
 			"You may also obtain a copy of the License at " +
 			"<a href=\"https://www.apache.org/licenses/LICENSE-2.0\">https://www.apache.org/licenses/LICENSE-2.0</a><br>" +
 			"<br>";
