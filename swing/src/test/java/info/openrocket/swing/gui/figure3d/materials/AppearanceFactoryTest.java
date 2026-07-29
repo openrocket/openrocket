@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d.materials;
 import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.appearance.Decal;
 import info.openrocket.core.appearance.DecalImage;
+import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.DecalNotFoundException;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -81,6 +83,30 @@ class AppearanceFactoryTest {
 		AppearanceFactory.clearCachedDecalTexturesForTesting(true);
 		verify(firstTexture).cleanup();
 		verify(secondTexture).cleanup();
+	}
+
+	@Test
+	void internalComponentsRenderWithoutSurfaceRoughness() {
+		RocketComponent internal = mock(RocketComponent.class);
+		when(internal.getAppearance()).thenReturn(new Appearance(new ORColor(200, 200, 200), 0.3));
+
+		Appearance3D appearance = AppearanceFactory.createFrom(internal);
+
+		assertEquals(0.0f, appearance.getRoughnessStrength());
+		assertEquals(0.0f, appearance.getRoughnessScale());
+	}
+
+	@Test
+	void externalComponentsKeepTheRoughnessOfTheirFinish() {
+		ExternalComponent external = mock(ExternalComponent.class);
+		when(external.getAppearance()).thenReturn(new Appearance(new ORColor(200, 200, 200), 0.3));
+		when(external.getFinish()).thenReturn(ExternalComponent.Finish.ROUGH);
+
+		Appearance3D appearance = AppearanceFactory.createFrom(external);
+
+		assertTrue(appearance.getRoughnessStrength() > 0.0f,
+				"a rough finish must still produce a bumpy surface");
+		assertTrue(appearance.getRoughnessScale() > 0.0f);
 	}
 
 	private static RocketComponent componentWithDecal(DecalImage image) {

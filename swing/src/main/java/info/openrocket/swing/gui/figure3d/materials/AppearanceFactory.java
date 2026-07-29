@@ -131,10 +131,15 @@ public abstract class AppearanceFactory {
 			engineAppearance.clearTexture();
 		}
 
-		// Roughness
+		// Roughness. Only external components carry a surface finish; everything else
+		// (internal components, motors) renders smooth. Leaving those at the bump-map
+		// default made parts like inner tubes, which are often visible from the outside,
+		// look rougher than a default-painted body tube.
 		if (finish != null) {
-			double roughnessSize = finish.getRoughnessSize(); // in meters
-			applyFinishRoughness(engineAppearance, roughnessSize);
+			applyFinishRoughness(engineAppearance, finish.getRoughnessSize()); // roughness size in meters
+		} else {
+			engineAppearance.setRoughnessStrength(0.0f);
+			engineAppearance.setRoughnessScale(0.0f);
 		}
 	}
 
