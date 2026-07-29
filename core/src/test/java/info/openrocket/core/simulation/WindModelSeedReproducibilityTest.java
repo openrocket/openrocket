@@ -1,10 +1,16 @@
 package info.openrocket.core.simulation;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
+import info.openrocket.core.models.wind.PinkNoiseWindModel;
+import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -84,17 +90,58 @@ public class WindModelSeedReproducibilityTest extends BaseTestCase {
 	}
 
 	/**
-	 * Different seeds must still give different flights: the fix must make the seed
-	 * effective, not make the wind deterministic regardless of it.
+	 * The seed must reach the wind itself, checked on the models directly.
+	 * <p>
+	 * Deliberately not expressed as "different seeds give different flights": the
+	 * integrator draws on the same seed, so two flights differ under two seeds even
+	 * when the wind is identical, and a model that ignored the value it was given
+	 * would pass such a test. Sampling the models removes the integrator from the
+	 * measurement, leaving only the property being asserted.
 	 */
 	@Test
-	public void testDifferentSeedsGiveDifferentFlights() throws SimulationException {
-		final double a = apogee(WindModelType.AVERAGE, SEED);
-		final double b = apogee(WindModelType.AVERAGE, SEED + 1);
+	public void testSeedControlsTheWindItself() {
+		for (WindModel model : new WindModel[] { averageModel(), multiLevelModel() }) {
+			final String name = model.getClass().getSimpleName();
 
-		assertTrue(Math.abs(a - b) > SAME_FLIGHT_TOLERANCE,
-				"a different seed must produce a different flight, but " + a + " m and "
-						+ b + " m are within the same-flight tolerance");
+			model.setSeed(SEED);
+			final double[] first = sample(model);
+
+			model.setSeed(SEED + 1);
+			final double[] other = sample(model);
+
+			model.setSeed(SEED);
+			final double[] repeat = sample(model);
+
+			assertArrayEquals(first, repeat, 0.0,
+					name + ": the same seed must reproduce the same wind exactly");
+			assertFalse(Arrays.equals(first, other),
+					name + ": a different seed must produce different wind, but the samples "
+							+ "were identical -- the seed is being ignored");
+		}
+	}
+
+	/** Wind speed sampled over the first seconds of a flight. */
+	private double[] sample(WindModel model) {
+		final double[] out = new double[40];
+		for (int i = 0; i < out.length; i++) {
+			out[i] = model.getWindVelocity(i * 0.1, 50.0).length();
+		}
+		return out;
+	}
+
+	private PinkNoiseWindModel averageModel() {
+		final PinkNoiseWindModel model = new PinkNoiseWindModel();
+		model.setAverage(WIND_SPEED);
+		model.setStandardDeviation(WIND_SPEED * TURBULENCE);
+		return model;
+	}
+
+	private MultiLevelPinkNoiseWindModel multiLevelModel() {
+		final MultiLevelPinkNoiseWindModel model = new MultiLevelPinkNoiseWindModel();
+		model.clearLevels();
+		model.addWindLevel(0, WIND_SPEED, 0, WIND_SPEED * TURBULENCE);
+		model.addWindLevel(200, WIND_SPEED * 1.5, 0, WIND_SPEED * TURBULENCE);
+		return model;
 	}
 
 	private double apogee(WindModelType type) throws SimulationException {
