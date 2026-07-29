@@ -1373,6 +1373,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						glDisable(GL_DEPTH_TEST);
 						glEnable(GL_BLEND);
 						glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+						// The HUD is rasterized by Java2D, which composites in sRGB space. Blending
+						// it with the sRGB encode still enabled would blend in linear space instead,
+						// which lightens translucent panels well beyond their requested alpha and
+						// pulls partially covered glyph pixels towards the panel colour, leaving the
+						// text thin and washed out. The scene has already been presented at this
+						// point, so the encode can be turned off for the overlay only.
+						glDisable(GL_FRAMEBUFFER_SRGB);
 
 						hudShader.use();
 
@@ -1384,6 +1391,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						glBindVertexArray(0);
 
 						// Restore GL state
+						glEnable(GL_FRAMEBUFFER_SRGB);
 						glEnable(GL_DEPTH_TEST);
 						glDisable(GL_BLEND);
 					}

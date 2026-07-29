@@ -27,6 +27,7 @@ import static org.lwjgl.opengl.GL11.GL_LINEAR_MIPMAP_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_REPEAT;
 import static org.lwjgl.opengl.GL11.GL_RGB;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_RGBA8;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
@@ -590,6 +591,13 @@ public class Texture {
 
 	/**
 	 * Creates an empty, mutable texture for dynamic updates (e.g., for a UI canvas).
+	 * <p>
+	 * The storage is plain RGBA8, not sRGB: this texture holds pixels rasterized by
+	 * Java2D, which are already sRGB-encoded and are meant to reach the screen
+	 * unchanged. Declaring sRGB storage would make the sampler decode them to linear
+	 * and blend the overlay in linear space, which washes out translucent panels and
+	 * flattens the contrast of antialiased glyph edges.
+	 *
 	 * @param width      The width of the texture.
 	 * @param height     The height of the texture.
 	 * @param isMutable  A flag to distinguish this from the procedural constructor.
@@ -602,13 +610,11 @@ public class Texture {
 		this.textureType = GL_TEXTURE_2D;
 		this.width = width;
 		this.height = height;
-		this.internalFormat = GL_SRGB_ALPHA;
+		this.internalFormat = GL_RGBA8;
 		this.format = GL_RGBA;
 
 		glBindTexture(textureType, textureId);
 
-		// Use GL_RGBA8 instead of GL_SRGB_ALPHA if you don't need sRGB conversion
-		// This can be faster on some GPUs
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, (ByteBuffer) null);
 
 		// Use nearest filtering for UI textures if pixel-perfect rendering is needed
