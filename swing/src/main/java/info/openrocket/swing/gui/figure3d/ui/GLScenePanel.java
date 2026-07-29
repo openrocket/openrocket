@@ -205,6 +205,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// dominant render-thread cost; 15 fps is visually ample for HUD content.
 	private static final long MIN_HUD_PAINT_INTERVAL_MS = 66;
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
+	private static final int RESIZE_SETTLE_IDLE_MS = 120;
 	private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
 	private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
 	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
@@ -223,6 +224,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean dragInteractionActive = false;
 	private volatile boolean wheelInteractionActive = false;
 	private final Timer wheelInteractionEndTimer;
+	private final Timer resizeSettleTimer;
 
 	// Resize coordination between EDT and render thread
 	private volatile boolean resizeRequested = false;
@@ -345,6 +347,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			markRenderActivity();
 		});
 		this.wheelInteractionEndTimer.setRepeats(false);
+		// A resize changes the size of the native drawable underneath the render thread:
+		// a frame that was already in flight gets presented at the old size, and the part
+		// of the canvas that the resize newly exposed keeps whatever the driver happened
+		// to leave there until a correctly sized frame is swapped in. One forced redraw
+		// after the resize has settled guarantees that frame, even when the render tick
+		// that observed the resize ran while the canvas was between layouts and therefore
+		// produced nothing.
+		this.resizeSettleTimer = new Timer(RESIZE_SETTLE_IDLE_MS, e -> {
+			hudNeedsUpdate = true;
+			requestRenderNow();
+		});
+		this.resizeSettleTimer.setRepeats(false);
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		// With image presentation the frame is painted by AWT via paint(), so
@@ -408,6 +422,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				int width = Math.max(1, getWidth());
 				int height = Math.max(1, getHeight());
 				int[] fbSize = computeFramebufferSize(width, height);
+				// Re-arm on every event, including the ones that carry no new size, so the
+				// settle redraw always happens after the *last* resize rather than after the
+				// last one that changed the pending dimensions.
+				resizeSettleTimer.restart();
 				if (width == pendingWinWidth && height == pendingWinHeight
 						&& fbSize[0] == pendingFbWidth && fbSize[1] == pendingFbHeight
 						&& resizeRequested) {
@@ -492,6 +510,19 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		Runnable callback = renderActivityCallback;
 		if (callback != null) {
 			callback.run();
+		}
+	}
+
+	/**
+	 * Asks the owner to render a frame as soon as possible, rather than waiting for the
+	 * next scheduler tick to notice that the canvas is dirty.
+	 */
+	private void requestRenderNow() {
+		Runnable callback = renderRequestCallback;
+		if (callback != null) {
+			callback.run();
+		} else {
+			markRenderActivity();
 		}
 	}
 
@@ -2039,6 +2070,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	public void cleanup() {
 		// Prevent any further rendering/resize operations
 		wheelInteractionEndTimer.stop();
+		resizeSettleTimer.stop();
 		dragInteractionActive = false;
 		wheelInteractionActive = false;
 		updateCameraInteractionMode();
@@ -2174,6 +2206,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public boolean hasCompletedFrame() {
 		return paintCallCount.get() > 0 || swapCallCount.get() > 0;
+	}
+
+	/**
+	 * Whether a resize has been observed that no rendered frame has picked up yet.
+	 */
+	public boolean hasPendingResize() {
+		return resizeRequested;
 	}
 
 	public boolean isPeerMispositionedForDebug() {

@@ -273,9 +273,12 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		}
 		if (!panel.isDisplayable() || !panel.isShowing() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
 			// Panel not yet laid out or visible. Keep dirty only for the startup period
-			// (before the first frame). Once a frame has completed the panel is
-			// genuinely off-screen (minimized etc.) and we should not spin.
-			if (!panel.hasCompletedFrame()) {
+			// (before the first frame), or while a resize is still outstanding: dropping the
+			// dirty flag there would leave the canvas showing a frame drawn for the previous
+			// size, with the newly exposed area never painted. Once a frame has completed and
+			// no resize is pending the panel is genuinely off-screen (minimized etc.) and we
+			// should not spin.
+			if (!panel.hasCompletedFrame() || panel.hasPendingResize()) {
 				markDirty();
 			}
 			return;
