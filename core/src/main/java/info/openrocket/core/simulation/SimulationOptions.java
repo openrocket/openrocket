@@ -788,7 +788,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
 
+		// Seed the throwaway clone rather than the configured model, so that the seed
+		// governs the run without becoming part of the configuration's identity.
 		WindModel windModel = getWindModel().clone();
+		windModel.setSeed(randomSeed);
 		conditions.setWindModel(windModel);
 		conditions.setAtmosphericModel(getAtmosphericModel());
 
