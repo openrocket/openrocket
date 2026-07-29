@@ -190,6 +190,13 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private CameraUpdateBehavior determineCameraUpdateBehavior(ComponentChangeEvent e) {
+		// Undo/redo replaces the whole component tree (Rocket.loadFrom always reports a
+		// tree change), but it restores a design the user was just looking at. Moving the
+		// camera there would mean that merely cancelling a configuration dialog throws
+		// away the current view, so the camera is left exactly where it is.
+		if (e.isUndoChange()) {
+			return CameraUpdateBehavior.NONE;
+		}
 		if (e.isTreeChange()) {
 			return CameraUpdateBehavior.RESET;
 		}
@@ -352,9 +359,11 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			scene3DOrchestrator.resetViewAndFocusOnRocket();
 		} else if (cameraUpdateBehavior == CameraUpdateBehavior.REFIT_IF_FIT
 				&& scene3DOrchestrator.getCameraController().isZoomFitting()) {
-			// When the user is in Zoom Fit, rebuilds should restore the same centered default
-			// framing as an explicit Zoom Fit action instead of preserving a stale orbit pivot.
-			scene3DOrchestrator.resetViewAndFocusOnRocket();
+			// When the user is in Zoom Fit, rebuilds should re-frame the rocket instead of
+			// preserving a stale orbit pivot. Only the framing is recomputed: the orbit angles
+			// and the drag rotation are the user's, and an edit is not a request to go back
+			// to the default side view.
+			scene3DOrchestrator.focusOnRocket();
 		}
 	}
 
