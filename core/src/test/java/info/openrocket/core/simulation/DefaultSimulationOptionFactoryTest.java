@@ -2,10 +2,13 @@ package info.openrocket.core.simulation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.AbstractModule;
@@ -26,6 +29,41 @@ import info.openrocket.core.util.MathUtil;
 class DefaultSimulationOptionFactoryTest {
 	private static final double EPSILON = MathUtil.EPSILON;
 
+	/** Launch conditions stored in the preferences, i.e. the input of {@link DefaultSimulationOptionFactory#getDefault()}. */
+	private static final boolean PREFERRED_ISA_ATMOSPHERE = false;
+	private static final double PREFERRED_LATITUDE = 50.8791;			// Leuven
+	private static final double PREFERRED_LONGITUDE = 4.7025;
+	private static final double PREFERRED_ALTITUDE = 25.0;				// m
+	private static final double PREFERRED_TEMPERATURE = 293.15;			// K
+	private static final double PREFERRED_PRESSURE = 100500.0;			// Pa
+	private static final double PREFERRED_RELATIVE_HUMIDITY = 0.65;
+	private static final boolean PREFERRED_INTO_WIND = false;
+	private static final double PREFERRED_ROD_LENGTH = 1.8;				// m
+	private static final double PREFERRED_ROD_ANGLE = 0.2;				// rad
+	private static final double PREFERRED_ROD_DIRECTION = 0.7;			// rad
+	private static final double PREFERRED_WIND_AVERAGE = 4.2;			// m/s
+	private static final double PREFERRED_WIND_STANDARD_DEVIATION = 0.8;	// m/s
+	private static final double PREFERRED_WIND_DIRECTION = 1.2;			// rad
+
+	/** Launch conditions of the simulation stored by {@link DefaultSimulationOptionFactory#saveDefault(SimulationOptions)}. */
+	private static final boolean SAVED_ISA_ATMOSPHERE = false;
+	private static final double SAVED_LATITUDE = -33.8688;				// Sydney
+	private static final double SAVED_LONGITUDE = 151.2093;
+	private static final double SAVED_ALTITUDE = 80.0;					// m
+	private static final double SAVED_TEMPERATURE = 301.15;				// K
+	private static final double SAVED_PRESSURE = 99000.0;				// Pa
+	private static final double SAVED_RELATIVE_HUMIDITY = 0.35;
+	private static final boolean SAVED_INTO_WIND = false;
+	private static final double SAVED_ROD_LENGTH = 2.4;					// m
+	private static final double SAVED_ROD_ANGLE = 0.7;					// rad, beyond the old launch preference limit of PI/6
+	private static final double SAVED_ROD_DIRECTION = 2.1;				// rad
+	private static final double SAVED_WIND_AVERAGE = 7.5;				// m/s
+	private static final double SAVED_WIND_STANDARD_DEVIATION = 1.1;	// m/s
+	private static final double SAVED_WIND_DIRECTION = 2.8;				// rad
+
+	/** Obsolete preference key that the factory used to store the launch altitude under. */
+	private static final String LEGACY_SITE_ALTITUDE_KEY = "SimConditionSiteAlt";
+
 	private MockPreferences preferences;
 	private DefaultSimulationOptionFactory factory;
 
@@ -45,68 +83,249 @@ class DefaultSimulationOptionFactoryTest {
 		factory = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 	}
 
-	@Test
-	void defaultsRoundTripThroughLaunchPreferences() {
-		// Verify that defaults are loaded from the launch preferences, not the
-		// obsolete SimCondition preference keys.
-		preferences.setISAAtmosphere(false);
-		preferences.setLaunchLatitude(50.8791);
-		preferences.setLaunchLongitude(4.7025);
-		preferences.setLaunchAltitude(25.0);
-		preferences.setLaunchTemperature(293.15);
-		preferences.setLaunchPressure(100500.0);
-		preferences.setLaunchRelativeHumidity(0.65);
-		preferences.setLaunchIntoWind(false);
-		preferences.setLaunchRodLength(1.8);
-		preferences.setLaunchRodAngle(0.2);
-		preferences.setLaunchRodDirection(0.7);
-		preferences.getAverageWindModel().setAverage(4.2);
-		preferences.getAverageWindModel().setStandardDeviation(0.8);
-		preferences.getAverageWindModel().setDirection(1.2);
-		preferences.putDouble(DefaultSimulationOptionFactory.SIMCONDITION_SITE_ALT, 999.0);
+	/**
+	 * Stores the PREFERRED_* launch conditions in the launch preferences.
+	 */
+	private void storeLaunchPreferences() {
+		preferences.setISAAtmosphere(PREFERRED_ISA_ATMOSPHERE);
+		preferences.setLaunchLatitude(PREFERRED_LATITUDE);
+		preferences.setLaunchLongitude(PREFERRED_LONGITUDE);
+		preferences.setLaunchAltitude(PREFERRED_ALTITUDE);
+		preferences.setLaunchTemperature(PREFERRED_TEMPERATURE);
+		preferences.setLaunchPressure(PREFERRED_PRESSURE);
+		preferences.setLaunchRelativeHumidity(PREFERRED_RELATIVE_HUMIDITY);
+		preferences.setLaunchIntoWind(PREFERRED_INTO_WIND);
+		preferences.setLaunchRodLength(PREFERRED_ROD_LENGTH);
+		preferences.setLaunchRodAngle(PREFERRED_ROD_ANGLE);
+		preferences.setLaunchRodDirection(PREFERRED_ROD_DIRECTION);
+		preferences.getAverageWindModel().setAverage(PREFERRED_WIND_AVERAGE);
+		preferences.getAverageWindModel().setStandardDeviation(PREFERRED_WIND_STANDARD_DEVIATION);
+		preferences.getAverageWindModel().setDirection(PREFERRED_WIND_DIRECTION);
+	}
 
-		SimulationOptions loaded = factory.getDefault();
+	/**
+	 * @return simulation conditions holding the SAVED_* launch conditions
+	 */
+	private static SimulationOptions savedSimulationOptions() {
+		SimulationOptions options = new SimulationOptions();
+		options.setISAAtmosphere(SAVED_ISA_ATMOSPHERE);
+		options.setLaunchLatitude(SAVED_LATITUDE);
+		options.setLaunchLongitude(SAVED_LONGITUDE);
+		options.setLaunchAltitude(SAVED_ALTITUDE);
+		options.setLaunchTemperature(SAVED_TEMPERATURE);
+		options.setLaunchPressure(SAVED_PRESSURE);
+		options.setLaunchRelativeHumidity(SAVED_RELATIVE_HUMIDITY);
+		options.setLaunchIntoWind(SAVED_INTO_WIND);
+		options.setLaunchRodLength(SAVED_ROD_LENGTH);
+		options.setLaunchRodAngle(SAVED_ROD_ANGLE);
+		options.setLaunchRodDirection(SAVED_ROD_DIRECTION);
+		options.getAverageWindModel().setAverage(SAVED_WIND_AVERAGE);
+		options.getAverageWindModel().setStandardDeviation(SAVED_WIND_STANDARD_DEVIATION);
+		options.getAverageWindModel().setDirection(SAVED_WIND_DIRECTION);
+		return options;
+	}
 
-		assertConditions(loaded, 50.8791, 4.7025, 25.0, 293.15, 100500.0,
-				0.65, 1.8, 0.2, 0.7, 4.2, 0.8, 1.2);
+	@Nested
+	@DisplayName("getDefault() loads the launch preferences")
+	class GetDefault {
+		private SimulationOptions defaults;
 
-		SimulationOptions saved = new SimulationOptions();
-		saved.setISAAtmosphere(false);
-		saved.setLaunchLatitude(-33.8688);
-		saved.setLaunchLongitude(151.2093);
-		saved.setLaunchAltitude(80.0);
-		saved.setLaunchTemperature(301.15);
-		saved.setLaunchPressure(99000.0);
-		saved.setLaunchRelativeHumidity(0.35);
-		saved.setLaunchIntoWind(false);
-		saved.setLaunchRodLength(2.4);
-		saved.setLaunchRodAngle(0.7);
-		saved.setLaunchRodDirection(2.1);
-		saved.getAverageWindModel().setAverage(7.5);
-		saved.getAverageWindModel().setStandardDeviation(1.1);
-		saved.getAverageWindModel().setDirection(2.8);
+		@BeforeEach
+		void loadDefaults() {
+			storeLaunchPreferences();
+			defaults = factory.getDefault();
+		}
 
-		factory.saveDefault(saved);
+		@Test
+		void loadsISAAtmosphere() {
+			assertEquals(PREFERRED_ISA_ATMOSPHERE, defaults.isISAAtmosphere());
+		}
 
-		assertEquals(-33.8688, preferences.getLaunchLatitude(), EPSILON);
-		assertEquals(151.2093, preferences.getLaunchLongitude(), EPSILON);
-		assertEquals(80.0, preferences.getLaunchAltitude(), EPSILON);
-		assertEquals(301.15, preferences.getLaunchTemperature(), EPSILON);
-		assertEquals(99000.0, preferences.getLaunchPressure(), EPSILON);
-		assertEquals(0.35, preferences.getLaunchRelativeHumidity(), EPSILON);
-		assertFalse(preferences.getLaunchIntoWind());
-		assertEquals(2.4, preferences.getLaunchRodLength(), EPSILON);
-		assertEquals(0.7, preferences.getLaunchRodAngle(), EPSILON);
-		assertEquals(2.1, preferences.getLaunchRodDirection(), EPSILON);
-		assertEquals(7.5, preferences.getAverageWindModel().getAverage(), EPSILON);
-		assertEquals(1.1, preferences.getAverageWindModel().getStandardDeviation(), EPSILON);
-		assertEquals(2.8, preferences.getAverageWindModel().getDirection(), EPSILON);
+		@Test
+		void loadsLatitude() {
+			assertEquals(PREFERRED_LATITUDE, defaults.getLaunchLatitude(), EPSILON);
+		}
 
-		assertConditions(factory.getDefault(), -33.8688, 151.2093, 80.0, 301.15,
-				99000.0, 0.35, 2.4, 0.7, 2.1, 7.5, 1.1, 2.8);
+		@Test
+		void loadsLongitude() {
+			assertEquals(PREFERRED_LONGITUDE, defaults.getLaunchLongitude(), EPSILON);
+		}
+
+		@Test
+		void loadsAltitude() {
+			assertEquals(PREFERRED_ALTITUDE, defaults.getLaunchAltitude(), EPSILON);
+		}
+
+		@Test
+		void loadsTemperature() {
+			assertEquals(PREFERRED_TEMPERATURE, defaults.getLaunchTemperature(), EPSILON);
+		}
+
+		@Test
+		void loadsPressure() {
+			assertEquals(PREFERRED_PRESSURE, defaults.getLaunchPressure(), EPSILON);
+		}
+
+		@Test
+		void loadsRelativeHumidity() {
+			assertEquals(PREFERRED_RELATIVE_HUMIDITY, defaults.getLaunchRelativeHumidity(), EPSILON);
+		}
+
+		@Test
+		void loadsLaunchIntoWind() {
+			assertEquals(PREFERRED_INTO_WIND, defaults.getLaunchIntoWind());
+		}
+
+		@Test
+		void loadsRodLength() {
+			assertEquals(PREFERRED_ROD_LENGTH, defaults.getLaunchRodLength(), EPSILON);
+		}
+
+		@Test
+		void loadsRodAngle() {
+			assertEquals(PREFERRED_ROD_ANGLE, defaults.getLaunchRodAngle(), EPSILON);
+		}
+
+		@Test
+		void loadsRodDirection() {
+			assertEquals(PREFERRED_ROD_DIRECTION, defaults.getLaunchRodDirection(), EPSILON);
+		}
+
+		@Test
+		void loadsWindAverage() {
+			assertEquals(PREFERRED_WIND_AVERAGE, defaults.getAverageWindModel().getAverage(), EPSILON);
+		}
+
+		@Test
+		void loadsWindStandardDeviation() {
+			assertEquals(PREFERRED_WIND_STANDARD_DEVIATION, defaults.getAverageWindModel().getStandardDeviation(),
+					EPSILON);
+		}
+
+		@Test
+		void loadsWindDirection() {
+			assertEquals(PREFERRED_WIND_DIRECTION, defaults.getAverageWindModel().getDirection(), EPSILON);
+		}
+
+		@Test
+		@DisplayName("ignores the obsolete SimCondition preference keys")
+		void ignoresObsoletePreferenceKeys() {
+			preferences.putDouble(LEGACY_SITE_ALTITUDE_KEY, PREFERRED_ALTITUDE + 999.0);
+			assertEquals(PREFERRED_ALTITUDE, factory.getDefault().getLaunchAltitude(), EPSILON);
+		}
+	}
+
+	@Nested
+	@DisplayName("saveDefault() stores the launch preferences")
+	class SaveDefault {
+
+		@BeforeEach
+		void saveDefaults() {
+			factory.saveDefault(savedSimulationOptions());
+		}
+
+		@Test
+		void savesISAAtmosphere() {
+			assertEquals(SAVED_ISA_ATMOSPHERE, preferences.isISAAtmosphere());
+		}
+
+		@Test
+		void savesLatitude() {
+			assertEquals(SAVED_LATITUDE, preferences.getLaunchLatitude(), EPSILON);
+		}
+
+		@Test
+		void savesLongitude() {
+			assertEquals(SAVED_LONGITUDE, preferences.getLaunchLongitude(), EPSILON);
+		}
+
+		@Test
+		void savesAltitude() {
+			assertEquals(SAVED_ALTITUDE, preferences.getLaunchAltitude(), EPSILON);
+		}
+
+		@Test
+		void savesTemperature() {
+			assertEquals(SAVED_TEMPERATURE, preferences.getLaunchTemperature(), EPSILON);
+		}
+
+		@Test
+		void savesPressure() {
+			assertEquals(SAVED_PRESSURE, preferences.getLaunchPressure(), EPSILON);
+		}
+
+		@Test
+		void savesRelativeHumidity() {
+			assertEquals(SAVED_RELATIVE_HUMIDITY, preferences.getLaunchRelativeHumidity(), EPSILON);
+		}
+
+		@Test
+		void savesLaunchIntoWind() {
+			assertEquals(SAVED_INTO_WIND, preferences.getLaunchIntoWind());
+		}
+
+		@Test
+		void savesRodLength() {
+			assertEquals(SAVED_ROD_LENGTH, preferences.getLaunchRodLength(), EPSILON);
+		}
+
+		@Test
+		void savesRodAngle() {
+			assertEquals(SAVED_ROD_ANGLE, preferences.getLaunchRodAngle(), EPSILON);
+		}
+
+		@Test
+		void savesRodDirection() {
+			assertEquals(SAVED_ROD_DIRECTION, preferences.getLaunchRodDirection(), EPSILON);
+		}
+
+		@Test
+		void savesWindAverage() {
+			assertEquals(SAVED_WIND_AVERAGE, preferences.getAverageWindModel().getAverage(), EPSILON);
+		}
+
+		@Test
+		void savesWindStandardDeviation() {
+			assertEquals(SAVED_WIND_STANDARD_DEVIATION, preferences.getAverageWindModel().getStandardDeviation(),
+					EPSILON);
+		}
+
+		@Test
+		void savesWindDirection() {
+			assertEquals(SAVED_WIND_DIRECTION, preferences.getAverageWindModel().getDirection(), EPSILON);
+		}
+
+		@Test
+		@DisplayName("stored conditions are returned by getDefault()")
+		void savedConditionsAreLoadedAgain() {
+			SimulationOptions reloaded = factory.getDefault();
+			assertEquals(SAVED_LATITUDE, reloaded.getLaunchLatitude(), EPSILON);
+			assertEquals(SAVED_ROD_ANGLE, reloaded.getLaunchRodAngle(), EPSILON);
+			assertEquals(SAVED_WIND_AVERAGE, reloaded.getAverageWindModel().getAverage(), EPSILON);
+			assertEquals(SAVED_WIND_STANDARD_DEVIATION, reloaded.getAverageWindModel().getStandardDeviation(), EPSILON);
+			assertEquals(SAVED_WIND_DIRECTION, reloaded.getAverageWindModel().getDirection(), EPSILON);
+		}
+	}
+
+	@Nested
+	@DisplayName("A fresh profile falls back to the same defaults on both sides")
+	class UnsetPreferences {
+
+		@Test
+		void launchIntoWindMatchesTheSimulationDefault() {
+			assertEquals(new SimulationOptions().getLaunchIntoWind(), preferences.getLaunchIntoWind());
+			assertTrue(factory.getDefault().getLaunchIntoWind());
+		}
+
+		@Test
+		void rodAngleLimitMatchesTheSimulationLimit() {
+			preferences.setLaunchRodAngle(SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
+			assertEquals(SimulationOptions.MAX_LAUNCH_ROD_ANGLE, preferences.getLaunchRodAngle(), EPSILON);
+		}
 	}
 
 	@Test
+	@DisplayName("copyConditionsFrom() notifies the listeners of the nested wind models")
 	void copyingConditionsNotifiesNestedWindModels() {
 		SimulationOptions source = new SimulationOptions();
 		SimulationOptions target = new SimulationOptions();
@@ -123,26 +342,11 @@ class DefaultSimulationOptionFactoryTest {
 		assertEquals(1, multiLevelWindEvents.get());
 	}
 
-	/**
-	 * Asserts all launch-condition values managed by the default factory.
-	 */
-	private static void assertConditions(SimulationOptions options, double latitude, double longitude,
-			double altitude, double temperature, double pressure, double relativeHumidity,
-			double rodLength, double rodAngle, double rodDirection, double windAverage,
-			double windStandardDeviation, double windDirection) {
-		assertEquals(latitude, options.getLaunchLatitude(), EPSILON);
-		assertEquals(longitude, options.getLaunchLongitude(), EPSILON);
-		assertEquals(altitude, options.getLaunchAltitude(), EPSILON);
-		assertFalse(options.isISAAtmosphere());
-		assertEquals(temperature, options.getLaunchTemperature(), EPSILON);
-		assertEquals(pressure, options.getLaunchPressure(), EPSILON);
-		assertEquals(relativeHumidity, options.getLaunchRelativeHumidity(), EPSILON);
-		assertFalse(options.getLaunchIntoWind());
-		assertEquals(rodLength, options.getLaunchRodLength(), EPSILON);
-		assertEquals(rodAngle, options.getLaunchRodAngle(), EPSILON);
-		assertEquals(rodDirection, options.getLaunchRodDirection(), EPSILON);
-		assertEquals(windAverage, options.getAverageWindModel().getAverage(), EPSILON);
-		assertEquals(windStandardDeviation, options.getAverageWindModel().getStandardDeviation(), EPSILON);
-		assertEquals(windDirection, options.getAverageWindModel().getDirection(), EPSILON);
+	@Test
+	@DisplayName("Saving does not enable the ISA atmosphere of a simulation that has it disabled")
+	void savingKeepsCustomAtmosphere() {
+		factory.saveDefault(savedSimulationOptions());
+		assertFalse(preferences.isISAAtmosphere());
+		assertEquals(SAVED_TEMPERATURE, preferences.getLaunchTemperature(), EPSILON);
 	}
 }

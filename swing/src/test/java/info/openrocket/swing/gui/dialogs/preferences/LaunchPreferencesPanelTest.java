@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.google.inject.AbstractModule;
@@ -26,8 +27,27 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.ServicesForTesting;
 import info.openrocket.swing.gui.util.SwingPreferences;
 
+/**
+ * Verifies that the launch preferences edited on the Launch preferences panel are the
+ * conditions that new simulations start from. The panel binds its controls directly to
+ * the preferences, so editing the panel is simulated by writing the preferences.
+ */
 public class LaunchPreferencesPanelTest {
     private static final double EPSILON = MathUtil.EPSILON;
+
+    private static final double LATITUDE = 50.8791;             // Leuven
+    private static final double LONGITUDE = 4.7025;
+    private static final double ALTITUDE = 10.0;                // m
+    private static final boolean ISA_ATMOSPHERE = false;
+    private static final double TEMPERATURE = 293.15;           // K
+    private static final double PRESSURE = 101000.0;            // Pa
+    private static final boolean LAUNCH_INTO_WIND = false;
+    private static final double ROD_LENGTH = 1.5;               // m
+    private static final double ROD_ANGLE = 0.1;                // rad
+    private static final double ROD_DIRECTION = Math.PI / 4;    // rad
+    private static final double WIND_AVERAGE = 3.0;             // m/s
+    private static final double WIND_TURBULENCE = 0.15;
+
     private SwingPreferences prefs;
 
     @BeforeAll
@@ -51,79 +71,104 @@ public class LaunchPreferencesPanelTest {
     }
 
     @Test
-    @DisplayName("saveLaunchPreferencesToDefaults saves all launch preferences correctly")
-    public void testSaveLaunchPreferencesToDefaults() {
-        // Set up test preferences
-        double testLatitude = 50.8791; // Leuven
-        double testLongitude = 4.7025;
-        double testAltitude = 10.0;
-        boolean testISAAtmosphere = false;
-        double testTemperature = 293.15; // 20°C
-        double testPressure = 101000.0;
-        boolean testLaunchIntoWind = false;
-        double testRodLength = 1.5;
-        double testRodAngle = 0.1;
-        double testRodDirection = Math.PI / 4; // 45 degrees
-        double testWindAverage = 3.0;
-        double testWindTurbulence = 0.15;
-        // Standard deviation is calculated from turbulence intensity: stdDev = turbulence * average
-        double testWindStdDev = testWindTurbulence * testWindAverage; // 0.15 * 3.0 = 0.45
+    @DisplayName("The panel can be built on top of the launch preferences")
+    public void testPanelCreation() {
+        assertNotNull(new LaunchPreferencesPanel(), "Panel should be created");
+    }
 
-        // Set preferences
-        prefs.setLaunchLatitude(testLatitude);
-        prefs.setLaunchLongitude(testLongitude);
-        prefs.setLaunchAltitude(testAltitude);
-        prefs.setISAAtmosphere(testISAAtmosphere);
-        prefs.setLaunchTemperature(testTemperature);
-        prefs.setLaunchPressure(testPressure);
-        prefs.setLaunchIntoWind(testLaunchIntoWind);
-        prefs.setLaunchRodLength(testRodLength);
-        prefs.setLaunchRodAngle(testRodAngle);
-        prefs.setLaunchRodDirection(testRodDirection);
-        // Set wind model values - note that standard deviation is calculated from turbulence intensity
-        prefs.getAverageWindModel().setAverage(testWindAverage);
-        prefs.getAverageWindModel().setTurbulenceIntensity(testWindTurbulence);
-        // The standard deviation will be calculated as turbulence * average = 0.15 * 3.0 = 0.45
-        testWindStdDev = prefs.getAverageWindModel().getStandardDeviation();
+    @Nested
+    @DisplayName("New simulations start from the launch preferences")
+    class DefaultsFromLaunchPreferences {
+        private SimulationOptions defaults;
+        // The standard deviation is derived from the turbulence intensity and the average
+        private double windStandardDeviation;
 
-        // Create panel and save preferences
-        LaunchPreferencesPanel panel = new LaunchPreferencesPanel();
-        panel.saveLaunchPreferencesToDefaults();
+        @BeforeEach
+        public void editLaunchPreferences() {
+            prefs.setLaunchLatitude(LATITUDE);
+            prefs.setLaunchLongitude(LONGITUDE);
+            prefs.setISAAtmosphere(ISA_ATMOSPHERE);
+            prefs.setLaunchAltitude(ALTITUDE);
+            prefs.setLaunchTemperature(TEMPERATURE);
+            prefs.setLaunchPressure(PRESSURE);
+            prefs.setLaunchIntoWind(LAUNCH_INTO_WIND);
+            prefs.setLaunchRodLength(ROD_LENGTH);
+            prefs.setLaunchRodAngle(ROD_ANGLE);
+            prefs.setLaunchRodDirection(ROD_DIRECTION);
+            prefs.getAverageWindModel().setAverage(WIND_AVERAGE);
+            prefs.getAverageWindModel().setTurbulenceIntensity(WIND_TURBULENCE);
+            windStandardDeviation = prefs.getAverageWindModel().getStandardDeviation();
 
-        // Verify that DefaultSimulationOptionFactory has the saved values
-        DefaultSimulationOptionFactory factory = Application.getInjector()
-                .getInstance(DefaultSimulationOptionFactory.class);
-        assertNotNull(factory, "Factory should not be null");
+            DefaultSimulationOptionFactory factory = Application.getInjector()
+                    .getInstance(DefaultSimulationOptionFactory.class);
+            defaults = factory.getDefault();
+            assertNotNull(defaults, "Default options should not be null");
+        }
 
-        SimulationOptions savedOptions = factory.getDefault();
-        assertNotNull(savedOptions, "Saved options should not be null");
+        @Test
+        public void usesLatitude() {
+            assertEquals(LATITUDE, defaults.getLaunchLatitude(), EPSILON);
+        }
 
-        assertEquals(testLatitude, savedOptions.getLaunchLatitude(), EPSILON,
-                "Launch latitude should be saved correctly");
-        assertEquals(testLongitude, savedOptions.getLaunchLongitude(), EPSILON,
-                "Launch longitude should be saved correctly");
-        assertEquals(testAltitude, savedOptions.getLaunchAltitude(), EPSILON,
-                "Launch altitude should be saved correctly");
-        assertEquals(testISAAtmosphere, savedOptions.isISAAtmosphere(),
-                "ISA atmosphere flag should be saved correctly");
-        assertEquals(testTemperature, savedOptions.getLaunchTemperature(), EPSILON,
-                "Launch temperature should be saved correctly");
-        assertEquals(testPressure, savedOptions.getLaunchPressure(), EPSILON,
-                "Launch pressure should be saved correctly");
-        assertEquals(testLaunchIntoWind, savedOptions.getLaunchIntoWind(),
-                "Launch into wind flag should be saved correctly");
-        assertEquals(testRodLength, savedOptions.getLaunchRodLength(), EPSILON,
-                "Launch rod length should be saved correctly");
-        assertEquals(testRodAngle, savedOptions.getLaunchRodAngle(), EPSILON,
-                "Launch rod angle should be saved correctly");
-        assertEquals(testRodDirection, savedOptions.getLaunchRodDirection(), EPSILON,
-                "Launch rod direction should be saved correctly");
-        assertEquals(testWindAverage, savedOptions.getAverageWindModel().getAverage(), EPSILON,
-                "Wind average should be saved correctly");
-        assertEquals(testWindStdDev, savedOptions.getAverageWindModel().getStandardDeviation(), EPSILON,
-                "Wind standard deviation should be saved correctly");
-        assertEquals(testWindTurbulence, savedOptions.getAverageWindModel().getTurbulenceIntensity(), EPSILON,
-                "Wind turbulence intensity should be saved correctly");
+        @Test
+        public void usesLongitude() {
+            assertEquals(LONGITUDE, defaults.getLaunchLongitude(), EPSILON);
+        }
+
+        @Test
+        public void usesAltitude() {
+            assertEquals(ALTITUDE, defaults.getLaunchAltitude(), EPSILON);
+        }
+
+        @Test
+        public void usesISAAtmosphereFlag() {
+            assertEquals(ISA_ATMOSPHERE, defaults.isISAAtmosphere());
+        }
+
+        @Test
+        public void usesTemperature() {
+            assertEquals(TEMPERATURE, defaults.getLaunchTemperature(), EPSILON);
+        }
+
+        @Test
+        public void usesPressure() {
+            assertEquals(PRESSURE, defaults.getLaunchPressure(), EPSILON);
+        }
+
+        @Test
+        public void usesLaunchIntoWind() {
+            assertEquals(LAUNCH_INTO_WIND, defaults.getLaunchIntoWind());
+        }
+
+        @Test
+        public void usesRodLength() {
+            assertEquals(ROD_LENGTH, defaults.getLaunchRodLength(), EPSILON);
+        }
+
+        @Test
+        public void usesRodAngle() {
+            assertEquals(ROD_ANGLE, defaults.getLaunchRodAngle(), EPSILON);
+        }
+
+        @Test
+        public void usesRodDirection() {
+            assertEquals(ROD_DIRECTION, defaults.getLaunchRodDirection(), EPSILON);
+        }
+
+        @Test
+        public void usesWindAverage() {
+            assertEquals(WIND_AVERAGE, defaults.getAverageWindModel().getAverage(), EPSILON);
+        }
+
+        @Test
+        public void usesWindStandardDeviation() {
+            assertEquals(windStandardDeviation, defaults.getAverageWindModel().getStandardDeviation(), EPSILON);
+        }
+
+        @Test
+        public void usesWindTurbulenceIntensity() {
+            assertEquals(WIND_TURBULENCE, defaults.getAverageWindModel().getTurbulenceIntensity(), EPSILON);
+        }
     }
 
     private static class PreferencesModule extends AbstractModule {
@@ -135,4 +180,3 @@ public class LaunchPreferencesPanelTest {
         }
     }
 }
-
