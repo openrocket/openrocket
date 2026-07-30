@@ -212,14 +212,19 @@ vec3 getSurfaceNormal(vec3 normal) {
     vec3 noiseWidth = fwidth(noisePos);
     float sampleStep = clamp(max(max(noiseWidth.x, noiseWidth.y), noiseWidth.z) * 0.5, 0.01, 0.10);
 
-    float noiseLeft = granularHeight(noisePos - objectTangent * sampleStep);
+    // granularHeight is by far the most expensive thing this shader does — seven
+    // octaves plus two warp stages, each octave a pair of 3D value-noise lookups.
+    // Taking the gradient as a forward difference from a shared centre sample needs
+    // three of them instead of the four a central difference costs, for a slope
+    // estimate that differs only by half a sample step at this amplitude.
+    float noiseCenter = granularHeight(noisePos);
     float noiseRight = granularHeight(noisePos + objectTangent * sampleStep);
-    float noiseDown = granularHeight(noisePos - objectBitangent * sampleStep);
     float noiseUp = granularHeight(noisePos + objectBitangent * sampleStep);
 
+    float inverseStep = 1.0 / max(sampleStep, 1e-4);
     vec2 bumpVec = vec2(
-        (noiseRight - noiseLeft) / max(2.0 * sampleStep, 1e-4),
-        (noiseUp - noiseDown) / max(2.0 * sampleStep, 1e-4)
+        (noiseRight - noiseCenter) * inverseStep,
+        (noiseUp - noiseCenter) * inverseStep
     );
     bumpVec = clamp(bumpVec, vec2(-1.5), vec2(1.5));
 
