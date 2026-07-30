@@ -15,6 +15,7 @@ import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
@@ -36,6 +37,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
     private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
     private final Matrix4f textureTransformMatrix = new Matrix4f();
     private final Matrix4f decalTransformMatrix = new Matrix4f();
+    private final Matrix3f normalMatrix = new Matrix3f();
 
     @Override
     public void bind(SceneObject obj,
@@ -55,8 +57,12 @@ public class DefaultMaterialBinder implements MaterialBinder {
                         k -> createDefaultAppearance(obj.getRocketComponent()))
                 : null;
 
-        // Set object-specific matrices and flags
-        shader.setUniformMatrix4f(uniforms.model, obj.getModelMatrix());
+        // Set object-specific matrices and flags. The normal matrix is derived here rather
+        // than in the shaders: it is constant for the draw call, so deriving it there costs
+        // a matrix inverse per vertex and, in the roughness path, per fragment.
+        Matrix4f modelMatrix = obj.getModelMatrix();
+        shader.setUniformMatrix4f(uniforms.model, modelMatrix);
+        shader.setUniformMatrix3f(uniforms.normalMatrix, modelMatrix.normal(normalMatrix));
         GL33.glUniform1i(uniforms.isSelected, obj.isSelected() ? 1 : 0);
         GL33.glUniform1i(uniforms.isUnlit, appearance.isUnlit() ? 1 : 0);
         GL33.glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);

@@ -168,6 +168,7 @@ public class RealisticRenderer implements GLRenderer {
 		public final int projection;
 		public final int view;
 		public final int model;
+		public final int normalMatrix;
 		public final int viewPos;
 		public final int lightSpaceMatrix;
 		public final int numLights;
@@ -213,6 +214,7 @@ public class RealisticRenderer implements GLRenderer {
 			this.projection = shader.getUniformLocation("projection");
 			this.view = shader.getUniformLocation("view");
 			this.model = shader.getUniformLocation("model");
+			this.normalMatrix = shader.getUniformLocation("normalMatrix");
 			this.viewPos = shader.getUniformLocation("viewPos");
 			this.lightSpaceMatrix = shader.getUniformLocation("lightSpaceMatrix");
 			this.numLights = shader.getUniformLocation("numLights");

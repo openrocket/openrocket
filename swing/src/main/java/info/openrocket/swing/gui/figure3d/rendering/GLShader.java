@@ -192,11 +192,7 @@ public class GLShader implements GpuResource {
 	 * @param matrix The Matrix3f to set.
 	 */
 	public void setUniformMatrix3f(String name, Matrix3f matrix) {
-		int location = getUniformLocation(name);
-		if (location >= 0) {
-			matrix.get(matrix3Buffer);
-			glUniformMatrix3fv(location, false, matrix3Buffer);
-		}
+		setUniformMatrix3f(getUniformLocation(name), matrix);
 	}
 
 	/**

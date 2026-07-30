@@ -19,6 +19,9 @@ uniform mediump vec3 objectColor;
 uniform int hasTexture;
 uniform sampler2D textureSampler;
 uniform mat4 model;
+// transpose(inverse(mat3(model))), supplied by the CPU rather than derived here:
+// a matrix inverse per fragment recomputes a value that is constant for the draw call.
+uniform mat3 normalMatrix;
 uniform mat4 textureTransformMatrix;
 uniform mat4 decalTransformMatrix;
 
@@ -185,7 +188,6 @@ vec3 getSurfaceNormal(vec3 normal) {
     }
     vec3 objectBitangent = normalize(cross(objectNormal, objectTangent));
 
-    mat3 normalMatrix = mat3(transpose(inverse(model)));
     vec3 transformedTangent = normalMatrix * objectTangent;
     transformedTangent -= normal * dot(normal, transformedTangent);
     vec3 tangent;
