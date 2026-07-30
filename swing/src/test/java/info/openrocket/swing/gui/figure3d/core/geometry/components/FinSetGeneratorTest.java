@@ -112,6 +112,90 @@ class FinSetGeneratorTest extends BaseTestCase {
 	}
 
 	/**
+	 * The leading cap closes the fillet against the fin's leading edge band, so it has to
+	 * shade and unwrap like that band rather than like a flat -X wall, or it reads as a seam
+	 * against the edge face it touches.
+	 */
+	@Test
+	void filletLeadingCapUsesAdjacentEdgeAppearanceBasis() {
+		BodyTube parent = new BodyTube();
+		parent.setOuterRadius(0.05);
+		parent.setLength(0.5);
+
+		TrapezoidFinSet finSet = new TrapezoidFinSet();
+		finSet.setRootChord(0.20);
+		finSet.setTipChord(0.10);
+		finSet.setSweep(0.04);
+		finSet.setHeight(0.12);
+		finSet.setThickness(0.004);
+		finSet.setFilletRadius(0.006);
+		parent.addChild(finSet);
+
+		CoordinateIF[] shapePoints = finSet.generateContinuousFinAndTabShape();
+		int arcSegments = 6;
+		int xSegments = 4;
+		Mesh filletMesh = FinSetGenerator.createFilletMesh(finSet, parent, arcSegments, xSegments, 0, 1, 0, 1);
+		assertNotNull(filletMesh);
+
+		int stripVertexCount = (xSegments + 1) * 2 * (arcSegments + 1);
+		int capVertexCount = 4 * (arcSegments + 1);
+		List<Vertex> leadingCapVertices = filletMesh.getVertices()
+				.subList(stripVertexCount, stripVertexCount + capVertexCount);
+
+		// The band's normal comes from the edge segment leaving the root leading corner.
+		CoordinateIF leadingRootPoint = finSet.getRootPoints()[0];
+		int leadingIndex = findMatchingPointIndex(shapePoints, leadingRootPoint);
+		Vector3f expectedNormal = edgeSegmentNormal(finSet, shapePoints,
+				leadingIndex, (leadingIndex + 1) % shapePoints.length);
+
+		assertTrue(expectedNormal.x < 0.0f, "Leading edge normal should face forwards");
+		assertTrue(Math.abs(expectedNormal.y) > EPSILON,
+				"A swept leading edge should tilt the normal away from a plain -X wall");
+
+		for (Vertex vertex : leadingCapVertices) {
+			assertEquals(expectedNormal.x, vertex.normal.x, EPSILON, "Leading cap should inherit the edge normal");
+			assertEquals(expectedNormal.y, vertex.normal.y, EPSILON, "Leading cap should inherit the edge normal");
+			assertEquals(expectedNormal.z, vertex.normal.z, EPSILON, "Leading cap should inherit the edge normal");
+		}
+	}
+
+	/**
+	 * The caps sit flush against the fin's edge band, which is kept out of the decal mask.
+	 * Tagging them any other way lets a decal paint the fillet ends while the fin edge
+	 * touching them stays clean.
+	 */
+	@Test
+	void filletCapsAreExcludedFromDecals() {
+		BodyTube parent = new BodyTube();
+		parent.setOuterRadius(0.05);
+		parent.setLength(0.5);
+
+		TrapezoidFinSet finSet = new TrapezoidFinSet();
+		finSet.setRootChord(0.20);
+		finSet.setTipChord(0.10);
+		finSet.setSweep(0.04);
+		finSet.setHeight(0.12);
+		finSet.setThickness(0.004);
+		finSet.setFilletRadius(0.006);
+		parent.addChild(finSet);
+
+		int arcSegments = 6;
+		int xSegments = 4;
+		Mesh filletMesh = FinSetGenerator.createFilletMesh(finSet, parent, arcSegments, xSegments, 0, 1, 0, 1);
+		assertNotNull(filletMesh);
+
+		int stripVertexCount = (xSegments + 1) * 2 * (arcSegments + 1);
+		List<Vertex> capVertices = filletMesh.getVertices()
+				.subList(stripVertexCount, filletMesh.getVertices().size());
+		assertEquals(2 * 4 * (arcSegments + 1), capVertices.size(), "Both fillet caps should be present");
+
+		for (Vertex vertex : capVertices) {
+			assertEquals(RenderingConstants.SURFACE_ID_EDGE, vertex.surfaceID,
+					"Fillet caps should carry the fin edge band's surface ID");
+		}
+	}
+
+	/**
 	 * The top of the fillet lies against the fin a little way up the span, where sweep has
 	 * already moved the leading and trailing edges, so it has to end where the fin ends at
 	 * that height rather than where the root chord ends. Backward and forward sweep are both
@@ -225,11 +309,15 @@ class FinSetGeneratorTest extends BaseTestCase {
 	private static Vector3f expectedTrailingEdgeNormal(FinSet finSet, CoordinateIF[] shapePoints, CoordinateIF trailingRootPoint) {
 		int trailingIndex = findMatchingPointIndex(shapePoints, trailingRootPoint);
 		int previousIndex = (trailingIndex - 1 + shapePoints.length) % shapePoints.length;
-		float thickness = (float) finSet.getThickness();
+		return edgeSegmentNormal(finSet, shapePoints, previousIndex, trailingIndex);
+	}
 
-		Vector3f p1Front = new Vector3f((float) shapePoints[previousIndex].getX(), (float) shapePoints[previousIndex].getY(), thickness / 2f);
-		Vector3f p2Front = new Vector3f((float) shapePoints[trailingIndex].getX(), (float) shapePoints[trailingIndex].getY(), thickness / 2f);
-		Vector3f p1Back = new Vector3f((float) shapePoints[previousIndex].getX(), (float) shapePoints[previousIndex].getY(), -thickness / 2f);
+	/** Outward normal of the fin edge band spanning one perimeter segment. */
+	private static Vector3f edgeSegmentNormal(FinSet finSet, CoordinateIF[] shapePoints, int fromIndex, int toIndex) {
+		float thickness = (float) finSet.getThickness();
+		Vector3f p1Front = new Vector3f((float) shapePoints[fromIndex].getX(), (float) shapePoints[fromIndex].getY(), thickness / 2f);
+		Vector3f p2Front = new Vector3f((float) shapePoints[toIndex].getX(), (float) shapePoints[toIndex].getY(), thickness / 2f);
+		Vector3f p1Back = new Vector3f((float) shapePoints[fromIndex].getX(), (float) shapePoints[fromIndex].getY(), -thickness / 2f);
 		return new Vector3f(p2Front).sub(p1Front)
 				.cross(new Vector3f(p1Back).sub(p1Front))
 				.normalize();

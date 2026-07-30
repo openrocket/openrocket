@@ -275,19 +275,21 @@ public class FinSetGenerator {
 		float axialOffset = (float) finSet.getAxialOffset(AxialMethod.TOP);
 		float parentRadius = (float) parent.getRadius(x + axialOffset);
 
-		// The trailing cap sits at the seam where the fillet meets the trailing
-		// edge surface. Aligning its U coordinate and normal with that surface
-		// (perimeter-walk U + edge surface normal) keeps the texture and
-		// shading continuous across the fillet→edge boundary; otherwise the
-		// cap would jump to face-space U=1 and a ±X normal, producing a visible
-		// seam.
+		// Each cap sits at the seam where the fillet meets one of the fin's edge
+		// surfaces: the leading cap against the leading edge band, the trailing cap
+		// against the trailing edge band. Aligning a cap with the band it abuts
+		// (perimeter-walk U + that band's own normal) keeps the texture and shading
+		// continuous across the fillet→edge boundary; left on face-space U and a ±X
+		// normal, the cap shades and unwraps differently from the edge face touching
+		// it, which reads as a seam along the whole join.
 		Vector3f normal = isEndCap ? new Vector3f(1, 0, 0) : new Vector3f(-1, 0, 0);
 		float capUOverride = Float.NaN;
-		if (isEndCap && shapePoints != null && shapePoints.length >= 2) {
-			int trailingIndex = findShapePointIndex(shapePoints, rootPoint);
-			if (trailingIndex >= 0) {
-				capUOverride = perimeterUAt(shapePoints, trailingIndex, globalSpanX);
-				Vector3f edgeNormal = trailingEdgeNormal(shapePoints, trailingIndex, (float) finSet.getThickness());
+		if (shapePoints != null && shapePoints.length >= 2) {
+			int cornerIndex = findShapePointIndex(shapePoints, rootPoint);
+			if (cornerIndex >= 0) {
+				capUOverride = perimeterUAt(shapePoints, cornerIndex, globalSpanX);
+				Vector3f edgeNormal = adjacentEdgeNormal(shapePoints, cornerIndex,
+						(float) finSet.getThickness(), isEndCap);
 				if (edgeNormal != null) {
 					normal = edgeNormal;
 				}
@@ -306,7 +308,7 @@ public class FinSetGenerator {
 			float filletU = Float.isNaN(capUOverride) ? (filletPos.x - globalMinX) / globalSpanX : capUOverride;
 			Vector2f filletUV = new Vector2f(filletU, (filletPos.y - globalMinY) / globalSpanY);
 			filletEdge.add(vertices.size());
-			vertices.add(new Vertex(filletPos, normal, filletUV, 0));
+			vertices.add(new Vertex(filletPos, normal, filletUV, RenderingConstants.SURFACE_ID_EDGE));
 
 			// Create the corresponding root vertex on the parent body
 			float z_fillet = filletPos.z;
@@ -317,7 +319,7 @@ public class FinSetGenerator {
 			float rootU = Float.isNaN(capUOverride) ? (x - globalMinX) / globalSpanX : capUOverride;
 			rootEdge.add(vertices.size());
 			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal,
-					new Vector2f(rootU, (y_new - globalMinY) / globalSpanY), 0));
+					new Vector2f(rootU, (y_new - globalMinY) / globalSpanY), RenderingConstants.SURFACE_ID_EDGE));
 		}
 
 		// Right side of fillet and root
@@ -328,7 +330,7 @@ public class FinSetGenerator {
 			float filletU = Float.isNaN(capUOverride) ? (filletPos.x - globalMinX) / globalSpanX : capUOverride;
 			Vector2f filletUV = new Vector2f(filletU, (filletPos.y - globalMinY) / globalSpanY);
 			filletEdge.add(vertices.size());
-			vertices.add(new Vertex(filletPos, normal, filletUV, 0));
+			vertices.add(new Vertex(filletPos, normal, filletUV, RenderingConstants.SURFACE_ID_EDGE));
 
 			// Create the corresponding root vertex on the parent body
 			float z_fillet = filletPos.z;
@@ -339,7 +341,7 @@ public class FinSetGenerator {
 			float rootU = Float.isNaN(capUOverride) ? (x - globalMinX) / globalSpanX : capUOverride;
 			rootEdge.add(vertices.size());
 			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal,
-					new Vector2f(rootU, (y_new - globalMinY) / globalSpanY), 0));
+					new Vector2f(rootU, (y_new - globalMinY) / globalSpanY), RenderingConstants.SURFACE_ID_EDGE));
 		}
 
 		// Triangulate the left cap
@@ -452,29 +454,46 @@ public class FinSetGenerator {
 		return -1;
 	}
 
+	/**
+	 * Distance walked around the fin perimeter to reach a given outline point, in the same
+	 * units the edge band uses for its U coordinate: the band starts each segment at the
+	 * length accumulated before it, so the first point of the walk sits at U = 0.
+	 */
 	private static float perimeterUAt(CoordinateIF[] shapePoints, int targetIndex, float spanX) {
 		float accumulated = 0f;
-		for (int i = 0; i < shapePoints.length; i++) {
+		for (int i = 0; i < targetIndex && i < shapePoints.length; i++) {
 			int end = (i + 1) % shapePoints.length;
 			float dx = (float) (shapePoints[end].getX() - shapePoints[i].getX());
 			float dy = (float) (shapePoints[end].getY() - shapePoints[i].getY());
-			float segLen = (float) Math.sqrt(dx * dx + dy * dy);
-			if (end == targetIndex) {
-				return (accumulated + segLen) / spanX;
-			}
-			accumulated += segLen;
+			accumulated += (float) Math.sqrt(dx * dx + dy * dy);
 		}
 		return accumulated / spanX;
 	}
 
-	private static Vector3f trailingEdgeNormal(CoordinateIF[] shapePoints, int trailingIndex, float thickness) {
-		int prevIndex = (trailingIndex - 1 + shapePoints.length) % shapePoints.length;
+	/**
+	 * Normal of the fin edge band that meets the fillet at a root corner, built the same way
+	 * the band builds its own so the two shade identically where they touch.
+	 *
+	 * @param cornerIndex   outline index of the root corner the cap sits at
+	 * @param incomingEdge  {@code true} at the trailing corner, where the adjacent edge
+	 *                      segment arrives at the corner; {@code false} at the leading
+	 *                      corner, where it leaves
+	 */
+	private static Vector3f adjacentEdgeNormal(CoordinateIF[] shapePoints, int cornerIndex,
+											   float thickness, boolean incomingEdge) {
+		int fromIndex = incomingEdge
+				? (cornerIndex - 1 + shapePoints.length) % shapePoints.length
+				: cornerIndex;
+		int toIndex = incomingEdge
+				? cornerIndex
+				: (cornerIndex + 1) % shapePoints.length;
+
 		Vector3f p1Front = new Vector3f(
-				(float) shapePoints[prevIndex].getX(), (float) shapePoints[prevIndex].getY(), thickness / 2f);
+				(float) shapePoints[fromIndex].getX(), (float) shapePoints[fromIndex].getY(), thickness / 2f);
 		Vector3f p2Front = new Vector3f(
-				(float) shapePoints[trailingIndex].getX(), (float) shapePoints[trailingIndex].getY(), thickness / 2f);
+				(float) shapePoints[toIndex].getX(), (float) shapePoints[toIndex].getY(), thickness / 2f);
 		Vector3f p1Back = new Vector3f(
-				(float) shapePoints[prevIndex].getX(), (float) shapePoints[prevIndex].getY(), -thickness / 2f);
+				(float) shapePoints[fromIndex].getX(), (float) shapePoints[fromIndex].getY(), -thickness / 2f);
 		Vector3f edge = new Vector3f(p2Front).sub(p1Front);
 		Vector3f normal = edge.cross(new Vector3f(p1Back).sub(p1Front));
 		if (normal.lengthSquared() < NORMAL_LENGTH_SQUARED_EPSILON) {
