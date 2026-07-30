@@ -141,6 +141,18 @@ subprojects {
         useJUnitPlatform()
         finalizedBy jacocoTestReport
 
+        // The 3D tests drive real OpenGL contexts, so a failure there can be a native crash
+        // that takes the test JVM down rather than a failing assertion. Gradle reports only
+        // "finished with non-zero exit value 134"; the one record of what actually happened
+        // is the JVM's own hs_err_pid<pid>.log, which lands in the module directory where it
+        // is easily overlooked or cleaned away before anyone reads it. Keep those next to the
+        // rest of the test output so a crash that reproduces once is still diagnosable.
+        def crashReportDir = layout.buildDirectory.dir('test-crash-reports').get().asFile
+        doFirst {
+            crashReportDir.mkdirs()
+        }
+        jvmArgs "-XX:ErrorFile=${crashReportDir}/hs_err_pid%p.log"
+
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
             exceptionFormat = 'full'
