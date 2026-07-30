@@ -24,6 +24,7 @@ import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import org.joml.Vector4f;
+import org.lwjgl.opengl.ARBRobustness;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
@@ -206,6 +207,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final long MIN_HUD_PAINT_INTERVAL_MS = 66;
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
+	// Only Windows both loses contexts often enough to matter and supports
+	// WGL_ARB_create_context_robustness across all three vendors, so the request is limited
+	// to it: a driver that rejects the attribute would fail context creation outright, and
+	// losing the 3D view entirely is worse than losing the diagnostic.
+	// openrocket.figure3d.disableRobustContext turns it off if a driver does object.
+	private static final boolean REQUEST_ROBUST_CONTEXT =
+			SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS
+					&& !Boolean.getBoolean("openrocket.figure3d.disableRobustContext");
 	private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
 	private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
 	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
@@ -249,6 +258,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final long CLEANUP_RENDER_LOCK_TIMEOUT_MS = 2000;
 	// LWJGL capabilities are thread-local; store per-canvas so we can render multiple canvases on one thread.
 	private volatile GLCapabilities glCapabilities;
+	// Whether this context can report driver resets, and whether one has already been seen.
+	private volatile boolean robustnessAvailable = false;
+	private volatile boolean graphicsResetDetected = false;
 
 	private final Rocket rocket;
 	private final boolean peerBoundsSyncEnabled;
@@ -504,6 +516,40 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public void setGlInitFailureCallback(Runnable callback) {
 		this.glInitFailureCallback = callback;
+	}
+
+	/**
+	 * Checks whether the driver has reset the graphics context underneath us, which on Windows
+	 * happens when the GPU watchdog fires, when the display driver is replaced, and on some
+	 * sleep/resume paths. Every GL call after a reset has undefined behaviour and typically
+	 * takes the process down without a Java-level trace, so the first thing a frame does is
+	 * ask. A reset is reported once and then handed to the canvas-rebuild recovery that
+	 * already exists for a dead context.
+	 *
+	 * @return {@code true} if the context is gone and this frame must not touch GL
+	 */
+	private boolean hasGraphicsContextBeenReset() {
+		if (!robustnessAvailable || graphicsResetDetected) {
+			return graphicsResetDetected;
+		}
+
+		int status = ARBRobustness.glGetGraphicsResetStatusARB();
+		if (status == org.lwjgl.opengl.GL11.GL_NO_ERROR) {
+			return false;
+		}
+
+		graphicsResetDetected = true;
+		glInitialized = false;
+		log.error("The graphics driver reset the OpenGL context (status 0x{}). This is usually the "
+						+ "GPU watchdog recovering from a hung or overlong draw, a display driver update, "
+						+ "or a resume from sleep. Rebuilding the 3D canvas. Panel state: {}",
+				Integer.toHexString(status), getDebugStateSummary());
+
+		Runnable callback = blankDefaultFramebufferCallback;
+		if (callback != null) {
+			callback.run();
+		}
+		return true;
 	}
 
 	private void markRenderActivity() {
@@ -977,6 +1023,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		data.sRGB = true;
 		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
 		data.swapInterval = 0;
+		if (REQUEST_ROBUST_CONTEXT) {
+			// Windows resets the graphics context when the driver's watchdog fires, when the
+			// display driver is updated, and on some sleep/resume paths. Without robustness
+			// there is no way to notice: every later GL call goes into a dead context and the
+			// process dies with nothing in the log. With it, glGetGraphicsResetStatus reports
+			// the reset and the canvas can be rebuilt instead.
+			data.robustness = true;
+			data.loseContextOnReset = true;
+		}
 		return data;
 	}
 
@@ -1052,6 +1107,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		INIT_SEMAPHORE.acquireUninterruptibly();
 		try {
 			glCapabilities = GL.createCapabilities();
+			robustnessAvailable = glCapabilities.GL_ARB_robustness;
+			graphicsResetDetected = false;
+			if (REQUEST_ROBUST_CONTEXT && !robustnessAvailable) {
+				log.info("Robust context requested but ARB_robustness is unavailable; "
+						+ "a driver reset will not be reported.");
+			}
 			GLDebug.enableIfRequested("AWT-canvas");
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
@@ -1341,6 +1402,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		boolean startupFrameVisible = false;
 		try {
 			if (scene3DOrchestrator == null) {
+				return;
+			}
+
+			if (hasGraphicsContextBeenReset()) {
 				return;
 			}
 
