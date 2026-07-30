@@ -191,62 +191,39 @@ public class FinSetGenerator {
 				float z_r    = z_center_r - filletRadius * (float) Math.cos(theta); // right wall
 				float z_l    = z_center_l + filletRadius * (float) Math.cos(theta); // left wall
 
-				// --- Clamp X to fin span at this Y for ALL rings except the base (j==filletSegments) ---
-				float clampedX = currentX;
+				// --- Place this ring across the fin's own extent at its height ---
+				// The fillet is swept along the root chord, but every ring above the base lies
+				// against the fin some way up the span, where sweep has already moved the
+				// leading and trailing edges. Keeping all the rings on the root chord's X range
+				// let the top of the fillet run past the edge of the fin, leaving it hanging
+				// over the body with nothing to blend into. The artefact is worst where the fin
+				// meets the body at an acute angle, since that is where the edge travels
+				// furthest per unit of height. Spreading each ring over the planform's own span
+				// at its Y instead makes the top of the fillet end exactly where the fin does.
+				// The base ring sits fractionally below the root plane, following the body's
+				// curvature away from the fin, so there is no planform to sample there and it
+				// keeps the root chord.
+				float ringX = currentX;
 				if (j < filletSegments) {
-					float yRow = y_ring;
-
-					float xMin = Float.POSITIVE_INFINITY;
-					float xMax = Float.NEGATIVE_INFINITY;
-					boolean hadHorizontal = false;
-					int hits = 0;
-
-					for (int k = 0; k < shapePoints.length; k++) {
-						CoordinateIF a = shapePoints[k];
-						CoordinateIF b = shapePoints[(k + 1) % shapePoints.length];
-						double ya = a.getY(), yb = b.getY();
-
-						double ylo = Math.min(ya, yb) - PLANFORM_INTERSECTION_EPSILON;
-						double yhi = Math.max(ya, yb) + PLANFORM_INTERSECTION_EPSILON;
-						if (yRow < ylo || yRow > yhi) continue;
-
-						if (Math.abs(ya - yb) < PLANFORM_INTERSECTION_EPSILON) {
-							hadHorizontal = true;
-							float xa = (float) a.getX(), xb = (float) b.getX();
-							xMin = Math.min(xMin, Math.min(xa, xb));
-							xMax = Math.max(xMax, Math.max(xa, xb));
-						} else {
-							double te = (yRow - ya) / (yb - ya);
-							if (te >= -PLANFORM_INTERSECTION_EPSILON && te <= 1.0 + PLANFORM_INTERSECTION_EPSILON) {
-								float xHit = (float) (a.getX() + te * (b.getX() - a.getX()));
-								xMin = Math.min(xMin, xHit);
-								xMax = Math.max(xMax, xHit);
-								hits++;
-							}
-						}
+					float[] finSpan = planformSpanAtY(shapePoints, y_ring);
+					if (finSpan != null) {
+						ringX = finSpan[0] + t * (finSpan[1] - finSpan[0]);
 					}
-
-					boolean spanOK = (hadHorizontal || hits >= 2) && (xMax - xMin) > PLANFORM_SPAN_EPSILON
-							&& Float.isFinite(xMin) && Float.isFinite(xMax);
-					if (spanOK) {
-						if (clampedX < xMin) clampedX = xMin;
-						else if (clampedX > xMax) clampedX = xMax;
-					}
-					// else: Y outside fin -> skip clamp (prevents collapsing to x=0)
+					// else: Y outside the fin -> keep the root chord X
 				}
 
 				// Project UV from fin planform space: same axes as the fin face UVs
-				float uv_u = (clampedX - globalMinX) / globalSpanX;
-				float uv_v = (y_ring   - globalMinY) / globalSpanY;
+				float uv_u = (ringX  - globalMinX) / globalSpanX;
+				float uv_v = (y_ring - globalMinY) / globalSpanY;
 
 				// Right vertex
-				Vector3f pos_r = new Vector3f(clampedX, y_ring, z_r);
+				Vector3f pos_r = new Vector3f(ringX, y_ring, z_r);
 				Vector3f nrm_r = new Vector3f(0, y_center - y_ring, z_center_r - z_r).normalize();
 				grid[i][j] = vertices.size();
 				vertices.add(new Vertex(pos_r, nrm_r, new Vector2f(uv_u, uv_v), 0));
 
 				// Left vertex
-				Vector3f pos_l = new Vector3f(clampedX, y_ring, z_l);
+				Vector3f pos_l = new Vector3f(ringX, y_ring, z_l);
 				Vector3f nrm_l = new Vector3f(0, y_center - y_ring, z_center_l - z_l).normalize();
 				grid[i][j + filletSegments + 1] = vertices.size();
 				vertices.add(new Vertex(pos_l, nrm_l, new Vector2f(uv_u, uv_v), 0));
@@ -416,6 +393,52 @@ public class FinSetGenerator {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Finds how far the fin planform reaches along X at a given spanwise Y, by intersecting
+	 * the perimeter with the horizontal line at that height.
+	 *
+	 * @param shapePoints the closed fin (and tab) outline, in fin-local X/Y
+	 * @param y           the spanwise height to sample
+	 * @return {@code {xMin, xMax}} at that height, or {@code null} when Y lies outside the
+	 *         planform or the section is too short to place anything against
+	 */
+	private static float[] planformSpanAtY(CoordinateIF[] shapePoints, float y) {
+		float xMin = Float.POSITIVE_INFINITY;
+		float xMax = Float.NEGATIVE_INFINITY;
+		boolean hadHorizontal = false;
+		int hits = 0;
+
+		for (int k = 0; k < shapePoints.length; k++) {
+			CoordinateIF a = shapePoints[k];
+			CoordinateIF b = shapePoints[(k + 1) % shapePoints.length];
+			double ya = a.getY(), yb = b.getY();
+
+			double ylo = Math.min(ya, yb) - PLANFORM_INTERSECTION_EPSILON;
+			double yhi = Math.max(ya, yb) + PLANFORM_INTERSECTION_EPSILON;
+			if (y < ylo || y > yhi) continue;
+
+			if (Math.abs(ya - yb) < PLANFORM_INTERSECTION_EPSILON) {
+				// A horizontal edge lies along the sample line, so it bounds the section itself.
+				hadHorizontal = true;
+				float xa = (float) a.getX(), xb = (float) b.getX();
+				xMin = Math.min(xMin, Math.min(xa, xb));
+				xMax = Math.max(xMax, Math.max(xa, xb));
+			} else {
+				double te = (y - ya) / (yb - ya);
+				if (te >= -PLANFORM_INTERSECTION_EPSILON && te <= 1.0 + PLANFORM_INTERSECTION_EPSILON) {
+					float xHit = (float) (a.getX() + te * (b.getX() - a.getX()));
+					xMin = Math.min(xMin, xHit);
+					xMax = Math.max(xMax, xHit);
+					hits++;
+				}
+			}
+		}
+
+		boolean spanOK = (hadHorizontal || hits >= 2) && (xMax - xMin) > PLANFORM_SPAN_EPSILON
+				&& Float.isFinite(xMin) && Float.isFinite(xMax);
+		return spanOK ? new float[]{xMin, xMax} : null;
 	}
 
 	private static int findShapePointIndex(CoordinateIF[] shapePoints, CoordinateIF target) {

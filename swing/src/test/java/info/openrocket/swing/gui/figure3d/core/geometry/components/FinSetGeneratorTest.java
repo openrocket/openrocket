@@ -111,6 +111,76 @@ class FinSetGeneratorTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * The top of the fillet lies against the fin a little way up the span, where sweep has
+	 * already moved the leading and trailing edges, so it has to end where the fin ends at
+	 * that height rather than where the root chord ends. Backward and forward sweep are both
+	 * checked: a forward-swept edge needs the fillet to reach further than the root chord,
+	 * which the earlier clamp-only placement could not do at all.
+	 */
+	@Test
+	void filletTopEndsAtTheFinEdgeAtItsOwnHeight() {
+		for (double sweep : new double[]{0.04, 0.0, -0.04}) {
+			double rootChord = 0.20;
+			double tipChord = 0.10;
+			double height = 0.12;
+
+			BodyTube parent = new BodyTube();
+			parent.setOuterRadius(0.05);
+			parent.setLength(0.5);
+
+			TrapezoidFinSet finSet = new TrapezoidFinSet();
+			finSet.setRootChord(rootChord);
+			finSet.setTipChord(tipChord);
+			finSet.setSweep(sweep);
+			finSet.setHeight(height);
+			finSet.setThickness(0.004);
+			finSet.setFilletRadius(0.006);
+			parent.addChild(finSet);
+
+			int arcSegments = 6;
+			int xSegments = 4;
+			Mesh fillet = FinSetGenerator.createFilletMesh(finSet, parent, arcSegments, xSegments, 0, 1, 0, 1);
+			assertNotNull(fillet);
+
+			// Ring 0 is the top of the fillet, where it meets the fin; ring arcSegments is its
+			// base on the body. Each (i, ring) pair emits a right vertex then a left vertex.
+			float topY = ringVertex(fillet, arcSegments, 0, 0).y;
+			float[] topSpan = ringXSpan(fillet, arcSegments, xSegments, 0);
+			float[] baseSpan = ringXSpan(fillet, arcSegments, xSegments, arcSegments);
+
+			// Straight leading and trailing edges running from the root corners to the tip.
+			double expectedLeading = sweep / height * topY;
+			double expectedTrailing = rootChord + (sweep + tipChord - rootChord) / height * topY;
+
+			assertEquals(expectedLeading, topSpan[0], EPSILON,
+					"Fillet top should start at the fin's leading edge at its own height (sweep " + sweep + ")");
+			assertEquals(expectedTrailing, topSpan[1], EPSILON,
+					"Fillet top should end at the fin's trailing edge at its own height (sweep " + sweep + ")");
+
+			CoordinateIF[] rootPoints = finSet.getRootPoints();
+			assertEquals(rootPoints[0].getX(), baseSpan[0], EPSILON,
+					"Fillet base should still start at the root chord (sweep " + sweep + ")");
+			assertEquals(rootPoints[rootPoints.length - 1].getX(), baseSpan[1], EPSILON,
+					"Fillet base should still end at the root chord (sweep " + sweep + ")");
+		}
+	}
+
+	private static Vector3f ringVertex(Mesh fillet, int arcSegments, int xIndex, int ring) {
+		return fillet.getVertices().get((xIndex * (arcSegments + 1) + ring) * 2).position;
+	}
+
+	private static float[] ringXSpan(Mesh fillet, int arcSegments, int xSegments, int ring) {
+		float minX = Float.POSITIVE_INFINITY;
+		float maxX = Float.NEGATIVE_INFINITY;
+		for (int i = 0; i <= xSegments; i++) {
+			float x = ringVertex(fillet, arcSegments, i, ring).x;
+			minX = Math.min(minX, x);
+			maxX = Math.max(maxX, x);
+		}
+		return new float[]{minX, maxX};
+	}
+
 	@Test
 	void triangulatesFinWithCoincidentPlanformPoints() {
 		BodyTube parent = new BodyTube();
