@@ -664,12 +664,11 @@ public class RealisticRenderer implements GLRenderer {
 				selectionColor.z, selectionColor.w);
 
 		glUniform1f(mainShaderUniforms.ambientLightFactor, config.getVisualEffects().getAmbientLightFactor());
-		// The roughness bump is the most expensive thing the fragment shader does, and it is
-		// fine surface detail that reads as noise while the view is moving anyway. Suspending
-		// it during interaction follows the same reasoning as the shadow map above, and cuts
-		// the per-fragment cost of a drag or a zoom by most of its shading work. The first
-		// idle frame restores it.
-		boolean roughnessBump = config.getQuality().isRoughnessBumpEnabled() && !interactionMode;
+		// The roughness bump is the most expensive thing the fragment shader does, so it is
+		// suspended during interaction along with the shadow map and the post-processing
+		// passes — but only when the user has asked for that, since dropping it is a visible
+		// change to the surface rather than a free one. The first idle frame restores it.
+		boolean roughnessBump = config.getQuality().isRoughnessBumpEnabled() && !shouldReduceInteractionEffects();
 		glUniform1i(mainShaderUniforms.enableRoughnessBump, roughnessBump ? 1 : 0);
 	}
 	
