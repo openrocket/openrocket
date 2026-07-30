@@ -36,6 +36,7 @@ import info.openrocket.swing.gui.main.SwingExceptionHandler;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.logging.JvmCrashLog;
 import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.logging.PrintStreamToSLF4J;
 import info.openrocket.core.plugin.PluginModule;
@@ -73,6 +74,11 @@ public class SwingStartup {
 		// Initialize logging first so we can use it
 		initializeLogging();
 		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
+
+		// A fatal native error kills the process without reaching Java, leaving only the
+		// JVM's own crash report somewhere the user will never look. File it next to the
+		// rest of OpenRocket's data so it can actually be attached to a bug report.
+		JvmCrashLog.collectCrashLogs();
 
 		// Check JRE version
 		boolean ignoreJRE = System.getProperty("openrocket.ignore-jre") != null;
