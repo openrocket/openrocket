@@ -102,6 +102,33 @@ public final class GpuResourceTracker {
 	}
 
 	/**
+	 * Number of resources of one type that have been registered and not released.
+	 *
+	 * @param type resource category
+	 * @return the live count, or 0 for an unknown type
+	 */
+	public static int liveCount(ResourceType type) {
+		if (type == null) {
+			return 0;
+		}
+		return LIVE_RESOURCES.get(type).size();
+	}
+
+	/**
+	 * Total number of registered-and-not-released resources across every type. A count that
+	 * climbs while the scene is unchanged is a leak: rendering a frame should not allocate.
+	 *
+	 * @return the total live count
+	 */
+	public static int liveCount() {
+		int total = 0;
+		for (Map<Integer, ResourceRecord> map : LIVE_RESOURCES.values()) {
+			total += map.size();
+		}
+		return total;
+	}
+
+	/**
 	 * Clears all tracking data. Useful for tests.
 	 */
 	public static void reset() {

@@ -73,10 +73,13 @@ public class GLRenderableMesh implements Renderable {
 		this.indexCount = mesh.getIndices().size();
 
 		vertexArrayObjectId = GL33.glGenVertexArrays();
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayObjectId, "mesh vao");
 		GL33.glBindVertexArray(vertexArrayObjectId);
 
 		vertexBufferObjectId = uploadVertexBuffer(vertexBuffer);
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vertexBufferObjectId, "mesh vbo");
 		elementBufferObjectId = uploadElementBuffer(indexBuffer);
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, elementBufferObjectId, "mesh ebo");
 		configureVertexAttributes();
 
 		GL33.glBindVertexArray(0);
@@ -192,6 +195,7 @@ public class GLRenderableMesh implements Renderable {
 		sortedIndexBuffer = MemoryUtil.memAllocInt(sortedIndices.size());
 
 		sortedElementBufferObjectId = GL33.glGenBuffers();
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, sortedElementBufferObjectId, "mesh sorted ebo");
 		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
 		GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, (long) sortedIndices.size() * Integer.BYTES, GL33.GL_DYNAMIC_DRAW);
 		sortedIndicesDirty = true;
@@ -247,11 +251,15 @@ public class GLRenderableMesh implements Renderable {
 	 */
     @Override
     public void cleanup() {
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vertexBufferObjectId);
 		GL33.glDeleteBuffers(vertexBufferObjectId);
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, elementBufferObjectId);
 		GL33.glDeleteBuffers(elementBufferObjectId);
 		if (sortedElementBufferObjectId != 0) {
+			GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, sortedElementBufferObjectId);
 			GL33.glDeleteBuffers(sortedElementBufferObjectId);
 		}
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayObjectId);
 		GL33.glDeleteVertexArrays(vertexArrayObjectId);
 		if (sortedIndexBuffer != null) {
 			MemoryUtil.memFree(sortedIndexBuffer);

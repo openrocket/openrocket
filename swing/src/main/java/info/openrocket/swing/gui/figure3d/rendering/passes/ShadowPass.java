@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import info.openrocket.swing.gui.figure3d.scene.core.Light;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
@@ -398,10 +399,12 @@ public class ShadowPass implements RenderPass {
     @Override
     public void cleanup() {
         if (depthMapFbo != 0) {
+            GpuResourceTracker.release(GpuResourceTracker.ResourceType.FRAMEBUFFER, depthMapFbo);
             glDeleteFramebuffers(depthMapFbo);
             depthMapFbo = 0;
         }
         if (depthMapTexture != 0) {
+            GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, depthMapTexture);
             TextureStateManager.evictDeletedTexture(depthMapTexture);
             glDeleteTextures(depthMapTexture);
             depthMapTexture = 0;
@@ -436,7 +439,10 @@ public class ShadowPass implements RenderPass {
         cleanup();
 
         depthMapFbo = GL33.glGenFramebuffers();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.FRAMEBUFFER, depthMapFbo, "shadow map fbo");
         depthMapTexture = GL33.glGenTextures();
+        GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, depthMapTexture,
+                "shadow map " + shadowMapSize + "x" + shadowMapSize);
         GL33.glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         GL33.glTexImage2D(GL_TEXTURE_2D, 0, GL33.GL_DEPTH_COMPONENT24, shadowMapSize, shadowMapSize, 0,
                 GL33.GL_DEPTH_COMPONENT, GL_FLOAT, (java.nio.ByteBuffer) null);
