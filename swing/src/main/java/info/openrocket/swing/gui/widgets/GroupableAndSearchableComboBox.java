@@ -21,9 +21,12 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.MenuSelectionManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -247,6 +250,10 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 		public void mouseEntered(MouseEvent e) {
 			super.mouseEntered(e);
 			SwingUtilities.invokeLater(() -> {
+				// A queued hover event can run after the parent popup has already closed.
+				if (ownMenu != null && !ownMenu.isShowing()) {
+					return;
+				}
 				for (JMenu groupMenu : groupMenus) {
 					if (groupMenu != ownMenu) {
 						groupMenu.setSelected(false);
@@ -264,6 +271,22 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	private JPopupMenu createGroupsPopup() {
 		final JPopupMenu menu = new JPopupMenu();
 		final List<JMenu> groupMenus = new ArrayList<>();
+		menu.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				// No action is required when the parent popup opens.
+			}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+				hideGroupSubmenus(menu);
+			}
+
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) {
+				hideGroupSubmenus(menu);
+			}
+		});
 
 		// Add the search field at the top
 		menu.add(searchFieldGroups);
@@ -360,13 +383,34 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 	private void showGroupsPopup() {
+		// Clear any submenu left selected by a different combo box before opening this popup.
+		MenuSelectionManager.defaultManager().clearSelectedPath();
+		hideGroupSubmenus(groupsPopup);
 		groupsPopup.show(this, 0, getHeight());
 		searchFieldSearch.setText("");
 		searchFieldGroups.setText("");
 	}
 
 	private void hideGroupsPopup() {
+		hideGroupSubmenus(groupsPopup);
 		groupsPopup.setVisible(false);
+	}
+
+	/**
+	 * Closes and deselects every group submenu owned by a combo box popup.
+	 *
+	 * @param popup the parent popup containing the group menus
+	 */
+	static void hideGroupSubmenus(JPopupMenu popup) {
+		if (popup == null) {
+			return;
+		}
+		for (Component component : popup.getComponents()) {
+			if (component instanceof JMenu groupMenu) {
+				groupMenu.setPopupMenuVisible(false);
+				groupMenu.setSelected(false);
+			}
+		}
 	}
 
 	private void showSearchPopup() {
@@ -715,4 +759,3 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 }
-
