@@ -573,12 +573,14 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * @return the propulsive part of the damping moment coefficient
 		 */
 		private double computePropulsiveDampingMomentCoefficient(SimulationStatus status, FlightDataBranch dataBranch) {
-			// mdot := d(motor mass)/dt, estimated using the last two stored points.
-			// Avoids reaching into motor internals.
-			double mdot = computeMotorMassDerivative(dataBranch);
-			if (Double.isNaN(mdot)) {
+			double motorMassDerivative = computeMotorMassDerivative(dataBranch);
+			if (Double.isNaN(motorMassDerivative)) {
 				return 0;
 			}
+
+			// The damping equation uses the positive mass-expulsion rate, while the remaining motor mass
+			// decreases during the burn. Therefore, massExpulsionRate = -d(motor mass)/dt.
+			double massExpulsionRate = -motorMassDerivative;
 
 			double cg = rocketMass.getCM().getX();
 
@@ -592,7 +594,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				}
 			}
 
-			return mdot * MathUtil.pow2(nozzleDistance - cg);
+			return massExpulsionRate * MathUtil.pow2(nozzleDistance - cg);
 		}
 
 		/**
