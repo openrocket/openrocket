@@ -86,6 +86,7 @@ public class DampingMomentCoefficientTest extends BaseTestCase {
 			}
 
 			assertEquals(t, a + p, SUM_TOLERANCE);
+			assertTrue(p >= 0.0, "Propulsive damping moment coefficient should not be negative");
 			foundNonZeroAerodynamic |= Math.abs(a) > NON_ZERO_THRESHOLD;
 			foundNonZeroPropulsive |= Math.abs(p) > NON_ZERO_THRESHOLD;
 		}
@@ -94,4 +95,3 @@ public class DampingMomentCoefficientTest extends BaseTestCase {
 		assertTrue(foundNonZeroPropulsive, "Expected at least one non-zero propulsive contribution");
 	}
 }
-
