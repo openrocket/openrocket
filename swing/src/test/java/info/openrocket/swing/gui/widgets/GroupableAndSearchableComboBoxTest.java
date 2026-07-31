@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.widgets;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,23 +9,32 @@ import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
+import javax.swing.MenuElement;
+import javax.swing.MenuSelectionManager;
 import javax.swing.SwingUtilities;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests the popup lifecycle of {@link GroupableAndSearchableComboBox}.
  */
 public class GroupableAndSearchableComboBoxTest {
+	@AfterEach
+	public void clearMenuSelectionPath() {
+		MenuSelectionManager.defaultManager().clearSelectedPath();
+	}
 
 	/**
 	 * A hover callback queued before the parent popup closes must not reopen its submenu afterward.
 	 */
 	@Test
 	public void testDelayedHoverDoesNotReopenHiddenSubmenu() throws Exception {
+		JPopupMenu parentPopup = new JPopupMenu();
 		TrackingMenu groupMenu = new TrackingMenu();
+		parentPopup.add(groupMenu);
 		GroupableAndSearchableComboBox.DeselectMenuListener listener =
-				new GroupableAndSearchableComboBox.DeselectMenuListener(List.of(groupMenu), groupMenu);
+				new GroupableAndSearchableComboBox.DeselectMenuListener(parentPopup, List.of(groupMenu), groupMenu);
 
 		listener.mouseEntered(new MouseEvent(groupMenu, MouseEvent.MOUSE_ENTERED, 0, 0, 0, 0, 0, false));
 		SwingUtilities.invokeAndWait(() -> {
@@ -63,10 +73,12 @@ public class GroupableAndSearchableComboBoxTest {
 	 */
 	@Test
 	public void testHoverOpensVisibleSubmenu() throws Exception {
+		JPopupMenu parentPopup = new JPopupMenu();
 		TrackingMenu groupMenu = new TrackingMenu();
+		parentPopup.add(groupMenu);
 		groupMenu.setShowing(true);
 		GroupableAndSearchableComboBox.DeselectMenuListener listener =
-				new GroupableAndSearchableComboBox.DeselectMenuListener(List.of(groupMenu), groupMenu);
+				new GroupableAndSearchableComboBox.DeselectMenuListener(parentPopup, List.of(groupMenu), groupMenu);
 
 		listener.mouseEntered(new MouseEvent(groupMenu, MouseEvent.MOUSE_ENTERED, 0, 0, 0, 0, 0, false));
 		SwingUtilities.invokeAndWait(() -> {
@@ -75,6 +87,8 @@ public class GroupableAndSearchableComboBoxTest {
 
 		assertTrue(groupMenu.isSelected());
 		assertTrue(groupMenu.isPopupMenuVisible());
+		assertArrayEquals(new MenuElement[] { parentPopup, groupMenu, groupMenu.getPopupMenu() },
+				MenuSelectionManager.defaultManager().getSelectedPath());
 	}
 
 	/** JMenu test double that does not require a visible native window. */

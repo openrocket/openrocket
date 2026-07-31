@@ -21,6 +21,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.MenuElement;
 import javax.swing.MenuSelectionManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
@@ -238,10 +239,12 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 	static class DeselectMenuListener extends MouseAdapter {
+		final JPopupMenu parentPopup;
 		final List<JMenu> groupMenus;
 		final JMenu ownMenu;
 
-		DeselectMenuListener(List<JMenu> groupMenus, JMenu ownMenu) {
+		DeselectMenuListener(JPopupMenu parentPopup, List<JMenu> groupMenus, JMenu ownMenu) {
+			this.parentPopup = parentPopup;
 			this.groupMenus = groupMenus;
 			this.ownMenu = ownMenu;
 		}
@@ -263,6 +266,13 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 				if (ownMenu != null) {
 					ownMenu.setSelected(true);
 					ownMenu.setPopupMenuVisible(true);
+					// Register the submenu as part of the active hierarchy so a quick pointer transition into it does not
+					// cancel the parent popup.
+					MenuSelectionManager.defaultManager().setSelectedPath(new MenuElement[] {
+							parentPopup, ownMenu, ownMenu.getPopupMenu()
+					});
+				} else if (parentPopup.isVisible()) {
+					MenuSelectionManager.defaultManager().setSelectedPath(new MenuElement[] { parentPopup });
 				}
 			});
 		}
@@ -290,7 +300,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 
 		// Add the search field at the top
 		menu.add(searchFieldGroups);
-		searchFieldGroups.addMouseListener(new DeselectMenuListener(groupMenus, null));
+		searchFieldGroups.addMouseListener(new DeselectMenuListener(menu, groupMenus, null));
 		menu.addSeparator();
 
 		// Fill the menu with the groups
@@ -318,14 +328,14 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 
 			groupMenus.add(groupMenu);
 			menu.add(groupMenu);
-			groupMenu.addMouseListener(new DeselectMenuListener(groupMenus, groupMenu));
+			groupMenu.addMouseListener(new DeselectMenuListener(menu, groupMenus, groupMenu));
 		}
 
 		// Extra widgets
 		if (extraGroupPopupWidgets != null) {
 			for (Component widget : extraGroupPopupWidgets) {
 				menu.add(widget);
-				widget.addMouseListener(new DeselectMenuListener(groupMenus, null));
+				widget.addMouseListener(new DeselectMenuListener(menu, groupMenus, null));
 			}
 		}
 
