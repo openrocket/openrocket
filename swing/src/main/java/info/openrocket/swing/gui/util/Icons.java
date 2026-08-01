@@ -354,7 +354,10 @@ public class Icons {
 			));
 	public static final Icon PAN_VIEW = loadSvgIcon(
 			"pix/icons/lucide/move.svg",
-			"Pan view");
+			"Pan view",
+			Map.of(
+					SVG_THEME_COLOR_RGB, "OR.colors.purple"
+			));
 
 	public static final Icon RULER = loadIcon(
 			"pix/icons/lucide/ruler-dimension-line.svg",
