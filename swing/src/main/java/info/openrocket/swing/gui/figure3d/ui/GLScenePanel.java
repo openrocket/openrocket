@@ -47,6 +47,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.geom.AffineTransform;
 import java.awt.event.ComponentAdapter;
@@ -59,7 +60,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -172,10 +172,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private ByteBuffer presentReadbackBuffer;
 	private volatile boolean presentedImageHasContent = false;
 	private volatile boolean nativeGLLayerHidden = false;
-	// The strategy's surface outlives the canvas being hidden (macOS heavyweights
-	// share the window surface), so it is disposed on hide and recreated on the
-	// next presented frame; see handleShowingChanged().
-	private volatile BufferStrategy presentStrategy;
+	private final Object presentLock = new Object();
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -207,6 +204,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final long MIN_HUD_PAINT_INTERVAL_MS = 66;
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
+	private static final int RESIZE_PRESENT_INTERVAL_MS = 16;
+	private static final long RESIZE_PRESENT_IDLE_NANOS =
+			TimeUnit.MILLISECONDS.toNanos(RESIZE_SETTLE_IDLE_MS);
 	// Only Windows both loses contexts often enough to matter and supports
 	// WGL_ARB_create_context_robustness across all three vendors, so the request is limited
 	// to it: a driver that rejects the attribute would fail context creation outright, and
@@ -234,6 +234,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean wheelInteractionActive = false;
 	private final Timer wheelInteractionEndTimer;
 	private final Timer resizeSettleTimer;
+	private final Timer resizePresentationTimer;
+	private volatile long lastResizeEventNanos = Long.MIN_VALUE;
 
 	// Resize coordination between EDT and render thread
 	private volatile boolean resizeRequested = false;
@@ -318,6 +320,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	static {
+		// AWT normally erases a heavyweight Canvas before repainting it after a
+		// native resize. The OpenGL swap happens asynchronously, so that erase is
+		// visible as a full-canvas flash before the next frame arrives. This JDK
+		// property is read when the Canvas peer is created, which is still ahead of
+		// us here. macOS presents through paint() below and does not use the native
+		// background-erase path.
+		if (SystemInfo.getPlatform() != SystemInfo.Platform.MAC_OS) {
+			System.setProperty("sun.awt.noerasebackground", "true");
+		}
+
 		// LWJGL 3.3.4+ auto-detects Wayland and tries to initialise EGL, which conflicts
 		// with lwjgl3-awt's PlatformLinuxGLCanvas (X11/GLX). Forcing "native" here prevents
 		// that auto-switch and keeps the GLX path active. On Wayland systems, XWayland must
@@ -344,6 +356,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (PRESENT_VIA_IMAGE_ON_MACOS) {
 			platformCanvas = new MacOSXImageSafeGLCanvas();
 		}
+		// Keep the heavyweight peer's fallback fill aligned with the initial GL
+		// scene. RocketFigure3d updates this when a document-specific color is used.
+		setBackground(GUIUtil.getUITheme().getBackgroundColor());
 
 		this.rocket = rocket;
 		this.hudPanel = hudPanel;
@@ -371,6 +386,17 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			requestRenderNow();
 		});
 		this.resizeSettleTimer.setRepeats(false);
+		// During a macOS live resize, keep drawing the last complete image directly
+		// to the Canvas peer until a frame at the new size is ready.
+		this.resizePresentationTimer = new Timer(RESIZE_PRESENT_INTERVAL_MS, e -> {
+			if (!PRESENT_VIA_IMAGE_ON_MACOS || !isShowing()
+					|| System.nanoTime() - lastResizeEventNanos > RESIZE_PRESENT_IDLE_NANOS) {
+				((Timer) e.getSource()).stop();
+				return;
+			}
+			showPresentedFrame();
+		});
+		this.resizePresentationTimer.setCoalesce(true);
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		// With image presentation the frame is painted by AWT via paint(), so
@@ -434,6 +460,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				int width = Math.max(1, getWidth());
 				int height = Math.max(1, getHeight());
 				int[] fbSize = computeFramebufferSize(width, height);
+				presentLastFrameDuringResize();
 				// Re-arm on every event, including the ones that carry no new size, so the
 				// settle redraw always happens after the *last* resize rather than after the
 				// last one that changed the pending dimensions.
@@ -452,6 +479,19 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				hudNeedsUpdate = true;
 			}
 		});
+	}
+
+	private void presentLastFrameDuringResize() {
+		if (!PRESENT_VIA_IMAGE_ON_MACOS || presentedImage == null || !isShowing()) {
+			return;
+		}
+		lastResizeEventNanos = System.nanoTime();
+		if (!resizePresentationTimer.isRunning()) {
+			resizePresentationTimer.start();
+		}
+		// Refresh the current peer surface immediately; the timer covers intervals
+		// in which AppKit coalesces multiple native resize notifications.
+		showPresentedFrame();
 	}
 
 	private void reportFatalRenderException(Throwable throwable) {
@@ -624,14 +664,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (!isShowing()) {
 			startupRecoveryGeneration.incrementAndGet();
 			if (PRESENT_VIA_IMAGE_ON_MACOS) {
-				// The last presented frame otherwise stays on screen over the view
-				// that replaced this canvas (e.g. the 2D card): release the strategy
-				// surface and repaint the visible ancestor so the region is redrawn.
-				BufferStrategy strategy = presentStrategy;
-				presentStrategy = null;
-				if (strategy != null) {
-					strategy.dispose();
-				}
+				resizePresentationTimer.stop();
+				// A direct frame finishing as the canvas is hidden may overlap the card
+				// that replaced it until the ancestor is repainted.
 				repaintShowingAncestor();
 				Timer repairTimer = new Timer(100, evt -> {
 					if (!isShowing()) {
@@ -1551,23 +1586,24 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		IntBuffer pixels = presentReadbackBuffer.asIntBuffer();
 		presentedImageHasContent = pixels.get((height / 2) * width + width / 2) != 0;
 
-		BufferedImage staging = nextPresentStagingImage(width, height);
-		int[] target = ((DataBufferInt) staging.getRaster().getDataBuffer()).getData();
-		for (int y = 0; y < height; y++) {
-			// GL rows are bottom-up; images are top-down
-			pixels.get(target, (height - 1 - y) * width, width);
+		synchronized (presentLock) {
+			BufferedImage staging = nextPresentStagingImage(width, height);
+			int[] target = ((DataBufferInt) staging.getRaster().getDataBuffer()).getData();
+			for (int y = 0; y < height; y++) {
+				// GL rows are bottom-up; images are top-down
+				pixels.get(target, (height - 1 - y) * width, width);
+			}
+			presentedImage = staging;
 		}
-
-		presentedImage = staging;
 		showPresentedFrame();
 	}
 
 	/**
-	 * Draws the published frame to the screen through a double-buffered
-	 * {@link BufferStrategy}, directly from the render thread. Going through
-	 * repaint()/paint() instead makes the view flicker during interaction: the
-	 * peer erases the damaged region to the background color before paint()
-	 * gets to draw the frame.
+	 * Draws the published frame directly to the Canvas peer. A BufferStrategy is
+	 * deliberately not used here: AppKit discards its native buffers during a
+	 * live resize, exposing their white initialization before Java can refill
+	 * them. A fresh peer Graphics always targets the current surface, while
+	 * {@link #paint(Graphics)} handles normal expose and damage events.
 	 */
 	private void showPresentedFrame() {
 		if (!isShowing()) {
@@ -1575,37 +1611,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// blit over the newly shown card.
 			return;
 		}
-		try {
-			BufferStrategy strategy = presentStrategy;
-			if (strategy == null) {
-				if (!isDisplayable()) {
-					return;
-				}
-				createBufferStrategy(2);
-				strategy = getBufferStrategy();
-				presentStrategy = strategy;
-				if (strategy == null) {
-					repaint();
-					return;
-				}
+		synchronized (presentLock) {
+			Graphics g = getGraphics();
+			if (g == null) {
+				repaint();
+				return;
 			}
-			do {
-				do {
-					Graphics g = strategy.getDrawGraphics();
-					try {
-						paintPresentedFrame(g);
-					} finally {
-						g.dispose();
-					}
-				} while (strategy.contentsRestored());
-				if (!isShowing()) {
-					return;
-				}
-				strategy.show();
-			} while (strategy.contentsLost());
-		} catch (Exception e) {
-			// Peer not ready for a buffer strategy yet — fall back to a plain repaint.
-			repaint();
+			try {
+				paintPresentedFrame(g);
+			} finally {
+				g.dispose();
+			}
+			Toolkit.getDefaultToolkit().sync();
 		}
 	}
 
@@ -1661,7 +1678,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			return;
 		}
 		// Expose/damage repaint while the render loop is idle: draw the last frame.
-		paintPresentedFrame(g);
+		synchronized (presentLock) {
+			paintPresentedFrame(g);
+		}
 	}
 
 	@Override
@@ -2136,6 +2155,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// Prevent any further rendering/resize operations
 		wheelInteractionEndTimer.stop();
 		resizeSettleTimer.stop();
+		resizePresentationTimer.stop();
 		dragInteractionActive = false;
 		wheelInteractionActive = false;
 		updateCameraInteractionMode();

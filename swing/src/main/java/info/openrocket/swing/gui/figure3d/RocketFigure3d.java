@@ -132,6 +132,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		this.hudPanel = new HUDPanel(document, rocketInfo);
 		this.enable3d = is3dEnabled();
 		setLayout(new BorderLayout());
+		setBackground(getBackgroundColor());
 	}
 
 	public static boolean is3dEnabled() {
@@ -442,6 +443,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	public void setCustomBackgroundColor(Color color) {
 		this.customBackgroundColor = color;
+		setBackground(getBackgroundColor());
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
 			applyBackgroundColor(panel);
@@ -451,14 +453,21 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	private void applyBackgroundColor(GLScenePanel panel) {
 		markDirty();
-		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel == null) {
+			return;
+		}
+		Color color = getBackgroundColor();
+		// A heavyweight Canvas may expose its AWT background while its native
+		// drawable is being resized. Match it to the scene so this fallback can
+		// never appear as a white flash.
+		panel.setBackground(color);
+		if (panel.glInitFailed || !panel.awaitInitialized(0)) {
 			return;
 		}
 		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
 		if (orchestrator == null) {
 			return;
 		}
-		Color color = getBackgroundColor();
 		float srgbR = color.getRed() / 255.0f;
 		float srgbG = color.getGreen() / 255.0f;
 		float srgbB = color.getBlue() / 255.0f;
