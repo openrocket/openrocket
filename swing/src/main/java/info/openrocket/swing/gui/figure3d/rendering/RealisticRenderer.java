@@ -817,6 +817,11 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	@Override
+	public void setCaretPositions(info.openrocket.core.util.CoordinateIF cg, info.openrocket.core.util.CoordinateIF cp) {
+		caretsPass.setPositions(cg, cp);
+	}
+
+	@Override
 	public void resetTextureState() {
 		textureStateManager.reset();
 	}

@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.orchestration;
 
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.figure3d.animation.PlaybackClock;
 import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
@@ -107,6 +108,22 @@ public class Scene3DOrchestrator {
 		}
 		cameraController.resetView();
 		cameraController.focusOnRocket();
+	}
+
+	/**
+	 * Sets where the centre of gravity and centre of pressure markers are drawn.
+	 *
+	 * <p>The renderer does not work these out itself: the centre of pressure depends on the
+	 * flight conditions the user has chosen, which only the owning view knows.</p>
+	 *
+	 * @param cg centre of gravity, or {@code null}/NaN when there is nothing to show
+	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
+	 */
+	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
+		GLRenderer activeRenderer = renderer;
+		if (activeRenderer != null) {
+			activeRenderer.setCaretPositions(cg, cp);
+		}
 	}
 
 	/**

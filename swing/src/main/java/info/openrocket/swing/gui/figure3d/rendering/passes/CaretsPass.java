@@ -9,6 +9,7 @@ import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.core.geometry.components.CGCaretGenerator;
@@ -76,6 +77,13 @@ public class CaretsPass implements RenderPass {
     private int viewportHeight = 1;
     private boolean cgValid = false;
     private boolean cpValid = false;
+    /**
+     * Set once a host supplies positions, after which this pass stops computing its own.
+     * The design view's centre of pressure depends on flight conditions the pass cannot
+     * see — the Component Analysis window can override Mach, angle of attack and roll —
+     * so whoever owns those conditions has to be the one that decides where the caret goes.
+     */
+    private volatile boolean positionsSuppliedByHost = false;
     private final Runnable uiThemeListener;
     private final StateChangeListener rocketChangeListener;
 
@@ -111,13 +119,42 @@ public class CaretsPass implements RenderPass {
     }
 
     /**
-     * Recalculates and caches the CG and CP positions for the current rocket configuration.
-     * 
-     * This method is called automatically when rocket configuration changes or can be
-     * called manually to refresh the calculations. Uses OpenRocket's mass and aerodynamic
-     * calculators to determine accurate positions.
+     * Places the carets at positions computed by the host rather than by this pass.
+     *
+     * <p>The design view already computes both, under the flight conditions the user has
+     * selected, and shows them in the 2D figure and the info overlay. Taking those values
+     * keeps all three in agreement; recomputing here produced a caret that ignored any
+     * Mach, angle-of-attack or roll override and disagreed with the numbers beside it.</p>
+     *
+     * @param cg centre of gravity, or {@code null}/NaN when there is nothing to show
+     * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
+     */
+    public void setPositions(CoordinateIF cg, CoordinateIF cp) {
+        positionsSuppliedByHost = true;
+
+        cgValid = cg != null && !cg.isNaN() && cg.getWeight() > MassCalculator.MIN_MASS;
+        if (cgValid) {
+            this.cgPosition = VectorUtils.coordinateToVector3f(cg).mul(RocketMeshBuilder.WORLD_SCALE);
+        }
+
+        cpValid = cp != null && !cp.isNaN() && cp.getWeight() > MathUtil.EPSILON;
+        if (cpValid) {
+            this.cpPosition = VectorUtils.coordinateToVector3f(cp).mul(RocketMeshBuilder.WORLD_SCALE);
+        }
+    }
+
+    /**
+     * Recalculates and caches the CG and CP positions for the current rocket configuration,
+     * using default flight conditions.
+     *
+     * <p>Only used when no host has supplied positions — a standalone scene with no design
+     * view behind it. Where there is one, {@link #setPositions} wins, because the conditions
+     * the centre of pressure depends on live there.</p>
      */
     private void updatePositions() {
+        if (positionsSuppliedByHost) {
+            return;
+        }
         FlightConfiguration config = rocket.getSelectedConfiguration();
         if (config == null) {
             cgValid = false;

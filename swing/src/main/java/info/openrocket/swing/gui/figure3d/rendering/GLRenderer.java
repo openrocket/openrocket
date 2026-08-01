@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 
 /**
@@ -87,4 +88,17 @@ public interface GLRenderer {
 	 * this is true to keep drag-rotate / pan / zoom responsive.
 	 */
 	default void setInteractionMode(boolean active) {}
+
+	/**
+	 * Supplies the centre of gravity and centre of pressure to show, in rocket coordinates.
+	 *
+	 * Implementations that draw those markers should prefer these over anything they could
+	 * compute themselves: the centre of pressure depends on flight conditions that only the
+	 * host knows, since the Component Analysis window can override Mach, angle of attack and
+	 * roll rate.
+	 *
+	 * @param cg centre of gravity, or {@code null}/NaN when there is nothing to show
+	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
+	 */
+	default void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {}
 }

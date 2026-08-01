@@ -97,6 +97,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	private volatile boolean zoomFitting = true;
 	private volatile Double pendingZoomScale = null;
 	private volatile boolean panModeEnabled = false;
+	// Latest CG/CP handed down by the owning panel, kept so they can be re-applied to a
+	// scene that did not exist yet when they arrived, or that has since been rebuilt.
+	private volatile CoordinateIF latestCG = null;
+	private volatile CoordinateIF latestCP = null;
 	// Demand-driven rendering: the background thread only calls renderFrame() when this is true.
 	// Starts true so the first frame renders immediately without an explicit trigger.
 	private volatile boolean dirty = true;
@@ -176,6 +180,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
+			orchestrator.setCaretPositions(latestCG, latestCP);
 			Double requestedZoomScale = pendingZoomScale;
 			if (requestedZoomScale != null) {
 				orchestrator.getCameraController().setZoomScale(requestedZoomScale);
@@ -633,6 +638,8 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (cg != null) {
 			rocketInfo.setCG(cg.getX());
 		}
+		latestCG = cg;
+		pushCaretPositions();
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
 			panel.markHudForUpdate();
@@ -644,10 +651,33 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (cp != null) {
 			rocketInfo.setCP(cp.getX());
 		}
+		latestCP = cp;
+		pushCaretPositions();
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
 			panel.markHudForUpdate();
 		}
+	}
+
+	/**
+	 * Hands the latest centre of gravity and centre of pressure to the scene, so the markers
+	 * agree with the figures and the overlay beside them.
+	 *
+	 * <p>These arrive from the owning panel, which computes them under whatever flight
+	 * conditions are in force — the Component Analysis window can override Mach, angle of
+	 * attack and roll rate. The renderer has no way to know about those, so it must be told
+	 * rather than left to work the positions out for itself.</p>
+	 */
+	private void pushCaretPositions() {
+		GLScenePanel panel = glScenePanel;
+		Scene3DOrchestrator orchestrator = panel == null ? null : panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			// Applied by the initialization hook once the scene exists.
+			return;
+		}
+		CoordinateIF cg = latestCG;
+		CoordinateIF cp = latestCP;
+		orchestrator.enqueueGlTask(() -> orchestrator.setCaretPositions(cg, cp));
 	}
 
 	public void clearRelativeExtra() {
