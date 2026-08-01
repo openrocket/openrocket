@@ -3,6 +3,8 @@ package info.openrocket.swing.gui.dialogs.preferences;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -22,6 +24,7 @@ import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.util.FlatLafOutlines;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.simulation.RK4SimulationStepper;
@@ -35,6 +38,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 	private static Color darkErrorColor;
 	private final JCheckBox fixedRandomSeedCheckBox;
 	private final JTextField randomSeedField;
+	private final FlatLafOutlines.Validator randomSeedValidator;
 	private boolean updatingRandomSeedControls;
 
 	static {
@@ -266,6 +270,13 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		updateRandomSeedControlsFromPreferences();
 		subsub.add(randomSeedField, "w 130lp!, span 3, wrap");
 
+		randomSeedValidator = FlatLafOutlines.validator(randomSeedField)
+				.errorIf(() -> fixedRandomSeedCheckBox.isSelected()
+						&& parseRandomSeed(randomSeedField.getText()) == null,
+						() -> trans.get("simedtdlg.error.RandomSeed"))
+				.showMessagePopup(2500);
+		randomSeedValidator.update();
+
 		fixedRandomSeedCheckBox.addActionListener(e -> {
 			if (updatingRandomSeedControls) {
 				return;
@@ -279,22 +290,34 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 				preferences.setRandomSeedFixed(false);
 			}
 			updateRandomSeedControlsFromPreferences();
+			randomSeedValidator.update();
 		});
 
 		randomSeedField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent event) {
 				updateRandomSeedFromField();
+				randomSeedValidator.update();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent event) {
 				updateRandomSeedFromField();
+				randomSeedValidator.update();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent event) {
 				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+		});
+		randomSeedField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent event) {
+				if (!event.isTemporary()) {
+					replaceInvalidRandomSeed();
+				}
 			}
 		});
 
@@ -319,6 +342,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 				constantGravityModel.setValue(9.807);
 				preferences.setRandomSeedFixed(false);
 				updateRandomSeedControlsFromPreferences();
+				randomSeedValidator.update();
 			}
 		});
 
@@ -397,6 +421,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 			preferences.setRandomSeedFixed(true);
 		}
 		updateRandomSeedControlsFromPreferences();
+		randomSeedValidator.update();
 	}
 
 	private void updateRandomSeedFromField() {
@@ -407,6 +432,19 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		if (seed != null) {
 			preferences.setRandomSeed(seed);
 		}
+	}
+
+	/**
+	 * Replaces an invalid committed edit with a fresh default seed while preserving fixed-seed mode.
+	 */
+	private void replaceInvalidRandomSeed() {
+		if (!fixedRandomSeedCheckBox.isSelected() || parseRandomSeed(randomSeedField.getText()) != null) {
+			return;
+		}
+
+		preferences.setRandomSeed(new Random().nextInt());
+		updateRandomSeedControlsFromPreferences();
+		randomSeedValidator.update();
 	}
 
 	private void updateRandomSeedControlsFromPreferences() {
