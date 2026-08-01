@@ -34,8 +34,10 @@ public class Appearance3D implements Material {
 	private boolean isUnlit = false;
 	private RenderStyle style;
 	private float shine;			// How shiny the surface is (0.0 to 1.0; 0.0 = matte, 1.0 = mirror-like)
-	private float roughnessScale;		// Scale for bump mapping (higher values = more detail)
-	private float roughnessStrength;		// Strength of the bump effect (0.0 = no bump, higher values = more pronounced bumps)
+	// Surface roughness of the component's finish, normalised to 0 (mirror) .. 1 (roughest).
+	// Deliberately the physical property rather than the grain size and bump strength it is
+	// drawn with: those depend on the render quality, so the renderer derives them.
+	private float roughnessAmount;
 	private float opacity = 1.0f;
 	private boolean opacityAffectsTexture;
 
@@ -63,8 +65,7 @@ public class Appearance3D implements Material {
 		this.texture = texture;
 		this.style = style;
 		this.shine = 0.5f;
-		this.roughnessScale = 50.0f;
-		this.roughnessStrength = 0.5f;
+		this.roughnessAmount = 0.0f;
 	}
 
 	public Appearance3D(Vector3f srgbColor) {
@@ -116,11 +117,8 @@ public class Appearance3D implements Material {
 	public void setShine(float shine) {
 		this.shine = Math.max(0.0f, Math.min(1.0f, shine));
 	}
-	public void setRoughnessScale(float scale) {
-		this.roughnessScale = Math.max(0.0f, scale);
-	}
-	public void setRoughnessStrength(float strength) {
-		this.roughnessStrength = Math.max(0.0f, strength);
+	public void setRoughnessAmount(float roughnessAmount) {
+		this.roughnessAmount = Math.max(0.0f, Math.min(1.0f, roughnessAmount));
 	}
 	public void setOpacity(float opacity) {
 		this.opacity = Math.max(0.0f, Math.min(1.0f, opacity));
@@ -168,8 +166,7 @@ public class Appearance3D implements Material {
 
 	public RenderStyle getStyle() { return style; }
 	public float getShine() { return shine; }
-	public float getRoughnessScale() { return roughnessScale; }
-	public float getRoughnessStrength() { return roughnessStrength; }
+	public float getRoughnessAmount() { return roughnessAmount; }
 	public Texture getDecalTexture() { return decalTexture; }
 	public int getDecalSurfaceMask() { return decalSurfaceMask; }
 	public TextureTransform getTextureTransform() { return textureTransform; }

@@ -90,8 +90,11 @@ public class DefaultMaterialBinder implements MaterialBinder {
         GL33.glUniform1i(uniforms.renderStyle, renderStyle);
         float shine = unfinishedMode ? getAppearanceShine(unfinishedAppearance, appearance.getShine()) : appearance.getShine();
         GL33.glUniform1f(uniforms.shine, shine);
-        GL33.glUniform1f(uniforms.roughnessScale, appearance.getRoughnessScale());
-        GL33.glUniform1f(uniforms.roughnessStrength, appearance.getRoughnessStrength());
+        // The material carries how rough the surface is; the quality level decides the grain
+        // size and bump strength that roughness is drawn with.
+        float roughnessAmount = appearance.getRoughnessAmount();
+        GL33.glUniform1f(uniforms.roughnessScale, config.getQuality().getRoughnessFrequency(roughnessAmount));
+        GL33.glUniform1f(uniforms.roughnessStrength, config.getQuality().getRoughnessStrength(roughnessAmount));
         boolean textureOpacityAffectsAlpha = unfinishedMode
                 ? unfinishedAppearance.isOpacityAffectsTexture()
                 : appearance.isOpacityAffectsTexture();

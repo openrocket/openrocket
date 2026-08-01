@@ -180,6 +180,55 @@ public class GraphicsQualitySettings {
         };
     }
 
+    /** Bump strength at the roughest finish; the smoothest is always 0. */
+    private static final float MAX_ROUGHNESS_STRENGTH = 1.2f;
+    /**
+     * How strength grows across the roughness range at the levels below HIGH. The finishes
+     * are not spread evenly over that range — everything from polished to regular paint sits
+     * in the first eighth — so a linear ramp makes the ordinary ones grainier than they
+     * should be. An exponent above 1 leaves the roughest alone and pulls the fine ones down.
+     */
+    private static final double SOFT_ROUGHNESS_EXPONENT = 1.25;
+    /** Grain frequency in noise cells per world unit (1 unit = 50 mm), below HIGH. */
+    private static final float SOFT_FINE_FREQUENCY = 14.0f;
+    private static final float SOFT_COARSE_FREQUENCY = 8.0f;
+    /** Grain frequency at HIGH, which keeps the original finer and more pronounced look. */
+    private static final float DETAILED_MAX_FREQUENCY = 300.0f;
+
+    /**
+     * Bump strength to draw a surface of the given roughness with.
+     *
+     * @param roughnessAmount surface roughness normalised to 0 (mirror) .. 1 (roughest)
+     * @return the bump strength, 0 for a surface with no visible grain
+     */
+    public float getRoughnessStrength(float roughnessAmount) {
+        float amount = Math.max(0.0f, Math.min(1.0f, roughnessAmount));
+        if (quality == RenderQuality.HIGH) {
+            return MAX_ROUGHNESS_STRENGTH * amount;
+        }
+        return (float) (MAX_ROUGHNESS_STRENGTH * Math.pow(amount, SOFT_ROUGHNESS_EXPONENT));
+    }
+
+    /**
+     * Grain frequency, in noise cells per world unit, to draw a surface of the given
+     * roughness with.
+     *
+     * <p>The two levels differ in character, not just in cost. Below HIGH the grain is
+     * coarse and grows with the roughness, which is how a rougher surface actually behaves.
+     * HIGH keeps the original finer, denser grain, which reads as more detailed up close
+     * even though it inverts that relationship.</p>
+     *
+     * @param roughnessAmount surface roughness normalised to 0 (mirror) .. 1 (roughest)
+     * @return grain frequency; higher means smaller features
+     */
+    public float getRoughnessFrequency(float roughnessAmount) {
+        float amount = Math.max(0.0f, Math.min(1.0f, roughnessAmount));
+        if (quality == RenderQuality.HIGH) {
+            return DETAILED_MAX_FREQUENCY * amount;
+        }
+        return SOFT_FINE_FREQUENCY + (SOFT_COARSE_FREQUENCY - SOFT_FINE_FREQUENCY) * amount;
+    }
+
     /**
      * Whether the procedural roughness bump should be evaluated at this quality level.
      *

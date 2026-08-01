@@ -35,22 +35,6 @@ public abstract class AppearanceFactory {
 	/** Range of surface roughness the finishes span, in metres. */
 	private static final double ROUGHNESS_SIZE_MIN = 0.5e-6;
 	private static final double ROUGHNESS_SIZE_MAX = 500e-6;
-	/** Bump strength at the roughest finish; the smoothest is always 0. */
-	private static final float MAX_ROUGHNESS_STRENGTH = 1.2f;
-	/**
-	 * Shapes how strength grows across the range. The finishes are not spread evenly over
-	 * it — everything from polished to regular paint sits in the first eighth — so a linear
-	 * ramp made the ordinary ones grainier than they should be. An exponent above 1 keeps
-	 * the roughest finishes where they were and pulls the fine ones down.
-	 */
-	private static final double ROUGHNESS_STRENGTH_EXPONENT = 1.25;
-	/**
-	 * Noise cells per world unit (1 unit = 50 mm), coarsest finish first. A rougher surface
-	 * has larger asperities, so the grain grows with the roughness; the previous mapping had
-	 * this inverted and gave the roughest finish the finest speckle of all.
-	 */
-	private static final float FINE_ROUGHNESS_FREQUENCY = 14.0f;
-	private static final float COARSE_ROUGHNESS_FREQUENCY = 8.0f;
 	private static final DecalTextureCache DEFAULT_DECAL_TEXTURE_CACHE = new DecalTextureCache();
 	private static final ThreadLocal<DecalTextureCache> ACTIVE_DECAL_TEXTURE_CACHE = new ThreadLocal<>();
 
@@ -154,8 +138,7 @@ public abstract class AppearanceFactory {
 		if (finish != null) {
 			applyFinishRoughness(engineAppearance, finish.getRoughnessSize()); // roughness size in meters
 		} else {
-			engineAppearance.setRoughnessStrength(0.0f);
-			engineAppearance.setRoughnessScale(0.0f);
+			engineAppearance.setRoughnessAmount(0.0f);
 		}
 	}
 
@@ -394,14 +377,9 @@ public abstract class AppearanceFactory {
 	 * @param roughnessSize The surface roughness size in meters.
 	 */
 	private static void applyFinishRoughness(Appearance3D engineAppearance, double roughnessSize) {
-		double position = MathUtil.clamp(
-				(roughnessSize - ROUGHNESS_SIZE_MIN) / (ROUGHNESS_SIZE_MAX - ROUGHNESS_SIZE_MIN), 0.0, 1.0);
-
-		float strength = (float) (MAX_ROUGHNESS_STRENGTH * Math.pow(position, ROUGHNESS_STRENGTH_EXPONENT));
-		float frequency = (float) MathUtil.map(position, 0.0, 1.0,
-				FINE_ROUGHNESS_FREQUENCY, COARSE_ROUGHNESS_FREQUENCY);
-
-		engineAppearance.setRoughnessStrength(strength);
-		engineAppearance.setRoughnessScale(frequency);
+		// Only how rough the surface is; the grain size and bump strength it gets drawn with
+		// depend on the render quality and are decided by the renderer.
+		engineAppearance.setRoughnessAmount((float) MathUtil.clamp(
+				(roughnessSize - ROUGHNESS_SIZE_MIN) / (ROUGHNESS_SIZE_MAX - ROUGHNESS_SIZE_MIN), 0.0, 1.0));
 	}
 }

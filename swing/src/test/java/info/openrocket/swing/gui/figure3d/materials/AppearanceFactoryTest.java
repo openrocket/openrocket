@@ -92,8 +92,7 @@ class AppearanceFactoryTest {
 
 		Appearance3D appearance = AppearanceFactory.createFrom(internal);
 
-		assertEquals(0.0f, appearance.getRoughnessStrength());
-		assertEquals(0.0f, appearance.getRoughnessScale());
+		assertEquals(0.0f, appearance.getRoughnessAmount());
 	}
 
 	@Test
@@ -104,9 +103,8 @@ class AppearanceFactoryTest {
 
 		Appearance3D appearance = AppearanceFactory.createFrom(external);
 
-		assertTrue(appearance.getRoughnessStrength() > 0.0f,
+		assertTrue(appearance.getRoughnessAmount() > 0.0f,
 				"a rough finish must still produce a bumpy surface");
-		assertTrue(appearance.getRoughnessScale() > 0.0f);
 	}
 
 	private static RocketComponent componentWithDecal(DecalImage image) {
