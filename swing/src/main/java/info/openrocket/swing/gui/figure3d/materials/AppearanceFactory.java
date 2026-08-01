@@ -32,9 +32,25 @@ public abstract class AppearanceFactory {
 
 	private static final Logger log = LoggerFactory.getLogger(AppearanceFactory.class);
 
-	private static final double[] ROUGHNESS_SIZES = {0.5e-6, 500e-6};
-	private static final float[] STRENGTH_VALUES = {0.0f, 1.2f};
-	private static final float[] SCALE_VALUES    = {0.0f, 50.0f};
+	/** Range of surface roughness the finishes span, in metres. */
+	private static final double ROUGHNESS_SIZE_MIN = 0.5e-6;
+	private static final double ROUGHNESS_SIZE_MAX = 500e-6;
+	/** Bump strength at the roughest finish; the smoothest is always 0. */
+	private static final float MAX_ROUGHNESS_STRENGTH = 1.2f;
+	/**
+	 * Shapes how strength grows across the range. The finishes are not spread evenly over
+	 * it — everything from polished to regular paint sits in the first eighth — so a linear
+	 * ramp made the ordinary ones grainier than they should be. An exponent above 1 keeps
+	 * the roughest finishes where they were and pulls the fine ones down.
+	 */
+	private static final double ROUGHNESS_STRENGTH_EXPONENT = 1.25;
+	/**
+	 * Noise cells per world unit (1 unit = 50 mm), coarsest finish first. A rougher surface
+	 * has larger asperities, so the grain grows with the roughness; the previous mapping had
+	 * this inverted and gave the roughest finish the finest speckle of all.
+	 */
+	private static final float FINE_ROUGHNESS_FREQUENCY = 14.0f;
+	private static final float COARSE_ROUGHNESS_FREQUENCY = 8.0f;
 	private static final DecalTextureCache DEFAULT_DECAL_TEXTURE_CACHE = new DecalTextureCache();
 	private static final ThreadLocal<DecalTextureCache> ACTIVE_DECAL_TEXTURE_CACHE = new ThreadLocal<>();
 
@@ -378,34 +394,14 @@ public abstract class AppearanceFactory {
 	 * @param roughnessSize The surface roughness size in meters.
 	 */
 	private static void applyFinishRoughness(Appearance3D engineAppearance, double roughnessSize) {
-		// Clamp to the lower bound
-		if (roughnessSize <= ROUGHNESS_SIZES[0]) {
-			engineAppearance.setRoughnessStrength(STRENGTH_VALUES[0]);
-			engineAppearance.setRoughnessScale(SCALE_VALUES[0]);
-			return;
-		}
+		double position = MathUtil.clamp(
+				(roughnessSize - ROUGHNESS_SIZE_MIN) / (ROUGHNESS_SIZE_MAX - ROUGHNESS_SIZE_MIN), 0.0, 1.0);
 
-		// Clamp to the upper bound
-		int lastIndex = ROUGHNESS_SIZES.length - 1;
-		if (roughnessSize >= ROUGHNESS_SIZES[lastIndex]) {
-			engineAppearance.setRoughnessStrength(STRENGTH_VALUES[lastIndex]);
-			engineAppearance.setRoughnessScale(SCALE_VALUES[lastIndex]);
-			return;
-		}
-
-		// Find the segment that contains the roughnessSize
-		int i = 0;
-		while (i < lastIndex && roughnessSize > ROUGHNESS_SIZES[i + 1]) {
-			i++;
-		}
-
-		// Interpolate both strength and scale within the segment
-		float strength = (float) MathUtil.map(roughnessSize, ROUGHNESS_SIZES[i], ROUGHNESS_SIZES[i + 1],
-				STRENGTH_VALUES[i], STRENGTH_VALUES[i + 1]);
-		float scale = (float) MathUtil.map(roughnessSize, ROUGHNESS_SIZES[i], ROUGHNESS_SIZES[i + 1],
-				SCALE_VALUES[i], SCALE_VALUES[i + 1]);
+		float strength = (float) (MAX_ROUGHNESS_STRENGTH * Math.pow(position, ROUGHNESS_STRENGTH_EXPONENT));
+		float frequency = (float) MathUtil.map(position, 0.0, 1.0,
+				FINE_ROUGHNESS_FREQUENCY, COARSE_ROUGHNESS_FREQUENCY);
 
 		engineAppearance.setRoughnessStrength(strength);
-		engineAppearance.setRoughnessScale(scale);
+		engineAppearance.setRoughnessScale(frequency);
 	}
 }

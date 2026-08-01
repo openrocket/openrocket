@@ -118,7 +118,17 @@ vec3 rotateNoise3D(vec3 p) {
     ) * p;
 }
 
-float granularHeight(vec3 noisePos) {
+/**
+ * Layered surface grain.
+ *
+ * footprint is how much of this noise's own coordinate space one pixel covers. Each octave
+ * is roughly twice as fine as the one before, so the later ones fall below the size of a
+ * pixel long before the loop ends. Those cannot be resolved: they contribute no visible
+ * texture, only a crawling sparkle as the view turns. Fading each octave out as it reaches
+ * that limit keeps the surface steady under rotation, and lets the loop stop early once
+ * nothing further can be seen.
+ */
+float granularHeight(vec3 noisePos, float footprint) {
     vec3 warped = noisePos;
     warped += vec3(
         valueNoise3D(rotateNoise3D(noisePos * 0.55 + vec3(2.3, 5.1, 7.4))),
@@ -136,20 +146,31 @@ float granularHeight(vec3 noisePos) {
     float total = 0.0;
     float weight = 0.0;
 
+    float octaveFootprint = footprint;
+
     for (int octave = 0; octave < 7; ++octave) {
+        float octaveFade = 1.0 - smoothstep(0.40, 0.90, octaveFootprint);
+        if (octaveFade <= 0.001) {
+            break;
+        }
+
         float base = valueNoise3D(octavePos + vec3(17.0, 9.0, 13.0));
         float ridge = ridgedNoise3D(octavePos * 1.17 + vec3(5.0, 23.0, 31.0));
         float layer = mix(base, ridge, octave < 2 ? 0.18 : 0.38);
-        total += layer * amplitude;
-        weight += amplitude;
+        total += layer * amplitude * octaveFade;
+        weight += amplitude * octaveFade;
 
         octavePos = rotateNoise3D(octavePos * 2.05 + vec3(11.3, 17.1, 7.7));
         amplitude *= 0.58;
+        octaveFootprint *= 2.05;
     }
 
-    float sparkle = valueNoise3D(rotateNoise3D(octavePos * 1.9 + vec3(29.0, 47.0, 19.0)));
-    total += sparkle * 0.08;
-    weight += 0.08;
+    float sparkleFade = 1.0 - smoothstep(0.40, 0.90, octaveFootprint);
+    if (sparkleFade > 0.001) {
+        float sparkle = valueNoise3D(rotateNoise3D(octavePos * 1.9 + vec3(29.0, 47.0, 19.0)));
+        total += sparkle * 0.08 * sparkleFade;
+        weight += 0.08 * sparkleFade;
+    }
 
     return pow(clamp(total / max(weight, 1e-4), 0.0, 1.0), 1.22);
 }
@@ -207,8 +228,9 @@ vec3 getSurfaceNormal(vec3 normal) {
         bitangent = -bitangent;
     }
 
-    float noiseFrequency = roughnessScale * 6.0;
-    vec3 noisePos = v_objectPos * noiseFrequency;
+    // roughnessScale is the grain frequency in cells per world unit, set from the
+    // component's surface finish.
+    vec3 noisePos = v_objectPos * roughnessScale;
 
     // granularHeight is by far the most expensive thing this shader does — seven
     // octaves plus two warp stages, each octave a pair of 3D value-noise lookups —
@@ -221,9 +243,20 @@ vec3 getSurfaceNormal(vec3 normal) {
     // bump as the surface is magnified. Mapping it back through the derivatives of
     // noisePos removes that dependency and leaves the same surface-space gradient
     // the differencing produced.
-    float height = granularHeight(noisePos);
     vec3 noiseDx = dFdx(noisePos);
     vec3 noiseDy = dFdy(noisePos);
+
+    // Fade the grain out once a pixel spans an appreciable part of a noise cell. Below that
+    // size the detail cannot be resolved, so it stops reading as texture and instead crawls
+    // and sparkles as the view turns. Fading it is both steadier and cheaper than drawing
+    // detail that is smaller than the pixels showing it.
+    float pixelFootprint = max(length(noiseDx), length(noiseDy));
+    float detailFade = 1.0 - smoothstep(0.35, 1.0, pixelFootprint);
+    if (detailFade <= 0.0) {
+        return normal;
+    }
+
+    float height = granularHeight(noisePos, pixelFootprint);
     mat2 screenToSurface = mat2(
         dot(noiseDx, objectTangent), dot(noiseDy, objectTangent),
         dot(noiseDx, objectBitangent), dot(noiseDy, objectBitangent));
@@ -234,7 +267,7 @@ vec3 getSurfaceNormal(vec3 normal) {
     }
     bumpVec = clamp(bumpVec, vec2(-1.5), vec2(1.5));
 
-    float bumpAmplitude = roughnessStrength * 0.06;
+    float bumpAmplitude = roughnessStrength * 0.06 * detailFade;
     return normalize(normal - (tangent * bumpVec.x + bitangent * bumpVec.y) * bumpAmplitude);
 }
 
