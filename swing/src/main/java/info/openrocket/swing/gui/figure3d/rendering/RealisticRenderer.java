@@ -668,7 +668,7 @@ public class RealisticRenderer implements GLRenderer {
 		// suspended during interaction along with the shadow map and the post-processing
 		// passes — but only when the user has asked for that, since dropping it is a visible
 		// change to the surface rather than a free one. The first idle frame restores it.
-		boolean roughnessBump = config.getQuality().isRoughnessBumpEnabled() && !shouldReduceInteractionEffects();
+		boolean roughnessBump = config.getQuality().isRoughnessBumpRendered() && !shouldReduceInteractionEffects();
 		glUniform1i(mainShaderUniforms.enableRoughnessBump, roughnessBump ? 1 : 0);
 	}
 	
@@ -897,12 +897,9 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	private int getRequestedSceneSampleCount() {
-		if (!config.getQuality().isFXAAEnabled()) {
-			return 0;
-		}
-
-		// An explicit override is a diagnostic knob and deliberately outranks the
-		// memory profile, so a constrained device can still be asked for 8x.
+		// An explicit override is a diagnostic knob and deliberately outranks both the
+		// quality level and the memory profile, so a constrained device can still be
+		// asked for 8x.
 		String override = System.getProperty("openrocket.figure3d.msaaSamples");
 		if (override != null) {
 			try {
@@ -912,9 +909,13 @@ public class RealisticRenderer implements GLRenderer {
 			}
 		}
 
+		// Scene multisampling follows the quality level rather than the FXAA setting.
+		// Those used to be the same switch, which meant turning FXAA off silently also
+		// turned off multisampling, and no quality level had any effect on it.
+		int requested = config.getQuality().getSceneSampleCount();
 		return gpuMemoryProfile.isConstrained()
-				? CONSTRAINED_SCENE_MSAA_SAMPLES
-				: DEFAULT_SCENE_MSAA_SAMPLES;
+				? Math.min(requested, CONSTRAINED_SCENE_MSAA_SAMPLES)
+				: Math.min(requested, DEFAULT_SCENE_MSAA_SAMPLES);
 	}
 
 	/**
