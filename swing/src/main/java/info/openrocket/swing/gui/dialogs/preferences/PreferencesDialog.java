@@ -47,6 +47,7 @@ public class PreferencesDialog extends JDialog {
 	private boolean storePreferences = true;
 	private File initPrefsFile = null;
 	private LaunchPreferencesPanel launchPanel = null;
+	private SimulationPreferencesPanel simulationPanel = null;
 
 	public final static int TAB_GENERAL = 0;
 	public final static int TAB_UI = 1;
@@ -85,8 +86,9 @@ public class PreferencesDialog extends JDialog {
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Design"), null,
 				new DesignPreferencesPanel(), trans.get("pref.dlg.tab.Design"), TAB_DESIGN);
 		// Simulation options
+		this.simulationPanel = new SimulationPreferencesPanel();
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Simulation"), null,
-				new SimulationPreferencesPanel(),
+				this.simulationPanel,
 				trans.get("pref.dlg.tab.Simulation"), TAB_SIMULATION);
 		// Launch options
 		this.launchPanel = new LaunchPreferencesPanel();
@@ -160,6 +162,9 @@ public class PreferencesDialog extends JDialog {
 
 				// Either store changed preferences (if OK) or reload initial preferences (if Cancel)
 				if (storePreferences) {
+					if (simulationPanel != null) {
+						simulationPanel.prepareForSave();
+					}
 					preferences.storeDefaultUnits();
 					// Save launch preferences to DefaultSimulationOptionFactory
 					if (launchPanel != null) {

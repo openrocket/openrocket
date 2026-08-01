@@ -92,6 +92,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
+	private boolean randomSeedFixed = false;
 
 	private List<EventListener> listeners = new ArrayList<>();
 
@@ -554,22 +555,48 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			return;
 		}
 		this.randomSeed = randomSeed;
-		/*
-		 * This does not fire an event since we don't want to invalidate simulation
-		 * results
-		 * due to changing the seed value. This needs to be revisited if the user is
-		 * ever
-		 * allowed to select the seed value.
-		 */
-		// fireChangeEvent();
+		// Automatically generated seeds do not invalidate existing results, while a user-edited fixed seed does.
+		if (randomSeedFixed) {
+			fireChangeEvent();
+		}
+	}
+
+	/**
+	 * Returns whether simulations should reuse the configured random seed.
+	 *
+	 * @return {@code true} when the random seed is fixed across runs
+	 */
+	public boolean isRandomSeedFixed() {
+		return randomSeedFixed;
+	}
+
+	/**
+	 * Controls whether simulations reuse the configured random seed or generate a new one for every run.
+	 *
+	 * @param randomSeedFixed {@code true} to reuse the configured seed
+	 */
+	public void setRandomSeedFixed(boolean randomSeedFixed) {
+		if (this.randomSeedFixed == randomSeedFixed) {
+			return;
+		}
+		this.randomSeedFixed = randomSeedFixed;
+		fireChangeEvent();
 	}
 
 	/**
 	 * Randomize the random seed value.
 	 */
 	public void randomizeSeed() {
-		this.randomSeed = new Random().nextInt();
-		// fireChangeEvent();
+		setRandomSeed(new Random().nextInt());
+	}
+
+	/**
+	 * Generates a new random seed unless the user has chosen to reuse a fixed seed.
+	 */
+	public void randomizeSeedIfNotFixed() {
+		if (!randomSeedFixed) {
+			randomizeSeed();
+		}
 	}
 
 	@Override
@@ -691,6 +718,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.stepperMethodChoice = src.stepperMethodChoice;
 		}
+		if (this.randomSeedFixed != src.randomSeedFixed ||
+				(src.randomSeedFixed && this.randomSeed != src.randomSeed)) {
+			isChanged = true;
+		}
 
 		if (!Objects.equals(this.dragLookupCsvPath, src.dragLookupCsvPath) || this.dragLookupTable != src.dragLookupTable) {
 			isChanged = true;
@@ -705,8 +736,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		}
 
 		if (isChanged) {
-			// Only copy the randomSeed if something else has changed.
-			// Honestly, I don't really see a need for that.
+			this.randomSeedFixed = src.randomSeedFixed;
 			this.randomSeed = src.randomSeed;
 			fireChangeEvent();
 		}
@@ -739,7 +769,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				this.averageWindModel.equals(o.averageWindModel) &&
 				this.multiLevelPinkNoiseWindModel.equals(o.multiLevelPinkNoiseWindModel) &&
 				this.gravityModelType == o.gravityModelType &&
-				MathUtil.equals(this.constantGravity, o.constantGravity);
+				MathUtil.equals(this.constantGravity, o.constantGravity) &&
+				this.randomSeedFixed == o.randomSeedFixed &&
+				(!this.randomSeedFixed || this.randomSeed == o.randomSeed);
 	}
 
 	/**
@@ -841,6 +873,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    maxTime:  %f\n", maxSimulationTime))
 				.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
 				.concat(String.format("    stepperMethodChoice: %s\n", stepperMethodChoice))
+				.concat(String.format("    randomSeedFixed: %b\n", randomSeedFixed))
+				.concat(String.format("    randomSeed: %d\n", randomSeed))
 				.concat("]\n");
 	}
 

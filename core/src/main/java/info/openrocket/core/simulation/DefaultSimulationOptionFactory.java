@@ -54,6 +54,11 @@ public class DefaultSimulationOptionFactory {
 			defaults.setLaunchRodAngle(prefs.getDouble(SIMCONDITION_ROD_ANGLE, defaults.getLaunchRodAngle()));
 			defaults.setLaunchRodDirection(
 					prefs.getDouble(SIMCONDITION_ROD_DIRECTION, defaults.getLaunchRodDirection()));
+
+			if (prefs.isRandomSeedFixed()) {
+				defaults.setRandomSeed(prefs.getRandomSeed());
+				defaults.setRandomSeedFixed(true);
+			}
 		}
 		return defaults;
 	}

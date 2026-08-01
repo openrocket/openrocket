@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.dialogs.preferences;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -11,6 +12,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -29,6 +33,9 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 	private static final long serialVersionUID = 7983195730016979888L;
 
 	private static Color darkErrorColor;
+	private final JCheckBox fixedRandomSeedCheckBox;
+	private final JTextField randomSeedField;
+	private boolean updatingRandomSeedControls;
 
 	static {
 		initColors();
@@ -247,6 +254,50 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		unit.setToolTipText(tip);
 		subsub.add(unit, "wrap");
 
+		// // Default fixed random seed:
+		tip = trans.get("simedtdlg.checkbox.ttip.FixedRandomSeed");
+		fixedRandomSeedCheckBox = new JCheckBox(trans.get("simedtdlg.checkbox.FixedRandomSeed"),
+				preferences.isRandomSeedFixed());
+		fixedRandomSeedCheckBox.setToolTipText(tip);
+		subsub.add(fixedRandomSeedCheckBox, "gaptop para, gapright para");
+
+		randomSeedField = new JTextField(12);
+		randomSeedField.setToolTipText(trans.get("simedtdlg.lbl.ttip.RandomSeed"));
+		updateRandomSeedControlsFromPreferences();
+		subsub.add(randomSeedField, "w 130lp!, span 3, wrap");
+
+		fixedRandomSeedCheckBox.addActionListener(e -> {
+			if (updatingRandomSeedControls) {
+				return;
+			}
+
+			if (fixedRandomSeedCheckBox.isSelected()) {
+				int seed = new Random().nextInt();
+				preferences.setRandomSeed(seed);
+				preferences.setRandomSeedFixed(true);
+			} else {
+				preferences.setRandomSeedFixed(false);
+			}
+			updateRandomSeedControlsFromPreferences();
+		});
+
+		randomSeedField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+			}
+		});
+
 		sub.add(subsub, "spanx, wrap para");
 
 		// Reset to default button
@@ -266,6 +317,8 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 				gravityModelTypeModel.setSelectedItem(GravityModelType.WGS);
 				gravityModelCombo.repaint();
 				constantGravityModel.setValue(9.807);
+				preferences.setRandomSeedFixed(false);
+				updateRandomSeedControlsFromPreferences();
 			}
 		});
 
@@ -329,6 +382,48 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		 * listenerModel.fireContentsChanged(); } }); sub.add(button,
 		 * "sizegroup buttons, alignx 50%");
 		 */
+	}
+
+	/**
+	 * Resolves the seed field before the preferences are retained. Invalid or blank values select per-run
+	 * randomization instead.
+	 */
+	void prepareForSave() {
+		Integer seed = fixedRandomSeedCheckBox.isSelected() ? parseRandomSeed(randomSeedField.getText()) : null;
+		if (seed == null) {
+			preferences.setRandomSeedFixed(false);
+		} else {
+			preferences.setRandomSeed(seed);
+			preferences.setRandomSeedFixed(true);
+		}
+		updateRandomSeedControlsFromPreferences();
+	}
+
+	private void updateRandomSeedFromField() {
+		if (updatingRandomSeedControls || !fixedRandomSeedCheckBox.isSelected()) {
+			return;
+		}
+		Integer seed = parseRandomSeed(randomSeedField.getText());
+		if (seed != null) {
+			preferences.setRandomSeed(seed);
+		}
+	}
+
+	private void updateRandomSeedControlsFromPreferences() {
+		updatingRandomSeedControls = true;
+		fixedRandomSeedCheckBox.setSelected(preferences.isRandomSeedFixed());
+		randomSeedField.setEnabled(preferences.isRandomSeedFixed());
+		randomSeedField.setText(preferences.isRandomSeedFixed()
+				? Integer.toString(preferences.getRandomSeed()) : "");
+		updatingRandomSeedControls = false;
+	}
+
+	private static Integer parseRandomSeed(String seedText) {
+		try {
+			return Integer.valueOf(seedText.trim());
+		} catch (NumberFormatException exception) {
+			return null;
+		}
 	}
 
 //	private class ListenerCellRenderer extends JLabel implements

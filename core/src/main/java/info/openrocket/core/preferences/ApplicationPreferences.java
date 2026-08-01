@@ -160,6 +160,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String GRAVITY_MODEL = "GravityModel";
 	public static final String CONSTANT_GRAVITY_VALUE = "ConstantGravityValue";
 	public static final String SIMULATION_STEPPER_METHOD = "SimulationStepperMethod";
+	public static final String SIMULATION_RANDOM_SEED = "SimulationRandomSeed";
+	public static final String SIMULATION_RANDOM_SEED_FIXED = "SimulationRandomSeedFixed";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -696,6 +698,50 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	public void setSimulationStepperMethodChoice(SimulationStepperMethod choice) {
 		this.putEnum(SIMULATION_STEPPER_METHOD, choice);
+	}
+
+	/**
+	 * Returns the default random seed for newly created simulations.
+	 *
+	 * @return the configured signed 32-bit seed
+	 */
+	public int getRandomSeed() {
+		return this.getInt(SIMULATION_RANDOM_SEED, 0);
+	}
+
+	/**
+	 * Sets the default random seed for newly created simulations.
+	 *
+	 * @param randomSeed the signed 32-bit seed
+	 */
+	public void setRandomSeed(int randomSeed) {
+		if (this.getInt(SIMULATION_RANDOM_SEED, 0) == randomSeed) {
+			return;
+		}
+		this.putInt(SIMULATION_RANDOM_SEED, randomSeed);
+		fireChangeEvent();
+	}
+
+	/**
+	 * Returns whether newly created simulations should reuse the configured random seed.
+	 *
+	 * @return {@code true} to create simulations with a fixed seed
+	 */
+	public boolean isRandomSeedFixed() {
+		return this.getBoolean(SIMULATION_RANDOM_SEED_FIXED, false);
+	}
+
+	/**
+	 * Sets whether newly created simulations should reuse the configured random seed.
+	 *
+	 * @param randomSeedFixed {@code true} to create simulations with a fixed seed
+	 */
+	public void setRandomSeedFixed(boolean randomSeedFixed) {
+		if (this.getBoolean(SIMULATION_RANDOM_SEED_FIXED, false) == randomSeedFixed) {
+			return;
+		}
+		this.putBoolean(SIMULATION_RANDOM_SEED_FIXED, randomSeedFixed);
+		fireChangeEvent();
 	}
 
 
