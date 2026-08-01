@@ -6,7 +6,6 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.swing.gui.figure3d.DemoFactory;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
@@ -1046,6 +1045,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		});
 	}
 
+	/**
+	 * Binds the keyboard shortcuts the 3D view offers.
+	 *
+	 * <p>Only view-level actions belong here. These used to be installed from the demo
+	 * scene factory, which also bound keys that edited the open design: 'G' gave the nose
+	 * cone a random length and 'C' a random colour, both reachable in the normal design
+	 * view whenever the canvas had focus.</p>
+	 */
+	private void addViewKeyBindings() {
+		keyboardHandler.addSinglePressAction(KeyEvent.VK_F, scene3DOrchestrator::focusOnRocket);
+		keyboardHandler.addSinglePressAction(KeyEvent.VK_E, () -> {
+			// Shift exports with a transparent background.
+			scene3DOrchestrator.requestExport(keyboardHandler.isKeyPressed(KeyEvent.VK_SHIFT));
+		});
+	}
+
 	private static GLData createGLData() {
 		GLData data = new GLData();
 		data.majorVersion = 3;
@@ -1203,7 +1218,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 
 				addInputListeners();
-				DemoFactory.setupDemoKeyboardHandling(this.keyboardHandler, scene3DOrchestrator.getScene(), scene3DOrchestrator);
+				addViewKeyBindings();
 
 				// Startup layout may have queued resize events before the GL pipeline existed.
 				// The orchestrator was just created with the current canvas size, so those
