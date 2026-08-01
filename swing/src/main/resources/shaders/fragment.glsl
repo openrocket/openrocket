@@ -209,23 +209,29 @@ vec3 getSurfaceNormal(vec3 normal) {
 
     float noiseFrequency = roughnessScale * 6.0;
     vec3 noisePos = v_objectPos * noiseFrequency;
-    vec3 noiseWidth = fwidth(noisePos);
-    float sampleStep = clamp(max(max(noiseWidth.x, noiseWidth.y), noiseWidth.z) * 0.5, 0.01, 0.10);
 
     // granularHeight is by far the most expensive thing this shader does — seven
-    // octaves plus two warp stages, each octave a pair of 3D value-noise lookups.
-    // Taking the gradient as a forward difference from a shared centre sample needs
-    // three of them instead of the four a central difference costs, for a slope
-    // estimate that differs only by half a sample step at this amplitude.
-    float noiseCenter = granularHeight(noisePos);
-    float noiseRight = granularHeight(noisePos + objectTangent * sampleStep);
-    float noiseUp = granularHeight(noisePos + objectBitangent * sampleStep);
+    // octaves plus two warp stages, each octave a pair of 3D value-noise lookups —
+    // and sampling it once per axis to difference the height made it the single
+    // largest cost in the frame. One sample is enough: the hardware already
+    // computes derivatives across each 2x2 quad, so the same slope can be recovered
+    // from how the height and the sample position vary across the quad.
+    //
+    // dFdx(height) alone would be a screen-space slope, which would strengthen the
+    // bump as the surface is magnified. Mapping it back through the derivatives of
+    // noisePos removes that dependency and leaves the same surface-space gradient
+    // the differencing produced.
+    float height = granularHeight(noisePos);
+    vec3 noiseDx = dFdx(noisePos);
+    vec3 noiseDy = dFdy(noisePos);
+    mat2 screenToSurface = mat2(
+        dot(noiseDx, objectTangent), dot(noiseDy, objectTangent),
+        dot(noiseDx, objectBitangent), dot(noiseDy, objectBitangent));
 
-    float inverseStep = 1.0 / max(sampleStep, 1e-4);
-    vec2 bumpVec = vec2(
-        (noiseRight - noiseCenter) * inverseStep,
-        (noiseUp - noiseCenter) * inverseStep
-    );
+    vec2 bumpVec = vec2(0.0);
+    if (abs(determinant(screenToSurface)) > 1e-12) {
+        bumpVec = inverse(screenToSurface) * vec2(dFdx(height), dFdy(height));
+    }
     bumpVec = clamp(bumpVec, vec2(-1.5), vec2(1.5));
 
     float bumpAmplitude = roughnessStrength * 0.06;
