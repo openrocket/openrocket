@@ -62,38 +62,13 @@ import static org.lwjgl.opengl.GL30.glUniform2f;
 import static org.lwjgl.opengl.GL30.glUniform4f;
 
 /**
- * Advanced selection outline rendering pass using multi-pass techniques.
- * 
- * This pass provides high-quality visual feedback for selected objects by rendering
- * colored outlines around them. The implementation uses a sophisticated multi-pass
- * approach that generates smooth, consistent outlines regardless of object complexity
- * or viewing angle.
- * 
- * Multi-pass rendering pipeline:
- * 1. **Scene Composition**: Renders input scene texture to output framebuffer
- * 2. **Mask Generation**: Renders selected objects as white silhouettes to mask texture
- * 3. **Edge Detection**: Analyzes mask texture to detect object boundaries
- * 4. **Outline Rendering**: Generates colored outlines using edge detection data
- * 5. **Final Composition**: Blends outlines over the original scene
- * 
- * Advanced features:
- * - **Adaptive Width**: Outline thickness scales with distance and screen resolution
- * - **Smooth Edges**: Anti-aliased outline rendering for professional quality
- * - **Color Customization**: Configurable outline colors for different selection states
- * - **Performance Optimization**: Only processes when objects are actually selected
- * - **Depth Integration**: Proper handling of outline depth for complex geometry
- * 
- * Technical implementation:
- * - Dual framebuffer system for scene and mask rendering
- * - Specialized edge detection shaders with subpixel accuracy
- * - Alpha blending for smooth outline integration
- * - Automatic resource management with viewport scaling
- * 
- * The outline system is essential for:
- * - Clear visual selection feedback in complex 3D scenes
- * - Professional CAD-like interface behavior
- * - Accessibility and usability improvements
- * - Precise component identification in detailed models
+ * Draws coloured outlines around the selected objects.
+ *
+ * <p>Runs in five steps, over a scene framebuffer and a separate mask framebuffer:
+ * copy the scene texture to the output, render the selected objects as white
+ * silhouettes into the mask, detect edges in the mask, colour those edges, and
+ * blend the result over the scene. The whole pass is skipped when nothing is
+ * selected.</p>
  */
 public class OutlinePass implements RenderPass, ScreenTexturePass {
 

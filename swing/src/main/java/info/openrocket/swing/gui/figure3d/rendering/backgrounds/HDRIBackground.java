@@ -3,29 +3,11 @@ package info.openrocket.swing.gui.figure3d.rendering.backgrounds;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 
 /**
- * High Dynamic Range (HDR) equirectangular background renderer.
- * 
- * Provides realistic environment lighting and backgrounds using High Dynamic Range
- * images in equirectangular projection format. HDRI backgrounds offer superior
- * lighting quality compared to traditional LDR images, supporting a much wider
- * range of luminance values for realistic lighting and reflections.
- * 
- * Technical features:
- * - Equirectangular projection mapping for 360-degree coverage
- * - High dynamic range data preservation for realistic lighting
- * - Automatic tone mapping for display adaptation
- * - Seamless spherical mapping without visible seams
- * - Support for .HDR and .EXR format images
- * - Efficient GPU-based spherical coordinate conversion
- * 
- * HDRI backgrounds are particularly effective for:
- * - Realistic outdoor lighting scenarios
- * - Professional visualization and rendering
- * - Environment-based lighting contributions
- * - Accurate reflections on metallic surfaces
- * 
- * The equirectangular format maps the entire sphere onto a 2:1 aspect ratio
- * rectangle, with longitude mapped horizontally and latitude mapped vertically.
+ * A background sampled from a high dynamic range equirectangular image, tone
+ * mapped for display.
+ *
+ * <p>The image is a 2:1 rectangle covering the whole sphere, longitude across and
+ * latitude down; .HDR and .EXR are supported.</p>
  */
 public class HDRIBackground implements Background {
 

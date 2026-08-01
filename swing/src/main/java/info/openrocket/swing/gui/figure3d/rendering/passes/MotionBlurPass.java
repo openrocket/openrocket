@@ -17,34 +17,8 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 /**
- * Motion blur post-processing pass for dynamic visual effects.
- * 
- * This pass applies screen-space motion blur to create the visual impression of
- * rapid movement or camera motion. The effect enhances the perception of speed
- * and adds cinematic quality to rocket simulations, particularly during launch
- * sequences or high-velocity flight phases.
- * 
- * Motion blur techniques:
- * - **Velocity-based blurring**: Simulates motion trails based on movement direction
- * - **Configurable intensity**: Adjustable blur factor for different scenarios
- * - **Screen-space processing**: Operates on final rendered image for efficiency
- * - **Directional sampling**: Creates natural-looking blur streaks
- * 
- * Visual benefits:
- * - **Realism**: Mimics natural camera motion blur and retinal persistence
- * - **Speed perception**: Enhances sense of velocity and acceleration
- * - **Cinematic quality**: Adds professional visual polish to animations
- * - **Immersion**: Increases emotional impact during dynamic sequences
- * 
- * Technical implementation:
- * - Single full-screen pass with specialized blur shaders
- * - Uses previous frame motion vectors for accurate blur direction
- * - Dedicated framebuffer for output texture generation
- * - Configurable blur factor for artistic control
- * - Efficient sampling patterns for performance optimization
- * 
- * The motion blur intensity can be dynamically adjusted based on camera movement,
- * object velocity, or user preferences to achieve the desired visual effect.
+ * Screen-space motion blur, applied as a single full-screen pass. Blur direction
+ * comes from the previous frame's motion vectors; the strength is configurable.
  */
 public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 

@@ -32,31 +32,13 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
 /**
- * Specialized render pass for aerodynamic and mass property visualization carets.
- * 
- * This pass renders visual indicators for the Center of Gravity (CG) and Center of
- * Pressure (CP) positions in rocket simulations. These carets provide critical
- * visual feedback for rocket stability analysis and design validation.
- * 
- * Key features:
- * - **Real-time Calculation**: Automatically updates CG/CP positions when rocket configuration changes
- * - **Aerodynamic Integration**: Uses Barrowman calculator for accurate CP computation
- * - **Mass Calculation**: Integrates with OpenRocket's mass calculator for precise CG location
- * - **Billboard Rendering**: Carets always face the camera for optimal visibility
- * - **Color Coding**: Blue for CG (mass-related), Red for CP (aerodynamic-related)
- * - **Scale Awareness**: Positions scaled to match world coordinate system
- * 
- * Technical implementation:
- * - Listens for rocket configuration changes to update positions dynamically
- * - Renders carets without depth testing to ensure visibility through geometry
- * - Uses specialized billboard shaders for orientation-independent display
- * - Integrates with OpenRocket's flight configuration system
- * 
- * The carets are essential tools for rocket designers to:
- * - Verify static stability margins
- * - Analyze the effect of component changes on balance
- * - Visualize aerodynamic center progression
- * - Validate design configurations before flight
+ * Draws the centre of gravity and centre of pressure markers.
+ *
+ * <p>Both are billboards, so they face the camera whatever the view, and both are
+ * drawn with depth testing off so they stay visible through the rocket. Their
+ * positions come from the host where there is one, and are otherwise computed
+ * here from the mass calculator and the Barrowman calculator; see
+ * {@link #setPositions}.</p>
  */
 public class CaretsPass implements RenderPass {
 

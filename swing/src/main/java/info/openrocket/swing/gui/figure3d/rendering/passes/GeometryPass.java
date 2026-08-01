@@ -44,36 +44,12 @@ import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 /**
- * Primary geometry rendering pass for 3D scene objects.
- * 
- * This pass handles the core 3D geometry rendering with sophisticated material
- * shading, transparency management, and multiple rendering modes. It processes
- * all scene objects and renders them with proper depth sorting, material
- * application, and special rendering techniques as required.
- * 
- * Rendering pipeline stages:
- * 1. **Object Classification**: Separates opaque and transparent objects
- * 2. **Depth Sorting**: Back-to-front sorting for transparent objects
- * 3. **Multi-Pass Rendering**:
- *    - Opaque pass with depth writes enabled
- *    - Transparent pass with depth writes disabled
- *    - "Render on top" pass with depth testing disabled
- * 
- * Advanced features:
- * - **Material System**: Full PBR-style material rendering with textures and decals
- * - **Transparency Handling**: Proper alpha blending with depth sorting
- * - **Rendering Modes**: Support for wireframe, X-ray, and unfinished modes
- * - **Texture Management**: Efficient texture binding and parameter optimization
- * - **Performance Tracking**: Statistics collection for optimization
- * 
- * Special rendering modes:
- * - **Wireframe**: Line-based rendering for technical visualization
- * - **X-ray**: Transparent rendering for internal component visibility
- * - **Unfinished**: Texture-free rendering for simplified visualization
- * - **Render on Top**: Overlay rendering that ignores depth
- * 
- * The pass integrates with the texture state manager for optimal performance
- * and maintains detailed statistics for debugging and optimization purposes.
+ * Renders the scene geometry with its materials.
+ *
+ * <p>Objects are split into opaque and transparent, the transparent ones sorted
+ * back to front, and then drawn in three passes: opaque with depth writes on,
+ * transparent with depth writes off, and finally the "render on top" objects with
+ * depth testing off. Wireframe, X-ray and unfinished modes are handled here too.</p>
  */
 public class GeometryPass implements RenderPass {
 

@@ -3,35 +3,9 @@ package info.openrocket.swing.gui.figure3d.rendering.backgrounds;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 
 /**
- * Cubemap-based skybox background renderer for 360-degree environments.
- * 
- * Implements traditional skybox rendering using cubemap textures to create
- * seamless 360-degree backgrounds. Skyboxes are rendered at infinite distance,
- * providing consistent environmental visuals regardless of camera position
- * while maintaining excellent performance.
- * 
- * Technical implementation:
- * - Six-faced cubemap texture for complete 360-degree coverage
- * - Rendered at infinite distance using depth buffer tricks
- * - Direction-based texture sampling using view rays
- * - Optimized rendering with early depth rejection
- * - Seamless transitions between cube faces
- * - Support for both LDR and HDR cubemap formats
- * 
- * Cubemap organization:
- * - +X (Right), -X (Left)
- * - +Y (Top), -Y (Bottom) 
- * - +Z (Front), -Z (Back)
- * 
- * Skyboxes are ideal for:
- * - Outdoor environments and landscapes
- * - Space scenes and astronomical backgrounds
- * - Architectural visualization
- * - Any scenario requiring consistent distant environment
- * 
- * The cubemap approach provides better texture resolution distribution
- * compared to sphere mapping and avoids the polar distortion issues
- * common in equirectangular projections.
+ * A background sampled from a six-faced cubemap, drawn at infinite distance.
+ *
+ * <p>Faces are ordered +X, -X, +Y, -Y, +Z, -Z, and sampled along the view ray.</p>
  */
 public class SkyboxBackground implements Background {
 

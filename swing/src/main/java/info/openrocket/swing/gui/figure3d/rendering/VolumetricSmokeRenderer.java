@@ -43,35 +43,14 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * Advanced volumetric smoke renderer with dynamic lighting integration.
- * 
- * This renderer creates realistic smoke effects by combining billboarded textured
- * particles with advanced lighting calculations. The smoke responds dynamically to
- * nearby flame lights, creating convincing illumination and shadowing effects
- * that enhance the visual realism of rocket exhaust systems.
- * 
- * Advanced features:
- * - Volumetric smoke particle rendering with size progression
- * - Dynamic light detection from flame emitters in the scene
- * - Per-emitter light sensitivity configuration
- * - Billboard quad generation with proper camera orientation
- * - Age-based particle size and opacity evolution
- * - Realistic smoke texture mapping and blending
- * - Proper depth handling for transparent particle layering
- * 
- * Lighting model:
- * - Automatically detects the brightest flame emitter as primary light source
- * - Uses flame position and intensity to illuminate smoke particles
- * - Supports configurable ambient lighting for base visibility
- * - Per-emitter light sensitivity allows fine-tuning of illumination response
- * 
- * Particle lifecycle:
- * - Particles start small (20% of max size) and grow over their lifetime
- * - Opacity remains strong for 80% of particle life, then fades quickly
- * - Size increases linearly with age for natural smoke dispersion behavior
- * 
- * This renderer is specifically optimized for smoke emitters and provides
- * high-quality volumetric smoke effects suitable for realistic rocket simulations.
+ * Renders smoke emitters as camera-facing textured billboards, lit by the flames
+ * around them.
+ *
+ * <p>The brightest flame emitter in the scene acts as the light source; how
+ * strongly a given emitter responds to it is configurable, over a constant
+ * ambient term. Particles start at a fifth of their maximum size and grow
+ * linearly with age, holding their opacity for the first 80% of their life and
+ * then fading.</p>
  */
 public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 

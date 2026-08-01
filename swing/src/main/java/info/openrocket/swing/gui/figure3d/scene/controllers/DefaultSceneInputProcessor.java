@@ -44,7 +44,8 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
     private ViewportDimensions viewport;
     
     /**
-     * Constructs a new InputHandler with the required dependencies for scene interaction.
+     * Constructs a new input processor with the dependencies it needs to interact
+     * with the scene.
      * 
      * @param inputState the input state tracker for mouse and keyboard events
      * @param raycaster the raycaster for 3D object intersection and selection

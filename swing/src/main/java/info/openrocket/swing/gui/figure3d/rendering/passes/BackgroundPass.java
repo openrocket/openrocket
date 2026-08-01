@@ -33,43 +33,12 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
 /**
- * Multi-technique background rendering pass for diverse environmental effects.
- * 
- * This render pass provides comprehensive background rendering capabilities,
- * supporting multiple background types with specialized rendering techniques
- * for each. The pass automatically detects the background type and applies
- * the appropriate rendering method to create the desired environmental effect.
- * 
- * Supported background techniques:
- * 
- * 1. **Solid Color Backgrounds**:
- *    - Simple color clearing with optional transparency
- *    - Checkerboard pattern for transparent backgrounds
- *    - Optimal performance for simple use cases
- * 
- * 2. **Gradient Backgrounds**:
- *    - Smooth vertical color transitions using interpolated quads
- *    - Perfect for atmospheric and horizon effects
- *    - Linear color space rendering for accurate blending
- * 
- * 3. **Skybox Backgrounds**:
- *    - Cubemap-based 360-degree environments
- *    - Rendered at infinite distance with depth buffer optimization
- *    - Seamless cube face transitions
- * 
- * 4. **HDRI Backgrounds**:
- *    - High Dynamic Range equirectangular environment maps
- *    - Realistic lighting and environmental reflections
- *    - Automatic exposure control and tone mapping
- * 
- * Technical implementation:
- * - Specialized shaders for each background type
- * - Depth buffer management for proper geometry integration
- * - Texture state management for optimal performance
- * - Automatic viewport-sized geometry generation
- * 
- * The pass ensures backgrounds are rendered behind all geometry while
- * maintaining proper depth testing for scene objects.
+ * Draws the scene background, behind all geometry.
+ *
+ * <p>Dispatches on the background type, each with its own shader: a solid colour
+ * (drawn as a checkerboard when transparent), a vertical gradient, a cubemap
+ * skybox, or an equirectangular HDRI. Skybox and HDRI are drawn at infinite
+ * distance so they stay put as the camera moves.</p>
  */
 public class BackgroundPass implements RenderPass {
 
