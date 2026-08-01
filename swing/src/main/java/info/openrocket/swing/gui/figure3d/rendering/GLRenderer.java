@@ -101,4 +101,15 @@ public interface GLRenderer {
 	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
 	 */
 	default void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {}
+
+	/**
+	 * Tells the renderer how many physical pixels the display packs into one logical one.
+	 *
+	 * Anything sized to look the same everywhere — screen-space markers, for instance —
+	 * has to account for this, or it comes out half-size on a HiDPI screen and full size
+	 * on an ordinary one.
+	 *
+	 * @param displayScale framebuffer pixels per logical pixel; 1.0 on a non-scaled display
+	 */
+	default void setDisplayScale(float displayScale) {}
 }

@@ -73,8 +73,18 @@ public class CaretsPass implements RenderPass {
     private final Rocket rocket;
     private Vector3f cgPosition = new Vector3f();
     private Vector3f cpPosition = new Vector3f();
-    private static final float FIXED_SCREEN_SCALE = 42.0f;
+    /**
+     * Caret size in logical pixels, multiplied by the display scale before use.
+     *
+     * It used to be applied in framebuffer pixels, which made the markers a constant number
+     * of physical pixels: half the intended size on a HiDPI screen and full size on an
+     * ordinary one, so the same design looked noticeably larger on a non-scaled display.
+     * The value here is half the old constant, which leaves a 2x display looking as it did
+     * and brings everything else down to match it.
+     */
+    private static final float FIXED_SCREEN_SCALE = 21.0f;
     private int viewportHeight = 1;
+    private float displayScale = 1.0f;
     private boolean cgValid = false;
     private boolean cpValid = false;
     /**
@@ -186,7 +196,7 @@ public class CaretsPass implements RenderPass {
         shader.setUniformMatrix4f("projectionMatrix", projectionMatrix);
         shader.setUniformMatrix4f("viewMatrix", viewMatrix);
         shader.setUniformFloat("scaleWithView", config.getVisualEffects().isCaretScaleWithView() ? 1.0f : 0.0f);
-        shader.setUniformFloat("fixedScaleFactor", FIXED_SCREEN_SCALE);
+        shader.setUniformFloat("fixedScaleFactor", FIXED_SCREEN_SCALE * displayScale);
         shader.setUniformFloat("viewportHeight", (float) viewportHeight);
 
         if (cgValid) {
@@ -209,6 +219,16 @@ public class CaretsPass implements RenderPass {
     @Override
     public void resize(int width, int height) {
         this.viewportHeight = Math.max(1, height);
+    }
+
+    /**
+     * Sets how many framebuffer pixels the display packs into one logical pixel, so the
+     * carets keep the same apparent size whatever the screen's scaling.
+     *
+     * @param displayScale framebuffer pixels per logical pixel; 1.0 on a non-scaled display
+     */
+    public void setDisplayScale(float displayScale) {
+        this.displayScale = displayScale > 0.0f ? displayScale : 1.0f;
     }
 
     @Override

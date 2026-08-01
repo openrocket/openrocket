@@ -85,6 +85,7 @@ public class Scene3DOrchestrator {
 		inputHandler.updateDimensions(viewport);
 		if (renderer != null) {
 			renderer.resize(viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
+			renderer.setDisplayScale(getDisplayScale());
 		}
 	}
 
@@ -119,6 +120,19 @@ public class Scene3DOrchestrator {
 	 * @param cg centre of gravity, or {@code null}/NaN when there is nothing to show
 	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
 	 */
+	/**
+	 * Framebuffer pixels per logical pixel, as reported by the current viewport.
+	 *
+	 * @return the display scale, 1.0 when the viewport has no usable size yet
+	 */
+	public float getDisplayScale() {
+		int windowHeight = viewport.getWindowHeight();
+		if (windowHeight <= 0) {
+			return 1.0f;
+		}
+		return (float) viewport.getFramebufferHeight() / windowHeight;
+	}
+
 	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
 		GLRenderer activeRenderer = renderer;
 		if (activeRenderer != null) {
@@ -514,6 +528,8 @@ public class Scene3DOrchestrator {
 		} else {
 			this.renderer = new RealisticRenderer(renderingConfiguration, rocket, viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
 		}
+		// A view that opens at its final size never resizes, so this cannot wait for resize().
+		this.renderer.setDisplayScale(getDisplayScale());
 
 		// 3. Initialize controllers
 		this.cameraController = new CameraController(rocket, camera, scene, renderingConfiguration);

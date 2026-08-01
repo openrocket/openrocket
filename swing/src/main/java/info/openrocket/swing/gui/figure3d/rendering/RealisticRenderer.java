@@ -822,6 +822,11 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	@Override
+	public void setDisplayScale(float displayScale) {
+		caretsPass.setDisplayScale(displayScale);
+	}
+
+	@Override
 	public void resetTextureState() {
 		textureStateManager.reset();
 	}
