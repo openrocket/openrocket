@@ -275,6 +275,92 @@ public class FlightEventsTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * A motor in a pod fires its ejection charge inside the pod, so it must not deploy a recovery
+	 * device in the airframe the pod is strapped to.
+	 * See <a href="https://github.com/openrocket/openrocket/issues/2092">GitHub issue #2092</a>.
+	 */
+	@Test
+	public void testPodMotorDoesNotDeployParentRecoveryDevice() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIIIWithMotorPods();
+		final BodyTube bodyTube = (BodyTube) rocket.getStage(0).getChild(1);
+		final Parachute parachute = (Parachute) bodyTube.getChild(3);
+
+		final Simulation sim = simulate(rocket);
+
+		assertEquals(1, sim.getSimulatedData().getBranchCount(), "Motor pods should not create a new branch");
+
+		// The pod A10-0s fire their ejection charges the instant they burn out, the sustainer's B4-3
+		// only fires its charge three seconds after its own burnout.
+		final List<FlightEvent> ejections = getEvents(sim, FlightEvent.Type.EJECTION_CHARGE);
+		assertEquals(2, ejections.size(), "Expected an ejection charge from both the pod and the sustainer motors");
+		assertEquals(1.05, ejections.get(0).getTime(), EPSILON, "Pod motor ejection charge at wrong time");
+		assertEquals(5.0, ejections.get(1).getTime(), EPSILON, "Sustainer motor ejection charge at wrong time");
+
+		// Only the sustainer's charge may deploy the sustainer's parachute
+		final List<FlightEvent> deployments = getEvents(sim, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT);
+		assertEquals(1, deployments.size(), "Parachute should be deployed exactly once");
+		assertEquals(parachute, deployments.get(0).getSource(), "Wrong recovery device deployed");
+		assertEquals(5.001, deployments.get(0).getTime(), EPSILON, "Parachute deployed at wrong time");
+
+		// Deploying on the pod motors' charges would have blown the parachute open under thrust
+		assertTrue(getEvents(sim, FlightEvent.Type.SIM_ABORT).isEmpty(), "Simulation should not have aborted");
+		assertEquals(3.19, sim.getSimulatedData().getDeploymentVelocity(), 0.05, "Wrong deployment velocity");
+	}
+
+	/**
+	 * Only the <em>first</em> ejection charge in an airframe deploys its recovery devices; the charge
+	 * of a second motor with a longer delay must not deploy an already deployed parachute again.
+	 * See <a href="https://github.com/openrocket/openrocket/issues/2092">GitHub issue #2092</a>.
+	 */
+	@Test
+	public void testOnlyFirstEjectionChargeDeploys() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIIIWithSecondMotor();
+		final BodyTube bodyTube = (BodyTube) rocket.getStage(0).getChild(1);
+		final Parachute parachute = (Parachute) bodyTube.getChild(3);
+
+		final Simulation sim = simulate(rocket);
+
+		// The B4-3 fires its charge at t = 5.0 s, the A10-5 alongside it only at t = 6.05 s
+		final List<FlightEvent> ejections = getEvents(sim, FlightEvent.Type.EJECTION_CHARGE);
+		assertEquals(2, ejections.size(), "Expected an ejection charge from both motors");
+		assertEquals(5.0, ejections.get(0).getTime(), EPSILON, "First ejection charge at wrong time");
+		assertEquals(6.05, ejections.get(1).getTime(), EPSILON, "Second ejection charge at wrong time");
+
+		final List<FlightEvent> deployments = getEvents(sim, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT);
+		assertEquals(1, deployments.size(), "Parachute should be deployed exactly once");
+		assertEquals(parachute, deployments.get(0).getSource(), "Wrong recovery device deployed");
+		assertEquals(5.001, deployments.get(0).getTime(), EPSILON, "Parachute deployed at wrong time");
+
+		// The deployment velocity must be the one of the real deployment, not of the phantom second one
+		assertEquals(10.21, sim.getSimulatedData().getDeploymentVelocity(), 0.05, "Wrong deployment velocity");
+	}
+
+	/*
+	 * run a simulation of the rocket's TEST_FCID_1 configuration under the conditions the tests in
+	 * this class share
+	 */
+	private Simulation simulate(Rocket rocket) throws SimulationException {
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions().getAverageWindModel().setAverage(0.1);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_1);
+
+		sim.simulate();
+
+		return sim;
+	}
+
+	/*
+	 * collect the events of a single type from the simulation's main branch, in the order they occurred
+	 */
+	private List<FlightEvent> getEvents(Simulation sim, FlightEvent.Type type) {
+		return sim.getSimulatedData().getBranch(0).getEvents().stream()
+				.filter(e -> e.getType() == type)
+				.toList();
+	}
+
 	/*
 	 * make sure expected and actual events match
 	 *

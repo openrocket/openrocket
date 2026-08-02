@@ -401,6 +401,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			for (RocketComponent c : currentStatus.getConfiguration().getActiveComponents()) {
 				if (!(c instanceof RecoveryDevice))
 					continue;
+				// A recovery device can only deploy once, so ignore any further triggers (for example the
+				// ejection charge of a second motor in the same airframe).
+				if (currentStatus.getDeployedRecoveryDevices().contains(c))
+					continue;
 				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfigurations().get(this.fcid);
 				if (deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
@@ -579,8 +583,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				RocketComponent c = event.getSource();
 				int n = c.getStageNumber();
 
-				// Ignore event if stage not active
-				if (currentStatus.getConfiguration().isStageActive(n)) {
+				// Ignore event if stage not active, or if the device is already deployed.  The latter
+				// can still happen after the check made when the event was queued, since two motors may
+				// fire their ejection charges at the very same instant.
+				if (currentStatus.getConfiguration().isStageActive(n) &&
+						!currentStatus.getDeployedRecoveryDevices().contains(c)) {
 					// TODO: HIGH: Check stage activeness for other events as well?
 
 					// Check whether any motor in the active stages is active anymore
