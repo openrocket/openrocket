@@ -40,20 +40,20 @@ public class Scene3DOrchestrator {
 
 	private static final Logger log = LoggerFactory.getLogger(Scene3DOrchestrator.class);
 
-    public final SceneView scene;
-    private final GLRenderer renderer;
+	public final SceneView scene;
+	private final GLRenderer renderer;
 	private final RenderingConfiguration renderingConfiguration;
 	private final ViewportDimensions viewport;
-    private final CameraControls cameraController;
-    private final SceneInputProcessor inputHandler;
+	private final CameraControls cameraController;
+	private final SceneInputProcessor inputHandler;
 	private final ConcurrentLinkedQueue<Runnable> glTaskQueue = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean shutdown = new AtomicBoolean(false);
 	private final RocketSceneSynchronizer rocketSynchronizer;
 	private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
 
-    private volatile boolean exportRequested = false;
-    private volatile boolean exportTransparent = false;
-    private final List<ExportListener> exportListeners = new ArrayList<>();
+	private volatile boolean exportRequested = false;
+	private volatile boolean exportTransparent = false;
+	private final List<ExportListener> exportListeners = new ArrayList<>();
 
 	private long lastFrameTime;
 	private volatile PlaybackClock playbackClock = null;
@@ -209,11 +209,11 @@ public class Scene3DOrchestrator {
 	 * @param transparent If true, exports with a transparent background; 
 	 *                   if false, includes the scene background
 	 */
-    public void requestExport(boolean transparent) {
-        this.exportRequested = true;
-        this.exportTransparent = transparent;
-        notifyExportRequested(transparent);
-    }
+	public void requestExport(boolean transparent) {
+		this.exportRequested = true;
+		this.exportTransparent = transparent;
+		notifyExportRequested(transparent);
+	}
 
 	/**
 	 * Checks if a PNG export has been requested and is pending.
@@ -239,40 +239,40 @@ public class Scene3DOrchestrator {
 	 * <p>This method should be called after an export has been processed
 	 * to prevent duplicate exports.</p>
 	 */
-    public void clearExportRequest() {
-        this.exportRequested = false;
-    }
+	public void clearExportRequest() {
+		this.exportRequested = false;
+	}
 
-    // --- Export listeners ---
-    public void addExportListener(ExportListener listener) {
-        if (listener != null) exportListeners.add(listener);
-    }
+	// --- Export listeners ---
+	public void addExportListener(ExportListener listener) {
+		if (listener != null) exportListeners.add(listener);
+	}
 
-    public void removeExportListener(ExportListener listener) {
-        exportListeners.remove(listener);
-    }
+	public void removeExportListener(ExportListener listener) {
+		exportListeners.remove(listener);
+	}
 
-    private void notifyExportRequested(boolean transparent) {
-        for (ExportListener l : exportListeners) {
-            l.onExportRequested(transparent);
-        }
-    }
+	private void notifyExportRequested(boolean transparent) {
+		for (ExportListener l : exportListeners) {
+			l.onExportRequested(transparent);
+		}
+	}
 
 	/**
 	 * Gets the unified rendering configuration containing all rendering settings.
 	 * 
 	 * @return The rendering configuration instance
 	 */
-    public RenderingConfiguration getRenderingConfiguration() {
-        return renderingConfiguration;
-    }
+	public RenderingConfiguration getRenderingConfiguration() {
+		return renderingConfiguration;
+	}
 
-    /**
-     * Exposes the renderer via its interface to reduce coupling.
-     */
-    public GLRenderer getRenderer() {
-        return renderer;
-    }
+	/**
+	 * Exposes the renderer via its interface to reduce coupling.
+	 */
+	public GLRenderer getRenderer() {
+		return renderer;
+	}
 
 	public AppearanceFactory.DecalTextureCache getDecalTextureCache() {
 		return decalTextureCache;
@@ -317,18 +317,18 @@ public class Scene3DOrchestrator {
 	 * 
 	 * @return The camera controller instance
 	 */
-    public CameraControls getCameraController() {
-        return cameraController;
-    }
+	public CameraControls getCameraController() {
+		return cameraController;
+	}
 	
 	/**
 	 * Gets the input handler for external access to input state and processing.
 	 * 
 	 * @return The input handler instance
 	 */
-    public SceneInputProcessor getInputHandler() {
-        return inputHandler;
-    }
+	public SceneInputProcessor getInputHandler() {
+		return inputHandler;
+	}
 	
 	/**
 	 * Gets the viewport dimensions for external access to coordinate conversion.
@@ -519,7 +519,7 @@ public class Scene3DOrchestrator {
 		this.viewport = viewport;
 		this.scene = scene;
 		this.renderingConfiguration = config;
-        Raycaster raycaster = new DefaultRaycaster();
+		Raycaster raycaster = new DefaultRaycaster();
 		InputState inputState = new InputState();
 
 		// 2. Initialize renderer
@@ -544,9 +544,9 @@ public class Scene3DOrchestrator {
 			}
 		});
 		
-        this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController,
+		this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController,
 				renderingConfiguration);
-        this.inputHandler.updateDimensions(viewport);
+		this.inputHandler.updateDimensions(viewport);
 
 		this.rocketSynchronizer = new RocketSceneSynchronizer(this, this.scene, rocket);
 		this.lastFrameTime = System.nanoTime();

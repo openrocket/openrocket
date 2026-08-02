@@ -56,8 +56,8 @@ public class LightManager implements LightController {
 	 * @param light the light to add to the scene
 	 * @param addVisualizer if true, creates and adds a visual representation of the light
 	 */
-    @Override
-    public void addLight(Light light, boolean addVisualizer) {
+	@Override
+	public void addLight(Light light, boolean addVisualizer) {
 		if (lights.size() >= 10) { // Corresponds to MAX_LIGHTS in the shader
 			log.warn("Cannot add more than 10 lights.");
 			return;
@@ -73,20 +73,20 @@ public class LightManager implements LightController {
 	 * 
 	 * @param light the light to add to the scene
 	 */
-    @Override
-    public void addLight(Light light) {
-        addLight(light, visualizersVisible);
-    }
+	@Override
+	public void addLight(Light light) {
+		addLight(light, visualizersVisible);
+	}
 
 	/**
 	 * Gets the list of all active lights in the scene.
 	 * 
 	 * @return an unmodifiable view of all lights managed by this controller
 	 */
-    @Override
-    public List<Light> getLights() {
-        return lights;
-    }
+	@Override
+	public List<Light> getLights() {
+		return lights;
+	}
 
 	/**
 	 * Gets a specific light by its index in the light list.
@@ -95,13 +95,13 @@ public class LightManager implements LightController {
 	 * @return the light at the specified index
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 */
-    @Override
-    public Light getLight(int index) {
-        if (index < 0 || index >= lights.size()) {
-            throw new IndexOutOfBoundsException("Invalid light index: " + index);
-        }
-        return lights.get(index);
-    }
+	@Override
+	public Light getLight(int index) {
+		if (index < 0 || index >= lights.size()) {
+			throw new IndexOutOfBoundsException("Invalid light index: " + index);
+		}
+		return lights.get(index);
+	}
 
 	/**
 	 * Replaces an existing light at the specified index with a new light.
@@ -111,11 +111,11 @@ public class LightManager implements LightController {
 	 * @param index the zero-based index where the light should be placed
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 */
-    @Override
+	@Override
 	public void setLight(Light light, int index) {
-        if (index < 0 || index >= lights.size()) {
-            throw new IndexOutOfBoundsException("Invalid light index: " + index);
-        }
+		if (index < 0 || index >= lights.size()) {
+			throw new IndexOutOfBoundsException("Invalid light index: " + index);
+		}
 		// Remove the old light's visuals first
 		Light oldLight = lights.get(index);
 		if (lightVisualsMap.containsKey(oldLight)) {
@@ -136,12 +136,12 @@ public class LightManager implements LightController {
 	 * 
 	 * @param light the light to remove from the scene
 	 */
-    @Override
-    public void removeLight(Light light) {
-        if (lights.remove(light)) {
-            removeLightVisualizer(light);
-        }
-    }
+	@Override
+	public void removeLight(Light light) {
+		if (lights.remove(light)) {
+			removeLightVisualizer(light);
+		}
+	}
 
 	@Override
 	public boolean areVisualizersVisible() {
@@ -197,11 +197,11 @@ public class LightManager implements LightController {
 	 * <p>Note: Visual objects (SceneObjects) are cleaned up by the main scene
 	 * cleanup process. This method is provided for consistency and future extensions.</p>
 	 */
-    @Override
-    public void cleanup() {
-        // Light objects themselves don't have resources to clean up.  
-        // The visualizer SceneObjects will be cleaned up by the Scene's main cleanup method.
-    }
+	@Override
+	public void cleanup() {
+		// Light objects themselves don't have resources to clean up.  
+		// The visualizer SceneObjects will be cleaned up by the Scene's main cleanup method.
+	}
 
 	private void updateLightVisualizer(Light light, boolean shouldShow) {
 		if (shouldShow) {

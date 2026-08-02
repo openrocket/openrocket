@@ -8,8 +8,8 @@ package info.openrocket.swing.gui.figure3d.ui;
  */
 public interface HUDUpdateListener {
 
-    /**
-     * Called when the HUD content has changed and needs to be re-rendered.
-     */
-    void markHudForUpdate();
+	/**
+	 * Called when the HUD content has changed and needs to be re-rendered.
+	 */
+	void markHudForUpdate();
 }

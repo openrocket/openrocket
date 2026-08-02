@@ -126,7 +126,7 @@ public class RealisticRenderer implements GLRenderer {
 	private final Matrix4f blurViewProjection = new Matrix4f();
 
 	// Performance optimizations
-    private final TextureBinder textureStateManager = new TextureStateManager();
+	private final TextureBinder textureStateManager = new TextureStateManager();
 	private final RenderStats renderStats = new RenderStats();
 
 	// Viewport dimensions the renderer was created with, kept around so the
@@ -148,15 +148,15 @@ public class RealisticRenderer implements GLRenderer {
 	private final ParticleRenderer particleRenderer;
 	private final VolumetricSmokeRenderer volumetricSmokeRenderer;
 	private final FlameRenderer flameRenderer;
-    private final GLShader screenQuadShader;
+	private final GLShader screenQuadShader;
 	private final int screenQuadTextureLocation;
 	private final int screenQuadApplyGammaCorrectionLocation;
-    private final CaretsPass caretsPass;
-    private final CameraPointOfInterestPass cameraPointOfInterestPass;
-    private final ShadowPass shadowPass;
-    private final AmbientOcclusionPass ambientOcclusionPass;
-    private final OutlinePass outlinePass;
-    private final FXAAPass fxaaPass;
+	private final CaretsPass caretsPass;
+	private final CameraPointOfInterestPass cameraPointOfInterestPass;
+	private final ShadowPass shadowPass;
+	private final AmbientOcclusionPass ambientOcclusionPass;
+	private final OutlinePass outlinePass;
+	private final FXAAPass fxaaPass;
 
 	private final OffscreenRenderTarget renderTarget;
 	private int resolvedTextureId;
@@ -271,9 +271,9 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	private final List<RenderPass> geometryPasses = new ArrayList<>();
-    private final List<RenderPass> postProcessingPasses = new ArrayList<>();
-    private MotionBlurPass motionBlurPass;
-    private volatile boolean interactionMode = false;
+	private final List<RenderPass> postProcessingPasses = new ArrayList<>();
+	private MotionBlurPass motionBlurPass;
+	private volatile boolean interactionMode = false;
 
 	/**
 	 * Creates a new realistic renderer with the specified configuration and viewport dimensions.
@@ -394,7 +394,7 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	@Override
-    public void render(SceneView scene, boolean renderBackground) {
+	public void render(SceneView scene, boolean renderBackground) {
 		renderStats.reset();
 		long startTime = System.nanoTime();
 
@@ -685,19 +685,19 @@ public class RealisticRenderer implements GLRenderer {
 		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
 			if (emitter instanceof FlameEmitter flameEmitter) {
 				// Remove old light if it exists
-                Light oldLight = flameEmitter.getFlameLight();
-                if (oldLight != null) {
-                    scene.getLightController().removeLight(oldLight);
-                }
+				Light oldLight = flameEmitter.getFlameLight();
+				if (oldLight != null) {
+					scene.getLightController().removeLight(oldLight);
+				}
 				
 				// Update the flame's light properties
 				flameEmitter.updateFlameLight();
 				
 				// Add new light if it exists
-                Light newLight = flameEmitter.getFlameLight();
-                if (newLight != null) {
-                    scene.getLightController().addLight(newLight);
-                }
+				Light newLight = flameEmitter.getFlameLight();
+				if (newLight != null) {
+					scene.getLightController().addLight(newLight);
+				}
 			}
 		}
 	}
@@ -808,9 +808,9 @@ public class RealisticRenderer implements GLRenderer {
 		for (RenderPass pass : geometryPasses) {
 			pass.resize(width, height);
 		}
-        ambientOcclusionPass.resize(width, height);
-        outlinePass.resize(width, height);
-        fxaaPass.resize(width, height);
+		ambientOcclusionPass.resize(width, height);
+		outlinePass.resize(width, height);
+		fxaaPass.resize(width, height);
 		motionBlurPass.resize(width, height);
 		caretsPass.resize(width, height);
 		cameraPointOfInterestPass.resize(width, height);
@@ -837,7 +837,7 @@ public class RealisticRenderer implements GLRenderer {
 		particleRenderer.cleanup();
 		flameRenderer.cleanup();
 		volumetricSmokeRenderer.cleanup();
-        screenQuadShader.cleanup();
+		screenQuadShader.cleanup();
 
 		caretsPass.cleanup();
 		cameraPointOfInterestPass.cleanup();
@@ -846,9 +846,9 @@ public class RealisticRenderer implements GLRenderer {
 		for (RenderPass pass : geometryPasses) {
 			pass.cleanup();
 		}
-        ambientOcclusionPass.cleanup();
-        outlinePass.cleanup();
-        fxaaPass.cleanup();
+		ambientOcclusionPass.cleanup();
+		outlinePass.cleanup();
+		fxaaPass.cleanup();
 		motionBlurPass.cleanup();
 
 		renderTarget.cleanup();
@@ -878,11 +878,11 @@ public class RealisticRenderer implements GLRenderer {
 	}
 	
 	private void updatePostProcessingChain() {
-        postProcessingPasses.clear();
-        postProcessingPasses.add(outlinePass);
-        if (config.getQuality().isFXAAEnabled()) {
-            postProcessingPasses.add(fxaaPass);
-        }
+		postProcessingPasses.clear();
+		postProcessingPasses.add(outlinePass);
+		if (config.getQuality().isFXAAEnabled()) {
+			postProcessingPasses.add(fxaaPass);
+		}
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public interface GLRenderer {
 	 * @param scene The scene containing geometry, lights, camera, and particle systems to render
 	 * @param renderBackground Whether to render the scene background or leave it transparent
 	 */
-    void render(SceneView scene, boolean renderBackground);
+	void render(SceneView scene, boolean renderBackground);
 
 	/**
 	 * Draws the last rendered off-screen frame into the currently bound framebuffer.

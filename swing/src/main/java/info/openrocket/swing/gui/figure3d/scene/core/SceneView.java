@@ -33,13 +33,13 @@ public interface SceneView {
 	 *
 	 * @return an unmodifiable view of all SceneObjects in the scene
 	 */
-    List<SceneObject> getObjects();
+	List<SceneObject> getObjects();
 
 	/**
 	 * Gets all currently selected objects in the scene.
 	 * @return a list of selected SceneObjects
 	 */
-    List<SceneObject> getSelectedObjects();
+	List<SceneObject> getSelectedObjects();
 
 	/**
 	 * Updates the selection state based on a raycast intersection.
@@ -65,7 +65,7 @@ public interface SceneView {
 	 *
 	 * @return a list of all ParticleEmitters in the scene
 	 */
-    List<ParticleEmitter> getParticleEmitters();
+	List<ParticleEmitter> getParticleEmitters();
 
 	/**
 	 * Gets the background settings for the scene.
@@ -95,7 +95,7 @@ public interface SceneView {
 	 * Gets the light controller for managing scene lighting.
 	 * @return the LightController instance
 	 */
-    LightController getLightController();
+	LightController getLightController();
 
 	/* --------------------------------------------------------------
 	 * PARTICLE SYSTEM

@@ -7,8 +7,8 @@ import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
  * Abstraction for scene-level input processing used by the orchestrator.
  */
 public interface SceneInputProcessor {
-    void processInput();
-    void updateDimensions(ViewportDimensions viewport);
-    InputState getInputState();
+	void processInput();
+	void updateDimensions(ViewportDimensions viewport);
+	InputState getInputState();
 }
 

@@ -20,69 +20,69 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
  */
 public class FXAAPass implements RenderPass, ScreenTexturePass {
 
-    private final GLShader shader;
-    private final int screenQuadVAO;
-    private final PostProcessRenderTarget target;
-    private int inputTexture;
+	private final GLShader shader;
+	private final int screenQuadVAO;
+	private final PostProcessRenderTarget target;
+	private int inputTexture;
 
-    /**
-     * Creates a new FXAA post-processing pass.
-     * 
-     * Initializes the FXAA shaders and creates framebuffer resources for the
-     * specified resolution. The pass is ready to process input textures immediately.
-     * 
-     * @param screenQuadVAO Vertex array object for full-screen quad rendering
-     * @param initialWidth Initial framebuffer width in pixels
-     * @param initialHeight Initial framebuffer height in pixels
-     * @throws ShaderException If shader compilation fails
-     */
-    public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) {
-        this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
-        this.screenQuadVAO = screenQuadVAO;
-        this.target = new PostProcessRenderTarget("FXAA", initialWidth, initialHeight);
-        this.shader.use();
-        this.shader.setUniformInt("screenTexture", 0); // Set texture unit once
-        this.shader.unbind();
-    }
+	/**
+	 * Creates a new FXAA post-processing pass.
+	 * 
+	 * Initializes the FXAA shaders and creates framebuffer resources for the
+	 * specified resolution. The pass is ready to process input textures immediately.
+	 * 
+	 * @param screenQuadVAO Vertex array object for full-screen quad rendering
+	 * @param initialWidth Initial framebuffer width in pixels
+	 * @param initialHeight Initial framebuffer height in pixels
+	 * @throws ShaderException If shader compilation fails
+	 */
+	public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) {
+		this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
+		this.screenQuadVAO = screenQuadVAO;
+		this.target = new PostProcessRenderTarget("FXAA", initialWidth, initialHeight);
+		this.shader.use();
+		this.shader.setUniformInt("screenTexture", 0); // Set texture unit once
+		this.shader.unbind();
+	}
 
-    @Override
-    public void setInputTexture(int textureId) {
-        this.inputTexture = textureId;
-    }
+	@Override
+	public void setInputTexture(int textureId) {
+		this.inputTexture = textureId;
+	}
 
-    @Override
-    public int getOutputTexture() {
-        return target.getColorTextureId();
-    }
+	@Override
+	public int getOutputTexture() {
+		return target.getColorTextureId();
+	}
 
-    @Override
-    public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
-        target.bind();
-        glClear(GL_COLOR_BUFFER_BIT);
-        glDisable(GL_DEPTH_TEST);
+	@Override
+	public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+		target.bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
 
-        shader.use();
-        shader.setUniformFloat("rt_w", (float) target.getWidth());
-        shader.setUniformFloat("rt_h", (float) target.getHeight());
+		shader.use();
+		shader.setUniformFloat("rt_w", (float) target.getWidth());
+		shader.setUniformFloat("rt_h", (float) target.getHeight());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, inputTexture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, inputTexture);
 
-        PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
+		PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
 
-        shader.unbind();
-        target.unbind();
-        glEnable(GL_DEPTH_TEST);
-    }
+		shader.unbind();
+		target.unbind();
+		glEnable(GL_DEPTH_TEST);
+	}
 
-    @Override
-    public void resize(int width, int height) {
-        target.resize(width, height);
-    }
+	@Override
+	public void resize(int width, int height) {
+		target.resize(width, height);
+	}
 
-    @Override
-    public void cleanup() {
-        shader.cleanup();
-        target.cleanup();
-    }
+	@Override
+	public void cleanup() {
+		shader.cleanup();
+		target.cleanup();
+	}
 }

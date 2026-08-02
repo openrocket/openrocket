@@ -114,8 +114,8 @@ public class TextureStateManager implements TextureBinder {
 	 * @param textureType The OpenGL texture type (e.g., GL_TEXTURE_2D)
 	 * @param textureId The OpenGL texture ID to bind, or 0 to unbind
 	 */
-    @Override
-    public void bindTexture(int unit, int textureType, int textureId) {
+	@Override
+	public void bindTexture(int unit, int textureType, int textureId) {
 		if (unit < 0 || unit >= MAX_TEXTURE_UNITS) return;
 
 		// Only switch texture unit if necessary
@@ -146,8 +146,8 @@ public class TextureStateManager implements TextureBinder {
 	 * @param minFilter Minification filter mode
 	 * @param magFilter Magnification filter mode
 	 */
-    @Override
-    public void setTextureParams(int textureType, int textureId, int wrapS, int wrapT, int minFilter, int magFilter) {
+	@Override
+	public void setTextureParams(int textureType, int textureId, int wrapS, int wrapT, int minFilter, int magFilter) {
 		TextureParams params = textureParamsCache.computeIfAbsent(cacheKey(textureType, textureId), k -> new TextureParams());
 
 		if (params.wrapS != wrapS) {
@@ -177,8 +177,8 @@ public class TextureStateManager implements TextureBinder {
 	 * @param unit The texture unit to unbind
 	 * @param textureType The OpenGL texture target to unbind
 	 */
-    @Override
-    public void unbindTexture(int unit, int textureType) {
+	@Override
+	public void unbindTexture(int unit, int textureType) {
 		bindTexture(unit, textureType, 0);
 	}
 
@@ -188,7 +188,7 @@ public class TextureStateManager implements TextureBinder {
 	 * Should be called when the OpenGL context is lost or recreated
 	 * to ensure the cache remains consistent with actual GPU state.
 	 */
-    @Override
+	@Override
 	public void reset() {
 		boundTexturesByType.clear();
 		textureParamsCache.clear();

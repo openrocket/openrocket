@@ -9,6 +9,6 @@ import java.util.List;
  */
 @FunctionalInterface
 public interface SelectionListener {
-    void onSelectionChanged(List<SceneObject> selectedObjects);
+	void onSelectionChanged(List<SceneObject> selectedObjects);
 }
 

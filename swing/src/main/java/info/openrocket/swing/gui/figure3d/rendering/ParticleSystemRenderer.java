@@ -22,7 +22,7 @@ public interface ParticleSystemRenderer {
 	 * @param scene The scene containing particle emitters
 	 * @param camera The camera for view/projection matrices
 	 */
-    void render(SceneView scene, Camera camera);
+	void render(SceneView scene, Camera camera);
 	
 	/**
 	 * Alternative render method with explicit matrices for more control.
@@ -33,9 +33,9 @@ public interface ParticleSystemRenderer {
 	 * @param viewMatrix The view matrix to use
 	 * @param projectionMatrix The projection matrix to use
 	 */
-    default void render(SceneView scene, Camera camera, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
-        render(scene, camera);
-    }
+	default void render(SceneView scene, Camera camera, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+		render(scene, camera);
+	}
 	
 	/**
 	 * Checks if this renderer can handle the given particle emitter type.

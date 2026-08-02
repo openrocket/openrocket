@@ -53,281 +53,281 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class FlameRenderer implements ParticleSystemRenderer {
 
-    /** Floats per vertex: pos(3) + uv(2) + rgba(4) + age(1). */
-    private static final int FLOATS_PER_VERTEX = 10;
-    /** Vertices per quad (two triangles). */
-    private static final int VERTS_PER_QUAD = 6;
+	/** Floats per vertex: pos(3) + uv(2) + rgba(4) + age(1). */
+	private static final int FLOATS_PER_VERTEX = 10;
+	/** Vertices per quad (two triangles). */
+	private static final int VERTS_PER_QUAD = 6;
 
-    private final GLShader shader;
-    private final int vao;
-    private final int vbo;
-    private final FloatBuffer buffer;
-    private int maxQuads = RenderingConstants.FLAME_MAX_QUADS;
-    private final Texture flameTexture;
+	private final GLShader shader;
+	private final int vao;
+	private final int vbo;
+	private final FloatBuffer buffer;
+	private int maxQuads = RenderingConstants.FLAME_MAX_QUADS;
+	private final Texture flameTexture;
 
-    // Uniform locations
-    private final int projectionMatrixLocation;
-    private final int viewMatrixLocation;
-    private final int timeLocation;
-    private final int flameTextureLocation;
-    private final int flickerIntensityLocation;
-    private final int exposureScaleLocation;
-    private final Vector3f cameraPosition = new Vector3f();
-    private final Vector3f billboardToCamera = new Vector3f();
-    private final Vector3f billboardRight = new Vector3f();
-    private final Vector3f billboardUp = new Vector3f();
+	// Uniform locations
+	private final int projectionMatrixLocation;
+	private final int viewMatrixLocation;
+	private final int timeLocation;
+	private final int flameTextureLocation;
+	private final int flickerIntensityLocation;
+	private final int exposureScaleLocation;
+	private final Vector3f cameraPosition = new Vector3f();
+	private final Vector3f billboardToCamera = new Vector3f();
+	private final Vector3f billboardRight = new Vector3f();
+	private final Vector3f billboardUp = new Vector3f();
 
-    public FlameRenderer() {
-        shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
-        buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
+	public FlameRenderer() {
+		shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
+		buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
 
-        // Cache uniform locations
-        projectionMatrixLocation = shader.getUniformLocation("projection");
-        viewMatrixLocation = shader.getUniformLocation("view");
-        timeLocation = shader.getUniformLocation("time");
-        flameTextureLocation = shader.getUniformLocation("flameTexture");
-        flickerIntensityLocation = shader.getUniformLocation("flickerIntensity");
-        exposureScaleLocation = shader.getUniformLocation("exposureScale");
+		// Cache uniform locations
+		projectionMatrixLocation = shader.getUniformLocation("projection");
+		viewMatrixLocation = shader.getUniformLocation("view");
+		timeLocation = shader.getUniformLocation("time");
+		flameTextureLocation = shader.getUniformLocation("flameTexture");
+		flickerIntensityLocation = shader.getUniformLocation("flickerIntensity");
+		exposureScaleLocation = shader.getUniformLocation("exposureScale");
 
-        flameTexture = new Texture("/textures/smoke2.png");
+		flameTexture = new Texture("/textures/smoke2.png");
 
-        vao = glGenVertexArrays();
-        GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "FlameRenderer vao");
-        vbo = glGenBuffers();
-        GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "FlameRenderer vbo");
+		vao = glGenVertexArrays();
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "FlameRenderer vao");
+		vbo = glGenBuffers();
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "FlameRenderer vbo");
 
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, (long) buffer.capacity() * Float.BYTES, GL_DYNAMIC_DRAW);
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, (long) buffer.capacity() * Float.BYTES, GL_DYNAMIC_DRAW);
 
-        int stride = FLOATS_PER_VERTEX * Float.BYTES;
+		int stride = FLOATS_PER_VERTEX * Float.BYTES;
 
-        // location 0: position (vec3)
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
-        glEnableVertexAttribArray(0);
+		// location 0: position (vec3)
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
+		glEnableVertexAttribArray(0);
 
-        // location 1: texture coordinates (vec2)
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, stride, 3 * Float.BYTES);
-        glEnableVertexAttribArray(1);
+		// location 1: texture coordinates (vec2)
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, stride, 3 * Float.BYTES);
+		glEnableVertexAttribArray(1);
 
-        // location 2: color + alpha (vec4)
-        glVertexAttribPointer(2, 4, GL_FLOAT, false, stride, 5 * Float.BYTES);
-        glEnableVertexAttribArray(2);
+		// location 2: color + alpha (vec4)
+		glVertexAttribPointer(2, 4, GL_FLOAT, false, stride, 5 * Float.BYTES);
+		glEnableVertexAttribArray(2);
 
-        // location 3: ageRatio (float)
-        glVertexAttribPointer(3, 1, GL_FLOAT, false, stride, 9 * Float.BYTES);
-        glEnableVertexAttribArray(3);
+		// location 3: ageRatio (float)
+		glVertexAttribPointer(3, 1, GL_FLOAT, false, stride, 9 * Float.BYTES);
+		glEnableVertexAttribArray(3);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 
-    public void render(SceneView scene, Camera camera) {
-        shader.use();
-        shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
-        shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
-        glUniform1f(timeLocation, System.currentTimeMillis() * 0.001f);
+	public void render(SceneView scene, Camera camera) {
+		shader.use();
+		shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
+		shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
+		glUniform1f(timeLocation, System.currentTimeMillis() * 0.001f);
 
-        glActiveTexture(GL_TEXTURE0);
-        flameTexture.bind();
-        glUniform1i(flameTextureLocation, 0);
+		glActiveTexture(GL_TEXTURE0);
+		flameTexture.bind();
+		glUniform1i(flameTextureLocation, 0);
 
-        // Additive blending for RGB so overlapping particles brighten like real fire.
-        // Alpha channel uses standard blending to preserve compositing correctness.
-        glEnable(GL_BLEND);
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		// Additive blending for RGB so overlapping particles brighten like real fire.
+		// Alpha channel uses standard blending to preserve compositing correctness.
+		glEnable(GL_BLEND);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Keep depth testing but disable depth writes for proper blending.
-        glDepthMask(false);
+		// Keep depth testing but disable depth writes for proper blending.
+		glDepthMask(false);
 
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-        buffer.clear();
-        int vertexCount = 0;
+		buffer.clear();
+		int vertexCount = 0;
 
-        Vector3f cameraPos = camera.getPosition(cameraPosition);
+		Vector3f cameraPos = camera.getPosition(cameraPosition);
 
-        for (ParticleEmitter emitter : scene.getParticleEmitters()) {
-            if (!(emitter instanceof FlameEmitter flameEmitter)) continue;
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (!(emitter instanceof FlameEmitter flameEmitter)) continue;
 
-            glUniform1f(flickerIntensityLocation, flameEmitter.getFlickerIntensity());
-            glUniform1f(exposureScaleLocation, flameEmitter.getExposureScale());
-            float flameSizeMultiplier = flameEmitter.getSizeMultiplier();
+			glUniform1f(flickerIntensityLocation, flameEmitter.getFlickerIntensity());
+			glUniform1f(exposureScaleLocation, flameEmitter.getExposureScale());
+			float flameSizeMultiplier = flameEmitter.getSizeMultiplier();
 
-            for (Particle particle : emitter.getParticles()) {
-                if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
+			for (Particle particle : emitter.getParticles()) {
+				if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
 
-                float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
+				float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
 
-                // --- Size profile: throat → expansion → plume → taper ---
-                float baseSize = particle.getSize() * 0.8f;
-                float size;
-                if (ageRatio < 0.05f) {
-                    // Throat: narrow nozzle exit
-                    float t = ageRatio / 0.05f;
-                    size = baseSize * (0.5f + 0.5f * t);
-                } else if (ageRatio < 0.35f) {
-                    // Expansion: rapid widening
-                    float t = (ageRatio - 0.05f) / 0.30f;
-                    size = baseSize * (1.0f + 1.2f * t);
-                } else if (ageRatio < 0.65f) {
-                    // Main plume: slight continued growth
-                    float t = (ageRatio - 0.35f) / 0.30f;
-                    size = baseSize * (2.2f + 0.2f * t);
-                } else {
-                    // Taper to point
-                    float t = (ageRatio - 0.65f) / 0.35f;
-                    size = baseSize * 2.4f * (1.0f - t * t);
-                }
-                size *= flameSizeMultiplier;
-                if (size < 0.005f) continue;
+				// --- Size profile: throat → expansion → plume → taper ---
+				float baseSize = particle.getSize() * 0.8f;
+				float size;
+				if (ageRatio < 0.05f) {
+					// Throat: narrow nozzle exit
+					float t = ageRatio / 0.05f;
+					size = baseSize * (0.5f + 0.5f * t);
+				} else if (ageRatio < 0.35f) {
+					// Expansion: rapid widening
+					float t = (ageRatio - 0.05f) / 0.30f;
+					size = baseSize * (1.0f + 1.2f * t);
+				} else if (ageRatio < 0.65f) {
+					// Main plume: slight continued growth
+					float t = (ageRatio - 0.35f) / 0.30f;
+					size = baseSize * (2.2f + 0.2f * t);
+				} else {
+					// Taper to point
+					float t = (ageRatio - 0.65f) / 0.35f;
+					size = baseSize * 2.4f * (1.0f - t * t);
+				}
+				size *= flameSizeMultiplier;
+				if (size < 0.005f) continue;
 
-                // --- Alpha profile ---
-                // Lower overall alpha than standard blending because additive
-                // accumulates across overlapping particles.
-                float alpha;
-                if (ageRatio < 0.10f) {
-                    // Throat ramp-up
-                    alpha = 0.45f * (ageRatio / 0.10f);
-                } else if (ageRatio < 0.50f) {
-                    // Main body: strong but not opaque
-                    alpha = 0.45f;
-                } else {
-                    // Fade towards the tip
-                    float t = (ageRatio - 0.50f) / 0.50f;
-                    alpha = 0.45f * (1.0f - t * t);
-                }
-                alpha = Math.max(0.0f, alpha);
+				// --- Alpha profile ---
+				// Lower overall alpha than standard blending because additive
+				// accumulates across overlapping particles.
+				float alpha;
+				if (ageRatio < 0.10f) {
+					// Throat ramp-up
+					alpha = 0.45f * (ageRatio / 0.10f);
+				} else if (ageRatio < 0.50f) {
+					// Main body: strong but not opaque
+					alpha = 0.45f;
+				} else {
+					// Fade towards the tip
+					float t = (ageRatio - 0.50f) / 0.50f;
+					alpha = 0.45f * (1.0f - t * t);
+				}
+				alpha = Math.max(0.0f, alpha);
 
-                vertexCount += createParticleBillboard(
-                    particle.getPosition(),
-                    size,
-                    alpha,
-                    particle.getColor(),
-                    ageRatio,
-                    cameraPos
-                );
-            }
+				vertexCount += createParticleBillboard(
+					particle.getPosition(),
+					size,
+					alpha,
+					particle.getColor(),
+					ageRatio,
+					cameraPos
+				);
+			}
 
-            if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
-        }
+			if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
+		}
 
-        buffer.flip();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
-        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		buffer.flip();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-        glDepthMask(true);
-        glDisable(GL_BLEND);
-    }
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
+	}
 
-    private int createParticleBillboard(Vector3f position, float size, float alpha,
-                                         Vector3f color, float ageRatio, Vector3f cameraPos) {
-        billboardToCamera.set(cameraPos).sub(position);
-        if (billboardToCamera.lengthSquared() < 0.001f) {
-            billboardToCamera.set(0, 0, 1);
-        } else {
-            billboardToCamera.normalize();
-        }
+	private int createParticleBillboard(Vector3f position, float size, float alpha,
+										 Vector3f color, float ageRatio, Vector3f cameraPos) {
+		billboardToCamera.set(cameraPos).sub(position);
+		if (billboardToCamera.lengthSquared() < 0.001f) {
+			billboardToCamera.set(0, 0, 1);
+		} else {
+			billboardToCamera.normalize();
+		}
 
-        billboardRight.set(0, 1, 0).cross(billboardToCamera);
-        if (billboardRight.lengthSquared() < 0.001f) {
-            billboardRight.set(1, 0, 0);
-        } else {
-            billboardRight.normalize();
-        }
+		billboardRight.set(0, 1, 0).cross(billboardToCamera);
+		if (billboardRight.lengthSquared() < 0.001f) {
+			billboardRight.set(1, 0, 0);
+		} else {
+			billboardRight.normalize();
+		}
 
-        billboardUp.set(billboardToCamera).cross(billboardRight).normalize();
-        billboardRight.mul(size);
-        billboardUp.mul(size);
+		billboardUp.set(billboardToCamera).cross(billboardRight).normalize();
+		billboardRight.mul(size);
+		billboardUp.mul(size);
 
-        // Two triangles
-        addVertex(position.x - billboardRight.x - billboardUp.x,
-                position.y - billboardRight.y - billboardUp.y,
-                position.z - billboardRight.z - billboardUp.z,
-                0.0f, 0.0f, color, alpha, ageRatio);
-        addVertex(position.x + billboardRight.x - billboardUp.x,
-                position.y + billboardRight.y - billboardUp.y,
-                position.z + billboardRight.z - billboardUp.z,
-                1.0f, 0.0f, color, alpha, ageRatio);
-        addVertex(position.x + billboardRight.x + billboardUp.x,
-                position.y + billboardRight.y + billboardUp.y,
-                position.z + billboardRight.z + billboardUp.z,
-                1.0f, 1.0f, color, alpha, ageRatio);
+		// Two triangles
+		addVertex(position.x - billboardRight.x - billboardUp.x,
+				position.y - billboardRight.y - billboardUp.y,
+				position.z - billboardRight.z - billboardUp.z,
+				0.0f, 0.0f, color, alpha, ageRatio);
+		addVertex(position.x + billboardRight.x - billboardUp.x,
+				position.y + billboardRight.y - billboardUp.y,
+				position.z + billboardRight.z - billboardUp.z,
+				1.0f, 0.0f, color, alpha, ageRatio);
+		addVertex(position.x + billboardRight.x + billboardUp.x,
+				position.y + billboardRight.y + billboardUp.y,
+				position.z + billboardRight.z + billboardUp.z,
+				1.0f, 1.0f, color, alpha, ageRatio);
 
-        addVertex(position.x - billboardRight.x - billboardUp.x,
-                position.y - billboardRight.y - billboardUp.y,
-                position.z - billboardRight.z - billboardUp.z,
-                0.0f, 0.0f, color, alpha, ageRatio);
-        addVertex(position.x + billboardRight.x + billboardUp.x,
-                position.y + billboardRight.y + billboardUp.y,
-                position.z + billboardRight.z + billboardUp.z,
-                1.0f, 1.0f, color, alpha, ageRatio);
-        addVertex(position.x - billboardRight.x + billboardUp.x,
-                position.y - billboardRight.y + billboardUp.y,
-                position.z - billboardRight.z + billboardUp.z,
-                0.0f, 1.0f, color, alpha, ageRatio);
+		addVertex(position.x - billboardRight.x - billboardUp.x,
+				position.y - billboardRight.y - billboardUp.y,
+				position.z - billboardRight.z - billboardUp.z,
+				0.0f, 0.0f, color, alpha, ageRatio);
+		addVertex(position.x + billboardRight.x + billboardUp.x,
+				position.y + billboardRight.y + billboardUp.y,
+				position.z + billboardRight.z + billboardUp.z,
+				1.0f, 1.0f, color, alpha, ageRatio);
+		addVertex(position.x - billboardRight.x + billboardUp.x,
+				position.y - billboardRight.y + billboardUp.y,
+				position.z - billboardRight.z + billboardUp.z,
+				0.0f, 1.0f, color, alpha, ageRatio);
 
-        return 6;
-    }
+		return 6;
+	}
 
-    private void addVertex(float x, float y, float z, float u, float v, Vector3f color, float alpha, float ageRatio) {
-        buffer.put(x).put(y).put(z);
-        buffer.put(u).put(v);
-        buffer.put(color.x).put(color.y).put(color.z).put(alpha);
-        buffer.put(ageRatio);
-    }
+	private void addVertex(float x, float y, float z, float u, float v, Vector3f color, float alpha, float ageRatio) {
+		buffer.put(x).put(y).put(z);
+		buffer.put(u).put(v);
+		buffer.put(color.x).put(color.y).put(color.z).put(alpha);
+		buffer.put(ageRatio);
+	}
 
-    @Override
-    public boolean canHandle(ParticleEmitter emitter) {
-        return emitter instanceof FlameEmitter;
-    }
+	@Override
+	public boolean canHandle(ParticleEmitter emitter) {
+		return emitter instanceof FlameEmitter;
+	}
 
-    @Override
-    public int getPriority() {
-        return 100;
-    }
+	@Override
+	public int getPriority() {
+		return 100;
+	}
 
-    @Override
-    public void setMaxParticles(int maxParticles) {
-        this.maxQuads = maxParticles / 4;
-    }
+	@Override
+	public void setMaxParticles(int maxParticles) {
+		this.maxQuads = maxParticles / 4;
+	}
 
-    @Override
-    public int getMaxParticles() {
-        return maxQuads * 4;
-    }
+	@Override
+	public int getMaxParticles() {
+		return maxQuads * 4;
+	}
 
-    @Override
-    public String getRendererName() {
-        return "Flame Renderer";
-    }
+	@Override
+	public String getRendererName() {
+		return "Flame Renderer";
+	}
 
-    @Override
-    public int getRenderOrder() {
-        return 500;
-    }
+	@Override
+	public int getRenderOrder() {
+		return 500;
+	}
 
-    @Override
-    public boolean requiresDepthSorting() {
-        return true;
-    }
+	@Override
+	public boolean requiresDepthSorting() {
+		return true;
+	}
 
-    @Override
-    public boolean supportsBatching() {
-        return true;
-    }
+	@Override
+	public boolean supportsBatching() {
+		return true;
+	}
 
-    @Override
-    public void cleanup() {
-        shader.cleanup();
-        flameTexture.cleanup();
-        GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
-        glDeleteVertexArrays(vao);
-        GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vbo);
-        glDeleteBuffers(vbo);
-        MemoryUtil.memFree(buffer);
-    }
+	@Override
+	public void cleanup() {
+		shader.cleanup();
+		flameTexture.cleanup();
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
+		glDeleteVertexArrays(vao);
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vbo);
+		glDeleteBuffers(vbo);
+		MemoryUtil.memFree(buffer);
+	}
 }

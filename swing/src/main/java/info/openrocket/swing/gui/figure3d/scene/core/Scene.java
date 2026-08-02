@@ -234,9 +234,9 @@ public class Scene implements SceneView {
 		this.camera = camera;
 	}
 
-    public LightController getLightController() {
-        return lightManager;
-    }
+	public LightController getLightController() {
+		return lightManager;
+	}
 
 	@Override
 	public Background getBackground() {

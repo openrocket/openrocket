@@ -19,23 +19,23 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
  * quads and specialized fragment shaders.
  */
 public interface ScreenTexturePass {
-    /**
-     * Sets the input texture that this pass will process.
-     * 
-     * This texture typically contains the rendered scene from a previous
-     * pass or the output from another post-processing effect.
-     * 
-     * @param textureId The OpenGL texture ID of the input texture
-     */
-    void setInputTexture(int textureId);
-    
-    /**
-     * Gets the output texture containing this pass's processed result.
-     * 
-     * This texture can be used as input for subsequent passes or as the
-     * final result to display to the screen.
-     * 
-     * @return The OpenGL texture ID of the output texture
-     */
-    int getOutputTexture();
+	/**
+	 * Sets the input texture that this pass will process.
+	 * 
+	 * This texture typically contains the rendered scene from a previous
+	 * pass or the output from another post-processing effect.
+	 * 
+	 * @param textureId The OpenGL texture ID of the input texture
+	 */
+	void setInputTexture(int textureId);
+	
+	/**
+	 * Gets the output texture containing this pass's processed result.
+	 * 
+	 * This texture can be used as input for subsequent passes or as the
+	 * final result to display to the screen.
+	 * 
+	 * @return The OpenGL texture ID of the output texture
+	 */
+	int getOutputTexture();
 }

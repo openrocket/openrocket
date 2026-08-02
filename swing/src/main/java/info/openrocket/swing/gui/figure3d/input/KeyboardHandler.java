@@ -23,8 +23,8 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 	 * @param key the AWT {@code KeyEvent.VK_*}-style key code
 	 * @param action GLFW_PRESS or GLFW_RELEASE
 	 */
-    @Override
-    public void handleKeyEvent(int key, int action) {
+	@Override
+	public void handleKeyEvent(int key, int action) {
 		if (action == GLFW_PRESS) {
 			pressedKeys.add(key);
 			// Mark that this key press hasn't been handled for single-press actions yet
@@ -83,9 +83,9 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 	 * Clears all pressed key states. Should be called when the window loses focus
 	 * to prevent stale key states from external applications.
 	 */
-    @Override
-    public void clearAllKeyStates() {
-        pressedKeys.clear();
-        singlePressHandled.clear();
-    }
+	@Override
+	public void clearAllKeyStates() {
+		pressedKeys.clear();
+		singlePressHandled.clear();
+	}
 }

@@ -161,8 +161,8 @@ public class GLRenderableMesh implements Renderable {
 	 * would silently render nothing if the element buffer were removed.
 	 * The appropriate shader program should be active before calling this method.
 	 */
-    @Override
-    public void render() {
+	@Override
+	public void render() {
 		GL33.glBindVertexArray(vertexArrayObjectId);
 		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, elementBufferObjectId);
 		GL33.glDrawElements(GL33.GL_TRIANGLES, indexCount, GL33.GL_UNSIGNED_INT, 0);
@@ -249,8 +249,8 @@ public class GLRenderableMesh implements Renderable {
 	 * vertex array object. This method should be called when the mesh
 	 * is no longer needed to prevent GPU memory leaks.
 	 */
-    @Override
-    public void cleanup() {
+	@Override
+	public void cleanup() {
 		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vertexBufferObjectId);
 		GL33.glDeleteBuffers(vertexBufferObjectId);
 		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, elementBufferObjectId);

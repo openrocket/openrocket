@@ -7,12 +7,12 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
  * Binds material- and object-specific shader uniforms and textures for a draw.
  */
 public interface MaterialBinder {
-    void bind(SceneObject obj,
-              GLShader shader,
-              RealisticRenderer.ShaderUniforms uniforms,
-              RenderingConfiguration config,
-              TextureBinder textureBinder);
+	void bind(SceneObject obj,
+			  GLShader shader,
+			  RealisticRenderer.ShaderUniforms uniforms,
+			  RenderingConfiguration config,
+			  TextureBinder textureBinder);
 
-    default void cleanup() {
-    }
+	default void cleanup() {
+	}
 }
