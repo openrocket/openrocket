@@ -69,10 +69,10 @@ public class LaunchPreferencesPanelTest {
 
     @BeforeEach
     public void setUpTest() throws BackingStoreException {
-        // The testing preferences are backed by a single node that is shared by every test of
-        // the run, so clear it to keep the launch conditions of one test out of the next one.
-        Application.getPreferences().getPreferences().clear();
         prefs = (SwingPreferences) Application.getPreferences();
+        // The testing preferences are backed by a single node shared by the tests in this JVM,
+        // so clear it to keep the launch conditions of one test out of the next one.
+        prefs.getPreferences().clear();
     }
 
     @Test

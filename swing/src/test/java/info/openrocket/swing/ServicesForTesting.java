@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.AbstractPreferences;
+import java.util.prefs.Preferences;
 
 public class ServicesForTesting extends AbstractModule {
 
@@ -64,7 +65,7 @@ public class ServicesForTesting extends AbstractModule {
 
 	public static class PreferencesForTesting extends SwingPreferences {
 
-		private static java.util.prefs.Preferences root = null;
+		private static final Preferences ROOT = new InMemoryPreferences(null, "");
 
 		@Override
 		public boolean getBoolean(String key, boolean defaultValue) {
@@ -154,37 +155,34 @@ public class ServicesForTesting extends AbstractModule {
 		}
 
 		@Override
-		public java.util.prefs.Preferences getNode(String nodeName) {
+		public Preferences getNode(String nodeName) {
 			return getBaseNode().node(nodeName);
 		}
 
 		@Override
-		public java.util.prefs.Preferences getPreferences() {
+		public Preferences getPreferences() {
 			return getBaseNode();
 		}
 
-		private java.util.prefs.Preferences getBaseNode() {
-			if (root == null) {
-				root = new InMemoryPreferences(null, "");
-			}
-			return root;
+		private Preferences getBaseNode() {
+			return ROOT;
 		}
 
 	}
 
 	/**
-	 * A {@link java.util.prefs.Preferences} implementation that keeps its values in memory.
+	 * A {@link Preferences} implementation that keeps its values in memory.
 	 * <p>
-	 * The tests deliberately do not use {@link java.util.prefs.Preferences#userRoot()}: that
+	 * The tests deliberately do not use {@link Preferences#userRoot()}: that
 	 * store is shared with the core test preferences, and the core and swing test JVMs run
 	 * concurrently, so writes of one project can overwrite those of the other. Keeping the
 	 * testing preferences in memory isolates them per JVM and makes clearing them cheap.
 	 */
-	private static class InMemoryPreferences extends AbstractPreferences {
+	private static final class InMemoryPreferences extends AbstractPreferences {
 		private final Map<String, String> values = new HashMap<>();
 		private final Map<String, InMemoryPreferences> children = new HashMap<>();
 
-		InMemoryPreferences(InMemoryPreferences parent, String name) {
+		private InMemoryPreferences(InMemoryPreferences parent, String name) {
 			super(parent, name);
 		}
 
