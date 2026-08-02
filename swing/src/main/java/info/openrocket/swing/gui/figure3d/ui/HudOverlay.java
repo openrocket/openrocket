@@ -57,9 +57,6 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
  * BufferedImage: the EDT rasterises the panel into it, the render thread uploads it
  * to a texture and draws it as a full-screen quad. {@code hudLock} guards the image
  * and its buffers across those two threads.</p>
- *
- * <p>Under macOS image presentation the GL half is unused: the frame is composited in
- * {@code paint()} instead, and {@link #compositeInto} draws the same image there.</p>
  */
 class HudOverlay {
 
@@ -376,18 +373,6 @@ class HudOverlay {
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-	}
-
-	/**
-	 * Draws the last rasterised image straight into the given graphics, for the
-	 * image-presentation path where the frame is composited on the EDT.
-	 */
-	void compositeInto(java.awt.Graphics2D g, int width, int height) {
-		synchronized (lock) {
-			if (image != null) {
-				g.drawImage(image, 0, 0, width, height, null);
-			}
-		}
 	}
 
 	/** Clears the scheduling flags, so a torn-down canvas does not resume mid-upload. */

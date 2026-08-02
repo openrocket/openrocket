@@ -39,8 +39,6 @@ import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Point;
 import java.awt.Window;
@@ -106,30 +104,14 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-	private static final boolean SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS =
-			SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
-	// On macOS the NSOpenGLView layer cannot present frames: its display path runs
-	// -[NSOpenGLContext setView:] which aborts in AppKit's main-thread check when
-	// triggered from the render thread (via glFlush) or from the EDT's CoreAnimation
-	// commits. Instead of presenting through the layer, read the finished frame back
-	// from the offscreen FBO and paint it with Java2D, and keep the native GL layer
-	// hidden so AppKit never displays it.
-	private static final boolean PRESENT_VIA_IMAGE_ON_MACOS = SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS;
-	// The peer-bounds nudge workaround repositioned the native GL layer after
-	// layout changes. With image presentation the layer is permanently hidden and
-	// AWT draws the frame itself, so the nudges (and the resize churn plus flicker
-	// they cause during view switches) are no longer needed.
+	// A heavyweight canvas can move on screen when an ancestor is laid out without
+	// receiving a component resize of its own. Retain the peer-bounds nudge on macOS;
+	// lwjgl3-awt now owns the native layer lifecycle and presentation itself.
 	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
-			SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS && !PRESENT_VIA_IMAGE_ON_MACOS;
+			SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
 	private final AtomicInteger paintCallCount = new AtomicInteger(0);
 	private final AtomicInteger swapCallCount = new AtomicInteger(0);
-
-	// Image-presentation state (macOS): the render thread reads the resolved FBO into
-	// a staging image and publishes it here; the EDT paints it in paint(). Two images
-	// are ping-ponged so the EDT never draws one that is being overwritten.
-	private final ImageFramePresenter framePresenter = new ImageFramePresenter(this);
-	private volatile boolean nativeGLLayerHidden = false;
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -140,9 +122,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final CountDownLatch glInitLatch = new CountDownLatch(1);
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
-	private static final int RESIZE_PRESENT_INTERVAL_MS = 16;
-	private static final long RESIZE_PRESENT_IDLE_NANOS =
-			TimeUnit.MILLISECONDS.toNanos(RESIZE_SETTLE_IDLE_MS);
 	// Only Windows both loses contexts often enough to matter and supports
 	// WGL_ARB_create_context_robustness across all three vendors, so the request is limited
 	// to it: a driver that rejects the attribute would fail context creation outright, and
@@ -169,8 +148,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean wheelInteractionActive = false;
 	private final Timer wheelInteractionEndTimer;
 	private final Timer resizeSettleTimer;
-	private final Timer resizePresentationTimer;
-	private volatile long lastResizeEventNanos = Long.MIN_VALUE;
 
 	// Resize coordination between EDT and render thread
 	private volatile boolean resizeRequested = false;
@@ -259,11 +236,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// native resize. The OpenGL swap happens asynchronously, so that erase is
 		// visible as a full-canvas flash before the next frame arrives. This JDK
 		// property is read when the Canvas peer is created, which is still ahead of
-		// us here. macOS presents through paint() below and does not use the native
-		// background-erase path.
-		if (SystemInfo.getPlatform() != SystemInfo.Platform.MAC_OS) {
-			System.setProperty("sun.awt.noerasebackground", "true");
-		}
+		// us here. This also covers macOS now that lwjgl3-awt presents through its
+		// native layer again.
+		System.setProperty("sun.awt.noerasebackground", "true");
 
 		// LWJGL 3.3.4+ auto-detects Wayland and tries to initialise EGL, which conflicts
 		// with lwjgl3-awt's PlatformLinuxGLCanvas (X11/GLX). Forcing "native" here prevents
@@ -288,9 +263,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public GLScenePanel(Rocket rocket, HUDPanel hudPanel, boolean enablePeerBoundsSync) {
 		super(createGLData());
-		if (PRESENT_VIA_IMAGE_ON_MACOS) {
-			platformCanvas = new MacOSXImageSafeGLCanvas();
-		}
 		// Keep the heavyweight peer's fallback fill aligned with the initial GL
 		// scene. RocketFigure3d updates this when a document-specific color is used.
 		setBackground(GUIUtil.getUITheme().getBackgroundColor());
@@ -301,13 +273,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.keyboardHandler = new KeyboardHandler();
 		this.wheelInteractionEndTimer = createWheelInteractionEndTimer();
 		this.resizeSettleTimer = createResizeSettleTimer();
-		this.resizePresentationTimer = createResizePresentationTimer();
 
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
-		// With image presentation the frame is painted by AWT via paint(), so
-		// repaint events must be processed rather than ignored.
-		setIgnoreRepaint(!PRESENT_VIA_IMAGE_ON_MACOS);
+		setIgnoreRepaint(true);
 
 		installHierarchyListener();
 		if (peerBoundsSyncEnabled) {
@@ -349,23 +318,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return timer;
 	}
 
-	/**
-	 * During a macOS live resize, keeps drawing the last complete image directly to
-	 * the Canvas peer until a frame at the new size is ready.
-	 */
-	private Timer createResizePresentationTimer() {
-		Timer timer = new Timer(RESIZE_PRESENT_INTERVAL_MS, e -> {
-			if (!PRESENT_VIA_IMAGE_ON_MACOS || !isShowing()
-					|| System.nanoTime() - lastResizeEventNanos > RESIZE_PRESENT_IDLE_NANOS) {
-				((Timer) e.getSource()).stop();
-				return;
-			}
-			framePresenter.blitToPeer();
-		});
-		timer.setCoalesce(true);
-		return timer;
-	}
-
 	private void installHierarchyListener() {
 		addHierarchyListener(e -> {
 			long changeFlags = e.getChangeFlags();
@@ -375,12 +327,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			if ((changeFlags & HierarchyEvent.SHOWING_CHANGED) != 0) {
 				handleShowingChanged();
-				// lwjgl3-awt's own hierarchy listener un-hides the native GL layer on
-				// every showing change; re-hide it afterwards (invokeLater runs after
-				// all hierarchy listeners of this event have executed).
-				if (PRESENT_VIA_IMAGE_ON_MACOS && nativeGLLayerHidden) {
-					SwingUtilities.invokeLater(this::hideNativeGLLayer);
-				}
 			}
 		});
 	}
@@ -429,7 +375,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				int width = Math.max(1, getWidth());
 				int height = Math.max(1, getHeight());
 				int[] fbSize = computeFramebufferSize(width, height);
-				presentLastFrameDuringResize();
 				// Re-arm on every event, including the ones that carry no new size, so the
 				// settle redraw always happens after the *last* resize rather than after the
 				// last one that changed the pending dimensions.
@@ -448,19 +393,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				markHudForUpdate();
 			}
 		});
-	}
-
-	private void presentLastFrameDuringResize() {
-		if (!PRESENT_VIA_IMAGE_ON_MACOS || !framePresenter.hasPublishedFrame() || !isShowing()) {
-			return;
-		}
-		lastResizeEventNanos = System.nanoTime();
-		if (!resizePresentationTimer.isRunning()) {
-			resizePresentationTimer.start();
-		}
-		// Refresh the current peer surface immediately; the timer covers intervals
-		// in which AppKit coalesces multiple native resize notifications.
-		framePresenter.blitToPeer();
 	}
 
 	private void reportFatalRenderException(Throwable throwable) {
@@ -561,13 +493,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return true;
 	}
 
-	/** Lets the frame presenter draw the HUD over the frame it has composited. */
-	void compositeHud(java.awt.Graphics2D g, int width, int height) {
-		if (hudOverlay != null) {
-			hudOverlay.compositeInto(g, width, height);
-		}
-	}
-
 	/** True once the GL scene exists and the canvas can still be drawn into. */
 	boolean isSceneReady() {
 		return scene3DOrchestrator != null && isDisplayable();
@@ -644,33 +569,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		peerBoundsSyncAttempts.set(0);
 		if (!isShowing()) {
 			startupRecoveryGeneration.incrementAndGet();
-			if (PRESENT_VIA_IMAGE_ON_MACOS) {
-				resizePresentationTimer.stop();
-				// A direct frame finishing as the canvas is hidden may overlap the card
-				// that replaced it until the ancestor is repainted.
-				repaintShowingAncestor();
-				Timer repairTimer = new Timer(100, evt -> {
-					if (!isShowing()) {
-						repaintShowingAncestor();
-					}
-				});
-				repairTimer.setRepeats(false);
-				repairTimer.start();
-			}
 			return;
 		}
 
 		beginVisibleFrameRecovery();
-	}
-
-	private void repaintShowingAncestor() {
-		Container ancestor = getParent();
-		while (ancestor != null && !ancestor.isShowing()) {
-			ancestor = ancestor.getParent();
-		}
-		if (ancestor != null) {
-			ancestor.repaint();
-		}
 	}
 
 	@Override
@@ -1119,12 +1021,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	protected void beforeRender() {
 		super.beforeRender();
-		if (PRESENT_VIA_IMAGE_ON_MACOS && !nativeGLLayerHidden) {
-			// AWTGLCanvas creates the NSOpenGLView in beforeRender(). Hide the
-			// native layer immediately, before the EDT can commit a CoreAnimation
-			// transaction that tries to display it and calls setView: off AppKit.
-			hideNativeGLLayer();
-		}
 		// When multiple AWTGLCanvas instances are rendered from the same thread (e.g. on macOS),
 		// the active OpenGL context changes between calls. LWJGL requires updating the
 		// thread-local capabilities to match the current context.
@@ -1179,12 +1075,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Mark initialization complete - allows resize/render operations to proceed
 			glInitialized = true;
 			glInitLatch.countDown();
-
-			if (PRESENT_VIA_IMAGE_ON_MACOS) {
-				// The native GL layer must never be displayed; frames are painted
-				// via paint() instead. Hide it once the view exists.
-				SwingUtilities.invokeLater(this::hideNativeGLLayer);
-			}
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
@@ -1358,22 +1248,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			// --- Main Display Rendering (if not exporting) --
 			renderer.render(sceneView, true);
-			if (PRESENT_VIA_IMAGE_ON_MACOS) {
-				framePresenter.presentFrame(renderer);
-			} else {
-				renderer.presentResolvedToCurrentFramebuffer();
-			}
+			renderer.presentResolvedToCurrentFramebuffer();
 			sampleStartupFrameVisibilityIfNeeded(renderer);
 
 			if (hudOverlay != null) {
 				hudOverlay.refresh(cameraIsMoving);
-				// Under image presentation the HUD is composited in paint() instead.
-				if (!PRESENT_VIA_IMAGE_ON_MACOS) {
-					hudOverlay.uploadIfReady();
-					hudOverlay.draw();
-					// HUD drawing binds textures directly; reset cached state before next frame.
-					renderer.resetTextureState();
-				}
+				hudOverlay.uploadIfReady();
+				hudOverlay.draw();
+				// HUD drawing binds textures directly; reset cached state before next frame.
+				renderer.resetTextureState();
 			}
 			shouldSwap = true;
 		} catch (Exception ex) {
@@ -1381,85 +1264,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		} finally {
 			if (shouldSwap) {
 				swapCallCount.incrementAndGet();
-				// lwjgl3-awt's macOS swapBuffers() is glFlush(). On macOS 26, that can
-				// synchronously display the NSOpenGLView backing layer on this render
-				// thread and abort inside AppKit's main-thread check for setView:.
-				if (!SKIP_DEFAULT_FRAMEBUFFER_FLUSH_ON_MACOS) {
-					swapBuffers();
-				}
+				swapBuffers();
 				// Keep recovery active until visibility is confirmed, not just until one
 				// pre-swap back-buffer sample has content. Some AWT peers need a follow-up
 				// render before the first completed frame is actually presented.
 				visibleFrameRecoveryPending = !startupFrameDetectionComplete;
 			}
-		}
-	}
-
-	@Override
-	public void paint(Graphics g) {
-		if (!PRESENT_VIA_IMAGE_ON_MACOS) {
-			super.paint(g);
-			return;
-		}
-		// Expose/damage repaint while the render loop is idle: draw the last frame.
-		synchronized (framePresenter.presentLock()) {
-			framePresenter.paintInto(g);
-		}
-	}
-
-	@Override
-	public void update(Graphics g) {
-		if (PRESENT_VIA_IMAGE_ON_MACOS) {
-			// Skip AWT's implicit background clear to avoid flicker between frames.
-			paint(g);
-		} else {
-			super.update(g);
-		}
-	}
-
-	/**
-	 * Hides the CALayer of the NSOpenGLView that lwjgl3-awt attaches over this
-	 * canvas. The layer never receives frames in image-presentation mode, and any
-	 * attempt by AppKit to display it (from the render thread or from the EDT's
-	 * CoreAnimation commits) trips a main-thread assertion on recent macOS.
-	 * Hiding it both reveals the Java2D-painted frame and prevents those aborts.
-	 */
-	private void hideNativeGLLayer() {
-		if (!PRESENT_VIA_IMAGE_ON_MACOS || platformCanvas == null) {
-			return;
-		}
-		try {
-			// lwjgl3-awt installs its own hierarchy listener that un-hides the GL
-			// layer whenever the canvas becomes showing again, which flashes the
-			// empty (white) layer during 2D/3D view switches. Remove it: the layer
-			// must never become visible in image-presentation mode.
-			for (java.awt.event.HierarchyListener listener : getHierarchyListeners()) {
-				if (listener.getClass().getName().startsWith("org.lwjgl.opengl.awt.")) {
-					removeHierarchyListener(listener);
-				}
-			}
-
-			java.lang.reflect.Field viewField = platformCanvas.getClass().getDeclaredField("view");
-			viewField.setAccessible(true);
-			long view = ((Number) viewField.get(platformCanvas)).longValue();
-			if (view == 0L) {
-				return;
-			}
-			long objcMsgSend = org.lwjgl.system.macosx.ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend");
-			long layer = org.lwjgl.system.JNI.invokePPP(view,
-					org.lwjgl.system.macosx.ObjCRuntime.sel_getUid("layer"), objcMsgSend);
-			if (layer == 0L) {
-				return;
-			}
-			org.lwjgl.system.JNI.invokePPPV(layer,
-					org.lwjgl.system.macosx.ObjCRuntime.sel_getUid("setHidden:"), 1L, objcMsgSend);
-			// Do not force CATransaction.flush() here. On macOS 26 the flush can
-			// synchronously display _NSOpenGLViewBackingLayer on this Java thread,
-			// which calls -[NSOpenGLContext setView:] and aborts outside AppKit's
-			// main thread. The next normal AppKit transaction will commit hidden=true.
-			nativeGLLayerHidden = true;
-		} catch (Throwable t) {
-			log.warn("Could not hide native GL layer; the 3D view may stay blank: {}", t.toString());
 		}
 	}
 
@@ -1582,11 +1392,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (startupFrameDetectionComplete) {
 			return true;
 		}
-		// With image presentation, whatever was read back is exactly what paint()
-		// shows — no need for (and no meaning in) probing the default framebuffer.
-		boolean visible = PRESENT_VIA_IMAGE_ON_MACOS
-				? framePresenter.hasContent()
-				: detectStartupFrameVisibility(renderer);
+		boolean visible = detectStartupFrameVisibility(renderer);
 		if (visible) {
 			if (++consecutiveVisibleStartupFrames >= STARTUP_VISIBILITY_CONFIRM_FRAMES
 					|| startupBlankFramebufferRecoveryRequested.get()) {
@@ -1779,7 +1585,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// Prevent any further rendering/resize operations
 		wheelInteractionEndTimer.stop();
 		resizeSettleTimer.stop();
-		resizePresentationTimer.stop();
 		dragInteractionActive = false;
 		wheelInteractionActive = false;
 		updateCameraInteractionMode();
@@ -1809,9 +1614,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (renderLockAcquired) {
 				try {
 					cleanupGLResourcesInContext();
-					// Only safe to free while no render is in flight — the render
-					// thread reads into that buffer while presenting a frame.
-					framePresenter.cleanup();
 				} finally {
 					RENDER_LOCK.unlock();
 				}
