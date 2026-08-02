@@ -365,7 +365,26 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.hudEnabled = hudPanel != null;
 		this.peerBoundsSyncEnabled = NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && enablePeerBoundsSync;
 		this.keyboardHandler = new KeyboardHandler();
-		this.wheelInteractionEndTimer = new Timer(WHEEL_INTERACTION_IDLE_MS, e -> {
+		this.wheelInteractionEndTimer = createWheelInteractionEndTimer();
+		this.resizeSettleTimer = createResizeSettleTimer();
+		this.resizePresentationTimer = createResizePresentationTimer();
+
+		setFocusable(true);
+		setFocusTraversalKeysEnabled(false);
+		// With image presentation the frame is painted by AWT via paint(), so
+		// repaint events must be processed rather than ignored.
+		setIgnoreRepaint(!PRESENT_VIA_IMAGE_ON_MACOS);
+
+		installHierarchyListener();
+		if (peerBoundsSyncEnabled) {
+			installPeerBoundsSyncListener();
+		}
+		installResizeListener();
+	}
+
+	/** Ends the zoom gesture once the wheel has been idle long enough. */
+	private Timer createWheelInteractionEndTimer() {
+		Timer timer = new Timer(WHEEL_INTERACTION_IDLE_MS, e -> {
 			wheelInteractionActive = false;
 			updateCameraInteractionMode();
 			hudNeedsUpdate = true;
@@ -373,22 +392,35 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// to consider the zoom gesture complete.
 			markRenderActivity();
 		});
-		this.wheelInteractionEndTimer.setRepeats(false);
-		// A resize changes the size of the native drawable underneath the render thread:
-		// a frame that was already in flight gets presented at the old size, and the part
-		// of the canvas that the resize newly exposed keeps whatever the driver happened
-		// to leave there until a correctly sized frame is swapped in. One forced redraw
-		// after the resize has settled guarantees that frame, even when the render tick
-		// that observed the resize ran while the canvas was between layouts and therefore
-		// produced nothing.
-		this.resizeSettleTimer = new Timer(RESIZE_SETTLE_IDLE_MS, e -> {
+		timer.setRepeats(false);
+		return timer;
+	}
+
+	/**
+	 * Forces one redraw after a resize has settled.
+	 *
+	 * <p>A resize changes the size of the native drawable underneath the render thread:
+	 * a frame that was already in flight gets presented at the old size, and the part
+	 * of the canvas that the resize newly exposed keeps whatever the driver happened
+	 * to leave there until a correctly sized frame is swapped in. This guarantees that
+	 * frame, even when the render tick that observed the resize ran while the canvas
+	 * was between layouts and therefore produced nothing.</p>
+	 */
+	private Timer createResizeSettleTimer() {
+		Timer timer = new Timer(RESIZE_SETTLE_IDLE_MS, e -> {
 			hudNeedsUpdate = true;
 			requestRenderNow();
 		});
-		this.resizeSettleTimer.setRepeats(false);
-		// During a macOS live resize, keep drawing the last complete image directly
-		// to the Canvas peer until a frame at the new size is ready.
-		this.resizePresentationTimer = new Timer(RESIZE_PRESENT_INTERVAL_MS, e -> {
+		timer.setRepeats(false);
+		return timer;
+	}
+
+	/**
+	 * During a macOS live resize, keeps drawing the last complete image directly to
+	 * the Canvas peer until a frame at the new size is ready.
+	 */
+	private Timer createResizePresentationTimer() {
+		Timer timer = new Timer(RESIZE_PRESENT_INTERVAL_MS, e -> {
 			if (!PRESENT_VIA_IMAGE_ON_MACOS || !isShowing()
 					|| System.nanoTime() - lastResizeEventNanos > RESIZE_PRESENT_IDLE_NANOS) {
 				((Timer) e.getSource()).stop();
@@ -396,13 +428,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			showPresentedFrame();
 		});
-		this.resizePresentationTimer.setCoalesce(true);
-		setFocusable(true);
-		setFocusTraversalKeysEnabled(false);
-		// With image presentation the frame is painted by AWT via paint(), so
-		// repaint events must be processed rather than ignored.
-		setIgnoreRepaint(!PRESENT_VIA_IMAGE_ON_MACOS);
+		timer.setCoalesce(true);
+		return timer;
+	}
 
+	private void installHierarchyListener() {
 		addHierarchyListener(e -> {
 			long changeFlags = e.getChangeFlags();
 			if ((changeFlags & (HierarchyEvent.PARENT_CHANGED | HierarchyEvent.DISPLAYABILITY_CHANGED
@@ -419,35 +449,40 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 			}
 		});
+	}
 
-		if (peerBoundsSyncEnabled) {
-			// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
-			// components without changing their local bounds. On macOS this can leave the
-			// native peer at an incorrect location until the next real resize. Force a peer
-			// bounds sync when the canvas becomes showing.
-			// If an ancestor moves (e.g., JSplitPane divider/layout), Swing won't necessarily resize this
-			// canvas, but the native peer still needs an updated on-screen location.
-			addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
-				@Override
-				public void ancestorMoved(HierarchyEvent e) {
-					if (!isShowing()) {
-						return;
-					}
-					peerBoundsSyncAttempts.set(0);
-					requestPeerBoundsSync();
-				}
+	/**
+	 * Keeps the native peer's on-screen location correct when an ancestor moves it
+	 * without resizing this canvas.
+	 *
+	 * <p>CardLayout and JSplitPane switches can change the on-screen position of a
+	 * heavyweight component without changing its local bounds, and Swing will not
+	 * necessarily resize the canvas. On macOS that leaves the peer at the wrong
+	 * location until the next real resize.</p>
+	 */
+	private void installPeerBoundsSyncListener() {
+		addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
+			@Override
+			public void ancestorMoved(HierarchyEvent e) {
+				syncPeerBoundsIfShowing();
+			}
 
-				@Override
-				public void ancestorResized(HierarchyEvent e) {
-					if (!isShowing()) {
-						return;
-					}
-					peerBoundsSyncAttempts.set(0);
-					requestPeerBoundsSync();
-				}
-			});
+			@Override
+			public void ancestorResized(HierarchyEvent e) {
+				syncPeerBoundsIfShowing();
+			}
+		});
+	}
+
+	private void syncPeerBoundsIfShowing() {
+		if (!isShowing()) {
+			return;
 		}
+		peerBoundsSyncAttempts.set(0);
+		requestPeerBoundsSync();
+	}
 
+	private void installResizeListener() {
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -905,127 +940,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private void addInputListeners() {
 		if (scene3DOrchestrator == null) return;
 
-		MouseAdapter mouseAdapter = new MouseAdapter() {
-			private Point pressPoint;
-			private Point lastPoint;
-			private boolean isDragging;
-			private int activeDragButton = MouseEvent.NOBUTTON;
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// The canvas keeps receiving AWT events during teardown/rebuild,
-				// after cleanup() has released the orchestrator.
-				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
-				if (orchestrator == null) {
-					return;
-				}
-				if (isTrackedDragButton(e)) {
-					// Track modifier state for multi-selection.
-					InputState inputState = orchestrator.getInputHandler().getInputState();
-					inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
-					// Use Swing's built-in click count to detect double-clicks on left button.
-					if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-						inputState.doubleClickPoint.set(e.getPoint());
-					}
-					pressPoint = e.getPoint();
-					lastPoint = e.getPoint();
-					isDragging = false;
-					activeDragButton = e.getButton();
-					setDragInteractionActive(true);
-				}
-				markRenderActivity();
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
-				if (orchestrator == null) {
-					return;
-				}
-				if (isTrackedDragButton(e)) {
-					InputState inputState = orchestrator.getInputHandler().getInputState();
-					// We check for !isDragging to differentiate a click from a drag-release.
-					// A double-click will also fire this event for the second click.
-					if (!isDragging && pressPoint != null &&
-							(SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e))) {
-						// Right-click popup selection mirrors the 2D view and does not use
-						// shift/meta as a multi-select modifier.
-						inputState.isShiftPressed = SwingUtilities.isLeftMouseButton(e) &&
-								(e.isShiftDown() || e.isMetaDown());
-						inputState.clickPoint.set(pressPoint);
-						pendingSelectionClickEvent.set(e);
-					}
-					pressPoint = null;
-					isDragging = false;
-					activeDragButton = MouseEvent.NOBUTTON;
-					inputState.isLightDragging = false;
-					inputState.isPanning = false;
-					setDragInteractionActive(false);
-				}
-				// Mark dirty after leaving interaction mode so the release frame is
-				// guaranteed to use the user's full quality settings.
-				markRenderActivity();
-			}
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
-				if (orchestrator == null) {
-					return;
-				}
-				if (isTrackedDragButton(activeDragButton) && pressPoint != null) {
-					InputState inputState = orchestrator.getInputHandler().getInputState();
-					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
-						isDragging = true;
-						inputState.dragJustStarted = true;
-					}
-
-					if (isDragging) {
-						updateDragMode(inputState, e);
-
-						// Always update the drag delta
-						float deltaX = e.getX() - lastPoint.x;
-						float deltaY = e.getY() - lastPoint.y;
-						inputState.addDrag(deltaX, deltaY);
-					}
-					lastPoint = e.getPoint();
-				}
-				markRenderActivity();
-			}
-
-			private void updateDragMode(InputState inputState, MouseEvent e) {
-				boolean isRightDrag = activeDragButton == MouseEvent.BUTTON3;
-				boolean isMiddleDrag = activeDragButton == MouseEvent.BUTTON2;
-				boolean isAltDown = (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0;
-				boolean isCtrlDown = (e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0;
-				inputState.isLightDragging = isRightDrag || isAltDown;
-				inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown || isMiddleDrag);
-			}
-
-			private boolean isTrackedDragButton(MouseEvent e) {
-				return SwingUtilities.isLeftMouseButton(e)
-						|| SwingUtilities.isMiddleMouseButton(e)
-						|| SwingUtilities.isRightMouseButton(e);
-			}
-
-			private boolean isTrackedDragButton(int button) {
-				return button == MouseEvent.BUTTON1
-						|| button == MouseEvent.BUTTON2
-						|| button == MouseEvent.BUTTON3;
-			}
-
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				Scene3DOrchestrator orchestrator = scene3DOrchestrator;
-				if (orchestrator == null) {
-					return;
-				}
-				orchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
-				beginWheelInteraction();
-				hudNeedsUpdate = true; // Mark HUD for update on zoom
-				markRenderActivity();
-			}
-		};
+		CanvasMouseHandler mouseAdapter = new CanvasMouseHandler();
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
@@ -1044,6 +959,136 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				keyboardHandler.handleKeyEvent(e.getKeyCode(), 0);
 			}
 		});
+	}
+
+	/**
+	 * Turns mouse events into scene interaction: orbit, pan, light drag, zoom and
+	 * selection.
+	 *
+	 * <p>Every handler re-reads the orchestrator and gives up when it has gone. The
+	 * canvas keeps receiving AWT events while it is being torn down or rebuilt, after
+	 * cleanup() has released it.</p>
+	 */
+	private class CanvasMouseHandler extends MouseAdapter {
+		private Point pressPoint;
+		private Point lastPoint;
+		private boolean isDragging;
+		private int activeDragButton = MouseEvent.NOBUTTON;
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// The canvas keeps receiving AWT events during teardown/rebuild,
+			// after cleanup() has released the orchestrator.
+			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+			if (orchestrator == null) {
+				return;
+			}
+			if (isTrackedDragButton(e)) {
+				// Track modifier state for multi-selection.
+				InputState inputState = orchestrator.getInputHandler().getInputState();
+				inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
+				// Use Swing's built-in click count to detect double-clicks on left button.
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+					inputState.doubleClickPoint.set(e.getPoint());
+				}
+				pressPoint = e.getPoint();
+				lastPoint = e.getPoint();
+				isDragging = false;
+				activeDragButton = e.getButton();
+				setDragInteractionActive(true);
+			}
+			markRenderActivity();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+			if (orchestrator == null) {
+				return;
+			}
+			if (isTrackedDragButton(e)) {
+				InputState inputState = orchestrator.getInputHandler().getInputState();
+				// We check for !isDragging to differentiate a click from a drag-release.
+				// A double-click will also fire this event for the second click.
+				if (!isDragging && pressPoint != null &&
+						(SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e))) {
+					// Right-click popup selection mirrors the 2D view and does not use
+					// shift/meta as a multi-select modifier.
+					inputState.isShiftPressed = SwingUtilities.isLeftMouseButton(e) &&
+							(e.isShiftDown() || e.isMetaDown());
+					inputState.clickPoint.set(pressPoint);
+					pendingSelectionClickEvent.set(e);
+				}
+				pressPoint = null;
+				isDragging = false;
+				activeDragButton = MouseEvent.NOBUTTON;
+				inputState.isLightDragging = false;
+				inputState.isPanning = false;
+				setDragInteractionActive(false);
+			}
+			// Mark dirty after leaving interaction mode so the release frame is
+			// guaranteed to use the user's full quality settings.
+			markRenderActivity();
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+			if (orchestrator == null) {
+				return;
+			}
+			if (isTrackedDragButton(activeDragButton) && pressPoint != null) {
+				InputState inputState = orchestrator.getInputHandler().getInputState();
+				if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
+					isDragging = true;
+					inputState.dragJustStarted = true;
+				}
+
+				if (isDragging) {
+					updateDragMode(inputState, e);
+
+					// Always update the drag delta
+					float deltaX = e.getX() - lastPoint.x;
+					float deltaY = e.getY() - lastPoint.y;
+					inputState.addDrag(deltaX, deltaY);
+				}
+				lastPoint = e.getPoint();
+			}
+			markRenderActivity();
+		}
+
+		private void updateDragMode(InputState inputState, MouseEvent e) {
+			boolean isRightDrag = activeDragButton == MouseEvent.BUTTON3;
+			boolean isMiddleDrag = activeDragButton == MouseEvent.BUTTON2;
+			boolean isAltDown = (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0;
+			boolean isCtrlDown = (e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0;
+			inputState.isLightDragging = isRightDrag || isAltDown;
+			inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown || isMiddleDrag);
+		}
+
+		private boolean isTrackedDragButton(MouseEvent e) {
+			return SwingUtilities.isLeftMouseButton(e)
+					|| SwingUtilities.isMiddleMouseButton(e)
+					|| SwingUtilities.isRightMouseButton(e);
+		}
+
+		private boolean isTrackedDragButton(int button) {
+			return button == MouseEvent.BUTTON1
+					|| button == MouseEvent.BUTTON2
+					|| button == MouseEvent.BUTTON3;
+		}
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+			if (orchestrator == null) {
+				return;
+			}
+			orchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
+			beginWheelInteraction();
+			hudNeedsUpdate = true; // Mark HUD for update on zoom
+			markRenderActivity();
+		}
 	}
 
 	/**
@@ -1157,17 +1202,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	public void initGL() {
 		INIT_SEMAPHORE.acquireUninterruptibly();
 		try {
-			glCapabilities = GL.createCapabilities();
-			robustnessAvailable = glCapabilities.GL_ARB_robustness;
-			graphicsResetDetected = false;
-			if (REQUEST_ROBUST_CONTEXT && !robustnessAvailable) {
-				log.info("Robust context requested but ARB_robustness is unavailable; "
-						+ "a driver reset will not be reported.");
-			}
-			GLDebug.enableIfRequested("AWT-canvas");
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_FRAMEBUFFER_SRGB);
+			configureGlState();
 
 			int winWidth = Math.max(1, getWidth());
 			int winHeight = Math.max(1, getHeight());
@@ -1175,71 +1210,31 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			int fbWidth = fbSize[0];
 			int fbHeight = fbSize[1];
 
-			scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
-					.build();
-			SceneView scene = scene3DOrchestrator.getScene();
+			createScene(winWidth, winHeight, fbWidth, fbHeight);
+			initHudResources(fbWidth, fbHeight);
 
-			// Create the scene mesh through the orchestrator so context-owned textures
-			// use this canvas's decal cache rather than the process-wide fallback cache.
-			scene3DOrchestrator.rebuildRocketScene(false);
-			//RocketMeshBuilder.createOriginAxes(scene, true, true);
-			applyThemeBackground(scene);
-			installThemeListener();
-			installGraphicsPreferencesListener();
+			addInputListeners();
+			addViewKeyBindings();
 
-			// Focus on the rocket
-			scene3DOrchestrator.focusOnRocket();
-			Consumer<Scene3DOrchestrator> initHook = initializationHook;
-			if (initHook != null) {
-				initHook.accept(scene3DOrchestrator);
+			// Startup layout may have queued resize events before the GL pipeline existed.
+			// The orchestrator was just created with the current canvas size, so those
+			// requests are already reflected and must not trigger a second fit on the
+			// first interactive frame.
+			pendingWinWidth = winWidth;
+			pendingWinHeight = winHeight;
+			pendingFbWidth = fbWidth;
+			pendingFbHeight = fbHeight;
+			resizeRequested = false;
+
+			// Mark initialization complete - allows resize/render operations to proceed
+			glInitialized = true;
+			glInitLatch.countDown();
+
+			if (PRESENT_VIA_IMAGE_ON_MACOS) {
+				// The native GL layer must never be displayed; frames are painted
+				// via paint() instead. Hide it once the view exists.
+				SwingUtilities.invokeLater(this::hideNativeGLLayer);
 			}
-			ImageCaptureRequest pendingCapture = imageCaptureRequest.get();
-			if (pendingCapture != null) {
-				scene3DOrchestrator.requestExport(pendingCapture.transparent);
-			}
-
-			if (this.hudPanel != null) {
-				this.hudPanel.setSceneViewController(this.scene3DOrchestrator);
-				this.hudPanel.setGLScenePanel(this);
-			}
-
-				if (hudEnabled) {
-					// --- Initialize HUD rendering objects ---
-					hudShader = new GLShader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
-
-				// Set initial dimensions
-				lastFramebufferWidth = fbWidth;
-				lastFramebufferHeight = fbHeight;
-
-				initHudTexture();
-				initHudVao();
-				requestHudRepaint(true);
-			} else {
-				hudNeedsUpdate = false;
-			}
-
-				addInputListeners();
-				addViewKeyBindings();
-
-				// Startup layout may have queued resize events before the GL pipeline existed.
-				// The orchestrator was just created with the current canvas size, so those
-				// requests are already reflected and must not trigger a second fit on the
-				// first interactive frame.
-				pendingWinWidth = winWidth;
-				pendingWinHeight = winHeight;
-				pendingFbWidth = fbWidth;
-				pendingFbHeight = fbHeight;
-				resizeRequested = false;
-
-				// Mark initialization complete - allows resize/render operations to proceed
-				glInitialized = true;
-				glInitLatch.countDown();
-
-				if (PRESENT_VIA_IMAGE_ON_MACOS) {
-					// The native GL layer must never be displayed; frames are painted
-					// via paint() instead. Hide it once the view exists.
-					SwingUtilities.invokeLater(this::hideNativeGLLayer);
-				}
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
@@ -1247,6 +1242,65 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		} finally {
 			INIT_SEMAPHORE.release();
 		}
+	}
+
+	/** Reads back what the context supports and sets the state the renderer assumes. */
+	private void configureGlState() {
+		glCapabilities = GL.createCapabilities();
+		robustnessAvailable = glCapabilities.GL_ARB_robustness;
+		graphicsResetDetected = false;
+		if (REQUEST_ROBUST_CONTEXT && !robustnessAvailable) {
+			log.info("Robust context requested but ARB_robustness is unavailable; "
+					+ "a driver reset will not be reported.");
+		}
+		GLDebug.enableIfRequested("AWT-canvas");
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_FRAMEBUFFER_SRGB);
+	}
+
+	/** Builds the orchestrator and its scene, and hooks it up to the preferences and the HUD. */
+	private void createScene(int winWidth, int winHeight, int fbWidth, int fbHeight) throws Exception {
+		scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
+				.build();
+
+		// Create the scene mesh through the orchestrator so context-owned textures
+		// use this canvas's decal cache rather than the process-wide fallback cache.
+		scene3DOrchestrator.rebuildRocketScene(false);
+		applyThemeBackground(scene3DOrchestrator.getScene());
+		installThemeListener();
+		installGraphicsPreferencesListener();
+		scene3DOrchestrator.focusOnRocket();
+
+		Consumer<Scene3DOrchestrator> initHook = initializationHook;
+		if (initHook != null) {
+			initHook.accept(scene3DOrchestrator);
+		}
+		ImageCaptureRequest pendingCapture = imageCaptureRequest.get();
+		if (pendingCapture != null) {
+			scene3DOrchestrator.requestExport(pendingCapture.transparent);
+		}
+
+		if (this.hudPanel != null) {
+			this.hudPanel.setSceneViewController(this.scene3DOrchestrator);
+			this.hudPanel.setGLScenePanel(this);
+		}
+	}
+
+	/** Creates the shader, texture and quad the HUD overlay is drawn with. */
+	private void initHudResources(int fbWidth, int fbHeight) {
+		if (!hudEnabled) {
+			hudNeedsUpdate = false;
+			return;
+		}
+
+		hudShader = new GLShader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
+		lastFramebufferWidth = fbWidth;
+		lastFramebufferHeight = fbHeight;
+
+		initHudTexture();
+		initHudVao();
+		requestHudRepaint(true);
 	}
 
 	@Override
@@ -1450,7 +1504,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		boolean shouldSwap = false;
-		boolean startupFrameVisible = false;
 		try {
 			if (scene3DOrchestrator == null) {
 				return;
@@ -1493,58 +1546,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			} else {
 				renderer.presentResolvedToCurrentFramebuffer();
 			}
-			startupFrameVisible = sampleStartupFrameVisibilityIfNeeded(renderer);
+			sampleStartupFrameVisibilityIfNeeded(renderer);
 
-			// --- 2D HUD Rendering - only update texture if needed ---
 			if (hudEnabled) {
-				boolean hudPanelNeedsRepaint = hudPanel != null && hudPanel.needsRepaint();
-				boolean hudRepaintRequested = false;
-				if (hudNeedsUpdate || hudPanelNeedsRepaint) {
-					// While the camera is being dragged, the orientation gizmo wants
-					// to repaint every frame. Force those into the rate-limited path
-					// so the HUD upload doesn't block the render thread at 60 fps.
-					boolean highPriority = hudPanelNeedsRepaint && !cameraIsMoving;
-					hudRepaintRequested = requestHudRepaint(highPriority);
-				}
-				if (hudRepaintRequested) {
-					hudNeedsUpdate = false;
-				}
-
-				// With image presentation the HUD image is composited in paint()
-				// instead of being uploaded and drawn as a GL overlay.
-				if (!PRESENT_VIA_IMAGE_ON_MACOS) {
-					uploadHudTextureIfReady();
-
-					if (hudTexture != null && hudShader != null) {
-						// Set GL state for 2D rendering
-						glDisable(GL_DEPTH_TEST);
-						glEnable(GL_BLEND);
-						glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-						// The HUD is rasterized by Java2D, which composites in sRGB space. Blending
-						// it with the sRGB encode still enabled would blend in linear space instead,
-						// which lightens translucent panels well beyond their requested alpha and
-						// pulls partially covered glyph pixels towards the panel colour, leaving the
-						// text thin and washed out. The scene has already been presented at this
-						// point, so the encode can be turned off for the overlay only.
-						glDisable(GL_FRAMEBUFFER_SRGB);
-
-						hudShader.use();
-
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
-
-						glBindVertexArray(hudVao);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-						glBindVertexArray(0);
-
-						// Restore GL state
-						glEnable(GL_FRAMEBUFFER_SRGB);
-						glEnable(GL_DEPTH_TEST);
-						glDisable(GL_BLEND);
-					}
-					// HUD rendering binds textures directly; reset cached state before next 3D frame.
-					renderer.resetTextureState();
-				}
+				renderHud(renderer);
 			}
 			shouldSwap = true;
 		} catch (Exception ex) {
@@ -1564,6 +1569,70 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				visibleFrameRecoveryPending = !startupFrameDetectionComplete;
 			}
 		}
+	}
+
+	/**
+	 * Repaints the HUD if it has gone stale, then draws it over the scene.
+	 *
+	 * <p>Under image presentation the drawing half is skipped: there the HUD image is
+	 * composited into the frame in {@link #paint(Graphics)} rather than being uploaded
+	 * as a texture and drawn by GL.</p>
+	 */
+	private void renderHud(GLRenderer renderer) {
+		boolean hudPanelNeedsRepaint = hudPanel != null && hudPanel.needsRepaint();
+		boolean hudRepaintRequested = false;
+		if (hudNeedsUpdate || hudPanelNeedsRepaint) {
+			// While the camera is being dragged, the orientation gizmo wants
+			// to repaint every frame. Force those into the rate-limited path
+			// so the HUD upload doesn't block the render thread at 60 fps.
+			boolean highPriority = hudPanelNeedsRepaint && !cameraIsMoving;
+			hudRepaintRequested = requestHudRepaint(highPriority);
+		}
+		if (hudRepaintRequested) {
+			hudNeedsUpdate = false;
+		}
+
+		if (PRESENT_VIA_IMAGE_ON_MACOS) {
+			return;
+		}
+
+		uploadHudTextureIfReady();
+		drawHudOverlay();
+		// HUD rendering binds textures directly; reset cached state before next 3D frame.
+		renderer.resetTextureState();
+	}
+
+	/** Draws the uploaded HUD texture over the presented scene as a full-screen quad. */
+	private void drawHudOverlay() {
+		if (hudTexture == null || hudShader == null) {
+			return;
+		}
+
+		// Set GL state for 2D rendering
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		// The HUD is rasterized by Java2D, which composites in sRGB space. Blending
+		// it with the sRGB encode still enabled would blend in linear space instead,
+		// which lightens translucent panels well beyond their requested alpha and
+		// pulls partially covered glyph pixels towards the panel colour, leaving the
+		// text thin and washed out. The scene has already been presented at this
+		// point, so the encode can be turned off for the overlay only.
+		glDisable(GL_FRAMEBUFFER_SRGB);
+
+		hudShader.use();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
+
+		glBindVertexArray(hudVao);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
+		// Restore GL state
+		glEnable(GL_FRAMEBUFFER_SRGB);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 	}
 
 	/**
