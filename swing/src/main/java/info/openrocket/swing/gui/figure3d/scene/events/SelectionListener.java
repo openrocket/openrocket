@@ -1,6 +1,6 @@
 package info.openrocket.swing.gui.figure3d.scene.events;
 
-import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 
 import java.util.List;
 

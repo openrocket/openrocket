@@ -5,8 +5,8 @@ import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 

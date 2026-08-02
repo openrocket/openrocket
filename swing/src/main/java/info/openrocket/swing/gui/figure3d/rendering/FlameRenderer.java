@@ -5,8 +5,8 @@ import info.openrocket.swing.gui.figure3d.particles.Particle;
 import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
-import info.openrocket.swing.gui.figure3d.scene.core.Camera;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 

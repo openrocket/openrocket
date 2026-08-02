@@ -17,10 +17,10 @@ import info.openrocket.swing.gui.figure3d.rendering.backgrounds.HDRIBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.ImageBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SkyboxBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
-import info.openrocket.swing.gui.figure3d.scene.core.Camera;
-import info.openrocket.swing.gui.figure3d.scene.core.Light;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.Light;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -615,7 +615,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	}
 
 	private void configurePhotoScene(SceneView scene) {
-		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.core.Scene actualScene) {
+		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.graph.Scene actualScene) {
 			// Photo Studio recenters the rocket to world origin before applying its own rotations.
 			// Keep interactive drag rotation around that origin instead of the design-view centerline pivot.
 			actualScene.setRocketRotationPivotOverride(0.0f, 0.0f, 0.0f);
@@ -792,7 +792,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 		Matrix4f sceneRotationTransform = new Matrix4f();
 		Matrix4f sceneRotationInverse = new Matrix4f();
-		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.core.Scene actualScene) {
+		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.graph.Scene actualScene) {
 			actualScene.getRocketRotationTransform(sceneRotationTransform);
 			sceneRotationInverse.set(sceneRotationTransform).invert();
 		} else {

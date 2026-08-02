@@ -3,8 +3,8 @@ package info.openrocket.swing.gui.figure3d.scene.controllers;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.swing.gui.figure3d.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.input.InputState;
-import info.openrocket.swing.gui.figure3d.scene.core.Camera;
-import info.openrocket.swing.gui.figure3d.scene.core.Scene;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import org.junit.jupiter.api.Test;
 

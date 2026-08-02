@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.figure3d.scene.core;
+package info.openrocket.swing.gui.figure3d.scene.graph;
 
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import org.joml.Vector3f;

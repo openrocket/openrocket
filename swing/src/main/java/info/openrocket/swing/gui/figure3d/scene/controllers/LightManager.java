@@ -1,9 +1,9 @@
 package info.openrocket.swing.gui.figure3d.scene.controllers;
 
-import info.openrocket.swing.gui.figure3d.scene.core.Light;
-import info.openrocket.swing.gui.figure3d.scene.core.LightVisualizer;
-import info.openrocket.swing.gui.figure3d.scene.core.Scene;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.graph.Light;
+import info.openrocket.swing.gui.figure3d.scene.graph.LightVisualizer;
+import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

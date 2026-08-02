@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.figure3d.scene.core;
+package info.openrocket.swing.gui.figure3d.scene.graph;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.animation.PoseProvider;

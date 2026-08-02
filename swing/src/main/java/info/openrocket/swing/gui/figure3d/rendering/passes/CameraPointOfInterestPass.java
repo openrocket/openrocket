@@ -4,8 +4,8 @@ import info.openrocket.swing.gui.figure3d.geometry.components.CameraPointOfInter
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
-import info.openrocket.swing.gui.figure3d.scene.core.Camera;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.theme.UITheme;

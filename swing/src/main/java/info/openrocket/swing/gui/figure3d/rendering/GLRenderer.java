@@ -2,7 +2,7 @@ package info.openrocket.swing.gui.figure3d.rendering;
 
 
 import info.openrocket.core.util.CoordinateIF;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 
 /**
  * Core interface for the OpenRocket 3D rendering system.

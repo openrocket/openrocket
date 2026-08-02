@@ -4,7 +4,7 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.particles.Particle;
 import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.particles.PerlinNoise;
-import info.openrocket.swing.gui.figure3d.scene.core.Light;
+import info.openrocket.swing.gui.figure3d.scene.graph.Light;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 

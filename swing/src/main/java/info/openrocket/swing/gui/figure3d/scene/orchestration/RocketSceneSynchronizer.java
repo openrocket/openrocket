@@ -12,8 +12,8 @@ import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

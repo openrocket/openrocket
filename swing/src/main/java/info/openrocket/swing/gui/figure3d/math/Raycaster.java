@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.math;
 
-import info.openrocket.swing.gui.figure3d.scene.core.Camera;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import org.joml.Vector3f;
 
 import java.util.List;
