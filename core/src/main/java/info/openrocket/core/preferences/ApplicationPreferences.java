@@ -86,6 +86,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
 	private static final String CHECK_MOTOR_DATABASE_UPDATES = "CheckMotorDatabaseUpdates";
+	private static final String AUTO_INSTALL_MOTOR_DATABASE_UPDATES = "AutoInstallMotorDatabaseUpdates";
 	private static final String IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS = "IgnoreMotorDatabaseUpdateVersions";
 
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
@@ -320,6 +321,22 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public final void setCheckMotorDatabaseUpdates(boolean check) {
 		this.putBoolean(CHECK_MOTOR_DATABASE_UPDATES, check);
+	}
+
+	/**
+	 * Returns whether motor database updates should be installed without asking the user for confirmation.
+	 * @return true if available motor database updates are installed automatically
+	 */
+	public final boolean getAutoInstallMotorDatabaseUpdates() {
+		return this.getBoolean(AUTO_INSTALL_MOTOR_DATABASE_UPDATES, false);
+	}
+
+	/**
+	 * Sets whether motor database updates should be installed without asking the user for confirmation.
+	 * @param autoInstall true to install available motor database updates automatically
+	 */
+	public final void setAutoInstallMotorDatabaseUpdates(boolean autoInstall) {
+		this.putBoolean(AUTO_INSTALL_MOTOR_DATABASE_UPDATES, autoInstall);
 	}
 
 	public final List<String> getIgnoreMotorDatabaseUpdateVersions() {
