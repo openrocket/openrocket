@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;

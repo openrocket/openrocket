@@ -34,7 +34,6 @@ import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

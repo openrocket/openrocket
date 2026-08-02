@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
-import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -22,7 +21,6 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_REPEAT;
 import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_EDGE;

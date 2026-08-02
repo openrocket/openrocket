@@ -2,10 +2,7 @@ package info.openrocket.swing.gui.figure3d.scene.graph;
 
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
