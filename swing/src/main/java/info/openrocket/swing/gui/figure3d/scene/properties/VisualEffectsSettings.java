@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import org.joml.Vector3f;
 
@@ -427,7 +428,7 @@ public class VisualEffectsSettings {
     }
 
     public void setSmokeOpacity(float smokeOpacity) {
-        this.smokeOpacity = Math.max(0.0f, Math.min(1.0f, smokeOpacity));
+        this.smokeOpacity = MathUtil.clamp(smokeOpacity, 0.0f, 1.0f);
     }
 
     public float getExhaustScale() {

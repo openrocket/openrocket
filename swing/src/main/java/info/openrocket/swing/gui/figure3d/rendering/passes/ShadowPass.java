@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
@@ -473,7 +474,7 @@ public class ShadowPass implements RenderPass {
     private void updateShadowMapSize(int width, int height) {
         int targetSize = Math.max(width, height);
         targetSize = (int) (targetSize * resolutionScale);
-        targetSize = Math.max(MIN_SHADOW_MAP_SIZE, Math.min(maxShadowMapSize, targetSize));
+        targetSize = MathUtil.clamp(targetSize, MIN_SHADOW_MAP_SIZE, maxShadowMapSize);
         shadowMapSize = targetSize;
     }
 

@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -2041,8 +2042,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		int previousFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
 		int previousReadBuffer = glGetInteger(GL_READ_BUFFER);
 		ByteBuffer pixel = BufferUtils.createByteBuffer(4);
-		int sampleX = Math.max(0, Math.min(width - 1, width / 2));
-		int sampleY = Math.max(0, Math.min(height - 1, height / 2));
+		int sampleX = MathUtil.clamp(width / 2, 0, width - 1);
+		int sampleY = MathUtil.clamp(height / 2, 0, height - 1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
 		glReadBuffer(framebufferId == 0 ? readBuffer : GL_COLOR_ATTACHMENT0);

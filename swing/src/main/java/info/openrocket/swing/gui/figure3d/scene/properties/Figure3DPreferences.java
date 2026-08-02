@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
@@ -134,7 +135,7 @@ public final class Figure3DPreferences {
 		int maxIndex = GraphicsQualitySettings.RenderQuality.values().length - 1;
 		int fallback = getDefaultRenderQuality(preferences).ordinal();
 		int choice = documentPreferences.getInt(DocumentPreferences.PREF_3D_RENDER_QUALITY, fallback);
-		choice = Math.max(0, Math.min(maxIndex, choice));
+		choice = MathUtil.clamp(choice, 0, maxIndex);
 		return GraphicsQualitySettings.RenderQuality.values()[choice];
 	}
 

@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.core.particles.flame;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleSettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import org.joml.Vector3f;
@@ -83,9 +84,9 @@ public class FlameSettings extends ParticleSettings {
 
     private static Vector3f clampColor(Vector3f color) {
         return new Vector3f(
-                Math.max(0.0f, Math.min(1.0f, color.x)),
-                Math.max(0.0f, Math.min(1.0f, color.y)),
-                Math.max(0.0f, Math.min(1.0f, color.z))
+                MathUtil.clamp(color.x, 0.0f, 1.0f),
+                MathUtil.clamp(color.y, 0.0f, 1.0f),
+                MathUtil.clamp(color.z, 0.0f, 1.0f)
         );
     }
 }

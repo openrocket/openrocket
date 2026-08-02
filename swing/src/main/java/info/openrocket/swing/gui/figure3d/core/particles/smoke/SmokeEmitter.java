@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.core.particles.smoke;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.core.particles.Particle;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.core.particles.PerlinNoise;
@@ -84,7 +85,7 @@ public class SmokeEmitter extends ParticleEmitter {
         }
         
         // Normalize and enhance contrast
-        colorFactor = Math.max(0.0f, Math.min(1.0f, colorFactor)); // Clamp to [0,1]
+        colorFactor = MathUtil.clamp(colorFactor, 0.0f, 1.0f);
         
         // Interpolate between min and max color using noise factor
         float r = settings.minColor.x + colorFactor * (settings.maxColor.x - settings.minColor.x);

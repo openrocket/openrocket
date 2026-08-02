@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.figure3d.animation;
 
+import info.openrocket.core.util.MathUtil;
+
 /** Small playback clock with play/pause/speed and clamping. */
 public final class PlaybackClock {
 	private double time;
@@ -19,7 +21,7 @@ public final class PlaybackClock {
 	}
 
 	public double getTime()        { return time; }
-	public void   setTime(double t){ time = Math.max(start, Math.min(end, t)); }
+	public void   setTime(double t){ time = MathUtil.clamp(t, start, end); }
 	public double getRate()        { return rate; }
 	public void   setRate(double r){ rate = r; }
 	public double getStart()       { return start; }

@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.scene.core;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -203,7 +204,7 @@ public class Camera {
 	private float getEffectiveNearPlane() {
 		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
 		float dynamicNear = effectiveDistance * CameraConstants.DYNAMIC_Z_NEAR_DISTANCE_FACTOR;
-		return Math.max(CameraConstants.MIN_DYNAMIC_Z_NEAR, Math.min(zNear, dynamicNear));
+		return MathUtil.clamp(dynamicNear, CameraConstants.MIN_DYNAMIC_Z_NEAR, zNear);
 	}
 
 	private float getEffectiveFarPlane() {
@@ -275,7 +276,7 @@ public class Camera {
 		float fittedDistance = Math.max(CameraConstants.MIN_DISTANCE, newDistance);
 		this.minZoom = Math.max(CameraConstants.MIN_DISTANCE, fittedDistance * FIT_MIN_ZOOM_FACTOR);
 		this.maxZoom = Math.max(this.minZoom * FIT_MAX_ZOOM_FACTOR, fittedDistance * FIT_MAX_ZOOM_FACTOR);
-		this.distance = Math.max(minZoom, Math.min(maxZoom, fittedDistance)); // Clamp zoom
+		this.distance = MathUtil.clamp(fittedDistance, minZoom, maxZoom);
 
 		updateProjectionMatrix();
 		updateViewMatrix();
@@ -293,7 +294,7 @@ public class Camera {
 		angleX -= dx * sensitivity;
 		angleY += dy * sensitivity;
 		if (pitchClampingEnabled) {
-			angleY = Math.max(CameraConstants.MIN_PITCH_ANGLE, Math.min(CameraConstants.MAX_PITCH_ANGLE, angleY)); // Clamp pitch
+			angleY = MathUtil.clamp(angleY, CameraConstants.MIN_PITCH_ANGLE, CameraConstants.MAX_PITCH_ANGLE);
 		}
 	}
 
@@ -359,7 +360,7 @@ public class Camera {
 	 */
 	public void dolly(float scrollAmount) {
 		distance -= scrollAmount;
-		distance = Math.max(minZoom, Math.min(maxZoom, distance)); // Clamp zoom
+		distance = MathUtil.clamp(distance, minZoom, maxZoom);
 
 		updateProjectionMatrix();
 	}
@@ -370,7 +371,7 @@ public class Camera {
 	 * @param distance the new distance
 	 */
 	public void setDistance(float distance) {
-		this.distance = Math.max(minZoom, Math.min(maxZoom, distance));
+		this.distance = MathUtil.clamp(distance, minZoom, maxZoom);
 		updateProjectionMatrix();
 		updateViewMatrix();
 	}
@@ -399,7 +400,7 @@ public class Camera {
 		}
 		this.minZoom = minZoom;
 		this.maxZoom = maxZoom;
-		this.distance = Math.max(minZoom, Math.min(maxZoom, distance));
+		this.distance = MathUtil.clamp(distance, minZoom, maxZoom);
 		updateProjectionMatrix();
 		updateViewMatrix();
 	}

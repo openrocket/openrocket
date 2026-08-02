@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.core.particles.flame;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.core.particles.Particle;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.core.particles.PerlinNoise;
@@ -198,7 +199,7 @@ public class FlameEmitter extends ParticleEmitter {
         }
         
         // Normalize and enhance contrast for flame colors
-        colorFactor = Math.max(0.0f, Math.min(1.0f, colorFactor));
+        colorFactor = MathUtil.clamp(colorFactor, 0.0f, 1.0f);
         
         // Interpolate between flame colors (red/orange to yellow/white)
         float r = settings.minColor.x + colorFactor * (settings.maxColor.x - settings.minColor.x);

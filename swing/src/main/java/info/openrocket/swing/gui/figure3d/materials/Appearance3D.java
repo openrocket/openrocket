@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.materials;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import org.joml.Vector2f;
@@ -115,13 +116,13 @@ public class Appearance3D implements Material {
 		isUnlit = unlit;
 	}
 	public void setShine(float shine) {
-		this.shine = Math.max(0.0f, Math.min(1.0f, shine));
+		this.shine = MathUtil.clamp(shine, 0.0f, 1.0f);
 	}
 	public void setRoughnessAmount(float roughnessAmount) {
-		this.roughnessAmount = Math.max(0.0f, Math.min(1.0f, roughnessAmount));
+		this.roughnessAmount = MathUtil.clamp(roughnessAmount, 0.0f, 1.0f);
 	}
 	public void setOpacity(float opacity) {
-		this.opacity = Math.max(0.0f, Math.min(1.0f, opacity));
+		this.opacity = MathUtil.clamp(opacity, 0.0f, 1.0f);
 	}
 	public void setOpacityAffectsTexture(boolean opacityAffectsTexture) {
 		this.opacityAffectsTexture = opacityAffectsTexture;

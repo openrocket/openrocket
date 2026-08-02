@@ -1053,7 +1053,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	 * </pre>
 	 */
 	private void syncSettingsFromLightDirection(float dx, float dy, float dz) {
-		double lightAlt = Math.asin(Math.max(-1.0, Math.min(1.0, -dy)));
+		double lightAlt = Math.asin(MathUtil.clamp(-dy, -1.0, 1.0));
 		double lightAz = MathUtil.reduce2Pi(Math.atan2(dz, -dx));
 
 		if (MathUtil.equals(lightAlt, settings.getLightAlt(), CAMERA_SETTINGS_EPSILON)

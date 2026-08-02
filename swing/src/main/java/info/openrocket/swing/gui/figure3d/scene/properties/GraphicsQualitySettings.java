@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import info.openrocket.core.util.MathUtil;
+
 /**
  * Configuration for graphics quality and rendering techniques in the OpenRocket 3D visualization.
  * This class manages low-level rendering settings that directly impact both visual quality and
@@ -202,7 +204,7 @@ public class GraphicsQualitySettings {
      * @return the bump strength, 0 for a surface with no visible grain
      */
     public float getRoughnessStrength(float roughnessAmount) {
-        float amount = Math.max(0.0f, Math.min(1.0f, roughnessAmount));
+        float amount = MathUtil.clamp(roughnessAmount, 0.0f, 1.0f);
         if (quality == RenderQuality.HIGH) {
             return MAX_ROUGHNESS_STRENGTH * amount;
         }
@@ -222,7 +224,7 @@ public class GraphicsQualitySettings {
      * @return grain frequency; higher means smaller features
      */
     public float getRoughnessFrequency(float roughnessAmount) {
-        float amount = Math.max(0.0f, Math.min(1.0f, roughnessAmount));
+        float amount = MathUtil.clamp(roughnessAmount, 0.0f, 1.0f);
         if (quality == RenderQuality.HIGH) {
             return DETAILED_MAX_FREQUENCY * amount;
         }

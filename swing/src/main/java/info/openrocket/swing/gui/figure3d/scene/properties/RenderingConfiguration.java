@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import info.openrocket.core.util.MathUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -225,7 +226,7 @@ public class RenderingConfiguration {
          * @return This builder instance
          */
         public Builder withXrayOpacity(float opacity) {
-            this.xrayOpacity = Math.max(0.0f, Math.min(1.0f, opacity));
+            this.xrayOpacity = MathUtil.clamp(opacity, 0.0f, 1.0f);
             return this;
         }
         
