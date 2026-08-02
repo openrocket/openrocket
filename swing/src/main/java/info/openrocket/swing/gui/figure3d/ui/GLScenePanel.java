@@ -9,9 +9,7 @@ import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
-import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
-import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
@@ -78,49 +76,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_ONE;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_READ_BUFFER;
 import static org.lwjgl.opengl.GL11.glTexSubImage2D;
 import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 import static org.lwjgl.opengl.GL12.GL_BGRA;
 import static org.lwjgl.opengl.GL21.GL_PIXEL_PACK_BUFFER;
 import static org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glBufferSubData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL21.GL_PIXEL_UNPACK_BUFFER;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
@@ -179,29 +151,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final double CLICK_DRAG_THRESHOLD_SQ = 5 * 5;
 
-	private final HUDPanel hudPanel;
-	private final boolean hudEnabled;
-	private final Object hudLock = new Object();
-	private BufferedImage hudImage;
-	private Texture hudTexture;
-	private GLShader hudShader;
-	private int hudVao;
-	private int hudVbo; // Store VBO reference for cleanup
-	// PBO for async HUD texture uploads. Orphaned + filled on the render thread,
-	// then glTexSubImage2D copies from PBO → texture asynchronously instead of
-	// stalling on a host-pointer DMA.
-	private int hudPbo;
-	private int hudPboCapacityBytes;
-	private ByteBuffer hudImageBuffer;
-	private IntBuffer hudIntBuffer; // Direct IntBuffer view for efficiency
-	private Graphics2D hudGraphics; // Reusable Graphics2D context
+	private final HudOverlay hudOverlay;
 	private final CountDownLatch glInitLatch = new CountDownLatch(1);
-	private final AtomicBoolean hudPaintScheduled = new AtomicBoolean(false);
-	private final AtomicBoolean hudBufferReady = new AtomicBoolean(false);
-	private volatile long lastHudPaintTimeMs = 0;
-	// Default throttle for low-priority HUD repaints. The HUD upload path is the
-	// dominant render-thread cost; 15 fps is visually ample for HUD content.
-	private static final long MIN_HUD_PAINT_INTERVAL_MS = 66;
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
 	private static final int RESIZE_PRESENT_INTERVAL_MS = 16;
@@ -226,7 +177,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Track dimensions to detect actual size changes
 	private int lastFramebufferWidth = -1;
 	private int lastFramebufferHeight = -1;
-	private volatile boolean hudNeedsUpdate = true;
 
 	// Camera tracking for HUD updates - volatile for thread safety between EDT and render timer
 	private volatile boolean cameraIsMoving = false;
@@ -361,8 +311,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setBackground(GUIUtil.getUITheme().getBackgroundColor());
 
 		this.rocket = rocket;
-		this.hudPanel = hudPanel;
-		this.hudEnabled = hudPanel != null;
+		this.hudOverlay = hudPanel != null ? new HudOverlay(hudPanel, this) : null;
 		this.peerBoundsSyncEnabled = NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && enablePeerBoundsSync;
 		this.keyboardHandler = new KeyboardHandler();
 		this.wheelInteractionEndTimer = createWheelInteractionEndTimer();
@@ -387,7 +336,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		Timer timer = new Timer(WHEEL_INTERACTION_IDLE_MS, e -> {
 			wheelInteractionActive = false;
 			updateCameraInteractionMode();
-			hudNeedsUpdate = true;
+			markHudForUpdate();
 			// Render one full-quality frame after the wheel has been idle long enough
 			// to consider the zoom gesture complete.
 			markRenderActivity();
@@ -408,7 +357,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 */
 	private Timer createResizeSettleTimer() {
 		Timer timer = new Timer(RESIZE_SETTLE_IDLE_MS, e -> {
-			hudNeedsUpdate = true;
+			markHudForUpdate();
 			requestRenderNow();
 		});
 		timer.setRepeats(false);
@@ -511,7 +460,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				pendingFbWidth = fbSize[0];
 				pendingFbHeight = fbSize[1];
 				resizeRequested = true;
-				hudNeedsUpdate = true;
+				markHudForUpdate();
 			}
 		});
 	}
@@ -627,7 +576,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return true;
 	}
 
-	private void markRenderActivity() {
+	/** True once the GL scene exists and the canvas can still be drawn into. */
+	boolean isSceneReady() {
+		return scene3DOrchestrator != null && isDisplayable();
+	}
+
+	void markRenderActivity() {
 		Runnable callback = renderActivityCallback;
 		if (callback != null) {
 			callback.run();
@@ -654,7 +608,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		startupBlankFramebufferRecoveryRequested.set(false);
 		startupFrameDetectionComplete = false;
 		consecutiveVisibleStartupFrames = 0;
-		hudNeedsUpdate = true;
+		markHudForUpdate();
 		markRenderActivity();
 		if (peerBoundsSyncEnabled) {
 			requestPeerBoundsSyncNow();
@@ -1086,7 +1040,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			orchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
 			beginWheelInteraction();
-			hudNeedsUpdate = true; // Mark HUD for update on zoom
+			markHudForUpdate(); // Mark HUD for update on zoom
 			markRenderActivity();
 		}
 	}
@@ -1152,7 +1106,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 * Computes framebuffer size without calling AWT native peer methods.
 	 * On macOS, querying AWTGLCanvas.getFramebufferWidth/Height off the EDT can crash.
 	 */
-	private int[] computeFramebufferSize(int windowWidth, int windowHeight) {
+	int[] computeFramebufferSize(int windowWidth, int windowHeight) {
 		double scaleX = 1.0;
 		double scaleY = 1.0;
 		GraphicsConfiguration gc = getGraphicsConfiguration();
@@ -1166,7 +1120,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return new int[]{Math.max(1, fbWidth), Math.max(1, fbHeight)};
 	}
 
-	private int[] computeFramebufferSize() {
+	int[] computeFramebufferSize() {
 		return computeFramebufferSize(Math.max(1, getWidth()), Math.max(1, getHeight()));
 	}
 
@@ -1211,7 +1165,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			int fbHeight = fbSize[1];
 
 			createScene(winWidth, winHeight, fbWidth, fbHeight);
-			initHudResources(fbWidth, fbHeight);
+			if (hudOverlay != null) {
+				lastFramebufferWidth = fbWidth;
+				lastFramebufferHeight = fbHeight;
+				hudOverlay.initResources();
+			}
 
 			addInputListeners();
 			addViewKeyBindings();
@@ -1281,26 +1239,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			scene3DOrchestrator.requestExport(pendingCapture.transparent);
 		}
 
-		if (this.hudPanel != null) {
-			this.hudPanel.setSceneViewController(this.scene3DOrchestrator);
-			this.hudPanel.setGLScenePanel(this);
+		if (hudOverlay != null) {
+			hudOverlay.getPanel().setSceneViewController(this.scene3DOrchestrator);
+			hudOverlay.getPanel().setGLScenePanel(this);
 		}
-	}
-
-	/** Creates the shader, texture and quad the HUD overlay is drawn with. */
-	private void initHudResources(int fbWidth, int fbHeight) {
-		if (!hudEnabled) {
-			hudNeedsUpdate = false;
-			return;
-		}
-
-		hudShader = new GLShader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
-		lastFramebufferWidth = fbWidth;
-		lastFramebufferHeight = fbHeight;
-
-		initHudTexture();
-		initHudVao();
-		requestHudRepaint(true);
 	}
 
 	@Override
@@ -1379,123 +1321,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return false;
 	}
 
-	/**
-	 * Cleans up old resources and creates new ones with current framebuffer dimensions.
-	 * IMPORTANT: Creates textures directly for THIS context - does not use shared pool.
-	 */
-	private void initHudTexture() {
-		synchronized (hudLock) {
-			hudBufferReady.set(false);
-			int[] fbSize = computeFramebufferSize();
-			int fbWidth = fbSize[0];
-			int fbHeight = fbSize[1];
-
-			if (fbWidth <= 0 || fbHeight <= 0) {
-				cleanupHudResources();
-				return;
-			}
-
-			// Check if we can reuse existing resources with padding
-			if (hudImage != null && hudImageBuffer != null) {
-				int currentCapacity = hudImageBuffer.capacity();
-				int requiredCapacity = fbWidth * fbHeight * 4;
-
-				if (currentCapacity >= requiredCapacity && currentCapacity <= requiredCapacity * 1.25) {
-					// Cleanup old texture and create new one for THIS context
-					if (hudTexture != null) {
-						hudTexture.cleanup();
-					}
-					hudTexture = new Texture(fbWidth, fbHeight, true);
-
-					// Recreate BufferedImage with new size but keep buffer
-					if (hudGraphics != null) {
-						hudGraphics.dispose();
-					}
-					hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
-					hudGraphics = hudImage.createGraphics();
-					hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-					hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-					return;
-				}
-			}
-
-			// Full cleanup and recreation needed
-			cleanupHudResources();
-
-			// Allocate with some padding to reduce future reallocations
-			int paddedSize = (int) (fbWidth * fbHeight * 4 * 1.1);    // 10% padding
-
-			hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
-			hudImageBuffer = MemoryUtil.memAlloc(paddedSize);
-			hudIntBuffer = hudImageBuffer.asIntBuffer();
-
-			hudGraphics = hudImage.createGraphics();
-			hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-			// Create texture directly for THIS context - don't use shared pool
-			hudTexture = new Texture(fbWidth, fbHeight, true);
-
-			// Allocate the PBO at the same capacity as the host pixel buffer so
-			// glBufferData(orphan) → glBufferSubData(host) → glTexSubImage2D(0L)
-			// can stream uploads without ever stalling on prior GPU usage.
-			hudPbo = glGenBuffers();
-			hudPboCapacityBytes = paddedSize;
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, hudPbo);
-			glBufferData(GL_PIXEL_UNPACK_BUFFER, hudPboCapacityBytes, GL_STREAM_DRAW);
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-		}
-	}
-
-	private void cleanupHudResources() {
-		if (hudTexture != null) {
-			// Cleanup directly - don't return to shared pool
-			hudTexture.cleanup();
-			hudTexture = null;
-		}
-		if (hudPbo != 0) {
-			glDeleteBuffers(hudPbo);
-			hudPbo = 0;
-			hudPboCapacityBytes = 0;
-		}
-		if (hudImageBuffer != null) {
-			MemoryUtil.memFree(hudImageBuffer);
-			hudImageBuffer = null;
-			hudIntBuffer = null;
-		}
-		if (hudGraphics != null) {
-			hudGraphics.dispose();
-			hudGraphics = null;
-		}
-		hudImage = null;
-	}
-
-	private void initHudVao() {
-		float[] quadVertices = {
-				// positions   // texCoords (V coordinates are flipped)
-				-1.0f, 1.0f, 0.0f, 0.0f,  // Top-left vertex maps to V=0.0
-				-1.0f, -1.0f, 0.0f, 1.0f,  // Bottom-left vertex maps to V=1.0
-				1.0f, -1.0f, 1.0f, 1.0f,  // Bottom-right vertex maps to V=1.0
-
-				-1.0f, 1.0f, 0.0f, 0.0f,  // Top-left vertex maps to V=0.0
-				1.0f, -1.0f, 1.0f, 1.0f,  // Bottom-right vertex maps to V=1.0
-				1.0f, 1.0f, 1.0f, 0.0f   // Top-right vertex maps to V=0.0
-		};
-		hudVao = glGenVertexArrays();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, hudVao, "HUD vao");
-		hudVbo = glGenBuffers();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, hudVbo, "HUD vbo");
-		glBindVertexArray(hudVao);
-		glBindBuffer(GL_ARRAY_BUFFER, hudVbo);
-		glBufferData(GL_ARRAY_BUFFER, quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, 4 * Float.BYTES, 0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * Float.BYTES, 2 * Float.BYTES);
-		glBindVertexArray(0);
-	}
-
 	@Override
 	public void paintGL() {
 		paintCallCount.incrementAndGet();
@@ -1529,7 +1354,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			scene3DOrchestrator.update();
 
 			if (cameraIsMoving) {
-				hudNeedsUpdate = true;
+				markHudForUpdate();
 			}
 
 			// Check for an export request before the main render
@@ -1548,8 +1373,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			sampleStartupFrameVisibilityIfNeeded(renderer);
 
-			if (hudEnabled) {
-				renderHud(renderer);
+			if (hudOverlay != null) {
+				hudOverlay.refresh(cameraIsMoving);
+				// Under image presentation the HUD is composited in paint() instead.
+				if (!PRESENT_VIA_IMAGE_ON_MACOS) {
+					hudOverlay.uploadIfReady();
+					hudOverlay.draw();
+					// HUD drawing binds textures directly; reset cached state before next frame.
+					renderer.resetTextureState();
+				}
 			}
 			shouldSwap = true;
 		} catch (Exception ex) {
@@ -1569,70 +1401,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				visibleFrameRecoveryPending = !startupFrameDetectionComplete;
 			}
 		}
-	}
-
-	/**
-	 * Repaints the HUD if it has gone stale, then draws it over the scene.
-	 *
-	 * <p>Under image presentation the drawing half is skipped: there the HUD image is
-	 * composited into the frame in {@link #paint(Graphics)} rather than being uploaded
-	 * as a texture and drawn by GL.</p>
-	 */
-	private void renderHud(GLRenderer renderer) {
-		boolean hudPanelNeedsRepaint = hudPanel != null && hudPanel.needsRepaint();
-		boolean hudRepaintRequested = false;
-		if (hudNeedsUpdate || hudPanelNeedsRepaint) {
-			// While the camera is being dragged, the orientation gizmo wants
-			// to repaint every frame. Force those into the rate-limited path
-			// so the HUD upload doesn't block the render thread at 60 fps.
-			boolean highPriority = hudPanelNeedsRepaint && !cameraIsMoving;
-			hudRepaintRequested = requestHudRepaint(highPriority);
-		}
-		if (hudRepaintRequested) {
-			hudNeedsUpdate = false;
-		}
-
-		if (PRESENT_VIA_IMAGE_ON_MACOS) {
-			return;
-		}
-
-		uploadHudTextureIfReady();
-		drawHudOverlay();
-		// HUD rendering binds textures directly; reset cached state before next 3D frame.
-		renderer.resetTextureState();
-	}
-
-	/** Draws the uploaded HUD texture over the presented scene as a full-screen quad. */
-	private void drawHudOverlay() {
-		if (hudTexture == null || hudShader == null) {
-			return;
-		}
-
-		// Set GL state for 2D rendering
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		// The HUD is rasterized by Java2D, which composites in sRGB space. Blending
-		// it with the sRGB encode still enabled would blend in linear space instead,
-		// which lightens translucent panels well beyond their requested alpha and
-		// pulls partially covered glyph pixels towards the panel colour, leaving the
-		// text thin and washed out. The scene has already been presented at this
-		// point, so the encode can be turned off for the overlay only.
-		glDisable(GL_FRAMEBUFFER_SRGB);
-
-		hudShader.use();
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
-
-		glBindVertexArray(hudVao);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-
-		// Restore GL state
-		glEnable(GL_FRAMEBUFFER_SRGB);
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
 	}
 
 	/**
@@ -1747,12 +1515,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// The image is at framebuffer (HiDPI) resolution; drawing at the logical
 		// size maps it 1:1 onto the physical pixels of the scaled Graphics.
 		g2.drawImage(image, 0, 0, width, height, null);
-		if (hudEnabled) {
-			synchronized (hudLock) {
-				if (hudImage != null) {
-					g2.drawImage(hudImage, 0, 0, width, height, null);
-				}
-			}
+		if (hudOverlay != null) {
+			hudOverlay.compositeInto(g2, width, height);
 		}
 	}
 
@@ -1852,106 +1616,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		EXPORT_EXECUTOR.submit(() -> writePng(exportBuffer, exportWidth, exportHeight, filePath));
 	}
 
-	private boolean requestHudRepaint(boolean highPriority) {
-		if (hudPanel == null || hudGraphics == null || scene3DOrchestrator == null || !isDisplayable()) {
-			return false;
-		}
-		if (!highPriority) {
-			long now = System.currentTimeMillis();
-			if (now - lastHudPaintTimeMs < MIN_HUD_PAINT_INTERVAL_MS) {
-				return false;
-			}
-		}
-		if (!hudPaintScheduled.compareAndSet(false, true)) {
-			return true;
-		}
-		SwingUtilities.invokeLater(() -> {
-			try {
-				paintHudOnEdt();
-			} finally {
-				hudPaintScheduled.set(false);
-			}
-		});
-		return true;
-	}
-
-	private void paintHudOnEdt() {
-		synchronized (hudLock) {
-			if (hudImage == null || hudPanel == null || hudGraphics == null || hudImageBuffer == null || hudIntBuffer == null
-					|| scene3DOrchestrator == null || !isDisplayable()) {
-				return;
-			}
-
-			hudBufferReady.set(false);
-
-			// The panel works in logical window coordinates
-			int windowWidth = Math.max(1, getWidth());
-			int windowHeight = Math.max(1, getHeight());
-			if (windowHeight == 0) {
-				return;
-			}
-			int[] fbSize = computeFramebufferSize(windowWidth, windowHeight);
-			double dpiScale = (double) fbSize[1] / (double) windowHeight;
-
-			hudGraphics.setTransform(hudGraphics.getDeviceConfiguration().getDefaultTransform());
-			hudGraphics.scale(dpiScale, dpiScale);
-
-			// Clear with transparent background
-			hudGraphics.setBackground(new Color(0, 0, 0, 0));
-			hudGraphics.clearRect(0, 0, windowWidth, windowHeight);
-
-			hudPanel.setBounds(0, 0, windowWidth, windowHeight);
-			hudPanel.paint(hudGraphics);
-
-			final int[] pixels = ((DataBufferInt) hudImage.getRaster().getDataBuffer()).getData();
-			hudIntBuffer.clear();
-			hudIntBuffer.put(pixels);
-			hudImageBuffer.rewind();
-			lastHudPaintTimeMs = System.currentTimeMillis();
-			hudBufferReady.set(true);
-			markRenderActivity();
-		}
-	}
-
-	private void uploadHudTextureIfReady() {
-		if (hudTexture == null || hudShader == null) {
-			return;
-		}
-		if (!hudBufferReady.get()) {
-			return;
-		}
-		synchronized (hudLock) {
-			if (!hudBufferReady.get() || hudTexture == null || hudImage == null || hudImageBuffer == null) {
-				return;
-			}
-			hudBufferReady.set(false);
-
-			int byteSize = hudImage.getWidth() * hudImage.getHeight() * 4;
-
-			if (hudPbo != 0) {
-				// Async path: orphan the PBO, copy host bytes into pinned memory, then
-				// glTexSubImage2D from the bound PBO returns immediately and the GPU
-				// performs the upload concurrently with subsequent rendering.
-				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, hudPbo);
-				glBufferData(GL_PIXEL_UNPACK_BUFFER, hudPboCapacityBytes, GL_STREAM_DRAW);
-				int oldLimit = hudImageBuffer.limit();
-				hudImageBuffer.limit(byteSize);
-				glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, hudImageBuffer);
-				hudImageBuffer.limit(oldLimit);
-
-				glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
-				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, hudImage.getWidth(), hudImage.getHeight(),
-						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0L);
-				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-			} else {
-				// Fallback if PBO allocation failed.
-				glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
-				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, hudImage.getWidth(), hudImage.getHeight(),
-						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, hudImageBuffer);
-			}
-		}
-	}
-
 	private void handlePendingResize() {
 		if (!glInitialized || scene3DOrchestrator == null) {
 			return;
@@ -2006,12 +1670,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		glViewport(0, 0, fbWidth, fbHeight);
 		scene3DOrchestrator.resize(width, height, fbWidth, fbHeight);
 
-		if (hudEnabled && (fbWidth != lastFramebufferWidth || fbHeight != lastFramebufferHeight)) {
-			initHudTexture();
+		if (hudOverlay != null && (fbWidth != lastFramebufferWidth || fbHeight != lastFramebufferHeight)) {
+			hudOverlay.initTexture();
 			lastFramebufferWidth = fbWidth;
 			lastFramebufferHeight = fbHeight;
-			hudNeedsUpdate = true;
-			requestHudRepaint(true);
+			hudOverlay.markForUpdate();
+			hudOverlay.requestRepaint(true);
 		}
 
 		resizeRequested = false;
@@ -2186,8 +1850,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void markHudForUpdate() {
-		if (hudEnabled) {
-			hudNeedsUpdate = true;
+		if (hudOverlay != null) {
+			hudOverlay.markForUpdate();
 		}
 	}
 
@@ -2246,8 +1910,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		updateCameraInteractionMode();
 		glInitialized = false;
 		startupRecoveryGeneration.incrementAndGet();
-		hudPaintScheduled.set(false);
-		hudBufferReady.set(false);
+		if (hudOverlay != null) {
+			hudOverlay.resetPendingWork();
+		}
 		uninstallThemeListener();
 		uninstallGraphicsPreferencesListener();
 		if (scene3DOrchestrator != null) {
@@ -2287,24 +1952,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		// Always free native memory - this doesn't require GL context
-			synchronized (hudLock) {
-			if (hudImageBuffer != null) {
-				MemoryUtil.memFree(hudImageBuffer);
-				hudImageBuffer = null;
-				hudIntBuffer = null;
-			}
-			if (hudGraphics != null) {
-				hudGraphics.dispose();
-				hudGraphics = null;
-			}
-			hudImage = null;
-			hudBufferReady.set(false);
-			hudTexture = null;
-			hudShader = null;
-			}
-			if (hudPanel != null) {
-				hudPanel.setGLScenePanel(null);
-				hudPanel.setSceneViewController(null);
+			if (hudOverlay != null) {
+				hudOverlay.cleanupHostResources();
 			}
 			scene3DOrchestrator = null;
 			glCapabilities = null;
@@ -2338,23 +1987,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						log.warn("Error cleaning 3D resources: {}", e.getMessage());
 					}
 				}
-				if (hudVao != 0) {
-					GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, hudVao);
-					glDeleteVertexArrays(hudVao);
-					hudVao = 0;
-				}
-				if (hudVbo != 0) {
-					GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, hudVbo);
-					glDeleteBuffers(hudVbo);
-					hudVbo = 0;
-				}
-				if (hudShader != null) {
-					hudShader.cleanup();
-					hudShader = null;
-				}
-				if (hudTexture != null) {
-					hudTexture.cleanup();
-					hudTexture = null;
+				if (hudOverlay != null) {
+					hudOverlay.cleanupGlResources();
 				}
 			});
 		} catch (Exception e) {
@@ -2425,7 +2059,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				return;
 			}
 			orchestrator.enqueueGlTask(() -> applyThemeBackground(orchestrator.getScene()));
-			hudNeedsUpdate = true;
+			markHudForUpdate();
 			requestPeerBoundsSyncNow();
 			revalidate();
 			repaint();
