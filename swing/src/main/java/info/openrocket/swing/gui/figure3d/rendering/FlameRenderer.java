@@ -1,9 +1,9 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
-import info.openrocket.swing.gui.figure3d.core.particles.Particle;
-import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
-import info.openrocket.swing.gui.figure3d.core.particles.flame.FlameEmitter;
+import info.openrocket.swing.gui.figure3d.particles.Particle;
+import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;

@@ -501,7 +501,7 @@ public class DisplaySettingsDialog extends JDialog {
 			RenderingConfiguration config = orchestrator.getRenderingConfiguration();
 			change.accept(config.getVisualEffects());
 			if (rebuildOriginAxes && orchestrator.getScene() instanceof info.openrocket.swing.gui.figure3d.scene.core.Scene scene) {
-				info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder.rebuildOriginAxes(
+				info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder.rebuildOriginAxes(
 						scene, config, true, true);
 			}
 			if (updateLightVisualizers) {

@@ -9,7 +9,7 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.SharedCanvasRenderScheduler;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
-import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;

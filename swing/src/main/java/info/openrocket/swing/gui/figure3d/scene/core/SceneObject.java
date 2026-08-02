@@ -2,7 +2,7 @@ package info.openrocket.swing.gui.figure3d.scene.core;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
-import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.input.DragListener;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;

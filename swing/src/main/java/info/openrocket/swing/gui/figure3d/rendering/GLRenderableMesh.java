@@ -1,8 +1,8 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
-import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
-import info.openrocket.swing.gui.figure3d.core.geometry.IntList;
-import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
+import info.openrocket.swing.gui.figure3d.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.geometry.IntList;
+import info.openrocket.swing.gui.figure3d.geometry.Vertex;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;

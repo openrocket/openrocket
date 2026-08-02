@@ -2,10 +2,10 @@ package info.openrocket.swing.gui.figure3d.scene.core;
 
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
-import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
-import info.openrocket.swing.gui.figure3d.core.geometry.basic.SphereGenerator;
-import info.openrocket.swing.gui.figure3d.core.geometry.basic.TubeGenerator;
-import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.geometry.basic.SphereGenerator;
+import info.openrocket.swing.gui.figure3d.geometry.basic.TubeGenerator;
+import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;

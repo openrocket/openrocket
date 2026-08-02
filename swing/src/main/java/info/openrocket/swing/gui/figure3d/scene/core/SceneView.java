@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.core;
 
-import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
-import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.math.Raycaster;
+import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.scene.controllers.LightController;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;

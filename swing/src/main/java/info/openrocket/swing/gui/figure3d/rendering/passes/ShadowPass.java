@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;

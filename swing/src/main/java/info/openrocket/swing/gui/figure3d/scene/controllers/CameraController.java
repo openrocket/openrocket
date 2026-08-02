@@ -5,7 +5,7 @@ import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
-import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;

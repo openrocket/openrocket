@@ -1,6 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.core.geometry.components.CameraPointOfInterestGenerator;
+import info.openrocket.swing.gui.figure3d.geometry.components.CameraPointOfInterestGenerator;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;

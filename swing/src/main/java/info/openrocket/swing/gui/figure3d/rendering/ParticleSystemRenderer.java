@@ -1,6 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
-import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import org.joml.Matrix4f;
