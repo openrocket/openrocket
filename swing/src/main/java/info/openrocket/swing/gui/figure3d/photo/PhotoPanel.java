@@ -867,7 +867,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		if (!DEBUG) {
 			return;
 		}
-		System.out.println("[PhotoPanel][" + Thread.currentThread().getName() + "] " + message);
+		log.debug("[{}] {}", Thread.currentThread().getName(), message);
 	}
 
 	private boolean applyEffects(RenderingConfiguration config) {
