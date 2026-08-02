@@ -27,6 +27,7 @@ import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.DegreeUnit;
@@ -402,7 +403,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public final boolean getLaunchIntoWind() {
-		return this.getBoolean(LAUNCH_INTO_WIND, false);
+		return this.getBoolean(LAUNCH_INTO_WIND, true);
 	}
 	
 	public final void setLaunchIntoWind(boolean check) {
@@ -471,7 +472,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public void setLaunchRodAngle(double launchRodAngle) {
-		launchRodAngle = MathUtil.clamp(launchRodAngle, -Math.PI / 6.0, Math.PI / 6.0);
+		// Use the same limit as SimulationOptions, since the launch preferences and a
+		// simulation's launch conditions are edited with the same panel.
+		launchRodAngle = MathUtil.clamp(launchRodAngle, -SimulationOptions.MAX_LAUNCH_ROD_ANGLE,
+				SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_ANGLE, 0), launchRodAngle))
 			return;
 		this.putDouble(LAUNCH_ROD_ANGLE, launchRodAngle);
@@ -480,7 +484,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	
 	public double getLaunchRodDirection() {
-		if (this.getBoolean(LAUNCH_INTO_WIND, false)) {
+		if (getLaunchIntoWind()) {
 			// When launching into wind, sync the launch rod direction with wind direction
 			double windDirection = this.getDouble(WIND_DIRECTION, Math.PI / 2);
 			this.setLaunchRodDirection(windDirection);
@@ -659,7 +663,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isa) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
-			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchRelativeHumidity()).getRelativeHumidity());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
