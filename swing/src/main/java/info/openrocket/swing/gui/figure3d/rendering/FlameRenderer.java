@@ -57,6 +57,8 @@ public class FlameRenderer implements ParticleSystemRenderer {
 	private static final int FLOATS_PER_VERTEX = 10;
 	/** Vertices per quad (two triangles). */
 	private static final int VERTS_PER_QUAD = 6;
+	/** Particles smaller than this are not worth a draw. */
+	private static final float MIN_VISIBLE_PARTICLE_SIZE = 0.005f;
 
 	private final GLShader shader;
 	private final int vao;
@@ -144,10 +146,26 @@ public class FlameRenderer implements ParticleSystemRenderer {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		buffer.clear();
+		int vertexCount = appendParticleBillboards(scene, camera.getPosition(cameraPosition));
+
+		buffer.flip();
+		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
+	}
+
+	/**
+	 * Fills the vertex buffer with a billboard per live flame particle, stopping once
+	 * the buffer is full.
+	 *
+	 * @return the number of vertices written
+	 */
+	private int appendParticleBillboards(SceneView scene, Vector3f cameraPos) {
 		int vertexCount = 0;
-
-		Vector3f cameraPos = camera.getPosition(cameraPosition);
-
 		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
 			if (!(emitter instanceof FlameEmitter flameEmitter)) continue;
 
@@ -160,67 +178,63 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
 				float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
 
-				// --- Size profile: throat → expansion → plume → taper ---
-				float baseSize = particle.getSize() * 0.8f;
-				float size;
-				if (ageRatio < 0.05f) {
-					// Throat: narrow nozzle exit
-					float t = ageRatio / 0.05f;
-					size = baseSize * (0.5f + 0.5f * t);
-				} else if (ageRatio < 0.35f) {
-					// Expansion: rapid widening
-					float t = (ageRatio - 0.05f) / 0.30f;
-					size = baseSize * (1.0f + 1.2f * t);
-				} else if (ageRatio < 0.65f) {
-					// Main plume: slight continued growth
-					float t = (ageRatio - 0.35f) / 0.30f;
-					size = baseSize * (2.2f + 0.2f * t);
-				} else {
-					// Taper to point
-					float t = (ageRatio - 0.65f) / 0.35f;
-					size = baseSize * 2.4f * (1.0f - t * t);
-				}
-				size *= flameSizeMultiplier;
-				if (size < 0.005f) continue;
-
-				// --- Alpha profile ---
-				// Lower overall alpha than standard blending because additive
-				// accumulates across overlapping particles.
-				float alpha;
-				if (ageRatio < 0.10f) {
-					// Throat ramp-up
-					alpha = 0.45f * (ageRatio / 0.10f);
-				} else if (ageRatio < 0.50f) {
-					// Main body: strong but not opaque
-					alpha = 0.45f;
-				} else {
-					// Fade towards the tip
-					float t = (ageRatio - 0.50f) / 0.50f;
-					alpha = 0.45f * (1.0f - t * t);
-				}
-				alpha = Math.max(0.0f, alpha);
+				float size = plumeSize(particle.getSize(), ageRatio) * flameSizeMultiplier;
+				if (size < MIN_VISIBLE_PARTICLE_SIZE) continue;
 
 				vertexCount += createParticleBillboard(
-					particle.getPosition(),
-					size,
-					alpha,
-					particle.getColor(),
-					ageRatio,
-					cameraPos
+						particle.getPosition(),
+						size,
+						plumeAlpha(ageRatio),
+						particle.getColor(),
+						ageRatio,
+						cameraPos
 				);
 			}
 
 			if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
 		}
+		return vertexCount;
+	}
 
-		buffer.flip();
-		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+	/**
+	 * The width of the plume over a particle's life: a narrow throat at the nozzle
+	 * exit, rapid expansion, a main plume that keeps growing slightly, then a taper
+	 * back to a point.
+	 */
+	private static float plumeSize(float particleSize, float ageRatio) {
+		float baseSize = particleSize * 0.8f;
+		if (ageRatio < 0.05f) {
+			float t = ageRatio / 0.05f;
+			return baseSize * (0.5f + 0.5f * t);
+		} else if (ageRatio < 0.35f) {
+			float t = (ageRatio - 0.05f) / 0.30f;
+			return baseSize * (1.0f + 1.2f * t);
+		} else if (ageRatio < 0.65f) {
+			float t = (ageRatio - 0.35f) / 0.30f;
+			return baseSize * (2.2f + 0.2f * t);
+		}
+		float t = (ageRatio - 0.65f) / 0.35f;
+		return baseSize * 2.4f * (1.0f - t * t);
+	}
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-		glDepthMask(true);
-		glDisable(GL_BLEND);
+	/**
+	 * The opacity of the plume over a particle's life: a ramp up out of the throat, a
+	 * strong main body, then a fade towards the tip.
+	 *
+	 * <p>Kept well below opaque throughout because the blend is additive, so
+	 * overlapping particles accumulate.</p>
+	 */
+	private static float plumeAlpha(float ageRatio) {
+		float alpha;
+		if (ageRatio < 0.10f) {
+			alpha = 0.45f * (ageRatio / 0.10f);
+		} else if (ageRatio < 0.50f) {
+			alpha = 0.45f;
+		} else {
+			float t = (ageRatio - 0.50f) / 0.50f;
+			alpha = 0.45f * (1.0f - t * t);
+		}
+		return Math.max(0.0f, alpha);
 	}
 
 	private int createParticleBillboard(Vector3f position, float size, float alpha,

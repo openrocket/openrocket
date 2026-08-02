@@ -61,6 +61,18 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	private static final int FLOATS_PER_VERTEX = POSITION_FLOATS + TEX_COORD_FLOATS + COLOR_FLOATS;
 	private static final int VERTICES_PER_QUAD = 6;
 
+	/** How much larger than its nominal size a smoke particle is drawn, to give it volume. */
+	private static final float VOLUMETRIC_SIZE_MULTIPLIER = 4.0f;
+	/** Fraction of its full size a particle starts at, before growing as it disperses. */
+	private static final float PARTICLE_BIRTH_SIZE_FRACTION = 0.2f;
+	/** Particles smaller than this are not worth a draw. */
+	private static final float MIN_VISIBLE_PARTICLE_SIZE = 0.01f;
+	private static final float PARTICLE_MAX_ALPHA = 0.7f;
+	/** Age at which a particle starts fading, having been fully opaque until then. */
+	private static final float PARTICLE_FADE_START = 0.8f;
+	/** Age remaining once fading starts. Kept exact rather than derived from the start. */
+	private static final float PARTICLE_FADE_SPAN = 0.2f;
+
 	private final GLShader shader;
 	private final int vao;
 	private final int vbo;
@@ -144,48 +156,15 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	 * @param camera The camera for billboard calculations and view matrices
 	 */
 	public void render(SceneView scene, Camera camera) {
-		boolean hasSmokeEmitters = false;
-		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
-			if (emitter instanceof SmokeEmitter) {
-				hasSmokeEmitters = true;
-				break;
-			}
-		}
-
-		if (!hasSmokeEmitters) {
-			return; // Early exit if no smoke to render
+		if (!hasSmokeEmitters(scene)) {
+			return;
 		}
 
 		shader.use();
 		shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
 		shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
-		
-		// Find the brightest flame to use as primary light source
-		Vector3f flameLight = scratchFlameLight.set(10.0f, 10.0f, 10.0f); // Default light position
-		Vector3f flameLightColor = scratchFlameLightColor.set(1.0f, 0.9f, 0.8f); // Default warm light
-		float flameLightIntensity = 2.0f; // Default intensity
-		
-		// Look for flame emitters to use as dynamic light sources
-		float maxFlameIntensity = 0.0f;
-		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
-			if (emitter instanceof FlameEmitter) {
-				FlameEmitter flameEmitter = (FlameEmitter) emitter;
-				float intensity = flameEmitter.calculateEffectiveLightIntensity();
-				
-				if (intensity > maxFlameIntensity) {
-					maxFlameIntensity = intensity;
-					flameLight = flameEmitter.calculateLightPosition(scratchFlameLight);
-					flameLightColor = scratchFlameLightColor.set(1.0f, 0.6f, 0.2f); // Orange flame light
-					flameLightIntensity = intensity + 1.0f; // Add base intensity
-				}
-			}
-		}
-		
-		// Set lighting uniforms
-		glUniform3f(lightPosLocation, flameLight.x, flameLight.y, flameLight.z);
-		glUniform3f(lightColorLocation, flameLightColor.x, flameLightColor.y, flameLightColor.z);
-		glUniform1f(lightIntensityLocation, flameLightIntensity);
-		glUniform3f(ambientLightLocation, 0.2f, 0.2f, 0.3f);
+
+		bindLighting(scene);
 
 		glActiveTexture(GL_TEXTURE0);
 		smokeTexture.bind();
@@ -199,55 +178,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		buffer.clear();
-		int vertexCount = 0;
-
-		// Get camera position for per-particle billboarding
-		Vector3f cameraPos = camera.getPosition();
-
-		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
-			if (!(emitter instanceof SmokeEmitter smokeEmitter)) continue;
-
-			// Set light sensitivity for this emitter
-			glUniform1f(lightSensitivityLocation, smokeEmitter.getLightSensitivity());
-			
-			// Render actual particles instead of fake trail
-			for (Particle particle : emitter.getParticles()) {
-				if (vertexCount >= maxQuads * 6) break;
-				
-				// Calculate age progression (0 = just born, 1 = about to die)
-				float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
-				
-				// Size grows from small starting size to full size over lifetime
-				float maxSize = particle.getSize() * 4.0f; // Volumetric multiplier
-				float minSize = maxSize * 0.2f; // Start at 20% of max size
-				float size = minSize + (maxSize - minSize) * ageRatio;
-				
-				// Skip particles that are too small to see
-				if (size < 0.01f) continue;
-				
-				// Alpha fades out near end of life (strong for 80% of life, then fades)
-				float alpha;
-				if (ageRatio < 0.8f) {
-					alpha = 0.7f; // Strong opacity for most of life
-				} else {
-					// Fade out in last 20% of life
-					float fadeProgress = (ageRatio - 0.8f) / 0.2f; // 0 to 1 in last 20%
-					alpha = 0.7f * (1.0f - fadeProgress);
-				}
-				alpha *= smokeEmitter.getOpacityMultiplier();
-				
-				// Create billboard quad for this particle
-				vertexCount += createParticleBillboard(
-					particle.getPosition(), 
-					size, 
-					alpha, 
-					particle.getColor(),
-					cameraPos
-				);
-			}
-			
-			if (vertexCount >= maxQuads * 6) break;
-		}
+		int vertexCount = appendParticleBillboards(scene, camera.getPosition());
 
 		buffer.flip();
 		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
@@ -257,6 +188,92 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		glBindVertexArray(0);
 		glDepthMask(true);
 		glDisable(GL_BLEND);
+	}
+
+	private static boolean hasSmokeEmitters(SceneView scene) {
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (emitter instanceof SmokeEmitter) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Lights the smoke from the brightest flame in the scene, falling back to a fixed
+	 * warm light when there is none.
+	 */
+	private void bindLighting(SceneView scene) {
+		Vector3f flameLight = scratchFlameLight.set(10.0f, 10.0f, 10.0f);
+		Vector3f flameLightColor = scratchFlameLightColor.set(1.0f, 0.9f, 0.8f);
+		float flameLightIntensity = 2.0f;
+
+		float maxFlameIntensity = 0.0f;
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (emitter instanceof FlameEmitter flameEmitter) {
+				float intensity = flameEmitter.calculateEffectiveLightIntensity();
+
+				if (intensity > maxFlameIntensity) {
+					maxFlameIntensity = intensity;
+					flameLight = flameEmitter.calculateLightPosition(scratchFlameLight);
+					flameLightColor = scratchFlameLightColor.set(1.0f, 0.6f, 0.2f);
+					flameLightIntensity = intensity + 1.0f;
+				}
+			}
+		}
+
+		glUniform3f(lightPosLocation, flameLight.x, flameLight.y, flameLight.z);
+		glUniform3f(lightColorLocation, flameLightColor.x, flameLightColor.y, flameLightColor.z);
+		glUniform1f(lightIntensityLocation, flameLightIntensity);
+		glUniform3f(ambientLightLocation, 0.2f, 0.2f, 0.3f);
+	}
+
+	/**
+	 * Fills the vertex buffer with a billboard per live smoke particle, stopping once
+	 * the buffer is full.
+	 *
+	 * @return the number of vertices written
+	 */
+	private int appendParticleBillboards(SceneView scene, Vector3f cameraPos) {
+		int vertexCount = 0;
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (!(emitter instanceof SmokeEmitter smokeEmitter)) continue;
+
+			glUniform1f(lightSensitivityLocation, smokeEmitter.getLightSensitivity());
+
+			for (Particle particle : emitter.getParticles()) {
+				if (vertexCount >= maxQuads * 6) break;
+
+				// 0 when just born, 1 when about to die.
+				float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
+				float size = particleSize(particle, ageRatio);
+				if (size < MIN_VISIBLE_PARTICLE_SIZE) continue;
+
+				float alpha = particleAlpha(ageRatio) * smokeEmitter.getOpacityMultiplier();
+
+				vertexCount += createParticleBillboard(
+						particle.getPosition(), size, alpha, particle.getColor(), cameraPos);
+			}
+
+			if (vertexCount >= maxQuads * 6) break;
+		}
+		return vertexCount;
+	}
+
+	/** Grows the particle from a fraction of its full size as it ages, to disperse it. */
+	private static float particleSize(Particle particle, float ageRatio) {
+		float maxSize = particle.getSize() * VOLUMETRIC_SIZE_MULTIPLIER;
+		float minSize = maxSize * PARTICLE_BIRTH_SIZE_FRACTION;
+		return minSize + (maxSize - minSize) * ageRatio;
+	}
+
+	/** Holds full opacity for most of the particle's life, then fades it out. */
+	private static float particleAlpha(float ageRatio) {
+		if (ageRatio < PARTICLE_FADE_START) {
+			return PARTICLE_MAX_ALPHA;
+		}
+		float fadeProgress = (ageRatio - PARTICLE_FADE_START) / PARTICLE_FADE_SPAN;
+		return PARTICLE_MAX_ALPHA * (1.0f - fadeProgress);
 	}
 
 	/**
