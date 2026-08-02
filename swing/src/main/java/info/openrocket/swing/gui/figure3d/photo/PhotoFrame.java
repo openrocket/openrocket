@@ -9,7 +9,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -176,142 +175,126 @@ public class PhotoFrame extends JFrame {
 
 	private JMenuBar getMenu(final boolean showOpen) {
 		JMenuBar menubar = new JMenuBar();
-		JMenu menu;
-		JMenuItem item;
+		menubar.add(createFileMenu(showOpen));
+		menubar.add(createEditMenu());
+		menubar.add(createWindowMenu());
+		return menubar;
+	}
 
-		// // File
-
-		menu = new JMenu(trans.get("main.menu.file"));
+	// // File
+	private JMenu createFileMenu(boolean showOpen) {
+		JMenu menu = new JMenu(trans.get("main.menu.file"));
 		menu.setMnemonic(KeyEvent.VK_F);
 		// // File-handling related tasks
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
-		menubar.add(menu);
 
 		if (showOpen) {
-			item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
+			JMenuItem open = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
+			open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
 			// // Open a rocket design
-			item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
-			item.setIcon(Icons.FILE_OPEN);
-			item.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					log.info(Markers.USER_MARKER, "Open... selected");
-
-					JFileChooser chooser = new JFileChooser();
-
-					chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-					chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-					chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-					chooser.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
-					chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-
-					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-					chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-					int option = chooser.showOpenDialog(PhotoFrame.this);
-						if (option == JFileChooser.APPROVE_OPTION) {
-							File file = chooser.getSelectedFile();
-							log.debug("Opening File " + file.getAbsolutePath());
-							Application.getPreferences().setDefaultDirectory(chooser
-									.getCurrentDirectory());
-							GeneralRocketLoader grl = new GeneralRocketLoader(file);
-							try {
-								OpenRocketDocument doc = grl.load();
-								currentDocument = doc;
-							photoPanel.setDoc(doc);
-						} catch (RocketLoadException e1) {
-							log.warn("Unable to load {}", file.getAbsolutePath(), e1);
-						}
-					}
-				}
-			});
-			menu.add(item);
+			open.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
+			open.setIcon(Icons.FILE_OPEN);
+			open.addActionListener(e -> openDesign());
+			menu.add(open);
 		}
 
-		item = new JMenuItem(trans.get("PhotoFrame.menu.file.save"), KeyEvent.VK_S);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
-		// // Open a rocket design
-		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.file.save"));
-		item.setIcon(Icons.FILE_OPEN);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Save... selected");
-				photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
-					@Override
-					public void performAction(final BufferedImage image) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								log.info("Got image {} to save...", image);
-
-								final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"),
-										".png");
-
-								final JFileChooser chooser = new SaveFileChooser();
-
-								chooser.addChoosableFileFilter(png);
-								chooser.setFileFilter(png);
-								chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-								chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences())
-										.getDefaultDirectory());
-								final int option = chooser.showSaveDialog(PhotoFrame.this);
-
-								if (option != JFileChooser.APPROVE_OPTION) {
-									log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
-									return;
-								}
-
-								final File file = FileHelper.forceExtension(chooser.getSelectedFile(), "png");
-								if (file == null) {
-									log.info(Markers.USER_MARKER, "User did not select a file");
-									return;
-								}
-
-								Application.getPreferences().setDefaultDirectory(chooser
-										.getCurrentDirectory());
-								log.info(Markers.USER_MARKER, "User chose to save image as {}", file);
-
-								if (FileHelper.confirmWrite(file, PhotoFrame.this)) {
-									try {
-										ImageIO.write(image, "png", file);
-									} catch (IOException e) {
-										throw new Error(e);
-									}
-								}
-							}
-						});
-					}
-				});
-			}
+		JMenuItem save = new JMenuItem(trans.get("PhotoFrame.menu.file.save"), KeyEvent.VK_S);
+		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
+		// // Save the photo
+		save.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.file.save"));
+		save.setIcon(Icons.FILE_OPEN);
+		save.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Save... selected");
+			// The image is only available once the panel has rendered a frame for us.
+			photoPanel.addImageCallback(image -> SwingUtilities.invokeLater(() -> savePhoto(image)));
 		});
-		menu.add(item);
+		menu.add(save);
 
-		// // Edit
-		menu = new JMenu(trans.get("main.menu.edit"));
+		return menu;
+	}
+
+	/** Prompts for a design and loads it into the photo panel. */
+	private void openDesign() {
+		log.info(Markers.USER_MARKER, "Open... selected");
+
+		JFileChooser chooser = new JFileChooser();
+		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
+		chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
+
+		if (chooser.showOpenDialog(PhotoFrame.this) != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		File file = chooser.getSelectedFile();
+		log.debug("Opening File " + file.getAbsolutePath());
+		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
+		try {
+			OpenRocketDocument doc = new GeneralRocketLoader(file).load();
+			currentDocument = doc;
+			photoPanel.setDoc(doc);
+		} catch (RocketLoadException e1) {
+			log.warn("Unable to load {}", file.getAbsolutePath(), e1);
+		}
+	}
+
+	/** Prompts for a destination and writes the rendered photo to it as a PNG. */
+	private void savePhoto(BufferedImage image) {
+		log.info("Got image {} to save...", image);
+
+		final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"), ".png");
+		final JFileChooser chooser = new SaveFileChooser();
+		chooser.addChoosableFileFilter(png);
+		chooser.setFileFilter(png);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+
+		final int option = chooser.showSaveDialog(PhotoFrame.this);
+		if (option != JFileChooser.APPROVE_OPTION) {
+			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
+			return;
+		}
+
+		final File file = FileHelper.forceExtension(chooser.getSelectedFile(), "png");
+		if (file == null) {
+			log.info(Markers.USER_MARKER, "User did not select a file");
+			return;
+		}
+
+		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
+		log.info(Markers.USER_MARKER, "User chose to save image as {}", file);
+
+		if (FileHelper.confirmWrite(file, PhotoFrame.this)) {
+			try {
+				ImageIO.write(image, "png", file);
+			} catch (IOException e) {
+				throw new Error(e);
+			}
+		}
+	}
+
+	// // Edit
+	private JMenu createEditMenu() {
+		JMenu menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
 		// // Rocket editing
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.unk"));
-		menubar.add(menu);
 
-		Action action = new AbstractAction(trans.get("PhotoFrame.menu.edit.copy")) {
+		Action copy = new AbstractAction(trans.get("PhotoFrame.menu.edit.copy")) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
-					@Override
-					public void performAction(final BufferedImage image) {
-						copyImageToClipboard(image);
-					}
-				});
+				photoPanel.addImageCallback(PhotoFrame.this::copyImageToClipboard);
 			}
 		};
-		item = new JMenuItem(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY));
-		item.setMnemonic(KeyEvent.VK_C);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.copy.desc"));
-		menu.add(item);
+		JMenuItem copyItem = new JMenuItem(copy);
+		copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY));
+		copyItem.setMnemonic(KeyEvent.VK_C);
+		copyItem.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.copy.desc"));
+		menu.add(copyItem);
 
 		menu.add(new JMenuItem(new AbstractAction(trans.get("PhotoSettingsConfig.title")) {
 			@Override
@@ -320,9 +303,12 @@ public class PhotoFrame extends JFrame {
 			}
 		}));
 
-		// Window
-		menu = new JMenu(trans.get("PhotoFrame.menu.window"));
-		menubar.add(menu);
+		return menu;
+	}
+
+	// Window
+	private JMenu createWindowMenu() {
+		JMenu menu = new JMenu(trans.get("PhotoFrame.menu.window"));
 		JMenu sizeMenu = new JMenu(trans.get("PhotoFrame.menu.window.size"));
 		menu.add(sizeMenu);
 
@@ -343,7 +329,7 @@ public class PhotoFrame extends JFrame {
 		sizeMenu.add(new JMenuItem(new SizeAction(1280, 720, "720p")));
 		sizeMenu.add(new JMenuItem(new SizeAction(1920, 1080, "1080p")));
 
-		return menubar;
+		return menu;
 	}
 
 	private class SizeAction extends AbstractAction {
