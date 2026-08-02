@@ -221,7 +221,7 @@ public class PhotoFrame extends JFrame {
 								currentDocument = doc;
 							photoPanel.setDoc(doc);
 						} catch (RocketLoadException e1) {
-							e1.printStackTrace();
+							log.warn("Unable to load {}", file.getAbsolutePath(), e1);
 						}
 					}
 				}
