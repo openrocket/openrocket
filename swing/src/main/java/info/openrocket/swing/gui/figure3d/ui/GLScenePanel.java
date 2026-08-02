@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.awt.GLData;
 import org.lwjgl.system.Configuration;
-import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPopupMenu;
@@ -44,8 +43,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.geom.AffineTransform;
 import java.awt.event.ComponentAdapter;
@@ -59,11 +56,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -84,12 +79,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_READ_BUFFER;
-import static org.lwjgl.opengl.GL11.glTexSubImage2D;
 import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL12.GL_BGRA;
-import static org.lwjgl.opengl.GL21.GL_PIXEL_PACK_BUFFER;
-import static org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
@@ -138,13 +128,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Image-presentation state (macOS): the render thread reads the resolved FBO into
 	// a staging image and publishes it here; the EDT paints it in paint(). Two images
 	// are ping-ponged so the EDT never draws one that is being overwritten.
-	private volatile BufferedImage presentedImage;
-	private BufferedImage presentedImageA;
-	private BufferedImage presentedImageB;
-	private ByteBuffer presentReadbackBuffer;
-	private volatile boolean presentedImageHasContent = false;
+	private final ImageFramePresenter framePresenter = new ImageFramePresenter(this);
 	private volatile boolean nativeGLLayerHidden = false;
-	private final Object presentLock = new Object();
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -375,7 +360,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				((Timer) e.getSource()).stop();
 				return;
 			}
-			showPresentedFrame();
+			framePresenter.blitToPeer();
 		});
 		timer.setCoalesce(true);
 		return timer;
@@ -466,7 +451,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void presentLastFrameDuringResize() {
-		if (!PRESENT_VIA_IMAGE_ON_MACOS || presentedImage == null || !isShowing()) {
+		if (!PRESENT_VIA_IMAGE_ON_MACOS || !framePresenter.hasPublishedFrame() || !isShowing()) {
 			return;
 		}
 		lastResizeEventNanos = System.nanoTime();
@@ -475,7 +460,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 		// Refresh the current peer surface immediately; the timer covers intervals
 		// in which AppKit coalesces multiple native resize notifications.
-		showPresentedFrame();
+		framePresenter.blitToPeer();
 	}
 
 	private void reportFatalRenderException(Throwable throwable) {
@@ -574,6 +559,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			callback.run();
 		}
 		return true;
+	}
+
+	/** Lets the frame presenter draw the HUD over the frame it has composited. */
+	void compositeHud(java.awt.Graphics2D g, int width, int height) {
+		if (hudOverlay != null) {
+			hudOverlay.compositeInto(g, width, height);
+		}
 	}
 
 	/** True once the GL scene exists and the canvas can still be drawn into. */
@@ -1367,7 +1359,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// --- Main Display Rendering (if not exporting) --
 			renderer.render(sceneView, true);
 			if (PRESENT_VIA_IMAGE_ON_MACOS) {
-				presentFrameViaImage(renderer);
+				framePresenter.presentFrame(renderer);
 			} else {
 				renderer.presentResolvedToCurrentFramebuffer();
 			}
@@ -1403,123 +1395,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	/**
-	 * Reads the finished frame back from the renderer's resolved FBO and publishes
-	 * it for {@link #paint(Graphics)} to draw. Used on macOS, where presenting via
-	 * the NSOpenGLView layer aborts inside AppKit (see PRESENT_VIA_IMAGE_ON_MACOS).
-	 * Runs on the render thread with the GL context current.
-	 */
-	private void presentFrameViaImage(GLRenderer renderer) {
-		int width = renderer.getRenderWidth();
-		int height = renderer.getRenderHeight();
-		if (width <= 0 || height <= 0) {
-			return;
-		}
-
-		int requiredBytes = width * height * 4;
-		if (presentReadbackBuffer == null || presentReadbackBuffer.capacity() < requiredBytes) {
-			if (presentReadbackBuffer != null) {
-				MemoryUtil.memFree(presentReadbackBuffer);
-			}
-			presentReadbackBuffer = MemoryUtil.memAlloc(requiredBytes);
-		}
-		presentReadbackBuffer.clear();
-
-		int previousFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
-		int previousReadBuffer = glGetInteger(GL_READ_BUFFER);
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, renderer.getResolvedFramebufferId());
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
-		// BGRA + INT_8_8_8_8_REV packs each pixel as a native-order int that matches
-		// the TYPE_INT_* layout, so rows can be bulk-copied without per-pixel swizzling.
-		glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, presentReadbackBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
-		glReadBuffer(previousReadBuffer);
-
-		IntBuffer pixels = presentReadbackBuffer.asIntBuffer();
-		presentedImageHasContent = pixels.get((height / 2) * width + width / 2) != 0;
-
-		synchronized (presentLock) {
-			BufferedImage staging = nextPresentStagingImage(width, height);
-			int[] target = ((DataBufferInt) staging.getRaster().getDataBuffer()).getData();
-			for (int y = 0; y < height; y++) {
-				// GL rows are bottom-up; images are top-down
-				pixels.get(target, (height - 1 - y) * width, width);
-			}
-			presentedImage = staging;
-		}
-		showPresentedFrame();
-	}
-
-	/**
-	 * Draws the published frame directly to the Canvas peer. A BufferStrategy is
-	 * deliberately not used here: AppKit discards its native buffers during a
-	 * live resize, exposing their white initialization before Java can refill
-	 * them. A fresh peer Graphics always targets the current surface, while
-	 * {@link #paint(Graphics)} handles normal expose and damage events.
-	 */
-	private void showPresentedFrame() {
-		if (!isShowing()) {
-			// A frame finishing right as the user switches to the 2D view must not
-			// blit over the newly shown card.
-			return;
-		}
-		synchronized (presentLock) {
-			Graphics g = getGraphics();
-			if (g == null) {
-				repaint();
-				return;
-			}
-			try {
-				paintPresentedFrame(g);
-			} finally {
-				g.dispose();
-			}
-			Toolkit.getDefaultToolkit().sync();
-		}
-	}
-
-	/**
-	 * Returns the ping-pong image the render thread may write to (the one the EDT
-	 * is not currently painting), recreating it if the frame size changed.
-	 */
-	private BufferedImage nextPresentStagingImage(int width, int height) {
-		BufferedImage current = presentedImage;
-		BufferedImage staging = (current == presentedImageA) ? presentedImageB : presentedImageA;
-		if (staging == null || staging.getWidth() != width || staging.getHeight() != height) {
-			// INT_RGB so the frame is drawn opaque, ignoring the FBO's alpha channel
-			staging = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			if (current == presentedImageA) {
-				presentedImageB = staging;
-			} else {
-				presentedImageA = staging;
-			}
-		}
-		return staging;
-	}
-
-	/**
-	 * Composites the latest presented frame and the HUD into the given graphics.
-	 */
-	private void paintPresentedFrame(Graphics g) {
-		int width = getWidth();
-		int height = getHeight();
-		BufferedImage image = presentedImage;
-		if (image == null) {
-			g.setColor(getBackground());
-			g.fillRect(0, 0, width, height);
-			return;
-		}
-		Graphics2D g2 = (Graphics2D) g;
-		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		// The image is at framebuffer (HiDPI) resolution; drawing at the logical
-		// size maps it 1:1 onto the physical pixels of the scaled Graphics.
-		g2.drawImage(image, 0, 0, width, height, null);
-		if (hudOverlay != null) {
-			hudOverlay.compositeInto(g2, width, height);
-		}
-	}
-
 	@Override
 	public void paint(Graphics g) {
 		if (!PRESENT_VIA_IMAGE_ON_MACOS) {
@@ -1527,8 +1402,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			return;
 		}
 		// Expose/damage repaint while the render loop is idle: draw the last frame.
-		synchronized (presentLock) {
-			paintPresentedFrame(g);
+		synchronized (framePresenter.presentLock()) {
+			framePresenter.paintInto(g);
 		}
 	}
 
@@ -1710,7 +1585,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// With image presentation, whatever was read back is exactly what paint()
 		// shows — no need for (and no meaning in) probing the default framebuffer.
 		boolean visible = PRESENT_VIA_IMAGE_ON_MACOS
-				? presentedImageHasContent
+				? framePresenter.hasContent()
 				: detectStartupFrameVisibility(renderer);
 		if (visible) {
 			if (++consecutiveVisibleStartupFrames >= STARTUP_VISIBILITY_CONFIRM_FRAMES
@@ -1935,11 +1810,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				try {
 					cleanupGLResourcesInContext();
 					// Only safe to free while no render is in flight — the render
-					// thread reads into this buffer during presentFrameViaImage().
-					if (presentReadbackBuffer != null) {
-						MemoryUtil.memFree(presentReadbackBuffer);
-						presentReadbackBuffer = null;
-					}
+					// thread reads into that buffer while presenting a frame.
+					framePresenter.cleanup();
 				} finally {
 					RENDER_LOCK.unlock();
 				}
