@@ -14,10 +14,12 @@ import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.swing.gui.util.SwingPreferences;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.prefs.BackingStoreException;
+import java.util.prefs.AbstractPreferences;
 
 public class ServicesForTesting extends AbstractModule {
 
@@ -163,21 +165,72 @@ public class ServicesForTesting extends AbstractModule {
 
 		private java.util.prefs.Preferences getBaseNode() {
 			if (root == null) {
-				final String name = "OpenRocket-unittest-" + System.currentTimeMillis();
-				root = java.util.prefs.Preferences.userRoot().node(name);
-				Runtime.getRuntime().addShutdownHook(new Thread() {
-					@Override
-					public void run() {
-						try {
-							root.removeNode();
-						} catch (BackingStoreException e) {
-							e.printStackTrace();
-						}
-					}
-				});
+				root = new InMemoryPreferences(null, "");
 			}
 			return root;
 		}
 
+	}
+
+	/**
+	 * A {@link java.util.prefs.Preferences} implementation that keeps its values in memory.
+	 * <p>
+	 * The tests deliberately do not use {@link java.util.prefs.Preferences#userRoot()}: that
+	 * store is shared with the core test preferences, and the core and swing test JVMs run
+	 * concurrently, so writes of one project can overwrite those of the other. Keeping the
+	 * testing preferences in memory isolates them per JVM and makes clearing them cheap.
+	 */
+	private static class InMemoryPreferences extends AbstractPreferences {
+		private final Map<String, String> values = new HashMap<>();
+		private final Map<String, InMemoryPreferences> children = new HashMap<>();
+
+		InMemoryPreferences(InMemoryPreferences parent, String name) {
+			super(parent, name);
+		}
+
+		@Override
+		protected void putSpi(String key, String value) {
+			values.put(key, value);
+		}
+
+		@Override
+		protected String getSpi(String key) {
+			return values.get(key);
+		}
+
+		@Override
+		protected void removeSpi(String key) {
+			values.remove(key);
+		}
+
+		@Override
+		protected void removeNodeSpi() {
+			((InMemoryPreferences) parent()).children.remove(name());
+		}
+
+		@Override
+		protected String[] keysSpi() {
+			return values.keySet().toArray(new String[0]);
+		}
+
+		@Override
+		protected String[] childrenNamesSpi() {
+			return children.keySet().toArray(new String[0]);
+		}
+
+		@Override
+		protected AbstractPreferences childSpi(String name) {
+			return children.computeIfAbsent(name, n -> new InMemoryPreferences(this, n));
+		}
+
+		@Override
+		protected void syncSpi() {
+			// Nothing to synchronise, the values never leave the JVM
+		}
+
+		@Override
+		protected void flushSpi() {
+			// Nothing to flush, the values never leave the JVM
+		}
 	}
 }
