@@ -599,9 +599,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	public void removeNotify() {
 		detachAncestorWindowListener();
-		// super.removeNotify() disposes the native JAWT drawing surface; that must not
-		// overlap a render thread that is mid-frame on the same surface. Bounded wait:
-		// the peer teardown cannot be skipped, so proceed either way after the timeout.
+		// lwjgl3-awt requires native context disposal not to overlap rendering.
+		// Bounded wait: peer teardown cannot be skipped, so proceed either way after
+		// the timeout.
 		boolean renderLockAcquired = false;
 		try {
 			renderLockAcquired = RENDER_LOCK.tryLock(CLEANUP_RENDER_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -997,8 +997,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/**
-	 * Computes framebuffer size without calling AWT native peer methods.
-	 * On macOS, querying AWTGLCanvas.getFramebufferWidth/Height off the EDT can crash.
+	 * Computes framebuffer size from the current graphics transform. AWTGLCanvas's
+	 * cached dimensions are only refreshed by resize events, so they can be zero or
+	 * stale while a peer is being created or moved between displays with different DPI.
 	 */
 	int[] computeFramebufferSize(int windowWidth, int windowHeight) {
 		double scaleX = 1.0;
@@ -1129,19 +1130,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void render() {
-		int renderCount = renderCallCount.incrementAndGet();
 		if (glInitFailed) {
 			return;
 		}
 		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
 			return;
 		}
+		int renderCount = renderCallCount.incrementAndGet();
 		int paintBefore = paintCallCount.get();
 		int swapBefore = swapCallCount.get();
 		try {
-			// Serialize JAWT drawing-surface acquisition across render threads and
-			// cleanup: concurrent surface access from two threads crashes natively
-			// (SIGBUS/SIGSEGV in JAWT_DrawingSurface_GetDrawingSurfaceInfo).
+			// Scheduled frames already share one render thread; this lock additionally
+			// prevents rendering from overlapping EDT cleanup and peer teardown.
 			RENDER_LOCK.lock();
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
 			super.render();
@@ -1162,10 +1162,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					});
 				}
 			} catch (Throwable t) {
-				if (isLateTeardownRenderFailure(t)) {
-					log.debug("Ignoring 3D render failure during canvas teardown: {}", t.toString());
-					return;
-				}
 				glInitFailed = true;
 				String msg = t.getMessage();
 				if (!glInitialized) {
@@ -1183,29 +1179,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	private boolean isLateTeardownRenderFailure(Throwable throwable) {
-		if (isDisplayable() && getWidth() > 0 && getHeight() > 0) {
-			return false;
-		}
-		if (!(throwable instanceof NullPointerException)) {
-			return false;
-		}
-		String message = throwable.getMessage();
-		if (message != null && message.contains("JAWTDrawingSurface.Unlock()")) {
-			return true;
-		}
-		for (StackTraceElement frame : throwable.getStackTrace()) {
-			if (frame.getClassName().contains("PlatformMacOSXGLCanvas")
-					&& "unlock".equals(frame.getMethodName())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public void paintGL() {
-		paintCallCount.incrementAndGet();
 		if (!glInitialized || !isDisplayable()) {
 			return;
 		}
@@ -1228,6 +1203,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (renderer == null || sceneView == null) {
 				return;
 			}
+			paintCallCount.incrementAndGet();
 
 			// --- 3D Scene Rendering & Export Logic ---
 			handleKeyboardEvents();
@@ -1263,8 +1239,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			log.error("Error during paintGL", ex);
 		} finally {
 			if (shouldSwap) {
-				swapCallCount.incrementAndGet();
 				swapBuffers();
+				swapCallCount.incrementAndGet();
 				// Keep recovery active until visibility is confirmed, not just until one
 				// pre-swap back-buffer sample has content. Some AWT peers need a follow-up
 				// render before the first completed frame is actually presented.
@@ -1599,12 +1575,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			scene3DOrchestrator.shutdown();
 		}
 
-		boolean canAttemptContextCleanup = isDisplayable() && getWidth() > 0 && getHeight() > 0;
+		boolean canAttemptContextCleanup = context != 0L
+				&& isDisplayable() && getWidth() > 0 && getHeight() > 0;
 		if (canAttemptContextCleanup) {
-			// runInContext acquires the native JAWT drawing surface; doing that while a
-			// render thread is mid-frame on the same surface crashes natively. Take the
-			// shared render lock (bounded, so the EDT can't hang on a stuck render) and
-			// skip the in-context cleanup if a render never finishes.
+			// lwjgl3-awt requires context disposal and rendering not to overlap. Take
+			// the shared render lock (bounded, so the EDT can't hang on a stuck render)
+			// and skip the in-context cleanup if a render never finishes.
 			boolean renderLockAcquired = false;
 			try {
 				renderLockAcquired = RENDER_LOCK.tryLock(CLEANUP_RENDER_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -1622,26 +1598,24 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						"some GL resources may leak");
 			}
 		} else {
-			log.debug("Skipping runInContext cleanup for non-displayable canvas");
+			log.debug("Skipping GL cleanup for canvas without an initialized, displayable context");
 		}
 
 		// Always free native memory - this doesn't require GL context
-			if (hudOverlay != null) {
-				hudOverlay.cleanupHostResources();
-			}
-			scene3DOrchestrator = null;
-			glCapabilities = null;
+		if (hudOverlay != null) {
+			hudOverlay.cleanupHostResources();
+		}
+		scene3DOrchestrator = null;
+		glCapabilities = null;
 
 		GpuResourceTracker.logLiveResources("Swing canvas cleanup (other canvases may still be active)", false);
 	}
 
 	/**
 	 * Releases GL-side resources with the context current. Must be called with
-	 * {@link #RENDER_LOCK} held. This path can crash on macOS if called after
-	 * peer teardown has started, hence the displayability check in {@link #cleanup()}.
-	 * Do not call disposeCanvas() here: Swing/AWTGLCanvas tears down the native
-	 * drawing surface during removeNotify(), and forcing disposal earlier can
-	 * double-free the JAWT surface on macOS during window close.
+	 * {@link #RENDER_LOCK} held and before peer teardown, hence the displayability
+	 * check in {@link #cleanup()}. Native context disposal remains owned by
+	 * AWTGLCanvas.removeNotify().
 	 */
 	private void cleanupGLResourcesInContext() {
 		try {
@@ -1683,7 +1657,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	public boolean hasCompletedFrame() {
-		return paintCallCount.get() > 0 || swapCallCount.get() > 0;
+		return swapCallCount.get() > 0;
 	}
 
 	/**

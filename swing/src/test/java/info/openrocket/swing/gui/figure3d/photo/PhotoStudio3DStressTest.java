@@ -1377,10 +1377,9 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			GLScenePanel currentCanvas = currentPhotoCanvas(panel);
 			if (currentCanvas != null) {
 				int swapCount = currentCanvas.getSwapCallCount();
-				int paintCount = currentCanvas.getPaintCallCount();
 				boolean freshFrame = currentCanvas != previousCanvas
 						? currentCanvas.hasCompletedFrame()
-						: swapCount > previousSwapCount || paintCount > previousPaintCount;
+						: swapCount > previousSwapCount;
 				if (freshFrame && !currentCanvas.isPeerMispositionedForDebug()) {
 					return;
 				}
@@ -1394,7 +1393,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		int finalPaintCount = finalCanvas.getPaintCallCount();
 		boolean freshFrame = finalCanvas != previousCanvas
 				? finalCanvas.hasCompletedFrame()
-				: finalSwapCount > previousSwapCount || finalPaintCount > previousPaintCount;
+				: finalSwapCount > previousSwapCount;
 		assertTrue(freshFrame && !finalCanvas.isPeerMispositionedForDebug(),
 				context + " did not produce a fresh visible Photo Studio frame. state="
 						+ finalCanvas.getDebugStateSummary()
@@ -1409,9 +1408,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		long deadline = System.currentTimeMillis() + timeoutMs;
 		while (System.currentTimeMillis() < deadline) {
 			int swapCount = figure3d.getCanvasSwapCallCount();
-			int paintCount = figure3d.getCanvasPaintCallCount();
-			if ((swapCount > previousSwapCount || paintCount > previousPaintCount)
-					&& !figure3d.isCanvasPeerMispositioned()) {
+			if (swapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned()) {
 				return;
 			}
 			Thread.sleep(40);
@@ -1419,8 +1416,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 		int finalSwapCount = figure3d.getCanvasSwapCallCount();
 		int finalPaintCount = figure3d.getCanvasPaintCallCount();
-		assertTrue((finalSwapCount > previousSwapCount || finalPaintCount > previousPaintCount)
-						&& !figure3d.isCanvasPeerMispositioned(),
+		assertTrue(finalSwapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned(),
 				context + " did not produce a fresh visible 3D frame. state=" + figure3d.getCanvasDebugState()
 						+ ", previousSwap=" + previousSwapCount
 						+ ", previousPaint=" + previousPaintCount

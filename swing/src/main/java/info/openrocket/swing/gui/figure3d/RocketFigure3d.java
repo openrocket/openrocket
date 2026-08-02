@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.figure3d;
 
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -52,7 +51,6 @@ import java.util.stream.Collectors;
 public class RocketFigure3d extends JPanel implements SharedCanvasRenderScheduler.Client {
 
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	// Single shared render thread — AWTGLCanvas.render() acquires a JAWT drawing-surface
 	// lock that must be serialized across canvases on most platforms. Per-window threads
 	// cause silent failures or deadlocks on the second canvas. We compensate for the old
@@ -868,13 +866,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	@Override
 	public void removeNotify() {
-		stopRendering();
-		disposed = true;
-		selectionBridgeInstalled = false;
-		pendingSelection = null;
-		// During removeNotify the native drawing surface can already be in teardown.
-		// Avoid forcing GLScenePanel.cleanup() here to prevent JAWT crashes on macOS.
-		glScenePanel = null;
+		// Release GL resources while the child canvas is still displayable. The
+		// subsequent AWT removeNotify() owns native context and peer disposal.
+		cleanup();
 		super.removeNotify();
 	}
 
@@ -894,9 +888,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		ensureCanvasCreatedOnEdt();
 		GLScenePanel panel = glScenePanel;
 		if (panel == null) {
-			if (!IS_MACOS) {
-				requestRenderNow();
-			}
 			return;
 		}
 		if (panel.hasCompletedFrame()) {

@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
@@ -61,7 +60,6 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
 	private static final Translator trans = Application.getTranslator();
 	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
-	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private static final double CAMERA_SETTINGS_EPSILON = 1.0e-6;
 	private static final float PHOTO_PARTICLE_LENGTH_SCALE = 0.82f;
 	private static final float PHOTO_SMOKE_LENGTH_SCALE = 0.50f;
@@ -130,7 +128,6 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private double lastFov;
 	private volatile long earliestRenderAtMs;
 	private volatile boolean renderLoopRunning = false;
-	private static final int FRAME_INTERVAL_MS = 16;
 	private static final int STARTUP_RENDER_DELAY_MS = 120;
 	private static final String[] MOUNTAINS_CUBEMAP = {
 			"/datafiles/sky/box/East.jpg",
@@ -503,19 +500,11 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		detachInteractionSyncListener(panel);
 		panel.setInitializationHook(null);
 		panel.setBlankDefaultFramebufferCallback(null);
-		if (IS_MACOS) {
-			// On macOS, attempting runInContext cleanup during Photo Studio teardown can crash
-			// inside the native JAWT surface path. Detach first so GLScenePanel.cleanup()
-			// takes its non-context cleanup path instead of re-entering the native peer.
-			remove(panel);
-			glPanel = null;
-			panel.cleanup();
-		} else {
-			// Other platforms still prefer explicit in-context cleanup before detach.
-			panel.cleanup();
-			remove(panel);
-			glPanel = null;
-		}
+		// Release GL resources while the peer is still displayable, then let
+		// AWTGLCanvas.removeNotify() dispose the native context during removal.
+		panel.cleanup();
+		remove(panel);
+		glPanel = null;
 		revalidate();
 		repaint();
 	}

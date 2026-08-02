@@ -209,9 +209,7 @@ class RocketPanel3DStressTest extends BaseTestCase {
 		long deadline = System.currentTimeMillis() + timeoutMs;
 		while (System.currentTimeMillis() < deadline) {
 			int swapCount = figure3d.getCanvasSwapCallCount();
-			int paintCount = figure3d.getCanvasPaintCallCount();
-			if ((swapCount > previousSwapCount || paintCount > previousPaintCount)
-					&& !figure3d.isCanvasPeerMispositioned()) {
+			if (swapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned()) {
 				return;
 			}
 			Thread.sleep(40);
@@ -219,8 +217,7 @@ class RocketPanel3DStressTest extends BaseTestCase {
 
 		int finalSwapCount = figure3d.getCanvasSwapCallCount();
 		int finalPaintCount = figure3d.getCanvasPaintCallCount();
-		assertTrue((finalSwapCount > previousSwapCount || finalPaintCount > previousPaintCount)
-						&& !figure3d.isCanvasPeerMispositioned(),
+		assertTrue(finalSwapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned(),
 				context + " did not produce a fresh visible 3D frame. state=" + figure3d.getCanvasDebugState()
 						+ ", previousSwap=" + previousSwapCount
 						+ ", previousPaint=" + previousPaintCount
