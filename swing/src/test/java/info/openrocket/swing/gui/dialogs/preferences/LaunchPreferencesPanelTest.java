@@ -3,6 +3,8 @@ package info.openrocket.swing.gui.dialogs.preferences;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.prefs.BackingStoreException;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -66,7 +68,10 @@ public class LaunchPreferencesPanelTest {
     }
 
     @BeforeEach
-    public void setUpTest() {
+    public void setUpTest() throws BackingStoreException {
+        // The testing preferences are backed by a single node that is shared by every test of
+        // the run, so clear it to keep the launch conditions of one test out of the next one.
+        Application.getPreferences().getPreferences().clear();
         prefs = (SwingPreferences) Application.getPreferences();
     }
 
