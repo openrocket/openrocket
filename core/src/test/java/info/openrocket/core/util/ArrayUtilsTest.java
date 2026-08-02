@@ -216,6 +216,35 @@ public class ArrayUtilsTest {
 	}
 
 	@Test
+	public void testRangeWithDegenerateInputsReturnsEmpty() {
+		// stop before start would previously compute a negative array size
+		assertEquals(0, ArrayUtils.range(5.0, 0.0, 0.05).length);
+		assertEquals(0, ArrayUtils.range(1.0e9, 5.0, 0.05).length);
+		assertEquals(0, ArrayUtils.range(0.0, 10.0, 0.0).length);
+		assertEquals(0, ArrayUtils.range(0.0, 10.0, -1.0).length);
+		assertEquals(0, ArrayUtils.range(Double.NaN, 10.0, 1.0).length);
+		assertEquals(0, ArrayUtils.range(0.0, Double.NaN, 1.0).length);
+	}
+
+	@Test
+	public void testStatisticsIgnoreNaNValues() {
+		double[] values = new double[] { 1.0, Double.NaN, 3.0 };
+
+		assertEquals(2.0, ArrayUtils.mean(values), 1.0e-12);
+		assertEquals(1.0, ArrayUtils.variance(values), 1.0e-12);
+	}
+
+	@Test
+	public void testStatisticsOfEmptyArray() {
+		double[] empty = new double[0];
+
+		assertTrue(Double.isNaN(ArrayUtils.mean(empty)));
+		assertTrue(Double.isNaN(ArrayUtils.max(empty)));
+		assertTrue(Double.isNaN(ArrayUtils.min(empty)));
+		assertTrue(Double.isNaN(ArrayUtils.variance(empty)));
+	}
+
+	@Test
 	public void testRangeProducesMonotonicSequence() {
 		double[] ary = ArrayUtils.range(-1.0, 1.0, 0.25);
 		for (int i = 1; i < ary.length; i++) {

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -126,6 +127,15 @@ public class FinSetCalcTest {
 		fins.setHeight(0.0);
 
 		assertEquals(0.0, fins.getPlanformArea(), EPSILON, "Zero-area fin should have zero planform area");
+
+		// The user should be told about it
+		WarningSet warnings = new WarningSet();
+		new FinSetCalc(fins).calculateNonaxialForces(
+				new FlightConditions(rocket.getSelectedConfiguration()),
+				Transformation.IDENTITY, new AerodynamicForces(), warnings);
+		assertTrue(warnings.stream().anyMatch(w -> w.getMessageDescription()
+						.equals(Warning.ZERO_AREA_FIN.getMessageDescription())),
+				"Zero-area fin should raise a warning");
 
 		// Calculate forces
 		AerodynamicForces forces = sumFins(fins, rocket);

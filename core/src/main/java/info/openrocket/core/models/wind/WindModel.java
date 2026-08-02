@@ -32,5 +32,17 @@ public interface WindModel extends Monitorable, Cloneable, ChangeSource {
 	 */
 	CoordinateIF getWindVelocity(double time, double altitude);
 
+	/**
+	 * Set the seed of the model's random source, so that a simulation run with a
+	 * given seed reproduces the same wind.
+	 * <p>
+	 * This discards any random state already generated, so it must only be called
+	 * while configuring a simulation and never from within a running one: reseeding
+	 * mid-flight would change the wind partway through.
+	 *
+	 * @param seed the seed value.
+	 */
+	void setSeed(int seed);
+
 	WindModel clone();
 }
