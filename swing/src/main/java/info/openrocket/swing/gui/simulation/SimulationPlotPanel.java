@@ -71,11 +71,13 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	
 	/** The array of presets for the combo box. */
 	private static final SimulationPlotConfiguration[] PRESET_ARRAY;
+
+	private static final java.util.List<SimulationPlotConfiguration> USER_PRESETS = new java.util.ArrayList<>();
 	
 	
 	/** The current default configuration, set each time a plot is made. */
 	private static SimulationPlotConfiguration DEFAULT_CONFIGURATION =
-			SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
+			SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS[0].clone().resetUnits(); // Clone to avoid mutating the static template when resetting units.
 	
 	
 	private final Simulation simulation;
@@ -88,15 +90,13 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 
 		CUSTOM_CONFIGURATION = new SimulationPlotConfiguration(CUSTOM);
 
-		PRESET_ARRAY = Arrays.copyOf(SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS,
-				SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS.length + 1);
-		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
+		PRESET_ARRAY = SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS;
 	}
 	
 	private SimulationPlotPanel(final Simulation simulation, FlightDataType[] types,
 							   final DescriptionArea simPlotPanelDesc,
 							   Component[] extraWidgetsX, JPanel selectorPanel, Component[] extraWidgetsY) {
-		super(types, types, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, extraWidgetsX, extraWidgetsY);
+		super(types, types, CUSTOM_CONFIGURATION, PRESET_ARRAY, USER_PRESETS, DEFAULT_CONFIGURATION, extraWidgetsX, extraWidgetsY);
 
 		this.simulation = simulation;
 

@@ -22,23 +22,23 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 	/** The array of presets for the combo box. */
 	private static final CAPlotConfiguration[] PRESET_ARRAY;
 
+	private static final java.util.List<CAPlotConfiguration> USER_PRESETS = new java.util.ArrayList<>();
+
 
 	/** The current default configuration, set each time a plot is made. */
 	private static CAPlotConfiguration DEFAULT_CONFIGURATION =
-			CAPlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
+			CAPlotConfiguration.DEFAULT_CONFIGURATIONS[0].clone().resetUnits(); // Clone to avoid mutating the static template when resetting units
 
 	private final ComponentAnalysisPlotExportPanel parent;
 
 	static {
 		CUSTOM_CONFIGURATION = new CAPlotConfiguration(CUSTOM);
 
-		PRESET_ARRAY = Arrays.copyOf(CAPlotConfiguration.DEFAULT_CONFIGURATIONS,
-				CAPlotConfiguration.DEFAULT_CONFIGURATIONS.length + 1);
-		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
+		PRESET_ARRAY = CAPlotConfiguration.DEFAULT_CONFIGURATIONS;
 	}
 
 	private CAPlotPanel(ComponentAnalysisPlotExportPanel parent, CADomainDataType[] typesX, CADataType[] typesY) {
-		super(typesX, typesY, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, null, null);
+		super(typesX, typesY, CUSTOM_CONFIGURATION, PRESET_ARRAY, USER_PRESETS, DEFAULT_CONFIGURATION, null, null);
 
 		this.parent = parent;
 		updatePlots();
