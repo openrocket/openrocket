@@ -8,7 +8,10 @@ import org.joml.Vector4f;
  * Utility class for converting OpenRocket coordinate system objects to JOML vector types.
  * Provides conversions from OpenRocket's Coordinate class to Vector3f and Vector4f for 3D rendering.
  */
-public abstract class VectorUtils {
+public final class VectorUtils {
+
+	private VectorUtils() {
+	}
 	/**
 	 * Converts an OpenRocket Coordinate to a JOML Vector3f.
 	 * @param coordinate the OpenRocket coordinate to convert

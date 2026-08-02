@@ -2,7 +2,6 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
-import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
@@ -22,6 +21,14 @@ import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
+import static org.lwjgl.opengl.GL33.glBindFramebuffer;
+import static org.lwjgl.opengl.GL33.glBindVertexArray;
+import static org.lwjgl.opengl.GL33.glCheckFramebufferStatus;
+import static org.lwjgl.opengl.GL33.glDeleteFramebuffers;
+import static org.lwjgl.opengl.GL33.glDeleteTextures;
+import static org.lwjgl.opengl.GL33.glFramebufferTexture2D;
+import static org.lwjgl.opengl.GL33.glGenFramebuffers;
+import static org.lwjgl.opengl.GL33.glGenTextures;
 
 /**
  * Color-only framebuffer used by screen-space post-processing passes.
@@ -40,11 +47,11 @@ final class PostProcessRenderTarget {
 	}
 
 	void bind() {
-		GL33.glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
 	}
 
 	void unbind() {
-		GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	int getColorTextureId() {
@@ -71,12 +78,12 @@ final class PostProcessRenderTarget {
 	}
 
 	private void initialize() {
-		framebufferId = GL33.glGenFramebuffers();
+		framebufferId = glGenFramebuffers();
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.FRAMEBUFFER, framebufferId,
 				label + " framebuffer " + width + "x" + height);
-		GL33.glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
 
-		colorTextureId = GL33.glGenTextures();
+		colorTextureId = glGenTextures();
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, colorTextureId,
 				label + " color texture");
 		glBindTexture(GL_TEXTURE_2D, colorTextureId);
@@ -86,34 +93,34 @@ final class PostProcessRenderTarget {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		GL33.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId, 0);
 
-		if (GL33.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			cleanup();
 			throw new IllegalStateException(label + " framebuffer is not complete");
 		}
 
-		GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void cleanup() {
 		if (framebufferId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.FRAMEBUFFER, framebufferId);
-			GL33.glDeleteFramebuffers(framebufferId);
+			glDeleteFramebuffers(framebufferId);
 			framebufferId = 0;
 		}
 		if (colorTextureId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, colorTextureId);
 			TextureStateManager.evictDeletedTexture(colorTextureId);
-			GL33.glDeleteTextures(colorTextureId);
+			glDeleteTextures(colorTextureId);
 			colorTextureId = 0;
 		}
 	}
 
 	static void drawFullscreenQuad(int screenQuadVAO) {
-		GL33.glBindVertexArray(screenQuadVAO);
+		glBindVertexArray(screenQuadVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		GL33.glBindVertexArray(0);
+		glBindVertexArray(0);
 	}
 }

@@ -3,7 +3,6 @@ package info.openrocket.swing.gui.figure3d.utils;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLDebugMessageCallback;
-import org.lwjgl.opengl.GL43;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

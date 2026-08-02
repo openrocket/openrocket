@@ -17,7 +17,6 @@ import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL33;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +41,7 @@ import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.glIsEnabled;
 import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
+import static org.lwjgl.opengl.GL33.glUniform1i;
 
 /**
  * Renders the scene geometry with its materials.
@@ -217,7 +217,7 @@ public class GeometryPass implements RenderPass {
         boolean isWireframe = isWireframe(obj);
         materialBinder.bind(obj, mainShader, mainShaderUniforms, config, textureStateManager);
         if (forceHideInnerSurfaces) {
-            GL33.glUniform1i(mainShaderUniforms.hideInnerSurfaces, 1);
+            glUniform1i(mainShaderUniforms.hideInnerSurfaces, 1);
         }
 
         if (isWireframe) {

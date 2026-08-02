@@ -4,10 +4,6 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GL40;
-import org.lwjgl.opengl.GL43;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +33,14 @@ import static org.lwjgl.opengl.GL20.glShaderSource;
 import static org.lwjgl.opengl.GL20.glUniformMatrix3fv;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL20.glUniform1f;
+import static org.lwjgl.opengl.GL20.glUniform1i;
+import static org.lwjgl.opengl.GL20.glUniform3f;
+import static org.lwjgl.opengl.GL20.glUniform4f;
+import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
+import static org.lwjgl.opengl.GL40.GL_TESS_CONTROL_SHADER;
+import static org.lwjgl.opengl.GL40.GL_TESS_EVALUATION_SHADER;
+import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 
 /**
  * OpenGL shader program wrapper with performance optimizations.
@@ -215,7 +219,7 @@ public class GLShader implements GpuResource {
 	public void setUniformVector4f(String name, Vector4f vector) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
-			GL20.glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
+			glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 		}
 	}
 
@@ -227,7 +231,7 @@ public class GLShader implements GpuResource {
 	public void setUniformVector3f(String name, Vector3f vector) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
-			GL20.glUniform3f(location, vector.x, vector.y, vector.z);
+			glUniform3f(location, vector.x, vector.y, vector.z);
 		}
 	}
 
@@ -239,7 +243,7 @@ public class GLShader implements GpuResource {
 	public void setUniformFloat(String name, float value) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
-			GL20.glUniform1f(location, value);
+			glUniform1f(location, value);
 		}
 	}
 
@@ -253,7 +257,7 @@ public class GLShader implements GpuResource {
 	public void setUniformInt(String name, int value) {
 		int location = getUniformLocation(name);
 		if (location >= 0) {
-			GL20.glUniform1i(location, value);
+			glUniform1i(location, value);
 		}
 	}
 
@@ -322,10 +326,10 @@ public class GLShader implements GpuResource {
 		return switch (type) {
 			case GL_VERTEX_SHADER -> "vertex";
 			case GL_FRAGMENT_SHADER -> "fragment";
-			case GL32.GL_GEOMETRY_SHADER -> "geometry";
-			case GL40.GL_TESS_CONTROL_SHADER -> "tessellation control";
-			case GL40.GL_TESS_EVALUATION_SHADER -> "tessellation evaluation";
-			case GL43.GL_COMPUTE_SHADER -> "compute";
+			case GL_GEOMETRY_SHADER -> "geometry";
+			case GL_TESS_CONTROL_SHADER -> "tessellation control";
+			case GL_TESS_EVALUATION_SHADER -> "tessellation evaluation";
+			case GL_COMPUTE_SHADER -> "compute";
 			default -> String.format("unknown(0x%04X)", type);
 		};
 	}

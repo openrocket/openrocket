@@ -18,7 +18,6 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL33;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +25,12 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_REPEAT;
+import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL33.GL_LINEAR_MIPMAP_LINEAR;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL33.glUniform1f;
+import static org.lwjgl.opengl.GL33.glUniform1i;
+import static org.lwjgl.opengl.GL33.glUniform3f;
 
 /**
  * Default OpenGL material binder: sets uniforms and binds textures for an object.
@@ -63,9 +68,9 @@ public class DefaultMaterialBinder implements MaterialBinder {
         Matrix4f modelMatrix = obj.getModelMatrix();
         shader.setUniformMatrix4f(uniforms.model, modelMatrix);
         shader.setUniformMatrix3f(uniforms.normalMatrix, modelMatrix.normal(normalMatrix));
-        GL33.glUniform1i(uniforms.isSelected, obj.isSelected() ? 1 : 0);
-        GL33.glUniform1i(uniforms.isUnlit, appearance.isUnlit() ? 1 : 0);
-        GL33.glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);
+        glUniform1i(uniforms.isSelected, obj.isSelected() ? 1 : 0);
+        glUniform1i(uniforms.isUnlit, appearance.isUnlit() ? 1 : 0);
+        glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);
 
         // Colors and material properties
         Vector3f linearColor = unfinishedMode
@@ -74,7 +79,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
         if (isXray) {
             linearColor = toFigureXrayColor(linearColor);
         }
-        GL33.glUniform3f(uniforms.objectColor, linearColor.x, linearColor.y, linearColor.z);
+        glUniform3f(uniforms.objectColor, linearColor.x, linearColor.y, linearColor.z);
 
         Vector3f specularColor = unfinishedMode
                 ? getUnfinishedSpecularColor(unfinishedAppearance)
@@ -82,33 +87,33 @@ public class DefaultMaterialBinder implements MaterialBinder {
         if (isFigureMode) {
             specularColor = toFigureXraySpecular(linearColor, appearance.getShine());
         }
-        GL33.glUniform3f(uniforms.materialSpecular, specularColor.x, specularColor.y, specularColor.z);
-        GL33.glUniform1f(uniforms.specularTintFactor, appearance.getSpecularTint());
+        glUniform3f(uniforms.materialSpecular, specularColor.x, specularColor.y, specularColor.z);
+        glUniform1f(uniforms.specularTintFactor, appearance.getSpecularTint());
         int renderStyle = unfinishedMode
                 ? unfinishedAppearance.getStyle().ordinal()
                 : isFigureMode ? Appearance3D.RenderStyle.SOLID.ordinal() : appearance.getStyle().ordinal();
-        GL33.glUniform1i(uniforms.renderStyle, renderStyle);
+        glUniform1i(uniforms.renderStyle, renderStyle);
         float shine = unfinishedMode ? getAppearanceShine(unfinishedAppearance, appearance.getShine()) : appearance.getShine();
-        GL33.glUniform1f(uniforms.shine, shine);
+        glUniform1f(uniforms.shine, shine);
         // The material carries how rough the surface is; the quality level decides the grain
         // size and bump strength that roughness is drawn with.
         float roughnessAmount = appearance.getRoughnessAmount();
-        GL33.glUniform1f(uniforms.roughnessScale, config.getQuality().getRoughnessFrequency(roughnessAmount));
-        GL33.glUniform1f(uniforms.roughnessStrength, config.getQuality().getRoughnessStrength(roughnessAmount));
+        glUniform1f(uniforms.roughnessScale, config.getQuality().getRoughnessFrequency(roughnessAmount));
+        glUniform1f(uniforms.roughnessStrength, config.getQuality().getRoughnessStrength(roughnessAmount));
         boolean textureOpacityAffectsAlpha = unfinishedMode
                 ? unfinishedAppearance.isOpacityAffectsTexture()
                 : appearance.isOpacityAffectsTexture();
-        GL33.glUniform1i(uniforms.textureOpacityAffectsAlpha, textureOpacityAffectsAlpha ? 1 : 0);
+        glUniform1i(uniforms.textureOpacityAffectsAlpha, textureOpacityAffectsAlpha ? 1 : 0);
         float effectiveOpacity = getEffectiveOpacity(obj.getRocketComponent(), appearance, config, unfinishedMode, isFigureMode, isXray);
         boolean hideInnerSurfaces = !config.getDisplay().isRenderInternalSurfaces();
-        GL33.glUniform1i(uniforms.hideInnerSurfaces, hideInnerSurfaces ? 1 : 0);
+        glUniform1i(uniforms.hideInnerSurfaces, hideInnerSurfaces ? 1 : 0);
 
         if (isFigureMode) {
-            GL33.glUniform1f(uniforms.opacity, isXray ? config.getQuality().getXrayOpacity() : 1.0f);
+            glUniform1f(uniforms.opacity, isXray ? config.getQuality().getXrayOpacity() : 1.0f);
         } else if (unfinishedMode && obj.getRocketComponent() instanceof BodyTube) {
-            GL33.glUniform1f(uniforms.opacity, 0.2f);
+            glUniform1f(uniforms.opacity, 0.2f);
         } else {
-            GL33.glUniform1f(uniforms.opacity, appearance.getOpacity());
+            glUniform1f(uniforms.opacity, appearance.getOpacity());
         }
 
         Matrix4f textureTransformMatrix = unfinishedMode
@@ -120,19 +125,19 @@ public class DefaultMaterialBinder implements MaterialBinder {
         if (!isFigureMode && renderStyle != Appearance3D.RenderStyle.WIREFRAME.ordinal()) {
             Texture tex = unfinishedMode ? unfinishedAppearance.getTexture() : appearance.getTexture();
             if (tex != null && tex.getId() != 0) {
-                textureBinder.bindTexture(0, GL33.GL_TEXTURE_2D, tex.getId());
+                textureBinder.bindTexture(0, GL_TEXTURE_2D, tex.getId());
                 Appearance3D.TextureMode textureMode = unfinishedMode ? unfinishedAppearance.getTextureMode() : appearance.getTextureMode();
-                int wrapMode = (textureMode == Appearance3D.TextureMode.STRETCH) ? GL33.GL_CLAMP_TO_EDGE : GL_REPEAT;
+                int wrapMode = (textureMode == Appearance3D.TextureMode.STRETCH) ? GL_CLAMP_TO_EDGE : GL_REPEAT;
                 // Enable sharper close-up texture inspection while keeping trilinear mipmapping at distance.
-                textureBinder.setTextureParams(GL33.GL_TEXTURE_2D, tex.getId(), wrapMode, wrapMode,
-                        GL33.GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
-                GL33.glUniform1i(uniforms.textureSampler, 0);
-                GL33.glUniform1i(uniforms.hasTexture, 1);
+                textureBinder.setTextureParams(GL_TEXTURE_2D, tex.getId(), wrapMode, wrapMode,
+                        GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+                glUniform1i(uniforms.textureSampler, 0);
+                glUniform1i(uniforms.hasTexture, 1);
             } else {
-                GL33.glUniform1i(uniforms.hasTexture, 0);
+                glUniform1i(uniforms.hasTexture, 0);
             }
         } else {
-            GL33.glUniform1i(uniforms.hasTexture, 0);
+            glUniform1i(uniforms.hasTexture, 0);
         }
 
         // Decal texture
@@ -143,15 +148,15 @@ public class DefaultMaterialBinder implements MaterialBinder {
                     ? unfinishedAppearance.getDecalTransform().getTransformMatrix(this.decalTransformMatrix)
                     : appearance.getDecalTransform().getTransformMatrix(this.decalTransformMatrix);
             shader.setUniformMatrix4f(uniforms.decalTransformMatrix, decalTransformMatrix);
-            textureBinder.bindTexture(1, GL33.GL_TEXTURE_2D, decalId);
+            textureBinder.bindTexture(1, GL_TEXTURE_2D, decalId);
             // Keep decal linework crisp when zoomed in.
-            textureBinder.setTextureParams(GL33.GL_TEXTURE_2D, decalId, GL33.GL_CLAMP_TO_EDGE,
-                    GL33.GL_CLAMP_TO_EDGE, GL33.GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
-            GL33.glUniform1i(uniforms.decalSampler, 1);
-            GL33.glUniform1i(uniforms.hasDecal, 1);
-            GL33.glUniform1i(uniforms.decalSurfaceMask, unfinishedMode ? unfinishedAppearance.getDecalSurfaceMask() : appearance.getDecalSurfaceMask());
+            textureBinder.setTextureParams(GL_TEXTURE_2D, decalId, GL_CLAMP_TO_EDGE,
+                    GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
+            glUniform1i(uniforms.decalSampler, 1);
+            glUniform1i(uniforms.hasDecal, 1);
+            glUniform1i(uniforms.decalSurfaceMask, unfinishedMode ? unfinishedAppearance.getDecalSurfaceMask() : appearance.getDecalSurfaceMask());
         } else {
-            GL33.glUniform1i(uniforms.hasDecal, 0);
+            glUniform1i(uniforms.hasDecal, 0);
         }
     }
 

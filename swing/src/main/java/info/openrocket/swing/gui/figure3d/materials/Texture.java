@@ -4,7 +4,6 @@ import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -48,6 +47,7 @@ import static org.lwjgl.opengl.GL21.GL_SRGB;
 import static org.lwjgl.opengl.GL21.GL_SRGB_ALPHA;
 import static org.lwjgl.opengl.GL30.GL_RGB32F;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
+import static org.lwjgl.opengl.GL11.glGetFloat;
 
 /**
  * Manages OpenGL textures with support for 2D textures, cubemaps, HDR images, and texture pooling.
@@ -233,7 +233,7 @@ public class Texture {
 			return;
 		}
 
-		float maxAnisotropy = GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+		float maxAnisotropy = glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 		if (maxAnisotropy > 1.0f) {
 			glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 		}
@@ -310,9 +310,9 @@ public class Texture {
 	 * @param height texture height in pixels
 	 */
 	public Texture(int width, int height) {
-		this.textureId = GL11.glGenTextures();
+		this.textureId = glGenTextures();
 		this.textureType = GL_TEXTURE_2D;
-		GL11.glBindTexture(textureType, textureId);
+		glBindTexture(textureType, textureId);
 
 		ByteBuffer buffer = MemoryUtil.memAlloc(width * height * 4);
 		for (int y = 0; y < height; y++) {
@@ -324,22 +324,22 @@ public class Texture {
 		}
 		buffer.flip();
 
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 		MemoryUtil.memFree(buffer);
 
 		// Use mipmaps for better quality scaling
-		glGenerateMipmap(GL11.GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		// Set texture parameters for repeating
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL_REPEAT);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL_REPEAT);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		this.width = width;
 		this.height = height;
-		this.internalFormat = GL11.GL_RGBA;
-		this.format = GL11.GL_RGBA;
+		this.internalFormat = GL_RGBA;
+		this.format = GL_RGBA;
 		trackCreation("procedural:" + width + "x" + height);
 	}
 

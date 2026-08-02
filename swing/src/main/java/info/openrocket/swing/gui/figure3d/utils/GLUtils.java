@@ -12,7 +12,10 @@ import static org.lwjgl.opengl.GL33.*;
  * <p>Debug mode can be enabled/disabled at runtime. When debug mode is disabled,
  * error checking methods return immediately without querying GL state (for performance).</p>
  */
-public abstract class GLUtils {
+public final class GLUtils {
+
+	private GLUtils() {
+	}
 
 	private static final Logger log = LoggerFactory.getLogger(GLUtils.class);
 

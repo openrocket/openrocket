@@ -4,7 +4,6 @@ import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
-import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
@@ -15,6 +14,10 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL33.glUniform1f;
+import static org.lwjgl.opengl.GL33.glUniform1i;
+import static org.lwjgl.opengl.GL33.glUniform2f;
 
 /**
  * Screen-space motion blur, applied as a single full-screen pass. Blur direction
@@ -54,8 +57,8 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
         this.screenTextureLocation = shader.getUniformLocation("screenTexture");
         this.depthTextureLocation = shader.getUniformLocation("depthTexture");
         this.shader.use();
-        GL33.glUniform1i(screenTextureLocation, 0);
-        GL33.glUniform1i(depthTextureLocation, 1);
+        glUniform1i(screenTextureLocation, 0);
+        glUniform1i(depthTextureLocation, 1);
         this.shader.unbind();
     }
 
@@ -80,13 +83,13 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
-        GL33.glUniform1f(blurFactorLocation, blurFactor);
-        GL33.glUniform2f(blurDirectionLocation, blurDirection.x, blurDirection.y);
+        glUniform1f(blurFactorLocation, blurFactor);
+        glUniform2f(blurDirectionLocation, blurDirection.x, blurDirection.y);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, inputTexture);
 
-        GL33.glActiveTexture(GL33.GL_TEXTURE1);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthTexture);
 
         PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);

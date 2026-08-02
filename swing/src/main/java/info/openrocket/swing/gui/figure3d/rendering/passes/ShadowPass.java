@@ -11,7 +11,6 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
@@ -47,6 +46,23 @@ import static org.lwjgl.opengl.GL30.glDrawBuffer;
 import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
 import static org.lwjgl.opengl.GL30.glReadBuffer;
 import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_BORDER;
+import static org.lwjgl.opengl.GL33.GL_COMPARE_REF_TO_TEXTURE;
+import static org.lwjgl.opengl.GL33.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL33.GL_DEPTH_COMPONENT24;
+import static org.lwjgl.opengl.GL33.GL_LEQUAL;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_BORDER_COLOR;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_COMPARE_FUNC;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_COMPARE_MODE;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL33.glBindTexture;
+import static org.lwjgl.opengl.GL33.glGenFramebuffers;
+import static org.lwjgl.opengl.GL33.glGenTextures;
+import static org.lwjgl.opengl.GL33.glTexImage2D;
+import static org.lwjgl.opengl.GL33.glTexParameterfv;
+import static org.lwjgl.opengl.GL33.glTexParameteri;
 
 /**
  * Depth-only shadow map generation pass.
@@ -439,26 +455,26 @@ public class ShadowPass implements RenderPass {
     private void initializeFramebuffer() {
         cleanup();
 
-        depthMapFbo = GL33.glGenFramebuffers();
+        depthMapFbo = glGenFramebuffers();
         GpuResourceTracker.register(GpuResourceTracker.ResourceType.FRAMEBUFFER, depthMapFbo, "shadow map fbo");
-        depthMapTexture = GL33.glGenTextures();
+        depthMapTexture = glGenTextures();
         GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, depthMapTexture,
                 "shadow map " + shadowMapSize + "x" + shadowMapSize);
-        GL33.glBindTexture(GL_TEXTURE_2D, depthMapTexture);
-        GL33.glTexImage2D(GL_TEXTURE_2D, 0, GL33.GL_DEPTH_COMPONENT24, shadowMapSize, shadowMapSize, 0,
-                GL33.GL_DEPTH_COMPONENT, GL_FLOAT, (java.nio.ByteBuffer) null);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL33.GL_TEXTURE_COMPARE_MODE, GL33.GL_COMPARE_REF_TO_TEXTURE);
-        GL33.glTexParameteri(GL_TEXTURE_2D, GL33.GL_TEXTURE_COMPARE_FUNC, GL33.GL_LEQUAL);
+        glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, shadowMapSize, shadowMapSize, 0,
+                GL_DEPTH_COMPONENT, GL_FLOAT, (java.nio.ByteBuffer) null);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer borderColor = stack.floats(1.0f, 1.0f, 1.0f, 1.0f);
-            GL33.glTexParameterfv(GL_TEXTURE_2D, GL33.GL_TEXTURE_BORDER_COLOR, borderColor);
+            glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
         }
 
-        GL33.glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTexture, 0);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
@@ -467,7 +483,7 @@ public class ShadowPass implements RenderPass {
             throw new IllegalStateException("Failed to create shadow map framebuffer");
         }
 
-        GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         markShadowMapDirty();
     }
 

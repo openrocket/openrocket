@@ -5,7 +5,6 @@ import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
@@ -16,6 +15,9 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL33.glUniform1f;
+import static org.lwjgl.opengl.GL33.glUniform1i;
+import static org.lwjgl.opengl.GL33.glUniform2f;
 
 /**
  * Screen-space ambient occlusion post-process using the main scene depth texture.
@@ -61,8 +63,8 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         this.depthTextureUniform = shader.getUniformLocation("depthTexture");
 
         shader.use();
-        GL33.glUniform1i(screenTextureUniform, 0);
-        GL33.glUniform1i(depthTextureUniform, 1);
+        glUniform1i(screenTextureUniform, 0);
+        glUniform1i(depthTextureUniform, 1);
         shader.unbind();
     }
 
@@ -94,11 +96,11 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
         shader.setUniformMatrix4f(projectionUniform, projectionMatrix);
         inverseProjection.set(projectionMatrix).invert();
         shader.setUniformMatrix4f(inverseProjectionUniform, inverseProjection);
-        GL33.glUniform2f(screenSizeUniform, (float) target.getWidth(), (float) target.getHeight());
-        GL33.glUniform1f(radiusUniform, qualitySettings.getAmbientOcclusionRadius());
-        GL33.glUniform1f(strengthUniform, qualitySettings.getAmbientOcclusionStrength());
-        GL33.glUniform1f(biasUniform, qualitySettings.getAmbientOcclusionBias());
-        GL33.glUniform1i(sampleCountUniform, qualitySettings.getAmbientOcclusionSampleCount());
+        glUniform2f(screenSizeUniform, (float) target.getWidth(), (float) target.getHeight());
+        glUniform1f(radiusUniform, qualitySettings.getAmbientOcclusionRadius());
+        glUniform1f(strengthUniform, qualitySettings.getAmbientOcclusionStrength());
+        glUniform1f(biasUniform, qualitySettings.getAmbientOcclusionBias());
+        glUniform1i(sampleCountUniform, qualitySettings.getAmbientOcclusionSampleCount());
 
         textureStateManager.bindTexture(0, GL_TEXTURE_2D, inputTexture);
         textureStateManager.setTextureParams(GL_TEXTURE_2D, inputTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,

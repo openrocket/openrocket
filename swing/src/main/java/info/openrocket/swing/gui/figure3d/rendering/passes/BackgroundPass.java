@@ -13,7 +13,6 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
@@ -31,6 +30,26 @@ import static org.lwjgl.opengl.GL11.glDepthFunc;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL33.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL33.GL_FLOAT;
+import static org.lwjgl.opengl.GL33.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_CUBE_MAP;
+import static org.lwjgl.opengl.GL33.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL33.glActiveTexture;
+import static org.lwjgl.opengl.GL33.glBindBuffer;
+import static org.lwjgl.opengl.GL33.glBindVertexArray;
+import static org.lwjgl.opengl.GL33.glBufferData;
+import static org.lwjgl.opengl.GL33.glDeleteBuffers;
+import static org.lwjgl.opengl.GL33.glDeleteVertexArrays;
+import static org.lwjgl.opengl.GL33.glDrawArrays;
+import static org.lwjgl.opengl.GL33.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL33.glGenBuffers;
+import static org.lwjgl.opengl.GL33.glGenVertexArrays;
+import static org.lwjgl.opengl.GL33.glUniform1f;
+import static org.lwjgl.opengl.GL33.glUniform1i;
+import static org.lwjgl.opengl.GL33.glUniform3f;
+import static org.lwjgl.opengl.GL33.glVertexAttribPointer;
 
 /**
  * Draws the scene background, behind all geometry.
@@ -98,14 +117,14 @@ public class BackgroundPass implements RenderPass {
         // Gradient background VAO
         float[] gradientQuadVertices = { -1.0f,  1.0f, -1.0f, -1.0f, 1.0f,  1.0f, 1.0f, -1.0f };
         FloatBuffer quadVboBuffer = MemoryUtil.memAllocFloat(gradientQuadVertices.length).put(gradientQuadVertices).flip();
-        gradientVao = GL33.glGenVertexArrays();
-        gradientVbo = GL33.glGenBuffers();
-        GL33.glBindVertexArray(gradientVao);
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, gradientVbo);
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, quadVboBuffer, GL33.GL_STATIC_DRAW);
-        GL33.glEnableVertexAttribArray(0);
-        GL33.glVertexAttribPointer(0, 2, GL33.GL_FLOAT, false, 0, 0);
-        GL33.glBindVertexArray(0);
+        gradientVao = glGenVertexArrays();
+        gradientVbo = glGenBuffers();
+        glBindVertexArray(gradientVao);
+        glBindBuffer(GL_ARRAY_BUFFER, gradientVbo);
+        glBufferData(GL_ARRAY_BUFFER, quadVboBuffer, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
+        glBindVertexArray(0);
         MemoryUtil.memFree(quadVboBuffer);
 
         // Skybox cube VAO
@@ -129,14 +148,14 @@ public class BackgroundPass implements RenderPass {
                 -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
                 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f
         };
-        skyboxVao = GL33.glGenVertexArrays();
-        skyboxVbo = GL33.glGenBuffers();
-        GL33.glBindVertexArray(skyboxVao);
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, skyboxVbo);
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, skyboxVertices, GL33.GL_STATIC_DRAW);
-        GL33.glEnableVertexAttribArray(0);
-        GL33.glVertexAttribPointer(0, 3, GL33.GL_FLOAT, false, 3 * 4, 0);
-        GL33.glBindVertexArray(0);
+        skyboxVao = glGenVertexArrays();
+        skyboxVbo = glGenBuffers();
+        glBindVertexArray(skyboxVao);
+        glBindBuffer(GL_ARRAY_BUFFER, skyboxVbo);
+        glBufferData(GL_ARRAY_BUFFER, skyboxVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * 4, 0);
+        glBindVertexArray(0);
     }
 
     @Override
@@ -164,10 +183,10 @@ public class BackgroundPass implements RenderPass {
                 glDisable(GL_DEPTH_TEST);
                 checkerboardShader.use();
                 checkerboardShader.setUniformVector4f("bgColor", color);
-                GL33.glUniform1f(checkerboardScaleLocation, 20.0f);
-                GL33.glBindVertexArray(gradientVao);
-                GL33.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-                GL33.glBindVertexArray(0);
+                glUniform1f(checkerboardScaleLocation, 20.0f);
+                glBindVertexArray(gradientVao);
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                glBindVertexArray(0);
                 glEnable(GL_DEPTH_TEST);
             } else {
                 glClearColor(color.x, color.y, color.z, 1.0f);
@@ -180,27 +199,27 @@ public class BackgroundPass implements RenderPass {
             gradientShader.use();
             Vector3f topColor = gradientBackground.getTopColor();
             Vector3f bottomColor = gradientBackground.getBottomColor();
-            GL33.glUniform3f(gradientTopColorLocation, topColor.x, topColor.y, topColor.z);
-            GL33.glUniform3f(gradientBottomColorLocation, bottomColor.x, bottomColor.y, bottomColor.z);
-            GL33.glBindVertexArray(gradientVao);
-            GL33.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            GL33.glBindVertexArray(0);
+            glUniform3f(gradientTopColorLocation, topColor.x, topColor.y, topColor.z);
+            glUniform3f(gradientBottomColorLocation, bottomColor.x, bottomColor.y, bottomColor.z);
+            glBindVertexArray(gradientVao);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            glBindVertexArray(0);
             glEnable(GL_DEPTH_TEST);
             glDepthMask(true); // Ensure depth writes are enabled for geometry
             // Reset texture unit to 0 for geometry pass
-            GL33.glActiveTexture(GL33.GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
         } else if (background instanceof ImageBackground imageBackground) {
             glClear(GL_DEPTH_BUFFER_BIT);
             glDisable(GL_DEPTH_TEST);
             imageShader.use();
             textureStateManager.bindTexture(0, GL_TEXTURE_2D, imageBackground.getTexture().getId());
-            GL33.glUniform1i(imageSamplerLocation, 0);
-            GL33.glBindVertexArray(gradientVao);
-            GL33.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            GL33.glBindVertexArray(0);
+            glUniform1i(imageSamplerLocation, 0);
+            glBindVertexArray(gradientVao);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            glBindVertexArray(0);
             glEnable(GL_DEPTH_TEST);
             glDepthMask(true);
-            GL33.glActiveTexture(GL33.GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
         } else if (background instanceof SkyboxBackground || background instanceof HDRIBackground) {
             // Clear depth first so geometry can render in front
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -211,26 +230,26 @@ public class BackgroundPass implements RenderPass {
                 skyboxShader.use();
                 skyboxShader.setUniformMatrix4f(skyboxViewLocation, skyboxViewMatrix);
                 skyboxShader.setUniformMatrix4f(skyboxProjectionLocation, scene.getCamera().getProjectionMatrix());
-                textureStateManager.bindTexture(0, GL33.GL_TEXTURE_CUBE_MAP, skybox.getCubemapTexture().getId());
-                GL33.glUniform1i(skyboxSamplerLocation, 0);
-                GL33.glBindVertexArray(skyboxVao);
-                GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, 36);
+                textureStateManager.bindTexture(0, GL_TEXTURE_CUBE_MAP, skybox.getCubemapTexture().getId());
+                glUniform1i(skyboxSamplerLocation, 0);
+                glBindVertexArray(skyboxVao);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
             } else {
                 HDRIBackground hdri = (HDRIBackground) background;
                 hdriShader.use();
                 hdriShader.setUniformMatrix4f(hdriViewLocation, skyboxViewMatrix);
                 hdriShader.setUniformMatrix4f(hdriProjectionLocation, scene.getCamera().getProjectionMatrix());
-                GL33.glUniform1f(hdriExposureLocation, 1.0f);
+                glUniform1f(hdriExposureLocation, 1.0f);
                 textureStateManager.bindTexture(0, GL_TEXTURE_2D, hdri.getHdriTexture().getId());
-                GL33.glUniform1i(hdriSamplerLocation, 0);
-                GL33.glBindVertexArray(skyboxVao);
-                GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, 36);
+                glUniform1i(hdriSamplerLocation, 0);
+                glBindVertexArray(skyboxVao);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
             }
-            GL33.glBindVertexArray(0);
+            glBindVertexArray(0);
             glDepthFunc(GL_LESS);
             glDepthMask(true); // Ensure depth writes are enabled for geometry
             // Reset texture unit to 0 for geometry pass
-            GL33.glActiveTexture(GL33.GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
         }
     }
 
@@ -246,9 +265,9 @@ public class BackgroundPass implements RenderPass {
         skyboxShader.cleanup();
         hdriShader.cleanup();
         checkerboardShader.cleanup();
-        GL33.glDeleteVertexArrays(gradientVao);
-        GL33.glDeleteBuffers(gradientVbo);
-        GL33.glDeleteVertexArrays(skyboxVao);
-        GL33.glDeleteBuffers(skyboxVbo);
+        glDeleteVertexArrays(gradientVao);
+        glDeleteBuffers(gradientVbo);
+        glDeleteVertexArrays(skyboxVao);
+        glDeleteBuffers(skyboxVbo);
     }
 }
