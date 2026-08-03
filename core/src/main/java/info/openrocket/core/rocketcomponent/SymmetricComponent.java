@@ -492,7 +492,10 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 			final double dFullV = fullCG.getWeight();
 			final double dV = fullCG.getWeight() - innerCG.getWeight();
-			final double dCG = (fullCG.getX() * fullCG.getWeight() - innerCG.getX() * innerCG.getWeight()) / dV;
+			// Some discontinuous profiles contain slices with no material.  Their CG is
+			// irrelevant, but it must remain finite so that 0 * dCG does not become NaN.
+			final double dCG = dV == 0.0 ? l / 2.0
+					: (fullCG.getX() * fullCG.getWeight() - innerCG.getX() * innerCG.getWeight()) / dV;
 
 			// First moment, used later for CG calculation
 			final double dCGx = dV * (x1 + dCG);
