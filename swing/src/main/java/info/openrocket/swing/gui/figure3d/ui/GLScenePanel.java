@@ -734,10 +734,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		data.minorVersion = 3;
 		data.profile = GLData.Profile.CORE;
 		data.doubleBuffer = true;
-		data.debug = GLDebug.isDebugRequested();
+		// The macOS backend rejects debug-context attributes. GLDebug can still install
+		// a KHR_debug/ARB_debug_output callback when the resulting context supports it.
+		data.debug = GLDebug.isDebugRequested()
+				&& SystemInfo.getPlatform() != SystemInfo.Platform.MAC_OS;
 		// Default-framebuffer MSAA is disabled — see getRequestedSampleCount().
 		data.samples = getRequestedSampleCount();
-		data.sRGB = true;
+		// Do not request an sRGB default framebuffer: the macOS backend rejects that
+		// pixel-format attribute, and presentation is already gamma-corrected by the renderer.
 		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
 		data.swapInterval = 0;
 		if (REQUEST_ROBUST_CONTEXT) {
