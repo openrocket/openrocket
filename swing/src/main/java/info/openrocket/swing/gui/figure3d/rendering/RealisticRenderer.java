@@ -10,7 +10,6 @@ import info.openrocket.swing.gui.figure3d.rendering.passes.FXAAPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.GeometryPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.MotionBlurPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.OutlinePass;
-import info.openrocket.swing.gui.figure3d.rendering.passes.RenderPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.ScreenTexturePass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.ShadowPass;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
@@ -35,6 +34,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glViewport;
 
@@ -98,7 +98,8 @@ public class RealisticRenderer implements GLRenderer {
 	private final OffscreenRenderTarget renderTarget;
 	private int resolvedTextureId;
 
-	private final List<RenderPass> geometryPasses = new ArrayList<>();
+	private final BackgroundPass backgroundPass;
+	private final GeometryPass geometryPass;
 	private final List<ScreenTexturePass> postProcessingPasses = new ArrayList<>();
 	private MotionBlurPass motionBlurPass;
 	private volatile boolean interactionMode = false;
@@ -142,7 +143,9 @@ public class RealisticRenderer implements GLRenderer {
 		shadowPass = createShadowPass();
 		sceneLighting = new SceneLighting(mainShader, mainShaderUniforms, textureStateManager,
 				shadowPass, config, selectionColor);
-		initGeometryPasses();
+		backgroundPass = new BackgroundPass(textureStateManager);
+		geometryPass = new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms,
+				renderTarget, fullscreenQuad);
 		caretsPass = createCaretsPass(rocket);
 		cameraPointOfInterestPass = createCameraPointOfInterestPass();
 
@@ -168,11 +171,6 @@ public class RealisticRenderer implements GLRenderer {
 		pass.setQuality(config.getQuality().getQuality());
 		pass.setEnabled(config.getQuality().isShadowsEnabled());
 		return pass;
-	}
-
-	private void initGeometryPasses() {
-		geometryPasses.add(new BackgroundPass(textureStateManager));
-		geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms));
 	}
 
 	private CaretsPass createCaretsPass(Rocket rocket) {
@@ -242,6 +240,8 @@ public class RealisticRenderer implements GLRenderer {
 		if (config.getQuality().isBackfaceCullingEnabled() && !config.getDisplay().shouldDisableCulling()) {
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
+		} else {
+			glDisable(GL_CULL_FACE);
 		}
 	}
 
@@ -255,12 +255,17 @@ public class RealisticRenderer implements GLRenderer {
 		glViewport(0, 0, screenWidth, screenHeight);
 		clearRenderTarget(scene, renderBackground);
 
-		for (RenderPass pass : geometryPasses) {
-			if (!renderBackground && pass instanceof BackgroundPass) {
-				continue;
-			}
-			pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
+		if (renderBackground) {
+			backgroundPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		}
+		geometryPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
+
+		// Resolve opaque MSAA before transparency. The order-independent attachments
+		// are intentionally single-sample and share this resolved depth texture,
+		// avoiding two large multisampled transparency buffers.
+		renderTarget.unbind();
+		renderTarget.bindResolved();
+		geometryPass.renderTransparent(scene);
 
 		particleRenderer.render(scene, camera);
 		volumetricSmokeRenderer.render(scene, camera);
@@ -269,7 +274,7 @@ public class RealisticRenderer implements GLRenderer {
 			caretsPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		}
 		cameraPointOfInterestPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
-		renderTarget.unbind();
+		renderTarget.unbindResolved();
 	}
 
 	private void clearRenderTarget(SceneView scene, boolean renderBackground) {
@@ -435,9 +440,8 @@ public class RealisticRenderer implements GLRenderer {
 		resolvedTextureId = renderTarget.getColorTextureId();
 		shadowPass.resize(width, height);
 
-		for (RenderPass pass : geometryPasses) {
-			pass.resize(width, height);
-		}
+		backgroundPass.resize(width, height);
+		geometryPass.resize(width, height);
 		ambientOcclusionPass.resize(width, height);
 		outlinePass.resize(width, height);
 		fxaaPass.resize(width, height);
@@ -463,23 +467,22 @@ public class RealisticRenderer implements GLRenderer {
 
 	@Override
 	public void cleanup() {
-		mainShader.cleanup();
 		particleRenderer.cleanup();
 		flameRenderer.cleanup();
 		volumetricSmokeRenderer.cleanup();
-		fullscreenQuad.cleanup();
 
 		caretsPass.cleanup();
 		cameraPointOfInterestPass.cleanup();
 		shadowPass.cleanup();
 
-		for (RenderPass pass : geometryPasses) {
-			pass.cleanup();
-		}
+		backgroundPass.cleanup();
+		geometryPass.cleanup();
 		ambientOcclusionPass.cleanup();
 		outlinePass.cleanup();
 		fxaaPass.cleanup();
 		motionBlurPass.cleanup();
+		fullscreenQuad.cleanup();
+		mainShader.cleanup();
 
 		renderTarget.cleanup();
 

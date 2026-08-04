@@ -1,274 +1,244 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
+import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
+import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
 import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
-import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
-import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.OffscreenRenderTarget;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
+import info.openrocket.swing.gui.figure3d.rendering.TransparencyPolicy;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE_MODE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_FILL;
-import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
 import static org.lwjgl.opengl.GL11.GL_LINE;
-import static org.lwjgl.opengl.GL11.GL_ONE;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.glIsEnabled;
 import static org.lwjgl.opengl.GL11.glPolygonMode;
-import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 import static org.lwjgl.opengl.GL33.glUniform1i;
 
 /**
- * Renders the scene geometry with its materials.
+ * Renders opaque geometry first, then translucent geometry with weighted blended
+ * order-independent transparency, and finally opaque objects marked "render on top".
  *
- * <p>Objects are split into opaque and transparent, the transparent ones sorted
- * back to front, and then drawn in three passes: opaque with depth writes on,
- * transparent with depth writes off, and finally the "render on top" objects with
- * depth testing off. Wireframe, X-ray and unfinished modes are handled here too.</p>
+ * <p>The translucent pass accumulates fragments on the GPU. It therefore remains stable
+ * when objects intersect or the camera moves through a point where a CPU depth sort would
+ * reverse two objects.</p>
  */
 public class GeometryPass implements RenderPass {
+
+	private static final int OUTPUT_SCENE_COLOR = 0;
+	private static final int OUTPUT_OPAQUE_TEXTURE_FRAGMENTS = 3;
 
 	private final GLShader mainShader;
 	private final RenderingConfiguration config;
 	private final TextureBinder textureStateManager;
 	private final MainShaderUniforms mainShaderUniforms;
+	private final OffscreenRenderTarget renderTarget;
 	private final MaterialBinder materialBinder = new DefaultMaterialBinder();
+	private final WeightedBlendedTransparency transparency;
 
 	/**
 	 * Creates a new geometry pass with the specified rendering components.
-	 * 
+	 *
 	 * @param mainShader The main shader program for geometry rendering
 	 * @param config Rendering configuration for quality and display settings
 	 * @param textureStateManager Manager for optimized texture state changes
 	 * @param mainShaderUniforms Cached uniform locations for performance
+	 * @param renderTarget Main scene target whose resolved depth is shared by transparency
+	 * @param fullscreenQuad Shared full-screen geometry used to composite transparency
 	 */
 	public GeometryPass(GLShader mainShader, RenderingConfiguration config,
-						TextureBinder textureStateManager, MainShaderUniforms mainShaderUniforms) {
+						TextureBinder textureStateManager, MainShaderUniforms mainShaderUniforms,
+						OffscreenRenderTarget renderTarget, FullscreenQuad fullscreenQuad) {
 		this.mainShader = mainShader;
 		this.config = config;
 		this.textureStateManager = textureStateManager;
 		this.mainShaderUniforms = mainShaderUniforms;
+		this.renderTarget = renderTarget;
+		this.transparency = new WeightedBlendedTransparency(fullscreenQuad, textureStateManager);
 	}
 
+	/** Draws regular opaque objects into the primary (possibly multisampled) scene target. */
 	@Override
 	public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
 		mainShader.use();
-		
-		List<SceneObject> opaqueObjects = new ArrayList<>();
-		List<SceneObject> transparentObjects = new ArrayList<>();
-		for (SceneObject obj : scene.getObjects()) {
-			boolean isXrayTransparent = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
-					isFigureTransparentComponent(obj.getRocketComponent());
-			boolean isUnfinishedTransparent = config.getDisplay().getMode() == DisplaySettings.RenderMode.UNFINISHED &&
-					obj.getRocketComponent() instanceof BodyTube;
-			if (obj.getAppearance().getOpacity() < 1.0f || isXrayTransparent || isUnfinishedTransparent) {
-				transparentObjects.add(obj);
-			} else {
-				opaqueObjects.add(obj);
+		glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(true);
+
+		for (SceneObject object : scene.getObjects()) {
+			if (!object.isRenderOnTop() && !TransparencyPolicy.isTransparent(object, config)) {
+				renderObject(object, false);
 			}
 		}
 
-		// Sort transparent objects from back to front
-		transparentObjects.sort((o1, o2) -> {
-			Vector3f pos1 = new Vector3f();
-			o1.getModelMatrix().getTranslation(pos1);
-			Vector3f pos2 = new Vector3f();
-			o2.getModelMatrix().getTranslation(pos2);
-			float dist1 = scene.getCamera().getPosition().distanceSquared(pos1);
-			float dist2 = scene.getCamera().getPosition().distanceSquared(pos2);
-			return Float.compare(dist2, dist1);
-		});
-
-		renderObjects(opaqueObjects, transparentObjects, viewMatrix);
+		// A translucent component can still contain texture pixels whose opacity is
+		// independent of the component opacity. Render those pixels with depth writes
+		// (and MSAA) so WBOIT cannot average geometry through them.
+		glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_OPAQUE_TEXTURE_FRAGMENTS);
+		try {
+			for (SceneObject object : scene.getObjects()) {
+				if (!object.isRenderOnTop() && mayProduceOpaqueTextureFragments(object)) {
+					renderTransparentObject(object);
+				}
+			}
+		} finally {
+			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+		}
 	}
 
 	/**
-	 * Renders objects using a multi-pass technique for proper transparency.
-	 * 
-	 * Implements a three-pass rendering approach:
-	 * 1. Opaque objects with full depth testing
-	 * 2. Transparent objects with disabled depth writes
-	 * 3. "Render on top" objects with disabled depth testing
-	 * 
-	 * @param opaqueObjects List of fully opaque objects to render first
-	 * @param transparentObjects List of transparent objects requiring special handling
+	 * Draws and composites all translucent objects into the resolved scene target.
+	 * The renderer must resolve opaque multisampling before calling this method.
 	 */
-	private void renderObjects(List<SceneObject> opaqueObjects, List<SceneObject> transparentObjects, Matrix4f viewMatrix) {
-		glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	public void renderTransparent(SceneView scene) {
+		if (hasTransparentObjects(scene)) {
+			transparency.render(renderTarget, outputMode -> renderTransparentGeometry(scene, outputMode));
+		}
+		renderOpaqueOnTop(scene);
+	}
 
-		// --- Opaque Pass ---
-		glDepthMask(true);
-		for (SceneObject obj : opaqueObjects) {
-			boolean isXray = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
-					isFigureTransparentComponent(obj.getRocketComponent());
-
-			if (!obj.isRenderOnTop() && !isXray) {
-				renderSingleObject(obj);
+	private boolean hasTransparentObjects(SceneView scene) {
+		for (SceneObject object : scene.getObjects()) {
+			if (TransparencyPolicy.isTransparent(object, config)) {
+				return true;
 			}
 		}
+		return false;
+	}
 
-		// --- Transparent & Special Pass ---
+	private boolean mayProduceOpaqueTextureFragments(SceneObject object) {
+		return TransparencyPolicy.mayProduceOpaqueTextureFragments(
+				object.getRocketComponent(), object.getAppearance(), config);
+	}
+
+	private void renderTransparentGeometry(SceneView scene, int outputMode) {
+		mainShader.use();
+		glUniform1i(mainShaderUniforms.transparencyOutputMode, outputMode);
 		glDepthMask(false);
-		for (SceneObject obj : transparentObjects) {
-			boolean isXray = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
-					isFigureTransparentComponent(obj.getRocketComponent());
-			if (!obj.isRenderOnTop() || isXray) { // Render on top objects are also rendered here if they are transparent
-				renderTransparentObject(obj, viewMatrix);
+		glEnable(GL_DEPTH_TEST);
+		try {
+			for (SceneObject object : scene.getObjects()) {
+				if (!object.isRenderOnTop() && TransparencyPolicy.isTransparent(object, config)) {
+					renderTransparentObject(object);
+				}
 			}
-		}
 
-		// --- "On Top" Pass (for opaque objects only) ---
+			// No current translucent scene object uses this flag, but honour its contract
+			// if one is introduced: it contributes without being rejected by opaque depth.
+			glDisable(GL_DEPTH_TEST);
+			for (SceneObject object : scene.getObjects()) {
+				if (object.isRenderOnTop() && TransparencyPolicy.isTransparent(object, config)) {
+					renderTransparentObject(object);
+				}
+			}
+		} finally {
+			glEnable(GL_DEPTH_TEST);
+			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+		}
+	}
+
+	private void renderOpaqueOnTop(SceneView scene) {
+		mainShader.use();
+		glDisable(GL_BLEND);
 		glDepthMask(true);
 		glDisable(GL_DEPTH_TEST);
-		for (SceneObject obj : opaqueObjects) {
-			if (obj.isRenderOnTop()) {
-				renderSingleObject(obj);
+		try {
+			// Opaque texture coverage was excluded from WBOIT. Draw it last for the
+			// (currently unused) combination of transparency and render-on-top.
+			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_OPAQUE_TEXTURE_FRAGMENTS);
+			for (SceneObject object : scene.getObjects()) {
+				if (object.isRenderOnTop() && mayProduceOpaqueTextureFragments(object)) {
+					renderTransparentObject(object);
+				}
 			}
+
+			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+			for (SceneObject object : scene.getObjects()) {
+				if (object.isRenderOnTop() && !TransparencyPolicy.isTransparent(object, config)) {
+					renderObject(object, false);
+				}
+			}
+		} finally {
+			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+			glEnable(GL_DEPTH_TEST);
 		}
-		glEnable(GL_DEPTH_TEST);
-
-		glDisable(GL_BLEND);
 	}
 
-	/**
-	 * Renders a single scene object with complete material and mode handling.
-	 * 
-	 * Applies all material properties, textures, and rendering mode overrides
-	 * for the object. Handles special cases like wireframe, X-ray, and unfinished
-	 * rendering modes.
-	 * 
-	 * @param obj The scene object to render with its associated mesh and materials
-	 */
-	private void renderSingleObject(SceneObject obj) {
-		renderObject(obj, false, null, false);
-	}
-
-	private void renderTransparentObject(SceneObject obj, Matrix4f viewMatrix) {
-		if (shouldRenderTransparentBodyInFacePasses(obj)) {
-			renderTransparentBodyObject(obj, viewMatrix);
+	private void renderTransparentObject(SceneObject object) {
+		if (!isWireframe(object)
+				&& TransparencyPolicy.isTransparentBodyComponent(object.getRocketComponent())) {
+			renderTransparentBodyObject(object);
 			return;
 		}
-		renderObject(obj, true, viewMatrix, false);
+		renderObject(object, false);
 	}
 
 	/**
-	 * Transparent rocket bodies and shells look cleaner when their back-facing
-	 * surfaces are blended before the front-facing ones. This avoids the triangle
-	 * soup caused by per-triangle sorting on curved convex meshes, and hiding the
-	 * inner shell keeps tube wall thickness from making the whole part look too dark.
+	 * Curved shells need both front and back faces in the accumulation. Their dedicated
+	 * inside-wall triangles remain hidden to avoid counting physical wall thickness twice.
 	 */
-	private void renderTransparentBodyObject(SceneObject obj, Matrix4f viewMatrix) {
+	private void renderTransparentBodyObject(SceneObject object) {
 		boolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
-		int previousCullFace = glGetInteger(GL_CULL_FACE_MODE);
-
-		if (!cullWasEnabled) {
-			glEnable(GL_CULL_FACE);
-		}
-
-		glCullFace(GL_FRONT);
-		renderObject(obj, false, viewMatrix, true);
-
-		glCullFace(GL_BACK);
-		renderObject(obj, false, viewMatrix, true);
-
-		if (!cullWasEnabled) {
+		if (cullWasEnabled) {
 			glDisable(GL_CULL_FACE);
-		} else if (previousCullFace != GL_BACK) {
-			glCullFace(previousCullFace);
+		}
+		try {
+			renderObject(object, true);
+		} finally {
+			if (cullWasEnabled) {
+				glEnable(GL_CULL_FACE);
+			}
 		}
 	}
 
-	private void renderObject(SceneObject obj, boolean sortTriangles, Matrix4f viewMatrix, boolean forceHideInnerSurfaces) {
-		boolean isWireframe = isWireframe(obj);
-		materialBinder.bind(obj, mainShader, mainShaderUniforms, config, textureStateManager);
+	/** Renders one object after applying its material and display-mode overrides. */
+	private void renderObject(SceneObject object, boolean forceHideInnerSurfaces) {
+		boolean wireframe = isWireframe(object);
+		materialBinder.bind(object, mainShader, mainShaderUniforms, config, textureStateManager);
 		if (forceHideInnerSurfaces) {
 			glUniform1i(mainShaderUniforms.hideInnerSurfaces, 1);
 		}
 
-		if (isWireframe) {
+		if (wireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
-
-		if (sortTriangles && shouldSortTransparentTriangles(obj) &&
-				obj.getRenderableMesh() instanceof GLRenderableMesh renderableMesh) {
-			renderableMesh.renderSorted(obj.getMesh(), obj.getModelMatrix(), viewMatrix);
-		} else {
-			obj.getRenderableMesh().render();
-		}
-		if (isWireframe) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		try {
+			object.getRenderableMesh().render();
+		} finally {
+			if (wireframe) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 		}
 	}
 
-	private boolean isWireframe(SceneObject obj) {
+	private boolean isWireframe(SceneObject object) {
 		return config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
 				config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING ||
-				obj.getAppearance().getStyle() == Appearance3D.RenderStyle.WIREFRAME;
-	}
-
-	/**
-	 * Per-triangle sorting makes the tessellation of curved transparent rocket
-	 * bodies visible, especially on nose cones when they get small on screen.
-	 * Those components now use ordered face passes instead.
-	 */
-	private boolean shouldSortTransparentTriangles(SceneObject obj) {
-		if (isWireframe(obj)) {
-			return false;
-		}
-		RocketComponent component = obj.getRocketComponent();
-		return !isTransparentBodyComponent(component);
-	}
-
-	private boolean shouldRenderTransparentBodyInFacePasses(SceneObject obj) {
-		return !isWireframe(obj) && isTransparentBodyComponent(obj.getRocketComponent());
+				object.getAppearance().getStyle() == Appearance3D.RenderStyle.WIREFRAME;
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// Handled by renderer
+		transparency.invalidateAttachments();
 	}
 
 	@Override
 	public void cleanup() {
+		transparency.cleanup();
 		materialBinder.cleanup();
-	}
-
-	private static boolean isFigureTransparentComponent(RocketComponent component) {
-		if (component instanceof BodyTube) {
-			return true;
-		}
-		return component instanceof Transition;
-	}
-
-	private static boolean isTransparentBodyComponent(RocketComponent component) {
-		if (component instanceof BodyTube) {
-			return true;
-		}
-		return component instanceof Transition;
 	}
 }

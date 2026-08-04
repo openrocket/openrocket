@@ -45,6 +45,7 @@ public final class MainShaderUniforms {
 	public final int enableRoughnessBump;
 	public final int hideInnerSurfaces;
 	public final int xrayMode;
+	public final int transparencyOutputMode;
 	public final LightUniforms[] lights = new LightUniforms[MAX_LIGHTS];
 
 	MainShaderUniforms(GLShader shader) {
@@ -86,6 +87,7 @@ public final class MainShaderUniforms {
 		this.enableRoughnessBump = shader.requireUniformLocation("enableRoughnessBump");
 		this.hideInnerSurfaces = shader.requireUniformLocation("hideInnerSurfaces");
 		this.xrayMode = shader.requireUniformLocation("xrayMode");
+		this.transparencyOutputMode = shader.requireUniformLocation("transparencyOutputMode");
 		for (int i = 0; i < lights.length; i++) {
 			lights[i] = new LightUniforms(shader, i);
 		}

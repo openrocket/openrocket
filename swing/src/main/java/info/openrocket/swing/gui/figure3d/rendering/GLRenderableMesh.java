@@ -3,15 +3,12 @@ package info.openrocket.swing.gui.figure3d.rendering;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.geometry.Vertex;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
-import java.util.Arrays;
 
 /**
  * OpenGL-optimized mesh representation for hardware-accelerated rendering.
@@ -47,15 +44,6 @@ public class GLRenderableMesh implements Renderable {
 	private final int vertexBufferObjectId;
 	private final int elementBufferObjectId;
 	private final int indexCount;
-	private final Matrix4f scratchModelViewMatrix = new Matrix4f();
-	private final Matrix4f lastSortedModelViewMatrix = new Matrix4f();
-	private final Vector3f scratchCentroid = new Vector3f();
-	private int sortedElementBufferObjectId;
-	private List<Vertex> sortedVertices;
-	private IntList sortedIndices;
-	private long[] triangleSortKeys;
-	private IntBuffer sortedIndexBuffer;
-	private boolean sortedIndicesDirty = true;
 
 	/**
 	 * Creates a new renderable mesh from application mesh data.
@@ -169,79 +157,6 @@ public class GLRenderableMesh implements Renderable {
 		GL33.glBindVertexArray(0);
 	}
 
-	public void renderSorted(Mesh mesh, Matrix4f modelMatrix, Matrix4f viewMatrix) {
-		ensureSortedResources(mesh);
-		scratchModelViewMatrix.set(viewMatrix).mul(modelMatrix);
-		if (sortedIndicesDirty || !scratchModelViewMatrix.equals(lastSortedModelViewMatrix, 1.0e-6f)) {
-			resortTriangles();
-			lastSortedModelViewMatrix.set(scratchModelViewMatrix);
-			sortedIndicesDirty = false;
-		}
-
-		GL33.glBindVertexArray(vertexArrayObjectId);
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
-		GL33.glDrawElements(GL33.GL_TRIANGLES, indexCount, GL33.GL_UNSIGNED_INT, 0);
-		GL33.glBindVertexArray(0);
-	}
-
-	private void ensureSortedResources(Mesh mesh) {
-		if (sortedElementBufferObjectId != 0) {
-			return;
-		}
-
-		sortedVertices = mesh.getVertices();
-		sortedIndices = mesh.getIndices();
-		triangleSortKeys = new long[sortedIndices.size() / 3];
-		sortedIndexBuffer = MemoryUtil.memAllocInt(sortedIndices.size());
-
-		sortedElementBufferObjectId = GL33.glGenBuffers();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, sortedElementBufferObjectId, "mesh sorted ebo");
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
-		GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, (long) sortedIndices.size() * Integer.BYTES, GL33.GL_DYNAMIC_DRAW);
-		sortedIndicesDirty = true;
-	}
-
-	private void resortTriangles() {
-		for (int triangle = 0; triangle < triangleSortKeys.length; triangle++) {
-			int index = triangle * 3;
-			int i0 = sortedIndices.get(index);
-			int i1 = sortedIndices.get(index + 1);
-			int i2 = sortedIndices.get(index + 2);
-
-			Vertex v0 = sortedVertices.get(i0);
-			Vertex v1 = sortedVertices.get(i1);
-			Vertex v2 = sortedVertices.get(i2);
-
-			scratchCentroid.set(v0.position)
-					.add(v1.position)
-					.add(v2.position)
-					.mul(1.0f / 3.0f);
-			scratchModelViewMatrix.transformPosition(scratchCentroid);
-			triangleSortKeys[triangle] = createTriangleSortKey(scratchCentroid.z, triangle);
-		}
-
-		Arrays.sort(triangleSortKeys);
-
-		sortedIndexBuffer.clear();
-		for (long sortKey : triangleSortKeys) {
-			int triangle = (int) sortKey;
-			int index = triangle * 3;
-			sortedIndexBuffer.put(sortedIndices.get(index))
-					.put(sortedIndices.get(index + 1))
-					.put(sortedIndices.get(index + 2));
-		}
-		sortedIndexBuffer.flip();
-
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedElementBufferObjectId);
-		GL33.glBufferSubData(GL33.GL_ELEMENT_ARRAY_BUFFER, 0, sortedIndexBuffer);
-	}
-
-	private static long createTriangleSortKey(float depth, int triangle) {
-		int bits = Float.floatToRawIntBits(depth);
-		int sortableDepth = bits ^ ((bits >> 31) | 0x80000000);
-		return (Integer.toUnsignedLong(sortableDepth) << 32) | Integer.toUnsignedLong(triangle);
-	}
-
 	/**
 	 * Releases all OpenGL resources associated with this mesh.
 	 * 
@@ -255,14 +170,7 @@ public class GLRenderableMesh implements Renderable {
 		GL33.glDeleteBuffers(vertexBufferObjectId);
 		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, elementBufferObjectId);
 		GL33.glDeleteBuffers(elementBufferObjectId);
-		if (sortedElementBufferObjectId != 0) {
-			GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, sortedElementBufferObjectId);
-			GL33.glDeleteBuffers(sortedElementBufferObjectId);
-		}
 		GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayObjectId);
 		GL33.glDeleteVertexArrays(vertexArrayObjectId);
-		if (sortedIndexBuffer != null) {
-			MemoryUtil.memFree(sortedIndexBuffer);
-		}
 	}
 }

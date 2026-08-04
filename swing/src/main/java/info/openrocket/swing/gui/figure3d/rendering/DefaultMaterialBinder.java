@@ -1,9 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
-import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
@@ -52,7 +49,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
 		boolean unfinishedMode = config.getDisplay().getMode() == DisplaySettings.RenderMode.UNFINISHED;
 		boolean isFigureMode = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY;
 		boolean isXray = isFigureMode &&
-				isFigureTransparentComponent(obj.getRocketComponent());
+				TransparencyPolicy.isFigureTransparentComponent(obj.getRocketComponent());
 		ORColor figureSourceColor = isFigureMode ? getFigureSourceColor(obj.getRocketComponent()) : null;
 		Appearance3D unfinishedAppearance = unfinishedMode && obj.getRocketComponent() != null
 				? unfinishedAppearanceCache.computeIfAbsent(
@@ -102,17 +99,10 @@ public class DefaultMaterialBinder implements MaterialBinder {
 				? unfinishedAppearance.isOpacityAffectsTexture()
 				: appearance.isOpacityAffectsTexture();
 		glUniform1i(uniforms.textureOpacityAffectsAlpha, textureOpacityAffectsAlpha ? 1 : 0);
-		float effectiveOpacity = getEffectiveOpacity(obj.getRocketComponent(), appearance, config, unfinishedMode, isFigureMode, isXray);
 		boolean hideInnerSurfaces = !config.getDisplay().isRenderInternalSurfaces();
 		glUniform1i(uniforms.hideInnerSurfaces, hideInnerSurfaces ? 1 : 0);
-
-		if (isFigureMode) {
-			glUniform1f(uniforms.opacity, isXray ? config.getQuality().getXrayOpacity() : 1.0f);
-		} else if (unfinishedMode && obj.getRocketComponent() instanceof BodyTube) {
-			glUniform1f(uniforms.opacity, 0.2f);
-		} else {
-			glUniform1f(uniforms.opacity, appearance.getOpacity());
-		}
+		glUniform1f(uniforms.opacity,
+				TransparencyPolicy.getEffectiveOpacity(obj.getRocketComponent(), appearance, config));
 
 		Matrix4f textureTransformMatrix = unfinishedMode
 				? unfinishedAppearance.getTextureTransform().getTransformMatrix(this.textureTransformMatrix)
@@ -156,25 +146,6 @@ public class DefaultMaterialBinder implements MaterialBinder {
 		} else {
 			glUniform1i(uniforms.hasDecal, 0);
 		}
-	}
-
-	private static boolean isFigureTransparentComponent(RocketComponent component) {
-		if (component instanceof BodyTube) {
-			return true;
-		}
-		return component instanceof Transition && !(component instanceof NoseCone);
-	}
-
-	private static float getEffectiveOpacity(RocketComponent component, Appearance3D appearance,
-											 RenderingConfiguration config, boolean unfinishedMode,
-											 boolean isFigureMode, boolean isXray) {
-		if (isFigureMode) {
-			return isXray ? config.getQuality().getXrayOpacity() : 1.0f;
-		}
-		if (unfinishedMode && component instanceof BodyTube) {
-			return 0.2f;
-		}
-		return appearance.getOpacity();
 	}
 
 	private static ORColor getFigureSourceColor(RocketComponent component) {

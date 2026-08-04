@@ -71,6 +71,9 @@ uniform bool forceWhite;
 uniform bool enableRoughnessBump;
 uniform bool hideInnerSurfaces;
 uniform bool xrayMode;
+// 0 = regular scene color, 1 = weighted transparency accumulation,
+// 2 = weighted transparency revealage, 3 = opaque texture coverage only.
+uniform int transparencyOutputMode;
 uniform sampler2DShadow shadowMap;
 uniform bool shadowsEnabled;
 uniform int shadowLightIndex;
@@ -309,11 +312,52 @@ float calculateShadow(vec3 normal, vec3 lightDir) {
     return (1.0 - visibility) * shadowStrength;
 }
 
+void writeFragment(vec4 color) {
+    const float opaqueThreshold = 1.0 - 1e-5;
+    if (transparencyOutputMode == 3) {
+        if (color.a < opaqueThreshold) {
+            discard;
+        }
+        FragColor = vec4(color.rgb, 1.0);
+        return;
+    }
+    // Fully opaque texture coverage was already written to the regular scene target.
+    // Excluding it here prevents WBOIT from averaging surfaces that it should occlude.
+    if (transparencyOutputMode == 1 || transparencyOutputMode == 2) {
+        if (color.a >= opaqueThreshold) {
+            discard;
+        }
+    }
+    if (transparencyOutputMode == 1) {
+        float alpha = clamp(color.a, 0.0, 1.0);
+        float colorImportance = max(
+            min(1.0, max(max(color.r, color.g), color.b) * alpha),
+            alpha);
+        // Weighted, blended order-independent transparency. Eye-space depth is
+        // positive and measured in OpenRocket world units (one unit is 50 mm). The weight
+        // favours the nearer layer without requiring a fragile object/triangle sort.
+        float depthWeight = clamp(
+            0.03 / (1e-5 + pow(max(v_eyeSpaceZ, 0.0) / 20.0, 4.0)),
+            1e-2,
+            3e3);
+        float weight = colorImportance * depthWeight;
+        FragColor = vec4(color.rgb * alpha, alpha) * weight;
+        return;
+    }
+    if (transparencyOutputMode == 2) {
+        // The revealage attachment uses (ZERO, ONE_MINUS_SRC_ALPHA), so only
+        // the source alpha matters here.
+        FragColor = vec4(0.0, 0.0, 0.0, clamp(color.a, 0.0, 1.0));
+        return;
+    }
+    FragColor = color;
+}
+
 
 void main()
 {
     if (forceWhite) {
-        FragColor = vec4(1.0); // Output solid white
+        writeFragment(vec4(1.0)); // Output solid white
         return;
     }
 
@@ -323,7 +367,7 @@ void main()
         if (isSelected) {
             finalColor = mix(finalColor, selectionColor, 0.1);
         }
-        FragColor = finalColor;
+        writeFragment(finalColor);
         return; // Exit immediately
     }
 
@@ -338,14 +382,24 @@ void main()
     // 1. Get base surface color
     vec4 surfaceColor = vec4(objectColor, 1.0);
     vec2 materialTexCoord = getMaterialTexCoord();
-    float textureCoverage = 0.0;
+    float materialAlpha = opacity;
 
     // Texture handling
     if (renderStyle == 1 && hasTexture == 1) { // 1 = TEXTURED
         vec4 texColor = texture(textureSampler, materialTexCoord);
         float textureAlpha = adjustTextureCoverage(texColor.a);
-        textureCoverage = textureAlpha;
-        surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, textureAlpha);
+        if (textureOpacityAffectsAlpha) {
+            surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, textureAlpha);
+        } else {
+            // Treat the texture as a layer over the translucent component paint. This
+            // keeps both its alpha and its colour independent of component opacity.
+            float baseContribution = opacity * (1.0 - textureAlpha);
+            materialAlpha = textureAlpha + baseContribution;
+            if (materialAlpha > 1e-5) {
+                surfaceColor.rgb = (texColor.rgb * textureAlpha
+                    + surfaceColor.rgb * baseContribution) / materialAlpha;
+            }
+        }
     }
 
     // 2. Apply decal
@@ -419,10 +473,7 @@ void main()
     }
 
     // Final color with opacity
-    float finalAlpha = surfaceColor.a * opacity;
-    if (renderStyle == 1 && hasTexture == 1 && !textureOpacityAffectsAlpha) {
-        finalAlpha = max(finalAlpha, textureCoverage);
-    }
+    float finalAlpha = surfaceColor.a * materialAlpha;
     vec4 finalColorRGBA = vec4(finalColor, finalAlpha);
 
     if (xrayMode && !gl_FrontFacing) {
@@ -435,8 +486,8 @@ void main()
     if (fogEnabled) {
         float fogFactor = exp(-pow(v_eyeSpaceZ * fogDensity, 2.0));
         fogFactor = clamp(fogFactor, 0.0, 1.0);
-        finalColorRGBA = mix(vec4(fogColor, 1.0), finalColorRGBA, fogFactor);
+        finalColorRGBA.rgb = mix(fogColor, finalColorRGBA.rgb, fogFactor);
     }
 
-    FragColor = finalColorRGBA;
+    writeFragment(finalColorRGBA);
 }

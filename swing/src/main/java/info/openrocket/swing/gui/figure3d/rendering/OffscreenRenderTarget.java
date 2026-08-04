@@ -82,6 +82,18 @@ public class OffscreenRenderTarget implements GpuResource {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	/**
+	 * Binds the single-sample framebuffer that receives multisample resolves and
+	 * subsequent screen-space/transparency passes.
+	 */
+	public void bindResolved() {
+		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+	}
+
+	public void unbindResolved() {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
 	public int getColorTextureId() {
 		return colorTextureId;
 	}
