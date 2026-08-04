@@ -18,8 +18,35 @@ class Figure3DPreferencesTest {
 
 	@BeforeEach
 	@AfterEach
-	void clearInteractionEffectPreference() {
+	void clearGraphicsPreferences() {
 		preferences.getPreferences().remove(ApplicationPreferences.OPENGL_REDUCE_EFFECTS_DURING_INTERACTION);
+		preferences.getPreferences().remove(ApplicationPreferences.OPENGL_ENABLE_MSAA);
+	}
+
+	@Test
+	void multisamplingIsEnabledByDefaultAndCanBeDisabledIndependentlyOfQuality() {
+		GraphicsQualitySettings quality = new GraphicsQualitySettings();
+		quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
+
+		assertTrue(quality.isMSAAEnabled());
+		assertEquals(4, quality.getSceneSampleCount());
+
+		quality.setMSAAEnabled(false);
+		assertEquals(0, quality.getSceneSampleCount());
+		assertTrue(quality.isFXAAEnabled(), "disabling MSAA must not also disable FXAA");
+
+		quality.resetToDefaults();
+		assertTrue(quality.isMSAAEnabled());
+	}
+
+	@Test
+	void multisamplingPreferenceIsAppliedToNewConfigurations() {
+		Figure3DPreferences.setMSAAEnabled(preferences, false);
+		RenderingConfiguration config = RenderingConfiguration.builder().build();
+		Figure3DPreferences.applyDefaults(config, preferences);
+
+		assertFalse(config.getQuality().isMSAAEnabled());
+		assertEquals(0, config.getQuality().getSceneSampleCount());
 	}
 
 	@Test
@@ -51,6 +78,21 @@ class Figure3DPreferencesTest {
 		try {
 			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, true);
 			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, true);
+
+			assertEquals(1, notifications.get());
+		} finally {
+			preferences.removeChangeListener(listener);
+		}
+	}
+
+	@Test
+	void changingMultisamplingNotifiesPreferenceListenersOnce() {
+		AtomicInteger notifications = new AtomicInteger();
+		StateChangeListener listener = event -> notifications.incrementAndGet();
+		preferences.addChangeListener(listener);
+		try {
+			Figure3DPreferences.setMSAAEnabled(preferences, false);
+			Figure3DPreferences.setMSAAEnabled(preferences, false);
 
 			assertEquals(1, notifications.get());
 		} finally {

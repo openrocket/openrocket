@@ -709,13 +709,15 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 	@Test
 	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
-	void openDesignViewAppliesInteractionEffectPreferenceChanges() throws Exception {
+	void openDesignViewAppliesLiveGraphicsPreferenceChanges() throws Exception {
 		assumeUiEnvironment();
 		ApplicationPreferences preferences = Application.getPreferences();
-		boolean originalValue = Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences);
+		boolean originalReduceEffects = Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences);
+		boolean originalMSAA = Figure3DPreferences.isMSAAEnabled(preferences);
 		DesignHarness harness = null;
 		try {
 			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, false);
+			Figure3DPreferences.setMSAAEnabled(preferences, true);
 			harness = createDesignHarness();
 			DesignHarness currentHarness = harness;
 			waitForShowing(currentHarness.panel, 2_000,
@@ -724,14 +726,22 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			awaitFresh3DFrame(currentHarness.panel.getFigure3d(), -1, -1, FRAME_TIMEOUT_MS,
 					"initial preference listener frame");
 			awaitInteractionEffectReduction(currentHarness.panel.getFigure3d(), false, FRAME_TIMEOUT_MS);
+			awaitMSAAEnabled(currentHarness.panel.getFigure3d(), true, FRAME_TIMEOUT_MS);
 
 			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, true);
 			awaitInteractionEffectReduction(currentHarness.panel.getFigure3d(), true, FRAME_TIMEOUT_MS);
 
+			Figure3DPreferences.setMSAAEnabled(preferences, false);
+			awaitMSAAEnabled(currentHarness.panel.getFigure3d(), false, FRAME_TIMEOUT_MS);
+
 			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, false);
 			awaitInteractionEffectReduction(currentHarness.panel.getFigure3d(), false, FRAME_TIMEOUT_MS);
+
+			Figure3DPreferences.setMSAAEnabled(preferences, true);
+			awaitMSAAEnabled(currentHarness.panel.getFigure3d(), true, FRAME_TIMEOUT_MS);
 		} finally {
-			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, originalValue);
+			Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, originalReduceEffects);
+			Figure3DPreferences.setMSAAEnabled(preferences, originalMSAA);
 			disposeDesignHarness(harness);
 		}
 	}
@@ -1220,6 +1230,37 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		assertEquals(expected, canvas.getScene3DOrchestrator().getRenderingConfiguration().getQuality()
 				.shouldReduceEffectsDuringInteraction(),
 				"Open 3D view did not apply the interaction-effect preference change");
+	}
+
+	private static void awaitMSAAEnabled(RocketFigure3d figure3d, boolean expected,
+			long timeoutMs) throws Exception {
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		while (System.currentTimeMillis() < deadline) {
+			GLScenePanel canvas = currentDesignCanvas(figure3d);
+			Scene3DOrchestrator orchestrator = canvas != null ? canvas.getScene3DOrchestrator() : null;
+			if (isCanvasReady(canvas) && isMSAAStateApplied(orchestrator, expected)) {
+				return;
+			}
+			Thread.sleep(25);
+		}
+		GLScenePanel canvas = currentDesignCanvas(figure3d);
+		assertNotNull(canvas, "MSAA preference change lost the live GL canvas");
+		assertEquals(expected,
+				canvas.getScene3DOrchestrator().getRenderingConfiguration().getQuality().isMSAAEnabled(),
+				"Open 3D view did not apply the MSAA preference change");
+		if (!expected && canvas.getScene3DOrchestrator().getRenderer() instanceof RealisticRenderer renderer) {
+			assertEquals(0, renderer.getSceneSampleCount(),
+					"Disabling MSAA did not rebuild the scene target without samples");
+		}
+	}
+
+	private static boolean isMSAAStateApplied(Scene3DOrchestrator orchestrator, boolean expected) {
+		if (orchestrator == null
+				|| orchestrator.getRenderingConfiguration().getQuality().isMSAAEnabled() != expected) {
+			return false;
+		}
+		return expected || !(orchestrator.getRenderer() instanceof RealisticRenderer renderer)
+				|| renderer.getSceneSampleCount() == 0;
 	}
 
 	private static void awaitDesignRenderMode(RocketFigure3d figure3d, RocketPanel.VIEW_TYPE viewType,

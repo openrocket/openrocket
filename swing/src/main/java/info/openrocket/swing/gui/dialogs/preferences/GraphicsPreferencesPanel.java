@@ -212,17 +212,29 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				enableGLModel.addEnableComponent(renderQualityCombo);
 				add(renderQualityCombo, "alignx left, wrap");
 				
-				// Enable Anti-aliasing
-				final JCheckBox enableAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableAA"));
-				enableAA.setSelected(preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, true));
-				enableAA.addActionListener(new ActionListener() {
+				// Enable multisample anti-aliasing
+				final JCheckBox enableMSAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableMSAA"));
+				enableMSAA.setSelected(Figure3DPreferences.isMSAAEnabled(preferences));
+				enableMSAA.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						Figure3DPreferences.setAntiAliasingEnabled(preferences, enableAA.isSelected());
+						Figure3DPreferences.setMSAAEnabled(preferences, enableMSAA.isSelected());
 					}
 				});
-				enableGLModel.addEnableComponent(enableAA);
-				add(enableAA, "span 2, wrap");
+				enableGLModel.addEnableComponent(enableMSAA);
+				add(enableMSAA, "span 2, wrap");
+
+				// Enable post-process anti-aliasing
+				final JCheckBox enableFXAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableAA") + " (FXAA)");
+				enableFXAA.setSelected(Figure3DPreferences.isAntiAliasingEnabled(preferences));
+				enableFXAA.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Figure3DPreferences.setAntiAliasingEnabled(preferences, enableFXAA.isSelected());
+					}
+				});
+				enableGLModel.addEnableComponent(enableFXAA);
+				add(enableFXAA, "span 2, wrap");
 
 				// Enable shadows
 				final JCheckBox enableShadows = new JCheckBox(trans.get("pref.dlg.opengl.but.enableShadows"));

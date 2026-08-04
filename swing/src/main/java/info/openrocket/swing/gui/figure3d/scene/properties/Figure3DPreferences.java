@@ -12,6 +12,7 @@ public final class Figure3DPreferences {
 	public record Values(
 			GraphicsQualitySettings.RenderQuality renderQuality,
 			boolean antiAliasingEnabled,
+			boolean msaaEnabled,
 			boolean shadowsEnabled,
 			boolean ambientOcclusionEnabled,
 			boolean roughnessBumpEnabled,
@@ -47,6 +48,7 @@ public final class Figure3DPreferences {
 		GraphicsQualitySettings quality = config.getQuality();
 		quality.setQuality(values.renderQuality());
 		quality.setFXAAEnabled(values.antiAliasingEnabled());
+		quality.setMSAAEnabled(values.msaaEnabled());
 		quality.setShadowsEnabled(values.shadowsEnabled());
 		quality.setAmbientOcclusionEnabled(values.ambientOcclusionEnabled());
 		quality.setRoughnessBumpEnabled(values.roughnessBumpEnabled());
@@ -64,6 +66,7 @@ public final class Figure3DPreferences {
 		return new Values(
 				getDefaultRenderQuality(preferences),
 				isAntiAliasingEnabled(preferences),
+				isMSAAEnabled(preferences),
 				isShadowsEnabled(preferences),
 				isAmbientOcclusionEnabled(preferences),
 				isRoughnessBumpEnabled(preferences),
@@ -79,6 +82,7 @@ public final class Figure3DPreferences {
 		return new Values(
 				getRenderQuality(documentPreferences, preferences),
 				isAntiAliasingEnabled(preferences),
+				isMSAAEnabled(preferences),
 				getShadowsEnabled(documentPreferences, preferences),
 				getAmbientOcclusionEnabled(documentPreferences, preferences),
 				getRoughnessBumpEnabled(documentPreferences, preferences),
@@ -93,6 +97,7 @@ public final class Figure3DPreferences {
 	public static void save(ApplicationPreferences preferences, Values values) {
 		setDefaultRenderQuality(preferences, values.renderQuality());
 		setAntiAliasingEnabled(preferences, values.antiAliasingEnabled());
+		setMSAAEnabled(preferences, values.msaaEnabled());
 		setShadowsEnabled(preferences, values.shadowsEnabled());
 		setAmbientOcclusionEnabled(preferences, values.ambientOcclusionEnabled());
 		setRoughnessBumpEnabled(preferences, values.roughnessBumpEnabled());
@@ -208,6 +213,14 @@ public final class Figure3DPreferences {
 
 	public static void setAntiAliasingEnabled(ApplicationPreferences preferences, boolean enabled) {
 		preferences.putBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, enabled);
+	}
+
+	public static boolean isMSAAEnabled(ApplicationPreferences preferences) {
+		return preferences.isMSAAEnabled();
+	}
+
+	public static void setMSAAEnabled(ApplicationPreferences preferences, boolean enabled) {
+		preferences.setMSAAEnabled(enabled);
 	}
 
 	public static boolean isShadowsEnabled(ApplicationPreferences preferences) {

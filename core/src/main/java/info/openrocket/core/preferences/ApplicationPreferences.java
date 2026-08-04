@@ -132,6 +132,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
 	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_ENABLE_MSAA = "OpenGLMultisampleAntialiasingIsEnabled";
 	public static final String OPENGL_RENDER_QUALITY = "OpenGLRenderQuality";
 	public static final String OPENGL_ENABLE_SHADOWS = "OpenGLShadowsEnabled";
 	public static final String OPENGL_ENABLE_AMBIENT_OCCLUSION = "OpenGLAmbientOcclusionEnabled";
@@ -243,6 +244,18 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 			return;
 		}
 		putBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, enabled);
+		fireChangeEvent();
+	}
+
+	public boolean isMSAAEnabled() {
+		return getBoolean(OPENGL_ENABLE_MSAA, true);
+	}
+
+	public void setMSAAEnabled(boolean enabled) {
+		if (isMSAAEnabled() == enabled) {
+			return;
+		}
+		putBoolean(OPENGL_ENABLE_MSAA, enabled);
 		fireChangeEvent();
 	}
 	

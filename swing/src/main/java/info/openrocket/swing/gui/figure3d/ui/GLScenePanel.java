@@ -16,6 +16,7 @@ import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
+import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
@@ -1322,31 +1323,37 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (preferences == null) {
 			return;
 		}
-		StateChangeListener listener = event -> applyInteractionEffectPreference(preferences);
+		StateChangeListener listener = event -> applyLiveGraphicsPreferences(preferences);
 		listenedApplicationPreferences = preferences;
 		graphicsPreferencesListener = listener;
 		preferences.addChangeListener(listener);
 	}
 
-	private void applyInteractionEffectPreference(ApplicationPreferences preferences) {
+	private void applyLiveGraphicsPreferences(ApplicationPreferences preferences) {
 		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
 		if (orchestrator == null) {
 			return;
 		}
 		boolean reduceEffects = Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences);
-		if (orchestrator.getRenderingConfiguration().getQuality()
-				.shouldReduceEffectsDuringInteraction() == reduceEffects) {
+		boolean msaaEnabled = Figure3DPreferences.isMSAAEnabled(preferences);
+		GraphicsQualitySettings quality = orchestrator.getRenderingConfiguration().getQuality();
+		if (quality.shouldReduceEffectsDuringInteraction() == reduceEffects
+				&& quality.isMSAAEnabled() == msaaEnabled) {
 			return;
 		}
 		orchestrator.enqueueGlTask(() -> {
 			if (orchestrator != scene3DOrchestrator) {
 				return;
 			}
-			if (orchestrator.getRenderingConfiguration().getQuality()
-					.shouldReduceEffectsDuringInteraction() == reduceEffects) {
+			GraphicsQualitySettings currentQuality = orchestrator.getRenderingConfiguration().getQuality();
+			boolean reduceEffectsChanged =
+					currentQuality.shouldReduceEffectsDuringInteraction() != reduceEffects;
+			boolean msaaChanged = currentQuality.isMSAAEnabled() != msaaEnabled;
+			if (!reduceEffectsChanged && !msaaChanged) {
 				return;
 			}
-			orchestrator.getRenderingConfiguration().getQuality().setReduceEffectsDuringInteraction(reduceEffects);
+			currentQuality.setReduceEffectsDuringInteraction(reduceEffects);
+			currentQuality.setMSAAEnabled(msaaEnabled);
 			orchestrator.getRenderingConfiguration().notifyListeners();
 		});
 		markRenderActivity();

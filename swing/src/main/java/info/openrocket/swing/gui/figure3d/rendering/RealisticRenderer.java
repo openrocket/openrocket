@@ -907,9 +907,9 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	private int getRequestedSceneSampleCount() {
-		// An explicit override is a diagnostic knob and deliberately outranks both the
-		// quality level and the memory profile, so a constrained device can still be
-		// asked for 8x.
+		// An explicit override is a diagnostic knob and deliberately outranks the user
+		// preference, quality level and memory profile, so a constrained device can
+		// still be asked for 8x.
 		String override = System.getProperty("openrocket.figure3d.msaaSamples");
 		if (override != null) {
 			try {
@@ -919,9 +919,8 @@ public class RealisticRenderer implements GLRenderer {
 			}
 		}
 
-		// Scene multisampling follows the quality level rather than the FXAA setting.
-		// Those used to be the same switch, which meant turning FXAA off silently also
-		// turned off multisampling, and no quality level had any effect on it.
+		// Scene multisampling has its own preference. When enabled, the quality level
+		// selects its sample count independently of the FXAA post-process.
 		int requested = config.getQuality().getSceneSampleCount();
 		return gpuMemoryProfile.isConstrained()
 				? Math.min(requested, CONSTRAINED_SCENE_MSAA_SAMPLES)

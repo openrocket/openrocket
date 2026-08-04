@@ -639,6 +639,7 @@ public class DisplaySettingsDialog extends JDialog {
 		Figure3DPreferences.saveToDocument(docPreferences, prefs, new Figure3DPreferences.Values(
 				getSelectedRenderQuality(),
 				Figure3DPreferences.isAntiAliasingEnabled(prefs),
+				Figure3DPreferences.isMSAAEnabled(prefs),
 				renderShadowsCheckBox.isSelected(),
 				ambientOcclusionCheckBox.isSelected(),
 				roughnessCheckBox.isSelected(),
@@ -835,6 +836,7 @@ public class DisplaySettingsDialog extends JDialog {
 		Figure3DPreferences.save(prefs, new Figure3DPreferences.Values(
 				getSelectedRenderQuality(),
 				Figure3DPreferences.isAntiAliasingEnabled(prefs),
+				Figure3DPreferences.isMSAAEnabled(prefs),
 				renderShadowsCheckBox.isSelected(),
 				ambientOcclusionCheckBox.isSelected(),
 				roughnessCheckBox.isSelected(),

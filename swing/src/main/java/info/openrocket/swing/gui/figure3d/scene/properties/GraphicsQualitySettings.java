@@ -26,6 +26,7 @@ public class GraphicsQualitySettings {
 	public static final boolean DEFAULT_BACKFACE_CULLING = true;
 	public static final boolean DEFAULT_ROUGHNESS_BUMP = true;
 	public static final boolean DEFAULT_FXAA = true;
+	public static final boolean DEFAULT_MSAA = true;
 	public static final boolean DEFAULT_SHADOWS = false;
 	public static final boolean DEFAULT_AMBIENT_OCCLUSION = false;
 	public static final boolean DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION = false;
@@ -49,6 +50,7 @@ public class GraphicsQualitySettings {
 	private boolean useBackfaceCulling = DEFAULT_BACKFACE_CULLING;
 	private boolean enableRoughnessBump = DEFAULT_ROUGHNESS_BUMP;
 	private boolean enableFXAA = DEFAULT_FXAA; // Fast Approximate Anti-Aliasing
+	private volatile boolean enableMSAA = DEFAULT_MSAA; // Multisample Anti-Aliasing
 	private boolean shadowsEnabled = DEFAULT_SHADOWS;
 	private boolean ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
 	private volatile boolean reduceEffectsDuringInteraction = DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION;
@@ -159,10 +161,23 @@ public class GraphicsQualitySettings {
 	}
 
 	/**
-	 * Provides a recommended shadow map resolution scale factor based on quality level.
-	 * The renderer can multiply the viewport size by this scale (and clamp) to pick a shadow map size.
-	 * @return scale multiplier for shadow map resolution
+	 * Checks whether the offscreen scene target should use multisampling.
+	 *
+	 * @return true when MSAA is allowed for quality levels that request samples
 	 */
+	public boolean isMSAAEnabled() {
+		return enableMSAA;
+	}
+
+	/**
+	 * Enables or disables multisample anti-aliasing for the offscreen scene target.
+	 *
+	 * @param enableMSAA true to use the quality level's sample count, false to use none
+	 */
+	public void setMSAAEnabled(boolean enableMSAA) {
+		this.enableMSAA = enableMSAA;
+	}
+
 	/**
 	 * Multisample count for the offscreen scene target at this quality level.
 	 *
@@ -170,11 +185,15 @@ public class GraphicsQualitySettings {
 	 * once the roughness bump is accounted for: 4x costs about 5.8 ms of a 12.7 ms frame,
 	 * 2x about 2.5 ms. Tying it to the quality level is what gives the level a real effect
 	 * on frame time — mesh tessellation, which is what it used to control, barely matters
-	 * for a renderer that is fill-rate bound.</p>
+	 * for a renderer that is fill-rate bound. Disabling MSAA overrides the level and
+	 * returns zero samples.</p>
 	 *
 	 * @return the requested sample count, 0 to render without multisampling
 	 */
 	public int getSceneSampleCount() {
+		if (!enableMSAA) {
+			return 0;
+		}
 		return switch (quality) {
 			case LOW -> 0;
 			case MEDIUM -> 2;
@@ -360,6 +379,7 @@ public class GraphicsQualitySettings {
 		useBackfaceCulling = DEFAULT_BACKFACE_CULLING;
 		enableRoughnessBump = DEFAULT_ROUGHNESS_BUMP;
 		enableFXAA = DEFAULT_FXAA;
+		enableMSAA = DEFAULT_MSAA;
 		shadowsEnabled = DEFAULT_SHADOWS;
 		ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
 		reduceEffectsDuringInteraction = DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION;

@@ -89,6 +89,7 @@ public class RenderingConfiguration {
 	public void setPerformanceMode() {
 		quality.setQuality(GraphicsQualitySettings.RenderQuality.LOW);
 		quality.setFXAAEnabled(false);
+		quality.setMSAAEnabled(false);
 		quality.setRoughnessBumpEnabled(false);
 		quality.setShadowsEnabled(false);
 		quality.setAmbientOcclusionEnabled(false);
@@ -101,6 +102,7 @@ public class RenderingConfiguration {
 	public void setQualityMode() {
 		quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
 		quality.setFXAAEnabled(true);
+		quality.setMSAAEnabled(true);
 		quality.setRoughnessBumpEnabled(true);
 		quality.setShadowsEnabled(false);
 		quality.setAmbientOcclusionEnabled(false);
@@ -148,6 +150,7 @@ public class RenderingConfiguration {
 		private boolean backfaceCullingEnabled = GraphicsQualitySettings.DEFAULT_BACKFACE_CULLING;
 		private boolean roughnessBumpEnabled = GraphicsQualitySettings.DEFAULT_ROUGHNESS_BUMP;
 		private boolean fxaaEnabled = GraphicsQualitySettings.DEFAULT_FXAA;
+		private boolean msaaEnabled = GraphicsQualitySettings.DEFAULT_MSAA;
 		private boolean shadowsEnabled = GraphicsQualitySettings.DEFAULT_SHADOWS;
 		private boolean ambientOcclusionEnabled = GraphicsQualitySettings.DEFAULT_AMBIENT_OCCLUSION;
 		private boolean usePerformanceMode = false;
@@ -237,6 +240,16 @@ public class RenderingConfiguration {
 		 */
 		public Builder withFXAA(boolean enabled) {
 			this.fxaaEnabled = enabled;
+			return this;
+		}
+
+		/**
+		 * Enables or disables multisample anti-aliasing.
+		 * @param enabled whether MSAA should be enabled
+		 * @return this builder instance
+		 */
+		public Builder withMSAA(boolean enabled) {
+			this.msaaEnabled = enabled;
 			return this;
 		}
 		
@@ -408,6 +421,7 @@ public class RenderingConfiguration {
 			config.getQuality().setBackfaceCullingEnabled(backfaceCullingEnabled);
 			config.getQuality().setRoughnessBumpEnabled(roughnessBumpEnabled);
 			config.getQuality().setFXAAEnabled(fxaaEnabled);
+			config.getQuality().setMSAAEnabled(msaaEnabled);
 			config.getQuality().setShadowsEnabled(shadowsEnabled);
 			config.getQuality().setAmbientOcclusionEnabled(ambientOcclusionEnabled);
 			
