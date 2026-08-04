@@ -1,8 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
-import info.openrocket.swing.gui.figure3d.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.rendering.passes.AmbientOcclusionPass;
@@ -412,7 +410,7 @@ public class RealisticRenderer implements GLRenderer {
 		prepareFrameGLState();
 
 		// Update dynamic flame lighting
-		updateFlameLighting(scene);
+		SceneLighting.updateFlameLights(scene);
 		// Rebuilding a complex shadow map for every mouse event can keep weaker
 		// Windows drivers continuously saturated. The first idle frame recreates it.
 		shadowPass.setEnabled(config.getQuality().isShadowsEnabled() && !shouldReduceInteractionEffects());
@@ -672,36 +670,6 @@ public class RealisticRenderer implements GLRenderer {
 		glUniform1i(mainShaderUniforms.enableRoughnessBump, roughnessBump ? 1 : 0);
 	}
 	
-	/**
-	 * Updates dynamic lighting from flame particle emitters.
-	 * 
-	 * Manages the addition and removal of flame lights in the scene's
-	 * light manager based on active flame emitters.
-	 * 
-	 * @param scene The scene containing particle emitters and light manager
-	 */
-	private void updateFlameLighting(SceneView scene) {
-		// Update each flame's light and manage scene lights
-		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
-			if (emitter instanceof FlameEmitter flameEmitter) {
-				// Remove old light if it exists
-				Light oldLight = flameEmitter.getFlameLight();
-				if (oldLight != null) {
-					scene.getLightController().removeLight(oldLight);
-				}
-				
-				// Update the flame's light properties
-				flameEmitter.updateFlameLight();
-				
-				// Add new light if it exists
-				Light newLight = flameEmitter.getFlameLight();
-				if (newLight != null) {
-					scene.getLightController().addLight(newLight);
-				}
-			}
-		}
-	}
-
 	private void resolveFinalTexture(int currentTexture) {
 		if (currentTexture == 0) {
 			resolvedTextureId = 0;
