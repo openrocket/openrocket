@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
@@ -81,6 +82,7 @@ class HudOverlay {
 
 	private final AtomicBoolean paintScheduled = new AtomicBoolean(false);
 	private final AtomicBoolean bufferReady = new AtomicBoolean(false);
+	private volatile boolean textureReady;
 	private long lastPaintTimeMs;
 	private volatile boolean needsUpdate = true;
 
@@ -112,6 +114,7 @@ class HudOverlay {
 	void initTexture() {
 		synchronized (lock) {
 			bufferReady.set(false);
+			textureReady = false;
 			int[] fbSize = canvas.getCurrentFramebufferSize();
 			int fbWidth = fbSize[0];
 			int fbHeight = fbSize[1];
@@ -258,48 +261,54 @@ class HudOverlay {
 			return true;
 		}
 		SwingUtilities.invokeLater(() -> {
-			try {
-				paintOnEdt();
-			} finally {
-				paintScheduled.set(false);
+			synchronized (lock) {
+				try {
+					paintOnEdt();
+				} finally {
+					// Clear this while holding the same lock as initTexture(). That
+					// prevents a resize from replacing the texture after painting but
+					// before the next repaint can be scheduled.
+					paintScheduled.set(false);
+				}
 			}
 		});
 		return true;
 	}
 
 	private void paintOnEdt() {
-		synchronized (lock) {
-			if (image == null || panel == null || graphics == null || imageBuffer == null || intBuffer == null
-					|| !canvas.isSceneReady()) {
-				return;
-			}
-
-			bufferReady.set(false);
-
-			// The panel works in logical window coordinates
-			int windowWidth = Math.max(1, canvas.getWidth());
-			int windowHeight = Math.max(1, canvas.getHeight());
-			int[] fbSize = canvas.getCurrentFramebufferSize();
-			double dpiScale = (double) fbSize[1] / (double) windowHeight;
-
-			graphics.setTransform(graphics.getDeviceConfiguration().getDefaultTransform());
-			graphics.scale(dpiScale, dpiScale);
-
-			// Clear with transparent background
-			graphics.setBackground(new Color(0, 0, 0, 0));
-			graphics.clearRect(0, 0, windowWidth, windowHeight);
-
-			panel.setBounds(0, 0, windowWidth, windowHeight);
-			panel.paint(graphics);
-
-			final int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-			intBuffer.clear();
-			intBuffer.put(pixels);
-			imageBuffer.rewind();
-			lastPaintTimeMs = System.currentTimeMillis();
-			bufferReady.set(true);
-			canvas.markRenderActivity();
+		if (image == null || panel == null || graphics == null || imageBuffer == null || intBuffer == null
+				|| !canvas.isSceneReady()) {
+			return;
 		}
+
+		bufferReady.set(false);
+
+		// The panel works in logical window coordinates
+		int windowWidth = Math.max(1, canvas.getWidth());
+		int windowHeight = Math.max(1, canvas.getHeight());
+		// Paint into the dimensions owned by this HUD texture. During a live resize,
+		// the canvas's logical and native dimensions can advance on different frames;
+		// independent scales keep that transient mismatch from stretching the HUD.
+		double scaleX = (double) image.getWidth() / (double) windowWidth;
+		double scaleY = (double) image.getHeight() / (double) windowHeight;
+
+		graphics.setTransform(new AffineTransform());
+		graphics.scale(scaleX, scaleY);
+
+		// Clear with transparent background
+		graphics.setBackground(new Color(0, 0, 0, 0));
+		graphics.clearRect(0, 0, windowWidth, windowHeight);
+
+		panel.setBounds(0, 0, windowWidth, windowHeight);
+		panel.paint(graphics);
+
+		final int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+		intBuffer.clear();
+		intBuffer.put(pixels);
+		imageBuffer.rewind();
+		lastPaintTimeMs = System.currentTimeMillis();
+		bufferReady.set(true);
+		canvas.markRenderActivity();
 	}
 
 	/** Uploads the last rasterised image to the texture, if the EDT has produced one. */
@@ -339,12 +348,13 @@ class HudOverlay {
 				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.getWidth(), image.getHeight(),
 						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, imageBuffer);
 			}
+			textureReady = true;
 		}
 	}
 
 	/** Draws the uploaded texture over the presented scene as a full-screen quad. */
 	void draw() {
-		if (texture == null || shader == null) {
+		if (texture == null || shader == null || !textureReady) {
 			return;
 		}
 
@@ -379,6 +389,7 @@ class HudOverlay {
 	void resetPendingWork() {
 		paintScheduled.set(false);
 		bufferReady.set(false);
+		textureReady = false;
 	}
 
 	/** Releases the GL objects. Must run with the context current. */
@@ -401,6 +412,7 @@ class HudOverlay {
 			texture.cleanup();
 			texture = null;
 		}
+		textureReady = false;
 	}
 
 	/** Frees the host-side buffers. Safe without a GL context. */
@@ -408,6 +420,7 @@ class HudOverlay {
 		synchronized (lock) {
 			freeHostBuffers();
 			bufferReady.set(false);
+			textureReady = false;
 			texture = null;
 			shader = null;
 		}
