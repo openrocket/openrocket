@@ -1549,11 +1549,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 
 		if (length > 0) {
-			figure3d.setCG(cg);
-			figure3d.setCP(cp);
+			figure3d.setCaretPositions(cg, cp);
 		} else {
-			figure3d.setCG(new Coordinate(Double.NaN, Double.NaN));
-			figure3d.setCP(new Coordinate(Double.NaN, Double.NaN));
+			CoordinateIF invalidPosition = new Coordinate(Double.NaN, Double.NaN);
+			figure3d.setCaretPositions(invalidPosition, invalidPosition);
 		}
 
 		if (length > 0 &&

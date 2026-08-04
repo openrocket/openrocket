@@ -16,6 +16,7 @@ import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
+import info.openrocket.swing.gui.figureelements.RocketInfoContextHelper;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import org.joml.Vector3f;
@@ -637,24 +638,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		requestRenderNow();
 	}
 
-	public void setCG(CoordinateIF cg) {
+	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
 		markDirty();
-		if (cg != null) {
-			rocketInfo.setCG(cg.getX());
-		}
+		RocketInfoContextHelper.applyCgAndCp(rocketInfo, cg, cp);
 		latestCG = cg;
-		pushCaretPositions();
-		GLScenePanel panel = glScenePanel;
-		if (panel != null) {
-			panel.markHudForUpdate();
-		}
-	}
-
-	public void setCP(CoordinateIF cp) {
-		markDirty();
-		if (cp != null) {
-			rocketInfo.setCP(cp.getX());
-		}
 		latestCP = cp;
 		pushCaretPositions();
 		GLScenePanel panel = glScenePanel;

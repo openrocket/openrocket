@@ -58,13 +58,30 @@ public final class RocketInfoContextHelper {
 
 		rocketInfo.setLength(length);
 		rocketInfo.setDiameter(diameter);
-		rocketInfo.setCG(cg.getWeight() > MassCalculator.MIN_MASS ? cg.getX() : 0);
-		rocketInfo.setCP(cp.getWeight() > MathUtil.EPSILON ? cp.getX() : 0);
+		applyCgAndCp(rocketInfo, cg, cp);
 		rocketInfo.setMassWithMotors(cg.getWeight());
 		rocketInfo.setMassWithoutMotors(emptyInfo.getMass());
 		rocketInfo.setWarnings(warnings);
 
 		return new RocketPhysics(cp, cg, length);
+	}
+
+	/**
+	 * Applies CG and CP coordinates to the values shown by {@link RocketInfo}.
+	 *
+	 * <p>A coordinate is only meaningful when its weight is non-zero.  In
+	 * particular, {@code getWorstCP()} returns a sentinel at {@link Double#MAX_VALUE}
+	 * when a design has no normal-force contribution, such as a lone body tube.
+	 * Both the 2D information panel and the 3D HUD must pass through this method so
+	 * they display that case as CP zero instead of exposing the sentinel.</p>
+	 */
+	public static void applyCgAndCp(RocketInfo rocketInfo, CoordinateIF cg, CoordinateIF cp) {
+		if (cg != null) {
+			rocketInfo.setCG(cg.getWeight() > MassCalculator.MIN_MASS ? cg.getX() : 0);
+		}
+		if (cp != null) {
+			rocketInfo.setCP(cp.getWeight() > MathUtil.EPSILON ? cp.getX() : 0);
+		}
 	}
 
 	public static CoordinateIF calculateCp(
