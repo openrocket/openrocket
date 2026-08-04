@@ -30,7 +30,9 @@ import org.joml.Vector3f;
 public class Camera {
 
 	private static final float FIT_MIN_ZOOM_FACTOR = 0.05f;
-	private static final float FIT_MAX_ZOOM_FACTOR = 2.0f;
+	// Let the shared zoom control reach 5% in 3D instead of stopping at 50%.
+	// Going much farther with a perspective camera would sacrifice useful depth precision.
+	private static final float FIT_MAX_ZOOM_FACTOR = 20.0f;
 
 	private final Vector3f position = new Vector3f();
 	private boolean fixedCenterOfInterest;
