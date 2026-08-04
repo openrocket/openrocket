@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
+import info.openrocket.swing.gui.figure3d.rendering.GpuResource;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import org.joml.Matrix4f;
 
@@ -21,7 +22,7 @@ import org.joml.Matrix4f;
  * rendering to different targets (screen, framebuffers, textures) depending on
  * the overall pipeline architecture.
  */
-public interface RenderPass {
+public interface RenderPass extends GpuResource {
 	/**
 	 * Executes this render pass with the given scene and camera matrices.
 	 * 
@@ -48,12 +49,4 @@ public interface RenderPass {
 	 */
 	void resize(int width, int height);
 
-	/**
-	 * Releases all GPU resources allocated by this render pass.
-	 * 
-	 * Should free all OpenGL objects including shaders, buffers, textures,
-	 * and framebuffers created by this pass. Called when the pass is no
-	 * longer needed or during renderer shutdown.
-	 */
-	void cleanup();
 }

@@ -23,7 +23,7 @@ import static org.lwjgl.opengl.GL33.glUniform2f;
  * Screen-space motion blur, applied as a single full-screen pass. Blur direction
  * comes from the previous frame's motion vectors; the strength is configurable.
  */
-public class MotionBlurPass implements RenderPass, ScreenTexturePass {
+public class MotionBlurPass implements ScreenTexturePass {
 
 	private final GLShader shader;
 	private float blurFactor = 1f;

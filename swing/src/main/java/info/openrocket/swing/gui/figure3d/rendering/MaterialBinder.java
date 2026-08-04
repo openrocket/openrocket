@@ -6,7 +6,7 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
 /**
  * Binds material- and object-specific shader uniforms and textures for a draw.
  */
-public interface MaterialBinder {
+public interface MaterialBinder extends GpuResource {
 	void bind(SceneObject obj,
 			  GLShader shader,
 			  MainShaderUniforms uniforms,

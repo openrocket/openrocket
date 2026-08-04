@@ -60,6 +60,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	private static final int COLOR_FLOATS = 4;
 	private static final int FLOATS_PER_VERTEX = POSITION_FLOATS + TEX_COORD_FLOATS + COLOR_FLOATS;
 	private static final int VERTICES_PER_QUAD = 6;
+	private static final int MAX_QUADS = RenderingConstants.SMOKE_MAX_QUADS;
 
 	/** How much larger than its nominal size a smoke particle is drawn, to give it volume. */
 	private static final float VOLUMETRIC_SIZE_MULTIPLIER = 4.0f;
@@ -77,7 +78,6 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	private final int vao;
 	private final int vbo;
 	private final FloatBuffer buffer;
-	private int maxQuads = RenderingConstants.SMOKE_MAX_QUADS;
 	private final Texture smokeTexture;
 
 	// Uniform locations
@@ -103,7 +103,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	 */
 	public VolumetricSmokeRenderer() {
 		shader = new GLShader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
-		buffer = MemoryUtil.memAllocFloat(maxQuads * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
+		buffer = MemoryUtil.memAllocFloat(MAX_QUADS * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
 
 		// Cache uniform locations
 		projectionMatrixLocation = shader.requireUniformLocation("projection");
@@ -242,7 +242,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 			glUniform1f(lightSensitivityLocation, smokeEmitter.getLightSensitivity());
 
 			for (Particle particle : emitter.getParticles()) {
-				if (vertexCount >= maxQuads * 6) break;
+				if (vertexCount >= MAX_QUADS * VERTICES_PER_QUAD) break;
 
 				// 0 when just born, 1 when about to die.
 				float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
@@ -255,7 +255,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 						particle.getPosition(), size, alpha, particle.getColor(), cameraPos);
 			}
 
-			if (vertexCount >= maxQuads * 6) break;
+			if (vertexCount >= MAX_QUADS * VERTICES_PER_QUAD) break;
 		}
 		return vertexCount;
 	}
@@ -354,47 +354,6 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		buffer.put(position.x).put(position.y).put(position.z);
 		buffer.put(texCoord[0]).put(texCoord[1]);
 		buffer.put(color.x).put(color.y).put(color.z).put(alpha); // Store alpha separately
-	}
-
-	@Override
-	public boolean canHandle(ParticleEmitter emitter) {
-		return emitter instanceof SmokeEmitter;
-	}
-
-	@Override
-	public int getPriority() {
-		return 50; // Medium-high priority for smoke rendering
-	}
-
-	@Override
-	public void setMaxParticles(int maxParticles) {
-		this.maxQuads = maxParticles / 4; // Assuming 4 particles per quad on average
-		// Note: In a real implementation, you might want to reallocate the buffer here
-	}
-
-	@Override
-	public int getMaxParticles() {
-		return maxQuads * 4; // Approximate conversion
-	}
-
-	@Override
-	public String getRendererName() {
-		return "Volumetric Smoke Renderer";
-	}
-
-	@Override
-	public int getRenderOrder() {
-		return 1000; // Render smoke after flames
-	}
-
-	@Override
-	public boolean requiresDepthSorting() {
-		return true; // Smoke needs proper alpha blending
-	}
-
-	@Override
-	public boolean supportsBatching() {
-		return false; // Each smoke emitter has different light sensitivity
 	}
 
 	@Override

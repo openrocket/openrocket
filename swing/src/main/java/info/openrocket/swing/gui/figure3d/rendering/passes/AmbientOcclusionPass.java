@@ -22,7 +22,7 @@ import static org.lwjgl.opengl.GL33.glUniform2f;
 /**
  * Screen-space ambient occlusion post-process using the main scene depth texture.
  */
-public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
+public class AmbientOcclusionPass implements ScreenTexturePass {
 
 	private final GLShader shader;
 	private final TextureBinder textureStateManager;

@@ -120,7 +120,6 @@ public class RealisticRenderer implements GLRenderer {
 
 	// Performance optimizations
 	private final TextureBinder textureStateManager = new TextureStateManager();
-	private final RenderStats renderStats = new RenderStats();
 
 	// Viewport dimensions the renderer was created with, kept around so the
 	// viewport can be restored to its initial state if ever needed.
@@ -156,7 +155,7 @@ public class RealisticRenderer implements GLRenderer {
 	private int resolvedTextureId;
 
 	private final List<RenderPass> geometryPasses = new ArrayList<>();
-	private final List<RenderPass> postProcessingPasses = new ArrayList<>();
+	private final List<ScreenTexturePass> postProcessingPasses = new ArrayList<>();
 	private MotionBlurPass motionBlurPass;
 	private volatile boolean interactionMode = false;
 
@@ -259,7 +258,7 @@ public class RealisticRenderer implements GLRenderer {
 
 	private void initGeometryPasses() {
 		geometryPasses.add(new BackgroundPass(textureStateManager));
-		geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms, renderStats));
+		geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms));
 	}
 
 	private CaretsPass createCaretsPass(Rocket rocket) {
@@ -282,9 +281,6 @@ public class RealisticRenderer implements GLRenderer {
 
 	@Override
 	public void render(SceneView scene, boolean renderBackground) {
-		renderStats.reset();
-		long startTime = System.nanoTime();
-
 		// Some renderers and presentation paths bind textures directly instead of going
 		// through TextureStateManager. Reset the cache at the start of each frame so the
 		// first geometry/background/material bind always reflects the actual GL state.
@@ -323,8 +319,6 @@ public class RealisticRenderer implements GLRenderer {
 		resolveFinalTexture(finalTexture);
 
 		GLErrors.debugCheck("frame render");
-
-		renderStats.frameTimeNanos = System.nanoTime() - startTime;
 	}
 
 	/**
@@ -406,19 +400,14 @@ public class RealisticRenderer implements GLRenderer {
 			currentTexture = motionBlurPass.getOutputTexture();
 		}
 
-		for (RenderPass pass : postProcessingPasses) {
+		for (ScreenTexturePass pass : postProcessingPasses) {
 			// Outline pass is screen-space and full-frame; skip during interaction.
 			if (reduceInteractionEffects && pass instanceof OutlinePass) {
 				continue;
 			}
-			if (pass instanceof ScreenTexturePass screenPass) {
-				screenPass.setInputTexture(currentTexture);
-				pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
-				currentTexture = screenPass.getOutputTexture();
-			} else {
-				// This pass doesn't process the screen texture, just run it
-				pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
-			}
+			pass.setInputTexture(currentTexture);
+			pass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
+			currentTexture = pass.getOutputTexture();
 		}
 
 		return currentTexture;
@@ -705,33 +694,4 @@ public class RealisticRenderer implements GLRenderer {
 				: Math.min(requested, DEFAULT_SCENE_MSAA_SAMPLES);
 	}
 
-	/**
-	 * Performance statistics for debugging and optimization.
-	 * 
-	 * Tracks rendering metrics such as objects rendered, texture bindings,
-	 * state changes, and frame timing for performance analysis.
-	 */
-	public static class RenderStats {
-		public int objectsRendered;
-		public int textureBinds;
-		public int stateChanges;
-		public long frameTimeNanos;
-
-		/**
-		 * Resets all counters for a new frame.
-		 */
-		public void reset() {
-			objectsRendered = 0;
-			textureBinds = 0;
-			stateChanges = 0;
-		}
-
-		/**
-		 * Prints current statistics to console for debugging.
-		 */
-		public void print() {
-			log.debug("Frame: {}ms, Rendered: {}, TexBinds: {}, States: {}",
-					String.format("%.2f", frameTimeNanos / 1_000_000.0), objectsRendered, textureBinds, stateChanges);
-		}
-	}
 }

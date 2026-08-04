@@ -51,7 +51,7 @@ import static org.lwjgl.opengl.GL33.glRenderbufferStorageMultisample;
  * framebuffer attachments in a single place so the renderer can focus on draw
  * logic.</p>
  */
-public class OffscreenRenderTarget {
+public class OffscreenRenderTarget implements GpuResource {
 
 	private int framebufferId;
 	private int colorTextureId;
@@ -222,6 +222,7 @@ public class OffscreenRenderTarget {
 		return Math.min(requestedSampleCount, maxSamples);
 	}
 
+	@Override
 	public void cleanup() {
 		activeSamples = 0;
 		if (multisampleFramebufferId != 0) {

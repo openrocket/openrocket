@@ -18,7 +18,7 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
  * Fast approximate anti-aliasing, applied as a single full-screen pass over the
  * rendered scene texture in linear colour space.
  */
-public class FXAAPass implements RenderPass, ScreenTexturePass {
+public class FXAAPass implements ScreenTexturePass {
 
 	private final GLShader shader;
 	private final int screenQuadVAO;

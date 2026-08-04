@@ -18,7 +18,7 @@ package info.openrocket.swing.gui.figure3d.rendering.passes;
  * The texture processing typically happens in screen-space using full-screen
  * quads and specialized fragment shaders.
  */
-public interface ScreenTexturePass {
+public interface ScreenTexturePass extends RenderPass {
 	/**
 	 * Sets the input texture that this pass will process.
 	 * 

@@ -70,7 +70,7 @@ import static org.lwjgl.opengl.GL30.glUniform4f;
  * blend the result over the scene. The whole pass is skipped when nothing is
  * selected.</p>
  */
-public class OutlinePass implements RenderPass, ScreenTexturePass {
+public class OutlinePass implements ScreenTexturePass {
 
 	private final GLShader mainShader;
 	private final MainShaderUniforms mainShaderUniforms;

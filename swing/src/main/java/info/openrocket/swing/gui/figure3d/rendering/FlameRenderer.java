@@ -57,6 +57,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 	private static final int FLOATS_PER_VERTEX = 10;
 	/** Vertices per quad (two triangles). */
 	private static final int VERTS_PER_QUAD = 6;
+	private static final int MAX_QUADS = RenderingConstants.FLAME_MAX_QUADS;
 	/** Particles smaller than this are not worth a draw. */
 	private static final float MIN_VISIBLE_PARTICLE_SIZE = 0.005f;
 
@@ -64,7 +65,6 @@ public class FlameRenderer implements ParticleSystemRenderer {
 	private final int vao;
 	private final int vbo;
 	private final FloatBuffer buffer;
-	private int maxQuads = RenderingConstants.FLAME_MAX_QUADS;
 	private final Texture flameTexture;
 
 	// Uniform locations
@@ -81,7 +81,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
 	public FlameRenderer() {
 		shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
-		buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
+		buffer = MemoryUtil.memAllocFloat(MAX_QUADS * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
 
 		// Cache uniform locations
 		projectionMatrixLocation = shader.requireUniformLocation("projection");
@@ -174,7 +174,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 			float flameSizeMultiplier = flameEmitter.getSizeMultiplier();
 
 			for (Particle particle : emitter.getParticles()) {
-				if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
+				if (vertexCount >= MAX_QUADS * VERTS_PER_QUAD) break;
 
 				float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
 
@@ -191,7 +191,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 				);
 			}
 
-			if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
+			if (vertexCount >= MAX_QUADS * VERTS_PER_QUAD) break;
 		}
 		return vertexCount;
 	}
@@ -292,46 +292,6 @@ public class FlameRenderer implements ParticleSystemRenderer {
 		buffer.put(u).put(v);
 		buffer.put(color.x).put(color.y).put(color.z).put(alpha);
 		buffer.put(ageRatio);
-	}
-
-	@Override
-	public boolean canHandle(ParticleEmitter emitter) {
-		return emitter instanceof FlameEmitter;
-	}
-
-	@Override
-	public int getPriority() {
-		return 100;
-	}
-
-	@Override
-	public void setMaxParticles(int maxParticles) {
-		this.maxQuads = maxParticles / 4;
-	}
-
-	@Override
-	public int getMaxParticles() {
-		return maxQuads * 4;
-	}
-
-	@Override
-	public String getRendererName() {
-		return "Flame Renderer";
-	}
-
-	@Override
-	public int getRenderOrder() {
-		return 500;
-	}
-
-	@Override
-	public boolean requiresDepthSorting() {
-		return true;
-	}
-
-	@Override
-	public boolean supportsBatching() {
-		return true;
 	}
 
 	@Override

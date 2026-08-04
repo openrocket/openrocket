@@ -60,12 +60,13 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class ParticleRenderer implements ParticleSystemRenderer {
 
-	private GLShader shader;
-	private int vao;
-	private int vbo;
-	private FloatBuffer buffer;
-	private int maxParticles = RenderingConstants.DEFAULT_MAX_PARTICLES;
-	private float streakLengthFactor = 0.05f;
+	private static final int MAX_PARTICLES = RenderingConstants.DEFAULT_MAX_PARTICLES;
+	private static final float STREAK_LENGTH_FACTOR = 0.05f;
+
+	private final GLShader shader;
+	private final int vao;
+	private final int vbo;
+	private final FloatBuffer buffer;
 
 	/**
 	 * Creates a new basic particle renderer with default settings.
@@ -78,7 +79,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 	public ParticleRenderer() {
 		shader = new GLShader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
 		shader.requireUniformLocations("projection", "view");
-		buffer = MemoryUtil.memAllocFloat(maxParticles * 2 * 6); // 2 vertices per particle, 6 floats per vertex
+		buffer = MemoryUtil.memAllocFloat(MAX_PARTICLES * 2 * 6); // 2 vertices per particle, 6 floats per vertex
 
 		vao = glGenVertexArrays();
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "ParticleRenderer vao");
@@ -111,6 +112,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 	 * @param scene The scene containing particle emitters to render
 	 * @param camera The camera for view and projection matrices
 	 */
+	@Override
 	public void render(SceneView scene, Camera camera) {
 		shader.use();
 		shader.setUniformMatrix4f("projection", camera.getProjectionMatrix());
@@ -134,9 +136,10 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 				continue;
 			}
 			for (Particle particle : emitter.getParticles()) {
-				if (vertexCount >= maxParticles * 2) break;
+				if (vertexCount >= MAX_PARTICLES * 2) break;
 
-				Vector3f p2 = new Vector3f(particle.position).add(new Vector3f(particle.velocity).mul(streakLengthFactor));
+				Vector3f p2 = new Vector3f(particle.position)
+						.add(new Vector3f(particle.velocity).mul(STREAK_LENGTH_FACTOR));
 
 				// Vertex 1 (current position)
 				buffer.put(particle.position.x).put(particle.position.y).put(particle.position.z);
@@ -161,52 +164,6 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 		glDisable(GL_BLEND);
 	}
 
-	@Override
-	public boolean canHandle(ParticleEmitter emitter) {
-		// Basic particle renderer can handle any emitter as fallback
-		return true;
-	}
-
-	@Override
-	public int getPriority() {
-		return -10; // Low priority - this is the fallback renderer
-	}
-
-	@Override
-	public void setMaxParticles(int maxParticles) {
-		this.maxParticles = maxParticles;
-		// Reallocate buffer if needed
-		if (buffer != null) {
-			MemoryUtil.memFree(buffer);
-		}
-		buffer = MemoryUtil.memAllocFloat(maxParticles * 2 * 6);
-	}
-
-	@Override
-	public int getMaxParticles() {
-		return maxParticles;
-	}
-
-	@Override
-	public String getRendererName() {
-		return "Basic Particle Renderer";
-	}
-
-	@Override
-	public int getRenderOrder() {
-		return 2000; // Render basic particles last
-	}
-
-	@Override
-	public boolean requiresDepthSorting() {
-		return false; // Line particles don't need depth sorting
-	}
-
-	@Override
-	public boolean supportsBatching() {
-		return true; // Can batch all particles together
-	}
-	
 	@Override
 	public void cleanup() {
 		shader.cleanup();

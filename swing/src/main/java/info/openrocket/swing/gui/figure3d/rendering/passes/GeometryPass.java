@@ -7,7 +7,6 @@ import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
 import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
-import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
@@ -57,7 +56,6 @@ public class GeometryPass implements RenderPass {
 	private final RenderingConfiguration config;
 	private final TextureBinder textureStateManager;
 	private final MainShaderUniforms mainShaderUniforms;
-	private final RealisticRenderer.RenderStats renderStats;
 	private final MaterialBinder materialBinder = new DefaultMaterialBinder();
 
 	/**
@@ -67,16 +65,13 @@ public class GeometryPass implements RenderPass {
 	 * @param config Rendering configuration for quality and display settings
 	 * @param textureStateManager Manager for optimized texture state changes
 	 * @param mainShaderUniforms Cached uniform locations for performance
-	 * @param renderStats Statistics collector for performance monitoring
 	 */
 	public GeometryPass(GLShader mainShader, RenderingConfiguration config,
-						TextureBinder textureStateManager, MainShaderUniforms mainShaderUniforms,
-						RealisticRenderer.RenderStats renderStats) {
+						TextureBinder textureStateManager, MainShaderUniforms mainShaderUniforms) {
 		this.mainShader = mainShader;
 		this.config = config;
 		this.textureStateManager = textureStateManager;
 		this.mainShaderUniforms = mainShaderUniforms;
-		this.renderStats = renderStats;
 	}
 
 	@Override
@@ -193,23 +188,18 @@ public class GeometryPass implements RenderPass {
 
 		if (!cullWasEnabled) {
 			glEnable(GL_CULL_FACE);
-			renderStats.stateChanges++;
 		}
 
 		glCullFace(GL_FRONT);
-		renderStats.stateChanges++;
 		renderObject(obj, false, viewMatrix, true);
 
 		glCullFace(GL_BACK);
-		renderStats.stateChanges++;
 		renderObject(obj, false, viewMatrix, true);
 
 		if (!cullWasEnabled) {
 			glDisable(GL_CULL_FACE);
-			renderStats.stateChanges++;
 		} else if (previousCullFace != GL_BACK) {
 			glCullFace(previousCullFace);
-			renderStats.stateChanges++;
 		}
 	}
 
@@ -222,7 +212,6 @@ public class GeometryPass implements RenderPass {
 
 		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			renderStats.stateChanges++;
 		}
 
 		if (sortTriangles && shouldSortTransparentTriangles(obj) &&
@@ -231,8 +220,6 @@ public class GeometryPass implements RenderPass {
 		} else {
 			obj.getRenderableMesh().render();
 		}
-		renderStats.objectsRendered++;
-
 		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}

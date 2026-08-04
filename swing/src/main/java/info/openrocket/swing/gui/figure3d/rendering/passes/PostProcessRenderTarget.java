@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
+import info.openrocket.swing.gui.figure3d.rendering.GpuResource;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 
@@ -33,7 +34,7 @@ import static org.lwjgl.opengl.GL33.glGenTextures;
 /**
  * Color-only framebuffer used by screen-space post-processing passes.
  */
-final class PostProcessRenderTarget {
+final class PostProcessRenderTarget implements GpuResource {
 
 	private final String label;
 	private int framebufferId;
@@ -104,7 +105,8 @@ final class PostProcessRenderTarget {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void cleanup() {
+	@Override
+	public void cleanup() {
 		if (framebufferId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.FRAMEBUFFER, framebufferId);
 			glDeleteFramebuffers(framebufferId);

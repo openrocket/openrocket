@@ -17,7 +17,7 @@ import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
  * expose GL concepts such as framebuffer and texture ids, so implementations
  * are expected to be OpenGL-based.
  */
-public interface GLRenderer {
+public interface GLRenderer extends GpuResource {
 	/**
 	 * Renders a single frame of the given scene to the active framebuffer.
 	 * 
@@ -72,15 +72,6 @@ public interface GLRenderer {
 	 * Useful when external code binds textures outside the renderer's control.
 	 */
 	void resetTextureState();
-
-	/**
-	 * Cleans up all rendering resources and releases GPU memory.
-	 *
-	 * This method should be called when the renderer is no longer needed.
-	 * It releases all OpenGL resources including shaders, buffers, textures,
-	 * and framebuffer objects.
-	 */
-	void cleanup();
 
 	/**
 	 * Hint that the user is currently interacting with the camera. Implementations
