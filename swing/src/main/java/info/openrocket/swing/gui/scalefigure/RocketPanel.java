@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.scalefigure;
 
 
+import com.formdev.flatlaf.FlatClientProperties;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
@@ -597,6 +598,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private void updatePanViewUiState() {
 		boolean active = isPanViewModeActive();
+		if (panViewButton != null) {
+			String tooltipKey = active
+					? "RocketPanel.btn.panView.active.ttip"
+					: "RocketPanel.btn.panView.ttip";
+			panViewButton.setToolTipText(trans.get(tooltipKey));
+			panViewButton.getAccessibleContext().setAccessibleDescription(trans.get(tooltipKey));
+		}
 		if (figure3d != null) {
 			figure3d.setPanModeEnabled(active);
 		}
@@ -880,6 +888,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JButton zoomInButton = scaleSelector.getZoomInButton();
 		JButton zoomFitButton = scaleSelector.getZoomFitButton();
 		panViewButton = new ThemedToggleButton(Icons.PAN_VIEW);
+		panViewButton.putClientProperty(FlatClientProperties.STYLE_CLASS, "panMode");
 		panViewButton.setToolTipText(trans.get("RocketPanel.btn.panView.ttip"));
 		panViewButton.addActionListener(e -> updatePanViewUiState());
 		ribbon.add(zoomOutButton, "gapleft para, cell 1 1");
