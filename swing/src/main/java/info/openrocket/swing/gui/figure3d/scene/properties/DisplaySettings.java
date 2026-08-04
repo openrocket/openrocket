@@ -1,31 +1,11 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
-/**
- * Configuration for display modes and rendering styles within the OpenRocket 3D visualization system.
- * This class manages settings that control how rocket components and scene objects are visually
- * presented, supporting various rendering modes for different analysis and visualization needs.
- * 
- * <p>The display settings provide essential control over:</p>
- * <ul>
- *   <li><b>Material rendering:</b> Full textured appearance vs. simplified materials</li>
- *   <li><b>Wireframe modes:</b> Edge visualization for structural analysis</li>
- *   <li><b>Transparency effects:</b> X-ray rendering for internal component visibility</li>
- *   <li><b>Culling behavior:</b> Control over backface rendering optimization</li>
- * </ul>
- * 
- * <p>These settings integrate with the rendering pipeline to modify shader behavior,
- * blending modes, and geometry processing to achieve the desired visual effects
- * while maintaining optimal performance for each rendering style.</p>
- */
+/** Controls render mode and visibility of internal component surfaces. */
 public class DisplaySettings {
 	public static final RenderMode DEFAULT_RENDER_MODE = RenderMode.FINISHED;
 	public static final boolean DEFAULT_RENDER_INTERNAL_SURFACES = true;
 
-	/**
-	 * Defines the available rendering modes for visualizing rocket geometry.
-	 * Each mode provides different visual characteristics suitable for specific
-	 * analysis or presentation purposes.
-	 */
+	/** Rendering modes available to the design and photo views. */
 	public enum RenderMode {
 		/** Default rendering with full materials, textures, and surface details */
 		FINISHED,

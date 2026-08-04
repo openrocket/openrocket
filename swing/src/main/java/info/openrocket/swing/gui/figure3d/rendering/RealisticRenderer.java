@@ -105,16 +105,11 @@ public class RealisticRenderer implements GLRenderer {
 	private volatile boolean interactionMode = false;
 
 	/**
-	 * Creates a new realistic renderer with the specified configuration and viewport dimensions.
-	 * 
-	 * Initializes the complete rendering pipeline including shaders, framebuffers,
-	 * particle renderers, and post-processing passes based on the provided configuration.
-	 * 
-	 * @param config The rendering configuration specifying quality settings and visual effects
-	 * @param rocket The rocket model to be rendered
-	 * @param initialWidth Initial viewport width in pixels
-	 * @param initialHeight Initial viewport height in pixels
-	 * @throws ShaderException If shader compilation fails
+	 * @param config rendering configuration
+	 * @param rocket rocket model to render
+	 * @param initialWidth initial framebuffer width
+	 * @param initialHeight initial framebuffer height
+	 * @throws ShaderException if shader compilation fails
 	 */
 	public RealisticRenderer(RenderingConfiguration config, Rocket rocket, int initialWidth, int initialHeight) {
 		this.config = config;

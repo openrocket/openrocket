@@ -5,13 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.lwjgl.opengl.GL33.*;
 
-/**
- * Utility class for OpenGL debugging and error handling.
- * Provides methods to check for and report OpenGL errors during rendering operations.
- *
- * <p>Debug mode can be enabled/disabled at runtime. When debug mode is disabled,
- * error checking methods return immediately without querying GL state (for performance).</p>
- */
+/** Optional OpenGL error polling for diagnostics and assertions. */
 public final class GLUtils {
 
 	private GLUtils() {
@@ -19,7 +13,7 @@ public final class GLUtils {
 
 	private static final Logger log = LoggerFactory.getLogger(GLUtils.class);
 
-	/** Debug mode flag - set to false in production for better performance */
+	/** Debug polling is disabled by default. */
 	private static volatile boolean debugMode = false;
 
 	/**

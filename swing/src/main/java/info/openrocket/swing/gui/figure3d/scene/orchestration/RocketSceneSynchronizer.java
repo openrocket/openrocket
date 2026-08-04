@@ -24,26 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Manages real-time synchronization between the OpenRocket data model and the 3D scene visualization.
- * This orchestration component serves as a bridge between OpenRocket's rocket model and the 3D
- * rendering system, ensuring that changes to rocket components are immediately reflected in the
- * visual representation.
- * 
- * <p>The synchronizer operates as a ComponentChangeListener, monitoring the rocket model for
- * modifications and determining the appropriate response:</p>
- * <ul>
- *   <li><b>Appearance changes:</b> Updates visual properties (colors, textures) without rebuilding geometry</li>
- *   <li><b>Structural changes:</b> Triggers complete scene reconstruction for geometry or hierarchy modifications</li>
- *   <li><b>Resource management:</b> Properly cleans up GPU resources when objects are modified or removed</li>
- * </ul>
- * 
- * <p>This component ensures that the 3D visualization remains synchronized with the rocket design
- * as users modify components through the OpenRocket interface, providing a seamless interactive
- * experience between the design tools and the 3D preview.</p>
- * 
- * <p>The synchronizer integrates with the Scene3DOrchestrator to coordinate broader scene updates
- * and maintains efficiency by performing minimal updates when possible (appearance-only changes)
- * while falling back to full reconstruction for more complex modifications.</p>
+ * Synchronizes rocket-model changes into the GL scene, updating appearances in
+ * place and rebuilding geometry for structural changes.
  */
 public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final Scene3DOrchestrator scene3DOrchestrator;
@@ -71,10 +53,6 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	/**
-	 * Constructs a new RocketSceneSynchronizer and registers it with the rocket model.
-	 * The synchronizer will immediately begin monitoring the rocket for changes and
-	 * coordinating updates with the 3D scene.
-	 * 
 	 * @param scene3DOrchestrator the orchestrator managing the overall 3D scene
 	 * @param scene the 3D scene containing the visual representation
 	 * @param rocket the OpenRocket model to synchronize with
@@ -84,18 +62,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		this.scene = scene;
 		this.rocket = rocket;
 		this.lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
-		// Register this manager as a listener to the rocket model
 		this.rocket.addComponentChangeListener(this);
 	}
 
-	/**
-	 * Handles component change events from the OpenRocket model.
-	 * Analyzes the type of change and determines the appropriate update strategy:
-	 * lightweight appearance updates for visual changes, or full scene reconstruction
-	 * for structural modifications.
-	 * 
-	 * @param e the ComponentChangeEvent describing the modification
-	 */
+	/** Chooses an appearance-only update or a full rebuild for a model change. */
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		CameraUpdateBehavior requestedCameraUpdate = determineCameraUpdateBehavior(e);

@@ -38,25 +38,7 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * Basic line-based particle renderer for general-purpose particle systems.
- * 
- * This renderer serves as the fallback for particle systems that don't require
- * specialized rendering techniques. It renders particles as line segments with
- * streak effects based on velocity, creating simple but effective visual feedback
- * for particle motion.
- * 
- * Features:
- * - Line-based rendering with velocity-based streaks
- * - Alpha blending for smooth visual integration
- * - Dynamic buffer management for varying particle counts
- * - Low computational overhead suitable for high particle counts
- * - Compatible with all particle emitter types as a fallback
- * 
- * Rendering technique:
- * - Each particle is rendered as a line from current position to a position
- *   offset by velocity, creating a motion streak effect
- * - Uses GL_LINES primitive for hardware-accelerated line rendering
- * - Supports transparency blending for particle layering
+ * Renders non-flame, non-smoke particles as velocity streaks using {@code GL_LINES}.
  */
 public class ParticleRenderer implements ParticleSystemRenderer {
 
@@ -68,14 +50,6 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 	private final int vbo;
 	private final FloatBuffer buffer;
 
-	/**
-	 * Creates a new basic particle renderer with default settings.
-	 * 
-	 * Initializes shaders, vertex buffers, and rendering state for line-based
-	 * particle rendering. Sets up vertex attributes for position and color data.
-	 * 
-	 * @throws ShaderException If shader compilation fails
-	 */
 	public ParticleRenderer() {
 		shader = new GLShader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
 		shader.requireUniformLocations("projection", "view");
@@ -102,16 +76,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 		glBindVertexArray(0);
 	}
 
-	/**
-	 * Renders all particles in the scene as velocity-streaked lines.
-	 * 
-	 * Iterates through all particle emitters in the scene and renders their particles
-	 * as line segments. Each line extends from the particle's current position to a
-	 * position offset by its velocity, creating a motion trail effect.
-	 * 
-	 * @param scene The scene containing particle emitters to render
-	 * @param camera The camera for view and projection matrices
-	 */
+	/** Renders eligible particles in the scene as velocity-streaked lines. */
 	@Override
 	public void render(SceneView scene, Camera camera) {
 		shader.use();

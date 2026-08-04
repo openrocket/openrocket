@@ -4,9 +4,7 @@ import java.awt.Point;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A thread-safe, shared data container for mouse and keyboard state.
- * Input handlers (like MouseInputHandler or a Swing MouseAdapter) write to this state,
- * and the Scene3DOrchestrator consumes it once per frame.
+ * Thread-safe handoff from AWT input listeners to the render thread.
  */
 public class InputState {
 	/**
@@ -36,7 +34,7 @@ public class InputState {
 	// For thread-safe click detection between UI thread (Swing) and render thread.
 	public final AtomicReference<Point> clickPoint = new AtomicReference<>();
 
-	// Add a new state for double-clicks
+	// Click locations cross from the EDT to the render thread.
 	public final AtomicReference<Point> doubleClickPoint = new AtomicReference<>();
 
 	/**

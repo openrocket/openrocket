@@ -745,13 +745,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		float alt = (float) settings.getLightAlt();
 		float az = (float) settings.getLightAz();
-		// Old code used glLightfv(GL_POSITION, {x, y, z, 0}) as the toward-light direction,
-		// then rendered in Z-flipped (left-handed) space, making the effective to-light
-		// direction in model space = (x, y, -z).
-		// The new shader stores the "shining-in" direction and negates it: lightDir = -direction.
-		// So direction = -(x, y, -z) = (-x, -y, z) to reproduce the old behaviour.
-			// The legacy azimuth convention is offset by 90 deg: substitute (az - pi/2).
-			// sin(az - pi/2) = -cos(az),  cos(az - pi/2) = sin(az)
+		// Preserve the photo settings' legacy azimuth and Z-flipped light convention.
+		// The shader stores the shining-in direction and negates it for the to-light vector.
 		float x = (float) (-Math.cos(alt) * Math.cos(az));
 		float y = (float) Math.sin(alt);
 		float z = (float) (Math.cos(alt) * Math.sin(az));

@@ -3,14 +3,7 @@ package info.openrocket.swing.gui.figure3d.rendering;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Exception thrown when an OpenGL operation left one or more error flags set.
- *
- * OpenGL itself never throws; errors are only visible by polling {@code glGetError()}.
- * This exception surfaces those silent failures on the Java side, together with the
- * name of the operation that was being checked, so rendering bugs can be traced back
- * to their source instead of only manifesting as visual glitches.
- */
+/** Reports OpenGL error flags left by a checked operation. */
 public class GLException extends RuntimeException {
 	private final List<Integer> errorCodes;
 

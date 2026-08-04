@@ -3,24 +3,7 @@ package info.openrocket.swing.gui.figure3d.rendering.backgrounds;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import org.joml.Vector3f;
 
-/**
- * Vertical gradient background renderer for atmospheric and horizon effects.
- * 
- * Creates smooth color transitions from top to bottom of the viewport, commonly
- * used to simulate sky-to-ground color gradients or atmospheric lighting effects.
- * The gradient provides a more visually interesting background than solid colors
- * while maintaining excellent performance.
- * 
- * Features:
- * - Smooth linear interpolation between top and bottom colors
- * - Automatic sRGB to linear color space conversion for accurate blending
- * - Lightweight rendering with minimal GPU overhead
- * - Perfect for simulating atmospheric gradients and horizon effects
- * - Compatible with fog systems for enhanced atmospheric rendering
- * 
- * The gradient is rendered using a full-screen quad with vertex colors,
- * allowing the GPU to perform smooth interpolation across the entire viewport.
- */
+/** Vertical gradient whose endpoint colors are stored in linear space. */
 public class GradientBackground implements Background {
 
 	private final Vector3f topColor;
@@ -67,6 +50,5 @@ public class GradientBackground implements Background {
 
 	@Override
 	public void cleanup() {
-		// No resources to clean up for gradient background
 	}
 }

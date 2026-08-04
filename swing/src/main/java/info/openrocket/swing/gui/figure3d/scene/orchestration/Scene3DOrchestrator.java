@@ -390,20 +390,14 @@ public class Scene3DOrchestrator {
 			return this;
 		}
 		
-		/**
-		 * Configures the orchestrator for optimal performance (lower quality).
-		 * @return This builder instance
-		 */
+		/** Selects the lower-quality performance preset. */
 		public Builder withPerformanceMode() {
 			this.performanceMode = true;
 			this.qualityMode = false;
 			return this;
 		}
 		
-		/**
-		 * Configures the orchestrator for maximum visual quality.
-		 * @return This builder instance
-		 */
+		/** Selects the higher-quality preset. */
 		public Builder withQualityMode() {
 			this.performanceMode = false;
 			this.qualityMode = true;

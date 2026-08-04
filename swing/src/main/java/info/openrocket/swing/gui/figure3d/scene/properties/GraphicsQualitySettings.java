@@ -2,24 +2,7 @@ package info.openrocket.swing.gui.figure3d.scene.properties;
 
 import info.openrocket.core.util.MathUtil;
 
-/**
- * Configuration for graphics quality and rendering techniques in the OpenRocket 3D visualization.
- * This class manages low-level rendering settings that directly impact both visual quality and
- * performance, allowing users to balance rendering fidelity with system capabilities.
- * 
- * <p>The graphics quality settings control:</p>
- * <ul>
- *   <li><b>Mesh tessellation:</b> Level of detail for curved surfaces and complex geometry</li>
- *   <li><b>Surface effects:</b> Advanced material properties like roughness and bump mapping</li>
- *   <li><b>Anti-aliasing:</b> Edge smoothing techniques to reduce visual artifacts</li>
- *   <li><b>Transparency:</b> Opacity levels for special rendering modes</li>
- *   <li><b>Culling optimization:</b> GPU performance optimizations for hidden surface removal</li>
- * </ul>
- * 
- * <p>These settings integrate with the shader system and geometry generators to provide
- * scalable rendering quality that can adapt to different hardware capabilities and
- * user preferences for the OpenRocket 3D rocket visualization.</p>
- */
+/** Controls quality and performance trade-offs in geometry and rendering. */
 public class GraphicsQualitySettings {
 	public static final RenderQuality DEFAULT_QUALITY = RenderQuality.HIGH;
 	public static final float DEFAULT_XRAY_OPACITY = 0.1f;

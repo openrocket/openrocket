@@ -14,20 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-/**
- * Manages all light sources and their visual representations within the 3D scene.
- * This controller provides comprehensive lighting management for the OpenRocket 3D visualization,
- * including light creation, positioning, and visual representation. It coordinates between
- * the lighting system and the scene management to ensure proper illumination of rocket components
- * and other 3D objects.
- * 
- * <p>The manager handles both the logical light sources used for rendering calculations
- * and their optional visual representations (light visualizers) that appear in the scene
- * to help users understand the lighting setup.</p>
- * 
- * <p>Enforces shader limitations by restricting the maximum number of concurrent lights
- * to maintain rendering performance.</p>
- */
+/** Owns scene lights and their optional interactive visualizers. */
 public class LightManager implements LightController {
 
 	private static final Logger log = LoggerFactory.getLogger(LightManager.class);
@@ -39,20 +26,12 @@ public class LightManager implements LightController {
 	private boolean visualizersVisible = false;
 	private final List<Consumer<Light>> lightChangeListeners = new CopyOnWriteArrayList<>();
 
-	/**
-	 * Constructs a new LightManager for the specified scene.
-	 * 
-	 * @param scene the scene that will contain the lights and their visual representations
-	 */
+	/** @param scene scene that owns the visualizer objects */
 	public LightManager(Scene scene) {
 		this.scene = scene;
 	}
 
 	/**
-	 * Adds a light to the manager and optionally creates its corresponding visualizer in the scene.
-	 * The light will be included in rendering calculations, and if visualization is enabled,
-	 * a visual representation will be added to help users understand the lighting setup.
-	 * 
 	 * @param light the light to add to the scene
 	 * @param addVisualizer if true, creates and adds a visual representation of the light
 	 */
@@ -67,12 +46,6 @@ public class LightManager implements LightController {
 		updateLightVisualizer(light, addVisualizer || visualizersVisible);
 	}
 
-	/**
-	 * Adds a light to the manager without creating a visual representation.
-	 * This is a convenience method that calls addLight(light, false).
-	 * 
-	 * @param light the light to add to the scene
-	 */
 	@Override
 	public void addLight(Light light) {
 		addLight(light, visualizersVisible);

@@ -28,12 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Generates a 3D mesh for a SINGLE fin from a FinSet component.
- * This version uses the Java Topology Suite (JTS) for robust Delaunay triangulation,
- * ensuring correct handling of complex and concave fin shapes.
- * It generates the fin and tab as separate sub-meshes and combines them.
- * This modified version includes a curved root that conforms to the parent body's curvature
- * with proper connection faces to create a manifold mesh.
+ * Generates one fin and tab as a manifold mesh. JTS triangulates concave
+ * planforms, and the curved root follows the parent body's surface.
  */
 public class FinSetGenerator {
 

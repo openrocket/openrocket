@@ -17,17 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.Point;
 
 /**
- * Handles input processing and user interaction within the 3D scene management system.
- * This controller processes various input events including mouse clicks, drags, scrolling,
- * and keyboard inputs, translating them into appropriate scene interactions such as camera
- * movement, object selection, and light manipulation.
- * 
- * <p>The handler integrates with OpenRocket components through raycasting for precise
- * object selection and interaction. It coordinates with the CameraController for view
- * manipulation and directly manages light positioning through mouse interaction.</p>
- * 
- * <p>Separated from Scene3DOrchestrator to improve separation of concerns and maintain
- * a clean architecture for input processing within the 3D visualization pipeline.</p>
+ * Applies queued input to camera, selection, rocket, and light interactions.
  */
 public class DefaultSceneInputProcessor implements SceneInputProcessor {
 
@@ -44,9 +34,6 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 	private ViewportDimensions viewport;
 	
 	/**
-	 * Constructs a new input processor with the dependencies it needs to interact
-	 * with the scene.
-	 * 
 	 * @param inputState the input state tracker for mouse and keyboard events
 	 * @param raycaster the raycaster for 3D object intersection and selection
 	 * @param scene the scene containing objects and lights to interact with
@@ -62,32 +49,18 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 		this.renderingConfiguration = renderingConfiguration;
 	}
 	
-	/**
-	 * Get the input state for external access (e.g., from UI components).
-	 * 
-	 * @return the input state instance containing current input status
-	 */
 	@Override
 	public InputState getInputState() {
 		return inputState;
 	}
 	
-	/**
-	 * Update the viewport dimensions for coordinate conversion between window and framebuffer coordinates.
-	 * This is essential for high-DPI display support and accurate raycasting.
-	 * 
-	 * @param viewport the new viewport dimensions
-	 */
+	/** Updates logical-to-framebuffer coordinate conversion for raycasting. */
 	@Override
 	public void updateDimensions(ViewportDimensions viewport) {
 		this.viewport = viewport;
 	}
 	
-	/**
-	 * Process all pending input events in the input queue.
-	 * This method should be called each frame to handle user interactions including
-	 * scrolling, mouse dragging, clicking, and double-clicking events.
-	 */
+	/** Consumes all input accumulated since the previous frame. */
 	@Override
 	public void processInput() {
 		processScrollInput();

@@ -181,17 +181,14 @@ public class PhotoFrame extends JFrame {
 		return menubar;
 	}
 
-	// // File
 	private JMenu createFileMenu(boolean showOpen) {
 		JMenu menu = new JMenu(trans.get("main.menu.file"));
 		menu.setMnemonic(KeyEvent.VK_F);
-		// // File-handling related tasks
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
 
 		if (showOpen) {
 			JMenuItem open = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
 			open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
-			// // Open a rocket design
 			open.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
 			open.setIcon(Icons.FILE_OPEN);
 			open.addActionListener(e -> openDesign());
@@ -200,7 +197,6 @@ public class PhotoFrame extends JFrame {
 
 		JMenuItem save = new JMenuItem(trans.get("PhotoFrame.menu.file.save"), KeyEvent.VK_S);
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
-		// // Save the photo
 		save.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.file.save"));
 		save.setIcon(Icons.FILE_OPEN);
 		save.addActionListener(e -> {
@@ -277,11 +273,9 @@ public class PhotoFrame extends JFrame {
 		}
 	}
 
-	// // Edit
 	private JMenu createEditMenu() {
 		JMenu menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
-		// // Rocket editing
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.unk"));
 
 		Action copy = new AbstractAction(trans.get("PhotoFrame.menu.edit.copy")) {

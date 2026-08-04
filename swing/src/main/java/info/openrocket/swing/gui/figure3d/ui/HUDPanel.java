@@ -24,8 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 /**
- * Swing panel that displays rocket information overlay on top of the 3D scene.
- * Integrates with OpenRocket's RocketInfo component and provides rate-limited updates.
+ * Paints rocket information over the 3D scene and rate-limits model-driven updates.
  */
 public class HUDPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
@@ -68,8 +67,6 @@ public class HUDPanel extends JPanel {
 		this.rocketInfo = rocketInfo;
 		setOpaque(false);
 
-		// Double buffering is already enabled by default in Swing,
-		// but we can ensure it's on
 		setDoubleBuffered(true);
 	}
 
@@ -153,8 +150,7 @@ public class HUDPanel extends JPanel {
 	}
 
 	/**
-	 * Sets the GL scene panel for HUD update notifications.
-	 * @param panel the panel to notify (can be GLScenePanel or RobustGLScenePanel)
+	 * @param panel listener notified when the HUD needs to be redrawn
 	 */
 	public void setGLScenePanel(HUDUpdateListener panel) {
 		this.hudUpdateListener = panel;

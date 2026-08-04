@@ -11,25 +11,8 @@ import java.nio.IntBuffer;
 import java.util.List;
 
 /**
- * OpenGL-optimized mesh representation for hardware-accelerated rendering.
- *
- * Converts application mesh data into GPU-resident buffer objects using indexed
- * (element-based) drawing:
- * - A vertex buffer object (VBO) holds the packed vertex data
- * - An element buffer object (EBO) holds the triangle indices
- * - A vertex array object (VAO) captures the buffer bindings and attribute layout
- *
- * Each vertex is packed as {@link Vertex#FLOATS_PER_VERTEX} floats:
- * - 3D position (x, y, z)
- * - Surface normal (nx, ny, nz) for lighting calculations
- * - Texture coordinates (u, v) for material mapping
- * - Surface ID (an int packed as a float) for material identification
- *
- * The mesh data is uploaded to GPU memory once during construction and can be
- * rendered multiple times with minimal CPU overhead. Note that rendering is
- * done exclusively through the EBO ({@code glDrawElements}); switching away
- * from indexed drawing would require changing both the buffer setup and the
- * draw calls, and OpenGL would give no error if they disagree.
+ * GPU-resident indexed mesh using the vertex layout defined by {@link Vertex}.
+ * Attribute packing, VAO setup, and shader inputs must remain in sync.
  */
 public class GLRenderableMesh implements Renderable {
 	// Byte offsets of each attribute within a packed vertex
@@ -45,16 +28,7 @@ public class GLRenderableMesh implements Renderable {
 	private final int elementBufferObjectId;
 	private final int indexCount;
 
-	/**
-	 * Creates a new renderable mesh from application mesh data.
-	 *
-	 * Converts the mesh vertices and indices into OpenGL buffer objects
-	 * and sets up vertex attribute pointers for efficient rendering.
-	 * The vertex data is uploaded to GPU memory and the input mesh
-	 * can be safely discarded after construction.
-	 *
-	 * @param mesh The source mesh containing vertices and indices
-	 */
+	/** @param mesh source mesh whose data is uploaded to GL buffers */
 	public GLRenderableMesh(Mesh mesh) {
 		FloatBuffer vertexBuffer = packVertexData(mesh.getVertices());
 		IntBuffer indexBuffer = packIndexData(mesh.getIndices());
@@ -140,15 +114,7 @@ public class GLRenderableMesh implements Renderable {
 		GL33.glEnableVertexAttribArray(3);
 	}
 
-	/**
-	 * Renders this mesh using indexed (element-based) triangle drawing.
-	 *
-	 * Binds the vertex array object and element buffer object, then issues a
-	 * {@code glDrawElements} call to render all triangles in this mesh. This
-	 * draw call only works with the EBO setup done in the constructor; it
-	 * would silently render nothing if the element buffer were removed.
-	 * The appropriate shader program should be active before calling this method.
-	 */
+	/** Draws the mesh with indexed triangles; the caller must bind the shader. */
 	@Override
 	public void render() {
 		GL33.glBindVertexArray(vertexArrayObjectId);
@@ -157,13 +123,6 @@ public class GLRenderableMesh implements Renderable {
 		GL33.glBindVertexArray(0);
 	}
 
-	/**
-	 * Releases all OpenGL resources associated with this mesh.
-	 * 
-	 * Deletes the vertex buffer object, element buffer object, and
-	 * vertex array object. This method should be called when the mesh
-	 * is no longer needed to prevent GPU memory leaks.
-	 */
 	@Override
 	public void cleanup() {
 		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vertexBufferObjectId);

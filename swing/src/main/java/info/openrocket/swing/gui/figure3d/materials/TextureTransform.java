@@ -38,9 +38,8 @@ public class TextureTransform {
 				.scale(scale.x, scale.y, 1.0f)
 				.translate(offset.x, offset.y, 0.0f);
 
-		// The new renderer's UV axes are flipped relative to the legacy JOGL path.
-		// Conjugate the full legacy transform by a UV flip so offset, scale origin,
-		// center and rotation all match the old visual behavior together.
+		// Saved decal transforms use the opposite UV orientation. Conjugating the
+		// transform preserves offset, scale origin, center, and rotation together.
 		flipUvMatrix.identity()
 				.translate(1.0f, 1.0f, 0.0f)
 				.scale(-1.0f, -1.0f, 1.0f);

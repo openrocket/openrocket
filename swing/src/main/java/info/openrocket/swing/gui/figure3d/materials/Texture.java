@@ -49,10 +49,7 @@ import static org.lwjgl.opengl.GL30.GL_RGB32F;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.opengl.GL11.glGetFloat;
 
-/**
- * Manages OpenGL textures with support for 2D textures, cubemaps, HDR images, and texture pooling.
- * Handles automatic sRGB conversion and provides multiple construction methods for different use cases.
- */
+/** Owns an OpenGL texture loaded from image data or allocated for dynamic updates. */
 public class Texture {
 
 	private static final Logger log = LoggerFactory.getLogger(Texture.class);
@@ -61,11 +58,11 @@ public class Texture {
 	private int textureId;
 	private final int textureType;
 
-	// Cache texture dimensions to avoid GPU queries
+	// Stored locally so callers do not need GL queries.
 	private int width;
 	private int height;
 
-	// Add texture format tracking
+	// Pixel formats used by dynamic updates.
 	private int internalFormat;
 	private int format;
 
@@ -257,9 +254,9 @@ public class Texture {
 	}
 
 	/**
-	 * Creates a texture by loading an image from a file path.
-	 * This constructor sets texture wrapping to CLAMP_TO_EDGE, which is ideal for decals.
-	 * @param filePath The path to the texture file (e.g., "swing/src/main/resources/textures/decal.png").
+	 * Loads a clamped sRGB texture from a filesystem or classpath path.
+	 *
+	 * @param filePath image path
 	 */
 	public Texture(String filePath) {
 		this.textureId = glGenTextures();
@@ -509,7 +506,7 @@ public class Texture {
 	 * Loads an HDR equirectangular image as a floating-point texture.
 	 *
 	 * @param filePath Path to the .hdr file.
-	 * @param isHDR    Must be true to load as HDR.
+	 * @param isHDR disambiguates this constructor; must be {@code true}
 	 */
 	public Texture(String filePath, boolean isHDR) {
 		if (!isHDR) {
@@ -590,13 +587,8 @@ public class Texture {
 	}
 
 	/**
-	 * Creates an empty, mutable texture for dynamic updates (e.g., for a UI canvas).
-	 * <p>
-	 * The storage is plain RGBA8, not sRGB: this texture holds pixels rasterized by
-	 * Java2D, which are already sRGB-encoded and are meant to reach the screen
-	 * unchanged. Declaring sRGB storage would make the sampler decode them to linear
-	 * and blend the overlay in linear space, which washes out translucent panels and
-	 * flattens the contrast of antialiased glyph edges.
+	 * Creates an empty mutable RGBA8 texture for Java2D content. It deliberately
+	 * avoids sRGB storage so the sampler does not decode already encoded UI pixels.
 	 *
 	 * @param width      The width of the texture.
 	 * @param height     The height of the texture.

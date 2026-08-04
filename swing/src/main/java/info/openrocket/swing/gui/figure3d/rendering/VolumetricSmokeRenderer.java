@@ -43,14 +43,7 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * Renders smoke emitters as camera-facing textured billboards, lit by the flames
- * around them.
- *
- * <p>The brightest flame emitter in the scene acts as the light source; how
- * strongly a given emitter responds to it is configurable, over a constant
- * ambient term. Particles start at a fifth of their maximum size and grow
- * linearly with age, holding their opacity for the first 80% of their life and
- * then fading.</p>
+ * Renders smoke as camera-facing textured quads with flame-dependent lighting.
  */
 public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 
@@ -92,15 +85,6 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	private final Vector3f scratchFlameLight = new Vector3f();
 	private final Vector3f scratchFlameLightColor = new Vector3f();
 
-	/**
-	 * Creates a new volumetric smoke renderer with lighting integration.
-	 * 
-	 * Initializes specialized shaders for volumetric smoke effects, sets up
-	 * vertex buffers for billboard quad rendering, and loads smoke textures.
-	 * Caches uniform locations for efficient per-frame updates.
-	 * 
-	 * @throws ShaderException If shader compilation fails
-	 */
 	public VolumetricSmokeRenderer() {
 		shader = new GLShader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
 		buffer = MemoryUtil.memAllocFloat(MAX_QUADS * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
@@ -145,16 +129,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		glBindVertexArray(0);
 	}
 
-	/**
-	 * Renders volumetric smoke particles with dynamic lighting from flame emitters.
-	 * 
-	 * Automatically detects flame emitters in the scene to use as light sources,
-	 * then renders all smoke particles as billboarded quads with lighting calculations.
-	 * Each smoke emitter can have different light sensitivity settings.
-	 * 
-	 * @param scene The scene containing smoke and flame emitters
-	 * @param camera The camera for billboard calculations and view matrices
-	 */
+	/** Renders smoke particles and derives their lighting from flame emitters. */
 	public void render(SceneView scene, Camera camera) {
 		if (!hasSmokeEmitters(scene)) {
 			return;

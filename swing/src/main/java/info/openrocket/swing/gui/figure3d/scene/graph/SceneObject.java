@@ -12,25 +12,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * Represents a single 3D object within the OpenRocket scene management system.
- * This class encapsulates both the geometric representation and rendering properties
- * of objects in the 3D visualization environment, providing a bridge between
- * OpenRocket's rocket components and the 3D graphics pipeline.
- * 
- * <p>Each SceneObject maintains:</p>
- * <ul>
- *   <li><b>Geometry:</b> Raw mesh data for physics and collision detection</li>
- *   <li><b>Rendering:</b> GPU-optimized renderable mesh for efficient drawing</li>
- *   <li><b>Transformation:</b> Model matrix for positioning and orientation in 3D space</li>
- *   <li><b>Appearance:</b> Materials, textures, and visual properties</li>
- *   <li><b>Interaction:</b> Selection state, dragging behavior, and event handling</li>
- *   <li><b>Association:</b> Optional link to OpenRocket RocketComponent for semantic meaning</li>
- * </ul>
- * 
- * <p>SceneObjects support user interaction through selection and dragging mechanisms,
- * enabling intuitive manipulation of both individual objects and grouped rocket components.
- * They integrate with the raycasting system for precise 3D interaction and maintain
- * connections to the underlying rocket model for synchronized behavior.</p>
+ * Mesh instance with its transform, appearance, interaction state, and optional
+ * associated rocket component.
  */
 public class SceneObject {
 

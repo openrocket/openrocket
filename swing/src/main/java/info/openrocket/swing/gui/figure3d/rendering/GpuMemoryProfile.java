@@ -9,21 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Describes how much GPU memory the render chain may reasonably spend on a
- * context.
- *
- * <p>The offscreen scene target, the post-processing targets and the shadow map
- * are all sized from the physical framebuffer, and the only limits applied to
- * them are the driver's own maxima ({@code GL_MAX_SAMPLES},
- * {@code GL_MAX_TEXTURE_SIZE}). Those maxima describe what the driver will
- * accept, not what the device can comfortably hold: at HIGH quality a 2880x1800
- * framebuffer asks for roughly 400 MB, which is fine on a discrete card and
- * hostile on an integrated GPU that carves its memory out of system RAM.
- *
- * <p>OpenGL has no portable memory query, so the budget is resolved in three
- * steps: the AMD and NVIDIA vendor extensions when present, then the renderer
- * string, and finally an assumption that an unrecognised device is capable.
- * Nothing here fails a context - an unknown device keeps today's behaviour.
+ * Selects a render-target memory profile for the current context. Detection uses
+ * vendor memory extensions when available, then renderer-name heuristics; OpenGL
+ * has no portable memory-budget query.
  */
 public final class GpuMemoryProfile {
 
@@ -37,21 +25,10 @@ public final class GpuMemoryProfile {
 	/** {@code GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX} - dedicated memory in KB. */
 	private static final int GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = 0x9047;
 
-	/**
-	 * Devices whose total dedicated memory is below this are treated as
-	 * constrained. A full HIGH quality chain at a common laptop resolution needs
-	 * roughly 400 MB, so a device that cannot report at least twice that has no
-	 * headroom for the reallocation churn a window resize produces.
-	 */
+	/** Minimum dedicated memory considered sufficient for the full render chain. */
 	private static final int CONSTRAINED_TOTAL_MEGABYTES = 1024;
 
-	/**
-	 * Threshold for extensions that report <em>free</em> rather than total memory.
-	 * Free memory moves with whatever else is on the GPU, and the profile is
-	 * decided once per context, so this is deliberately far below
-	 * {@link #CONSTRAINED_TOTAL_MEGABYTES}: it should catch a genuinely small
-	 * device, not a capable one that happened to be busy at context creation.
-	 */
+	/** Conservative threshold for extensions that report free rather than total memory. */
 	private static final int CONSTRAINED_FREE_MEGABYTES = 384;
 
 	/** Renderer-string markers for GPUs that share system memory. */

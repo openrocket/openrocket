@@ -9,24 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * First-pass adapter: samples OpenRocket FlightDataBranch and exposes a world-space pose.
- * - Position uses Px (east), Py (north), altitude (meters) -> mapped to engine world & scaled.
- * - Orientation prefers ORIENTATION_THETA (zenith) + ORIENTATION_PHI (azimuth).
- *   If missing, it faces along the instantaneous velocity (finite difference).
- *
- *   How to use:
- *   import animation.info.openrocket.swing.gui.figure3d.FlightPoseProvider;
- *
- * // Build the adapter from OpenRocket data
- * FlightPoseProvider provider = FlightPoseProvider.fromFlightDataBranch(flightBranch);
- *
- * // Tell the orchestrator to animate all rocket component meshes
- * orchestrator.bindFlightPoseToRocket(provider);
- *
- * // Basic controls:
- * orchestrator.getPlaybackClock().setRate(1.0);   // play
- * orchestrator.getPlaybackClock().setRate(0.0);   // pause
- * orchestrator.getPlaybackClock().setTime(12.3);  // scrub to 12.3 s
+ * Samples a {@link FlightDataBranch} as an engine-space position and orientation.
+ * Position uses east, north, and altitude data; orientation uses theta and phi
+ * when available and otherwise follows the sampled velocity.
  */
 public final class FlightPoseProvider implements PoseProvider {
 	private final double[] t;

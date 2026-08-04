@@ -2,27 +2,7 @@ package info.openrocket.swing.gui.figure3d.scene.graph;
 
 import org.joml.Vector3f;
 
-/**
- * Represents a light source within the 3D scene management system for OpenRocket visualization.
- * This class provides comprehensive lighting support for illuminating rocket components and 3D objects,
- * supporting both directional lights (like sunlight) and point lights (like lamps).
- * 
- * <p>The lighting system is designed to work seamlessly with the OpenRocket 3D rendering pipeline,
- * providing realistic illumination that enhances the visibility and understanding of rocket geometry,
- * surface details, and spatial relationships.</p>
- * 
- * <p>Key features include:</p>
- * <ul>
- *   <li>Directional lights for consistent, parallel illumination (simulating distant light sources)</li>
- *   <li>Point lights for localized, omnidirectional illumination</li>
- *   <li>Color temperature support for realistic lighting conditions</li>
- *   <li>Intensity control for precise lighting balance</li>
- *   <li>Preset lighting configurations for common visualization scenarios</li>
- * </ul>
- * 
- * <p>Lights are managed by the LightManager and integrated into the scene rendering
- * through shader uniforms and lighting calculations.</p>
- */
+/** Directional or point light used by the scene renderer. */
 public class Light {
 
 	/**

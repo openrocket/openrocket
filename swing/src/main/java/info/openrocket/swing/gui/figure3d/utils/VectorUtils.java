@@ -4,10 +4,7 @@ import info.openrocket.core.util.CoordinateIF;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-/**
- * Utility class for converting OpenRocket coordinate system objects to JOML vector types.
- * Provides conversions from OpenRocket's Coordinate class to Vector3f and Vector4f for 3D rendering.
- */
+/** Converts OpenRocket coordinates to JOML vectors. */
 public final class VectorUtils {
 
 	private VectorUtils() {

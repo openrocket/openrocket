@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Generates geometry for tubes, cylinders, cones, and other complex length-wise shapes.
- * Builds the mesh directly along the +X axis to match OpenRocket's convention, centered around its center (half the length).
- * This version supports optional shoulders at the fore and aft ends.
+ * Generates lengthwise profiles along the +X axis, including optional fore and aft shoulders.
  */
 public class TubeGenerator implements GeometryGenerator {
 	private static final Logger log = LoggerFactory.getLogger(TubeGenerator.class);
@@ -110,7 +108,7 @@ public class TubeGenerator implements GeometryGenerator {
 						false, isXRayCutaway, capVertexOffset);
 
 			} else {
-				// UN-CAPPED FORE SHOULDER (Original Logic)
+				// Uncapped fore shoulder
 				for (int i = verticesPerRing; i < 2 * verticesPerRing; i++) { // Aft-end vertices of the shoulder
 					if (i % 2 == 1) { // Inner vertices
 						Vertex v = shoulderVertices.get(i);
@@ -185,7 +183,7 @@ public class TubeGenerator implements GeometryGenerator {
 						true, isXRayCutaway, capVertexOffset);
 
 			} else {
-				// UN-CAPPED AFT SHOULDER (Original Logic)
+				// Uncapped aft shoulder
 				for (int i = 0; i < verticesPerRing; i++) { // Fore-end vertices of the shoulder
 					if (i % 2 == 1) { // Inner vertices
 						Vertex v = shoulderVertices.get(i);

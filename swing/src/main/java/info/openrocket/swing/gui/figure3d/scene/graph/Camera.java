@@ -5,28 +5,7 @@ import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-/**
- * Core camera component for 3D scene visualization in the OpenRocket environment.
- * This class manages camera position, orientation, projection matrices, and user interaction
- * behaviors such as orbiting, panning, and zooming. It provides both perspective and
- * orthographic projection modes to support different visualization needs.
- * 
- * <p>The camera operates around a center of interest point, allowing intuitive 3D navigation
- * for examining rocket components and 3D models. It integrates with the OpenRocket coordinate
- * system and provides appropriate framing and positioning for rocket visualization.</p>
- * 
- * <p>Key features include:</p>
- * <ul>
- *   <li>Orbit controls around a center point</li>
- *   <li>Perspective and orthographic projection modes</li>
- *   <li>Automatic bounds fitting for optimal object framing</li>
- *   <li>Configurable zoom limits and interaction constraints</li>
- *   <li>Predefined view positions (front, side, top, etc.)</li>
- * </ul>
- * 
- * <p>This camera is designed to be controlled externally through camera controllers
- * and can have its projection parameters updated dynamically based on viewport changes.</p>
- */
+/** Orbit camera supporting perspective and orthographic projection. */
 public class Camera {
 
 	private static final float FIT_MIN_ZOOM_FACTOR = 0.05f;

@@ -41,15 +41,8 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * Specialized renderer for realistic rocket flame particle systems.
- *
- * Creates rocket motor flames using billboarded textured quads with age-based
- * sizing (throat constriction, plume expansion, tapered tip) and additive
- * blending so overlapping particles brighten naturally like real fire.
- *
- * Each vertex carries: position (3) + texcoord (2) + color+alpha (4) + ageRatio (1) = 10 floats.
- * The ageRatio lets the fragment shader compute a physically-inspired temperature
- * gradient along the length of the flame.
+ * Renders flame particles as additive camera-facing quads with age-dependent
+ * size, opacity, and color.
  */
 public class FlameRenderer implements ParticleSystemRenderer {
 

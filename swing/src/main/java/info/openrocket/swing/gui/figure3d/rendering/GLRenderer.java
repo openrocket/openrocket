@@ -5,37 +5,18 @@ import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 
 /**
- * Core interface for the OpenRocket 3D rendering system.
- *
- * Defines the contract for rendering engines that transform 3D scene data into
- * 2D output. Implementations handle the complete rendering pipeline including
- * geometry rendering, lighting, materials, and post-processing. Particle
- * effects are not part of this contract; renderer implementations delegate
- * them to the {@link ParticleSystemRenderer} instances they own.
- *
- * This interface is specific to the OpenGL 3.3 (LWJGL) backend: its methods
- * expose GL concepts such as framebuffer and texture ids, so implementations
- * are expected to be OpenGL-based.
+ * Contract for an OpenGL renderer that produces and presents a resolved scene frame.
  */
 public interface GLRenderer extends GpuResource {
 	/**
 	 * Renders a single frame of the given scene to the active framebuffer.
-	 * 
-	 * This method performs the complete rendering pipeline including geometry
-	 * rendering, lighting calculations, material application, particle systems,
-	 * and post-processing effects.
-	 * 
-	 * @param scene The scene containing geometry, lights, camera, and particle systems to render
-	 * @param renderBackground Whether to render the scene background or leave it transparent
+	 *
+	 * @param scene scene to render
+	 * @param renderBackground whether to render the background or leave it transparent
 	 */
 	void render(SceneView scene, boolean renderBackground);
 
-	/**
-	 * Draws the last rendered off-screen frame into the currently bound framebuffer.
-	 * 
-	 * Implementations typically use a full-screen quad to display the resolved
-	 * color texture that was produced during {@link #render(SceneView, boolean)}.
-	 */
+	/** Draws the last resolved frame into the currently bound framebuffer. */
 	void presentResolvedToCurrentFramebuffer();
 
 	/**
@@ -94,13 +75,7 @@ public interface GLRenderer extends GpuResource {
 	default void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {}
 
 	/**
-	 * Tells the renderer how many physical pixels the display packs into one logical one.
-	 *
-	 * Anything sized to look the same everywhere — screen-space markers, for instance —
-	 * has to account for this, or it comes out half-size on a HiDPI screen and full size
-	 * on an ordinary one.
-	 *
-	 * @param displayScale framebuffer pixels per logical pixel; 1.0 on a non-scaled display
+	 * @param displayScale framebuffer pixels per logical pixel; 1.0 on an unscaled display
 	 */
 	default void setDisplayScale(float displayScale) {}
 }

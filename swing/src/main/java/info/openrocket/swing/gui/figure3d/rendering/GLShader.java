@@ -43,20 +43,7 @@ import static org.lwjgl.opengl.GL40.GL_TESS_EVALUATION_SHADER;
 import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 
 /**
- * OpenGL shader program wrapper with performance optimizations.
- * 
- * This class handles the complete shader lifecycle including loading shader
- * source from resources, compilation, linking, and uniform management.
- * 
- * Key optimizations include:
- * - Uniform location caching to avoid repeated OpenGL queries
- * - Reusable matrix buffers to reduce memory allocations
- * - Pre-compilation error checking and detailed error reporting
- * - Batch uniform location caching for frequently used uniforms
- * 
- * Supports standard uniform types including matrices, vectors, and scalars
- * with both named access (using caching) and direct location access for
- * maximum performance in render loops.
+ * Owns a linked OpenGL shader program and caches uniform locations by name.
  */
 public class GLShader implements GpuResource {
 
@@ -74,14 +61,9 @@ public class GLShader implements GpuResource {
 	private final float[] matrix3Buffer = new float[9];
 
 	/**
-	 * Creates a new shader program from vertex and fragment shader source files.
-	 *
-	 * Loads shader sources from the classpath, compiles them, and links them into
-	 * a complete shader program ready for use.
-	 *
-	 * @param vertexPath Path to vertex shader source file in resources
-	 * @param fragmentPath Path to fragment shader source file in resources
-	 * @throws ShaderException If shader loading, compilation, or linking fails
+	 * @param vertexPath classpath path to the vertex shader
+	 * @param fragmentPath classpath path to the fragment shader
+	 * @throws ShaderException if loading, compilation, or linking fails
 	 */
 	public GLShader(String vertexPath, String fragmentPath) {
 		this.vertexPath = vertexPath;
@@ -206,7 +188,7 @@ public class GLShader implements GpuResource {
 	}
 
 	/**
-	 * Sets a Matrix4f uniform using a pre-cached location (fastest).
+	 * Sets a Matrix4f uniform using a pre-cached location.
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
 	 */
@@ -227,7 +209,7 @@ public class GLShader implements GpuResource {
 	}
 
 	/**
-	 * Sets a Matrix3f uniform using a pre-cached location (fastest).
+	 * Sets a Matrix3f uniform using a pre-cached location.
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
 	 */
@@ -299,12 +281,6 @@ public class GLShader implements GpuResource {
 		}
 	}
 
-	/**
-	 * Releases all OpenGL resources associated with this shader.
-	 * 
-	 * This method should be called when the shader is no longer needed
-	 * to prevent memory leaks.
-	 */
 	@Override
 	public void cleanup() {
 		if (programId != 0) {

@@ -2,27 +2,7 @@ package info.openrocket.swing.gui.figure3d.rendering.backgrounds;
 
 import org.joml.Vector4f;
 
-/**
- * Simple solid color background renderer for uniform backgrounds.
- * 
- * Provides the most basic background rendering using a single uniform color
- * across the entire viewport. This background type offers maximum performance
- * and is ideal for situations where a simple, distraction-free background
- * is desired, or as a fallback when other background types are unavailable.
- * 
- * Features:
- * - Minimal GPU overhead with simple color clearing
- * - Support for RGBA values including transparency
- * - Consistent appearance regardless of viewing angle
- * - Perfect for technical diagrams and simplified visualizations
- * - Ideal base background for debugging and development
- * 
- * Color handling:
- * - Supports both RGB and RGBA color specifications
- * - Colors are stored as RGBA for consistency with OpenGL
- * - Alpha channel can be used for transparency effects
- * - No color space conversion required (stored as provided)
- */
+/** Background represented by one RGBA color. */
 public class SolidColorBackground implements Background {
 
 	private final Vector4f color;
@@ -69,6 +49,5 @@ public class SolidColorBackground implements Background {
 
 	@Override
 	public void cleanup() {
-		// No resources to clean up for solid color background
 	}
 }

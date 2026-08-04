@@ -83,9 +83,7 @@ public class RenderingConfiguration {
 
 	// Convenience Methods for Common Operations
 
-	/**
-	 * Configures settings for optimal performance (lower quality, fewer effects).
-	 */
+	/** Applies the lower-quality performance preset. */
 	public void setPerformanceMode() {
 		quality.setQuality(GraphicsQualitySettings.RenderQuality.LOW);
 		quality.setFXAAEnabled(false);
@@ -96,9 +94,7 @@ public class RenderingConfiguration {
 		notifyListeners();
 	}
 
-	/**
-	 * Configures settings for maximum visual quality.
-	 */
+	/** Applies the higher-quality preset. */
 	public void setQualityMode() {
 		quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
 		quality.setFXAAEnabled(true);

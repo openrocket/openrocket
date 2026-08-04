@@ -17,20 +17,7 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 /**
- * Optimized OpenGL texture state manager for performance-critical rendering.
- * 
- * Reduces redundant OpenGL state changes by tracking current texture bindings
- * and parameters across multiple texture units. This is crucial for performance
- * as texture binding and parameter changes are expensive GPU operations.
- * 
- * Features:
- * - Tracks active texture unit to minimize glActiveTexture calls
- * - Caches texture bindings per unit and texture target to avoid redundant glBindTexture calls
- * - Caches texture parameters to avoid redundant glTexParameteri calls
- * - Supports up to 32 texture units for complex multi-texture rendering
- * 
- * This manager should be used throughout the rendering pipeline to ensure
- * optimal texture state management and maximum rendering performance.
+ * Caches texture-unit bindings and parameters to avoid redundant OpenGL state changes.
  */
 public class TextureStateManager implements TextureBinder {
 	private static final int MAX_TEXTURE_UNITS = 32;
@@ -39,12 +26,7 @@ public class TextureStateManager implements TextureBinder {
 	private final Map<Integer, int[]> boundTexturesByType = new HashMap<>();
 	private int activeTextureUnit = -1;
 
-	/**
-	 * Cached texture parameters for a single texture.
-	 * 
-	 * Stores the current parameter values to avoid redundant
-	 * glTexParameteri calls when the same parameters are set repeatedly.
-	 */
+	/** Cached parameters for one texture target and ID. */
 	private static class TextureParams {
 		int wrapS = -1;
 		int wrapT = -1;
@@ -55,9 +37,6 @@ public class TextureStateManager implements TextureBinder {
 	// Map texture target + ID to its cached parameters.
 	private final Map<Long, TextureParams> textureParamsCache = new HashMap<>();
 
-	/**
-	 * Creates a new texture state manager with all texture units unbound.
-	 */
 	public TextureStateManager() {
 		synchronized (MANAGERS) {
 			MANAGERS.add(this);
@@ -105,11 +84,8 @@ public class TextureStateManager implements TextureBinder {
 	}
 
 	/**
-	 * Binds a texture to the specified unit only if it's not already bound.
-	 * 
-	 * This method minimizes OpenGL state changes by checking if the texture
-	 * is already bound and if the correct texture unit is already active.
-	 * 
+	 * Binds a texture unless the requested binding is already cached.
+	 *
 	 * @param unit The texture unit index (0-31)
 	 * @param textureType The OpenGL texture type (e.g., GL_TEXTURE_2D)
 	 * @param textureId The OpenGL texture ID to bind, or 0 to unbind
@@ -134,11 +110,8 @@ public class TextureStateManager implements TextureBinder {
 	}
 
 	/**
-	 * Sets texture parameters only if they differ from cached values.
-	 * 
-	 * Reduces redundant glTexParameteri calls by tracking the current
-	 * parameter values for each texture.
-	 * 
+	 * Sets only parameters that differ from their cached values.
+	 *
 	 * @param textureType The OpenGL texture target to update
 	 * @param textureId The texture ID to set parameters for
 	 * @param wrapS Texture wrap mode for S coordinate
@@ -171,23 +144,13 @@ public class TextureStateManager implements TextureBinder {
 		}
 	}
 
-	/**
-	 * Unbinds any texture from the specified target on the texture unit.
-	 * 
-	 * @param unit The texture unit to unbind
-	 * @param textureType The OpenGL texture target to unbind
-	 */
+	/** Unbinds the specified texture target from a unit. */
 	@Override
 	public void unbindTexture(int unit, int textureType) {
 		bindTexture(unit, textureType, 0);
 	}
 
-	/**
-	 * Resets all cached state information.
-	 * 
-	 * Should be called when the OpenGL context is lost or recreated
-	 * to ensure the cache remains consistent with actual GPU state.
-	 */
+	/** Invalidates all cached state after external GL changes or context recreation. */
 	@Override
 	public void reset() {
 		boundTexturesByType.clear();

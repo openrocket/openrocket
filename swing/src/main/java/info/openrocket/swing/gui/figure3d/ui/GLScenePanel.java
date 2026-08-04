@@ -86,17 +86,8 @@ import static org.lwjgl.opengl.GL11.glReadPixels;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 
 /**
- * AWTGLCanvas-backed scene panel for Swing integration.
- *
- * <p>This panel supports multiple simultaneous windows by ensuring each window
- * creates its own GL resources (no shared texture pools).</p>
- *
- * <p>Note: There are two input paths in this codebase:</p>
- * <ul>
- *   <li>AWT path (this class): registers Swing listeners and writes into the shared InputState via the orchestrator.</li>
- *   <li>GLFW path: {@code MouseInputHandler} with GLFW callbacks.</li>
- * </ul>
- * <p>Both paths converge on the same SceneInputProcessor so the interaction model is consistent.</p>
+ * AWTGLCanvas-backed scene panel. Each canvas owns its context-local GL resources
+ * and forwards AWT input to the scene orchestrator.
  */
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 

@@ -1,9 +1,6 @@
 package info.openrocket.swing.gui.figure3d.constants;
 
-/**
- * Contains essential rendering constants that are actually used throughout the engine.
- * Only includes constants that are actively used by the codebase.
- */
+/** Shared geometry and rendering constants. */
 public abstract class RenderingConstants {
 
 	// --- Particle System Limits ---

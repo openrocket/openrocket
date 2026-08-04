@@ -43,21 +43,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
- * Swing adapter for the new GLScenePanel renderer.
- *
- * <p>The previous adapter introduced extra render threads and schedulers on top of
- * AWTGLCanvas. The embedded Swing path uses a shared scheduler so all canvases
- * serialize native drawing-surface access.</p>
+ * Swing adapter that embeds a {@link GLScenePanel} and schedules demand-driven rendering.
  */
 public class RocketFigure3d extends JPanel implements SharedCanvasRenderScheduler.Client {
 
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-	// Single shared render thread — AWTGLCanvas.render() acquires a JAWT drawing-surface
-	// lock that must be serialized across canvases on most platforms. Per-window threads
-	// cause silent failures or deadlocks on the second canvas. We compensate for the old
-	// round-robin frame-rate degradation by rendering *all* dirty windows per tick instead
-	// of one window per tick, so N idle windows cost nothing and N active windows all
-	// receive their full 16 ms cadence.
+	// JAWT drawing-surface access must be serialized across canvases. The shared
+	// scheduler renders every dirty view each tick, so idle views add no work.
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
 
 	public static final int TYPE_FIGURE = 2;

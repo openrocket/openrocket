@@ -18,27 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Core scene container that manages all elements within the 3D visualization environment.
- * This class serves as the central hub for the OpenRocket 3D scene management system,
- * coordinating objects, lighting, camera, particle effects, and user interactions.
- * 
- * <p>The scene provides comprehensive management for:</p>
- * <ul>
- *   <li><b>Scene objects:</b> 3D meshes representing rocket components and other geometry</li>
- *   <li><b>Lighting system:</b> Multiple light sources with visual representations</li>
- *   <li><b>Camera management:</b> View control and projection handling</li>
- *   <li><b>Particle effects:</b> Emitters for flames, smoke, and other dynamic effects</li>
- *   <li><b>User interaction:</b> Object selection and manipulation through raycasting</li>
- *   <li><b>Visual effects:</b> Backgrounds, fog, and environmental settings</li>
- * </ul>
- * 
- * <p>The scene integrates closely with OpenRocket's rocket model, providing visual
- * representations of components while maintaining connections to the underlying
- * RocketComponent objects for interaction and manipulation.</p>
- * 
- * <p>Object selection is handled through precise 3D raycasting, supporting both
- * individual object selection and component-based group selection, enabling
- * intuitive interaction with complex rocket assemblies.</p>
+ * Mutable scene containing rocket objects, camera, lights, particles, and selection state.
  */
 public class Scene implements SceneView {
 

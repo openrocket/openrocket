@@ -13,22 +13,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Creates visual representations of lights within the 3D scene for debugging and user interaction.
- * This component generates visual markers that help users understand the lighting setup in the
- * OpenRocket 3D visualization environment. It provides interactive elements that allow users to
- * manipulate light positions and directions through direct 3D interaction.
- * 
- * <p>The visualizer creates different visual representations depending on the light type:</p>
- * <ul>
- *   <li><b>Point lights:</b> Rendered as draggable spheres positioned at the light location</li>
- *   <li><b>Directional lights:</b> Rendered as a draggable "sun" sphere connected to the origin by a ray</li>
- * </ul>
- * 
- * <p>All light visualizers are rendered as unlit objects to ensure they remain visible
- * regardless of the current lighting conditions. They integrate with the scene's interaction
- * system to provide intuitive light manipulation capabilities.</p>
- */
+/** Builds interactive scene geometry for point and directional lights. */
 public class LightVisualizer {
 	private static final Vector3f OUTLINE_COLOR = new Vector3f(0.08f, 0.08f, 0.08f);
 	private static final float POINT_RADIUS = 0.4f;
@@ -50,10 +35,8 @@ public class LightVisualizer {
 	private static final float SUN_DISTANCE = 10.0f;
 
 	/**
-	 * Creates one or more SceneObjects to visually represent a light source in the 3D scene.
-	 * The generated visual representations allow users to see and interact with lights,
-	 * making it easier to understand and adjust the lighting setup for optimal rocket visualization.
-	 * 
+	 * Creates the scene objects used to display and manipulate a light.
+	 *
 	 * @param light the light source to create visual representations for
 	 * @return a list of SceneObjects that make up the visual marker (may include multiple objects for directional lights)
 	 */
