@@ -11,10 +11,8 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
@@ -23,7 +21,6 @@ import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
 import static org.lwjgl.opengl.GL33.glBindFramebuffer;
-import static org.lwjgl.opengl.GL33.glBindVertexArray;
 import static org.lwjgl.opengl.GL33.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL33.glDeleteFramebuffers;
 import static org.lwjgl.opengl.GL33.glDeleteTextures;
@@ -118,11 +115,5 @@ final class PostProcessRenderTarget implements GpuResource {
 			glDeleteTextures(colorTextureId);
 			colorTextureId = 0;
 		}
-	}
-
-	static void drawFullscreenQuad(int screenQuadVAO) {
-		glBindVertexArray(screenQuadVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
 	}
 }

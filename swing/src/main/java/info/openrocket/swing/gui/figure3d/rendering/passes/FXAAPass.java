@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import org.joml.Matrix4f;
 
@@ -21,7 +22,7 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 public class FXAAPass implements ScreenTexturePass {
 
 	private final GLShader shader;
-	private final int screenQuadVAO;
+	private final FullscreenQuad fullscreenQuad;
 	private final PostProcessRenderTarget target;
 	private int inputTexture;
 
@@ -31,15 +32,15 @@ public class FXAAPass implements ScreenTexturePass {
 	 * Initializes the FXAA shaders and creates framebuffer resources for the
 	 * specified resolution. The pass is ready to process input textures immediately.
 	 * 
-	 * @param screenQuadVAO Vertex array object for full-screen quad rendering
+	 * @param fullscreenQuad shared full-screen geometry
 	 * @param initialWidth Initial framebuffer width in pixels
 	 * @param initialHeight Initial framebuffer height in pixels
 	 * @throws ShaderException If shader compilation fails
 	 */
-	public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) {
+	public FXAAPass(FullscreenQuad fullscreenQuad, int initialWidth, int initialHeight) {
 		this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
 		this.shader.requireUniformLocations("screenTexture", "rt_w", "rt_h");
-		this.screenQuadVAO = screenQuadVAO;
+		this.fullscreenQuad = fullscreenQuad;
 		this.target = new PostProcessRenderTarget("FXAA", initialWidth, initialHeight);
 		this.shader.use();
 		this.shader.setUniformInt("screenTexture", 0); // Set texture unit once
@@ -69,7 +70,7 @@ public class FXAAPass implements ScreenTexturePass {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, inputTexture);
 
-		PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
+		fullscreenQuad.draw();
 
 		shader.unbind();
 		target.unbind();

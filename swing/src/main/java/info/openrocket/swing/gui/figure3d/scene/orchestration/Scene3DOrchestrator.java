@@ -439,24 +439,17 @@ public class Scene3DOrchestrator {
 					.build();
 			Figure3DPreferences.applyDefaults(config, rocket.getDocument().getDocumentPreferences(),
 					Application.getPreferences());
-			
+			config.getDisplay().setMode(renderMode);
+			if (performanceMode) {
+				config.setPerformanceMode();
+			} else if (qualityMode) {
+				config.setQualityMode();
+			}
+
 			// Create scene
 			Scene scene = Scene.builder(rocket, camera, config).build();
 			
-			// Create the orchestrator
-			Scene3DOrchestrator orchestrator = new Scene3DOrchestrator(rocket, viewport, camera, scene, config, rendererOverride);
-			
-			// Apply render mode
-			orchestrator.getRenderingConfiguration().getDisplay().setMode(renderMode);
-			
-			// Apply performance/quality settings
-			if (performanceMode) {
-				orchestrator.getRenderingConfiguration().setPerformanceMode();
-			} else if (qualityMode) {
-				orchestrator.getRenderingConfiguration().setQualityMode();
-			}
-			
-			return orchestrator;
+			return new Scene3DOrchestrator(rocket, viewport, camera, scene, config, rendererOverride);
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
@@ -27,7 +28,7 @@ public class AmbientOcclusionPass implements ScreenTexturePass {
 	private final GLShader shader;
 	private final TextureBinder textureStateManager;
 	private final GraphicsQualitySettings qualitySettings;
-	private final int screenQuadVAO;
+	private final FullscreenQuad fullscreenQuad;
 	private final PostProcessRenderTarget target;
 	private final Matrix4f inverseProjection = new Matrix4f();
 
@@ -44,10 +45,10 @@ public class AmbientOcclusionPass implements ScreenTexturePass {
 	private int inputTexture;
 	private int depthTexture;
 
-	public AmbientOcclusionPass(int screenQuadVAO, TextureBinder textureStateManager,
+	public AmbientOcclusionPass(FullscreenQuad fullscreenQuad, TextureBinder textureStateManager,
 								GraphicsQualitySettings qualitySettings, int initialWidth, int initialHeight) {
 		this.shader = new GLShader("/shaders/post/screen_quad_vertex.glsl", "/shaders/post/ambient_occlusion_fragment.glsl");
-		this.screenQuadVAO = screenQuadVAO;
+		this.fullscreenQuad = fullscreenQuad;
 		this.textureStateManager = textureStateManager;
 		this.qualitySettings = qualitySettings;
 		this.target = new PostProcessRenderTarget("Ambient occlusion", initialWidth, initialHeight);
@@ -109,7 +110,7 @@ public class AmbientOcclusionPass implements ScreenTexturePass {
 		textureStateManager.setTextureParams(GL_TEXTURE_2D, depthTexture, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
 				GL_NEAREST, GL_NEAREST);
 
-		PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
+		fullscreenQuad.draw();
 
 		shader.unbind();
 		target.unbind();

@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
@@ -76,7 +77,7 @@ public class OutlinePass implements ScreenTexturePass {
 	private final MainShaderUniforms mainShaderUniforms;
 	private final GLShader outlinePostProcessShader;
 	private final TextureBinder textureStateManager;
-	private final int screenQuadVAO;
+	private final FullscreenQuad fullscreenQuad;
 	private final PostProcessRenderTarget outlineTarget;
 	private int maskFBO;
 	private int maskTexture;
@@ -87,8 +88,6 @@ public class OutlinePass implements ScreenTexturePass {
 	private int screenHeight;
 	private int inputTexture;
 	private boolean hasSelection;
-	private final GLShader screenQuadShader;
-	private final int screenTextureUniform;
 	private final int selectionTextureUniform;
 	private final int outlineColorUniform;
 	private final int outlineWidthUniform;
@@ -104,29 +103,26 @@ public class OutlinePass implements ScreenTexturePass {
 	 * @param mainShader The main geometry shader for mask rendering
 	 * @param mainShaderUniforms Cached uniform locations for performance
 	 * @param textureStateManager Manager for optimized texture state changes
-	 * @param screenQuadVAO Vertex array object for full-screen quad rendering
+	 * @param fullscreenQuad shared full-screen geometry and texture renderer
 	 * @param selectionColor RGBA color for outline rendering
 	 * @param initialWidth Initial framebuffer width in pixels
 	 * @param initialHeight Initial framebuffer height in pixels
-	 * @param screenQuadShader GLShader for scene texture composition
 	 * @throws ShaderException If shader compilation fails
 	 */
 	public OutlinePass(GLShader mainShader, MainShaderUniforms mainShaderUniforms,
-					   TextureBinder textureStateManager, int screenQuadVAO,
-					   Vector4f selectionColor, int initialWidth, int initialHeight, GLShader screenQuadShader) {
+					   TextureBinder textureStateManager, FullscreenQuad fullscreenQuad,
+					   Vector4f selectionColor, int initialWidth, int initialHeight) {
 		this.mainShader = mainShader;
 		this.mainShaderUniforms = mainShaderUniforms;
 		this.outlinePostProcessShader = new GLShader("/shaders/post/outline_vertex.glsl", "/shaders/post/outline_fragment.glsl");
-		this.screenQuadShader = screenQuadShader;
 		this.textureStateManager = textureStateManager;
-		this.screenQuadVAO = screenQuadVAO;
+		this.fullscreenQuad = fullscreenQuad;
 		this.selectionColor = selectionColor;
 		this.screenWidth = initialWidth;
 		this.screenHeight = initialHeight;
 		this.outlineTarget = new PostProcessRenderTarget("Outline output", initialWidth, initialHeight);
 		createMaskFramebuffer(initialWidth, initialHeight);
 
-		this.screenTextureUniform = screenQuadShader.requireUniformLocation("screenTexture");
 		this.selectionTextureUniform = outlinePostProcessShader.requireUniformLocation("selectionTexture");
 		this.outlineColorUniform = outlinePostProcessShader.requireUniformLocation("outlineColor");
 		this.outlineWidthUniform = outlinePostProcessShader.requireUniformLocation("outlineWidth");
@@ -238,10 +234,7 @@ public class OutlinePass implements ScreenTexturePass {
 	 */
 	private void drawScreenTexture(int textureId) {
 		glDisable(GL_DEPTH_TEST);
-		screenQuadShader.use();
-		textureStateManager.bindTexture(0, GL_TEXTURE_2D, textureId);
-		glUniform1i(screenTextureUniform, 0);
-		PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
+		fullscreenQuad.drawTexture(textureId, textureStateManager);
 	}
 
 	/**
@@ -269,7 +262,7 @@ public class OutlinePass implements ScreenTexturePass {
 		glUniform1f(outlineWidthUniform, SELECTION_OUTLINE_WIDTH);
 		glUniform2f(screenSizeUniform, (float)width, (float)height);
 
-		PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
+		fullscreenQuad.draw();
 
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);

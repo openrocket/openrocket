@@ -28,53 +28,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
-import static org.lwjgl.opengl.GL11.GL_FILL;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_FRONT;
-import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
-import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
-import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glColorMask;
 import static org.lwjgl.opengl.GL11.glCullFace;
-import static org.lwjgl.opengl.GL11.glDepthMask;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL11.glDrawBuffer;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glGetInteger;
-import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUniform4f;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
-import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * Main OpenGL 3.3 renderer for a figure3d scene.
@@ -97,19 +59,6 @@ public class RealisticRenderer implements GLRenderer {
 	// Shader resource paths
 	private static final String MAIN_VERTEX_SHADER_PATH = "/shaders/vertex.glsl";
 	private static final String MAIN_FRAGMENT_SHADER_PATH = "/shaders/fragment.glsl";
-	private static final String SCREEN_QUAD_VERTEX_SHADER_PATH = "/shaders/post/screen_quad_vertex.glsl";
-	private static final String SCREEN_QUAD_FRAGMENT_SHADER_PATH = "/shaders/post/screen_quad_fragment.glsl";
-
-	// Full-screen quad used by the post-processing passes (positions + texCoords)
-	private static final float[] SCREEN_QUAD_VERTICES = {
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			-1.0f, -1.0f,  0.0f, 0.0f,
-			1.0f, -1.0f,  1.0f, 0.0f,
-
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			1.0f, -1.0f,  1.0f, 0.0f,
-			1.0f,  1.0f,  1.0f, 1.0f
-	};
 
 	private final GLShader mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
@@ -130,9 +79,7 @@ public class RealisticRenderer implements GLRenderer {
 	private int screenHeight;
 	private final RenderingConfiguration config;
 
-	// Screen quad for post-processing
-	private final int screenQuadVAO;
-	private final int screenQuadVBO;
+	private final FullscreenQuad fullscreenQuad;
 
 	// Cached uniform locations
 	private final MainShaderUniforms mainShaderUniforms;
@@ -140,9 +87,6 @@ public class RealisticRenderer implements GLRenderer {
 	private final ParticleRenderer particleRenderer;
 	private final VolumetricSmokeRenderer volumetricSmokeRenderer;
 	private final FlameRenderer flameRenderer;
-	private final GLShader screenQuadShader;
-	private final int screenQuadTextureLocation;
-	private final int screenQuadApplyGammaCorrectionLocation;
 	private final CaretsPass caretsPass;
 	private final CameraPointOfInterestPass cameraPointOfInterestPass;
 	private final ShadowPass shadowPass;
@@ -186,17 +130,11 @@ public class RealisticRenderer implements GLRenderer {
 		// Main shader for scene objects
 		mainShader = new GLShader(MAIN_VERTEX_SHADER_PATH, MAIN_FRAGMENT_SHADER_PATH);
 		mainShaderUniforms = new MainShaderUniforms(mainShader);
-		screenQuadShader = new GLShader(SCREEN_QUAD_VERTEX_SHADER_PATH, SCREEN_QUAD_FRAGMENT_SHADER_PATH);
-		screenQuadTextureLocation = screenQuadShader.requireUniformLocation("screenTexture");
-		screenQuadApplyGammaCorrectionLocation = screenQuadShader.requireUniformLocation("applyGammaCorrection");
+		fullscreenQuad = new FullscreenQuad();
 
 		particleRenderer = new ParticleRenderer();
 		volumetricSmokeRenderer = new VolumetricSmokeRenderer();
 		flameRenderer = new FlameRenderer();
-
-		ScreenQuad screenQuad = createScreenQuad();
-		screenQuadVAO = screenQuad.vao();
-		screenQuadVBO = screenQuad.vbo();
 
 		renderTarget = new OffscreenRenderTarget(initialWidth, initialHeight, getRequestedSceneSampleCount());
 		resolvedTextureId = renderTarget.getColorTextureId();
@@ -209,12 +147,12 @@ public class RealisticRenderer implements GLRenderer {
 		cameraPointOfInterestPass = createCameraPointOfInterestPass();
 
 		// Post-processing passes
-		ambientOcclusionPass = new AmbientOcclusionPass(screenQuadVAO, textureStateManager,
+		ambientOcclusionPass = new AmbientOcclusionPass(fullscreenQuad, textureStateManager,
 				config.getQuality(), initialWidth, initialHeight);
 		motionBlurPass = createMotionBlurPass();
 		outlinePass = new OutlinePass(mainShader, mainShaderUniforms, textureStateManager,
-				screenQuadVAO, selectionColor, initialWidth, initialHeight, screenQuadShader);
-		fxaaPass = new FXAAPass(screenQuadVAO, initialWidth, initialHeight);
+				fullscreenQuad, selectionColor, initialWidth, initialHeight);
+		fxaaPass = new FXAAPass(fullscreenQuad, initialWidth, initialHeight);
 
 		// Apply initial settings
 		updatePostProcessingChain();
@@ -223,30 +161,6 @@ public class RealisticRenderer implements GLRenderer {
 
 		// Add a configuration listener
 		config.addListener(this::onScenePropertiesChanged);
-	}
-
-	private record ScreenQuad(int vao, int vbo) {}
-
-	/**
-	 * Creates and uploads the full-screen quad used by the post-processing passes,
-	 * and configures its vertex attribute pointers (position + texCoord).
-	 */
-	private static ScreenQuad createScreenQuad() {
-		int vao = glGenVertexArrays();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao, "GLRenderer screenQuadVAO");
-		int vbo = glGenBuffers();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vbo, "GLRenderer screenQuadVBO");
-
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, SCREEN_QUAD_VERTICES, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, 4 * Float.BYTES, 0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * Float.BYTES, 2 * Float.BYTES);
-		glBindVertexArray(0);
-
-		return new ScreenQuad(vao, vbo);
 	}
 
 	private ShadowPass createShadowPass() {
@@ -274,7 +188,7 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	private MotionBlurPass createMotionBlurPass() {
-		MotionBlurPass pass = new MotionBlurPass(screenQuadVAO, initialWidth, initialHeight);
+		MotionBlurPass pass = new MotionBlurPass(fullscreenQuad, initialWidth, initialHeight);
 		pass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
 		return pass;
 	}
@@ -299,7 +213,6 @@ public class RealisticRenderer implements GLRenderer {
 		// Rebuilding a complex shadow map for every mouse event can keep weaker
 		// Windows drivers continuously saturated. The first idle frame recreates it.
 		shadowPass.setEnabled(config.getQuality().isShadowsEnabled() && !shouldReduceInteractionEffects());
-		shadowPass.setQuality(config.getQuality().getQuality());
 		shadowPass.render(scene, cameraViewMatrix, cameraProjectionMatrix);
 		glViewport(0, 0, screenWidth, screenHeight);
 
@@ -480,22 +393,7 @@ public class RealisticRenderer implements GLRenderer {
 			return;
 		}
 
-		renderTarget.bind();
-		glViewport(0, 0, screenWidth, screenHeight);
-		glDisable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		screenQuadShader.use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, currentTexture);
-		glUniform1i(screenQuadTextureLocation, 0);
-
-		glBindVertexArray(screenQuadVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-
-		glEnable(GL_DEPTH_TEST);
-		renderTarget.unbind();
+		fullscreenQuad.copyTextureTo(renderTarget, currentTexture, screenWidth, screenHeight);
 		resolvedTextureId = renderTarget.getColorTextureId();
 	}
 
@@ -516,42 +414,7 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	public void presentResolvedToCurrentFramebuffer() {
-		if (resolvedTextureId == 0) {
-			return;
-		}
-
-		int presentBuffer = glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDrawBuffer(presentBuffer);
-		glDepthMask(true);
-		glColorMask(true, true, true, true);
-		glViewport(0, 0, screenWidth, screenHeight);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_SCISSOR_TEST);
-		glDisable(GL_STENCIL_TEST);
-		glDisable(GL_BLEND);
-		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		// Disable automatic sRGB conversion — apply it manually in the shader instead,
-		// so behaviour is consistent regardless of whether the default framebuffer is
-		// sRGB-capable (it is silently ignored on many Linux/GLX drivers).
-		glDisable(GL_FRAMEBUFFER_SRGB);
-
-		screenQuadShader.use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, resolvedTextureId);
-		glUniform1i(screenQuadTextureLocation, 0);
-		glUniform1i(screenQuadApplyGammaCorrectionLocation, 1);
-
-		glBindVertexArray(screenQuadVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-
-		// Reset uniform and restore sRGB state for subsequent intermediate passes
-		glUniform1i(screenQuadApplyGammaCorrectionLocation, 0);
-		glEnable(GL_FRAMEBUFFER_SRGB);
-		glEnable(GL_DEPTH_TEST);
+		fullscreenQuad.present(resolvedTextureId, screenWidth, screenHeight);
 	}
 
 	/**
@@ -604,7 +467,7 @@ public class RealisticRenderer implements GLRenderer {
 		particleRenderer.cleanup();
 		flameRenderer.cleanup();
 		volumetricSmokeRenderer.cleanup();
-		screenQuadShader.cleanup();
+		fullscreenQuad.cleanup();
 
 		caretsPass.cleanup();
 		cameraPointOfInterestPass.cleanup();
@@ -619,14 +482,6 @@ public class RealisticRenderer implements GLRenderer {
 		motionBlurPass.cleanup();
 
 		renderTarget.cleanup();
-		if (screenQuadVAO != 0) {
-			GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, screenQuadVAO);
-			glDeleteVertexArrays(screenQuadVAO);
-		}
-		if (screenQuadVBO != 0) {
-			GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, screenQuadVBO);
-			glDeleteBuffers(screenQuadVBO);
-		}
 
 		textureStateManager.reset();
 	}

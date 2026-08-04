@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
+import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -28,7 +29,7 @@ public class MotionBlurPass implements ScreenTexturePass {
 	private final GLShader shader;
 	private float blurFactor = 1f;
 	private final Vector2f blurDirection = new Vector2f(1.0f, 0.0f);
-	private final int screenQuadVAO;
+	private final FullscreenQuad fullscreenQuad;
 	private final PostProcessRenderTarget target;
 	private int inputTexture;
 	private int depthTexture;
@@ -43,14 +44,14 @@ public class MotionBlurPass implements ScreenTexturePass {
 	 * Initializes motion blur shaders and creates framebuffer resources for the
 	 * specified resolution. The blur factor defaults to 1.0 for moderate effect.
 	 * 
-	 * @param screenQuadVAO Vertex array object for full-screen quad rendering
+	 * @param fullscreenQuad shared full-screen geometry
 	 * @param initialWidth Initial framebuffer width in pixels
 	 * @param initialHeight Initial framebuffer height in pixels
 	 * @throws ShaderException If shader compilation fails
 	 */
-	public MotionBlurPass(int screenQuadVAO, int initialWidth, int initialHeight) {
+	public MotionBlurPass(FullscreenQuad fullscreenQuad, int initialWidth, int initialHeight) {
 		this.shader = new GLShader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
-		this.screenQuadVAO = screenQuadVAO;
+		this.fullscreenQuad = fullscreenQuad;
 		this.target = new PostProcessRenderTarget("Motion blur", initialWidth, initialHeight);
 		this.blurFactorLocation = shader.requireUniformLocation("blurFactor");
 		this.blurDirectionLocation = shader.requireUniformLocation("blurDirection");
@@ -92,7 +93,7 @@ public class MotionBlurPass implements ScreenTexturePass {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthTexture);
 
-		PostProcessRenderTarget.drawFullscreenQuad(screenQuadVAO);
+		fullscreenQuad.draw();
 
 		shader.unbind();
 		glActiveTexture(GL_TEXTURE0);
