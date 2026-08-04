@@ -118,7 +118,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.parameters.addListener(rocketPanel);
 
 		this.aoa = new DoubleModel(parameters, "AOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
-		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
+		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0, 6.0);
 		this.theta = new DoubleModel(parameters, "Theta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		this.roll = new DoubleModel(parameters, "RollRate", UnitGroup.UNITS_ROLL);
 
