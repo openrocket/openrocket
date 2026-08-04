@@ -39,6 +39,8 @@ public class CameraPointOfInterestPass implements RenderPass {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		shader.requireUniformLocations("projectionMatrix", "viewMatrix", "center", "color",
+				"scaleWithView", "fixedScaleFactor", "viewportHeight");
 		this.markerMesh = new GLRenderableMesh(CameraPointOfInterestGenerator.create());
 		updateColorFromTheme();
 		this.uiThemeListener = this::updateColorFromTheme;

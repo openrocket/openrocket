@@ -1,8 +1,8 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
+import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
@@ -73,7 +73,7 @@ import static org.lwjgl.opengl.GL30.glUniform4f;
 public class OutlinePass implements RenderPass, ScreenTexturePass {
 
 	private final GLShader mainShader;
-	private final RealisticRenderer.ShaderUniforms mainShaderUniforms;
+	private final MainShaderUniforms mainShaderUniforms;
 	private final GLShader outlinePostProcessShader;
 	private final TextureBinder textureStateManager;
 	private final int screenQuadVAO;
@@ -111,7 +111,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
 	 * @param screenQuadShader GLShader for scene texture composition
 	 * @throws ShaderException If shader compilation fails
 	 */
-	public OutlinePass(GLShader mainShader, RealisticRenderer.ShaderUniforms mainShaderUniforms,
+	public OutlinePass(GLShader mainShader, MainShaderUniforms mainShaderUniforms,
 					   TextureBinder textureStateManager, int screenQuadVAO,
 					   Vector4f selectionColor, int initialWidth, int initialHeight, GLShader screenQuadShader) {
 		this.mainShader = mainShader;
@@ -126,11 +126,11 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
 		this.outlineTarget = new PostProcessRenderTarget("Outline output", initialWidth, initialHeight);
 		createMaskFramebuffer(initialWidth, initialHeight);
 
-		this.screenTextureUniform = screenQuadShader.getUniformLocation("screenTexture");
-		this.selectionTextureUniform = outlinePostProcessShader.getUniformLocation("selectionTexture");
-		this.outlineColorUniform = outlinePostProcessShader.getUniformLocation("outlineColor");
-		this.outlineWidthUniform = outlinePostProcessShader.getUniformLocation("outlineWidth");
-		this.screenSizeUniform = outlinePostProcessShader.getUniformLocation("screenSize");
+		this.screenTextureUniform = screenQuadShader.requireUniformLocation("screenTexture");
+		this.selectionTextureUniform = outlinePostProcessShader.requireUniformLocation("selectionTexture");
+		this.outlineColorUniform = outlinePostProcessShader.requireUniformLocation("outlineColor");
+		this.outlineWidthUniform = outlinePostProcessShader.requireUniformLocation("outlineWidth");
+		this.screenSizeUniform = outlinePostProcessShader.requireUniformLocation("screenSize");
 	}
 
 	private void createMaskFramebuffer(int width, int height) {

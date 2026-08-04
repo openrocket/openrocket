@@ -106,14 +106,14 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		buffer = MemoryUtil.memAllocFloat(maxQuads * VERTICES_PER_QUAD * FLOATS_PER_VERTEX);
 
 		// Cache uniform locations
-		projectionMatrixLocation = shader.getUniformLocation("projection");
-		viewMatrixLocation = shader.getUniformLocation("view");
-		smokeTextureLocation = shader.getUniformLocation("smokeTexture");
-		lightPosLocation = shader.getUniformLocation("lightPos");
-		lightColorLocation = shader.getUniformLocation("lightColor");
-		lightIntensityLocation = shader.getUniformLocation("lightIntensity");
-		ambientLightLocation = shader.getUniformLocation("ambientLight");
-		lightSensitivityLocation = shader.getUniformLocation("lightSensitivity");
+		projectionMatrixLocation = shader.requireUniformLocation("projection");
+		viewMatrixLocation = shader.requireUniformLocation("view");
+		smokeTextureLocation = shader.requireUniformLocation("smokeTexture");
+		lightPosLocation = shader.requireUniformLocation("lightPos");
+		lightColorLocation = shader.requireUniformLocation("lightColor");
+		lightIntensityLocation = shader.requireUniformLocation("lightIntensity");
+		ambientLightLocation = shader.requireUniformLocation("ambientLight");
+		lightSensitivityLocation = shader.requireUniformLocation("lightSensitivity");
 		
 		smokeTexture = new Texture("/textures/smoke2.png");
 

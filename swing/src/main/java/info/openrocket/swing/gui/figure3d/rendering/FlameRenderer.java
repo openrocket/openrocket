@@ -84,12 +84,12 @@ public class FlameRenderer implements ParticleSystemRenderer {
 		buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
 
 		// Cache uniform locations
-		projectionMatrixLocation = shader.getUniformLocation("projection");
-		viewMatrixLocation = shader.getUniformLocation("view");
-		timeLocation = shader.getUniformLocation("time");
-		flameTextureLocation = shader.getUniformLocation("flameTexture");
-		flickerIntensityLocation = shader.getUniformLocation("flickerIntensity");
-		exposureScaleLocation = shader.getUniformLocation("exposureScale");
+		projectionMatrixLocation = shader.requireUniformLocation("projection");
+		viewMatrixLocation = shader.requireUniformLocation("view");
+		timeLocation = shader.requireUniformLocation("time");
+		flameTextureLocation = shader.requireUniformLocation("flameTexture");
+		flickerIntensityLocation = shader.requireUniformLocation("flickerIntensity");
+		exposureScaleLocation = shader.requireUniformLocation("exposureScale");
 
 		flameTexture = new Texture("/textures/smoke2.png");
 

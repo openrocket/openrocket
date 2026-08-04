@@ -139,6 +139,7 @@ public class ShadowPass implements RenderPass {
 	 */
 	public ShadowPass(int initialWidth, int initialHeight, boolean memoryConstrained) {
 		this.depthShader = new GLShader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
+		this.depthShader.requireUniformLocations("lightSpaceMatrix", "model");
 		this.maxShadowMapSize = memoryConstrained ? CONSTRAINED_MAX_SHADOW_MAP_SIZE : MAX_SHADOW_MAP_SIZE;
 		this.lastViewportWidth = initialWidth;
 		this.lastViewportHeight = initialHeight;

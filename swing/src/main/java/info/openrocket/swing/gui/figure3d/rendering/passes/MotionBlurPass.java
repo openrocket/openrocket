@@ -52,10 +52,10 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 		this.shader = new GLShader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
 		this.screenQuadVAO = screenQuadVAO;
 		this.target = new PostProcessRenderTarget("Motion blur", initialWidth, initialHeight);
-		this.blurFactorLocation = shader.getUniformLocation("blurFactor");
-		this.blurDirectionLocation = shader.getUniformLocation("blurDirection");
-		this.screenTextureLocation = shader.getUniformLocation("screenTexture");
-		this.depthTextureLocation = shader.getUniformLocation("depthTexture");
+		this.blurFactorLocation = shader.requireUniformLocation("blurFactor");
+		this.blurDirectionLocation = shader.requireUniformLocation("blurDirection");
+		this.screenTextureLocation = shader.requireUniformLocation("screenTexture");
+		this.depthTextureLocation = shader.requireUniformLocation("depthTexture");
 		this.shader.use();
 		glUniform1i(screenTextureLocation, 0);
 		glUniform1i(depthTextureLocation, 1);

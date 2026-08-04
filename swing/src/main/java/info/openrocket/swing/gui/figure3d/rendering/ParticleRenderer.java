@@ -77,6 +77,7 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 	 */
 	public ParticleRenderer() {
 		shader = new GLShader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
+		shader.requireUniformLocations("projection", "view");
 		buffer = MemoryUtil.memAllocFloat(maxParticles * 2 * 6); // 2 vertices per particle, 6 floats per vertex
 
 		vao = glGenVertexArrays();

@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.rendering.passes.AmbientOcclusionPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.BackgroundPass;
@@ -15,7 +14,6 @@ import info.openrocket.swing.gui.figure3d.rendering.passes.RenderPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.ScreenTexturePass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.ShadowPass;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
-import info.openrocket.swing.gui.figure3d.scene.graph.Light;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -95,7 +93,6 @@ public class RealisticRenderer implements GLRenderer {
 	 * Halving it keeps edge quality usable on GPUs that share system memory.
 	 */
 	private static final int CONSTRAINED_SCENE_MSAA_SAMPLES = 2;
-	private static final int MAX_SHADER_LIGHTS = 10;
 
 	// Shader resource paths
 	private static final String MAIN_VERTEX_SHADER_PATH = "/shaders/vertex.glsl";
@@ -116,8 +113,6 @@ public class RealisticRenderer implements GLRenderer {
 
 	private final GLShader mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
-	private final Vector3f cameraPosition = new Vector3f();
-	private final Vector3f scratchFogColor = new Vector3f();
 	private final Vector3f blurRocketAxis = new Vector3f();
 	private final Vector4f blurOrigin = new Vector4f();
 	private final Vector4f blurTip = new Vector4f();
@@ -141,7 +136,7 @@ public class RealisticRenderer implements GLRenderer {
 	private final int screenQuadVBO;
 
 	// Cached uniform locations
-	private final ShaderUniforms mainShaderUniforms;
+	private final MainShaderUniforms mainShaderUniforms;
 
 	private final ParticleRenderer particleRenderer;
 	private final VolumetricSmokeRenderer volumetricSmokeRenderer;
@@ -152,121 +147,13 @@ public class RealisticRenderer implements GLRenderer {
 	private final CaretsPass caretsPass;
 	private final CameraPointOfInterestPass cameraPointOfInterestPass;
 	private final ShadowPass shadowPass;
+	private final SceneLighting sceneLighting;
 	private final AmbientOcclusionPass ambientOcclusionPass;
 	private final OutlinePass outlinePass;
 	private final FXAAPass fxaaPass;
 
 	private final OffscreenRenderTarget renderTarget;
 	private int resolvedTextureId;
-
-	/**
-	 * Cached uniform locations for the main scene shader.
-	 */
-	public static class ShaderUniforms {
-		public final int projection;
-		public final int view;
-		public final int model;
-		public final int normalMatrix;
-		public final int viewPos;
-		public final int lightSpaceMatrix;
-		public final int numLights;
-		public final int fogColor;
-		public final int fogEnabled;
-		public final int fogDensity;
-		public final int selectionColor;
-		public final int isSelected;
-		public final int isUnlit;
-		public final int ambientLightFactor;
-		public final int objectColor;
-		public final int materialSpecular;
-		public final int specularTintFactor;
-		public final int renderStyle;
-		public final int shine;
-		public final int roughnessScale;
-		public final int roughnessStrength;
-		public final int opacity;
-		public final int textureOpacityAffectsAlpha;
-		public final int shadowMap;
-		public final int shadowsEnabled;
-		public final int shadowLightIndex;
-		public final int shadowStrength;
-		public final int textureTransformMatrix;
-		public final int textureSampler;
-		public final int hasTexture;
-		public final int hasDecal;
-		public final int decalTransformMatrix;
-		public final int decalSampler;
-		public final int decalSurfaceMask;
-		public final int forceWhite;
-		public final int enableRoughnessBump;
-		public final int hideInnerSurfaces;
-		public final int xrayMode;
-		public final LightUniforms[] lights = new LightUniforms[MAX_SHADER_LIGHTS];
-
-		/**
-		 * Creates a new uniform location cache for the given shader.
-		 * 
-		 * @param shader The shader to resolve uniform locations for
-		 */
-		ShaderUniforms(GLShader shader) {
-			this.projection = shader.getUniformLocation("projection");
-			this.view = shader.getUniformLocation("view");
-			this.model = shader.getUniformLocation("model");
-			this.normalMatrix = shader.getUniformLocation("normalMatrix");
-			this.viewPos = shader.getUniformLocation("viewPos");
-			this.lightSpaceMatrix = shader.getUniformLocation("lightSpaceMatrix");
-			this.numLights = shader.getUniformLocation("numLights");
-			this.fogEnabled = shader.getUniformLocation("fogEnabled");
-			this.fogColor = shader.getUniformLocation("fogColor");
-			this.fogDensity = shader.getUniformLocation("fogDensity");
-			this.selectionColor = shader.getUniformLocation("selectionColor");
-			this.isSelected = shader.getUniformLocation("isSelected");
-			this.isUnlit = shader.getUniformLocation("isUnlit");
-			this.ambientLightFactor = shader.getUniformLocation("ambientLightFactor");
-			this.objectColor = shader.getUniformLocation("objectColor");
-			this.materialSpecular = shader.getUniformLocation("materialSpecular");
-			this.specularTintFactor = shader.getUniformLocation("specularTintFactor");
-			this.renderStyle = shader.getUniformLocation("renderStyle");
-			this.shine = shader.getUniformLocation("shine");
-			this.roughnessScale = shader.getUniformLocation("roughnessScale");
-			this.roughnessStrength = shader.getUniformLocation("roughnessStrength");
-			this.opacity = shader.getUniformLocation("opacity");
-			this.textureOpacityAffectsAlpha = shader.getUniformLocation("textureOpacityAffectsAlpha");
-			this.shadowMap = shader.getUniformLocation("shadowMap");
-			this.shadowsEnabled = shader.getUniformLocation("shadowsEnabled");
-			this.shadowLightIndex = shader.getUniformLocation("shadowLightIndex");
-			this.shadowStrength = shader.getUniformLocation("shadowStrength");
-			this.textureTransformMatrix = shader.getUniformLocation("textureTransformMatrix");
-			this.textureSampler = shader.getUniformLocation("textureSampler");
-			this.hasTexture = shader.getUniformLocation("hasTexture");
-			this.hasDecal = shader.getUniformLocation("hasDecal");
-			this.decalTransformMatrix = shader.getUniformLocation("decalTransformMatrix");
-			this.decalSampler = shader.getUniformLocation("decalSampler");
-			this.decalSurfaceMask = shader.getUniformLocation("decalSurfaceMask");
-			this.forceWhite = shader.getUniformLocation("forceWhite");
-			this.enableRoughnessBump = shader.getUniformLocation("enableRoughnessBump");
-			this.hideInnerSurfaces = shader.getUniformLocation("hideInnerSurfaces");
-			this.xrayMode = shader.getUniformLocation("xrayMode");
-			for (int i = 0; i < lights.length; i++) {
-				lights[i] = new LightUniforms(shader, i);
-			}
-		}
-
-		public static class LightUniforms {
-			public final int type;
-			public final int position;
-			public final int direction;
-			public final int color;
-
-			LightUniforms(GLShader shader, int index) {
-				String prefix = "lights[" + index + "].";
-				this.type = shader.getUniformLocation(prefix + "type");
-				this.position = shader.getUniformLocation(prefix + "position");
-				this.direction = shader.getUniformLocation(prefix + "direction");
-				this.color = shader.getUniformLocation(prefix + "color");
-			}
-		}
-	}
 
 	private final List<RenderPass> geometryPasses = new ArrayList<>();
 	private final List<RenderPass> postProcessingPasses = new ArrayList<>();
@@ -299,10 +186,10 @@ public class RealisticRenderer implements GLRenderer {
 
 		// Main shader for scene objects
 		mainShader = new GLShader(MAIN_VERTEX_SHADER_PATH, MAIN_FRAGMENT_SHADER_PATH);
-		mainShaderUniforms = new ShaderUniforms(mainShader);
+		mainShaderUniforms = new MainShaderUniforms(mainShader);
 		screenQuadShader = new GLShader(SCREEN_QUAD_VERTEX_SHADER_PATH, SCREEN_QUAD_FRAGMENT_SHADER_PATH);
-		screenQuadTextureLocation = screenQuadShader.getUniformLocation("screenTexture");
-		screenQuadApplyGammaCorrectionLocation = screenQuadShader.getUniformLocation("applyGammaCorrection");
+		screenQuadTextureLocation = screenQuadShader.requireUniformLocation("screenTexture");
+		screenQuadApplyGammaCorrectionLocation = screenQuadShader.requireUniformLocation("applyGammaCorrection");
 
 		particleRenderer = new ParticleRenderer();
 		volumetricSmokeRenderer = new VolumetricSmokeRenderer();
@@ -316,6 +203,8 @@ public class RealisticRenderer implements GLRenderer {
 		resolvedTextureId = renderTarget.getColorTextureId();
 
 		shadowPass = createShadowPass();
+		sceneLighting = new SceneLighting(mainShader, mainShaderUniforms, textureStateManager,
+				shadowPass, config, selectionColor);
 		initGeometryPasses();
 		caretsPass = createCaretsPass(rocket);
 		cameraPointOfInterestPass = createCameraPointOfInterestPass();
@@ -419,7 +308,8 @@ public class RealisticRenderer implements GLRenderer {
 		glViewport(0, 0, screenWidth, screenHeight);
 
 		// Prepare the main shader with uniforms that are constant for the frame
-		prepareShaderGlobals(scene, camera, cameraViewMatrix, cameraProjectionMatrix);
+		sceneLighting.bindFrameUniforms(scene, camera, cameraViewMatrix, cameraProjectionMatrix,
+				shouldReduceInteractionEffects());
 
 		// 1. Render the geometry passes to the main FBO
 		renderSceneToTarget(scene, renderBackground, camera, cameraViewMatrix, cameraProjectionMatrix);
@@ -590,86 +480,6 @@ public class RealisticRenderer implements GLRenderer {
 		motionBlurPass.setBlurDirection(tx - ox, ty - oy);
 	}
 
-	/**
-	 * Sets up global shader uniforms that remain constant for the entire frame.
-	 *
-	 * This includes camera matrices, lighting information, fog settings,
-	 * and other frame-constant values to avoid redundant uniform updates.
-	 *
-	 * @param scene The scene containing lights and environment settings
-	 * @param camera The active camera
-	 * @param viewMatrix The camera's view transformation matrix
-	 * @param projectionMatrix The camera's projection matrix
-	 */
-	private void prepareShaderGlobals(SceneView scene, Camera camera, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
-		mainShader.use();
-
-		// Camera uniforms
-		mainShader.setUniformMatrix4f(mainShaderUniforms.projection, projectionMatrix);
-		mainShader.setUniformMatrix4f(mainShaderUniforms.view, viewMatrix);
-		Vector3f cameraPos = camera.getPosition(cameraPosition);
-		glUniform3f(mainShaderUniforms.viewPos, cameraPos.x, cameraPos.y, cameraPos.z);
-
-		mainShader.setUniformMatrix4f(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
-		textureStateManager.bindTexture(2, GL_TEXTURE_2D, shadowPass.getDepthMapTexture());
-		glUniform1i(mainShaderUniforms.shadowMap, 2);
-		if (shadowPass.hasShadowMap()) {
-			glUniform1i(mainShaderUniforms.shadowsEnabled, 1);
-			glUniform1i(mainShaderUniforms.shadowLightIndex, shadowPass.getShadowCastingLightIndex());
-			glUniform1f(mainShaderUniforms.shadowStrength, shadowPass.getShadowStrength());
-		} else {
-			glUniform1i(mainShaderUniforms.shadowsEnabled, 0);
-			glUniform1i(mainShaderUniforms.shadowLightIndex, -1);
-			glUniform1f(mainShaderUniforms.shadowStrength, 0.0f);
-		}
-
-		// --- Lighting ---
-		List<Light> lights = scene.getLightController().getLights();
-		int numActiveLights = Math.min(lights.size(), MAX_SHADER_LIGHTS);
-		glUniform1i(mainShaderUniforms.numLights, numActiveLights);
-
-		for (int i = 0; i < numActiveLights; i++) {
-			Light light = lights.get(i);
-			ShaderUniforms.LightUniforms lightUniforms = mainShaderUniforms.lights[i];
-			Vector3f lightPosition = light.getPosition();
-			Vector3f lightDirection = light.getDirection();
-			Vector3f lightColor = light.getColor();
-			glUniform1i(lightUniforms.type, light.getType().ordinal());
-			glUniform3f(lightUniforms.position, lightPosition.x, lightPosition.y, lightPosition.z);
-			glUniform3f(lightUniforms.direction, lightDirection.x, lightDirection.y, lightDirection.z);
-			glUniform3f(lightUniforms.color, lightColor.x, lightColor.y, lightColor.z);
-		}
-
-		// Fog
-		if (scene.isFogEnabled()) {
-			glUniform1i(mainShaderUniforms.fogEnabled, 1);
-			final Vector3f fogColor = scratchFogColor;
-			if (scene.getBackground() instanceof SolidColorBackground) {
-				Vector4f bgColor = ((SolidColorBackground) scene.getBackground()).getColor();
-				fogColor.set(bgColor.x, bgColor.y, bgColor.z);
-			} else if (scene.getBackground() instanceof GradientBackground) {
-				fogColor.set(((GradientBackground) scene.getBackground()).getBottomColor());
-			} else {
-				fogColor.set(0.5f, 0.6f, 0.7f);
-			}
-			glUniform3f(mainShaderUniforms.fogColor, fogColor.x, fogColor.y, fogColor.z);
-			glUniform1f(mainShaderUniforms.fogDensity, scene.getFogDensity());
-		} else {
-			glUniform1i(mainShaderUniforms.fogEnabled, 0);
-		}
-
-		glUniform4f(mainShaderUniforms.selectionColor, selectionColor.x, selectionColor.y,
-				selectionColor.z, selectionColor.w);
-
-		glUniform1f(mainShaderUniforms.ambientLightFactor, config.getVisualEffects().getAmbientLightFactor());
-		// The roughness bump is the most expensive thing the fragment shader does, so it is
-		// suspended during interaction along with the shadow map and the post-processing
-		// passes — but only when the user has asked for that, since dropping it is a visible
-		// change to the surface rather than a free one. The first idle frame restores it.
-		boolean roughnessBump = config.getQuality().isRoughnessBumpRendered() && !shouldReduceInteractionEffects();
-		glUniform1i(mainShaderUniforms.enableRoughnessBump, roughnessBump ? 1 : 0);
-	}
-	
 	private void resolveFinalTexture(int currentTexture) {
 		if (currentTexture == 0) {
 			resolvedTextureId = 0;

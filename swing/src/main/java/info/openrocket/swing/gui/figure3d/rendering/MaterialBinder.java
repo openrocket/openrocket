@@ -9,7 +9,7 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
 public interface MaterialBinder {
 	void bind(SceneObject obj,
 			  GLShader shader,
-			  RealisticRenderer.ShaderUniforms uniforms,
+			  MainShaderUniforms uniforms,
 			  RenderingConfiguration config,
 			  TextureBinder textureBinder);
 

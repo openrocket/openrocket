@@ -45,7 +45,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
 	@Override
 	public void bind(SceneObject obj,
 					 GLShader shader,
-					 RealisticRenderer.ShaderUniforms uniforms,
+					 MainShaderUniforms uniforms,
 					 RenderingConfiguration config,
 					 TextureBinder textureBinder) {
 		final Appearance3D appearance = obj.getAppearance();

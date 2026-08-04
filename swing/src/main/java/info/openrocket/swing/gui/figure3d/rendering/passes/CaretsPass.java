@@ -96,6 +96,8 @@ public class CaretsPass implements RenderPass {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		shader.requireUniformLocations("projectionMatrix", "viewMatrix", "scaleWithView",
+				"fixedScaleFactor", "viewportHeight", "center", "color");
 		this.aerodynamicCalculator = new BarrowmanCalculator();
 		this.cgMesh = new GLRenderableMesh(CGCaretGenerator.create(config.getQuality().getQuality()));
 		this.cpMesh = new GLRenderableMesh(CPCaretGenerator.create(config.getQuality().getQuality()));

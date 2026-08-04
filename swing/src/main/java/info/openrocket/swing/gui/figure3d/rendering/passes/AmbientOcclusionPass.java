@@ -52,15 +52,15 @@ public class AmbientOcclusionPass implements RenderPass, ScreenTexturePass {
 		this.qualitySettings = qualitySettings;
 		this.target = new PostProcessRenderTarget("Ambient occlusion", initialWidth, initialHeight);
 
-		this.projectionUniform = shader.getUniformLocation("projection");
-		this.inverseProjectionUniform = shader.getUniformLocation("inverseProjection");
-		this.screenSizeUniform = shader.getUniformLocation("screenSize");
-		this.radiusUniform = shader.getUniformLocation("radius");
-		this.strengthUniform = shader.getUniformLocation("strength");
-		this.biasUniform = shader.getUniformLocation("bias");
-		this.sampleCountUniform = shader.getUniformLocation("sampleCount");
-		this.screenTextureUniform = shader.getUniformLocation("screenTexture");
-		this.depthTextureUniform = shader.getUniformLocation("depthTexture");
+		this.projectionUniform = shader.requireUniformLocation("projection");
+		this.inverseProjectionUniform = shader.requireUniformLocation("inverseProjection");
+		this.screenSizeUniform = shader.requireUniformLocation("screenSize");
+		this.radiusUniform = shader.requireUniformLocation("radius");
+		this.strengthUniform = shader.requireUniformLocation("strength");
+		this.biasUniform = shader.requireUniformLocation("bias");
+		this.sampleCountUniform = shader.requireUniformLocation("sampleCount");
+		this.screenTextureUniform = shader.requireUniformLocation("screenTexture");
+		this.depthTextureUniform = shader.requireUniformLocation("depthTexture");
 
 		shader.use();
 		glUniform1i(screenTextureUniform, 0);

@@ -102,17 +102,18 @@ public class BackgroundPass implements RenderPass {
 		hdriShader = new GLShader("/shaders/background/hdri_vertex.glsl", "/shaders/background/hdri_fragment.glsl");
 		checkerboardShader = new GLShader("/shaders/background/checkerboard_vertex.glsl", "/shaders/background/checkerboard_fragment.glsl");
 		this.textureStateManager = textureStateManager;
-		gradientTopColorLocation = gradientShader.getUniformLocation("topColor");
-		gradientBottomColorLocation = gradientShader.getUniformLocation("bottomColor");
-		imageSamplerLocation = imageShader.getUniformLocation("backgroundImage");
-		skyboxViewLocation = skyboxShader.getUniformLocation("view");
-		skyboxProjectionLocation = skyboxShader.getUniformLocation("projection");
-		skyboxSamplerLocation = skyboxShader.getUniformLocation("skybox");
-		hdriViewLocation = hdriShader.getUniformLocation("view");
-		hdriProjectionLocation = hdriShader.getUniformLocation("projection");
-		hdriExposureLocation = hdriShader.getUniformLocation("exposure");
-		hdriSamplerLocation = hdriShader.getUniformLocation("equirectangularMap");
-		checkerboardScaleLocation = checkerboardShader.getUniformLocation("scale");
+		gradientTopColorLocation = gradientShader.requireUniformLocation("topColor");
+		gradientBottomColorLocation = gradientShader.requireUniformLocation("bottomColor");
+		imageSamplerLocation = imageShader.requireUniformLocation("backgroundImage");
+		skyboxViewLocation = skyboxShader.requireUniformLocation("view");
+		skyboxProjectionLocation = skyboxShader.requireUniformLocation("projection");
+		skyboxSamplerLocation = skyboxShader.requireUniformLocation("skybox");
+		hdriViewLocation = hdriShader.requireUniformLocation("view");
+		hdriProjectionLocation = hdriShader.requireUniformLocation("projection");
+		hdriExposureLocation = hdriShader.requireUniformLocation("exposure");
+		hdriSamplerLocation = hdriShader.requireUniformLocation("equirectangularMap");
+		checkerboardScaleLocation = checkerboardShader.requireUniformLocation("scale");
+		checkerboardShader.requireUniformLocation("bgColor");
 
 		// Gradient background VAO
 		float[] gradientQuadVertices = { -1.0f,  1.0f, -1.0f, -1.0f, 1.0f,  1.0f, 1.0f, -1.0f };

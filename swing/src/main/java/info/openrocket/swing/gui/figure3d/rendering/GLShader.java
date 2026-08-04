@@ -166,6 +166,33 @@ public class GLShader implements GpuResource {
 	}
 
 	/**
+	 * Resolves a uniform that is part of the shader's required Java/GLSL contract.
+	 *
+	 * @param name the uniform name
+	 * @return the uniform location
+	 * @throws ShaderException if the linked program does not expose the uniform
+	 */
+	public int requireUniformLocation(String name) {
+		int location = getUniformLocation(name);
+		if (location < 0) {
+			throw new ShaderException("Required uniform '" + name + "' not found in shader program ("
+					+ vertexPath + ", " + fragmentPath + ")");
+		}
+		return location;
+	}
+
+	/**
+	 * Validates and caches a group of required uniforms.
+	 *
+	 * @param uniformNames uniform names that must be exposed by the linked program
+	 */
+	public void requireUniformLocations(String... uniformNames) {
+		for (String name : uniformNames) {
+			requireUniformLocation(name);
+		}
+	}
+
+	/**
 	 * Sets a Matrix4f uniform by name (uses caching).
 	 * @param name   The name of the uniform in the shader.
 	 * @param matrix The Matrix4f to set.

@@ -5,6 +5,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
+import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
 import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
@@ -55,7 +56,7 @@ public class GeometryPass implements RenderPass {
 	private final GLShader mainShader;
 	private final RenderingConfiguration config;
 	private final TextureBinder textureStateManager;
-	private final RealisticRenderer.ShaderUniforms mainShaderUniforms;
+	private final MainShaderUniforms mainShaderUniforms;
 	private final RealisticRenderer.RenderStats renderStats;
 	private final MaterialBinder materialBinder = new DefaultMaterialBinder();
 
@@ -69,7 +70,7 @@ public class GeometryPass implements RenderPass {
 	 * @param renderStats Statistics collector for performance monitoring
 	 */
 	public GeometryPass(GLShader mainShader, RenderingConfiguration config,
-						TextureBinder textureStateManager, RealisticRenderer.ShaderUniforms mainShaderUniforms,
+						TextureBinder textureStateManager, MainShaderUniforms mainShaderUniforms,
 						RealisticRenderer.RenderStats renderStats) {
 		this.mainShader = mainShader;
 		this.config = config;

@@ -38,6 +38,7 @@ public class FXAAPass implements RenderPass, ScreenTexturePass {
 	 */
 	public FXAAPass(int screenQuadVAO, int initialWidth, int initialHeight) {
 		this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
+		this.shader.requireUniformLocations("screenTexture", "rt_w", "rt_h");
 		this.screenQuadVAO = screenQuadVAO;
 		this.target = new PostProcessRenderTarget("FXAA", initialWidth, initialHeight);
 		this.shader.use();
