@@ -25,9 +25,12 @@ import net.miginfocom.swing.MigLayout;
 public class ComponentAnalysisDialog extends JDialog {
 	private static final long serialVersionUID = 9131240570600307935L;
 	private static ComponentAnalysisDialog singletonDialog = null;
+	private static OpenRocketDocument retainedDocument;
+	private static DialogSettings retainedSettings;
 	private static final Translator trans = Application.getTranslator();
 
 	private JButton okButton;
+	private boolean retainSettingsOnClose = true;
 
 	public ComponentAnalysisDialog(OpenRocketDocument document, RocketPanel rocketPanel) {
 		//// Component analysis
@@ -37,6 +40,7 @@ public class ComponentAnalysisDialog extends JDialog {
 		add(panel);
 
 		JTabbedPane tabbedPane = new JTabbedPane();
+		DialogSettings initialSettings = document == retainedDocument ? retainedSettings : null;
 
 		// General tab
 		ComponentAnalysisGeneralPanel generalTab = new ComponentAnalysisGeneralPanel(this, rocketPanel);
@@ -44,8 +48,13 @@ public class ComponentAnalysisDialog extends JDialog {
 
 		// Plot export tab
 		ComponentAnalysisPlotExportPanel plotExportTab = new ComponentAnalysisPlotExportPanel(this, document,
-				generalTab.getParameters(), generalTab.getAerodynamicCalculator(), generalTab.getRocket());
+				generalTab.getParameters(), generalTab.getAerodynamicCalculator(), generalTab.getRocket(),
+				initialSettings != null ? initialSettings.plotExportSettings : null);
 		tabbedPane.addTab(trans.get("ComponentAnalysisDialog.tab.PlotExport"), plotExportTab);
+		if (initialSettings != null && initialSettings.selectedTab >= 0 &&
+				initialSettings.selectedTab < tabbedPane.getTabCount()) {
+			tabbedPane.setSelectedIndex(initialSettings.selectedTab);
+		}
 
 		panel.add(tabbedPane, "span, pushy, grow, wrap");
 
@@ -53,6 +62,10 @@ public class ComponentAnalysisDialog extends JDialog {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
+				if (retainSettingsOnClose) {
+					retainedDocument = document;
+					retainedSettings = new DialogSettings(tabbedPane.getSelectedIndex(), plotExportTab.getSettings());
+				}
 				singletonDialog = null;
 			}
 		});
@@ -78,6 +91,7 @@ public class ComponentAnalysisDialog extends JDialog {
 				showOkButton(tabbedPane.getSelectedComponent() == plotExportTab);
 			}
 		});
+		showOkButton(tabbedPane.getSelectedComponent() == plotExportTab);
 
 		this.setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -103,7 +117,25 @@ public class ComponentAnalysisDialog extends JDialog {
 	}
 
 	public static void hideDialog() {
-		if (singletonDialog != null)
+		if (singletonDialog != null) {
+			singletonDialog.retainSettingsOnClose = false;
 			singletonDialog.dispose();
+		}
+		retainedDocument = null;
+		retainedSettings = null;
+	}
+
+	/**
+	 * Settings which should survive closing and reopening the dialog for the same document.
+	 */
+	private static final class DialogSettings {
+		private final int selectedTab;
+		private final ComponentAnalysisPlotExportPanel.Settings plotExportSettings;
+
+		private DialogSettings(int selectedTab,
+							   ComponentAnalysisPlotExportPanel.Settings plotExportSettings) {
+			this.selectedTab = selectedTab;
+			this.plotExportSettings = plotExportSettings;
+		}
 	}
 }
