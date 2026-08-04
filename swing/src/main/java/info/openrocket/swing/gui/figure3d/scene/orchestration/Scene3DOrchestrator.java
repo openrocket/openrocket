@@ -21,7 +21,6 @@ import info.openrocket.swing.gui.figure3d.scene.graph.Light;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.ExportListener;
-import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
@@ -66,16 +65,17 @@ public class Scene3DOrchestrator {
 	 * between logical window coordinates and physical framebuffer pixels, which is
 	 * important for high-DPI displays.</p>
 	 * 
-	 * @param newWinWidth The new logical window width in pixels
-	 * @param newWinHeight The new logical window height in pixels
-	 * @param newFbWidth The new framebuffer width in pixels
-	 * @param newFbHeight The new framebuffer height in pixels
+	 * @param newWindowWidth The new logical window width in pixels
+	 * @param newWindowHeight The new logical window height in pixels
+	 * @param newFramebufferWidth The new framebuffer width in pixels
+	 * @param newFramebufferHeight The new framebuffer height in pixels
 	 */
-	public void resize(int newWinWidth, int newWinHeight, int newFbWidth, int newFbHeight) {
+	public void resize(int newWindowWidth, int newWindowHeight,
+			int newFramebufferWidth, int newFramebufferHeight) {
 		boolean wasZoomFitting = cameraController.isZoomFitting();
 
 		// Update viewport dimensions
-		viewport.update(newWinWidth, newWinHeight, newFbWidth, newFbHeight);
+		viewport.update(newWindowWidth, newWindowHeight, newFramebufferWidth, newFramebufferHeight);
 		
 		// Propagate resize event to relevant components
 		cameraController.resize(viewport.getAspectRatio());
@@ -83,10 +83,8 @@ public class Scene3DOrchestrator {
 			cameraController.focusOnRocket();
 		}
 		inputHandler.updateDimensions(viewport);
-		if (renderer != null) {
-			renderer.resize(viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
-			renderer.setDisplayScale(getDisplayScale());
-		}
+		renderer.resize(viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
+		renderer.setDisplayScale(getDisplayScale());
 	}
 
 	/**
@@ -134,10 +132,7 @@ public class Scene3DOrchestrator {
 	}
 
 	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
-		GLRenderer activeRenderer = renderer;
-		if (activeRenderer != null) {
-			activeRenderer.setCaretPositions(cg, cp);
-		}
+		renderer.setCaretPositions(cg, cp);
 	}
 
 	/**
@@ -340,168 +335,49 @@ public class Scene3DOrchestrator {
 	}
 	
 	/**
-	 * Builder for {@link Scene3DOrchestrator}.
+	 * Creates an orchestrator using the figure 3D defaults and saved preferences.
+	 *
+	 * @param rocket the rocket model to visualize
+	 * @param windowWidth the logical window width in pixels
+	 * @param windowHeight the logical window height in pixels
+	 * @param framebufferWidth the framebuffer width in pixels
+	 * @param framebufferHeight the framebuffer height in pixels
+	 * @return a configured orchestrator
+	 * @throws Exception if the renderer cannot be initialized
 	 */
-	public static class Builder {
-		private final Rocket rocket;
-		private final ViewportDimensions viewport;
-		private float fieldOfView = (float) Math.toRadians(10);
-		private float nearPlane = 0.1f;
-		private float farPlane = 100f;
-		private DisplaySettings.RenderMode renderMode = DisplaySettings.RenderMode.FINISHED;
-		private boolean performanceMode = false;
-		private boolean qualityMode = false;
-		private GLRenderer rendererOverride;
-		
-		private Builder(Rocket rocket, ViewportDimensions viewport) {
-			this.rocket = rocket;
-			this.viewport = viewport;
-		}
-		
-		/**
-		 * Sets the camera field of view.
-		 * @param fieldOfView The field of view in radians (default: 10 degrees)
-		 * @return This builder instance
-		 */
-		public Builder withFieldOfView(double fieldOfView) {
-			this.fieldOfView = (float) fieldOfView;
-			return this;
-		}
-		
-		/**
-		 * Sets the camera near and far clipping planes.
-		 * @param nearPlane The near clipping plane distance (default: 0.1)
-		 * @param farPlane The far clipping plane distance (default: 100.0)
-		 * @return This builder instance
-		 */
-		public Builder withClippingPlanes(float nearPlane, float farPlane) {
-			this.nearPlane = nearPlane;
-			this.farPlane = farPlane;
-			return this;
-		}
-		
-		/**
-		 * Sets the initial render mode.
-		 * @param renderMode The render mode to use (default: FINISHED)
-		 * @return This builder instance
-		 */
-		public Builder withRenderMode(DisplaySettings.RenderMode renderMode) {
-			this.renderMode = renderMode;
-			return this;
-		}
-		
-		/** Selects the lower-quality performance preset. */
-		public Builder withPerformanceMode() {
-			this.performanceMode = true;
-			this.qualityMode = false;
-			return this;
-		}
-		
-		/** Selects the higher-quality preset. */
-		public Builder withQualityMode() {
-			this.performanceMode = false;
-			this.qualityMode = true;
-			return this;
-		}
-		
-		/**
-		 * Overrides the renderer instance. Primarily intended for testing.
-		 */
-		public Builder withRenderer(GLRenderer renderer) {
-			this.rendererOverride = renderer;
-			return this;
-		}
-		
-		/**
-		 * Builds the Scene3DOrchestrator with the configured settings.
-		 * @return A new Scene3DOrchestrator instance
-		 * @throws Exception If any component fails to initialize
-		 */
-		public Scene3DOrchestrator build() throws Exception {
-			// Create camera with custom settings
-			Camera camera = Camera.builder()
-				.withFieldOfView(fieldOfView)
+	public static Scene3DOrchestrator create(Rocket rocket, int windowWidth, int windowHeight,
+			int framebufferWidth, int framebufferHeight) throws Exception {
+		ViewportDimensions viewport = new ViewportDimensions(
+				windowWidth, windowHeight, framebufferWidth, framebufferHeight);
+		Camera camera = Camera.builder()
+				.withFieldOfView(Math.toRadians(10))
 				.withAspectRatio(viewport.getAspectRatio())
-				.withClippingPlanes(nearPlane, farPlane)
+				.withClippingPlanes(0.1f, 100f)
 				.withFixedCenterOfInterest(false)
 				.build();
-				
-			// Create rendering configuration
-			RenderingConfiguration config = RenderingConfiguration.builder()
-					.withParticleEffects(false)
-					//.withParticleTiming(false, 0f)
-					.build();
-			Figure3DPreferences.applyDefaults(config, rocket.getDocument().getDocumentPreferences(),
-					Application.getPreferences());
-			config.getDisplay().setMode(renderMode);
-			if (performanceMode) {
-				config.setPerformanceMode();
-			} else if (qualityMode) {
-				config.setQualityMode();
-			}
 
-			// Create scene
-			Scene scene = Scene.builder(rocket, camera, config).build();
-			
-			return new Scene3DOrchestrator(rocket, viewport, camera, scene, config, rendererOverride);
-		}
+		RenderingConfiguration config = RenderingConfiguration.builder()
+				.withParticleEffects(false)
+				.build();
+		Figure3DPreferences.applyDefaults(config, rocket.getDocument().getDocumentPreferences(),
+				Application.getPreferences());
+
+		Scene scene = Scene.builder(rocket, camera, config).build();
+		return new Scene3DOrchestrator(rocket, viewport, camera, scene, config);
 	}
 	
 	/**
-	 * Creates a builder for constructing Scene3DOrchestrator with custom configuration.
-	 * @param rocket The rocket model to visualize
-	 * @param viewport The viewport dimensions
-	 * @return A new builder instance
-	 */
-	public static Builder builder(Rocket rocket, ViewportDimensions viewport) {
-		return new Builder(rocket, viewport);
-	}
-	
-	/**
-	 * Creates a builder for constructing Scene3DOrchestrator with custom configuration.
-	 * @param rocket The rocket model to visualize
-	 * @param width The width in pixels (both window and framebuffer)
-	 * @param height The height in pixels (both window and framebuffer)
-	 * @return A new builder instance
-	 */
-	public static Builder builder(Rocket rocket, int width, int height) {
-		return new Builder(rocket, new ViewportDimensions(width, height));
-	}
-	
-	/**
-	 * Creates a builder for constructing Scene3DOrchestrator with custom configuration.
-	 * @param rocket The rocket model to visualize
-	 * @param winWidth The logical window width in pixels
-	 * @param winHeight The logical window height in pixels
-	 * @param fbWidth The framebuffer width in pixels
-	 * @param fbHeight The framebuffer height in pixels
-	 * @return A new builder instance
-	 */
-	public static Builder builder(Rocket rocket, int winWidth, int winHeight, int fbWidth, int fbHeight) {
-		return new Builder(rocket, new ViewportDimensions(winWidth, winHeight, fbWidth, fbHeight));
-	}
-	
-	/**
-	 * Internal constructor used by the builder to create a fully configured orchestrator.
-	 * This constructor initializes all components of the 3D visualization system in the correct
-	 * order and establishes the necessary connections between them.
-	 * 
-	 * <p>Initialization sequence:</p>
-	 * <ol>
-	 *   <li>Core components (viewport, scene, configuration)</li>
-	 *   <li>GLRenderer with GPU resources</li>
-	 *   <li>Controllers for camera and input handling</li>
-	 *   <li>Synchronizer for rocket model integration</li>
-	 * </ol>
-	 * 
+	 * Connects the configured scene resources and creates the renderer and controllers.
+	 *
 	 * @param rocket the OpenRocket model to visualize
 	 * @param viewport the viewport dimensions for rendering
 	 * @param camera the pre-configured camera instance
 	 * @param scene the pre-configured scene instance
 	 * @param config the rendering configuration settings
-	 * @throws Exception if any component fails to initialize properly
+	 * @throws Exception if the renderer cannot be initialized
 	 */
-	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, SceneView scene, RenderingConfiguration config, GLRenderer rendererOverride) throws Exception {
+	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, SceneView scene,
+			RenderingConfiguration config) throws Exception {
 		// 1. Initialize core components
 		this.viewport = viewport;
 		this.scene = scene;
@@ -510,11 +386,8 @@ public class Scene3DOrchestrator {
 		InputState inputState = new InputState();
 
 		// 2. Initialize renderer
-		if (rendererOverride != null) {
-			this.renderer = rendererOverride;
-		} else {
-			this.renderer = new RealisticRenderer(renderingConfiguration, rocket, viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
-		}
+		this.renderer = new RealisticRenderer(renderingConfiguration, rocket,
+				viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
 		// A view that opens at its final size never resizes, so this cannot wait for resize().
 		this.renderer.setDisplayScale(getDisplayScale());
 

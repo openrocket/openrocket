@@ -799,16 +799,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			configureGlState();
 			log.debug("OpenGL context {}", GLContextDiagnostics.record(data, effective));
 
-			int winWidth = Math.max(1, getWidth());
-			int winHeight = Math.max(1, getHeight());
-			int[] fbSize = getCurrentFramebufferSize();
-			int fbWidth = fbSize[0];
-			int fbHeight = fbSize[1];
+			int windowWidth = Math.max(1, getWidth());
+			int windowHeight = Math.max(1, getHeight());
+			int[] framebufferSize = getCurrentFramebufferSize();
+			int framebufferWidth = framebufferSize[0];
+			int framebufferHeight = framebufferSize[1];
 
-			createScene(winWidth, winHeight, fbWidth, fbHeight);
+			createScene(windowWidth, windowHeight, framebufferWidth, framebufferHeight);
 			if (hudOverlay != null) {
-				lastFramebufferWidth = fbWidth;
-				lastFramebufferHeight = fbHeight;
+				lastFramebufferWidth = framebufferWidth;
+				lastFramebufferHeight = framebufferHeight;
 				hudOverlay.initResources();
 			}
 
@@ -843,9 +843,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/** Builds the orchestrator and its scene, and hooks it up to the preferences and the HUD. */
-	private void createScene(int winWidth, int winHeight, int fbWidth, int fbHeight) throws Exception {
-		scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
-				.build();
+	private void createScene(int windowWidth, int windowHeight,
+			int framebufferWidth, int framebufferHeight) throws Exception {
+		scene3DOrchestrator = Scene3DOrchestrator.create(
+				rocket, windowWidth, windowHeight, framebufferWidth, framebufferHeight);
 
 		// Create the scene mesh through the orchestrator so context-owned textures
 		// use this canvas's decal cache rather than the process-wide fallback cache.
@@ -1006,28 +1007,29 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			return;
 		}
 
-		int width = Math.max(1, getWidth());
-		int height = Math.max(1, getHeight());
-		int[] fbSize = getCurrentFramebufferSize();
-		int fbWidth = fbSize[0];
-		int fbHeight = fbSize[1];
+		int windowWidth = Math.max(1, getWidth());
+		int windowHeight = Math.max(1, getHeight());
+		int[] framebufferSize = getCurrentFramebufferSize();
+		int framebufferWidth = framebufferSize[0];
+		int framebufferHeight = framebufferSize[1];
 		ViewportDimensions viewport = scene3DOrchestrator.getViewport();
 
-		if (viewport.getWindowWidth() == width
-				&& viewport.getWindowHeight() == height
-				&& viewport.getFramebufferWidth() == fbWidth
-				&& viewport.getFramebufferHeight() == fbHeight) {
+		if (viewport.getWindowWidth() == windowWidth
+				&& viewport.getWindowHeight() == windowHeight
+				&& viewport.getFramebufferWidth() == framebufferWidth
+				&& viewport.getFramebufferHeight() == framebufferHeight) {
 			resizeRequested = false;
 			return;
 		}
 
-		glViewport(0, 0, fbWidth, fbHeight);
-		scene3DOrchestrator.resize(width, height, fbWidth, fbHeight);
+		glViewport(0, 0, framebufferWidth, framebufferHeight);
+		scene3DOrchestrator.resize(windowWidth, windowHeight, framebufferWidth, framebufferHeight);
 
-		if (hudOverlay != null && (fbWidth != lastFramebufferWidth || fbHeight != lastFramebufferHeight)) {
+		if (hudOverlay != null && (framebufferWidth != lastFramebufferWidth
+				|| framebufferHeight != lastFramebufferHeight)) {
 			hudOverlay.initTexture();
-			lastFramebufferWidth = fbWidth;
-			lastFramebufferHeight = fbHeight;
+			lastFramebufferWidth = framebufferWidth;
+			lastFramebufferHeight = framebufferHeight;
 			hudOverlay.markForUpdate();
 			hudOverlay.requestRepaint(true);
 		}
