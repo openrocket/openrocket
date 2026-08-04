@@ -8,6 +8,7 @@ import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
+import info.openrocket.swing.gui.figure3d.rendering.GLContextDiagnostics;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
@@ -804,6 +805,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	public void initGL() {
 		try {
 			configureGlState();
+			log.debug("OpenGL context {}", GLContextDiagnostics.record(data, effective));
 
 			int winWidth = Math.max(1, getWidth());
 			int winHeight = Math.max(1, getHeight());
