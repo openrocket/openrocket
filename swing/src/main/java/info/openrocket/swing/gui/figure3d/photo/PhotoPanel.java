@@ -74,7 +74,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private final AtomicBoolean captureQueued = new AtomicBoolean(false);
 	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
 	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
-	private final AtomicReference<GLScenePanel> pendingCanvasRebuild = new AtomicReference<>();
+	private final AtomicReference<GLScenePanel> pendingContextResetRebuild = new AtomicReference<>();
 	private final AtomicBoolean syncingCameraToSettings = new AtomicBoolean(false);
 	private final AtomicBoolean suppressCameraToSettingsSync = new AtomicBoolean(false);
 	private final AtomicBoolean suppressLightToSettingsSync = new AtomicBoolean(false);
@@ -126,9 +126,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private double lastViewAlt;
 	private double lastViewDistance;
 	private double lastFov;
-	private volatile long earliestRenderAtMs;
 	private volatile boolean renderLoopRunning = false;
-	private static final int STARTUP_RENDER_DELAY_MS = 120;
 	private static final String[] MOUNTAINS_CUBEMAP = {
 			"/datafiles/sky/box/East.jpg",
 			"/datafiles/sky/box/West.jpg",
@@ -235,7 +233,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		pendingApply.set(true);
 		GLScenePanel panel;
 		try {
-			panel = new GLScenePanel(doc.getRocket(), null, false);
+			panel = new GLScenePanel(doc.getRocket(), null);
 		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
 			log.warn("Photo Studio 3D view unavailable: LWJGL native libraries not found for {}/{}.",
 					System.getProperty("os.name"), System.getProperty("os.arch"), e);
@@ -243,10 +241,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		glPanel = panel;
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
-		glPanel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		glPanel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
 		glPanel.setGlInitFailureCallback(() -> SwingUtilities.invokeLater(() -> showGLInitFailureUI(panel)));
 		attachInteractionSyncListener(glPanel);
-		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		invalidateCachedSceneState();
 		add(glPanel, BorderLayout.CENTER);
 		revalidate();
@@ -267,7 +264,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		captureQueued.set(false);
 		settingsApplyQueued.set(false);  // reset in case the GL task was cleared without running
 		pendingApply.set(false);
-		pendingCanvasRebuild.set(null);
+		pendingContextResetRebuild.set(null);
 		deferringInteractiveSettingsSync.set(false);
 		deferredCameraState.set(null);
 		deferredLightDirection.set(null);
@@ -382,9 +379,6 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			stopRenderLoop();
 			return;
 		}
-		if (System.currentTimeMillis() < earliestRenderAtMs) {
-			return;
-		}
 		if (!panel.isDisplayable() || !panel.isShowing()) {
 			return;
 		}
@@ -395,7 +389,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			applySettings();
 		}
 		panel.render();
-		if (processPendingCanvasRebuild(panel)) {
+		if (processPendingContextResetRebuild(panel)) {
 			return;
 		}
 		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
@@ -436,21 +430,21 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		repaint();
 	}
 
-	private void requestCanvasRebuild(GLScenePanel failedPanel) {
-		pendingCanvasRebuild.compareAndSet(null, failedPanel);
+	private void requestContextResetRebuild(GLScenePanel failedPanel) {
+		pendingContextResetRebuild.compareAndSet(null, failedPanel);
 	}
 
-	private boolean processPendingCanvasRebuild(GLScenePanel panel) {
-		if (!pendingCanvasRebuild.compareAndSet(panel, null)) {
+	private boolean processPendingContextResetRebuild(GLScenePanel panel) {
+		if (!pendingContextResetRebuild.compareAndSet(panel, null)) {
 			return false;
 		}
-		rebuildCanvasAfterBlankDefaultFramebuffer(panel);
+		rebuildCanvasAfterGraphicsReset(panel);
 		return true;
 	}
 
-	private void rebuildCanvasAfterBlankDefaultFramebuffer(GLScenePanel failedPanel) {
+	private void rebuildCanvasAfterGraphicsReset(GLScenePanel failedPanel) {
 		if (!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(() -> rebuildCanvasAfterBlankDefaultFramebuffer(failedPanel));
+			SwingUtilities.invokeLater(() -> rebuildCanvasAfterGraphicsReset(failedPanel));
 			return;
 		}
 		if (glPanel != failedPanel || document == null) {
@@ -471,7 +465,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 		GLScenePanel panel;
 		try {
-			panel = new GLScenePanel(document.getRocket(), null, false);
+			panel = new GLScenePanel(document.getRocket(), null);
 		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
 			log.warn("Photo Studio 3D view unavailable during recovery: LWJGL native libraries not found for {}/{}.",
 					System.getProperty("os.name"), System.getProperty("os.arch"), e);
@@ -479,10 +473,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		glPanel = panel;
 		panel.setInitializationHook(this::initializePhotoPanelOnGlThread);
-		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		panel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
 		panel.setGlInitFailureCallback(() -> SwingUtilities.invokeLater(() -> showGLInitFailureUI(panel)));
 		attachInteractionSyncListener(panel);
-		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		invalidateCachedSceneState();
 		add(panel, BorderLayout.CENTER);
 		revalidate();
@@ -499,7 +492,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		detachSceneListeners(panel);
 		detachInteractionSyncListener(panel);
 		panel.setInitializationHook(null);
-		panel.setBlankDefaultFramebufferCallback(null);
+		panel.setGraphicsResetCallback(null);
 		// Release GL resources while the peer is still displayable, then let
 		// AWTGLCanvas.removeNotify() dispose the native context during removal.
 		panel.cleanup();

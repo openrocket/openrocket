@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
-import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -39,10 +38,8 @@ import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.GraphicsConfiguration;
 import java.awt.Point;
 import java.awt.Window;
-import java.awt.geom.AffineTransform;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.HierarchyEvent;
@@ -66,8 +63,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -104,11 +99,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-	// A heavyweight canvas can move on screen when an ancestor is laid out without
-	// receiving a component resize of its own. Retain the peer-bounds nudge on macOS;
-	// lwjgl3-awt now owns the native layer lifecycle and presentation itself.
-	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
-			SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
 	private final AtomicInteger paintCallCount = new AtomicInteger(0);
 	private final AtomicInteger swapCallCount = new AtomicInteger(0);
@@ -130,11 +120,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final boolean REQUEST_ROBUST_CONTEXT =
 			SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS
 					&& !Boolean.getBoolean("openrocket.figure3d.disableRobustContext");
-	private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
-	private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
-	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
-	private static final int MAX_PEER_BOUNDS_SYNC_ATTEMPTS = 20;
-	private static final int PEER_BOUNDS_SYNC_RETRY_DELAY_MS = 50;
 	private static final int[] STARTUP_FRAME_RECOVERY_DELAYS_MS = {150, 400, 800, 1500, 3000, 5000};
 	private final AtomicInteger startupRecoveryGeneration = new AtomicInteger(0);
 
@@ -151,25 +136,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	// Resize coordination between EDT and render thread
 	private volatile boolean resizeRequested = false;
-	private volatile int pendingWinWidth;
-	private volatile int pendingWinHeight;
-	private volatile int pendingFbWidth;
-	private volatile int pendingFbHeight;
-	private volatile boolean suppressInternalResizeEvents = false;
 
 	// Initialization guard - prevents resize/render operations before GL is fully ready
 	private volatile boolean glInitialized = false;
 	public volatile boolean glInitFailed = false;
-	private volatile boolean visibleFrameRecoveryPending = true;
-	// Swap count when the current recovery began; used to tell "no frame completes
-	// at all" (escalate to rebuild) apart from "frames complete but look blank"
-	// (handled by the framebuffer probes).
+	// Swap count when the current recovery began. Follow-up redraws stop as soon as
+	// a frame completes.
 	private volatile int recoveryBaselineSwapCount = 0;
-	private static final Semaphore INIT_SEMAPHORE = new Semaphore(1, true);
-	private static final ReentrantLock RENDER_LOCK = new ReentrantLock(true);
-	// How long cleanup() waits for an in-flight render before giving up on
-	// in-context GL resource cleanup (leaking is better than a native crash).
-	private static final long CLEANUP_RENDER_LOCK_TIMEOUT_MS = 2000;
 	// LWJGL capabilities are thread-local; store per-canvas so we can render multiple canvases on one thread.
 	private volatile GLCapabilities glCapabilities;
 	// Whether this context can report driver resets, and whether one has already been seen.
@@ -177,7 +150,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean graphicsResetDetected = false;
 
 	private final Rocket rocket;
-	private final boolean peerBoundsSyncEnabled;
 	private static final ExecutorService EXPORT_EXECUTOR;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
@@ -190,15 +162,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
 	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
-	private final AtomicBoolean startupBlankFramebufferRecoveryRequested = new AtomicBoolean(false);
-	private volatile int startupBlankFramebufferFrames = 0;
-	// Once startup visibility is confirmed, the per-frame glReadPixels probes are
-	// disabled — each readback stalls the GPU pipeline and they only exist to
-	// drive a one-shot recovery callback.
-	private volatile boolean startupFrameDetectionComplete = false;
-	private volatile int consecutiveVisibleStartupFrames = 0;
-	private static final int STARTUP_VISIBILITY_CONFIRM_FRAMES = 2;
-	private volatile Runnable blankDefaultFramebufferCallback;
+	private volatile Runnable graphicsResetCallback;
 	private volatile Runnable glInitFailureCallback;
 	private volatile Window ancestorWindow;
 	private final WindowAdapter ancestorWindowListener = new WindowAdapter() {
@@ -258,10 +222,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	public GLScenePanel(Rocket rocket, HUDPanel hudPanel) {
-		this(rocket, hudPanel, true);
-	}
-
-	public GLScenePanel(Rocket rocket, HUDPanel hudPanel, boolean enablePeerBoundsSync) {
 		super(createGLData());
 		// Keep the heavyweight peer's fallback fill aligned with the initial GL
 		// scene. RocketFigure3d updates this when a document-specific color is used.
@@ -269,7 +229,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		this.rocket = rocket;
 		this.hudOverlay = hudPanel != null ? new HudOverlay(hudPanel, this) : null;
-		this.peerBoundsSyncEnabled = NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && enablePeerBoundsSync;
 		this.keyboardHandler = new KeyboardHandler();
 		this.wheelInteractionEndTimer = createWheelInteractionEndTimer();
 		this.resizeSettleTimer = createResizeSettleTimer();
@@ -279,9 +238,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setIgnoreRepaint(true);
 
 		installHierarchyListener();
-		if (peerBoundsSyncEnabled) {
-			installPeerBoundsSyncListener();
-		}
+		installAncestorBoundsRenderListener();
 		installResizeListener();
 	}
 
@@ -332,34 +289,33 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/**
-	 * Keeps the native peer's on-screen location correct when an ancestor moves it
-	 * without resizing this canvas.
-	 *
-	 * <p>CardLayout and JSplitPane switches can change the on-screen position of a
-	 * heavyweight component without changing its local bounds, and Swing will not
-	 * necessarily resize the canvas. On macOS that leaves the peer at the wrong
-	 * location until the next real resize.</p>
+	 * Requests a frame when layout changes move or resize an ancestor without
+	 * delivering a component event to this heavyweight canvas. lwjgl3-awt updates
+	 * the native layer bounds when the next context is activated; OpenRocket still
+	 * needs to schedule that activation because its renderer is demand-driven.
 	 */
-	private void installPeerBoundsSyncListener() {
+	private void installAncestorBoundsRenderListener() {
 		addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
 			@Override
 			public void ancestorMoved(HierarchyEvent e) {
-				syncPeerBoundsIfShowing();
+				handleAncestorBoundsChanged();
 			}
 
 			@Override
 			public void ancestorResized(HierarchyEvent e) {
-				syncPeerBoundsIfShowing();
+				handleAncestorBoundsChanged();
 			}
 		});
 	}
 
-	private void syncPeerBoundsIfShowing() {
-		if (!isShowing()) {
+	private void handleAncestorBoundsChanged() {
+		if (!isDisplayable() || !isShowing()) {
 			return;
 		}
-		peerBoundsSyncAttempts.set(0);
-		requestPeerBoundsSync();
+		resizeRequested = true;
+		resizeSettleTimer.restart();
+		markHudForUpdate();
+		requestRenderNow();
 	}
 
 	private void installResizeListener() {
@@ -369,26 +325,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				if (!isDisplayable()) {
 					return;
 				}
-				if (suppressInternalResizeEvents) {
-					return;
-				}
-				int width = Math.max(1, getWidth());
-				int height = Math.max(1, getHeight());
-				int[] fbSize = computeFramebufferSize(width, height);
 				// Re-arm on every event, including the ones that carry no new size, so the
 				// settle redraw always happens after the *last* resize rather than after the
-				// last one that changed the pending dimensions.
+				// last one that changed the canvas dimensions.
 				resizeSettleTimer.restart();
-				if (width == pendingWinWidth && height == pendingWinHeight
-						&& fbSize[0] == pendingFbWidth && fbSize[1] == pendingFbHeight
-						&& resizeRequested) {
-					return;
-				}
 				markRenderActivity();
-				pendingWinWidth = width;
-				pendingWinHeight = height;
-				pendingFbWidth = fbSize[0];
-				pendingFbHeight = fbSize[1];
 				resizeRequested = true;
 				markHudForUpdate();
 			}
@@ -451,8 +392,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	public void setBlankDefaultFramebufferCallback(Runnable callback) {
-		this.blankDefaultFramebufferCallback = callback;
+	public void setGraphicsResetCallback(Runnable callback) {
+		this.graphicsResetCallback = callback;
 	}
 
 	public void setGlInitFailureCallback(Runnable callback) {
@@ -486,7 +427,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						+ "or a resume from sleep. Rebuilding the 3D canvas. Panel state: {}",
 				Integer.toHexString(status), getDebugStateSummary());
 
-		Runnable callback = blankDefaultFramebufferCallback;
+		Runnable callback = graphicsResetCallback;
 		if (callback != null) {
 			callback.run();
 		}
@@ -519,17 +460,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void beginVisibleFrameRecovery() {
-		visibleFrameRecoveryPending = true;
 		recoveryBaselineSwapCount = swapCallCount.get();
-		startupBlankFramebufferFrames = 0;
-		startupBlankFramebufferRecoveryRequested.set(false);
-		startupFrameDetectionComplete = false;
-		consecutiveVisibleStartupFrames = 0;
 		markHudForUpdate();
 		markRenderActivity();
-		if (peerBoundsSyncEnabled) {
-			requestPeerBoundsSyncNow();
-		}
 		revalidate();
 		repaint();
 		scheduleStartupFrameRecoverySequence();
@@ -539,7 +472,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (!isDisplayable()) {
 			return;
 		}
-		peerBoundsSyncAttempts.set(0);
 		beginVisibleFrameRecovery();
 	}
 
@@ -566,7 +498,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void handleShowingChanged() {
-		peerBoundsSyncAttempts.set(0);
 		if (!isShowing()) {
 			startupRecoveryGeneration.incrementAndGet();
 			return;
@@ -579,95 +510,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	public void addNotify() {
 		super.addNotify();
 		updateAncestorWindowListener();
-		visibleFrameRecoveryPending = true;
 		recoveryBaselineSwapCount = swapCallCount.get();
-		startupBlankFramebufferFrames = 0;
-		startupBlankFramebufferRecoveryRequested.set(false);
-		startupFrameDetectionComplete = false;
-		consecutiveVisibleStartupFrames = 0;
-		if (peerBoundsSyncEnabled) {
-			peerBoundsSyncAttempts.set(0);
-			schedulePeerBoundsSyncRetry(0);
-			schedulePeerBoundsSyncRetry(50);
-			schedulePeerBoundsSyncRetry(200);
-			schedulePeerBoundsSyncRetry(500);
-			schedulePeerBoundsSyncRetry(1000);
-		}
 		scheduleStartupFrameRecoverySequence();
 	}
 
 	@Override
 	public void removeNotify() {
 		detachAncestorWindowListener();
-		// lwjgl3-awt requires native context disposal not to overlap rendering.
-		// Bounded wait: peer teardown cannot be skipped, so proceed either way after
-		// the timeout.
-		boolean renderLockAcquired = false;
-		try {
-			renderLockAcquired = RENDER_LOCK.tryLock(CLEANUP_RENDER_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-		try {
-			super.removeNotify();
-		} finally {
-			if (renderLockAcquired) {
-				RENDER_LOCK.unlock();
-			}
-		}
-	}
-
-	/**
-	 * Explicitly retries the macOS native-peer bounds sync workaround.
-	 * Useful when embedding in layouts where SHOWING_CHANGED is unreliable.
-	 */
-	public void requestPeerBoundsSyncNow() {
-		if (!peerBoundsSyncEnabled) {
-			return;
-		}
-		peerBoundsSyncAttempts.set(0);
-		requestPeerBoundsSync();
-		schedulePeerBoundsSyncRetry(50);
-		schedulePeerBoundsSyncRetry(200);
-		schedulePeerBoundsSyncRetry(500);
-		schedulePeerBoundsSyncRetry(1000);
-	}
-
-	private void requestPeerBoundsSync() {
-		if (!peerBoundsSyncEnabled) {
-			return;
-		}
-		if (!isDisplayable() || !isShowing()) {
-			peerBoundsSyncAttempts.set(0);
-			return;
-		}
-		if (!peerBoundsSyncQueued.compareAndSet(false, true)) {
-			return;
-		}
-		SwingUtilities.invokeLater(() -> {
-			peerBoundsSyncQueued.set(false);
-			if (!isDisplayable() || !isShowing()) {
-				peerBoundsSyncAttempts.set(0);
-				return;
-			}
-			int attempt = peerBoundsSyncAttempts.incrementAndGet();
-			if (attempt > MAX_PEER_BOUNDS_SYNC_ATTEMPTS) {
-				peerBoundsSyncAttempts.set(0);
-				return;
-			}
-			syncPeerBounds();
-			if (isPeerMispositioned()) {
-				schedulePeerBoundsSyncRetry(PEER_BOUNDS_SYNC_RETRY_DELAY_MS);
-			} else {
-				peerBoundsSyncAttempts.set(0);
-			}
-		});
-	}
-
-	private void schedulePeerBoundsSyncRetry(int delayMs) {
-		Timer timer = new Timer(delayMs, e -> requestPeerBoundsSync());
-		timer.setRepeats(false);
-		timer.start();
+		super.removeNotify();
 	}
 
 	private void scheduleStartupFrameRecoverySequence() {
@@ -680,14 +530,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void runStartupFrameRecovery(int generation, int delayMs) {
-		if (generation != startupRecoveryGeneration.get() || glInitFailed || !visibleFrameRecoveryPending) {
+		if (generation != startupRecoveryGeneration.get() || glInitFailed
+				|| swapCallCount.get() > recoveryBaselineSwapCount) {
 			return;
 		}
 		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
 			return;
 		}
 
-		requestPeerBoundsSyncNow();
 		markRenderActivity();
 		Container parent = getParent();
 		if (parent != null) {
@@ -703,86 +553,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// Instead, re-mark the view dirty so the shared scheduler performs the retry.
 
 		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
-				&& visibleFrameRecoveryPending) {
+				&& swapCallCount.get() == recoveryBaselineSwapCount) {
 			log.warn("No completed 3D frame after startup recovery: {}", getDebugStateSummary());
-			// Repaint nudges did not produce any completed frame within the full
-			// recovery window. Escalate to a canvas rebuild — the same remedy that
-			// works when the user toggles the view type by hand. Frames that complete
-			// but look blank are left to the framebuffer probes instead.
-			Runnable callback = blankDefaultFramebufferCallback;
-			if (swapCallCount.get() == recoveryBaselineSwapCount
-					&& callback != null && startupBlankFramebufferRecoveryRequested.compareAndSet(false, true)) {
-				log.warn("Requesting 3D canvas rebuild after failed startup recovery");
-				callback.run();
-				markRenderActivity();
-			}
 		}
-	}
-
-	private void syncPeerBounds() {
-		if (!isDisplayable() || !isShowing()) {
-			return;
-		}
-		if (!peerBoundsSyncInProgress.compareAndSet(false, true)) {
-			return;
-		}
-		try {
-			int x = getX();
-			int y = getY();
-			int width = getWidth();
-			int height = getHeight();
-			if (width <= 0 || height <= 0) {
-				return;
-			}
-			// Nudge the peer size by 1px and back to force native bounds recomputation.
-			// On macOS, a real resize often "snaps" the canvas back to the correct location.
-			suppressInternalResizeEvents = true;
-			try {
-				setBounds(x, y, width, height + 1);
-				setBounds(x, y, width, height);
-			} finally {
-				suppressInternalResizeEvents = false;
-			}
-			Container parent = getParent();
-			if (parent != null) {
-				parent.validate();
-			}
-		} finally {
-			peerBoundsSyncInProgress.set(false);
-		}
-	}
-
-	private boolean isPeerMispositioned() {
-		Point expected = computeExpectedLocationOnScreen();
-		Point actual = null;
-		try {
-			if (isShowing()) {
-				actual = getLocationOnScreen();
-			}
-		} catch (Exception ignored) {
-			// Ignore and treat as mispositioned to allow retries.
-		}
-		if (expected == null || actual == null) {
-			return true;
-		}
-		int dx = expected.x - actual.x;
-		int dy = expected.y - actual.y;
-		return Math.abs(dx) > 2 || Math.abs(dy) > 2;
-	}
-
-	private Point computeExpectedLocationOnScreen() {
-		Container parent = getParent();
-		if (parent == null || !parent.isShowing()) {
-			return null;
-		}
-		Point parentOnScreen;
-		try {
-			parentOnScreen = parent.getLocationOnScreen();
-		} catch (Exception ignored) {
-			return null;
-		}
-		Point local = getLocation();
-		return new Point(parentOnScreen.x + local.x, parentOnScreen.y + local.y);
 	}
 
 	private void addInputListeners() {
@@ -996,27 +769,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return 0;
 	}
 
-	/**
-	 * Computes framebuffer size from the current graphics transform. AWTGLCanvas's
-	 * cached dimensions are only refreshed by resize events, so they can be zero or
-	 * stale while a peer is being created or moved between displays with different DPI.
-	 */
-	int[] computeFramebufferSize(int windowWidth, int windowHeight) {
-		double scaleX = 1.0;
-		double scaleY = 1.0;
-		GraphicsConfiguration gc = getGraphicsConfiguration();
-		if (gc != null) {
-			AffineTransform tx = gc.getDefaultTransform();
-			scaleX = tx.getScaleX();
-			scaleY = tx.getScaleY();
-		}
-		int fbWidth = (int) Math.round(windowWidth * scaleX);
-		int fbHeight = (int) Math.round(windowHeight * scaleY);
-		return new int[]{Math.max(1, fbWidth), Math.max(1, fbHeight)};
-	}
-
-	int[] computeFramebufferSize() {
-		return computeFramebufferSize(Math.max(1, getWidth()), Math.max(1, getHeight()));
+	/** Returns the native framebuffer dimensions maintained by lwjgl3-awt. */
+	int[] getCurrentFramebufferSize() {
+		return new int[]{Math.max(1, getFramebufferWidth()), Math.max(1, getFramebufferHeight())};
 	}
 
 	@Override
@@ -1043,13 +798,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void initGL() {
-		INIT_SEMAPHORE.acquireUninterruptibly();
 		try {
 			configureGlState();
 
 			int winWidth = Math.max(1, getWidth());
 			int winHeight = Math.max(1, getHeight());
-			int[] fbSize = computeFramebufferSize(winWidth, winHeight);
+			int[] fbSize = getCurrentFramebufferSize();
 			int fbWidth = fbSize[0];
 			int fbHeight = fbSize[1];
 
@@ -1063,14 +817,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			addInputListeners();
 			addViewKeyBindings();
 
-			// Startup layout may have queued resize events before the GL pipeline existed.
-			// The orchestrator was just created with the current canvas size, so those
-			// requests are already reflected and must not trigger a second fit on the
-			// first interactive frame.
-			pendingWinWidth = winWidth;
-			pendingWinHeight = winHeight;
-			pendingFbWidth = fbWidth;
-			pendingFbHeight = fbHeight;
 			resizeRequested = false;
 
 			// Mark initialization complete - allows resize/render operations to proceed
@@ -1080,8 +826,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			glInitFailed = true;
 			glInitLatch.countDown();
 			throw new RuntimeException("Failed to initialize renderer", e);
-		} finally {
-			INIT_SEMAPHORE.release();
 		}
 	}
 
@@ -1136,46 +880,33 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
 			return;
 		}
-		int renderCount = renderCallCount.incrementAndGet();
+		renderCallCount.incrementAndGet();
 		int paintBefore = paintCallCount.get();
 		int swapBefore = swapCallCount.get();
 		try {
-			// Scheduled frames already share one render thread; this lock additionally
-			// prevents rendering from overlapping EDT cleanup and peer teardown.
-			RENDER_LOCK.lock();
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
 			super.render();
-			if (peerBoundsSyncEnabled && renderCount == 1) {
-				// The native NSOpenGLView is created during the first render; schedule another bounds sync
-				// afterwards to catch late layout adjustments in Swing.
-				requestPeerBoundsSyncNow();
-			}
 			int paintAfter = paintCallCount.get();
 			int swapAfter = swapCallCount.get();
 			if (paintAfter == paintBefore && swapAfter == swapBefore) {
-				if (peerBoundsSyncEnabled) {
-					requestPeerBoundsSyncNow();
-				}
 				SwingUtilities.invokeLater(() -> {
 					revalidate();
 					repaint();
-					});
+				});
+			}
+		} catch (Throwable t) {
+			glInitFailed = true;
+			String msg = t.getMessage();
+			if (!glInitialized) {
+				log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", msg, t);
+				Runnable failureCallback = glInitFailureCallback;
+				if (failureCallback != null) {
+					failureCallback.run();
 				}
-			} catch (Throwable t) {
-				glInitFailed = true;
-				String msg = t.getMessage();
-				if (!glInitialized) {
-					log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", msg, t);
-					Runnable failureCallback = glInitFailureCallback;
-					if (failureCallback != null) {
-						failureCallback.run();
-					}
-				} else {
-					log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
-					reportFatalRenderException(t);
-				}
-		} finally {
-			RENDER_LOCK.unlock();
+			} else {
+				log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
+				reportFatalRenderException(t);
+			}
 		}
 	}
 
@@ -1207,7 +938,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			// --- 3D Scene Rendering & Export Logic ---
 			handleKeyboardEvents();
-			int[] fbSize = computeFramebufferSize();
+			int[] fbSize = getCurrentFramebufferSize();
 			glViewport(0, 0, fbSize[0], fbSize[1]);
 			scene3DOrchestrator.update();
 
@@ -1225,7 +956,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// --- Main Display Rendering (if not exporting) --
 			renderer.render(sceneView, true);
 			renderer.presentResolvedToCurrentFramebuffer();
-			sampleStartupFrameVisibilityIfNeeded(renderer);
 
 			if (hudOverlay != null) {
 				hudOverlay.refresh(cameraIsMoving);
@@ -1241,10 +971,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (shouldSwap) {
 				swapBuffers();
 				swapCallCount.incrementAndGet();
-				// Keep recovery active until visibility is confirmed, not just until one
-				// pre-swap back-buffer sample has content. Some AWT peers need a follow-up
-				// render before the first completed frame is actually presented.
-				visibleFrameRecoveryPending = !startupFrameDetectionComplete;
 			}
 		}
 	}
@@ -1282,50 +1008,19 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			return;
 		}
 
-		int currentWidth = Math.max(1, getWidth());
-		int currentHeight = Math.max(1, getHeight());
-		int[] currentFbSize = computeFramebufferSize(currentWidth, currentHeight);
-		int currentFbWidth = currentFbSize[0];
-		int currentFbHeight = currentFbSize[1];
-
-		int width = pendingWinWidth;
-		int height = pendingWinHeight;
-		int fbWidth = pendingFbWidth;
-		int fbHeight = pendingFbHeight;
+		int width = Math.max(1, getWidth());
+		int height = Math.max(1, getHeight());
+		int[] fbSize = getCurrentFramebufferSize();
+		int fbWidth = fbSize[0];
+		int fbHeight = fbSize[1];
 		ViewportDimensions viewport = scene3DOrchestrator.getViewport();
 
-		if (!resizeRequested) {
-			if (viewport.getWindowWidth() == currentWidth
-					&& viewport.getWindowHeight() == currentHeight
-					&& viewport.getFramebufferWidth() == currentFbWidth
-					&& viewport.getFramebufferHeight() == currentFbHeight) {
-				return;
-			}
-			width = currentWidth;
-			height = currentHeight;
-			fbWidth = currentFbWidth;
-			fbHeight = currentFbHeight;
-		} else if (width != currentWidth || height != currentHeight
-				|| fbWidth != currentFbWidth || fbHeight != currentFbHeight) {
-			// Resize events can be queued before the canvas reaches its final layout.
-			// Always prefer the live canvas dimensions over stale pending values.
-			width = currentWidth;
-			height = currentHeight;
-			fbWidth = currentFbWidth;
-			fbHeight = currentFbHeight;
-		} else if (viewport.getWindowWidth() == width
+		if (viewport.getWindowWidth() == width
 				&& viewport.getWindowHeight() == height
 				&& viewport.getFramebufferWidth() == fbWidth
 				&& viewport.getFramebufferHeight() == fbHeight) {
 			resizeRequested = false;
 			return;
-		}
-
-		// If the framebuffer size wasn't captured on resize (EDT), query it now while the context is current
-		if (fbWidth <= 0 || fbHeight <= 0) {
-			int[] fbSize = computeFramebufferSize(width, height);
-			fbWidth = fbSize[0];
-			fbHeight = fbSize[1];
 		}
 
 		glViewport(0, 0, fbWidth, fbHeight);
@@ -1364,96 +1059,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return buffer;
 	}
 
-	private boolean sampleStartupFrameVisibilityIfNeeded(GLRenderer renderer) {
-		if (startupFrameDetectionComplete) {
-			return true;
-		}
-		boolean visible = detectStartupFrameVisibility(renderer);
-		if (visible) {
-			if (++consecutiveVisibleStartupFrames >= STARTUP_VISIBILITY_CONFIRM_FRAMES
-					|| startupBlankFramebufferRecoveryRequested.get()) {
-				startupFrameDetectionComplete = true;
-			}
-		} else {
-			consecutiveVisibleStartupFrames = 0;
-		}
-		return visible;
-	}
-
-	private boolean detectStartupFrameVisibility(GLRenderer renderer) {
-		int[] defaultFbSize = computeFramebufferSize();
-		int currentFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
-		int[] resolvedCenter = sampleFramebufferCenterPixelRgba(renderer.getResolvedFramebufferId(), GL_COLOR_ATTACHMENT0,
-				renderer.getRenderWidth(), renderer.getRenderHeight());
-		int[] presentedCenter = sampleFramebufferCenterPixelRgba(currentFramebuffer, getDefaultFramebufferColorBuffer(),
-				defaultFbSize[0], defaultFbSize[1]);
-		boolean resolvedHasContent = hasVisiblePixelContent(resolvedCenter);
-		boolean defaultHasContent = hasVisiblePixelContent(presentedCenter);
-		boolean startupFrameVisible = !resolvedHasContent || defaultHasContent;
-		// While a resize is in flight the rendered frame and the default framebuffer can
-		// disagree on size, making a blank center-pixel read meaningless. Such frames must
-		// not count toward the blank-canvas rebuild threshold, or a resize right after
-		// startup can trigger a needless (and state-destroying) canvas rebuild.
-		boolean sampleReliable = !resizeRequested
-				&& renderer.getRenderWidth() == defaultFbSize[0]
-				&& renderer.getRenderHeight() == defaultFbSize[1];
-		handleBlankDefaultFramebufferDuringStartup(startupFrameVisible, resolvedHasContent && sampleReliable);
-		return startupFrameVisible;
-	}
-
 	private int getDefaultFramebufferColorBuffer() {
 		return glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
-	}
-
-	private void handleBlankDefaultFramebufferDuringStartup(boolean startupFrameVisible, boolean resolvedHasContent) {
-		if (startupFrameVisible || !visibleFrameRecoveryPending || !resolvedHasContent) {
-			startupBlankFramebufferFrames = 0;
-			return;
-		}
-
-		startupBlankFramebufferFrames++;
-		if (startupBlankFramebufferFrames < 2) {
-			return;
-		}
-
-		Runnable callback = blankDefaultFramebufferCallback;
-		if (callback == null || !startupBlankFramebufferRecoveryRequested.compareAndSet(false, true)) {
-			return;
-		}
-
-		callback.run();
-	}
-
-	private int[] sampleFramebufferCenterPixelRgba(int framebufferId, int readBuffer, int width, int height) {
-		if (width <= 0 || height <= 0) {
-			return null;
-		}
-
-		int previousFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
-		int previousReadBuffer = glGetInteger(GL_READ_BUFFER);
-		ByteBuffer pixel = BufferUtils.createByteBuffer(4);
-		int sampleX = MathUtil.clamp(width / 2, 0, width - 1);
-		int sampleY = MathUtil.clamp(height / 2, 0, height - 1);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
-		glReadBuffer(framebufferId == 0 ? readBuffer : GL_COLOR_ATTACHMENT0);
-		glReadPixels(sampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-		glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
-		glReadBuffer(previousReadBuffer);
-
-		return new int[]{
-				pixel.get(0) & 0xFF,
-				pixel.get(1) & 0xFF,
-				pixel.get(2) & 0xFF,
-				pixel.get(3) & 0xFF
-		};
-	}
-
-	private boolean hasVisiblePixelContent(int[] rgba) {
-		if (rgba == null || rgba.length < 4) {
-			return false;
-		}
-		return rgba[0] != 0 || rgba[1] != 0 || rgba[2] != 0 || rgba[3] != 0;
 	}
 
 	private BufferedImage bufferToImage(ByteBuffer buffer, int width, int height) {
@@ -1578,25 +1185,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		boolean canAttemptContextCleanup = context != 0L
 				&& isDisplayable() && getWidth() > 0 && getHeight() > 0;
 		if (canAttemptContextCleanup) {
-			// lwjgl3-awt requires context disposal and rendering not to overlap. Take
-			// the shared render lock (bounded, so the EDT can't hang on a stuck render)
-			// and skip the in-context cleanup if a render never finishes.
-			boolean renderLockAcquired = false;
-			try {
-				renderLockAcquired = RENDER_LOCK.tryLock(CLEANUP_RENDER_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-			if (renderLockAcquired) {
-				try {
-					cleanupGLResourcesInContext();
-				} finally {
-					RENDER_LOCK.unlock();
-				}
-			} else {
-				log.warn("Render still in progress during cleanup; skipping in-context GL cleanup, " +
-						"some GL resources may leak");
-			}
+			cleanupGLResourcesInContext();
 		} else {
 			log.debug("Skipping GL cleanup for canvas without an initialized, displayable context");
 		}
@@ -1612,10 +1201,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/**
-	 * Releases GL-side resources with the context current. Must be called with
-	 * {@link #RENDER_LOCK} held and before peer teardown, hence the displayability
-	 * check in {@link #cleanup()}. Native context disposal remains owned by
-	 * AWTGLCanvas.removeNotify().
+	 * Releases GL-side resources with the context current and before peer teardown.
+	 * lwjgl3-awt serializes this with rendering and native context disposal.
 	 */
 	private void cleanupGLResourcesInContext() {
 		try {
@@ -1667,22 +1254,17 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return resizeRequested;
 	}
 
-	public boolean isPeerMispositionedForDebug() {
-		return peerBoundsSyncEnabled && isShowing() && isPeerMispositioned();
-	}
-
 	public String getDebugStateSummary() {
 		return "displayable=" + isDisplayable()
 				+ ", showing=" + isShowing()
 				+ ", visible=" + isVisible()
 				+ ", size=" + getWidth() + "x" + getHeight()
+				+ ", framebuffer=" + getFramebufferWidth() + "x" + getFramebufferHeight()
 				+ ", glInitialized=" + glInitialized
 				+ ", glInitFailed=" + glInitFailed
-				+ ", visibleFrameRecoveryPending=" + visibleFrameRecoveryPending
 				+ ", renderCalls=" + renderCallCount.get()
 				+ ", paintCalls=" + paintCallCount.get()
-				+ ", swapCalls=" + swapCallCount.get()
-				+ ", peerMispositioned=" + (peerBoundsSyncEnabled && isShowing() ? isPeerMispositioned() : false);
+				+ ", swapCalls=" + swapCallCount.get();
 	}
 
 	private void applyThemeBackground(SceneView scene) {
@@ -1708,7 +1290,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			orchestrator.enqueueGlTask(() -> applyThemeBackground(orchestrator.getScene()));
 			markHudForUpdate();
-			requestPeerBoundsSyncNow();
 			revalidate();
 			repaint();
 			markRenderActivity();

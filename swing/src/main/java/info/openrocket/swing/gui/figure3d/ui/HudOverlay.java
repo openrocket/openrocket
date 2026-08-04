@@ -112,7 +112,7 @@ class HudOverlay {
 	void initTexture() {
 		synchronized (lock) {
 			bufferReady.set(false);
-			int[] fbSize = canvas.computeFramebufferSize();
+			int[] fbSize = canvas.getCurrentFramebufferSize();
 			int fbWidth = fbSize[0];
 			int fbHeight = fbSize[1];
 
@@ -279,7 +279,7 @@ class HudOverlay {
 			// The panel works in logical window coordinates
 			int windowWidth = Math.max(1, canvas.getWidth());
 			int windowHeight = Math.max(1, canvas.getHeight());
-			int[] fbSize = canvas.computeFramebufferSize(windowWidth, windowHeight);
+			int[] fbSize = canvas.getCurrentFramebufferSize();
 			double dpiScale = (double) fbSize[1] / (double) windowHeight;
 
 			graphics.setTransform(graphics.getDeviceConfiguration().getDefaultTransform());

@@ -134,8 +134,8 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			Math.max(1, Integer.getInteger("openrocket.test.windows3d.contextSeconds", 10));
 	private static final boolean WINDOWS_INTERACTION_PEER_CHURN =
 			Boolean.getBoolean("openrocket.test.windows3d.peerChurn");
-	private static final int BLANK_FRAMEBUFFER_RECOVERY_STRESS_CYCLES =
-			Math.max(1, Integer.getInteger("openrocket.test.figure3d.recoveryCycles", 8));
+	private static final int CONTEXT_RESET_RECOVERY_STRESS_CYCLES =
+			Math.max(1, Integer.getInteger("openrocket.test.figure3d.contextResetRecoveryCycles", 8));
 	private static final Sky[] TEST_SKIES = {
 			Mountains.instance,
 			Meadow.instance,
@@ -320,7 +320,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 	@Test
 	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
-	void repeatedBlankFramebufferRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain() throws Exception {
+	void repeatedGraphicsResetRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain() throws Exception {
 		assumeUiEnvironment();
 		AtomicReference<String> phase = new AtomicReference<>("create-photo-recovery-harness");
 		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
@@ -328,10 +328,10 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		PhotoHarness harness;
 		try (ErrorLogCapture glErrors = ErrorLogCapture.attach(GLErrors.class);
 			 DiagnosticWatchdog ignored = startWatchdog(
-				"repeatedBlankFramebufferRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain",
+				"repeatedGraphicsResetRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain",
 				phase::get,
 				() -> describePhotoHarness(harnessRef.get()))) {
-			harness = createPhotoHarness("PhotoStudio3DStressTest-blank-framebuffer-recovery");
+			harness = createPhotoHarness("PhotoStudio3DStressTest-context-reset-recovery");
 			harnessRef.set(harness);
 			final PhotoHarness currentHarness = harness;
 			try {
@@ -342,7 +342,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				awaitFreshPhotoFrame(currentHarness.panel, null, -1, -1, FRAME_TIMEOUT_MS,
 						"initial Photo Studio frame before forced recovery");
 
-				for (int i = 0; i < BLANK_FRAMEBUFFER_RECOVERY_STRESS_CYCLES; i++) {
+				for (int i = 0; i < CONTEXT_RESET_RECOVERY_STRESS_CYCLES; i++) {
 					final int iteration = i;
 					GLScenePanel failedCanvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
 							"Photo Studio canvas before forced recovery cycle " + iteration);
@@ -356,14 +356,14 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 						currentHarness.frame.setLocation(140 + iteration * 14, 120 + iteration * 10);
 						currentHarness.frame.validate();
 						currentHarness.frame.repaint();
-						forceBlankFramebufferRecovery(currentHarness.panel, failedCanvas);
+						forceGraphicsResetRecovery(currentHarness.panel, failedCanvas);
 					});
 
 					phase.set("await-rebuilt-canvas-cycle-" + iteration);
 					GLScenePanel rebuiltCanvas = awaitReplacedPhotoCanvas(currentHarness.panel, failedCanvas,
 							FRAME_TIMEOUT_MS, "Photo Studio rebuild cycle " + iteration);
 					assertTrue(rebuiltCanvas != failedCanvas,
-							"Forced blank-framebuffer recovery should replace the Photo Studio GL canvas");
+							"Forced graphics-reset recovery should replace the Photo Studio GL canvas");
 
 					phase.set("await-rebuilt-frame-cycle-" + iteration);
 					awaitFreshPhotoFrame(currentHarness.panel, failedCanvas, beforeSwap, beforePaint,
@@ -1380,7 +1380,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				boolean freshFrame = currentCanvas != previousCanvas
 						? currentCanvas.hasCompletedFrame()
 						: swapCount > previousSwapCount;
-				if (freshFrame && !currentCanvas.isPeerMispositionedForDebug()) {
+				if (freshFrame) {
 					return;
 				}
 			}
@@ -1394,7 +1394,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		boolean freshFrame = finalCanvas != previousCanvas
 				? finalCanvas.hasCompletedFrame()
 				: finalSwapCount > previousSwapCount;
-		assertTrue(freshFrame && !finalCanvas.isPeerMispositionedForDebug(),
+		assertTrue(freshFrame,
 				context + " did not produce a fresh visible Photo Studio frame. state="
 						+ finalCanvas.getDebugStateSummary()
 						+ ", previousSwap=" + previousSwapCount
@@ -1408,7 +1408,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		long deadline = System.currentTimeMillis() + timeoutMs;
 		while (System.currentTimeMillis() < deadline) {
 			int swapCount = figure3d.getCanvasSwapCallCount();
-			if (swapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned()) {
+			if (swapCount > previousSwapCount) {
 				return;
 			}
 			Thread.sleep(40);
@@ -1416,7 +1416,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 		int finalSwapCount = figure3d.getCanvasSwapCallCount();
 		int finalPaintCount = figure3d.getCanvasPaintCallCount();
-		assertTrue(finalSwapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned(),
+		assertTrue(finalSwapCount > previousSwapCount,
 				context + " did not produce a fresh visible 3D frame. state=" + figure3d.getCanvasDebugState()
 						+ ", previousSwap=" + previousSwapCount
 						+ ", previousPaint=" + previousPaintCount
@@ -2146,14 +2146,14 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		return result.get();
 	}
 
-	private static void forceBlankFramebufferRecovery(PhotoPanel panel, GLScenePanel failedCanvas) {
+	private static void forceGraphicsResetRecovery(PhotoPanel panel, GLScenePanel failedCanvas) {
 		try {
 			Method rebuild = PhotoPanel.class.getDeclaredMethod(
-					"rebuildCanvasAfterBlankDefaultFramebuffer", GLScenePanel.class);
+					"rebuildCanvasAfterGraphicsReset", GLScenePanel.class);
 			rebuild.setAccessible(true);
 			rebuild.invoke(panel, failedCanvas);
 		} catch (ReflectiveOperationException e) {
-			throw new IllegalStateException("Failed to force Photo Studio blank-framebuffer recovery", e);
+			throw new IllegalStateException("Failed to force Photo Studio graphics-reset recovery", e);
 		}
 	}
 

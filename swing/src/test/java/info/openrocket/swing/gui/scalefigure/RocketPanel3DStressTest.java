@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RocketPanel3DStressTest extends BaseTestCase {
@@ -76,7 +75,7 @@ class RocketPanel3DStressTest extends BaseTestCase {
 
 	@Test
 	@Timeout(value = 90, unit = TimeUnit.SECONDS)
-	void splitPaneDividerMovesDoNotLeaveThreeDPeerMispositioned() throws Exception {
+	void splitPaneDividerMovesProduceFreshFrames() throws Exception {
 		assumeMacUiEnvironment();
 
 		FrameHarness harness = createSplitPaneHarness();
@@ -110,10 +109,6 @@ class RocketPanel3DStressTest extends BaseTestCase {
 
 				awaitFresh3DFrame(harness.panel.getFigure3d(), beforeSwap, beforePaint,
 						CHURN_TIMEOUT_MS, "divider move iteration " + iteration);
-
-				assertFalse(harness.panel.getFigure3d().isCanvasPeerMispositioned(),
-						"3D peer should not remain mispositioned after divider move: "
-								+ harness.panel.getFigure3d().getCanvasDebugState());
 
 				onEdt(() -> harness.panel.setViewType(RocketPanel.VIEW_TYPE.SideView));
 				waitForEdtDrain();
@@ -157,7 +152,7 @@ class RocketPanel3DStressTest extends BaseTestCase {
 			panel.setPreferredSize(new Dimension(700, 600));
 
 			JPanel filler = new JPanel();
-			filler.add(new JLabel("Peer sync stress"));
+			filler.add(new JLabel("Native layer resize stress"));
 			JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel, filler);
 			splitPane.setResizeWeight(0.65);
 
@@ -209,7 +204,7 @@ class RocketPanel3DStressTest extends BaseTestCase {
 		long deadline = System.currentTimeMillis() + timeoutMs;
 		while (System.currentTimeMillis() < deadline) {
 			int swapCount = figure3d.getCanvasSwapCallCount();
-			if (swapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned()) {
+			if (swapCount > previousSwapCount) {
 				return;
 			}
 			Thread.sleep(40);
@@ -217,7 +212,7 @@ class RocketPanel3DStressTest extends BaseTestCase {
 
 		int finalSwapCount = figure3d.getCanvasSwapCallCount();
 		int finalPaintCount = figure3d.getCanvasPaintCallCount();
-		assertTrue(finalSwapCount > previousSwapCount && !figure3d.isCanvasPeerMispositioned(),
+		assertTrue(finalSwapCount > previousSwapCount,
 				context + " did not produce a fresh visible 3D frame. state=" + figure3d.getCanvasDebugState()
 						+ ", previousSwap=" + previousSwapCount
 						+ ", previousPaint=" + previousPaintCount

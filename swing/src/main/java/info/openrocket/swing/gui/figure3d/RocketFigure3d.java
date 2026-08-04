@@ -101,7 +101,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	// Demand-driven rendering: the background thread only calls renderFrame() when this is true.
 	// Starts true so the first frame renders immediately without an explicit trigger.
 	private volatile boolean dirty = true;
-	private final AtomicReference<GLScenePanel> pendingCanvasRebuild = new AtomicReference<>();
+	private final AtomicReference<GLScenePanel> pendingContextResetRebuild = new AtomicReference<>();
 	// Camera pose captured from a canvas that is about to be rebuilt, so the new
 	// canvas resumes at the same view instead of resetting to the default pose.
 	private final AtomicReference<CameraRestoreState> pendingCameraRestore = new AtomicReference<>();
@@ -174,7 +174,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		// background thread renders on demand rather than unconditionally.
 		panel.setRenderActivityCallback(this::markDirty);
 		panel.setRenderRequestCallback(this::requestRenderNow);
-		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		panel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
@@ -196,9 +196,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		repaint();
 	}
 
-	private void rebuildCanvasAfterBlankDefaultFramebuffer(GLScenePanel failedPanel) {
+	private void rebuildCanvasAfterGraphicsReset(GLScenePanel failedPanel) {
 		if (!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(() -> rebuildCanvasAfterBlankDefaultFramebuffer(failedPanel));
+			SwingUtilities.invokeLater(() -> rebuildCanvasAfterGraphicsReset(failedPanel));
 			return;
 		}
 		if (disposed || !renderingEnabled) {
@@ -207,11 +207,11 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (glScenePanel != failedPanel) {
 			return;
 		}
-		log.info("Rebuilding 3D canvas after blank-frame detection");
+		log.info("Rebuilding 3D canvas after a graphics context reset");
 		captureCameraForRestore(failedPanel);
 		failedPanel.setRenderActivityCallback(null);
 		failedPanel.setRenderRequestCallback(null);
-		failedPanel.setBlankDefaultFramebufferCallback(null);
+		failedPanel.setGraphicsResetCallback(null);
 		remove(failedPanel);
 		glScenePanel = null;
 		selectionBridgeInstalled = false;
@@ -222,7 +222,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		ensureCanvasCreatedOnEdt();
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
-			panel.requestPeerBoundsSyncNow();
 			applyBackgroundColor(panel);
 		}
 		requestRenderNow();
@@ -288,7 +287,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		}
 
 		panel.render();
-		if (processPendingCanvasRebuild(panel)) {
+		if (processPendingContextResetRebuild(panel)) {
 			return;
 		}
 		if (panel.glInitFailed) {
@@ -327,21 +326,21 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		camera.update();
 	}
 
-	private void requestCanvasRebuild(GLScenePanel failedPanel) {
-		pendingCanvasRebuild.compareAndSet(null, failedPanel);
+	private void requestContextResetRebuild(GLScenePanel failedPanel) {
+		pendingContextResetRebuild.compareAndSet(null, failedPanel);
 	}
 
-	private boolean processPendingCanvasRebuild(GLScenePanel panel) {
-		if (!pendingCanvasRebuild.compareAndSet(panel, null)) {
+	private boolean processPendingContextResetRebuild(GLScenePanel panel) {
+		if (!pendingContextResetRebuild.compareAndSet(panel, null)) {
 			return false;
 		}
 		if (SwingUtilities.isEventDispatchThread()) {
-			rebuildCanvasAfterBlankDefaultFramebuffer(panel);
+			rebuildCanvasAfterGraphicsReset(panel);
 		} else {
 			try {
-				SwingUtilities.invokeAndWait(() -> rebuildCanvasAfterBlankDefaultFramebuffer(panel));
+				SwingUtilities.invokeAndWait(() -> rebuildCanvasAfterGraphicsReset(panel));
 			} catch (Exception e) {
-				log.warn("Failed to rebuild blank 3D canvas", e);
+				log.warn("Failed to rebuild the 3D canvas after a graphics reset", e);
 			}
 		}
 		return true;
@@ -401,7 +400,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			ensureCanvasCreatedOnEdt();
 			GLScenePanel panel = glScenePanel;
 			if (panel != null) {
-				panel.requestPeerBoundsSyncNow();
 				applyBackgroundColor(panel);
 			}
 			RENDER_SCHEDULER.register(this);
@@ -762,11 +760,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		return panel != null && panel.hasCompletedFrame();
 	}
 
-	public boolean isCanvasPeerMispositioned() {
-		GLScenePanel panel = glScenePanel;
-		return panel != null && panel.isPeerMispositionedForDebug();
-	}
-
 	public String getCanvasDebugState() {
 		if (!enable3d) {
 			return "3d-disabled";
@@ -859,7 +852,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		glScenePanel = null;
 		selectionBridgeInstalled = false;
 		pendingSelection = null;
+		pendingContextResetRebuild.set(null);
+		pendingCameraRestore.set(null);
 		if (panel != null) {
+			panel.setGraphicsResetCallback(null);
 			panel.cleanup();
 		}
 	}
@@ -893,7 +889,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (panel.hasCompletedFrame()) {
 			return;
 		}
-		panel.requestPeerBoundsSyncNow();
 		revalidate();
 		repaint();
 		panel.revalidate();
