@@ -8,9 +8,12 @@ import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * Read-only view of the scene for rendering and UI consumers.
+ * Scene operations shared by renderers, controllers, and UI consumers.
+ * Collection accessors return live, unmodifiable views; callers must use the
+ * explicit mutation methods when changing scene membership.
  */
 public interface SceneView {
 	/**
@@ -28,16 +31,25 @@ public interface SceneView {
 	 */
 	void addObject(SceneObject object);
 
+	/** Removes an object from the scene. */
+	void removeObject(SceneObject object);
+
+	/** Removes every object matching the predicate. */
+	void removeObjectsIf(Predicate<SceneObject> predicate);
+
+	/** Removes all objects from the scene. */
+	void clearObjects();
+
 	/**
 	 * Gets all scene objects currently in the 3D environment.
 	 *
-	 * @return an unmodifiable view of all SceneObjects in the scene
+	 * @return an unmodifiable live view of all SceneObjects in the scene
 	 */
 	List<SceneObject> getObjects();
 
 	/**
 	 * Gets all currently selected objects in the scene.
-	 * @return a list of selected SceneObjects
+	 * @return an unmodifiable live view of selected SceneObjects
 	 */
 	List<SceneObject> getSelectedObjects();
 
@@ -63,7 +75,7 @@ public interface SceneView {
 	/**
 	 * Gets all particle emitters currently active in the scene.
 	 *
-	 * @return a list of all ParticleEmitters in the scene
+	 * @return an unmodifiable live view of all ParticleEmitters in the scene
 	 */
 	List<ParticleEmitter> getParticleEmitters();
 
@@ -109,6 +121,9 @@ public interface SceneView {
 	 * @param emitter the ParticleEmitter to add to the scene
 	 */
 	void addParticleEmitter(ParticleEmitter emitter);
+
+	/** Removes all particle emitters from the scene. */
+	void clearParticleEmitters();
 
 	/**
 	 * Updates all particle emitters in the scene.

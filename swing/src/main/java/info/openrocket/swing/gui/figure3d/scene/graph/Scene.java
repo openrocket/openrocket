@@ -15,7 +15,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Mutable scene containing rocket objects, camera, lights, particles, and selection state.
@@ -76,6 +78,21 @@ public class Scene implements SceneView {
 		objects.add(object);
 	}
 
+	@Override
+	public void removeObject(SceneObject object) {
+		objects.remove(object);
+	}
+
+	@Override
+	public void removeObjectsIf(Predicate<SceneObject> predicate) {
+		objects.removeIf(predicate);
+	}
+
+	@Override
+	public void clearObjects() {
+		objects.clear();
+	}
+
 	/**
 	 * Adds multiple scene objects to the 3D environment in a single operation.
 	 * All objects will be rendered and made available for interaction.
@@ -92,7 +109,7 @@ public class Scene implements SceneView {
 
 	@Override
 	public List<SceneObject> getObjects() {
-		return objects;
+		return Collections.unmodifiableList(objects);
 	}
 
 	@Override
@@ -102,7 +119,12 @@ public class Scene implements SceneView {
 
 	@Override
 	public List<ParticleEmitter> getParticleEmitters() {
-		return particleEmitters;
+		return Collections.unmodifiableList(particleEmitters);
+	}
+
+	@Override
+	public void clearParticleEmitters() {
+		particleEmitters.clear();
 	}
 
 	@Override
@@ -119,9 +141,8 @@ public class Scene implements SceneView {
 	 *
 	 * @param dx horizontal drag delta
 	 * @param dy vertical drag delta
-	 * @param viewRight unused legacy parameter retained for call-site compatibility
 	 */
-	public void orbitRocket(float dx, float dy, float sensitivity, Vector3f viewRight) {
+	public void orbitRocket(float dx, float dy, float sensitivity) {
 		if (dx == 0.0f && dy == 0.0f) {
 			return;
 		}
@@ -195,7 +216,7 @@ public class Scene implements SceneView {
 
 	@Override
 	public List<SceneObject> getSelectedObjects() {
-		return selectedObjects;
+		return Collections.unmodifiableList(selectedObjects);
 	}
 
 

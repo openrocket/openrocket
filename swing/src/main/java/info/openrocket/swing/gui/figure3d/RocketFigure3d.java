@@ -8,8 +8,8 @@ import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
-import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
@@ -462,7 +462,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		float alpha = color.getAlpha() / 255.0f;
 		Vector4f linear = ColorUtils.srgbToLinear(new Vector4f(srgbR, srgbG, srgbB, alpha));
 		orchestrator.enqueueGlTask(() -> {
-			SceneView scene = orchestrator.getScene();
+			Scene scene = orchestrator.getScene();
 			if (scene != null) {
 				scene.setBackground(new SolidColorBackground(linear.x, linear.y, linear.z, linear.w));
 			}
@@ -689,7 +689,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			return;
 		}
 		orchestrator.enqueueGlTask(() -> {
-			SceneView scene = orchestrator.getScene();
+			Scene scene = orchestrator.getScene();
 			if (scene == null) {
 				return;
 			}

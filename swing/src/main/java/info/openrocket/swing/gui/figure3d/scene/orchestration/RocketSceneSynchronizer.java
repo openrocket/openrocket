@@ -304,7 +304,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 		// Now, remove and clean up the old objects.
 		for (SceneObject obj : objectsToRemove) {
-			scene.getObjects().remove(obj);
+			scene.removeObject(obj);
 			obj.cleanup(); // Important: Frees up GPU resources
 		}
 
@@ -317,7 +317,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 				}
 			}
 		}
-		scene.getParticleEmitters().clear();
+		scene.clearParticleEmitters();
 
 		// Apply the prebuilt snapshot — meshes and transforms are already computed against a
 		// consistent view of the rocket, so this never touches the live model on the GL thread.

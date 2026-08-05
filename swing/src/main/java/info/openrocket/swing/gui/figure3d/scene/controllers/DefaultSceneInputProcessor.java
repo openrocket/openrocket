@@ -7,7 +7,6 @@ import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.scene.graph.Light;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
-import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import org.joml.Vector3f;
@@ -25,7 +24,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 
 	private final InputState inputState;
 	private final Raycaster raycaster;
-	private final SceneView scene;
+	private final Scene scene;
 	private final CameraControls cameraController;
 	private final RenderingConfiguration renderingConfiguration;
 	private final InputState.DragDelta dragDelta = new InputState.DragDelta();
@@ -40,7 +39,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 	 * @param cameraController the camera controller for view manipulation
 	 * @param renderingConfiguration the active rendering configuration
 	 */
-	public DefaultSceneInputProcessor(InputState inputState, Raycaster raycaster, SceneView scene,
+	public DefaultSceneInputProcessor(InputState inputState, Raycaster raycaster, Scene scene,
 			CameraControls cameraController, RenderingConfiguration renderingConfiguration) {
 		this.inputState = inputState;
 		this.raycaster = raycaster;
@@ -106,15 +105,13 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 				int viewportWidth = viewport != null ? viewport.getWindowWidth() : 0;
 				int viewportHeight = viewport != null ? viewport.getWindowHeight() : 0;
 				cameraController.handlePan(dragDelta.dx, dragDelta.dy, viewportWidth, viewportHeight);
-			} else if (rotateRocketOnDrag && scene instanceof Scene sceneImpl) {
+			} else if (rotateRocketOnDrag) {
 				if (isNewDrag) {
 					// Capture current pivot at the start of each new rotation drag so the
 					// model matrices and caret drawing stay consistent throughout the gesture.
-					sceneImpl.updateRocketPivotFromCamera();
+					scene.updateRocketPivotFromCamera();
 				}
-				Vector3f viewRight = new Vector3f();
-				cameraController.getCamera().getViewMatrix().positiveX(viewRight);
-				sceneImpl.orbitRocket(dragDelta.dx, dragDelta.dy, dragRotationSensitivity, viewRight);
+				scene.orbitRocket(dragDelta.dx, dragDelta.dy, dragRotationSensitivity);
 			} else {
 				cameraController.handleOrbit(dragDelta.dx, dragDelta.dy);
 			}

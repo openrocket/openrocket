@@ -19,7 +19,6 @@ import info.openrocket.swing.gui.figure3d.scene.controllers.SceneInputProcessor;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.Light;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
-import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
@@ -36,7 +35,7 @@ public class Scene3DOrchestrator {
 
 	private static final Logger log = LoggerFactory.getLogger(Scene3DOrchestrator.class);
 
-	public final SceneView scene;
+	private final Scene scene;
 	private final GLRenderer renderer;
 	private final RenderingConfiguration renderingConfiguration;
 	private final ViewportDimensions viewport;
@@ -98,9 +97,7 @@ public class Scene3DOrchestrator {
 	 * Restores the default side view, clears any drag-applied rocket rotation, and fits the rocket.
 	 */
 	public void resetViewAndFocusOnRocket() {
-		if (scene instanceof Scene actualScene) {
-			actualScene.resetRocketRotation();
-		}
+		scene.resetRocketRotation();
 		cameraController.resetView();
 		cameraController.focusOnRocket();
 	}
@@ -135,9 +132,7 @@ public class Scene3DOrchestrator {
 	 * Reapplies the persisted rocket drag rotation after the rocket mesh is rebuilt.
 	 */
 	public void applyRocketRotationToScene() {
-		if (scene instanceof Scene actualScene) {
-			actualScene.applyRocketRotationToRocketObjects();
-		}
+		scene.applyRocketRotationToRocketObjects();
 	}
 
 	/**
@@ -187,7 +182,7 @@ public class Scene3DOrchestrator {
 	 * 
 	 * @return The scene instance managed by this orchestrator
 	 */
-	public SceneView getScene() {
+	public Scene getScene() {
 		return scene;
 	}
 
@@ -355,7 +350,7 @@ public class Scene3DOrchestrator {
 	 * @param config the rendering configuration settings
 	 * @throws Exception if the renderer cannot be initialized
 	 */
-	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, SceneView scene,
+	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, Scene scene,
 			RenderingConfiguration config) throws Exception {
 		// 1. Initialize core components
 		this.viewport = viewport;

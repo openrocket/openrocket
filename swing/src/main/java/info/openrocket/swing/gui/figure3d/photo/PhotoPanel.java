@@ -18,8 +18,8 @@ import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SkyboxBackground
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.Light;
+import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
-import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -504,7 +504,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
 		orchestrator.getCameraController().addCameraChangeListener(cameraChangeListener);
-		SceneView scene = orchestrator.getScene();
+		Scene scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().addLightChangeListener(lightChangeListener);
 		}
@@ -515,7 +515,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		debug("applySettingsOnGlThread");
 		suppressCameraToSettingsSync.set(true);
 		try {
-			SceneView scene = orchestrator.getScene();
+			Scene scene = orchestrator.getScene();
 			if (scene == null) {
 				debug("applySettingsOnGlThread: no scene");
 				return;
@@ -572,7 +572,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 		orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
-		SceneView scene = orchestrator.getScene();
+		Scene scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().removeLightChangeListener(lightChangeListener);
 		}
@@ -588,7 +588,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		lastGradientBottomColor = null;
 	}
 
-	private void disableComponentSelection(SceneView scene) {
+	private void disableComponentSelection(Scene scene) {
 		scene.setSelection(List.of());
 		for (SceneObject obj : scene.getObjects()) {
 			obj.setSelected(false);
@@ -596,12 +596,10 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 	}
 
-	private void configurePhotoScene(SceneView scene) {
-		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.graph.Scene actualScene) {
-			// Photo Studio recenters the rocket to world origin before applying its own rotations.
-			// Keep interactive drag rotation around that origin instead of the design-view centerline pivot.
-			actualScene.setRocketRotationPivotOverride(0.0f, 0.0f, 0.0f);
-		}
+	private void configurePhotoScene(Scene scene) {
+		// Photo Studio recenters the rocket to world origin before applying its own rotations.
+		// Keep interactive drag rotation around that origin instead of the design-view centerline pivot.
+		scene.setRocketRotationPivotOverride(0.0f, 0.0f, 0.0f);
 	}
 
 	private void applyCamera(Camera camera) {
@@ -638,7 +636,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		camera.setZoomLimits(0.01f, 10000.0f);
 	}
 
-	private void applyBackground(SceneView scene) {
+	private void applyBackground(Scene scene) {
 		PhotoSettings.BackgroundType bgType = settings.getBackgroundType();
 		ORColor sky = settings.getSkyColor();
 		if (sky == null) {
@@ -732,7 +730,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 				alpha);
 	}
 
-	private void applyLighting(SceneView scene, RenderingConfiguration config) {
+	private void applyLighting(Scene scene, RenderingConfiguration config) {
 		config.getVisualEffects().setAmbientLightFactor((float) settings.getAmbiance());
 		if (scene.getLightController().getLights().isEmpty()) {
 			return;
@@ -753,7 +751,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		light.setDirection(-x, -y, z);
 	}
 
-	private void applyRocketTransform(SceneView scene, RenderingConfiguration config) {
+	private void applyRocketTransform(Scene scene, RenderingConfiguration config) {
 		if (document == null) {
 			debug("applyRocketTransform: no document");
 			return;
@@ -769,13 +767,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 		Matrix4f sceneRotationTransform = new Matrix4f();
 		Matrix4f sceneRotationInverse = new Matrix4f();
-		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.graph.Scene actualScene) {
-			actualScene.getRocketRotationTransform(sceneRotationTransform);
-			sceneRotationInverse.set(sceneRotationTransform).invert();
-		} else {
-			sceneRotationTransform.identity();
-			sceneRotationInverse.identity();
-		}
+		scene.getRocketRotationTransform(sceneRotationTransform);
+		sceneRotationInverse.set(sceneRotationTransform).invert();
 
 		Matrix4f globalTransform = new Matrix4f(sceneRotationTransform)
 				.rotateZ((float) -settings.getPitch())
@@ -806,7 +799,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		applyParticleTransform(scene, config, globalTransform);
 	}
 
-	private void applyParticleTransform(SceneView scene, RenderingConfiguration config, Matrix4f globalTransform) {
+	private void applyParticleTransform(Scene scene, RenderingConfiguration config, Matrix4f globalTransform) {
 		boolean resetBases = false;
 		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
 			if (!baseEmitters.containsKey(emitter)) {

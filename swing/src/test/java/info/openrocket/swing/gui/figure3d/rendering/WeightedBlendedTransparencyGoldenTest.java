@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -270,7 +271,7 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 		for (SceneObject object : scene.getObjects()) {
 			object.cleanup();
 		}
-		scene.getObjects().clear();
+		scene.clearObjects();
 		return scene;
 	}
 
@@ -329,7 +330,14 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 	private static void reverseSceneObjects(RenderHarness harness) {
 		Scene3DOrchestrator orchestrator = harness.panel.getScene3DOrchestrator();
 		assertNotNull(orchestrator, "Scene should exist after GL initialization");
-		orchestrator.enqueueGlTask(() -> Collections.reverse(orchestrator.getScene().getObjects()));
+		orchestrator.enqueueGlTask(() -> {
+			List<SceneObject> reversed = new ArrayList<>(orchestrator.getScene().getObjects());
+			Collections.reverse(reversed);
+			orchestrator.getScene().clearObjects();
+			for (SceneObject object : reversed) {
+				orchestrator.getScene().addObject(object);
+			}
+		});
 	}
 
 	private static BufferedImage normalize(BufferedImage source) {

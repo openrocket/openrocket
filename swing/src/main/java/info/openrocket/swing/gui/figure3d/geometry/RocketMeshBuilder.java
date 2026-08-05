@@ -457,7 +457,7 @@ public abstract class RocketMeshBuilder {
 	 */
 	public static void rebuildParticles(Scene scene, Rocket rocket, RenderingConfiguration config) {
 		// Clear existing particle emitters
-		scene.getParticleEmitters().clear();
+		scene.clearParticleEmitters();
 
 		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
 		InstanceMap lowestMotorInstances = flightConfig.getLowestMotorInstances();
@@ -543,7 +543,7 @@ public abstract class RocketMeshBuilder {
 	 */
 	public static void rebuildOriginAxes(Scene scene, RenderingConfiguration config, boolean useORCoordinateSystem, boolean onTop) {
 		// Remove existing axis objects
-		scene.getObjects().removeIf(obj -> !obj.isSelectable() && obj.isRenderOnTop() == onTop);
+		scene.removeObjectsIf(obj -> !obj.isSelectable() && obj.isRenderOnTop() == onTop);
 		
 		// Recreate axes if they should be visible
 		createOriginAxes(scene, config, useORCoordinateSystem, onTop);

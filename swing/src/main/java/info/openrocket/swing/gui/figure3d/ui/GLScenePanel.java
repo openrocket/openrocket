@@ -12,7 +12,7 @@ import info.openrocket.swing.gui.figure3d.rendering.GLContextDiagnostics;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
-import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
@@ -928,7 +928,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			handlePendingResize();
 
 			GLRenderer renderer = scene3DOrchestrator.getRenderer();
-			SceneView sceneView = scene3DOrchestrator.getScene();
+			Scene sceneView = scene3DOrchestrator.getScene();
 
 			if (renderer == null || sceneView == null) {
 				return;
@@ -974,7 +974,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	private void handleExport(SceneView sceneView, GLRenderer renderer) {
+	private void handleExport(Scene sceneView, GLRenderer renderer) {
 		boolean renderBackground = !scene3DOrchestrator.isExportTransparent();
 		renderer.render(sceneView, renderBackground);
 
@@ -1209,7 +1209,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			runInContext(() -> {
 				if (scene3DOrchestrator != null) {
 					try {
-						SceneView scene = scene3DOrchestrator.getScene();
+						Scene scene = scene3DOrchestrator.getScene();
 						GLRenderer renderer = scene3DOrchestrator.getRenderer();
 						if (scene != null) {
 							scene.cleanup();
@@ -1267,7 +1267,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				+ ", swapCalls=" + swapCallCount.get();
 	}
 
-	private void applyThemeBackground(SceneView scene) {
+	private void applyThemeBackground(Scene scene) {
 		if (scene == null) {
 			return;
 		}

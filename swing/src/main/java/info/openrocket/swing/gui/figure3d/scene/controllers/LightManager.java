@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class LightManager implements LightController {
 	 */
 	@Override
 	public List<Light> getLights() {
-		return lights;
+		return Collections.unmodifiableList(lights);
 	}
 
 	/**
@@ -92,7 +93,7 @@ public class LightManager implements LightController {
 		// Remove the old light's visuals first
 		Light oldLight = lights.get(index);
 		if (lightVisualsMap.containsKey(oldLight)) {
-			lightVisualsMap.get(oldLight).forEach(visual -> scene.getObjects().remove(visual));
+			lightVisualsMap.get(oldLight).forEach(scene::removeObject);
 			lightVisualsMap.remove(oldLight);
 		}
 
@@ -194,7 +195,7 @@ public class LightManager implements LightController {
 	private void removeLightVisualizer(Light light) {
 		List<SceneObject> visuals = lightVisualsMap.remove(light);
 		if (visuals != null) {
-			visuals.forEach(visual -> scene.getObjects().remove(visual));
+			visuals.forEach(scene::removeObject);
 		}
 	}
 }
