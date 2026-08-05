@@ -40,7 +40,6 @@ public class Camera {
 	private float aspectRatio;
 	private final float zNear;
 	private final float zFar;
-	private CameraConstants.ProjectionType projectionType;
 
 	/**
 	 * Creates a camera with a perspective projection.
@@ -56,8 +55,12 @@ public class Camera {
 		this.zNear = zNear;
 		this.zFar = zFar;
 		this.projectionMatrix = new Matrix4f();
-		this.projectionType = CameraConstants.ProjectionType.PERSPECTIVE; // Default to perspective
 		this.fixedCenterOfInterest = fixedCenterOfInterest;
+		this.distance = CameraConstants.DEFAULT_DISTANCE;
+		this.minZoom = CameraConstants.DEFAULT_MIN_ZOOM;
+		this.maxZoom = CameraConstants.DEFAULT_MAX_ZOOM;
+		this.angleX = CameraConstants.DEFAULT_ANGLE_X;
+		this.angleY = CameraConstants.DEFAULT_ANGLE_Y;
 		updateProjectionMatrix();
 		updateViewMatrix();
 	}
@@ -126,59 +129,10 @@ public class Camera {
 		updateProjectionMatrix();
 	}
 	
-	/**
-	 * Sets the projection type for the camera.
-	 * @param projectionType The projection type (PERSPECTIVE or ORTHOGRAPHIC).
-	 */
-	public void setProjectionType(CameraConstants.ProjectionType projectionType) {
-		this.projectionType = projectionType;
-		updateProjectionMatrix();
-	}
-	
-	/**
-	 * Gets the current projection type.
-	 * @return The current projection type.
-	 */
-	public CameraConstants.ProjectionType getProjectionType() {
-		return projectionType;
-	}
-	
-	/**
-	 * Switches to perspective projection.
-	 */
-	public void setPerspectiveProjection() {
-		setProjectionType(CameraConstants.ProjectionType.PERSPECTIVE);
-	}
-	
-	/**
-	 * Switches to orthographic projection.
-	 */
-	public void setOrthographicProjection() {
-		setProjectionType(CameraConstants.ProjectionType.ORTHOGRAPHIC);
-	}
-	
-	/**
-	 * Updates the projection matrix based on the current projection type and parameters.
-	 */
 	private void updateProjectionMatrix() {
-		projectionMatrix.identity();
 		float nearPlane = getEffectiveNearPlane();
 		float farPlane = getEffectiveFarPlane();
-		
-		switch (projectionType) {
-			case PERSPECTIVE -> {
-				projectionMatrix.perspective(fov, aspectRatio, nearPlane, farPlane);
-			}
-			case ORTHOGRAPHIC -> {
-				// For orthographic projection, we need to calculate appropriate bounds
-				// based on the current distance to maintain similar framing
-				// Use a fallback distance if distance is 0 or not initialized
-				float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
-				float halfHeight = effectiveDistance * (float) Math.tan(fov / 2.0f);
-				float halfWidth = halfHeight * aspectRatio;
-				projectionMatrix.ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, nearPlane, farPlane);
-			}
-		}
+		projectionMatrix.identity().perspective(fov, aspectRatio, nearPlane, farPlane);
 	}
 
 	// Scale clipping planes with the current orbit distance so close inspection does not clip the model.
@@ -192,20 +146,10 @@ public class Camera {
 		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
 		return Math.max(zFar, effectiveDistance * CameraConstants.DYNAMIC_Z_FAR_DISTANCE_FACTOR);
 	}
-	/**
-	 * Sets the camera to a predefined view.
-	 * This method calculates the required yaw (angleX) and pitch (angleY)
-	 * to position the camera according to the selected view, while maintaining the current zoom distance.
-	 *
-	 * @param view The predefined view to snap to.
-	 */
-	public void setView(CameraConstants.View view) {
-		Vector3f viewPos = view.getPosition();
-		// We use atan2 to correctly calculate the angle in all quadrants.
-		// Yaw (angleX) is the angle in the XZ plane.
-		this.angleX = (float) Math.atan2(viewPos.x, viewPos.z);
-		// Pitch (angleY) is the angle up from the XZ plane.
-		this.angleY = (float) Math.asin(viewPos.y / viewPos.length());
+	/** Sets the camera to the standard side view. */
+	public void setSideView() {
+		this.angleX = 0.0f;
+		this.angleY = 0.0f;
 	}
 
 	/**
@@ -333,9 +277,7 @@ public class Camera {
 
 
 	/**
-	 * Moves the camera and its target point forward or backward.
-	 * In perspective mode, this changes the distance from the center of interest.
-	 * In orthographic mode, this scales the view frustum to simulate zoom.
+	 * Moves the camera toward or away from its target point.
 	 *
 	 * @param scrollAmount The distance to move. Positive is forward, negative is backward.
 	 */
@@ -486,39 +428,13 @@ public class Camera {
 		return destination.set(position);
 	}
 	
-	/**
-	 * Builder class for creating Camera instances with flexible configuration.
-	 * 
-	 * <p>This builder provides a fluent API for creating cameras with custom settings,
-	 * making it easier to configure complex camera setups.</p>
-	 * 
-	 * <h3>Usage Example:</h3>
-	 * <pre>
-	 * Camera camera = Camera.builder()
-	 *     .withFieldOfView(Math.toRadians(15))
-	 *     .withAspectRatio(16.0f / 9.0f)
-	 *     .withClippingPlanes(0.1f, 200.0f)
-	 *     .withInitialDistance(10.0f)
-	 *     .withZoomLimits(1.0f, 50.0f)
-	 *     .withInitialAngles((float) Math.toRadians(45.0), (float) Math.toRadians(30.0))
-	 *     .withCenterOfInterest(0.0f, 0.0f, 0.0f)
-	 *     .withFixedCenterOfInterest(false)
-	 *     .build();
-	 * </pre>
-	 */
+	/** Builder for the camera settings needed when a scene is created. */
 	public static class Builder {
-		private float fov = CameraConstants.DEFAULT_FIELD_OF_VIEW; // Default FOV in radians
+		private float fov = CameraConstants.DEFAULT_FIELD_OF_VIEW;
 		private float aspectRatio = 1.0f;
 		private float zNear = CameraConstants.DEFAULT_Z_NEAR;
 		private float zFar = CameraConstants.DEFAULT_Z_FAR;
 		private boolean fixedCenterOfInterest = true;
-		private float initialDistance = CameraConstants.DEFAULT_DISTANCE;
-		private float minZoom = CameraConstants.DEFAULT_MIN_ZOOM;
-		private float maxZoom = CameraConstants.DEFAULT_MAX_ZOOM;
-		private float initialAngleX = CameraConstants.DEFAULT_ANGLE_X;
-		private float initialAngleY = CameraConstants.DEFAULT_ANGLE_Y;
-		private Vector3f initialCenterOfInterest = new Vector3f(0.0f, 0.0f, 0.0f);
-		private CameraConstants.ProjectionType projectionType = CameraConstants.ProjectionType.PERSPECTIVE; // Default to perspective projection
 		
 		/**
 		 * Sets the camera's field of view.
@@ -563,92 +479,11 @@ public class Camera {
 		}
 		
 		/**
-		 * Sets the initial distance from the center of interest.
-		 * @param distance The initial distance (default: 8.0)
-		 * @return This builder instance
-		 */
-		public Builder withInitialDistance(float distance) {
-			this.initialDistance = distance;
-			return this;
-		}
-		
-		/**
-		 * Sets the zoom limits for the camera.
-		 * @param minZoom The minimum zoom distance (default: 0.5)
-		 * @param maxZoom The maximum zoom distance (default: 30.0)
-		 * @return This builder instance
-		 */
-		public Builder withZoomLimits(float minZoom, float maxZoom) {
-			this.minZoom = minZoom;
-			this.maxZoom = maxZoom;
-			return this;
-		}
-		
-		/**
-		 * Sets the initial camera angles.
-		 * @param angleX The initial yaw angle in radians (default: 25 degrees)
-		 * @param angleY The initial pitch angle in radians (default: 30 degrees)
-		 * @return This builder instance
-		 */
-		public Builder withInitialAngles(float angleX, float angleY) {
-			this.initialAngleX = angleX;
-			this.initialAngleY = angleY;
-			return this;
-		}
-		
-		/**
-		 * Sets the initial center of interest.
-		 * @param x The X coordinate of the center of interest
-		 * @param y The Y coordinate of the center of interest
-		 * @param z The Z coordinate of the center of interest
-		 * @return This builder instance
-		 */
-		public Builder withCenterOfInterest(float x, float y, float z) {
-			this.initialCenterOfInterest = new Vector3f(x, y, z);
-			return this;
-		}
-		
-		/**
-		 * Sets the initial center of interest.
-		 * @param center The center of interest as a Vector3f
-		 * @return This builder instance
-		 */
-		public Builder withCenterOfInterest(Vector3f center) {
-			this.initialCenterOfInterest = new Vector3f(center);
-			return this;
-		}
-		
-		/**
-		 * Sets the projection type for the camera.
-		 * 
-		 * @param projectionType the projection type (PERSPECTIVE or ORTHOGRAPHIC)
-		 * @return this builder instance
-		 */
-		public Builder withProjectionType(CameraConstants.ProjectionType projectionType) {
-			this.projectionType = projectionType;
-			return this;
-		}
-		/**
 		 * Builds the Camera with the configured settings.
 		 * @return A new Camera instance
 		 */
 		public Camera build() {
-			Camera camera = new Camera(fov, aspectRatio, zNear, zFar, fixedCenterOfInterest);
-			
-			// Apply initial settings that aren't handled by the constructor
-			camera.distance = initialDistance;
-			camera.minZoom = minZoom;
-			camera.maxZoom = maxZoom;
-			camera.angleX = initialAngleX;
-			camera.angleY = initialAngleY;
-			camera.centerOfInterest.set(initialCenterOfInterest);
-			camera.projectionType = projectionType;
-			
-			// Update matrices in correct order - projection needs distance first
-			camera.updateProjectionMatrix();
-			camera.updateViewMatrix();
-			
-			return camera;
+			return new Camera(fov, aspectRatio, zNear, zFar, fixedCenterOfInterest);
 		}
 	}
 	

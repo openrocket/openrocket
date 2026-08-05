@@ -62,7 +62,7 @@ public class CameraController implements CameraControls {
 	 */
 	@Override
 	public void initialize(Rocket rocket, float aspectRatio) {
-		camera.setView(CameraConstants.View.SIDE);
+		camera.setSideView();
 		camera.setAspectRatio(aspectRatio);
 		
 		// Set initial center of interest based on rocket length
@@ -122,7 +122,7 @@ public class CameraController implements CameraControls {
 
 	@Override
 	public void resetView() {
-		camera.setView(CameraConstants.View.SIDE);
+		camera.setSideView();
 		camera.resetViewOffset();
 		camera.update();
 		scene.updateRocketPivotFromCamera();

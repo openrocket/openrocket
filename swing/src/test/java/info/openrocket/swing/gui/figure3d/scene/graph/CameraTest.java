@@ -22,9 +22,8 @@ class CameraTest {
 
 	@Test
 	void fitBoundsUpdatesMinimumZoomForSmallBounds() {
-		Camera camera = Camera.builder()
-				.withZoomLimits(CameraConstants.DEFAULT_MIN_ZOOM, CameraConstants.DEFAULT_MAX_ZOOM)
-				.build();
+		Camera camera = Camera.builder().build();
+		camera.setZoomLimits(CameraConstants.DEFAULT_MIN_ZOOM, CameraConstants.DEFAULT_MAX_ZOOM);
 
 		camera.fitBounds(new Vector3f(0.01f, 0.01f, 0.01f));
 

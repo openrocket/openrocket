@@ -283,7 +283,6 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 		camera.setAngleX(0.0f);
 		camera.setAngleY(0.0f);
 		camera.setCenterOfInterest(new Vector3f());
-		camera.setPerspectiveProjection();
 		camera.update();
 	}
 
