@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
@@ -42,9 +40,7 @@ import static org.lwjgl.opengl.GL40.GL_TESS_CONTROL_SHADER;
 import static org.lwjgl.opengl.GL40.GL_TESS_EVALUATION_SHADER;
 import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 
-/**
- * Owns a linked OpenGL shader program and caches uniform locations by name.
- */
+/** Owns a linked OpenGL shader program. */
 public class GLShader implements GpuResource {
 
 	private static final Logger log = LoggerFactory.getLogger(GLShader.class);
@@ -52,9 +48,6 @@ public class GLShader implements GpuResource {
 	private int programId;
 	private final String vertexPath;
 	private final String fragmentPath;
-
-	// Cache uniform locations to avoid repeated lookups
-	private final Map<String, Integer> uniformLocationCache = new HashMap<>();
 
 	// Reusable buffers to avoid allocations every frame
 	private final float[] matrix4Buffer = new float[16];
@@ -150,13 +143,9 @@ public class GLShader implements GpuResource {
 		return programId;
 	}
 
-	/**
-	 * Gets a uniform location with caching to avoid repeated GL calls.
-	 * @param name The uniform name
-	 * @return The uniform location, or -1 if not found
-	 */
+	/** Returns a uniform location, or {@code -1} if it is not exposed by the linked program. */
 	public int getUniformLocation(String name) {
-		return uniformLocationCache.computeIfAbsent(name, n -> glGetUniformLocation(programId, n));
+		return glGetUniformLocation(programId, name);
 	}
 
 	/**
@@ -176,30 +165,6 @@ public class GLShader implements GpuResource {
 	}
 
 	/**
-	 * Validates and caches a group of required uniforms.
-	 *
-	 * @param uniformNames uniform names that must be exposed by the linked program
-	 */
-	public void requireUniformLocations(String... uniformNames) {
-		for (String name : uniformNames) {
-			requireUniformLocation(name);
-		}
-	}
-
-	/**
-	 * Sets a Matrix4f uniform by name (uses caching).
-	 * @param name   The name of the uniform in the shader.
-	 * @param matrix The Matrix4f to set.
-	 */
-	public void setUniformMatrix4f(String name, Matrix4f matrix) {
-		int location = getUniformLocation(name);
-		if (location >= 0) {
-			matrix.get(matrix4Buffer);
-			glUniformMatrix4fv(location, false, matrix4Buffer);
-		}
-	}
-
-	/**
 	 * Sets a Matrix4f uniform using a pre-cached location.
 	 * @param location The cached uniform location
 	 * @param matrix The matrix to set
@@ -209,15 +174,6 @@ public class GLShader implements GpuResource {
 			matrix.get(matrix4Buffer);
 			glUniformMatrix4fv(location, false, matrix4Buffer);
 		}
-	}
-
-	/**
-	 * Sets a Matrix3f uniform by name (uses caching).
-	 * @param name   The name of the uniform in the shader.
-	 * @param matrix The Matrix3f to set.
-	 */
-	public void setUniformMatrix3f(String name, Matrix3f matrix) {
-		setUniformMatrix3f(getUniformLocation(name), matrix);
 	}
 
 	/**
@@ -232,64 +188,34 @@ public class GLShader implements GpuResource {
 		}
 	}
 
-	/**
-	 * Sets a Vector4f uniform by name.
-	 * @param name The name of the uniform.
-	 * @param vector The vector to set.
-	 */
-	public void setUniformVector4f(String name, Vector4f vector) {
-		int location = getUniformLocation(name);
+	public void setUniformVector4f(int location, Vector4f vector) {
 		if (location >= 0) {
 			glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 		}
 	}
 
-	/**
-	 * Sets a Vector3f uniform by name.
-	 * @param name The name of the uniform.
-	 * @param vector The vector to set.
-	 */
-	public void setUniformVector3f(String name, Vector3f vector) {
-		int location = getUniformLocation(name);
+	public void setUniformVector3f(int location, Vector3f vector) {
 		if (location >= 0) {
 			glUniform3f(location, vector.x, vector.y, vector.z);
 		}
 	}
 
-	/**
-	 * Sets a float uniform by name.
-	 * @param name The name of the uniform.
-	 * @param value The float value to set.
-	 */
-	public void setUniformFloat(String name, float value) {
-		int location = getUniformLocation(name);
+	public void setUniformFloat(int location, float value) {
 		if (location >= 0) {
 			glUniform1f(location, value);
 		}
 	}
 
 	/**
-	 * Sets an int uniform by name. Also required for sampler and bool uniforms:
+	 * Sets an int uniform. Also required for sampler and bool uniforms:
 	 * setting those with {@code glUniform1f} is a silent GL_INVALID_OPERATION
 	 * and the uniform keeps its previous value.
-	 * @param name The name of the uniform.
+	 * @param location the uniform location
 	 * @param value The int value to set.
 	 */
-	public void setUniformInt(String name, int value) {
-		int location = getUniformLocation(name);
+	public void setUniformInt(int location, int value) {
 		if (location >= 0) {
 			glUniform1i(location, value);
-		}
-	}
-
-	/**
-	 * Pre-caches all uniform locations from a list of names.
-	 * Call this after shader creation for frequently used uniforms.
-	 * @param uniformNames Array of uniform names to cache
-	 */
-	public void cacheUniformLocations(String... uniformNames) {
-		for (String name : uniformNames) {
-			getUniformLocation(name); // This will cache the location
 		}
 	}
 
@@ -301,7 +227,6 @@ public class GLShader implements GpuResource {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.PROGRAM, releasedProgram);
 			glDeleteProgram(releasedProgram);
 		}
-		uniformLocationCache.clear();
 	}
 
 	/**

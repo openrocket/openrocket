@@ -96,6 +96,8 @@ public class ShadowPass implements RenderPass {
 	private static final long HASH_PRIME = 0x100000001b3L;
 
 	private final GLShader depthShader;
+	private final int lightSpaceMatrixUniform;
+	private final int modelUniform;
 	private final int maxShadowMapSize;
 	private final Matrix4f lightSpaceMatrix = new Matrix4f();
 	private final Matrix4f lightViewMatrix = new Matrix4f();
@@ -139,7 +141,8 @@ public class ShadowPass implements RenderPass {
 	 */
 	public ShadowPass(int initialWidth, int initialHeight, boolean memoryConstrained) {
 		this.depthShader = new GLShader("/shaders/shadow_vertex.glsl", "/shaders/shadow_fragment.glsl");
-		this.depthShader.requireUniformLocations("lightSpaceMatrix", "model");
+		this.lightSpaceMatrixUniform = depthShader.requireUniformLocation("lightSpaceMatrix");
+		this.modelUniform = depthShader.requireUniformLocation("model");
 		this.maxShadowMapSize = memoryConstrained ? CONSTRAINED_MAX_SHADOW_MAP_SIZE : MAX_SHADOW_MAP_SIZE;
 		this.lastViewportWidth = initialWidth;
 		this.lastViewportHeight = initialHeight;
@@ -199,13 +202,13 @@ public class ShadowPass implements RenderPass {
 		glCullFace(GL_BACK);
 
 		depthShader.use();
-		depthShader.setUniformMatrix4f("lightSpaceMatrix", lightSpaceMatrix);
+		depthShader.setUniformMatrix4f(lightSpaceMatrixUniform, lightSpaceMatrix);
 
 		for (SceneObject object : scene.getObjects()) {
 			if (shouldSkipObject(object)) {
 				continue;
 			}
-			depthShader.setUniformMatrix4f("model", object.getModelMatrix());
+			depthShader.setUniformMatrix4f(modelUniform, object.getModelMatrix());
 			object.getRenderableMesh().render();
 		}
 

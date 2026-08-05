@@ -27,6 +27,13 @@ public class CameraPointOfInterestPass implements RenderPass {
 	private int viewportHeight = 1;
 
 	private final GLShader shader;
+	private final int projectionUniform;
+	private final int viewUniform;
+	private final int centerUniform;
+	private final int colorUniform;
+	private final int scaleWithViewUniform;
+	private final int fixedScaleFactorUniform;
+	private final int viewportHeightUniform;
 	private final Renderable markerMesh;
 	private final RenderingConfiguration config;
 	private final Vector3f markerColor = new Vector3f(0.2f, 0.8f, 1.0f);
@@ -34,13 +41,14 @@ public class CameraPointOfInterestPass implements RenderPass {
 
 	public CameraPointOfInterestPass(RenderingConfiguration config) {
 		this.config = config;
-		try {
-			shader = new GLShader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		shader.requireUniformLocations("projectionMatrix", "viewMatrix", "center", "color",
-				"scaleWithView", "fixedScaleFactor", "viewportHeight");
+		shader = new GLShader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
+		projectionUniform = shader.requireUniformLocation("projectionMatrix");
+		viewUniform = shader.requireUniformLocation("viewMatrix");
+		centerUniform = shader.requireUniformLocation("center");
+		colorUniform = shader.requireUniformLocation("color");
+		scaleWithViewUniform = shader.requireUniformLocation("scaleWithView");
+		fixedScaleFactorUniform = shader.requireUniformLocation("fixedScaleFactor");
+		viewportHeightUniform = shader.requireUniformLocation("viewportHeight");
 		this.markerMesh = new GLRenderableMesh(CameraPointOfInterestGenerator.create());
 		updateColorFromTheme();
 		this.uiThemeListener = this::updateColorFromTheme;
@@ -60,13 +68,13 @@ public class CameraPointOfInterestPass implements RenderPass {
 
 		glDisable(GL_DEPTH_TEST);
 		shader.use();
-		shader.setUniformMatrix4f("projectionMatrix", projectionMatrix);
-		shader.setUniformMatrix4f("viewMatrix", viewMatrix);
-		shader.setUniformVector3f("center", camera.getCenterOfInterest());
-		shader.setUniformVector3f("color", markerColor);
-		shader.setUniformFloat("scaleWithView", 0.0f);
-		shader.setUniformFloat("fixedScaleFactor", FIXED_SCREEN_SCALE);
-		shader.setUniformFloat("viewportHeight", (float) viewportHeight);
+		shader.setUniformMatrix4f(projectionUniform, projectionMatrix);
+		shader.setUniformMatrix4f(viewUniform, viewMatrix);
+		shader.setUniformVector3f(centerUniform, camera.getCenterOfInterest());
+		shader.setUniformVector3f(colorUniform, markerColor);
+		shader.setUniformFloat(scaleWithViewUniform, 0.0f);
+		shader.setUniformFloat(fixedScaleFactorUniform, FIXED_SCREEN_SCALE);
+		shader.setUniformFloat(viewportHeightUniform, (float) viewportHeight);
 		markerMesh.render();
 		glEnable(GL_DEPTH_TEST);
 	}

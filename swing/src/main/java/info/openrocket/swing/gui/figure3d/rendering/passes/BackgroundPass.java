@@ -84,6 +84,7 @@ public class BackgroundPass implements RenderPass {
 	private final int hdriExposureLocation;
 	private final int hdriSamplerLocation;
 	private final int checkerboardScaleLocation;
+	private final int checkerboardColorLocation;
 
 	/**
 	 * Creates a new background pass with all supported rendering techniques.
@@ -113,7 +114,7 @@ public class BackgroundPass implements RenderPass {
 		hdriExposureLocation = hdriShader.requireUniformLocation("exposure");
 		hdriSamplerLocation = hdriShader.requireUniformLocation("equirectangularMap");
 		checkerboardScaleLocation = checkerboardShader.requireUniformLocation("scale");
-		checkerboardShader.requireUniformLocation("bgColor");
+		checkerboardColorLocation = checkerboardShader.requireUniformLocation("bgColor");
 
 		// Gradient background VAO
 		float[] gradientQuadVertices = { -1.0f,  1.0f, -1.0f, -1.0f, 1.0f,  1.0f, 1.0f, -1.0f };
@@ -183,7 +184,7 @@ public class BackgroundPass implements RenderPass {
 				glClear(GL_DEPTH_BUFFER_BIT);
 				glDisable(GL_DEPTH_TEST);
 				checkerboardShader.use();
-				checkerboardShader.setUniformVector4f("bgColor", color);
+				checkerboardShader.setUniformVector4f(checkerboardColorLocation, color);
 				glUniform1f(checkerboardScaleLocation, 20.0f);
 				glBindVertexArray(gradientVao);
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

@@ -22,6 +22,9 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 public class FXAAPass implements ScreenTexturePass {
 
 	private final GLShader shader;
+	private final int screenTextureUniform;
+	private final int renderTargetWidthUniform;
+	private final int renderTargetHeightUniform;
 	private final FullscreenQuad fullscreenQuad;
 	private final PostProcessRenderTarget target;
 	private int inputTexture;
@@ -39,11 +42,13 @@ public class FXAAPass implements ScreenTexturePass {
 	 */
 	public FXAAPass(FullscreenQuad fullscreenQuad, int initialWidth, int initialHeight) {
 		this.shader = new GLShader("/shaders/post/fxaa_vertex.glsl", "/shaders/post/fxaa_fragment.glsl");
-		this.shader.requireUniformLocations("screenTexture", "rt_w", "rt_h");
+		this.screenTextureUniform = shader.requireUniformLocation("screenTexture");
+		this.renderTargetWidthUniform = shader.requireUniformLocation("rt_w");
+		this.renderTargetHeightUniform = shader.requireUniformLocation("rt_h");
 		this.fullscreenQuad = fullscreenQuad;
 		this.target = new PostProcessRenderTarget("FXAA", initialWidth, initialHeight);
 		this.shader.use();
-		this.shader.setUniformInt("screenTexture", 0); // Set texture unit once
+		this.shader.setUniformInt(screenTextureUniform, 0);
 		this.shader.unbind();
 	}
 
@@ -64,8 +69,8 @@ public class FXAAPass implements ScreenTexturePass {
 		glDisable(GL_DEPTH_TEST);
 
 		shader.use();
-		shader.setUniformFloat("rt_w", (float) target.getWidth());
-		shader.setUniformFloat("rt_h", (float) target.getHeight());
+		shader.setUniformFloat(renderTargetWidthUniform, (float) target.getWidth());
+		shader.setUniformFloat(renderTargetHeightUniform, (float) target.getHeight());
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, inputTexture);

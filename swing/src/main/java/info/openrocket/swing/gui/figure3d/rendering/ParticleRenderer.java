@@ -46,13 +46,16 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 	private static final float STREAK_LENGTH_FACTOR = 0.05f;
 
 	private final GLShader shader;
+	private final int projectionUniform;
+	private final int viewUniform;
 	private final int vao;
 	private final int vbo;
 	private final FloatBuffer buffer;
 
 	public ParticleRenderer() {
 		shader = new GLShader("/shaders/particle_vertex.glsl", "/shaders/particle_fragment.glsl");
-		shader.requireUniformLocations("projection", "view");
+		projectionUniform = shader.requireUniformLocation("projection");
+		viewUniform = shader.requireUniformLocation("view");
 		buffer = MemoryUtil.memAllocFloat(MAX_PARTICLES * 2 * 6); // 2 vertices per particle, 6 floats per vertex
 
 		vao = glGenVertexArrays();
@@ -80,8 +83,8 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 	@Override
 	public void render(SceneView scene, Camera camera) {
 		shader.use();
-		shader.setUniformMatrix4f("projection", camera.getProjectionMatrix());
-		shader.setUniformMatrix4f("view", camera.getViewMatrix());
+		shader.setUniformMatrix4f(projectionUniform, camera.getProjectionMatrix());
+		shader.setUniformMatrix4f(viewUniform, camera.getViewMatrix());
 
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

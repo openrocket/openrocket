@@ -73,6 +73,7 @@ class HudOverlay {
 	private Graphics2D graphics;
 	private Texture texture;
 	private GLShader shader;
+	private int hudTextureUniform = -1;
 	private int vao;
 	private int vbo;
 	private int pbo;
@@ -102,6 +103,10 @@ class HudOverlay {
 	/** Creates the shader, texture and quad the overlay is drawn with. */
 	void initResources() {
 		shader = new GLShader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
+		hudTextureUniform = shader.requireUniformLocation("hudTexture");
+		shader.use();
+		shader.setUniformInt(hudTextureUniform, 0);
+		shader.unbind();
 		initTexture();
 		initVao();
 		requestRepaint(true);
@@ -407,6 +412,7 @@ class HudOverlay {
 		if (shader != null) {
 			shader.cleanup();
 			shader = null;
+			hudTextureUniform = -1;
 		}
 		if (texture != null) {
 			texture.cleanup();
