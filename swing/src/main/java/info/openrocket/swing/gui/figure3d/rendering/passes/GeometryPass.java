@@ -9,21 +9,16 @@ import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.TransparencyPolicy;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
-import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FILL;
-import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
-import static org.lwjgl.opengl.GL11.GL_LINE;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glIsEnabled;
-import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL33.glUniform1i;
 
 /**
@@ -174,8 +169,7 @@ public class GeometryPass implements RenderPass {
 	}
 
 	private void renderTransparentObject(SceneObject object) {
-		if (!isWireframe()
-				&& TransparencyPolicy.isTransparentBodyComponent(object.getRocketComponent())) {
+		if (TransparencyPolicy.isTransparentBodyComponent(object.getRocketComponent())) {
 			renderTransparentBodyObject(object);
 			return;
 		}
@@ -202,27 +196,12 @@ public class GeometryPass implements RenderPass {
 
 	/** Renders one object after applying its material and display-mode overrides. */
 	private void renderObject(SceneObject object, boolean forceHideInnerSurfaces) {
-		boolean wireframe = isWireframe();
 		materialBinder.bind(object, mainShader, mainShaderUniforms, config, textureStateManager);
 		if (forceHideInnerSurfaces) {
 			glUniform1i(mainShaderUniforms.hideInnerSurfaces, 1);
 		}
 
-		if (wireframe) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		try {
-			object.getRenderableMesh().render();
-		} finally {
-			if (wireframe) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-		}
-	}
-
-	private boolean isWireframe() {
-		return config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
-				config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING;
+		object.getRenderableMesh().render();
 	}
 
 	private void setTransparencyOutputMode(TransparencyOutputMode outputMode) {

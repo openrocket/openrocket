@@ -11,14 +11,8 @@ public class DisplaySettings {
 		FINISHED,
 		/** Simplified rendering without textures or decals, using basic materials only */
 		UNFINISHED,
-		/** Edge-only rendering without backface culling for complete wireframe visibility */
-		WIREFRAME,
-		/** Edge-only rendering with backface culling for optimized wireframe display */
-		WIREFRAME_CULLING,
 		/** Transparent rendering mode for examining internal component relationships */
-		XRAY,
-		/** Cutaway rendering showing internal components by hiding front-facing surfaces */
-		XRAY_CUTAWAY
+		XRAY
 	}
 
 	private RenderMode mode = DEFAULT_RENDER_MODE;
@@ -70,27 +64,4 @@ public class DisplaySettings {
 		renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
 	}
 
-	/**
-	 * Checks if the current render mode requires transparency effects.
-	 * @return true if transparency is needed for the current mode
-	 */
-	public boolean requiresTransparency() {
-		return mode == RenderMode.XRAY;
-	}
-
-	/**
-	 * Checks if the current render mode uses wireframe rendering.
-	 * @return true if wireframe rendering is active
-	 */
-	public boolean isWireframeMode() {
-		return mode == RenderMode.WIREFRAME || mode == RenderMode.WIREFRAME_CULLING;
-	}
-
-	/**
-	 * Checks if backface culling should be disabled for the current mode.
-	 * @return true if culling should be disabled
-	 */
-	public boolean shouldDisableCulling() {
-		return mode == RenderMode.WIREFRAME || mode == RenderMode.XRAY;
-	}
 }

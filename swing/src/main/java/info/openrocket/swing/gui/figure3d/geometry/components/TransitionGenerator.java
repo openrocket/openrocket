@@ -4,7 +4,6 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.basic.TubeGenerator;
-import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public abstract class TransitionGenerator {
 
 		// Delegate the entire mesh construction, including shoulders, to the TubeGenerator
 		return TubeGenerator.create(profile, (float) t.getThickness(), (float) length, segments,
-				t.isFilled(), foreShoulder, aftShoulder, config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY_CUTAWAY);
+				t.isFilled(), foreShoulder, aftShoulder);
 	}
 
 	private static boolean isConical(Transition t) {

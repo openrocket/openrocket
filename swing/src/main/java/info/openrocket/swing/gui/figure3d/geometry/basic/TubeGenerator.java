@@ -33,11 +33,10 @@ public class TubeGenerator {
 	 * @param isFilled whether the tube is filled (true) or hollow (false).
 	 * @param foreShoulder the fore shoulder of the tube, or null if no fore shoulder is present.
 	 * @param aftShoulder the aft shoulder of the tube, or null if no aft shoulder is present.
-	 * @param isXRayCutaway whether the tube is rendered as an X-ray cutaway (true) or not (false).
 	 * @return a Mesh object representing the tube geometry.
 	 */
 	public static Mesh create(List<RadiusPoint> outerProfile, float wallThickness, float length, int numSegments,
-							  boolean isFilled, Shoulder foreShoulder, Shoulder aftShoulder, boolean isXRayCutaway) {
+							  boolean isFilled, Shoulder foreShoulder, Shoulder aftShoulder) {
 		List<Vertex> vertexList = new ArrayList<>();
 		IntList indexList = new IntList();
 
@@ -46,7 +45,7 @@ public class TubeGenerator {
 
 		// 1. Generate the main tube body with open ends where shoulders will attach.
 		createFromProfile(vertexList, indexList, outerProfile, wallThickness, length, numSegments, isFilled, 0,
-				!hasForeShoulder, !hasAftShoulder, foreShoulder, aftShoulder, isXRayCutaway);
+				!hasForeShoulder, !hasAftShoulder, foreShoulder, aftShoulder);
 
 		List<RadiusPoint> sortedOuterProfile = outerProfile.stream()
 				.sorted(Comparator.comparingDouble(RadiusPoint::position))
@@ -56,7 +55,7 @@ public class TubeGenerator {
 
 
 		// 2. Generate Fore Shoulder and its specific connection plates.
-		if (hasForeShoulder && !isXRayCutaway) {
+		if (hasForeShoulder) {
 			float tubeInnerR = Math.max(0, tubeForePoint.radius - wallThickness);
 			float shoulderInnerR = (float) Math.max(0, foreShoulder.radius() - foreShoulder.thickness());
 			addShoulderConnector(vertexList, indexList,
@@ -66,7 +65,7 @@ public class TubeGenerator {
 
 			int shoulderVertexOffset = vertexList.size();
 			Mesh shoulderMesh = create((float) foreShoulder.radius(), (float) foreShoulder.thickness(),
-					(float) foreShoulder.length(), numSegments, false, isXRayCutaway);
+					(float) foreShoulder.length(), numSegments, false);
 
 			List<Vertex> shoulderVertices = new ArrayList<>(shoulderMesh.getVertices());
 			IntList newShoulderIndices = new IntList();
@@ -101,10 +100,10 @@ public class TubeGenerator {
 				float sInnerR = Math.max(0, sRadius - sThick);
 
 				generateFilledCap(shoulderVertices, newShoulderIndices, sRadius, -sLength / 2.0f, numSegments, true,
-						isXRayCutaway, capVertexOffset);
+						capVertexOffset);
 				capVertexOffset = shoulderVertices.size();
 				generateFilledCap(shoulderVertices, newShoulderIndices, sInnerR, -sLength / 2.0f + sThick, numSegments,
-						false, isXRayCutaway, capVertexOffset);
+						false, capVertexOffset);
 
 			} else {
 				// Uncapped fore shoulder
@@ -130,7 +129,7 @@ public class TubeGenerator {
 
 
 		// 3. Generate Aft Shoulder and its specific connection plates.
-		if (hasAftShoulder && !isXRayCutaway) {
+		if (hasAftShoulder) {
 			float tubeInnerR = Math.max(0, tubeAftPoint.radius - wallThickness);
 			float shoulderInnerR = (float) Math.max(0, aftShoulder.radius() - aftShoulder.thickness());
 			addShoulderConnector(vertexList, indexList,
@@ -140,7 +139,7 @@ public class TubeGenerator {
 
 			int shoulderVertexOffset = vertexList.size();
 			Mesh shoulderMesh = create((float) aftShoulder.radius(), (float) aftShoulder.thickness(),
-					(float) aftShoulder.length(), numSegments, false, isXRayCutaway);
+					(float) aftShoulder.length(), numSegments, false);
 
 			List<Vertex> shoulderVertices = new ArrayList<>(shoulderMesh.getVertices());
 			IntList newShoulderIndices = new IntList();
@@ -176,10 +175,10 @@ public class TubeGenerator {
 				float sInnerR = (float) Math.max(0, sRadius - sThick);
 
 				generateFilledCap(shoulderVertices, newShoulderIndices, sRadius, sLength / 2.0f, numSegments, false,
-						isXRayCutaway, capVertexOffset);
+						capVertexOffset);
 				capVertexOffset = shoulderVertices.size();
 				generateFilledCap(shoulderVertices, newShoulderIndices, sInnerR, sLength / 2.0f - sThick, numSegments,
-						true, isXRayCutaway, capVertexOffset);
+						true, capVertexOffset);
 
 			} else {
 				// Uncapped aft shoulder
@@ -250,22 +249,17 @@ public class TubeGenerator {
 	}
 
 	public static Mesh create(float foreOuterRadius, float aftOuterRadius, float wallThickness, float length,
-							  int numSegments, boolean isFilled, boolean isXRayCutaway) {
+							  int numSegments, boolean isFilled) {
 		List<RadiusPoint> profile = List.of(
 				new RadiusPoint(0.0f, foreOuterRadius),
 				new RadiusPoint(1.0f, aftOuterRadius)
 		);
-		return create(profile, wallThickness, length, numSegments, isFilled, null, null, isXRayCutaway);
+		return create(profile, wallThickness, length, numSegments, isFilled, null, null);
 	}
 
-	public static Mesh create(float foreOuterRadius, float aftOuterRadius, float wallThickness, float length,
-							  int numSegments, boolean isFilled) {
-		return create(foreOuterRadius, aftOuterRadius, wallThickness, length, numSegments, isFilled, false);
-	}
-
-	public static Mesh create(float outerRadius, float wallThickness, float length, int numSegments, boolean isFilled,
-							  boolean isXRayCutaway) {
-		return create(outerRadius, outerRadius, wallThickness, length, numSegments, isFilled, isXRayCutaway);
+	public static Mesh create(float outerRadius, float wallThickness, float length, int numSegments,
+							  boolean isFilled) {
+		return create(outerRadius, outerRadius, wallThickness, length, numSegments, isFilled);
 	}
 
 	public static Mesh create(float foreOuterRadius, float aftOuterRadius, float wallThickness, float length,
@@ -276,14 +270,15 @@ public class TubeGenerator {
 				new RadiusPoint(0.0f, foreOuterRadius),
 				new RadiusPoint(1.0f, aftOuterRadius)
 		);
-		createFromProfile(vertexList, indexList, profile, wallThickness, length, numSegments, isFilled, 0, capFore, capAft, null, null, false);
+		createFromProfile(vertexList, indexList, profile, wallThickness, length, numSegments, isFilled, 0,
+				capFore, capAft, null, null);
 		return new Mesh(vertexList, indexList);
 	}
 
 	private static void createFromProfile(List<Vertex> vertexList, IntList indexList, List<RadiusPoint> outerProfile,
 										  float wallThickness, float length, int numSegments, boolean isFilled,
 										  int vertexStartIndex, boolean capFore, boolean capAft,
-										  Shoulder foreShoulder, Shoulder aftShoulder, boolean isXRayCutaway) {
+										  Shoulder foreShoulder, Shoulder aftShoulder) {
 
 		if (outerProfile == null || outerProfile.size() < 2) {
 			throw new IllegalArgumentException("Outer profile must contain at least two points.");
@@ -385,11 +380,7 @@ public class TubeGenerator {
 				int p3_outer = vertexStartIndex + (i + 1) * verticesPerRing + ((j + 1) * (isFilled ? 1 : 2));
 				int p4_outer = vertexStartIndex + i * verticesPerRing + ((j + 1) * (isFilled ? 1 : 2));
 
-				if (isXRayCutaway) {
-					addQuadIndices(indexList, p1_outer, p2_outer, p3_outer, p4_outer);
-				} else {
-					addQuadIndices(indexList, p1_outer, p4_outer, p3_outer, p2_outer);
-				}
+				addQuadIndices(indexList, p1_outer, p4_outer, p3_outer, p2_outer);
 
 				if (!isFilled) {
 					int p1_inner = p1_outer + 1, p2_inner = p2_outer + 1;
@@ -400,30 +391,30 @@ public class TubeGenerator {
 		}
 
 		// === PASS 4: Generate End Caps (only for ends without shoulders) ===
-		if (capFore && !isXRayCutaway) {
+		if (capFore) {
 			RadiusPoint firstPoint = sortedOuterProfile.get(0);
 			if (firstPoint.radius > 0) {
 				float firstX = (firstPoint.position - 0.5f) * length;
 				if (isFilled) {
-					generateFilledCap(vertexList, indexList, firstPoint.radius, firstX, numSegments, true, isXRayCutaway,
+					generateFilledCap(vertexList, indexList, firstPoint.radius, firstX, numSegments, true,
 							vertexList.size());
 				} else {
 					generateRingCap(vertexList, indexList, firstPoint.radius, innerProfile.get(0).radius, firstX,
-							numSegments, true, isXRayCutaway);
+							numSegments, true);
 				}
 			}
 		}
 
-		if (capAft && !isXRayCutaway) {
+		if (capAft) {
 			RadiusPoint lastPoint = sortedOuterProfile.get(sortedOuterProfile.size() - 1);
 			if (lastPoint.radius > 0) {
 				float lastX = (lastPoint.position - 0.5f) * length;
 				if (isFilled) {
-					generateFilledCap(vertexList, indexList, lastPoint.radius, lastX, numSegments, true, isXRayCutaway,
+					generateFilledCap(vertexList, indexList, lastPoint.radius, lastX, numSegments, true,
 							vertexList.size());
 				} else {
 					generateRingCap(vertexList, indexList, lastPoint.radius,
-							innerProfile.get(innerProfile.size() - 1).radius, lastX, numSegments, false, isXRayCutaway);
+							innerProfile.get(innerProfile.size() - 1).radius, lastX, numSegments, false);
 				}
 			}
 		}
@@ -453,8 +444,8 @@ public class TubeGenerator {
 	}
 
 	private static void generateFilledCap(List<Vertex> vertexList, IntList indexList, float radius, float x,
-										  int numSegments, boolean isFore, boolean isXRayCutaway, int capOffset) {
-		boolean isCCWCulling = isFore && !isXRayCutaway || !isFore && isXRayCutaway;
+										  int numSegments, boolean isFore, int capOffset) {
+		boolean isCCWCulling = isFore;
 
 		Vector3f normal = new Vector3f(isCCWCulling ? -1 : 1, 0, 0);
 		int surfaceID = isFore ? RenderingConstants.SURFACE_ID_FORE : RenderingConstants.SURFACE_ID_AFT;
@@ -478,8 +469,8 @@ public class TubeGenerator {
 	}
 
 	private static void generateRingCap(List<Vertex> vertexList, IntList indexList, float outerR, float innerR,
-										float x, int numSegments, boolean isFore, boolean isXRayCutaway) {
-		boolean isCCWCulling = isFore && !isXRayCutaway || !isFore && isXRayCutaway;
+										float x, int numSegments, boolean isFore) {
+		boolean isCCWCulling = isFore;
 
 		Vector3f normal = new Vector3f(isCCWCulling ? -1 : 1, 0, 0);
 		int surfaceID = isFore ? RenderingConstants.SURFACE_ID_FORE : RenderingConstants.SURFACE_ID_AFT;

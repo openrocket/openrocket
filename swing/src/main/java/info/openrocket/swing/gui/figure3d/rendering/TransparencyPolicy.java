@@ -44,7 +44,7 @@ public final class TransparencyPolicy {
 		}
 
 		DisplaySettings.RenderMode mode = config.getDisplay().getMode();
-		if (mode == DisplaySettings.RenderMode.XRAY || config.getDisplay().isWireframeMode()) {
+		if (mode == DisplaySettings.RenderMode.XRAY) {
 			return false;
 		}
 		if (mode == DisplaySettings.RenderMode.UNFINISHED) {

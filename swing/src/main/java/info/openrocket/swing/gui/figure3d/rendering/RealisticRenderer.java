@@ -15,6 +15,7 @@ import info.openrocket.swing.gui.figure3d.rendering.passes.ShadowPass;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import org.joml.Matrix4f;
@@ -232,7 +233,8 @@ public class RealisticRenderer implements GLRenderer {
 	 */
 	private void prepareFrameGLState() {
 		glEnable(GL_DEPTH_TEST);
-		if (config.getQuality().isBackfaceCullingEnabled() && !config.getDisplay().shouldDisableCulling()) {
+		if (config.getQuality().isBackfaceCullingEnabled()
+				&& config.getDisplay().getMode() != DisplaySettings.RenderMode.XRAY) {
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 		} else {
