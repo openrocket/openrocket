@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 
 /**
  * Mesh instance with its transform, appearance, interaction state, and optional
- * associated rocket component.
+ * component associations.
  */
 public class SceneObject {
 
@@ -21,7 +21,8 @@ public class SceneObject {
 	private static int nextId = -1; // Static counter to assign unique IDs to each SceneObject
 
 	private final int id;
-	private final RocketComponent rocketComponent;		// The component this object represents
+	private final RocketComponent rocketComponent;		// Selection and rocket-wide behavior
+	private final RocketComponent appearanceSourceComponent;
 
 	private final Mesh mesh; 							// The raw geometry data
 	private final Renderable renderableMesh; 		// The GPU-ready version of the mesh
@@ -44,18 +45,35 @@ public class SceneObject {
 	 * This constructor creates the full object representation including both
 	 * raw geometry and GPU-optimized rendering data.
 	 * 
-	 * @param component the OpenRocket RocketComponent this object represents (may be null)
+	 * @param component the associated component for selection and rocket-wide behavior (may be null)
 	 * @param mesh the raw geometric mesh data
 	 * @param position the initial 3D position of the object
 	 * @param appearance the visual appearance including materials and textures
 	 */
 	public SceneObject(RocketComponent component, Mesh mesh, Vector3f position, Appearance3D appearance) {
+		this(component, component, mesh, position, appearance);
+	}
+
+	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
+			Mesh mesh, Vector3f position, Appearance3D appearance) {
 		this.id = nextId++;
 		this.rocketComponent = component;
+		this.appearanceSourceComponent = appearanceSourceComponent;
 		this.mesh = mesh;
 		this.renderableMesh = new GLRenderableMesh(mesh); // Create the renderable version here
 		this.modelMatrix.translate(position);
 		this.appearance = appearance;
+	}
+
+	/**
+	 * Creates an object that remains associated with a component for selection and
+	 * rocket-wide transforms, but whose appearance comes from another model object.
+	 * Motor meshes use this form: they are grouped with their mount for selection,
+	 * while retaining the motor label and material during mount appearance edits.
+	 */
+	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
+			Mesh mesh, Vector3f position, Appearance3D appearance) {
+		return new SceneObject(selectionComponent, null, mesh, position, appearance);
 	}
 
 	/**
@@ -81,12 +99,21 @@ public class SceneObject {
 	}
 
 	/**
-	 * Gets the OpenRocket component associated with this scene object.
+	 * Gets the component used to group this object for selection and rocket-wide behavior.
 	 * 
-	 * @return the RocketComponent this object represents, or null if not associated with a component
+	 * @return the associated component, or null if this is not rocket-derived geometry
 	 */
 	public RocketComponent getRocketComponent() {
 		return rocketComponent;
+	}
+
+	/**
+	 * Returns the component whose live appearance this object follows.
+	 *
+	 * @return the appearance source, or {@code null} for independently styled objects
+	 */
+	public RocketComponent getAppearanceSourceComponent() {
+		return appearanceSourceComponent;
 	}
 
 	/**

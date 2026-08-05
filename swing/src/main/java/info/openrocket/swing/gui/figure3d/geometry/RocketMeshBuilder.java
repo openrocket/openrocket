@@ -137,7 +137,8 @@ public abstract class RocketMeshBuilder {
 		for (RocketSceneSnapshot.MotorInstance mi : snapshot.getMotorInstances()) {
 			// Match legacy behavior: motor appearances are not shared across instances.
 			Appearance3D motorAppearance = AppearanceFactory.createFrom(mi.motor());
-			SceneObject motorObj = new SceneObject(mi.mountForSelectionGrouping(), mi.motorMesh(),
+			SceneObject motorObj = SceneObject.withIndependentAppearance(
+					mi.mountForSelectionGrouping(), mi.motorMesh(),
 					new Vector3f(0, 0, 0), motorAppearance);
 			motorObj.getModelMatrix().set(mi.modelMatrix());
 			scene.addObject(motorObj);

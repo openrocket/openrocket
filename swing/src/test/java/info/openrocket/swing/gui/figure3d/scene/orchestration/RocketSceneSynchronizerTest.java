@@ -39,11 +39,13 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		SceneObject primaryObject = mock(SceneObject.class);
 		Appearance3D primaryAppearance = new Appearance3D();
 		when(primaryObject.getRocketComponent()).thenReturn(primary);
+		when(primaryObject.getAppearanceSourceComponent()).thenReturn(primary);
 		when(primaryObject.getAppearance()).thenReturn(primaryAppearance);
 
 		SceneObject listenerObject = mock(SceneObject.class);
 		Appearance3D listenerAppearance = new Appearance3D();
 		when(listenerObject.getRocketComponent()).thenReturn(listener);
+		when(listenerObject.getAppearanceSourceComponent()).thenReturn(listener);
 		when(listenerObject.getAppearance()).thenReturn(listenerAppearance);
 
 		SceneView scene = mock(SceneView.class);
@@ -62,6 +64,43 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 
 		verify(primaryObject).setAppearance(primaryAppearance);
 		verify(listenerObject).setAppearance(listenerAppearance);
+	}
+
+	@Test
+	void mountAppearanceEditDoesNotReplaceSelectionGroupedMotorAppearance() {
+		RocketComponent mount = mock(RocketComponent.class);
+		when(mount.getConfigListeners()).thenReturn(Collections.emptyList());
+		when(mount.getAppearance()).thenReturn(new Appearance(new ORColor(0, 0, 255), 0.3));
+
+		SceneObject mountObject = mock(SceneObject.class);
+		Appearance3D mountAppearance = new Appearance3D();
+		when(mountObject.getRocketComponent()).thenReturn(mount);
+		when(mountObject.getAppearanceSourceComponent()).thenReturn(mount);
+		when(mountObject.getAppearance()).thenReturn(mountAppearance);
+
+		SceneObject motorObject = mock(SceneObject.class);
+		Appearance3D motorAppearance = new Appearance3D();
+		// Motors retain the mount key for selection but have an independent appearance.
+		when(motorObject.getRocketComponent()).thenReturn(mount);
+		when(motorObject.getAppearanceSourceComponent()).thenReturn(null);
+		when(motorObject.getAppearance()).thenReturn(motorAppearance);
+
+		SceneView scene = mock(SceneView.class);
+		when(scene.getObjects()).thenReturn(List.of(mountObject, motorObject));
+
+		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
+		doAnswer(invocation -> {
+			Runnable task = invocation.getArgument(0);
+			task.run();
+			return null;
+		}).when(orchestrator).enqueueGlTask(any(Runnable.class));
+
+		Rocket rocket = new Rocket();
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket);
+		synchronizer.componentChanged(new ComponentChangeEvent(mount, ComponentChangeEvent.NONFUNCTIONAL_CHANGE));
+
+		verify(mountObject).setAppearance(mountAppearance);
+		verify(motorObject, never()).setAppearance(any(Appearance3D.class));
 	}
 
 	@Test

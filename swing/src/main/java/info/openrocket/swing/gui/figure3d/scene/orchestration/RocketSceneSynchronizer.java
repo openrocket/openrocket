@@ -225,11 +225,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private void updateComponentAppearanceWithCache(RocketComponent component) {
 		if (component == null) return;
 
-		// Find the current appearance object to clean it up later.
-		// We only need to find it once, as it's shared among all of the component's scene objects.
+		// A component's instances share one appearance, so update that object in place when possible.
 		Appearance3D oldAppearance = null;
 		for (SceneObject obj : scene.getObjects()) {
-			if (obj.getRocketComponent() == component) {
+			if (obj.getAppearanceSourceComponent() == component) {
 				oldAppearance = obj.getAppearance();
 				break;
 			}
@@ -244,9 +243,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			AppearanceFactory.updateFrom(newAppearance, component);
 		}
 
-		// Find all scene objects that represent this component and apply the new appearance.
+		// Apply a newly created appearance to every instance sourced from this component.
 		for (SceneObject obj : scene.getObjects()) {
-			if (obj.getRocketComponent() == component) {
+			if (obj.getAppearanceSourceComponent() == component) {
 				obj.setAppearance(newAppearance);
 			}
 		}
