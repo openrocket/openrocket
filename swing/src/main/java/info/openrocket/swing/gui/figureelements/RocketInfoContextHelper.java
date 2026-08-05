@@ -91,6 +91,8 @@ public final class RocketInfoContextHelper {
 			AerodynamicCalculator aerodynamicCalculator,
 			boolean useWorstCp) {
 		warnings.clear();
+		// Simulations check geometry separately; the design HUD needs those warnings here.
+		aerodynamicCalculator.checkGeometry(configuration, configuration.getRocket(), warnings);
 		if (useWorstCp) {
 			return aerodynamicCalculator.getWorstCP(configuration, conditions, warnings);
 		}
