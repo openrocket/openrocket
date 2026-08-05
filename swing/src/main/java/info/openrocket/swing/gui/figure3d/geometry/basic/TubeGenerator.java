@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.figure3d.geometry.basic;
 
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
-import info.openrocket.swing.gui.figure3d.geometry.GeometryGenerator;
 import info.openrocket.swing.gui.figure3d.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.Vertex;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Generates lengthwise profiles along the +X axis, including optional fore and aft shoulders.
  */
-public class TubeGenerator implements GeometryGenerator {
+public class TubeGenerator {
 	private static final Logger log = LoggerFactory.getLogger(TubeGenerator.class);
 
 	public record RadiusPoint(float position, float radius) {}

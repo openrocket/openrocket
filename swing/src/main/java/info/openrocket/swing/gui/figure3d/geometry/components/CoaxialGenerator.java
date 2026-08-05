@@ -5,13 +5,12 @@ import info.openrocket.core.rocketcomponent.Coaxial;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
-import info.openrocket.swing.gui.figure3d.geometry.GeometryGenerator;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.basic.TubeGenerator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 
-public abstract class CoaxialGenerator implements GeometryGenerator {
+public abstract class CoaxialGenerator {
 	/**
 	 * Creates a Mesh from a Coaxial data object.
 	 * @param object The Coaxial object.

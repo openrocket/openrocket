@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.figure3d.geometry.basic;
 
-import info.openrocket.swing.gui.figure3d.geometry.GeometryGenerator;
 import info.openrocket.swing.gui.figure3d.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.Vertex;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * Generates a sphere or spherical section mesh.
  */
-public class SphereGenerator implements GeometryGenerator {
+public class SphereGenerator {
 
 	/**
 	 * Creates a sphere or a section of a sphere mesh.

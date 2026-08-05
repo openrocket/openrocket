@@ -6,7 +6,6 @@ import org.joml.Vector4f;
 public class SolidColorBackground implements Background {
 
 	private final Vector4f color;
-	private final static BackgroundType TYPE = BackgroundType.SOLID_COLOR;
 
 	/**
 	 * Creates a new solid color background with RGBA values.
@@ -40,11 +39,6 @@ public class SolidColorBackground implements Background {
 	 */
 	public Vector4f getColor() {
 		return color;
-	}
-
-	@Override
-	public BackgroundType getType() {
-		return TYPE;
 	}
 
 	@Override

@@ -12,7 +12,6 @@ import info.openrocket.swing.gui.figure3d.materials.Texture;
 public class HDRIBackground implements Background {
 
 	private final Texture hdriTexture;
-	private final static BackgroundType TYPE = BackgroundType.HDRI;
 
 	/**
 	 * Creates a new HDRI background from an equirectangular HDR texture.
@@ -34,11 +33,6 @@ public class HDRIBackground implements Background {
 	 */
 	public Texture getHdriTexture() {
 		return hdriTexture;
-	}
-
-	@Override
-	public BackgroundType getType() {
-		return TYPE;
 	}
 
 	@Override

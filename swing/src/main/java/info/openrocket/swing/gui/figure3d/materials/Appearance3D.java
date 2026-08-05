@@ -11,14 +11,13 @@ import static info.openrocket.swing.gui.figure3d.constants.RenderingConstants.DE
 /**
  * Defines the visual appearance of a SceneObject.
  * Includes settings for bump mapping and selective decals.
- * Implements the Material interface for modular material handling.
  *
  * We use a dedicated class instead of the OpenRocket Appearance3D class, because
  * it is more flexible (e.g. if we want to add metallic materials, emissivity...) and allows for
  * separation of concerns (this appearance if part of the rendering layer and is meant to be
  * sent directly to GPU shaders).
  */
-public class Appearance3D implements Material {
+public class Appearance3D {
 	public enum RenderStyle {		// Note: Do NOT change the order of these enums, as they are used in shaders!
 		SOLID,      // Ordinal = 0
 		TEXTURED,   // Ordinal = 1
@@ -161,9 +160,6 @@ public class Appearance3D implements Material {
 	public TextureMode getTextureMode() { return textureMode; }
 	public float getOpacity() { return opacity; }
 	public boolean isOpacityAffectsTexture() { return opacityAffectsTexture; }
-
-	@Override
-	public RenderStyle getRenderStyle() { return style; }
 
 	public RenderStyle getStyle() { return style; }
 	public float getShine() { return shine; }

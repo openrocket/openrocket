@@ -10,7 +10,6 @@ import info.openrocket.swing.gui.figure3d.materials.Texture;
 public class SkyboxBackground implements Background {
 
 	private final Texture cubemapTexture;
-	private final static BackgroundType TYPE = BackgroundType.SKYBOX;
 
 	/**
 	 * Creates a new skybox background from a cubemap texture.
@@ -32,11 +31,6 @@ public class SkyboxBackground implements Background {
 	 */
 	public Texture getCubemapTexture() {
 		return cubemapTexture;
-	}
-
-	@Override
-	public BackgroundType getType() {
-		return TYPE;
 	}
 
 	@Override

@@ -20,15 +20,12 @@ import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.Light;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
-import info.openrocket.swing.gui.figure3d.scene.events.ExportListener;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,7 +49,6 @@ public class Scene3DOrchestrator {
 
 	private volatile boolean exportRequested = false;
 	private volatile boolean exportTransparent = false;
-	private final List<ExportListener> exportListeners = new ArrayList<>();
 
 	private long lastFrameTime;
 	private volatile PlaybackClock playbackClock = null;
@@ -207,7 +203,6 @@ public class Scene3DOrchestrator {
 	public void requestExport(boolean transparent) {
 		this.exportRequested = true;
 		this.exportTransparent = transparent;
-		notifyExportRequested(transparent);
 	}
 
 	/**
@@ -236,21 +231,6 @@ public class Scene3DOrchestrator {
 	 */
 	public void clearExportRequest() {
 		this.exportRequested = false;
-	}
-
-	// --- Export listeners ---
-	public void addExportListener(ExportListener listener) {
-		if (listener != null) exportListeners.add(listener);
-	}
-
-	public void removeExportListener(ExportListener listener) {
-		exportListeners.remove(listener);
-	}
-
-	private void notifyExportRequested(boolean transparent) {
-		for (ExportListener l : exportListeners) {
-			l.onExportRequested(transparent);
-		}
 	}
 
 	/**

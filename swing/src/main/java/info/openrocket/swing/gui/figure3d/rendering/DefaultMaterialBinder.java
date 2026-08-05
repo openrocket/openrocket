@@ -30,7 +30,7 @@ import static org.lwjgl.opengl.GL33.glUniform3f;
 /**
  * Default OpenGL material binder: sets uniforms and binds textures for an object.
  */
-public class DefaultMaterialBinder implements MaterialBinder {
+public final class DefaultMaterialBinder implements GpuResource {
 	private static final Map<Class<? extends RocketComponent>, ORColor> FIGURE_DEFAULT_COLOR_CACHE = new HashMap<>();
 	// Unfinished appearances own GL textures, so they must stay scoped to a single renderer/context.
 	private final Map<Class<? extends RocketComponent>, Appearance3D> unfinishedAppearanceCache = new HashMap<>();
@@ -39,7 +39,6 @@ public class DefaultMaterialBinder implements MaterialBinder {
 	private final Matrix4f decalTransformMatrix = new Matrix4f();
 	private final Matrix3f normalMatrix = new Matrix3f();
 
-	@Override
 	public void bind(SceneObject obj,
 					 GLShader shader,
 					 MainShaderUniforms uniforms,

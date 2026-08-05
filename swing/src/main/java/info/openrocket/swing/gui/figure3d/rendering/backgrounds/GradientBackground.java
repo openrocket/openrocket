@@ -8,7 +8,6 @@ public class GradientBackground implements Background {
 
 	private final Vector3f topColor;
 	private final Vector3f bottomColor;
-	private final static BackgroundType TYPE = BackgroundType.GRADIENT;
 
 	/**
 	 * Creates a new gradient background with specified top and bottom colors.
@@ -41,11 +40,6 @@ public class GradientBackground implements Background {
 	 */
 	public Vector3f getBottomColor() {
 		return bottomColor;
-	}
-
-	@Override
-	public BackgroundType getType() {
-		return TYPE;
 	}
 
 	@Override

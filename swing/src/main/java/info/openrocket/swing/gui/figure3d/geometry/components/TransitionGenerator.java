@@ -2,7 +2,6 @@ package info.openrocket.swing.gui.figure3d.geometry.components;
 
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
-import info.openrocket.swing.gui.figure3d.geometry.GeometryGenerator;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.basic.TubeGenerator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
@@ -16,7 +15,7 @@ import java.util.List;
  * It uses the lower-level TubeGenerator to create the actual geometry and includes
  * optimizations for simple conical shapes and adaptive resolution for curved shapes.
  */
-public abstract class TransitionGenerator implements GeometryGenerator {
+public abstract class TransitionGenerator {
 
 	private static final int CURVED_PROFILE_RESOLUTION = 30;
 	private static final double RESOLUTION_BIAS_POWER = 2.0;

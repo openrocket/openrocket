@@ -11,7 +11,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
  * Handles keyboard input with support for single-press and press-and-hold actions.
  * Distinguishes between one-time key press events and continuous key holding behavior.
  */
-public class KeyboardHandler implements KeyboardListener, KeyBindings {
+public class KeyboardHandler {
 
 	private final Set<Integer> pressedKeys = ConcurrentHashMap.newKeySet();
 	private final Map<Integer, Runnable> singlePressActions = new ConcurrentHashMap<>();
@@ -23,7 +23,6 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 	 * @param key the AWT {@code KeyEvent.VK_*}-style key code
 	 * @param action GLFW_PRESS or GLFW_RELEASE
 	 */
-	@Override
 	public void handleKeyEvent(int key, int action) {
 		if (action == GLFW_PRESS) {
 			pressedKeys.add(key);
@@ -83,7 +82,6 @@ public class KeyboardHandler implements KeyboardListener, KeyBindings {
 	 * Clears all pressed key states. Should be called when the window loses focus
 	 * to prevent stale key states from external applications.
 	 */
-	@Override
 	public void clearAllKeyStates() {
 		pressedKeys.clear();
 		singlePressHandled.clear();

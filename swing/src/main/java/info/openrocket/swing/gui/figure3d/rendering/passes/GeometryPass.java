@@ -5,7 +5,6 @@ import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
-import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.OffscreenRenderTarget;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.TransparencyPolicy;
@@ -46,7 +45,7 @@ public class GeometryPass implements RenderPass {
 	private final TextureBinder textureStateManager;
 	private final MainShaderUniforms mainShaderUniforms;
 	private final OffscreenRenderTarget renderTarget;
-	private final MaterialBinder materialBinder = new DefaultMaterialBinder();
+	private final DefaultMaterialBinder materialBinder = new DefaultMaterialBinder();
 	private final WeightedBlendedTransparency transparency;
 
 	/**
