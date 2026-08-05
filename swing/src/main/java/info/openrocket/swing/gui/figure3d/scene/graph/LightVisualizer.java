@@ -5,7 +5,6 @@ import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.basic.SphereGenerator;
 import info.openrocket.swing.gui.figure3d.geometry.basic.TubeGenerator;
-import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -236,9 +235,9 @@ public class LightVisualizer {
 			return new Vector3f();
 		}
 		Vector3f localCenter = new Vector3f(
-				(float) ((bounds.min.getX() + bounds.max.getX()) * 0.5 * RocketMeshBuilder.WORLD_SCALE),
-				(float) ((bounds.min.getY() + bounds.max.getY()) * 0.5 * RocketMeshBuilder.WORLD_SCALE),
-				(float) ((bounds.min.getZ() + bounds.max.getZ()) * 0.5 * RocketMeshBuilder.WORLD_SCALE)
+				(float) ((bounds.min.getX() + bounds.max.getX()) * 0.5 * RenderingConstants.WORLD_SCALE),
+				(float) ((bounds.min.getY() + bounds.max.getY()) * 0.5 * RenderingConstants.WORLD_SCALE),
+				(float) ((bounds.min.getZ() + bounds.max.getZ()) * 0.5 * RenderingConstants.WORLD_SCALE)
 		);
 		return scene.transformRocketPoint(localCenter, new Vector3f());
 	}

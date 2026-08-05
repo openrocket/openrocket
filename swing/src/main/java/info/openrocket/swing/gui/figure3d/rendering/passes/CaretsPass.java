@@ -11,7 +11,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.geometry.components.CGCaretGenerator;
 import info.openrocket.swing.gui.figure3d.geometry.components.CPCaretGenerator;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
@@ -128,12 +128,12 @@ public class CaretsPass implements RenderPass {
 
 		cgValid = cg != null && !cg.isNaN() && cg.getWeight() > MassCalculator.MIN_MASS;
 		if (cgValid) {
-			this.cgPosition = VectorUtils.coordinateToVector3f(cg).mul(RocketMeshBuilder.WORLD_SCALE);
+			this.cgPosition = VectorUtils.coordinateToVector3f(cg).mul(RenderingConstants.WORLD_SCALE);
 		}
 
 		cpValid = cp != null && !cp.isNaN() && cp.getWeight() > MathUtil.EPSILON;
 		if (cpValid) {
-			this.cpPosition = VectorUtils.coordinateToVector3f(cp).mul(RocketMeshBuilder.WORLD_SCALE);
+			this.cpPosition = VectorUtils.coordinateToVector3f(cp).mul(RenderingConstants.WORLD_SCALE);
 		}
 	}
 
@@ -161,7 +161,7 @@ public class CaretsPass implements RenderPass {
 		CoordinateIF cgCoord = cgBody.getCM();
 		cgValid = cgBody.getMass() > MassCalculator.MIN_MASS;
 		if (cgValid) {
-			this.cgPosition = VectorUtils.coordinateToVector3f(cgCoord).mul(RocketMeshBuilder.WORLD_SCALE);
+			this.cgPosition = VectorUtils.coordinateToVector3f(cgCoord).mul(RenderingConstants.WORLD_SCALE);
 		}
 
 		// Calculate and cache CP position
@@ -169,7 +169,7 @@ public class CaretsPass implements RenderPass {
 		CoordinateIF cpCoord = aerodynamicCalculator.getWorstCP(config, conditions, new WarningSet());
 		cpValid = cpCoord != null;
 		if (cpValid) {
-			this.cpPosition = VectorUtils.coordinateToVector3f(cpCoord).mul(RocketMeshBuilder.WORLD_SCALE);
+			this.cpPosition = VectorUtils.coordinateToVector3f(cpCoord).mul(RenderingConstants.WORLD_SCALE);
 		}
 	}
 

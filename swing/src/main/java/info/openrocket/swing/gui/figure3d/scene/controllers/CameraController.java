@@ -4,7 +4,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
-import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -67,7 +67,7 @@ public class CameraController implements CameraControls {
 		
 		// Set initial center of interest based on rocket length
 		Vector3f centerOfInterest = new Vector3f(
-			(float) (rocket.getLength() / 2.0 * RocketMeshBuilder.WORLD_SCALE), 
+			(float) (rocket.getLength() / 2.0 * RenderingConstants.WORLD_SCALE),
 			0, 
 			0
 		);
@@ -91,8 +91,8 @@ public class CameraController implements CameraControls {
 		if (bounds == null || bounds.isEmpty()) {
 			return;
 		}
-		CoordinateIF minBounds = bounds.min.multiply(RocketMeshBuilder.WORLD_SCALE);
-		CoordinateIF maxBounds = bounds.max.multiply(RocketMeshBuilder.WORLD_SCALE);
+		CoordinateIF minBounds = bounds.min.multiply(RenderingConstants.WORLD_SCALE);
+		CoordinateIF maxBounds = bounds.max.multiply(RenderingConstants.WORLD_SCALE);
 
 		Vector3f minCorner = new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
 		Vector3f maxCorner = new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);

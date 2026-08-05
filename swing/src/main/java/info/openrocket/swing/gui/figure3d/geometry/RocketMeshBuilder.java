@@ -75,18 +75,6 @@ import java.util.Set;
  */
 public abstract class RocketMeshBuilder {
 	/**
-	 * Defines the global scaling factor for the scene.
-	 * All rocket component dimensions and positions (in meters) will be multiplied
-	 * by this value to bring them to a convenient size for rendering.
-	 * For example, a scale of 20 means a 1-meter-long tube will be 20 units long in the scene.
-	 */
-	/**
-	 * @deprecated Use RenderingConstants.WORLD_SCALE instead
-	 */
-	@Deprecated
-	public static final float WORLD_SCALE = RenderingConstants.WORLD_SCALE;
-
-	/**
 	 * Populates the given scene with meshes generated from a Rocket data model.
 	 *
 	 * <p>This is the main entry point for converting a complete rocket design into 3D geometry.
