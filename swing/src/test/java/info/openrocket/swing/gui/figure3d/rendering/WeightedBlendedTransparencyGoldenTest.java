@@ -1,7 +1,10 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
-import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.swing.gui.figure3d.GoldenImageTestSupport;
+import info.openrocket.swing.gui.figure3d.GoldenImageTestSupport.DifferenceTolerance;
+import info.openrocket.swing.gui.figure3d.GoldenImageTestSupport.ImageDifference;
+import info.openrocket.swing.gui.figure3d.GoldenImageTestSupport.RenderHarness;
 import info.openrocket.swing.gui.figure3d.geometry.IntList;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.geometry.Vertex;
@@ -16,7 +19,6 @@ import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
-import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Vector2f;
@@ -26,35 +28,16 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static info.openrocket.swing.gui.figure3d.constants.RenderingConstants.SURFACE_ID_OUTSIDE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,13 +47,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 
-	private static final int IMAGE_WIDTH = 512;
-	private static final int IMAGE_HEIGHT = 384;
-	private static final long INITIALIZATION_TIMEOUT_SECONDS = 20;
-	private static final long CAPTURE_TIMEOUT_SECONDS = 20;
 	private static final String GOLDEN_RESOURCE = "/figure3d/weighted-blended-transparency.png";
-	private static final Path CANDIDATE_PATH = Path.of(
-			"build", "visual-regression", "weighted-blended-transparency-actual.png");
+	private static final DifferenceTolerance GOLDEN_TOLERANCE = new DifferenceTolerance(10, 1.25, 0.01);
 
 	@Test
 	@Timeout(value = 60, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
@@ -79,22 +57,23 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 				"Weighted transparency golden test requires a live graphical environment");
 
 		try (RenderHarness harness = createHarness(WeightedBlendedTransparencyGoldenTest::configureScene)) {
-			harness.requestRender();
-			assertTrue(harness.panel.awaitInitialized(TimeUnit.SECONDS.toMillis(INITIALIZATION_TIMEOUT_SECONDS)),
-					"OpenGL canvas did not initialize: " + harness.panel.getDebugStateSummary());
+			GoldenImageTestSupport.awaitInitialized(harness);
 
-			BufferedImage firstOrder = normalize(capture(harness));
+			BufferedImage firstOrder = GoldenImageTestSupport.normalize(
+					GoldenImageTestSupport.capture(harness, "weighted transparency frame"));
 			reverseSceneObjects(harness);
-			BufferedImage reversedOrder = normalize(capture(harness));
+			BufferedImage reversedOrder = GoldenImageTestSupport.normalize(
+					GoldenImageTestSupport.capture(harness, "reordered weighted transparency frame"));
 
-			ImageDifference orderDifference = compare(firstOrder, reversedOrder, 2);
+			ImageDifference orderDifference = GoldenImageTestSupport.compare(firstOrder, reversedOrder, 2);
 			assertTrue(orderDifference.meanAbsoluteError() <= 0.10,
 					() -> "Transparency changed with scene order: " + orderDifference);
 			assertTrue(orderDifference.outlierFraction() <= 0.001,
 					() -> "Too many transparency pixels changed with scene order: " + orderDifference);
 
-			writeCandidate(firstOrder);
-			compareWithApprovedGolden(firstOrder);
+			GoldenImageTestSupport.assertMatchesApprovedGolden(WeightedBlendedTransparencyGoldenTest.class,
+					GOLDEN_RESOURCE, "weighted-blended-transparency-actual.png", firstOrder,
+					GOLDEN_TOLERANCE, "Weighted transparency");
 		}
 	}
 
@@ -107,17 +86,18 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 
 		try (RenderHarness harness = createHarness(
 				orchestrator -> configureOpacityIndependentTextureScene(orchestrator, texturedAppearance))) {
-			harness.requestRender();
-			assertTrue(harness.panel.awaitInitialized(TimeUnit.SECONDS.toMillis(INITIALIZATION_TIMEOUT_SECONDS)),
-					"OpenGL canvas did not initialize: " + harness.panel.getDebugStateSummary());
+			GoldenImageTestSupport.awaitInitialized(harness);
 
-			BufferedImage opacityIndependent = normalize(capture(harness));
+			BufferedImage opacityIndependent = GoldenImageTestSupport.normalize(
+					GoldenImageTestSupport.capture(harness, "opacity-independent texture frame"));
 			Appearance3D appearance = texturedAppearance.get();
 			assertNotNull(appearance, "Test texture should be created during GL initialization");
-			harness.panel.getScene3DOrchestrator().enqueueGlTask(() -> appearance.setOpacity(1.0f));
-			BufferedImage fullyOpaqueComponent = normalize(capture(harness));
+			harness.panel().getScene3DOrchestrator().enqueueGlTask(() -> appearance.setOpacity(1.0f));
+			BufferedImage fullyOpaqueComponent = GoldenImageTestSupport.normalize(
+					GoldenImageTestSupport.capture(harness, "fully opaque texture frame"));
 
-			ImageDifference difference = compare(fullyOpaqueComponent, opacityIndependent, 2);
+			ImageDifference difference = GoldenImageTestSupport.compare(
+					fullyOpaqueComponent, opacityIndependent, 2);
 			assertTrue(difference.meanAbsoluteError() <= 0.05,
 					() -> "Opaque texture changed with component opacity: " + difference);
 			assertTrue(difference.outlierFraction() <= 0.001,
@@ -127,36 +107,9 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 
 	private static RenderHarness createHarness(Consumer<Scene3DOrchestrator> initializationHook)
 			throws Exception {
-		ExecutorService renderExecutor = Executors.newSingleThreadExecutor(runnable -> {
-			Thread thread = new Thread(runnable, "weighted-transparency-golden-render");
-			thread.setDaemon(true);
-			return thread;
-		});
-
-		try {
-			return onEdt(() -> {
-				OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
-				GLScenePanel panel = new GLScenePanel(document.getRocket(), null);
-				panel.setPreferredSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT));
-				panel.setInitializationHook(initializationHook);
-
-				JFrame frame = new JFrame("Weighted transparency visual regression");
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				frame.setResizable(false);
-				frame.add(panel);
-				frame.pack();
-				frame.setLocationByPlatform(true);
-
-				RenderHarness harness = new RenderHarness(frame, panel, renderExecutor);
-				panel.setRenderActivityCallback(harness::requestRender);
-				panel.setRenderRequestCallback(harness::requestRender);
-				frame.setVisible(true);
-				return harness;
-			});
-		} catch (Exception exception) {
-			renderExecutor.shutdownNow();
-			throw exception;
-		}
+		return GoldenImageTestSupport.createRenderHarness(
+				OpenRocketDocumentFactory.createNewRocket().getRocket(),
+				"Weighted transparency visual regression", initializationHook);
 	}
 
 	private static void configureScene(Scene3DOrchestrator orchestrator) {
@@ -308,26 +261,8 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 		return appearance;
 	}
 
-	private static BufferedImage capture(RenderHarness harness)
-			throws Exception {
-		CompletableFuture<BufferedImage> capture = new CompletableFuture<>();
-		onEdt(() -> {
-			harness.panel.requestImageCapture(false, capture::complete);
-			return null;
-		});
-		harness.requestRender();
-		try {
-			BufferedImage image = capture.get(CAPTURE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-			assertNotNull(image, "Renderer returned a null capture");
-			return image;
-		} catch (TimeoutException exception) {
-			throw new AssertionError("Timed out capturing weighted transparency frame: "
-					+ harness.panel.getDebugStateSummary(), exception);
-		}
-	}
-
 	private static void reverseSceneObjects(RenderHarness harness) {
-		Scene3DOrchestrator orchestrator = harness.panel.getScene3DOrchestrator();
+		Scene3DOrchestrator orchestrator = harness.panel().getScene3DOrchestrator();
 		assertNotNull(orchestrator, "Scene should exist after GL initialization");
 		orchestrator.enqueueGlTask(() -> {
 			List<SceneObject> reversed = new ArrayList<>(orchestrator.getScene().getObjects());
@@ -339,143 +274,4 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 		});
 	}
 
-	private static BufferedImage normalize(BufferedImage source) {
-		assertTrue(source.getWidth() > 0 && source.getHeight() > 0, "Captured image must not be empty");
-		float aspect = (float) source.getWidth() / source.getHeight();
-		assertEquals((float) IMAGE_WIDTH / IMAGE_HEIGHT, aspect, 0.01f,
-				"Framebuffer aspect ratio should match the fixed test canvas");
-
-		BufferedImage normalized = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-		for (int y = 0; y < IMAGE_HEIGHT; y++) {
-			int sourceY = Math.min(source.getHeight() - 1,
-					(int) ((y + 0.5) * source.getHeight() / IMAGE_HEIGHT));
-			for (int x = 0; x < IMAGE_WIDTH; x++) {
-				int sourceX = Math.min(source.getWidth() - 1,
-						(int) ((x + 0.5) * source.getWidth() / IMAGE_WIDTH));
-				normalized.setRGB(x, y, source.getRGB(sourceX, sourceY));
-			}
-		}
-		return normalized;
-	}
-
-	private static void writeCandidate(BufferedImage image) throws IOException {
-		Files.createDirectories(CANDIDATE_PATH.getParent());
-		assertTrue(ImageIO.write(image, "png", CANDIDATE_PATH.toFile()), "PNG writer should be available");
-		System.out.println("Weighted transparency candidate: " + CANDIDATE_PATH.toAbsolutePath());
-	}
-
-	private static void compareWithApprovedGolden(BufferedImage actual) throws IOException {
-		try (InputStream stream = WeightedBlendedTransparencyGoldenTest.class
-				.getResourceAsStream(GOLDEN_RESOURCE)) {
-			Assumptions.assumeTrue(stream != null,
-					"Golden image is awaiting visual approval; inspect " + CANDIDATE_PATH.toAbsolutePath());
-			BufferedImage expected = ImageIO.read(stream);
-			assertNotNull(expected, "Approved transparency golden must be a readable PNG");
-			assertEquals(IMAGE_WIDTH, expected.getWidth(), "Golden image width");
-			assertEquals(IMAGE_HEIGHT, expected.getHeight(), "Golden image height");
-
-			ImageDifference difference = compare(expected, actual, 10);
-			assertTrue(difference.meanAbsoluteError() <= 1.25,
-					() -> "Weighted transparency differs from its approved golden: " + difference);
-			assertTrue(difference.outlierFraction() <= 0.01,
-					() -> "Too many pixels differ from the approved golden: " + difference);
-		}
-	}
-
-	private static ImageDifference compare(BufferedImage expected, BufferedImage actual, int outlierThreshold) {
-		assertEquals(expected.getWidth(), actual.getWidth(), "Compared image widths");
-		assertEquals(expected.getHeight(), actual.getHeight(), "Compared image heights");
-		long absoluteError = 0;
-		long outlierPixels = 0;
-		long pixelCount = (long) expected.getWidth() * expected.getHeight();
-
-		for (int y = 0; y < expected.getHeight(); y++) {
-			for (int x = 0; x < expected.getWidth(); x++) {
-				int expectedArgb = expected.getRGB(x, y);
-				int actualArgb = actual.getRGB(x, y);
-				int largestChannelDifference = 0;
-				for (int shift = 0; shift <= 24; shift += 8) {
-					int channelDifference = Math.abs(
-							((expectedArgb >>> shift) & 0xff) - ((actualArgb >>> shift) & 0xff));
-					absoluteError += channelDifference;
-					largestChannelDifference = Math.max(largestChannelDifference, channelDifference);
-				}
-				if (largestChannelDifference > outlierThreshold) {
-					outlierPixels++;
-				}
-			}
-		}
-
-		return new ImageDifference(
-				absoluteError / (double) (pixelCount * 4),
-				outlierPixels / (double) pixelCount);
-	}
-
-	private static <T> T onEdt(Callable<T> callable)
-			throws InterruptedException, ExecutionException {
-		if (SwingUtilities.isEventDispatchThread()) {
-			try {
-				return callable.call();
-			} catch (Exception exception) {
-				throw new ExecutionException(exception);
-			}
-		}
-		FutureTask<T> task = new FutureTask<>(callable);
-		SwingUtilities.invokeLater(task);
-		return task.get();
-	}
-
-	private record ImageDifference(double meanAbsoluteError, double outlierFraction) {
-		@Override
-		public String toString() {
-			return "mean absolute error=" + meanAbsoluteError
-					+ ", outlier fraction=" + outlierFraction;
-		}
-	}
-
-	private static final class RenderHarness implements AutoCloseable {
-		private final JFrame frame;
-		private final GLScenePanel panel;
-		private final ExecutorService renderExecutor;
-		private final AtomicBoolean acceptingRenders = new AtomicBoolean(true);
-
-		private RenderHarness(JFrame frame, GLScenePanel panel, ExecutorService renderExecutor) {
-			this.frame = frame;
-			this.panel = panel;
-			this.renderExecutor = renderExecutor;
-		}
-
-		private void requestRender() {
-			if (!acceptingRenders.get()) {
-				return;
-			}
-			try {
-				renderExecutor.execute(panel::render);
-			} catch (RejectedExecutionException ignored) {
-				// Cleanup won the race with a delayed Swing recovery callback.
-			}
-		}
-
-		@Override
-		public void close() throws Exception {
-			acceptingRenders.set(false);
-			onEdt(() -> {
-				panel.setRenderActivityCallback(null);
-				panel.setRenderRequestCallback(null);
-				return null;
-			});
-
-			Future<?> cleanup = renderExecutor.submit(panel::cleanup);
-			try {
-				cleanup.get(15, TimeUnit.SECONDS);
-			} finally {
-				renderExecutor.shutdownNow();
-				renderExecutor.awaitTermination(5, TimeUnit.SECONDS);
-				onEdt(() -> {
-					frame.dispose();
-					return null;
-				});
-			}
-		}
-	}
 }
