@@ -26,7 +26,7 @@ class FinSetGeneratorTest extends BaseTestCase {
 	private static final float EPSILON = 1.0e-5f;
 
 	@Test
-	void edgeFacesAreExcludedFromDecals() {
+	void edgeFacesUseDedicatedSurfaceId() {
 		BodyTube parent = new BodyTube();
 		parent.setOuterRadius(0.05);
 		parent.setLength(0.5);
@@ -51,8 +51,8 @@ class FinSetGeneratorTest extends BaseTestCase {
 				assertEquals(0.0f, vertex.normal.z, EPSILON,
 						"Edge-band vertices should have in-plane normals");
 			} else if (Math.abs(vertex.normal.z) > 0.99f) {
-				// Front/back faces must keep the default surface ID so they still receive decals
-				assertEquals(0, vertex.surfaceID, "Fin faces should keep the decal-receiving surface ID");
+				assertEquals(RenderingConstants.SURFACE_ID_OUTSIDE, vertex.surfaceID,
+						"Fin faces should use the outside surface ID");
 			}
 		}
 		assertTrue(edgeVertexCount > 0, "Fin mesh should mark its edge band with the edge surface ID");
@@ -159,13 +159,9 @@ class FinSetGeneratorTest extends BaseTestCase {
 		}
 	}
 
-	/**
-	 * The caps sit flush against the fin's edge band, which is kept out of the decal mask.
-	 * Tagging them any other way lets a decal paint the fillet ends while the fin edge
-	 * touching them stays clean.
-	 */
+	/** The caps sit flush against the fin's edge band and share its surface ID. */
 	@Test
-	void filletCapsAreExcludedFromDecals() {
+	void filletCapsUseEdgeSurfaceId() {
 		BodyTube parent = new BodyTube();
 		parent.setOuterRadius(0.05);
 		parent.setLength(0.5);

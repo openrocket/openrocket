@@ -3,34 +3,32 @@ package info.openrocket.swing.gui.figure3d.materials;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import static info.openrocket.swing.gui.figure3d.constants.RenderingConstants.DECAL_SURFACE_ALL;
-
 /**
- * Defines the visual appearance of a SceneObject.
- * Includes settings for bump mapping and selective decals.
- *
- * We use a dedicated class instead of the OpenRocket Appearance3D class, because
- * it is more flexible (e.g. if we want to add metallic materials, emissivity...) and allows for
- * separation of concerns (this appearance if part of the rendering layer and is meant to be
- * sent directly to GPU shaders).
+ * Render-ready appearance derived from an OpenRocket component appearance.
  */
 public class Appearance3D {
-	public enum RenderStyle {		// Note: Do NOT change the order of these enums, as they are used in shaders!
-		SOLID,      // Ordinal = 0
-		TEXTURED,   // Ordinal = 1
-		WIREFRAME   // Ordinal = 2
+	public enum RenderStyle {
+		SOLID(0),
+		TEXTURED(1);
+
+		private final int shaderValue;
+
+		RenderStyle(int shaderValue) {
+			this.shaderValue = shaderValue;
+		}
+
+		public int getShaderValue() {
+			return shaderValue;
+		}
 	}
 
 	public enum TextureMode {
-		STRETCH, REPEAT_AXIAL, REPEAT_RADIAL, REPEAT_BOTH
+		STRETCH, REPEAT
 	}
 
 	private Vector3f color;			// Base color of the object (stores LINEAR color)
-	private Vector3f specularColor = new Vector3f(1.0f, 1.0f, 1.0f);	// Specular color for highlights (RGB)
-	private float specularTint = 0.3f;		// How much the specular color is tinted by the base color (0.0 to 1.0; 0.0 = no tint, 1.0 = full tint)
 	private boolean isUnlit = false;
 	private RenderStyle style;
 	private float shine;			// How shiny the surface is (0.0 to 1.0; 0.0 = matte, 1.0 = mirror-like)
@@ -41,20 +39,16 @@ public class Appearance3D {
 	private float opacity = 1.0f;
 	private boolean opacityAffectsTexture;
 
-	// --- Texture & Decal Properties ---
+	// --- Texture Properties ---
 	private Texture texture;
 	private boolean ownsTexture = true;
 	private DecalImage textureSourceImage;
 	private TextureMode textureMode = TextureMode.STRETCH;
 	private final TextureTransform textureTransform = new TextureTransform();
-	private Texture decalTexture;
-	private boolean ownsDecalTexture = true;
-	private final TextureTransform decalTransform = new TextureTransform();
-	private int decalSurfaceMask = DECAL_SURFACE_ALL; // Default to all surfaces
 
 	public Appearance3D(Vector3f srgbColor, Texture texture, RenderStyle style) {
 		if (style == RenderStyle.SOLID && texture != null) {
-			throw new IllegalArgumentException("Use the color constructor for COLOR_ONLY style.");
+			throw new IllegalArgumentException("Use the color constructor for SOLID style.");
 		}
 		this.color = new Vector3f();
 		if (srgbColor != null) {
@@ -90,9 +84,6 @@ public class Appearance3D {
 		this.color.set(ColorUtils.srgbToLinear(srgbColor));
 	}
 
-	public void setSpecularColor(Vector3f specularColor) {
-		this.specularColor.set(specularColor);
-	}
 	public void setTexture(Texture texture) {
 		setTexture(texture, true);
 	}
@@ -126,19 +117,6 @@ public class Appearance3D {
 	public void setOpacityAffectsTexture(boolean opacityAffectsTexture) {
 		this.opacityAffectsTexture = opacityAffectsTexture;
 	}
-	public void setDecal(Texture decalTexture, Vector2f position, Vector2f scale) {
-		setDecal(decalTexture, position, scale, DECAL_SURFACE_ALL);
-	}
-	public void setDecal(Texture decalTexture, Vector2f position, Vector2f scale, int surfaceMask) {
-		setDecal(decalTexture, position, scale, surfaceMask, true);
-	}
-	public void setDecal(Texture decalTexture, Vector2f position, Vector2f scale, int surfaceMask, boolean ownsDecalTexture) {
-		this.decalTexture = decalTexture;
-		this.ownsDecalTexture = ownsDecalTexture;
-		this.decalTransform.offset = position;
-		this.decalTransform.scale = scale;
-		this.decalSurfaceMask = surfaceMask;
-	}
 	public void setTextureMode(TextureMode textureMode) {
 		this.textureMode = textureMode;
 	}
@@ -152,8 +130,6 @@ public class Appearance3D {
 	 * @return Linear RGB color vector.
 	 */
 	public Vector3f getColor() { return color; }
-	public Vector3f getSpecularColor() { return specularColor; }
-	public float getSpecularTint() { return specularTint; }
 	public boolean isUnlit() { return isUnlit; }
 	public Texture getTexture() { return texture; }
 	public DecalImage getTextureSourceImage() { return textureSourceImage; }
@@ -164,13 +140,9 @@ public class Appearance3D {
 	public RenderStyle getStyle() { return style; }
 	public float getShine() { return shine; }
 	public float getRoughnessAmount() { return roughnessAmount; }
-	public Texture getDecalTexture() { return decalTexture; }
-	public int getDecalSurfaceMask() { return decalSurfaceMask; }
 	public TextureTransform getTextureTransform() { return textureTransform; }
-	public TextureTransform getDecalTransform() { return decalTransform; }
 
 	public void cleanup() {
 		if (texture != null && ownsTexture) texture.cleanup();
-		if (decalTexture != null && ownsDecalTexture) decalTexture.cleanup();
 	}
 }

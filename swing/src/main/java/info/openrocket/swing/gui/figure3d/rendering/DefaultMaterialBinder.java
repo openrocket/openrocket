@@ -32,11 +32,11 @@ import static org.lwjgl.opengl.GL33.glUniform3f;
  */
 public final class DefaultMaterialBinder implements GpuResource {
 	private static final Map<Class<? extends RocketComponent>, ORColor> FIGURE_DEFAULT_COLOR_CACHE = new HashMap<>();
+	private static final Vector3f DEFAULT_SPECULAR_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
 	// Unfinished appearances own GL textures, so they must stay scoped to a single renderer/context.
 	private final Map<Class<? extends RocketComponent>, Appearance3D> unfinishedAppearanceCache = new HashMap<>();
 	private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
 	private final Matrix4f textureTransformMatrix = new Matrix4f();
-	private final Matrix4f decalTransformMatrix = new Matrix4f();
 	private final Matrix3f normalMatrix = new Matrix3f();
 
 	public void bind(SceneObject obj,
@@ -62,7 +62,6 @@ public final class DefaultMaterialBinder implements GpuResource {
 		Matrix4f modelMatrix = obj.getModelMatrix();
 		shader.setUniformMatrix4f(uniforms.model, modelMatrix);
 		shader.setUniformMatrix3f(uniforms.normalMatrix, modelMatrix.normal(normalMatrix));
-		glUniform1i(uniforms.isSelected, obj.isSelected() ? 1 : 0);
 		glUniform1i(uniforms.isUnlit, appearance.isUnlit() ? 1 : 0);
 		glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);
 
@@ -77,15 +76,15 @@ public final class DefaultMaterialBinder implements GpuResource {
 
 		Vector3f specularColor = unfinishedMode
 				? getUnfinishedSpecularColor(unfinishedAppearance)
-				: appearance.getSpecularColor();
+				: DEFAULT_SPECULAR_COLOR;
 		if (isFigureMode) {
 			specularColor = toFigureXraySpecular(linearColor, appearance.getShine());
 		}
 		glUniform3f(uniforms.materialSpecular, specularColor.x, specularColor.y, specularColor.z);
-		glUniform1f(uniforms.specularTintFactor, appearance.getSpecularTint());
 		int renderStyle = unfinishedMode
-				? unfinishedAppearance.getStyle().ordinal()
-				: isFigureMode ? Appearance3D.RenderStyle.SOLID.ordinal() : appearance.getStyle().ordinal();
+				? unfinishedAppearance.getStyle().getShaderValue()
+				: isFigureMode ? Appearance3D.RenderStyle.SOLID.getShaderValue()
+						: appearance.getStyle().getShaderValue();
 		glUniform1i(uniforms.renderStyle, renderStyle);
 		float shine = unfinishedMode ? getAppearanceShine(unfinishedAppearance, appearance.getShine()) : appearance.getShine();
 		glUniform1f(uniforms.shine, shine);
@@ -109,7 +108,7 @@ public final class DefaultMaterialBinder implements GpuResource {
 		shader.setUniformMatrix4f(uniforms.textureTransformMatrix, textureTransformMatrix);
 
 		// Base texture
-		if (!isFigureMode && renderStyle != Appearance3D.RenderStyle.WIREFRAME.ordinal()) {
+		if (!isFigureMode && renderStyle == Appearance3D.RenderStyle.TEXTURED.getShaderValue()) {
 			Texture tex = unfinishedMode ? unfinishedAppearance.getTexture() : appearance.getTexture();
 			if (tex != null && tex.getId() != 0) {
 				textureBinder.bindTexture(0, GL_TEXTURE_2D, tex.getId());
@@ -125,25 +124,6 @@ public final class DefaultMaterialBinder implements GpuResource {
 			}
 		} else {
 			glUniform1i(uniforms.hasTexture, 0);
-		}
-
-		// Decal texture
-		Texture decal = isFigureMode ? null : unfinishedMode ? unfinishedAppearance.getDecalTexture() : appearance.getDecalTexture();
-		int decalId = decal != null ? decal.getId() : 0;
-		if (decalId != 0) {
-			Matrix4f decalTransformMatrix = unfinishedMode
-					? unfinishedAppearance.getDecalTransform().getTransformMatrix(this.decalTransformMatrix)
-					: appearance.getDecalTransform().getTransformMatrix(this.decalTransformMatrix);
-			shader.setUniformMatrix4f(uniforms.decalTransformMatrix, decalTransformMatrix);
-			textureBinder.bindTexture(1, GL_TEXTURE_2D, decalId);
-			// Keep decal linework crisp when zoomed in.
-			textureBinder.setTextureParams(GL_TEXTURE_2D, decalId, GL_CLAMP_TO_EDGE,
-					GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
-			glUniform1i(uniforms.decalSampler, 1);
-			glUniform1i(uniforms.hasDecal, 1);
-			glUniform1i(uniforms.decalSurfaceMask, unfinishedMode ? unfinishedAppearance.getDecalSurfaceMask() : appearance.getDecalSurfaceMask());
-		} else {
-			glUniform1i(uniforms.hasDecal, 0);
 		}
 	}
 

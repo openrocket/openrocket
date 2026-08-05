@@ -155,7 +155,7 @@ public abstract class AppearanceFactory {
 
 		if (engineTexture != null) {
 			if (orDecal.getEdgeMode() == Decal.EdgeMode.REPEAT) {
-				engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT_BOTH);
+				engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT);
 			} else {
 				engineAppearance.setTextureMode(Appearance3D.TextureMode.STRETCH);
 			}
@@ -360,7 +360,6 @@ public abstract class AppearanceFactory {
 		}
 		if (component instanceof FinSet) {
 			appearance3D.getTextureTransform().setScaleFromTop(false);
-			appearance3D.getDecalTransform().setScaleFromTop(false);
 		}
 	}
 

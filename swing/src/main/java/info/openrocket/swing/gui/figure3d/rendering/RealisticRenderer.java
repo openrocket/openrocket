@@ -137,7 +137,7 @@ public class RealisticRenderer implements GLRenderer {
 
 		shadowPass = createShadowPass();
 		sceneLighting = new SceneLighting(mainShader, mainShaderUniforms, textureStateManager,
-				shadowPass, config, selectionColor);
+				shadowPass, config);
 		backgroundPass = new BackgroundPass(textureStateManager);
 		geometryPass = new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms,
 				renderTarget, fullscreenQuad);

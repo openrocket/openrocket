@@ -601,7 +601,7 @@ public class FinSetGenerator {
 					Vector3f normal1 = new Vector3f((float)(p1_x_rel / (a * a)), (float)(p1.getY() / (b * b)), 0).normalize();
 					Vector3f normal2 = new Vector3f((float)(p2_x_rel / (a * a)), (float)(p2.getY() / (b * b)), 0).normalize();
 
-					// Edge-band faces are marked so decals never bleed onto them
+					// Keep the edge band distinct from the broad outside faces.
 					meshData.vertices.add(new Vertex(p1_front, normal1, new Vector2f(u0, v1), RenderingConstants.SURFACE_ID_EDGE));
 					meshData.vertices.add(new Vertex(p2_front, normal2, new Vector2f(u1, v1), RenderingConstants.SURFACE_ID_EDGE));
 					meshData.vertices.add(new Vertex(p2_back, normal2, new Vector2f(u1, v0), RenderingConstants.SURFACE_ID_EDGE));
@@ -612,7 +612,7 @@ public class FinSetGenerator {
 					Vector3f thicknessVec = new Vector3f(p1_back).sub(p1_front);
 					Vector3f normal = new Vector3f(edge).cross(thicknessVec).normalize();
 
-					// Edge-band faces are marked so decals never bleed onto them
+					// Keep the edge band distinct from the broad outside faces.
 					meshData.vertices.add(new Vertex(p1_front, normal, new Vector2f(u0, v1), RenderingConstants.SURFACE_ID_EDGE));
 					meshData.vertices.add(new Vertex(p2_front, normal, new Vector2f(u1, v1), RenderingConstants.SURFACE_ID_EDGE));
 					meshData.vertices.add(new Vertex(p2_back, normal, new Vector2f(u1, v0), RenderingConstants.SURFACE_ID_EDGE));

@@ -14,7 +14,7 @@ in mediump float v_eyeSpaceZ;
 in mediump vec4 v_lightSpacePos;
 
 // Uniforms
-uniform int renderStyle; // 0:COLOR_ONLY, 1:TEXTURE_ONLY, 2:WIREFRAME
+uniform int renderStyle; // 0: solid, 1: textured
 uniform mediump vec3 objectColor;
 uniform int hasTexture;
 uniform sampler2D textureSampler;
@@ -23,7 +23,6 @@ uniform mat4 model;
 // a matrix inverse per fragment recomputes a value that is constant for the draw call.
 uniform mat3 normalMatrix;
 uniform mat4 textureTransformMatrix;
-uniform mat4 decalTransformMatrix;
 
 // Material
 uniform float shine;
@@ -31,12 +30,10 @@ uniform float roughnessScale;
 uniform float roughnessStrength;
 uniform mediump vec3 viewPos;
 uniform mediump vec3 materialSpecular;
-uniform float specularTintFactor;
 uniform bool isUnlit;
 uniform float ambientLightFactor;
 uniform float opacity;  // 0.0 = fully transparent, 1.0 = fully opaque
 uniform bool textureOpacityAffectsAlpha;
-uniform int textureMode;
 
 // Lighting
 #define MAX_LIGHTS 10
@@ -50,17 +47,6 @@ struct Light {
 
 uniform Light lights[MAX_LIGHTS];
 uniform int numLights;
-
-// Decal
-uniform bool hasDecal;
-uniform sampler2D decalSampler;
-uniform vec2 decalPosition;
-uniform vec2 decalScale;
-uniform int decalSurfaceMask;
-
-// Selection
-uniform bool isSelected;
-uniform mediump vec4 selectionColor;
 
 // Fog uniforms
 uniform mediump vec3 fogColor;
@@ -179,20 +165,7 @@ float granularHeight(vec3 noisePos, float footprint) {
 }
 
 vec2 getMaterialTexCoord() {
-    vec2 finalTexCoord = v_texCoord;
-
-    if (textureMode == 0) { // STRETCH
-    } else if (textureMode == 1) { // REPEAT_AXIAL
-        finalTexCoord.x = v_texCoord.x;
-        finalTexCoord.y = v_texCoord.y;
-    } else if (textureMode == 2) { // REPEAT_RADIAL
-        finalTexCoord.x = v_texCoord.x;
-        finalTexCoord.y = v_texCoord.y;
-    } else if (textureMode == 3) { // REPEAT_BOTH
-        finalTexCoord = v_texCoord;
-    }
-
-    return (textureTransformMatrix * vec4(finalTexCoord, 0.0, 1.0)).xy;
+    return (textureTransformMatrix * vec4(v_texCoord, 0.0, 1.0)).xy;
 }
 
 float adjustTextureCoverage(float alpha) {
@@ -360,24 +333,11 @@ void main()
         writeFragment(vec4(1.0)); // Output solid white
         return;
     }
-
-    // --- Handle Wireframe as a separate, early-exit case ---
-    if (renderStyle == 2) { // 2 is the ordinal for WIREFRAME
-        vec4 finalColor = vec4(objectColor, opacity);
-        if (isSelected) {
-            finalColor = mix(finalColor, selectionColor, 0.1);
-        }
-        writeFragment(finalColor);
-        return; // Exit immediately
-    }
-
     // 1 = RenderingConstants.SURFACE_ID_INSIDE
     if (hideInnerSurfaces && v_surfaceID == 1) {
         discard;
     }
     // ----------------------------------------------------------------
-
-    // --- Logic for solid (non-wireframe) objects ---
 
     // 1. Get base surface color
     vec4 surfaceColor = vec4(objectColor, 1.0);
@@ -401,19 +361,7 @@ void main()
             }
         }
     }
-
-    // 2. Apply decal
-    if (hasDecal) {
-        int currentSurfaceBit = 1 << v_surfaceID;
-        if ((decalSurfaceMask & currentSurfaceBit) > 0) {
-            vec2 transformedDecalCoord = (decalTransformMatrix * vec4(v_texCoord, 0.0, 1.0)).xy;
-            vec4 decalColor = texture(decalSampler, transformedDecalCoord);
-            float decalAlpha = adjustTextureCoverage(decalColor.a);
-            surfaceColor.rgb = mix(surfaceColor.rgb, decalColor.rgb, decalAlpha);
-        }
-    }
-
-    // 3. Apply lighting
+    // 2. Apply lighting
     vec3 finalColor;
     if (isUnlit) {
         finalColor = surfaceColor.rgb;
@@ -456,7 +404,7 @@ void main()
                 vec3 reflectDir = reflect(-lightDir, norm);
                 float spec_power = shine * 256.0 + 1.0;
             float spec = pow(max(dot(viewDir, reflectDir), 0.0), spec_power);
-            vec3 tintedSpecularColor = mix(materialSpecular, surfaceColor.rgb, specularTintFactor);
+            vec3 tintedSpecularColor = mix(materialSpecular, surfaceColor.rgb, 0.3);
             specular = shine * spec * tintedSpecularColor * currentLight.color * attenuation;
         }
 
@@ -482,7 +430,7 @@ void main()
 
     // Selection feedback for shaded geometry is handled by OutlinePass.
 
-    // 5. Apply fog
+    // 3. Apply fog
     if (fogEnabled) {
         float fogFactor = exp(-pow(v_eyeSpaceZ * fogDensity, 2.0));
         fogFactor = clamp(fogFactor, 0.0, 1.0);

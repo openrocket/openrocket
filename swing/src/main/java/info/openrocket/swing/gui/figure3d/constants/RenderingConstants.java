@@ -43,27 +43,13 @@ public abstract class RenderingConstants {
 	// --- World Scaling ---
 	public static final float WORLD_SCALE = 20.0f;
 
-	// --- Surface IDs and Decal Surface Masks ---
-	// Each vertex carries a surface ID (a small bit index). Decal masks select
-	// surfaces by bit: the fragment shader samples the decal only when
-	// (decalSurfaceMask & (1 << surfaceID)) != 0, so DECAL_SURFACE_x == 1 << SURFACE_ID_x.
-	// The IDs are also used directly, e.g. the hide-inner-surfaces feature discards
-	// fragments whose surface ID is SURFACE_ID_INSIDE (see fragment.glsl).
+	// --- Surface IDs ---
+	// The fragment shader uses these to distinguish inner walls from visible surfaces.
 	public static final int SURFACE_ID_OUTSIDE = 0;
 	public static final int SURFACE_ID_INSIDE = 1;
 	public static final int SURFACE_ID_FORE = 2;
 	public static final int SURFACE_ID_AFT = 3;
 
-	public static final int DECAL_SURFACE_OUTSIDE = 1 << SURFACE_ID_OUTSIDE;	// 0b0001
-	public static final int DECAL_SURFACE_INSIDE = 1 << SURFACE_ID_INSIDE;		// 0b0010
-	public static final int DECAL_SURFACE_FORE = 1 << SURFACE_ID_FORE;			// 0b0100
-	public static final int DECAL_SURFACE_AFT = 1 << SURFACE_ID_AFT;			// 0b1000
-	public static final int DECAL_SURFACE_ALL = 0b1111;
-
-	/**
-	 * Vertex surface ID for faces that should never receive decals, such as the
-	 * edge band around a fin. This ID's bit (1 << 5 = 32) falls outside
-	 * {@link #DECAL_SURFACE_ALL} and is therefore excluded from every decal mask.
-	 */
+	/** Vertex surface ID for a fin's edge band and fillet caps. */
 	public static final int SURFACE_ID_EDGE = 5;
 }

@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.FullscreenQuad;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
@@ -178,7 +177,7 @@ public class GeometryPass implements RenderPass {
 	}
 
 	private void renderTransparentObject(SceneObject object) {
-		if (!isWireframe(object)
+		if (!isWireframe()
 				&& TransparencyPolicy.isTransparentBodyComponent(object.getRocketComponent())) {
 			renderTransparentBodyObject(object);
 			return;
@@ -206,7 +205,7 @@ public class GeometryPass implements RenderPass {
 
 	/** Renders one object after applying its material and display-mode overrides. */
 	private void renderObject(SceneObject object, boolean forceHideInnerSurfaces) {
-		boolean wireframe = isWireframe(object);
+		boolean wireframe = isWireframe();
 		materialBinder.bind(object, mainShader, mainShaderUniforms, config, textureStateManager);
 		if (forceHideInnerSurfaces) {
 			glUniform1i(mainShaderUniforms.hideInnerSurfaces, 1);
@@ -224,10 +223,9 @@ public class GeometryPass implements RenderPass {
 		}
 	}
 
-	private boolean isWireframe(SceneObject object) {
+	private boolean isWireframe() {
 		return config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
-				config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING ||
-				object.getAppearance().getStyle() == Appearance3D.RenderStyle.WIREFRAME;
+				config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING;
 	}
 
 	@Override

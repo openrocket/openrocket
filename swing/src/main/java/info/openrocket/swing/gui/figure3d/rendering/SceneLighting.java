@@ -20,7 +20,6 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUniform4f;
 
 /**
  * Synchronizes dynamic lights and binds frame-wide lighting uniforms.
@@ -35,18 +34,16 @@ final class SceneLighting {
 	private final TextureBinder textureBinder;
 	private final ShadowPass shadowPass;
 	private final RenderingConfiguration config;
-	private final Vector4f selectionColor;
 	private final Vector3f cameraPosition = new Vector3f();
 	private final Vector3f fogColor = new Vector3f();
 
 	SceneLighting(GLShader shader, MainShaderUniforms uniforms, TextureBinder textureBinder,
-				  ShadowPass shadowPass, RenderingConfiguration config, Vector4f selectionColor) {
+				  ShadowPass shadowPass, RenderingConfiguration config) {
 		this.shader = shader;
 		this.uniforms = uniforms;
 		this.textureBinder = textureBinder;
 		this.shadowPass = shadowPass;
 		this.config = config;
-		this.selectionColor = selectionColor;
 	}
 
 	static void updateFlameLights(SceneView scene) {
@@ -89,8 +86,6 @@ final class SceneLighting {
 		bindLights(scene.getLightController().getLights());
 		bindFog(scene);
 
-		glUniform4f(uniforms.selectionColor, selectionColor.x, selectionColor.y,
-				selectionColor.z, selectionColor.w);
 		glUniform1f(uniforms.ambientLightFactor, config.getVisualEffects().getAmbientLightFactor());
 
 		boolean roughnessBump = config.getQuality().isRoughnessBumpRendered() && !reduceInteractionEffects;
