@@ -1,23 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
-/**
- * Encapsulates viewport dimensions and provides coordinate conversion utilities.
- * 
- * <p>This class manages the distinction between logical window coordinates and
- * physical framebuffer pixels, which is important for high-DPI displays where
- * the framebuffer may be larger than the window coordinates suggest.</p>
- * 
- * <h3>Coordinate Systems:</h3>
- * <ul>
- *   <li><b>Window coordinates:</b> Logical pixels as reported by the windowing system</li>
- *   <li><b>Framebuffer coordinates:</b> Physical pixels in the actual OpenGL framebuffer</li>
- * </ul>
- * 
- * <p>On high-DPI displays (e.g., Retina), the framebuffer may be 2x or more the
- * size of the window coordinates. This class provides methods to convert between
- * these coordinate systems and calculate scaling factors.</p>
- */
-public class ViewportDimensions {
+/** Logical window and physical framebuffer dimensions for a 3D viewport. */
+public final class ViewportDimensions {
 	
 	private int windowWidth;
 	private int windowHeight;
@@ -38,18 +22,6 @@ public class ViewportDimensions {
 		this.framebufferWidth = framebufferWidth;
 		this.framebufferHeight = framebufferHeight;
 	}
-	
-	/**
-	 * Creates viewport dimensions with equal window and framebuffer sizes.
-	 * 
-	 * @param width The width in pixels
-	 * @param height The height in pixels
-	 */
-	public ViewportDimensions(int width, int height) {
-		this(width, height, width, height);
-	}
-	
-	// Getters
 	
 	/**
 	 * Gets the logical window width in pixels.
@@ -87,8 +59,6 @@ public class ViewportDimensions {
 		return framebufferHeight;
 	}
 	
-	// Setters
-	
 	/**
 	 * Updates all viewport dimensions in a single operation.
 	 * This method is typically called during window resize events.
@@ -104,8 +74,6 @@ public class ViewportDimensions {
 		this.framebufferWidth = framebufferWidth;
 		this.framebufferHeight = framebufferHeight;
 	}
-	
-	// Calculated Properties
 	
 	/**
 	 * Gets the aspect ratio based on framebuffer dimensions.
@@ -135,17 +103,6 @@ public class ViewportDimensions {
 	}
 	
 	/**
-	 * Gets the average scaling factor (useful for uniform scaling operations).
-	 * 
-	 * @return The average of horizontal and vertical scale factors
-	 */
-	public float getAverageScale() {
-		return (getHorizontalScale() + getVerticalScale()) / 2.0f;
-	}
-	
-	// Coordinate Conversion
-	
-	/**
 	 * Converts a window X coordinate to framebuffer coordinates.
 	 * 
 	 * @param windowX The X coordinate in window space
@@ -163,57 +120,6 @@ public class ViewportDimensions {
 	 */
 	public int windowToFramebufferY(int windowY) {
 		return Math.round(windowY * getVerticalScale());
-	}
-	
-	/**
-	 * Converts framebuffer X coordinate to window coordinates.
-	 * 
-	 * @param framebufferX The X coordinate in framebuffer space
-	 * @return The X coordinate in window space
-	 */
-	public int framebufferToWindowX(int framebufferX) {
-		float scale = getHorizontalScale();
-		return scale > 0 ? Math.round(framebufferX / scale) : framebufferX;
-	}
-	
-	/**
-	 * Converts framebuffer Y coordinate to window coordinates.
-	 * 
-	 * @param framebufferY The Y coordinate in framebuffer space
-	 * @return The Y coordinate in window space
-	 */
-	public int framebufferToWindowY(int framebufferY) {
-		float scale = getVerticalScale();
-		return scale > 0 ? Math.round(framebufferY / scale) : framebufferY;
-	}
-	
-	// Utility Methods
-	
-	/**
-	 * Checks if the viewport has valid (positive) dimensions.
-	 * 
-	 * @return true if all dimensions are positive
-	 */
-	public boolean isValid() {
-		return windowWidth > 0 && windowHeight > 0 && framebufferWidth > 0 && framebufferHeight > 0;
-	}
-	
-	/**
-	 * Checks if this is a high-DPI display (framebuffer larger than window).
-	 * 
-	 * @return true if either scale factor is greater than 1.0
-	 */
-	public boolean isHighDPI() {
-		return getHorizontalScale() > 1.0f || getVerticalScale() > 1.0f;
-	}
-	
-	/**
-	 * Gets the total number of pixels in the framebuffer.
-	 * 
-	 * @return The framebuffer area in pixels
-	 */
-	public int getFramebufferArea() {
-		return framebufferWidth * framebufferHeight;
 	}
 	
 	@Override
