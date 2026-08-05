@@ -168,25 +168,18 @@ public class Camera {
 
 	/**
 	 * Automatically positions and zooms the camera to fit the specified 3D bounds.
-	 * Calculates the appropriate distance and framing to ensure the entire object
-	 * is visible within the camera's viewport, accounting for the current view angle.
+	 * The fitted distance is valid for every yaw around the world Y axis, so 100%
+	 * zoom remains stable while orbiting horizontally.
 	 * 
 	 * @param boxDimensions the dimensions of the bounding box to fit in the view
 	 */
 	public void fitBounds(Vector3f boxDimensions) {
-		Vector3f right = new Vector3f();
-		Vector3f up = new Vector3f();
-		viewMatrix.positiveX(right);
-		viewMatrix.positiveY(up);
-
-		// Take absolute values of the camera's basis vectors
-		right.absolute();
-		up.absolute();
-
-		// Project the full bounding box dimensions onto the camera's right and up vectors
-		// to find the width and height of the projected 2D bounding box on the screen.
-		float projWidth = boxDimensions.dot(right);
-		float projHeight = boxDimensions.dot(up);
+		// The XZ diagonal is the maximum horizontal projection across all yaw angles.
+		float horizontalExtent = (float) Math.hypot(boxDimensions.x, boxDimensions.z);
+		float sinPitch = Math.abs((float) Math.sin(angleY));
+		float cosPitch = Math.abs((float) Math.cos(angleY));
+		float projWidth = horizontalExtent;
+		float projHeight = Math.abs(boxDimensions.y) * cosPitch + horizontalExtent * sinPitch;
 
 		// Distance required to fit the projected height in the vertical FOV
 		float distanceForHeight = (float) ((projHeight / 2.0f) / Math.tan(fov / 2.0f));

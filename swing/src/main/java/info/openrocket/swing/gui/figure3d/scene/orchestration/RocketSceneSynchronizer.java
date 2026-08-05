@@ -44,8 +44,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	private enum CameraUpdateBehavior {
 		NONE,
-		REFIT_IF_FIT,
-		RESET;
+		REFIT_IF_FIT;
 
 		private static CameraUpdateBehavior merge(CameraUpdateBehavior current, CameraUpdateBehavior requested) {
 			return current.ordinal() >= requested.ordinal() ? current : requested;
@@ -168,7 +167,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			return CameraUpdateBehavior.NONE;
 		}
 		if (e.isTreeChange()) {
-			return CameraUpdateBehavior.RESET;
+			// Add/remove events include the affected mass/aerodynamic flags. Pure tree
+			// events, such as renaming a stage, do not change the rendered bounds.
+			return e.isMassChange() || e.isAerodynamicChange()
+					? CameraUpdateBehavior.REFIT_IF_FIT : CameraUpdateBehavior.NONE;
 		}
 		if (e.isTreeChildrenChange() || e.isMassChange()) {
 			return CameraUpdateBehavior.REFIT_IF_FIT;
@@ -324,15 +326,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 				() -> RocketMeshBuilder.applySnapshot(scene, snapshot, scene3DOrchestrator.getRenderingConfiguration()));
 		scene3DOrchestrator.applyRocketRotationToScene();
 		restoreSelectionAfterRebuild(hadSelection, selectedRocketComponents, persistentSelection);
-		if (cameraUpdateBehavior == CameraUpdateBehavior.RESET) {
-			scene3DOrchestrator.resetViewAndFocusOnRocket();
-		} else if (cameraUpdateBehavior == CameraUpdateBehavior.REFIT_IF_FIT
+		if (cameraUpdateBehavior == CameraUpdateBehavior.REFIT_IF_FIT
 				&& scene3DOrchestrator.getCameraController().isZoomFitting()) {
-			// When the user is in Zoom Fit, rebuilds should re-frame the rocket instead of
-			// preserving a stale orbit pivot. Only the framing is recomputed: the orbit angles
-			// and the drag rotation are the user's, and an edit is not a request to go back
-			// to the default side view.
-			scene3DOrchestrator.focusOnRocket();
+			// Recompute framing without changing the camera angles or persisted rocket rotation.
+			scene3DOrchestrator.refitOnRocketBoundsChange();
 		}
 	}
 

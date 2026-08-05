@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d.scene.controllers;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
@@ -32,6 +33,7 @@ public class CameraController implements CameraControls {
 	private final RenderingConfiguration renderingConfiguration;
 	private final List<Consumer<Camera>> cameraChangeListeners = new CopyOnWriteArrayList<>();
 	private float focusedDistance;
+	private BoundingBox lastFittedRocketBounds;
 	// Whether the camera should track the fitted distance. This is explicit state
 	// rather than "distance ≈ fitted distance" so that a resize-triggered re-fit
 	// cannot race with (and overwrite) a manual zoom that was applied in between.
@@ -86,38 +88,63 @@ public class CameraController implements CameraControls {
 		if (rocket == null) {
 			return;
 		}
+		focusOnRocket(rocket.getBoundingBox());
+	}
 
+	@Override
+	public void refitOnRocketBoundsChange() {
+		if (rocket == null) {
+			return;
+		}
 		BoundingBox bounds = rocket.getBoundingBox();
+		if (sameBounds(lastFittedRocketBounds, bounds)) {
+			return;
+		}
+		focusOnRocket(bounds);
+	}
+
+	private void focusOnRocket(BoundingBox bounds) {
 		if (bounds == null || bounds.isEmpty()) {
 			return;
 		}
 		CoordinateIF minBounds = bounds.min.multiply(RenderingConstants.WORLD_SCALE);
 		CoordinateIF maxBounds = bounds.max.multiply(RenderingConstants.WORLD_SCALE);
 
-		Vector3f minCorner = new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
-		Vector3f maxCorner = new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
-		updateTransformedBounds(minCorner, maxCorner, minBounds, maxBounds);
-
 		// 1. Center of Interest
-		Vector3f rocketCenter = new Vector3f(
-				(minCorner.x + maxCorner.x) * 0.5f,
-				(minCorner.y + maxCorner.y) * 0.5f,
-				(minCorner.z + maxCorner.z) * 0.5f
-		);
+		Vector3f localCenter = new Vector3f(
+				(float) ((minBounds.getX() + maxBounds.getX()) * 0.5),
+				(float) ((minBounds.getY() + maxBounds.getY()) * 0.5),
+				(float) ((minBounds.getZ() + maxBounds.getZ()) * 0.5));
+		Vector3f rocketCenter = scene.transformRocketPoint(localCenter, new Vector3f());
 		camera.setCenterOfInterest(rocketCenter);
 
-		// 2. Calculate distance
+		// 2. Calculate distance from model-space bounds so rocket drag rotation cannot alter 100% zoom.
 		Vector3f dimensions = new Vector3f(
-				maxCorner.x - minCorner.x,
-				maxCorner.y - minCorner.y,
-				maxCorner.z - minCorner.z
-		);
+				(float) (maxBounds.getX() - minBounds.getX()),
+				(float) (maxBounds.getY() - minBounds.getY()),
+				(float) (maxBounds.getZ() - minBounds.getZ()));
 		camera.fitBounds(dimensions);
 		camera.resetViewOffset();
 		focusedDistance = camera.getDistance();
+		lastFittedRocketBounds = bounds.clone();
 		zoomFitting = true;
 		scene.updateRocketPivotFromCamera();
 		notifyCameraChanged();
+	}
+
+	private static boolean sameBounds(BoundingBox first, BoundingBox second) {
+		if (first == null || second == null) {
+			return first == second;
+		}
+		if (first.isEmpty() || second.isEmpty()) {
+			return first.isEmpty() == second.isEmpty();
+		}
+		return MathUtil.equals(first.min.getX(), second.min.getX())
+				&& MathUtil.equals(first.min.getY(), second.min.getY())
+				&& MathUtil.equals(first.min.getZ(), second.min.getZ())
+				&& MathUtil.equals(first.max.getX(), second.max.getX())
+				&& MathUtil.equals(first.max.getY(), second.max.getY())
+				&& MathUtil.equals(first.max.getZ(), second.max.getZ());
 	}
 
 	@Override
@@ -307,23 +334,4 @@ public class CameraController implements CameraControls {
 		}
 	}
 
-	private void updateTransformedBounds(Vector3f minCorner, Vector3f maxCorner,
-			CoordinateIF minBounds, CoordinateIF maxBounds) {
-		float[] xValues = {(float) minBounds.getX(), (float) maxBounds.getX()};
-		float[] yValues = {(float) minBounds.getY(), (float) maxBounds.getY()};
-		float[] zValues = {(float) minBounds.getZ(), (float) maxBounds.getZ()};
-		Vector3f corner = new Vector3f();
-		Vector3f transformed = new Vector3f();
-
-		for (float x : xValues) {
-			for (float y : yValues) {
-				for (float z : zValues) {
-					corner.set(x, y, z);
-					scene.transformRocketPoint(corner, transformed);
-					minCorner.min(transformed);
-					maxCorner.max(transformed);
-				}
-			}
-		}
-	}
 }

@@ -117,6 +117,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 
 		verify(orchestrator, never()).resetViewAndFocusOnRocket();
 		verify(orchestrator, never()).focusOnRocket();
+		verify(orchestrator, never()).refitOnRocketBoundsChange();
 	}
 
 	@Test
@@ -129,8 +130,60 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 
 		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE));
 
-		verify(orchestrator).focusOnRocket();
+		verify(orchestrator).refitOnRocketBoundsChange();
 		verify(orchestrator, never()).resetViewAndFocusOnRocket();
+	}
+
+	@Test
+	void componentAdditionAndDeletionEventsKeepManualZoomAndView() {
+		Rocket rocket = new Rocket();
+		CameraControls camera = mock(CameraControls.class);
+		when(camera.isZoomFitting()).thenReturn(false);
+		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		ComponentChangeEvent addRemoveEvent = new ComponentChangeEvent(rocket,
+				ComponentChangeEvent.TREE_CHANGE | ComponentChangeEvent.AEROMASS_CHANGE);
+
+		synchronizer.componentChanged(addRemoveEvent);
+		synchronizer.componentChanged(addRemoveEvent);
+
+		verify(orchestrator, never()).refitOnRocketBoundsChange();
+		verify(orchestrator, times(2)).applyRocketRotationToScene();
+		verify(orchestrator, never()).resetViewAndFocusOnRocket();
+		synchronizer.dispose();
+	}
+
+	@Test
+	void componentAdditionAndDeletionEventsRefitAtHundredPercentWithoutResettingView() {
+		Rocket rocket = new Rocket();
+		CameraControls camera = mock(CameraControls.class);
+		when(camera.isZoomFitting()).thenReturn(true);
+		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		ComponentChangeEvent addRemoveEvent = new ComponentChangeEvent(rocket,
+				ComponentChangeEvent.TREE_CHANGE | ComponentChangeEvent.AEROMASS_CHANGE);
+
+		synchronizer.componentChanged(addRemoveEvent);
+		synchronizer.componentChanged(addRemoveEvent);
+
+		verify(orchestrator, times(2)).refitOnRocketBoundsChange();
+		verify(orchestrator, times(2)).applyRocketRotationToScene();
+		verify(orchestrator, never()).resetViewAndFocusOnRocket();
+		synchronizer.dispose();
+	}
+
+	@Test
+	void treeMetadataChangeDoesNotMoveCamera() {
+		Rocket rocket = new Rocket();
+		CameraControls camera = mock(CameraControls.class);
+		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+
+		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.TREE_CHANGE));
+
+		verify(orchestrator, never()).refitOnRocketBoundsChange();
+		verify(orchestrator, never()).resetViewAndFocusOnRocket();
+		synchronizer.dispose();
 	}
 
 	private static SceneView emptyScene() {

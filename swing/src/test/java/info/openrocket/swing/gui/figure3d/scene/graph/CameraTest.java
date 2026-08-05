@@ -43,4 +43,28 @@ class CameraTest {
 		assertEquals(0.05f, fittedDistance / camera.getDistance(), 0.0001f,
 				"The 3D camera should support the zoom selector's smaller scales");
 	}
+
+	@Test
+	void fittedDistanceDoesNotDependOnYaw() {
+		Camera camera = Camera.builder().build();
+		Vector3f dimensions = new Vector3f(10.0f, 2.0f, 1.0f);
+		camera.setAngleY(0.35f);
+
+		camera.setAngleX(0.0f);
+		camera.update();
+		camera.fitBounds(dimensions);
+		float sideDistance = camera.getDistance();
+
+		camera.setAngleX((float) Math.PI / 2.0f);
+		camera.update();
+		camera.fitBounds(dimensions);
+		float endDistance = camera.getDistance();
+
+		camera.setAngleX((float) Math.PI / 4.0f);
+		camera.update();
+		camera.fitBounds(dimensions);
+
+		assertEquals(sideDistance, endDistance, sideDistance * 0.0001f);
+		assertEquals(sideDistance, camera.getDistance(), sideDistance * 0.0001f);
+	}
 }

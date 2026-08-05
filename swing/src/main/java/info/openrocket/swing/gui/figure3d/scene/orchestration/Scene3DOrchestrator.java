@@ -93,6 +93,10 @@ public class Scene3DOrchestrator {
 		cameraController.focusOnRocket();
 	}
 
+	public void refitOnRocketBoundsChange() {
+		cameraController.refitOnRocketBoundsChange();
+	}
+
 	/**
 	 * Restores the default side view, clears any drag-applied rocket rotation, and fits the rocket.
 	 */
