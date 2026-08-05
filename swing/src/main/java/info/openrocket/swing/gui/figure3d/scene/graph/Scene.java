@@ -61,7 +61,7 @@ public class Scene implements SceneView {
 	}
 
 	public Scene(Rocket rocket, Camera camera, RenderingConfiguration config) {
-		this(rocket, camera, config, Light.directional().withDirection(-0.5f, -1.0f, -0.5f).build());
+		this(rocket, camera, config, Light.directional(-0.5f, -1.0f, -0.5f));
 	}
 
 	/**

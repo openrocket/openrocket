@@ -134,11 +134,7 @@ public class FlameEmitter extends ParticleEmitter {
 			Vector3f flameColor = scratchFlameColor.set(scratchBaseColor).mul(lightIntensity);
 			
 			if (flameLight == null) {
-				// Create new light
-				flameLight = Light.point()
-					.withPosition(position)
-					.withColor(flameColor)
-					.build();
+				flameLight = Light.point(position, flameColor);
 			} else {
 				// Update existing light
 				flameLight.setPosition(position.x, position.y, position.z);
