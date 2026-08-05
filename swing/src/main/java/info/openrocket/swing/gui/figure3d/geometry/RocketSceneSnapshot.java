@@ -57,7 +57,6 @@ public final class RocketSceneSnapshot {
 			Vector3f motorCenterEngineCS,
 			Matrix4f motorRotationMatrix,
 			Motor motor,
-			String motorComponentId,
 			float worldScale
 	) {}
 

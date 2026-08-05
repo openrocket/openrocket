@@ -264,11 +264,10 @@ public abstract class RocketMeshBuilder {
 				.mul(rotationMatrix)
 				.scale(worldScale);
 
-		String motorComponentId = generateMotorComponentId(fcid, mount);
 		RocketSceneSnapshot.ParticleEmitterPlan emitterPlan = null;
 		if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
 			emitterPlan = new RocketSceneSnapshot.ParticleEmitterPlan(
-					new Vector3f(positionInEngineCS), rotationMatrix, motor, motorComponentId, worldScale);
+					new Vector3f(positionInEngineCS), rotationMatrix, motor, worldScale);
 		}
 
 		return new RocketSceneSnapshot.MotorInstance(mount, motorMesh, motor, modelMatrix, emitterPlan);
@@ -280,12 +279,11 @@ public abstract class RocketMeshBuilder {
 		Motor motor = plan.motor();
 		Matrix4f rotationMatrix = plan.motorRotationMatrix();
 		float worldScale = plan.worldScale();
-		String motorComponentId = plan.motorComponentId();
-		addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+		addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config);
 	}
 
 	private static void addParticles(SceneView scene, float worldScale, Vector3f positionInEngineCS, Motor motor,
-									 Matrix4f rotationMatrix, RenderingConfiguration config, String motorComponentId) {
+									 Matrix4f rotationMatrix, RenderingConfiguration config) {
 		VisualEffectsSettings settings = config.getVisualEffects();
 
 		// Skip particle creation if particle effects are disabled globally
@@ -293,11 +291,7 @@ public abstract class RocketMeshBuilder {
 			return;
 		}
 		
-		// Skip particle creation if disabled for this specific motor
-		if (!settings.areMotorParticlesEnabled(motorComponentId)) {
-			return;
-		}
-		Vector3f motorCenter = new Vector3f(positionInEngineCS.add((float) motor.getLength(), 0f, 0f));
+		Vector3f motorCenter = new Vector3f(positionInEngineCS).add((float) motor.getLength(), 0f, 0f);
 		Vector3f exhaustDirection = new Vector3f(1, 0, 0);
 		rotationMatrix.transformDirection(exhaustDirection);
 
@@ -507,20 +501,10 @@ public abstract class RocketMeshBuilder {
 					.rotateY(-(float) instanceAngle.getY())
 					.rotateZ(-(float) instanceAngle.getZ());
 
-			// TODO: is there a better way to do this indexing?
-			String motorComponentId = generateMotorComponentId(fcid, mount);
 			if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
-				addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+				addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config);
 			}
 		}
-	}
-	
-	/**
-	 * Generates a unique identifier for a motor component.
-	 * This can be used to control particles for individual motors.
-	 */
-	private static String generateMotorComponentId(FlightConfigurationId fcid, RocketComponent mount) {
-		return fcid.key.toString() + "-" + mount.getID().toString();
 	}
 
 	private static boolean isLowestMotorInstance(InstanceMap lowestMotorInstances, RocketComponent mount,
@@ -547,19 +531,5 @@ public abstract class RocketMeshBuilder {
 		
 		// Recreate axes if they should be visible
 		createOriginAxes(scene, config, useORCoordinateSystem, onTop);
-	}
-	
-	/**
-	 * Gets all motor component IDs from a rocket.
-	 * Useful for setting up per-motor particle controls.
-	 */
-	public static List<String> getMotorComponentIds(FlightConfigurationId fcid, Rocket rocket) {
-		List<String> motorIds = new ArrayList<>();
-		for (RocketComponent component : rocket) {
-			if (component instanceof MotorMount) {
-				motorIds.add(generateMotorComponentId(fcid, component));
-			}
-		}
-		return motorIds;
 	}
 }

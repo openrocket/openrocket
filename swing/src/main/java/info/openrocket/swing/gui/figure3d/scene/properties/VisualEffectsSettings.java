@@ -4,10 +4,6 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import org.joml.Vector3f;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Visual-effects settings for figure3d.
  *
@@ -81,9 +77,6 @@ public class VisualEffectsSettings {
 	private float flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
 	private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
 	
-	// Per-motor particle control (motor component ID -> enabled state)
-	private final Map<String, Boolean> perMotorParticleEnabled = new HashMap<>();
-
 	// Motion Blur
 	
 	/**
@@ -495,62 +488,6 @@ public class VisualEffectsSettings {
 		this.sparkSpreadScale = Math.max(0.0f, sparkSpreadScale);
 	}
 
-	// Per-Motor Particle Control
-	
-	/**
-	 * Enable or disable particles for a specific motor component.
-	 * This allows fine-grained control over particle effects in multi-stage rockets
-	 * where different motors may be active at different times.
-	 * 
-	 * @param motorComponentId unique identifier for the motor component
-	 * @param enabled whether particles should be enabled for this motor
-	 */
-	public void setMotorParticlesEnabled(String motorComponentId, boolean enabled) {
-		perMotorParticleEnabled.put(motorComponentId, enabled);
-	}
-	
-	/**
-	 * Check if particles are enabled for a specific motor component.
-	 * Returns true by default for motors that haven't been explicitly configured.
-	 * 
-	 * @param motorComponentId unique identifier for the motor component
-	 * @return true if particles are enabled for this motor, false otherwise
-	 */
-	public boolean areMotorParticlesEnabled(String motorComponentId) {
-		// Default to true if not explicitly set
-		return perMotorParticleEnabled.getOrDefault(motorComponentId, true);
-	}
-	
-	/**
-	 * Get all motor component IDs that have been explicitly configured.
-	 * This includes only motors that have had their particle settings modified.
-	 * 
-	 * @return set of motor component IDs with explicit particle settings
-	 */
-	public Set<String> getConfiguredMotorIds() {
-		return perMotorParticleEnabled.keySet();
-	}
-	
-	/**
-	 * Enable particles for all previously configured motors.
-	 * This is a convenience method for bulk enabling of motor particle effects.
-	 */
-	public void enableAllMotorParticles() {
-		for (String motorId : perMotorParticleEnabled.keySet()) {
-			perMotorParticleEnabled.put(motorId, true);
-		}
-	}
-	
-	/**
-	 * Disable particles for all previously configured motors.
-	 * This is a convenience method for bulk disabling of motor particle effects.
-	 */
-	public void disableAllMotorParticles() {
-		for (String motorId : perMotorParticleEnabled.keySet()) {
-			perMotorParticleEnabled.put(motorId, false);
-		}
-	}
-
 	/**
 	 * Restores the visual-effects settings to their built-in defaults.
 	 */
@@ -582,7 +519,6 @@ public class VisualEffectsSettings {
 		smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
 		flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
 		sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
-		perMotorParticleEnabled.clear();
 	}
 
 	private static Vector3f createDefaultSmokeColor() {
