@@ -101,48 +101,23 @@ Check the Settings
 
 For most users, OpenRocket's default settings will work fine. However, some users may need to change some settings.
 
-Off-screen Rendering
-^^^^^^^^^^^^^^^^^^^^
+3D Rendering
+^^^^^^^^^^^^
 
-Some users have reported that the rocket shown in the 3D design view is not full-size. This can occur if the off-screen
-rendering setting is not correct for your device. Using the Three-stage rocket example packaged with OpenRocket, this is
-what the problem looks like:
+If a 3D design view or Photo Studio does not open, first check :menuselection:`Edit --> Preferences --> Graphics` and
+confirm that :guilabel:`Enable 3D Graphics` is selected. Close and reopen the affected 3D view after changing this
+setting.
 
-.. figure:: /img/setup/installation/off_screen_rendering_wrong.png
-   :alt: Wrong 3D View of Three-stage Rocket
-   :figclass: or-figclass, or-image-border
-   :figwidth: 75 %
-   :align: center
+If rendering is slow or unreliable, try a lower :guilabel:`Level of detail` and disable MSAA, FXAA, shadows, ambient
+occlusion, or surface roughness. See :ref:`graphics_preferences` for what each option controls. Also make sure that you
+installed the OpenRocket package for your operating system and processor architecture and that your graphics drivers are
+up to date.
 
-   The 3D view of the Three-stage rocket example is too small.
+The current 3D engine always renders the scene into an internal off-screen target before presenting it to the window.
+There is no separate off-screen-rendering preference.
 
-To fix this, you need to change the off-screen rendering setting. To do this, open the ``Edit`` menu in the application
-ribbon and select ``Preferences``. This will open the Preferences dialog box. This window has several tabs (``General``,
-``Design``, ``Simulation``, ... You need to go to the ``Graphics`` tab (just click on that tab header) and on the bottom
-of the page change the ``Use off-screen rendering`` setting:
-
-.. figure:: /img/setup/installation/off_screen_rendering_setting.png
-   :alt: Off-screen Rendering Setting
-   :figclass: or-figclass, or-image-border
-   :figwidth: 50 %
-   :align: center
-
-   The off-screen rendering setting is on the bottom of the ``Graphics`` tab.
-
-Your 3D view should now look like this:
-
-.. figure:: /img/setup/installation/off_screen_rendering_right.png
-   :alt: Correct 3D View of Three-stage Rocket
-   :figclass: or-figclass, or-image-border
-   :figwidth: 75 %
-   :align: center
-
-   The 3D view of the Three-stage rocket example is now correct.
-
-.. note::
-
-   Whenever you face issues with 3D rendering in OpenRocket, it is a good idea to change the off-screen rendering setting
-   to see if that fixes the problem.
+If a graphics-driver failure prevents OpenRocket from starting, the 3D engine can be disabled with the
+``-Dopenrocket.3d.disable`` JVM argument. See :doc:`../dev_guide/command_line_arguments`.
 
 .. _thrust_curves_setting:
 

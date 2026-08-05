@@ -149,32 +149,30 @@ The following is an overview of the packages in the ``info.openrocket.swing`` mo
    │   ├── figure3d
    │   │   ├── animation
    │   │   ├── constants
-   │   │   ├── core
-   │   │   │   ├── geography
-   │   │   │   ├── geometry
-   │   │   │   ├── math
-   │   │   │   └── particles
-   │   │   ├── export
+   │   │   ├── geometry
+   │   │   │   ├── basic
+   │   │   │   └── components
    │   │   ├── input
    │   │   ├── materials
+   │   │   ├── math
+   │   │   ├── particles
+   │   │   │   ├── flame
+   │   │   │   ├── smoke
+   │   │   │   └── spark
    │   │   ├── photo
    │   │   │   └── sky
    │   │   │      └── builtin
    │   │   ├── rendering
    │   │   │   ├── backgrounds
-   │   │   │   ├── offscreen
-   │   │   │   ├── passes
-   │   │   │   ├── pipeline
-   │   │   │   └── state
+   │   │   │   └── passes
    │   │   ├── scene
    │   │   │   ├── controllers
-   │   │   │   ├── core
    │   │   │   ├── events
+   │   │   │   ├── graph
    │   │   │   ├── orchestration
    │   │   │   └── properties
    │   │   ├── ui
-   │   │   ├── utils
-   │   │   └── window
+   │   │   └── utils
    │   ├── figureelements
    │   ├── help
    │   │   └── tours

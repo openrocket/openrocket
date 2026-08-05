@@ -2,36 +2,38 @@
 3D Engine
 *********
 
-The OpenRocket 3D engine lives in the ``info.openrocket.swing.gui.figure3d`` package tree inside the
-``swing`` module. It is used by both the interactive 3D design view and by Photo Studio.
-
-This page describes the current architecture of that engine: the entry points, the scene graph, how
-rocket data becomes renderable geometry, how the render passes are organized, and where to start when
-debugging or extending the system.
+The OpenRocket 3D engine lives under ``info.openrocket.swing.gui.figure3d`` in the ``swing`` module.
+The interactive 3D design view and Photo Studio share the same OpenGL host, scene graph, geometry code,
+and renderer.
 
 .. contents:: Table of Contents
    :depth: 2
    :local:
    :backlinks: none
 
-----
-
 Overview
 ========
 
-At a high level, the engine is layered like this:
+The main data and rendering flow is:
 
 .. code-block:: none
 
-   Swing UI wrapper
-      -> GLScenePanel
+   RocketFigure3d / PhotoPanel
+      -> SharedCanvasRenderScheduler
+      -> GLScenePanel (lwjgl3-awt AWTGLCanvas)
       -> Scene3DOrchestrator
-      -> Scene / controllers / synchronizer
-      -> RocketMeshBuilder + AppearanceFactory
-      -> RealisticRenderer + render passes + shaders
+         -> Scene + controllers
+         -> RocketSceneSynchronizer
+            model thread: RocketMeshBuilder.buildSnapshot()
+                          -> immutable RocketSceneSnapshot
+            GL thread:    RocketMeshBuilder.applySnapshot()
+                          -> SceneObject and GPU resources
+         -> RealisticRenderer
+      -> resolved scene texture
+      -> AWT default framebuffer -> HUD -> buffer swap
 
-The key point is that the 3D engine is not a separate application. It is a rendering subsystem embedded
-into Swing through an ``AWTGLCanvas``.
+The model and Swing controls do not make OpenGL calls. Context-owned work is queued through the
+orchestrator and executed while the canvas context is current on the shared render thread.
 
 Entry Points
 ============
@@ -44,258 +46,207 @@ The main entry points are:
 * :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/ui/GLScenePanel.java`
 
 ``RocketFigure3d``
-   The design-view wrapper used from :file:`RocketPanel.java`. It handles editor-specific behavior such
-   as selection, HUD updates, zoom state, view modes (``FIGURE``, ``UNFINISHED``, ``FINISHED``), and the
-   demand-driven render scheduler used by embedded 3D views.
+   Embeds a 3D canvas in the design window. It handles selection, the HUD, zoom state, and the three
+   user-facing display modes. The UI's **Figure** mode maps to ``DisplaySettings.RenderMode.XRAY``;
+   the other modes map to ``UNFINISHED`` and ``FINISHED``.
 
 ``PhotoPanel`` / ``PhotoFrame``
-   The Photo Studio wrapper. It reuses the same GL engine but applies a different scene configuration:
-   finished-mode rendering, custom backgrounds, camera controls, light settings, and optional exhaust
-   particle effects.
+   Host Photo Studio. They configure the shared engine for finished rendering, Photo Studio camera
+   controls, backgrounds, lighting, motion blur, and exhaust effects.
 
 ``GLScenePanel``
-   The actual OpenGL host. It subclasses LWJGL's ``AWTGLCanvas`` and owns the OpenGL context for one
-   view, plus the ``Scene3DOrchestrator`` that manages the rest of the scene stack.
+   Subclasses lwjgl3-awt's ``AWTGLCanvas``. Each panel owns one OpenGL context, its context-local
+   resources, and a ``Scene3DOrchestrator``.
 
-GL Host and Lifecycle
-=====================
+GL Host and Render Scheduling
+=============================
 
-``GLScenePanel`` is the boundary between Swing/AWT and the rendering engine.
+``GLScenePanel`` requests an OpenGL 3.3 core, double-buffered context through lwjgl3-awt. The requested
+and effective ``GLData`` are recorded by ``GLContextDiagnostics`` during initialization. The AWT default
+framebuffer is deliberately single-sampled; scene MSAA is implemented by ``RealisticRenderer`` in its
+own off-screen render target and resolved before presentation.
 
-Its main responsibilities are:
+``SharedCanvasRenderScheduler`` serializes every active ``AWTGLCanvas`` onto one background thread named
+``figure3d-render``. This avoids concurrent JAWT rendering across design windows and Photo Studio. The
+design view renders only after it has been marked dirty, while Photo Studio renders continuously while
+its panel is active.
 
-* create and own one OpenGL context per panel
-* initialize ``Scene3DOrchestrator`` and related GL resources
-* translate AWT mouse, keyboard, wheel, and resize events into engine input/state updates
-* render the HUD overlay when present
-* handle image capture and export requests
-* coordinate cleanup of GL resources
-* detect startup cases where the offscreen render target contains valid content but the default framebuffer
-  remains blank, and trigger panel recovery
+Important lifecycle rules are:
 
-Important lifecycle rules:
+* Add and remove canvases on the Swing event dispatch thread.
+* Create, resize, and destroy GL resources only while the owning context is current.
+* Keep GPU object caches scoped to a canvas or renderer; contexts do not share object identifiers.
+* Restore the canvas's LWJGL capabilities before rendering because capabilities are thread-local and the
+  shared scheduler switches contexts between canvases.
+* Treat the window size and the native framebuffer size as separate values, especially on HiDPI displays.
 
-* Each ``GLScenePanel`` owns its own GL resources. Do not assume textures, FBOs, VAOs, or cached material
-  state can be shared safely across multiple panels or windows.
-* Attach and detach the canvas on the EDT. Several panel-rebuild and cleanup paths rely on AWT lifecycle
-  ordering.
-* Cleanup must happen while the canvas is still capable of making its context current. If cleanup is
-  deferred until after AWT has torn down the native peer, GL resource destruction can be skipped.
+``GLScenePanel`` also detects context resets where the platform supports robustness and asks its wrapper
+to rebuild the canvas. Startup redraw recovery handles cases where a valid off-screen frame has not yet
+appeared in the AWT framebuffer.
 
-Scene Orchestration
-===================
+Scene Orchestration and Threading
+=================================
 
-The orchestration layer is centered around:
+The orchestration layer is centered on:
 
 * :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/scene/orchestration/Scene3DOrchestrator.java`
 * :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/scene/orchestration/RocketSceneSynchronizer.java`
-* :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/scene/core/Scene.java`
+* :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/scene/graph/Scene.java`
 
-``Scene3DOrchestrator`` combines the mutable scene state, camera/input controllers, renderer, and a small
-GL-task queue. It is the object most higher-level code talks to when it wants to:
+``Scene3DOrchestrator`` owns the runtime ``Scene``, camera and input controllers, renderer, viewport,
+decal cache, and the queue for work that requires a current GL context. Higher-level code uses it to
+change the camera, update rendering configuration, rebuild the rocket, and request image export.
 
-* focus or reset the camera
-* rebuild rocket geometry
-* enqueue work that must run on the render thread
-* update rendering configuration
-* request image export
+``RocketSceneSynchronizer`` listens for component changes and chooses the least expensive safe update:
 
-``Scene`` is the runtime scene graph. It stores:
+* Appearance-only changes are coalesced and update existing appearances on the GL thread.
+* Structural, geometry, visibility, and selected-configuration changes build a ``RocketSceneSnapshot``
+  on the calling model thread. This captures a consistent model state before a queued GL task replaces
+  the rocket-derived scene objects and particle emitters.
 
-* ``SceneObject`` instances for renderable rocket and helper geometry
-* particle emitters
-* the active camera
-* light manager/controller state
-* the current background
-* selection state
+``RocketMeshBuilder.buildSnapshot`` is CPU-only. ``RocketMeshBuilder.applySnapshot`` creates
+``SceneObject`` instances, appearances, textures, motors, particle emitters, and other context-owned
+resources. Keeping these phases separate prevents the render thread from reading a rocket while it is
+being edited.
 
-``RocketSceneSynchronizer`` listens to OpenRocket component change events and keeps the scene in sync with
-the document model. Its update strategy is intentionally split into two paths:
-
-* appearance-only changes update materials/textures in place when possible
-* structural or visibility changes trigger a rebuild through ``RocketMeshBuilder``
-
-Geometry and Appearance Generation
-==================================
+Geometry and Materials
+======================
 
 Rocket geometry is generated by:
 
-* :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/core/geometry/RocketMeshBuilder.java`
-* the generator classes under :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/core/geometry/`
+* :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/geometry/RocketMeshBuilder.java`
+* the generators under :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/geometry/basic/`
+  and :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/geometry/components/`
 * :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/materials/AppearanceFactory.java`
 
-``RocketMeshBuilder`` traverses the active and extra render instances from the selected
-``FlightConfiguration`` and converts them into ``SceneObject`` instances. It is responsible for:
+``RocketMeshBuilder`` traverses the active and extra render instances in the selected
+``FlightConfiguration``, chooses a generator for each component, applies instance transforms, and adds
+motors and their optional particle-emitter plans.
 
-* choosing the correct mesh generator for each ``RocketComponent``
-* transforming component instance coordinates into rendering space
-* creating separate motor geometry
-* creating particle emitters for flame, smoke, and sparks when enabled
-* adding helper geometry such as origin axes
-
-Appearance data comes from ``AppearanceFactory``, which translates the core appearance model into the 3D
-engine's ``Appearance3D`` objects. This includes color, opacity, decals, and textures.
-
-When debugging rendering mismatches, a useful rule of thumb is:
-
-* if the mesh shape or placement is wrong, start in ``RocketMeshBuilder`` and the component generators
-* if color, texture, decal, or transparency is wrong, start in ``AppearanceFactory`` and the rendering/material binding code
+``AppearanceFactory`` converts the core appearance model into ``Appearance3D`` data, including color,
+opacity, decals, and textures. Mesh shape or placement problems generally start in ``RocketMeshBuilder``
+or a component generator; material, texture, or transparency problems generally start in
+``AppearanceFactory``, ``TransparencyPolicy``, the material binder, or the shaders.
 
 Rendering Configuration
 =======================
 
-The shared runtime configuration object is
-:file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/scene/properties/RenderingConfiguration.java`.
-
-It groups settings into a few major areas:
+:file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/scene/properties/RenderingConfiguration.java`
+groups the mutable runtime settings:
 
 ``DisplaySettings``
-   Render mode, internal-surface visibility, x-ray behavior, and similar display choices.
+   Display mode, x-ray opacity, and internal-surface visibility.
 
 ``GraphicsQualitySettings``
-   Shadow, ambient occlusion, anti-aliasing, roughness/bump, culling, and other quality-related toggles.
+   Overall quality, MSAA, FXAA, shadows, ambient occlusion, surface roughness, culling, and the option to
+   reduce expensive effects during interaction.
 
 ``VisualEffectsSettings``
-   Carets, motion blur, particle effects, static-particle preview state, and other view effects.
+   Carets and helper markers, particle effects, motion blur, rocket-drag behavior, and related controls.
 
-This configuration is shared across the scene/orchestrator/renderer stack. Higher-level UI code generally
-updates configuration values and then asks the orchestrator to rebuild or rerender as needed.
+Application and document preferences are mapped onto this configuration by ``Figure3DPreferences``.
+See :ref:`graphics_preferences` for the user-facing defaults.
 
 Render Pipeline
 ===============
 
 The main renderer is
-:file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/rendering/RealisticRenderer.java`.
+:file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/rendering/RealisticRenderer.java`. A normal
+display frame proceeds as follows:
 
-``RealisticRenderer`` owns:
+1. Update the camera, fixed GL state, and flame-driven dynamic lights.
+2. Render the shadow map when shadows are enabled.
+3. Clear the main off-screen target, render the background, and render opaque geometry.
+4. Resolve opaque MSAA into the single-sample target.
+5. Render translucent geometry with weighted blended order-independent transparency and composite it
+   over the opaque result.
+6. Render sparks, smoke, flames, CG/CP carets, and the camera point-of-interest marker as enabled.
+7. Apply ambient occlusion, motion blur, outlines, and FXAA as configured.
+8. Copy the final post-processed image back into the renderer's resolved target when necessary.
+9. Let ``GLScenePanel`` present the resolved texture to the AWT default framebuffer, draw the HUD, and
+   swap buffers.
 
-* the main scene shader
-* the render target used for offscreen rendering
-* particle renderers
-* the post-processing passes
-* the texture-state cache and other GL helper state
+When interaction-effect reduction is active, shadows, ambient occlusion, motion blur, and outlines are
+skipped while the user is dragging, scrolling, or resizing. Image export reads the resolved scene before
+the HUD is drawn.
 
-The current frame flow is:
+Render-pass implementations live under
+:file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/rendering/passes/`. Important passes and
+helpers include ``ShadowPass``, ``BackgroundPass``, ``GeometryPass``,
+``WeightedBlendedTransparency``, ``CaretsPass``, ``CameraPointOfInterestPass``,
+``AmbientOcclusionPass``, ``MotionBlurPass``, ``OutlinePass``, and ``FXAAPass``. Shaders are stored under
+:file:`swing/src/main/resources/shaders/`.
 
-1. Update the camera and flame-driven dynamic lights.
-2. Render the shadow map through ``ShadowPass`` if shadows are enabled.
-3. Bind the main offscreen render target.
-4. Run the geometry passes, currently including ``BackgroundPass`` and ``GeometryPass``.
-5. Render particles and optional carets.
-6. Unbind the main render target.
-7. Apply optional post-processing, including ambient occlusion and motion blur.
-8. Apply screen-space passes such as outlines and FXAA.
-9. Resolve the final texture back to the default framebuffer for presentation.
-
-The render passes live under
-:file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/rendering/passes/`.
-At the time of writing these include:
-
-* ``ShadowPass``
-* ``BackgroundPass``
-* ``GeometryPass``
-* ``CaretsPass``
-* ``AmbientOcclusionPass``
-* ``MotionBlurPass``
-* ``OutlinePass``
-* ``FXAAPass``
-* ``ScreenTexturePass`` helpers
-
-Shaders are stored under :file:`swing/src/main/resources/shaders/`.
-
-Design View vs. Photo Studio
+Design View and Photo Studio
 ============================
 
-The design view and Photo Studio share the same renderer, scene graph, geometry builders, and GL host, but
-they configure them differently.
+The design view adds selection and picking, CG/CP carets, an AWT-rendered HUD, and figure/unfinished/
+finished display modes. It uses demand-driven rendering so inactive design windows do not consume a
+continuous share of the render thread.
 
-Design view
------------
+Photo Studio uses the same scene and renderer in finished mode, but supplies its own camera semantics,
+background and light settings, animation, and optional flame, smoke, and spark effects. It runs a
+continuous render loop while active because particles and motion blur change with time.
 
-The design view is optimized for interactive editing. It typically uses:
+Multi-Window and Platform Notes
+===============================
 
-* selection and picking
-* CG/CP carets and HUD overlays
-* view-mode switching between figure, unfinished, and finished rendering
-* render scheduling tuned for embedded UI panels and multi-window editing
+Every canvas has an independent context and resource lifetime, but all canvases render through the
+shared scheduler. Code that adds GL state or caching must therefore be both context-local and safe when
+the next scheduled frame belongs to another canvas.
 
-Photo Studio
-------------
-
-Photo Studio is a specialized wrapper around the same engine. It typically forces:
-
-* finished-mode rendering
-* its own background and lighting setup
-* Photo Studio camera semantics
-* optional flame, smoke, and spark effects based on the selected flight configuration
-* no component selection behavior
-
-Because both paths reuse the same engine, changes in core rendering code usually affect both. When adding a
-feature, always check whether it should apply to the design view, Photo Studio, or both.
-
-Multi-Window Behavior
-=====================
-
-The engine supports multiple simultaneous 3D windows, but there are a few constraints that matter in practice:
-
-* each ``GLScenePanel`` has its own GL context and resource lifetime
-* AWTGLCanvas rendering must be treated carefully across multiple windows, especially on macOS
-* caches that store GL object identifiers must be scoped per renderer or per panel, not globally
-* panel rebuilds are a legitimate recovery mechanism when startup presentation succeeds offscreen but fails
-  on the default framebuffer
-
-This is why several parts of the engine intentionally avoid global GL caches and why wrapper classes such as
-``RocketFigure3d`` and ``PhotoPanel`` have explicit canvas-rebuild paths.
+The host uses LWJGL's native OpenGL context API so lwjgl3-awt's X11/GLX backend continues to work under
+XWayland rather than switching to EGL. The macOS backend does not accept every optional context
+attribute, so the host does not request a debug context or an sRGB default framebuffer there. Robust
+context reset detection is requested only on supported Windows configurations.
 
 Package Map
 ===========
 
-The main subpackages under ``info.openrocket.swing.gui.figure3d`` are:
+The tracked packages under ``info.openrocket.swing.gui.figure3d`` are:
 
 .. code-block:: none
 
    figure3d
-   ├── animation           # pose providers and playback helpers
-   ├── constants           # world scale, camera constants, other shared constants
-   ├── core
-   │   ├── geography
-   │   ├── geometry        # mesh types, mesh builders, component generators
-   │   ├── math            # raycasting and math helpers
-   │   └── particles       # flame, smoke, sparks, particle settings
-   ├── input               # AWT/GLFW-neutral input state and handlers
-   ├── materials           # textures, appearance objects, appearance conversion
-   ├── photo               # Photo Studio wrappers and sky definitions
+   ├── animation           # flight pose and playback helpers
+   ├── constants           # camera and rendering constants
+   ├── geometry
+   │   ├── basic           # reusable primitive generators
+   │   └── components      # rocket-component mesh generators
+   ├── input               # keyboard, drag, and input state
+   ├── materials           # appearances, textures, and conversion
+   ├── math                # raycasting helpers
+   ├── particles
+   │   ├── flame
+   │   ├── smoke
+   │   └── spark
+   ├── photo
+   │   └── sky
+   │       └── builtin
    ├── rendering
    │   ├── backgrounds
-   │   ├── offscreen
-   │   ├── passes
-   │   ├── pipeline
-   │   └── state
+   │   └── passes
    ├── scene
    │   ├── controllers
-   │   ├── core
    │   ├── events
+   │   ├── graph
    │   ├── orchestration
    │   └── properties
-   ├── ui                  # GLScenePanel, HUD support, Swing-facing canvas code
-   ├── utils
-   └── window              # default-framebuffer and presentation helpers
+   ├── ui                  # GL canvas and HUD
+   └── utils               # GL, color, and vector helpers
 
-Where To Start When Changing Something
-======================================
+Where To Start
+==============
 
-Use this as a quick routing guide:
-
-* New rocket component geometry:
-  start in ``RocketMeshBuilder`` and the relevant generator under ``core/geometry/components``.
-* Material, texture, decal, or transparency changes:
-  start in ``AppearanceFactory``, ``DefaultMaterialBinder``, ``TextureStateManager``, and the fragment shader.
-* Camera, drag/orbit, picking, or selection behavior:
-  start in ``Scene3DOrchestrator``, the camera controller classes, ``Scene``, and ``GLScenePanel`` input handling.
-* Photo Studio-specific behavior:
-  start in ``PhotoPanel`` and ``PhotoFrame``.
-* Startup blank frames or multi-window GL failures:
-  start in ``GLScenePanel``, ``RocketFigure3d``, and ``PhotoPanel``.
+* New component geometry: ``RocketMeshBuilder`` and ``geometry/components``.
+* Materials, decals, or transparency: ``AppearanceFactory``, ``TransparencyPolicy``,
+  ``DefaultMaterialBinder``, ``TextureStateManager``, and the shaders.
+* Camera, orbit, pan, picking, or selection: the scene controllers, ``Scene3DOrchestrator``, and
+  ``GLScenePanel`` input handling.
+* Render ordering or post-processing: ``RealisticRenderer`` and ``rendering/passes``.
+* Photo Studio behavior: ``PhotoPanel``, ``PhotoFrame``, and ``PhotoSettings``.
+* Context creation, resize, blank-frame, or multi-window failures: ``GLScenePanel``,
+  ``SharedCanvasRenderScheduler``, and the two wrapper panels.
 
 Related Documentation
 =====================
@@ -303,5 +254,4 @@ Related Documentation
 * :doc:`architecture`
 * :doc:`codebase_walkthrough`
 * :doc:`testing_and_debugging`
-* :doc:`file_specification`
-
+* :doc:`../setup/preferences`

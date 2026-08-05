@@ -31,7 +31,7 @@ You can run the JAR file with the following command line arguments:
    * - ``-Dopenrocket.debug.quaternioncount={count: int}``
      - For debugging, will print a line after quaternion instantiations
    * - ``-Dopenrocket.3d.disable``
-     - Allows you to disabled the 3D view if the program won't start because of it
+     - Disable the 3D engine if a graphics failure prevents OpenRocket from starting
    * - ``-Dopenrocket.debug.motordigest``
      - ?
    * - ``-Dopenrocket.preseteditor.fileMenu``

@@ -65,8 +65,9 @@ and uses its functionality to perform the simulations and display the results.
 3D Visualization Engine
 =======================
 
-The 3D design view and Photo Studio are implemented entirely inside the ``swing`` module. They share one rendering
-engine built around LWJGL, ``AWTGLCanvas``, a scene/orchestration layer, and a multi-pass OpenGL renderer.
+The 3D design view and Photo Studio are implemented entirely inside the ``swing`` module. They share an OpenGL 3.3
+rendering engine built around LWJGL 3, lwjgl3-awt's ``AWTGLCanvas``, a serialized multi-canvas render scheduler, a
+scene/orchestration layer, and a multi-pass renderer.
 
 For the detailed package-level breakdown and render pipeline description, see :doc:`three_d_engine`.
 
@@ -95,6 +96,5 @@ Scripts
 
 Plugins
 =======
-
 
 
