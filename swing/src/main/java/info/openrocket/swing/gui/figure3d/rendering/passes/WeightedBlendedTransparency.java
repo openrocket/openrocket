@@ -9,7 +9,7 @@ import info.openrocket.swing.gui.figure3d.rendering.OffscreenRenderTarget;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 
-import java.util.function.IntConsumer;
+import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR;
@@ -71,9 +71,6 @@ import static org.lwjgl.opengl.GL30.glGenTextures;
  */
 final class WeightedBlendedTransparency implements GpuResource {
 
-	static final int OUTPUT_ACCUMULATION = 1;
-	static final int OUTPUT_REVEALAGE = 2;
-
 	private static final String VERTEX_SHADER_PATH = "/shaders/post/screen_quad_vertex.glsl";
 	private static final String FRAGMENT_SHADER_PATH = "/shaders/post/transparency_composite_fragment.glsl";
 	private static final int ACCUMULATION_TEXTURE_UNIT = 0;
@@ -107,7 +104,7 @@ final class WeightedBlendedTransparency implements GpuResource {
 	 * Runs both order-independent geometry passes and composites them into {@code sceneTarget}.
 	 * The resolved scene framebuffer remains bound when this method returns.
 	 */
-	void render(OffscreenRenderTarget sceneTarget, IntConsumer renderTransparentGeometry) {
+	void render(OffscreenRenderTarget sceneTarget, Consumer<TransparencyOutputMode> renderTransparentGeometry) {
 		ensureAttachments(sceneTarget);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
@@ -124,11 +121,11 @@ final class WeightedBlendedTransparency implements GpuResource {
 		try {
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			glBlendFunc(GL_ONE, GL_ONE);
-			renderTransparentGeometry.accept(OUTPUT_ACCUMULATION);
+			renderTransparentGeometry.accept(TransparencyOutputMode.ACCUMULATION);
 
 			glDrawBuffer(GL_COLOR_ATTACHMENT1);
 			glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-			renderTransparentGeometry.accept(OUTPUT_REVEALAGE);
+			renderTransparentGeometry.accept(TransparencyOutputMode.REVEALAGE);
 
 			composite(sceneTarget);
 		} finally {

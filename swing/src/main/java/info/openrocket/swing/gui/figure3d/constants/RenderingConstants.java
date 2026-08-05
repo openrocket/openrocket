@@ -7,6 +7,7 @@ public abstract class RenderingConstants {
 	public static final int DEFAULT_MAX_PARTICLES = 10000;
 	public static final int FLAME_MAX_QUADS = 3000;
 	public static final int SMOKE_MAX_QUADS = 5000;
+	public static final int MAX_LIGHTS = 10;
 
 	// --- Geometry Quality Levels ---
 	// Basic shapes (tubes, cones)

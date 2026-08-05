@@ -36,9 +36,6 @@ import static org.lwjgl.opengl.GL33.glUniform1i;
  */
 public class GeometryPass implements RenderPass {
 
-	private static final int OUTPUT_SCENE_COLOR = 0;
-	private static final int OUTPUT_OPAQUE_TEXTURE_FRAGMENTS = 3;
-
 	private final GLShader mainShader;
 	private final RenderingConfiguration config;
 	private final TextureBinder textureStateManager;
@@ -72,7 +69,7 @@ public class GeometryPass implements RenderPass {
 	@Override
 	public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
 		mainShader.use();
-		glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+		setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(true);
@@ -86,7 +83,7 @@ public class GeometryPass implements RenderPass {
 		// A translucent component can still contain texture pixels whose opacity is
 		// independent of the component opacity. Render those pixels with depth writes
 		// (and MSAA) so WBOIT cannot average geometry through them.
-		glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_OPAQUE_TEXTURE_FRAGMENTS);
+		setTransparencyOutputMode(TransparencyOutputMode.OPAQUE_TEXTURE_FRAGMENTS);
 		try {
 			for (SceneObject object : scene.getObjects()) {
 				if (!object.isRenderOnTop() && mayProduceOpaqueTextureFragments(object)) {
@@ -94,7 +91,7 @@ public class GeometryPass implements RenderPass {
 				}
 			}
 		} finally {
-			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+			setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 		}
 	}
 
@@ -123,9 +120,9 @@ public class GeometryPass implements RenderPass {
 				object.getRocketComponent(), object.getAppearance(), config);
 	}
 
-	private void renderTransparentGeometry(SceneView scene, int outputMode) {
+	private void renderTransparentGeometry(SceneView scene, TransparencyOutputMode outputMode) {
 		mainShader.use();
-		glUniform1i(mainShaderUniforms.transparencyOutputMode, outputMode);
+		setTransparencyOutputMode(outputMode);
 		glDepthMask(false);
 		glEnable(GL_DEPTH_TEST);
 		try {
@@ -145,7 +142,7 @@ public class GeometryPass implements RenderPass {
 			}
 		} finally {
 			glEnable(GL_DEPTH_TEST);
-			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+			setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 		}
 	}
 
@@ -157,21 +154,21 @@ public class GeometryPass implements RenderPass {
 		try {
 			// Opaque texture coverage was excluded from WBOIT. Draw it last for the
 			// (currently unused) combination of transparency and render-on-top.
-			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_OPAQUE_TEXTURE_FRAGMENTS);
+			setTransparencyOutputMode(TransparencyOutputMode.OPAQUE_TEXTURE_FRAGMENTS);
 			for (SceneObject object : scene.getObjects()) {
 				if (object.isRenderOnTop() && mayProduceOpaqueTextureFragments(object)) {
 					renderTransparentObject(object);
 				}
 			}
 
-			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+			setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 			for (SceneObject object : scene.getObjects()) {
 				if (object.isRenderOnTop() && !TransparencyPolicy.isTransparent(object, config)) {
 					renderObject(object, false);
 				}
 			}
 		} finally {
-			glUniform1i(mainShaderUniforms.transparencyOutputMode, OUTPUT_SCENE_COLOR);
+			setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
@@ -226,6 +223,10 @@ public class GeometryPass implements RenderPass {
 	private boolean isWireframe() {
 		return config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
 				config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING;
+	}
+
+	private void setTransparencyOutputMode(TransparencyOutputMode outputMode) {
+		glUniform1i(mainShaderUniforms.transparencyOutputMode, outputMode.getShaderValue());
 	}
 
 	@Override

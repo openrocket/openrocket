@@ -1,11 +1,11 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+
 /**
  * Required uniform locations for the main scene shader.
  */
 public final class MainShaderUniforms {
-
-	private static final int MAX_LIGHTS = 10;
 
 	public final int projection;
 	public final int view;
@@ -39,7 +39,7 @@ public final class MainShaderUniforms {
 	public final int hideInnerSurfaces;
 	public final int xrayMode;
 	public final int transparencyOutputMode;
-	public final LightUniforms[] lights = new LightUniforms[MAX_LIGHTS];
+	public final LightUniforms[] lights = new LightUniforms[RenderingConstants.MAX_LIGHTS];
 
 	MainShaderUniforms(GLShader shader) {
 		this.projection = shader.requireUniformLocation("projection");

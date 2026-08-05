@@ -36,7 +36,11 @@ uniform float opacity;  // 0.0 = fully transparent, 1.0 = fully opaque
 uniform bool textureOpacityAffectsAlpha;
 
 // Lighting
+// Mirrors RenderingConstants.MAX_LIGHTS.
 #define MAX_LIGHTS 10
+
+const int LIGHT_DIRECTIONAL = 0;
+const int LIGHT_POINT = 1;
 
 struct Light {
     int type;       // 0 = Directional, 1 = Point
@@ -57,8 +61,11 @@ uniform bool forceWhite;
 uniform bool enableRoughnessBump;
 uniform bool hideInnerSurfaces;
 uniform bool xrayMode;
-// 0 = regular scene color, 1 = weighted transparency accumulation,
-// 2 = weighted transparency revealage, 3 = opaque texture coverage only.
+// Mirrors TransparencyOutputMode.
+const int OUTPUT_SCENE_COLOR = 0;
+const int OUTPUT_ACCUMULATION = 1;
+const int OUTPUT_REVEALAGE = 2;
+const int OUTPUT_OPAQUE_TEXTURE_FRAGMENTS = 3;
 uniform int transparencyOutputMode;
 uniform sampler2DShadow shadowMap;
 uniform bool shadowsEnabled;
@@ -287,7 +294,7 @@ float calculateShadow(vec3 normal, vec3 lightDir) {
 
 void writeFragment(vec4 color) {
     const float opaqueThreshold = 1.0 - 1e-5;
-    if (transparencyOutputMode == 3) {
+    if (transparencyOutputMode == OUTPUT_OPAQUE_TEXTURE_FRAGMENTS) {
         if (color.a < opaqueThreshold) {
             discard;
         }
@@ -296,12 +303,12 @@ void writeFragment(vec4 color) {
     }
     // Fully opaque texture coverage was already written to the regular scene target.
     // Excluding it here prevents WBOIT from averaging surfaces that it should occlude.
-    if (transparencyOutputMode == 1 || transparencyOutputMode == 2) {
+    if (transparencyOutputMode == OUTPUT_ACCUMULATION || transparencyOutputMode == OUTPUT_REVEALAGE) {
         if (color.a >= opaqueThreshold) {
             discard;
         }
     }
-    if (transparencyOutputMode == 1) {
+    if (transparencyOutputMode == OUTPUT_ACCUMULATION) {
         float alpha = clamp(color.a, 0.0, 1.0);
         float colorImportance = max(
             min(1.0, max(max(color.r, color.g), color.b) * alpha),
@@ -317,7 +324,7 @@ void writeFragment(vec4 color) {
         FragColor = vec4(color.rgb * alpha, alpha) * weight;
         return;
     }
-    if (transparencyOutputMode == 2) {
+    if (transparencyOutputMode == OUTPUT_REVEALAGE) {
         // The revealage attachment uses (ZERO, ONE_MINUS_SRC_ALPHA), so only
         // the source alpha matters here.
         FragColor = vec4(0.0, 0.0, 0.0, clamp(color.a, 0.0, 1.0));
@@ -380,7 +387,7 @@ void main()
             vec3 lightDir;
             float attenuation = 1.0;
 
-            if (currentLight.type == 0) { // Directional Light
+            if (currentLight.type == LIGHT_DIRECTIONAL) {
                 lightDir = normalize(-currentLight.direction);
             } else { // Point Light
                 vec3 lightVector = currentLight.position - v_fragPos;
@@ -409,7 +416,7 @@ void main()
         }
 
             vec3 lightContribution = diffuse * surfaceColor.rgb + specular;
-            if (shadowsEnabled && shadowLightIndex == i && currentLight.type == 0) {
+            if (shadowsEnabled && shadowLightIndex == i && currentLight.type == LIGHT_DIRECTIONAL) {
                 float shadow = calculateShadow(norm, lightDir);
                 lightContribution *= (1.0 - shadow);
             }

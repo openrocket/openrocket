@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+import static info.openrocket.swing.gui.figure3d.constants.RenderingConstants.MAX_LIGHTS;
+
 /** Owns scene lights and their optional interactive visualizers. */
 public class LightManager implements LightController {
 
@@ -38,8 +40,8 @@ public class LightManager implements LightController {
 	 */
 	@Override
 	public void addLight(Light light, boolean addVisualizer) {
-		if (lights.size() >= 10) { // Corresponds to MAX_LIGHTS in the shader
-			log.warn("Cannot add more than 10 lights.");
+		if (lights.size() >= MAX_LIGHTS) {
+			log.warn("Cannot add more than {} lights.", MAX_LIGHTS);
 			return;
 		}
 		this.lights.add(light);

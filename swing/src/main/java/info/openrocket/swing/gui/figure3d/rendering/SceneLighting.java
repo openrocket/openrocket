@@ -117,7 +117,7 @@ final class SceneLighting {
 			Vector3f position = light.getPosition();
 			Vector3f direction = light.getDirection();
 			Vector3f color = light.getColor();
-			glUniform1i(lightUniforms.type, light.getType().ordinal());
+			glUniform1i(lightUniforms.type, light.getType().getShaderValue());
 			glUniform3f(lightUniforms.position, position.x, position.y, position.z);
 			glUniform3f(lightUniforms.direction, direction.x, direction.y, direction.z);
 			glUniform3f(lightUniforms.color, color.x, color.y, color.z);

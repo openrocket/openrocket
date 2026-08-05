@@ -10,9 +10,19 @@ public class Light {
 	 */
 	public enum LightType {
 		/** Directional light with parallel rays, like sunlight */
-		DIRECTIONAL,
+		DIRECTIONAL(0),
 		/** Point light that emits in all directions from a specific position */
-		POINT
+		POINT(1);
+
+		private final int shaderValue;
+
+		LightType(int shaderValue) {
+			this.shaderValue = shaderValue;
+		}
+
+		public int getShaderValue() {
+			return shaderValue;
+		}
 	}
 
 	private final Vector3f color;
