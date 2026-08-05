@@ -488,6 +488,12 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		updateFigure();
 	}
 
+	public void setShowWarnings(boolean showWarnings) {
+		markDirty();
+		hudPanel.setShowWarnings(showWarnings);
+		requestRenderNow();
+	}
+
 	// Compatibility methods expected by RocketPanel.
 
 	public void setType(int type) {

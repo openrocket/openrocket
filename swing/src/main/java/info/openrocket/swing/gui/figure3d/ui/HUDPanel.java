@@ -160,6 +160,14 @@ public class HUDPanel extends JPanel {
 		return needsRepaint;
 	}
 
+	public void setShowWarnings(boolean showWarnings) {
+		rocketInfo.setShowWarnings(showWarnings);
+		needsRepaint = true;
+		if (hudUpdateListener != null) {
+			hudUpdateListener.markHudForUpdate();
+		}
+	}
+
 	public void setPanModeEnabled(boolean enabled) {
 		if (panModeEnabled == enabled) {
 			return;

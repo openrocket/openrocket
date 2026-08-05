@@ -1039,12 +1039,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		//// Show warnings
 		this.showWarnings = new JCheckBox(trans.get("RocketPanel.check.showWarnings"));
 		showWarnings.setSelected(document.getDocumentPreferences().getBoolean(PREF_SHOW_WARNINGS, true));
+		figure3d.setShowWarnings(showWarnings.isSelected());
 		showWarnings.setToolTipText(trans.get("RocketPanel.check.showWarnings.ttip"));
 		bottomRow.add(showWarnings);
 		showWarnings.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				document.getDocumentPreferences().putBoolean(PREF_SHOW_WARNINGS, showWarnings.isSelected());
+				figure3d.setShowWarnings(showWarnings.isSelected());
 				updateExtras();
 				updateFigures();
 			}
