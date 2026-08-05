@@ -39,7 +39,7 @@ class FinSetGeneratorTest extends BaseTestCase {
 		finSet.setThickness(0.004);
 		parent.addChild(finSet);
 
-		Mesh mesh = FinSetGenerator.create(finSet, parent, RenderingConfiguration.builder().build());
+		Mesh mesh = FinSetGenerator.create(finSet, parent, new RenderingConfiguration());
 		assertNotNull(mesh);
 		assertFalse(mesh.getVertices().isEmpty());
 
@@ -282,7 +282,7 @@ class FinSetGeneratorTest extends BaseTestCase {
 				new Coordinate(0.22, 0.0)
 		}, false);
 
-		Mesh mesh = FinSetGenerator.create(finSet, parent, RenderingConfiguration.builder().build());
+		Mesh mesh = FinSetGenerator.create(finSet, parent, new RenderingConfiguration());
 		assertNotNull(mesh);
 		assertFalse(mesh.getVertices().isEmpty());
 		assertFalse(mesh.getIndices().isEmpty());

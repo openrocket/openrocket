@@ -104,7 +104,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 
 	private static Scene3DOrchestrator rebuildingOrchestrator(CameraControls camera) {
 		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
-		when(orchestrator.getRenderingConfiguration()).thenReturn(RenderingConfiguration.builder().build());
+		when(orchestrator.getRenderingConfiguration()).thenReturn(new RenderingConfiguration());
 		when(orchestrator.getCameraController()).thenReturn(camera);
 		doAnswer(invocation -> {
 			Runnable task = invocation.getArgument(0);
@@ -118,7 +118,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 	void rebuildEventsCoalesceBeforeBuildingQueuedSnapshots() {
 		SceneView scene = mock(SceneView.class);
 		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
-		when(orchestrator.getRenderingConfiguration()).thenReturn(RenderingConfiguration.builder().build());
+		when(orchestrator.getRenderingConfiguration()).thenReturn(new RenderingConfiguration());
 
 		Rocket rocket = new Rocket();
 		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket);

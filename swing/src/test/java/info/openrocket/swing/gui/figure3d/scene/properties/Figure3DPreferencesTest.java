@@ -42,7 +42,7 @@ class Figure3DPreferencesTest {
 	@Test
 	void multisamplingPreferenceIsAppliedToNewConfigurations() {
 		Figure3DPreferences.setMSAAEnabled(preferences, false);
-		RenderingConfiguration config = RenderingConfiguration.builder().build();
+		RenderingConfiguration config = new RenderingConfiguration();
 		Figure3DPreferences.applyDefaults(config, preferences);
 
 		assertFalse(config.getQuality().isMSAAEnabled());
@@ -64,7 +64,7 @@ class Figure3DPreferencesTest {
 		assertFalse(Figure3DPreferences.shouldReduceEffectsDuringInteraction(preferences));
 
 		Figure3DPreferences.setReduceEffectsDuringInteraction(preferences, true);
-		RenderingConfiguration config = RenderingConfiguration.builder().build();
+		RenderingConfiguration config = new RenderingConfiguration();
 		Figure3DPreferences.applyDefaults(config, preferences);
 
 		assertTrue(config.getQuality().shouldReduceEffectsDuringInteraction());

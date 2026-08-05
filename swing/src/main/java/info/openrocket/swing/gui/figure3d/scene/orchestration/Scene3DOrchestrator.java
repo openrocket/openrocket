@@ -356,13 +356,12 @@ public class Scene3DOrchestrator {
 				.withFixedCenterOfInterest(false)
 				.build();
 
-		RenderingConfiguration config = RenderingConfiguration.builder()
-				.withParticleEffects(false)
-				.build();
+		RenderingConfiguration config = new RenderingConfiguration();
+		config.getVisualEffects().setParticleEffectsEnabled(false);
 		Figure3DPreferences.applyDefaults(config, rocket.getDocument().getDocumentPreferences(),
 				Application.getPreferences());
 
-		Scene scene = Scene.builder(rocket, camera, config).build();
+		Scene scene = new Scene(rocket, camera, config);
 		return new Scene3DOrchestrator(rocket, viewport, camera, scene, config);
 	}
 	

@@ -19,9 +19,7 @@ class TransparencyPolicyTest extends BaseTestCase {
 
 	@Test
 	void finishedModeUsesAppearanceOpacity() {
-		RenderingConfiguration config = RenderingConfiguration.builder()
-				.withRenderMode(DisplaySettings.RenderMode.FINISHED)
-				.build();
+		RenderingConfiguration config = configurationWithMode(DisplaySettings.RenderMode.FINISHED);
 		Appearance3D appearance = appearanceWithOpacity(0.42f);
 
 		assertEquals(0.42f,
@@ -34,10 +32,8 @@ class TransparencyPolicyTest extends BaseTestCase {
 
 	@Test
 	void xrayModeUsesOneSharedComponentRule() {
-		RenderingConfiguration config = RenderingConfiguration.builder()
-				.withRenderMode(DisplaySettings.RenderMode.XRAY)
-				.withXrayOpacity(0.15f)
-				.build();
+		RenderingConfiguration config = configurationWithMode(DisplaySettings.RenderMode.XRAY);
+		config.getQuality().setXrayOpacity(0.15f);
 		Appearance3D appearance = appearanceWithOpacity(0.42f);
 
 		assertEquals(0.15f,
@@ -52,9 +48,7 @@ class TransparencyPolicyTest extends BaseTestCase {
 
 	@Test
 	void unfinishedModeOnlyOverridesBodyTubes() {
-		RenderingConfiguration config = RenderingConfiguration.builder()
-				.withRenderMode(DisplaySettings.RenderMode.UNFINISHED)
-				.build();
+		RenderingConfiguration config = configurationWithMode(DisplaySettings.RenderMode.UNFINISHED);
 		Appearance3D appearance = appearanceWithOpacity(0.42f);
 
 		assertEquals(0.2f,
@@ -82,9 +76,7 @@ class TransparencyPolicyTest extends BaseTestCase {
 
 	@Test
 	void opacityIndependentTexturesUseAnOpaqueFragmentPass() {
-		RenderingConfiguration config = RenderingConfiguration.builder()
-				.withRenderMode(DisplaySettings.RenderMode.FINISHED)
-				.build();
+		RenderingConfiguration config = configurationWithMode(DisplaySettings.RenderMode.FINISHED);
 		Appearance3D appearance = new Appearance3D(null, Appearance3D.RenderStyle.TEXTURED);
 		appearance.setOpacity(0.42f);
 
@@ -105,5 +97,11 @@ class TransparencyPolicyTest extends BaseTestCase {
 		Appearance3D appearance = new Appearance3D();
 		appearance.setOpacity(opacity);
 		return appearance;
+	}
+
+	private static RenderingConfiguration configurationWithMode(DisplaySettings.RenderMode mode) {
+		RenderingConfiguration config = new RenderingConfiguration();
+		config.getDisplay().setMode(mode);
+		return config;
 	}
 }

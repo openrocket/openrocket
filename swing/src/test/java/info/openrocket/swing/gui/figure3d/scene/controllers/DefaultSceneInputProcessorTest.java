@@ -25,14 +25,14 @@ class DefaultSceneInputProcessorTest {
     }
 
     private TestContext createProcessor() {
-        RenderingConfiguration renderingConfiguration = RenderingConfiguration.builder().build();
+        RenderingConfiguration renderingConfiguration = new RenderingConfiguration();
         renderingConfiguration.getVisualEffects().setRotateRocketOnDrag(true);
 
         Camera camera = Camera.builder()
                 .withAspectRatio(1.0f)
                 .withFixedCenterOfInterest(false)
                 .build();
-        Scene scene = Scene.builder(mock(Rocket.class), camera, renderingConfiguration).build();
+        Scene scene = new Scene(mock(Rocket.class), camera, renderingConfiguration);
 
         CameraControls cameraControls = mock(CameraControls.class);
         when(cameraControls.getCamera()).thenReturn(camera);
