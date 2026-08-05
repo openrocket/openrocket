@@ -43,7 +43,8 @@ public class ComponentAnalysisDialog extends JDialog {
 		DialogSettings initialSettings = document == retainedDocument ? retainedSettings : null;
 
 		// General tab
-		ComponentAnalysisGeneralPanel generalTab = new ComponentAnalysisGeneralPanel(this, rocketPanel);
+		ComponentAnalysisGeneralPanel generalTab = new ComponentAnalysisGeneralPanel(this, rocketPanel,
+				initialSettings != null ? initialSettings.generalSettings : null);
 		tabbedPane.addTab(trans.get("ComponentAnalysisDialog.tab.General"), generalTab);
 
 		// Plot export tab
@@ -64,7 +65,8 @@ public class ComponentAnalysisDialog extends JDialog {
 			public void windowClosed(WindowEvent e) {
 				if (retainSettingsOnClose) {
 					retainedDocument = document;
-					retainedSettings = new DialogSettings(tabbedPane.getSelectedIndex(), plotExportTab.getSettings());
+					retainedSettings = new DialogSettings(tabbedPane.getSelectedIndex(), generalTab.getSettings(),
+							plotExportTab.getSettings());
 				}
 				singletonDialog = null;
 			}
@@ -130,11 +132,13 @@ public class ComponentAnalysisDialog extends JDialog {
 	 */
 	private static final class DialogSettings {
 		private final int selectedTab;
+		private final ComponentAnalysisGeneralPanel.Settings generalSettings;
 		private final ComponentAnalysisPlotExportPanel.Settings plotExportSettings;
 
-		private DialogSettings(int selectedTab,
+		private DialogSettings(int selectedTab, ComponentAnalysisGeneralPanel.Settings generalSettings,
 							   ComponentAnalysisPlotExportPanel.Settings plotExportSettings) {
 			this.selectedTab = selectedTab;
+			this.generalSettings = generalSettings;
 			this.plotExportSettings = plotExportSettings;
 		}
 	}
