@@ -71,10 +71,6 @@ public class RealisticRenderer implements GLRenderer {
 	// Performance optimizations
 	private final TextureBinder textureStateManager = new TextureStateManager();
 
-	// Viewport dimensions the renderer was created with, kept around so the
-	// viewport can be restored to its initial state if ever needed.
-	private final int initialWidth;
-	private final int initialHeight;
 	private final GpuMemoryProfile gpuMemoryProfile;
 	private int screenWidth;
 	private int screenHeight;
@@ -102,7 +98,7 @@ public class RealisticRenderer implements GLRenderer {
 	private final BackgroundPass backgroundPass;
 	private final GeometryPass geometryPass;
 	private final List<ScreenTexturePass> postProcessingPasses = new ArrayList<>();
-	private MotionBlurPass motionBlurPass;
+	private final MotionBlurPass motionBlurPass;
 	private volatile boolean interactionMode = false;
 
 	/**
@@ -114,8 +110,6 @@ public class RealisticRenderer implements GLRenderer {
 	 */
 	public RealisticRenderer(RenderingConfiguration config, Rocket rocket, int initialWidth, int initialHeight) {
 		this.config = config;
-		this.initialWidth = initialWidth;
-		this.initialHeight = initialHeight;
 		this.screenWidth = initialWidth;
 		this.screenHeight = initialHeight;
 
@@ -136,19 +130,19 @@ public class RealisticRenderer implements GLRenderer {
 		renderTarget = new OffscreenRenderTarget(initialWidth, initialHeight, getRequestedSceneSampleCount());
 		resolvedTextureId = renderTarget.getColorTextureId();
 
-		shadowPass = createShadowPass();
+		shadowPass = createShadowPass(initialWidth, initialHeight);
 		sceneLighting = new SceneLighting(mainShader, mainShaderUniforms, textureStateManager,
 				shadowPass, config);
 		backgroundPass = new BackgroundPass(textureStateManager);
 		geometryPass = new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms,
 				renderTarget, fullscreenQuad);
-		caretsPass = createCaretsPass(rocket);
-		cameraPointOfInterestPass = createCameraPointOfInterestPass();
+		caretsPass = createCaretsPass(rocket, initialWidth, initialHeight);
+		cameraPointOfInterestPass = createCameraPointOfInterestPass(initialWidth, initialHeight);
 
 		// Post-processing passes
 		ambientOcclusionPass = new AmbientOcclusionPass(fullscreenQuad, textureStateManager,
 				config.getQuality(), initialWidth, initialHeight);
-		motionBlurPass = createMotionBlurPass();
+		motionBlurPass = createMotionBlurPass(initialWidth, initialHeight);
 		outlinePass = new OutlinePass(mainShader, mainShaderUniforms, textureStateManager,
 				fullscreenQuad, selectionColor, initialWidth, initialHeight);
 		fxaaPass = new FXAAPass(fullscreenQuad, initialWidth, initialHeight);
@@ -162,27 +156,27 @@ public class RealisticRenderer implements GLRenderer {
 		config.addListener(this::onScenePropertiesChanged);
 	}
 
-	private ShadowPass createShadowPass() {
-		ShadowPass pass = new ShadowPass(initialWidth, initialHeight, gpuMemoryProfile.isConstrained());
+	private ShadowPass createShadowPass(int width, int height) {
+		ShadowPass pass = new ShadowPass(width, height, gpuMemoryProfile.isConstrained());
 		pass.setQuality(config.getQuality().getQuality());
 		pass.setEnabled(config.getQuality().isShadowsEnabled());
 		return pass;
 	}
 
-	private CaretsPass createCaretsPass(Rocket rocket) {
+	private CaretsPass createCaretsPass(Rocket rocket, int width, int height) {
 		CaretsPass pass = new CaretsPass(rocket, config);
-		pass.resize(initialWidth, initialHeight);
+		pass.resize(width, height);
 		return pass;
 	}
 
-	private CameraPointOfInterestPass createCameraPointOfInterestPass() {
+	private CameraPointOfInterestPass createCameraPointOfInterestPass(int width, int height) {
 		CameraPointOfInterestPass pass = new CameraPointOfInterestPass(config);
-		pass.resize(initialWidth, initialHeight);
+		pass.resize(width, height);
 		return pass;
 	}
 
-	private MotionBlurPass createMotionBlurPass() {
-		MotionBlurPass pass = new MotionBlurPass(fullscreenQuad, initialWidth, initialHeight);
+	private MotionBlurPass createMotionBlurPass(int width, int height) {
+		MotionBlurPass pass = new MotionBlurPass(fullscreenQuad, width, height);
 		pass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
 		return pass;
 	}
