@@ -49,7 +49,7 @@ public class GLShader implements GpuResource {
 
 	private static final Logger log = LoggerFactory.getLogger(GLShader.class);
 
-	private final int programId;
+	private int programId;
 	private final String vertexPath;
 	private final String fragmentPath;
 
@@ -71,18 +71,30 @@ public class GLShader implements GpuResource {
 
 		log.debug("Loading shader: vertex={}, fragment={}", vertexPath, fragmentPath);
 
-		int vertexShader = compileShader(GL_VERTEX_SHADER, loadResource(vertexPath), vertexPath);
-		int fragmentShader = compileShader(GL_FRAGMENT_SHADER, loadResource(fragmentPath), fragmentPath);
+		int vertexShader = 0;
+		int fragmentShader = 0;
+		int linkedProgram = 0;
+		boolean initialized = false;
 		try {
-			programId = linkProgram(vertexShader, fragmentShader);
+			vertexShader = compileShader(GL_VERTEX_SHADER, loadResource(vertexPath), vertexPath);
+			fragmentShader = compileShader(GL_FRAGMENT_SHADER, loadResource(fragmentPath), fragmentPath);
+			linkedProgram = linkProgram(vertexShader, fragmentShader);
+			GLErrors.check("shader program creation (" + vertexPath + ", " + fragmentPath + ")");
+			initialized = true;
 		} finally {
 			// The linked program keeps its own copy of the compiled stages.
-			glDeleteShader(vertexShader);
-			glDeleteShader(fragmentShader);
+			if (vertexShader != 0) {
+				glDeleteShader(vertexShader);
+			}
+			if (fragmentShader != 0) {
+				glDeleteShader(fragmentShader);
+			}
+			if (!initialized && linkedProgram != 0) {
+				glDeleteProgram(linkedProgram);
+			}
 		}
 
-		GLErrors.check("shader program creation (" + vertexPath + ", " + fragmentPath + ")");
-
+		programId = linkedProgram;
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.PROGRAM, programId, vertexPath + " | " + fragmentPath);
 		log.debug("GLShader program created successfully: id={}", programId);
 	}
@@ -283,9 +295,11 @@ public class GLShader implements GpuResource {
 
 	@Override
 	public void cleanup() {
-		if (programId != 0) {
-			GpuResourceTracker.release(GpuResourceTracker.ResourceType.PROGRAM, programId);
-			glDeleteProgram(programId);
+		int releasedProgram = programId;
+		if (releasedProgram != 0) {
+			programId = 0;
+			GpuResourceTracker.release(GpuResourceTracker.ResourceType.PROGRAM, releasedProgram);
+			glDeleteProgram(releasedProgram);
 		}
 		uniformLocationCache.clear();
 	}
