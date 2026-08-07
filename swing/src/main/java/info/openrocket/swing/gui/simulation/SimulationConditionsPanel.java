@@ -875,7 +875,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 
 	private void addDefaultButtons(SimulationOptions options) {
-		JPanel buttons = new JPanel(new MigLayout("insets 0, gap rel"));
+		JPanel buttons = new JPanel(new MigLayout("insets 0, fillx, gap rel", "[]push[][]"));
 		buttons.setOpaque(false);
 
 		JButton currentConditions = new JButton(trans.get("simedtdlg.but.currentConditions"));
@@ -900,7 +900,7 @@ public class SimulationConditionsPanel extends JPanel {
 		});
 		buttons.add(saveDefaults);
 
-		this.add(buttons, "span, right");
+		this.add(buttons, "span, growx");
 	}
 
 	/**

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import info.openrocket.core.arch.SystemInfo;
 
 /**
- * Reads the current position from the native location service on macOS or Windows.
+ * Reads the current position from the native location service on macOS, Windows, or Linux.
  */
 public class SystemLocationProvider {
 	private static final long LOCATION_TIMEOUT_SECONDS = 20;
@@ -35,15 +35,24 @@ public class SystemLocationProvider {
 			$ErrorActionPreference = 'Stop'
 			Add-Type -AssemblyName System.Runtime.WindowsRuntime
 			[Windows.Devices.Geolocation.Geolocator, Windows.Devices.Geolocation, ContentType=WindowsRuntime] | Out-Null
+			[Windows.Devices.Geolocation.GeolocationAccessStatus, Windows.Devices.Geolocation, ContentType=WindowsRuntime] | Out-Null
 			[Windows.Devices.Geolocation.Geoposition, Windows.Devices.Geolocation, ContentType=WindowsRuntime] | Out-Null
-			$locator = [Windows.Devices.Geolocation.Geolocator]::new()
-			$locator.DesiredAccuracyInMeters = 10
-			$operation = $locator.GetGeopositionAsync()
 			$asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
 			  $_.Name -eq 'AsTask' -and $_.IsGenericMethod -and $_.GetParameters().Count -eq 1
 			})[0]
+			$accessOperation = [Windows.Devices.Geolocation.Geolocator]::RequestAccessAsync()
+			$accessTask = $asTask.MakeGenericMethod(
+			  [Windows.Devices.Geolocation.GeolocationAccessStatus]).Invoke($null, @($accessOperation))
+			if (-not $accessTask.Wait(15000)) { throw 'Windows Location Services permission request timed out.' }
+			if ($accessTask.Result -ne [Windows.Devices.Geolocation.GeolocationAccessStatus]::Allowed) {
+			  throw 'Location access is disabled or denied. Enable it in Settings > Privacy & security > Location.'
+			}
+			$locator = [Windows.Devices.Geolocation.Geolocator]::new()
+			$locator.DesiredAccuracyInMeters = 10
+			$operation = $locator.GetGeopositionAsync(
+			  [TimeSpan]::FromSeconds(30), [TimeSpan]::FromSeconds(15))
 			$task = $asTask.MakeGenericMethod([Windows.Devices.Geolocation.Geoposition]).Invoke($null, @($operation))
-			if (-not $task.Wait(15000)) { throw 'Windows Location Services timed out.' }
+			if (-not $task.Wait(17000)) { throw 'Windows Location Services timed out.' }
 			$coordinate = $task.Result.Coordinate
 			$position = $coordinate.Point.Position
 			$culture = [System.Globalization.CultureInfo]::InvariantCulture

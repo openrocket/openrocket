@@ -42,7 +42,9 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last, location.horizontalAccuracy >= 0 else { return }
+        guard let location = locations.last,
+              location.horizontalAccuracy >= 0,
+              abs(location.timestamp.timeIntervalSinceNow) <= 30 else { return }
         timeout?.invalidate()
         manager.stopUpdatingLocation()
         let output = String(
