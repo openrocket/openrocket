@@ -9,6 +9,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -22,15 +24,19 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.conditions.CurrentConditions;
+import info.openrocket.core.conditions.OpenMeteoClient;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.models.wind.WindModelType;
+import info.openrocket.core.models.wind.WindModel.AltitudeReference;
 import info.openrocket.core.simulation.DefaultSimulationOptionFactory;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
@@ -45,6 +51,9 @@ import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.simulation.currentconditions.DeviceLocation;
+import info.openrocket.swing.gui.simulation.currentconditions.LocationException;
+import info.openrocket.swing.gui.simulation.currentconditions.SystemLocationProvider;
 
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
@@ -419,6 +428,121 @@ public class SimulationConditionsPanel extends JPanel {
 		intoWind.addEnableComponent(directionSlider, false);
 	}
 
+	private static void fetchCurrentConditions(JButton button, SimulationOptions options, boolean locateDevice) {
+		button.setEnabled(false);
+		button.setText(trans.get(locateDevice ? "simedtdlg.lbl.locating" : "simedtdlg.lbl.fetchingWeather"));
+
+		SwingWorker<ConditionsLookup, Void> worker = new SwingWorker<>() {
+			@Override
+			protected ConditionsLookup doInBackground() throws Exception {
+				DeviceLocation location;
+				if (locateDevice) {
+					location = new SystemLocationProvider().locate();
+				} else {
+					location = new DeviceLocation(options.getLaunchLatitude(), options.getLaunchLongitude(),
+							options.getLaunchAltitude(), Double.NaN, trans.get("simedtdlg.lbl.configuredCoordinates"));
+				}
+				SwingUtilities.invokeLater(() -> button.setText(trans.get("simedtdlg.lbl.fetchingWeather")));
+				CurrentConditions conditions = new OpenMeteoClient().fetch(location.latitude(), location.longitude());
+				return new ConditionsLookup(location, conditions);
+			}
+
+			@Override
+			protected void done() {
+				boolean restarted = false;
+				try {
+					ConditionsLookup lookup = get();
+					if (confirmCurrentConditions(panelOwner(button), lookup)) {
+						applyCurrentConditions(options, lookup.conditions());
+					}
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					showCurrentConditionsError(button, trans.get("simedtdlg.error.currentConditionsInterrupted"));
+				} catch (ExecutionException e) {
+					Throwable cause = e.getCause();
+					if (locateDevice && cause instanceof LocationException) {
+						int choice = JOptionPane.showConfirmDialog(panelOwner(button),
+								cause.getMessage() + "\n\n" + trans.get("simedtdlg.msg.useConfiguredCoordinates"),
+								trans.get("simedtdlg.title.currentConditions"), JOptionPane.YES_NO_OPTION,
+								JOptionPane.WARNING_MESSAGE);
+						if (choice == JOptionPane.YES_OPTION) {
+							restarted = true;
+							fetchCurrentConditions(button, options, false);
+						}
+					} else {
+						showCurrentConditionsError(button, cause == null ? e.getMessage() : cause.getMessage());
+					}
+				} finally {
+					if (!restarted) {
+						button.setText(trans.get("simedtdlg.but.currentConditions"));
+						button.setEnabled(true);
+					}
+				}
+			}
+		};
+		worker.execute();
+	}
+
+	private static boolean confirmCurrentConditions(Window owner, ConditionsLookup lookup) {
+		CurrentConditions conditions = lookup.conditions();
+		CurrentConditions.WindLayer surfaceWind = conditions.windLayers().get(0);
+		String accuracy = Double.isFinite(lookup.location().horizontalAccuracy())
+				? String.format(Locale.ROOT, " (±%.0f m)", lookup.location().horizontalAccuracy()) : "";
+		String summary = String.format(Locale.ROOT,
+				"<html><b>%s</b><br><br>"
+						+ "Location: %.5f°, %.5f°%s<br>"
+						+ "Launch elevation: %.0f m MSL<br>"
+						+ "Valid at: %s<br><br>"
+						+ "Temperature: %.1f °C<br>Pressure: %.1f hPa<br>Humidity: %.0f%%<br>"
+						+ "Surface wind: %.1f m/s from %.0f°; gusts %.1f m/s<br>"
+						+ "Vertical wind profile: %d layers to %.0f m MSL<br><br>"
+						+ "Turbulence standard deviation is estimated from the surface gust spread.<br>"
+						+ "Weather data by Open-Meteo (CC BY 4.0): https://open-meteo.com/</html>",
+				trans.get("simedtdlg.msg.currentConditionsPreview"), conditions.latitude(), conditions.longitude(),
+				accuracy, conditions.elevation(), conditions.validAt(), conditions.temperature() - 273.15,
+				conditions.pressure() / 100.0, conditions.relativeHumidity() * 100.0, surfaceWind.speed(),
+				Math.toDegrees(surfaceWind.direction()), conditions.windGust(), conditions.windLayers().size(),
+				conditions.windLayers().get(conditions.windLayers().size() - 1).altitude());
+		return JOptionPane.showConfirmDialog(owner, summary, trans.get("simedtdlg.title.currentConditions"),
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION;
+	}
+
+	private static void applyCurrentConditions(SimulationOptions options, CurrentConditions conditions) {
+		options.setISAAtmosphere(false);
+		options.setLaunchLatitude(conditions.latitude());
+		options.setLaunchLongitude(conditions.longitude());
+		options.setLaunchAltitude(conditions.elevation());
+		options.setLaunchTemperature(conditions.temperature());
+		options.setLaunchPressure(conditions.pressure());
+		options.setLaunchRelativeHumidity(conditions.relativeHumidity());
+
+		CurrentConditions.WindLayer surface = conditions.windLayers().get(0);
+		PinkNoiseWindModel averageWind = options.getAverageWindModel();
+		averageWind.setAverage(surface.speed());
+		averageWind.setDirection(surface.direction());
+		averageWind.setStandardDeviation(surface.standardDeviation());
+
+		MultiLevelPinkNoiseWindModel windModel = options.getMultiLevelWindModel();
+		windModel.clearLevels();
+		windModel.setAltitudeReference(AltitudeReference.MSL);
+		for (CurrentConditions.WindLayer layer : conditions.windLayers()) {
+			windModel.addWindLevel(layer.altitude(), layer.speed(), layer.direction(), layer.standardDeviation());
+		}
+		options.setWindModelType(WindModelType.MULTI_LEVEL);
+	}
+
+	private static Window panelOwner(Component component) {
+		return SwingUtilities.getWindowAncestor(component);
+	}
+
+	private static void showCurrentConditionsError(Component parent, String message) {
+		JOptionPane.showMessageDialog(panelOwner(parent), message, trans.get("simedtdlg.title.currentConditions"),
+				JOptionPane.ERROR_MESSAGE);
+	}
+
+	private record ConditionsLookup(DeviceLocation location, CurrentConditions conditions) {
+	}
+
 	private static boolean isPressureTooLow(double pressurePa, double altitudeM, ExtendedISAModel standardAtmosphere) {
 		return pressureRatio(pressurePa, altitudeM, standardAtmosphere) < 0.75;
 	}
@@ -620,6 +744,7 @@ public class SimulationConditionsPanel extends JPanel {
 		JPanel summaryPanel = new JPanel(new MigLayout("fill, ins 0"));
 		JLabel summaryLabel = new JLabel();
 		updateWindLevelSummary(summaryLabel, model);
+		model.addChangeListener(event -> updateWindLevelSummary(summaryLabel, model));
 		summaryPanel.add(summaryLabel, "grow, wrap");
 		
 		// Add edit button
@@ -750,6 +875,14 @@ public class SimulationConditionsPanel extends JPanel {
 
 
 	private void addDefaultButtons(SimulationOptions options) {
+		JPanel buttons = new JPanel(new MigLayout("insets 0, gap rel"));
+		buttons.setOpaque(false);
+
+		JButton currentConditions = new JButton(trans.get("simedtdlg.but.currentConditions"));
+		currentConditions.setToolTipText(trans.get("simedtdlg.but.currentConditions.ttip"));
+		currentConditions.addActionListener(e -> fetchCurrentConditions(currentConditions, options, true));
+		buttons.add(currentConditions);
+
 		// Reset to default
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		restoreDefaults.addActionListener(e -> {
@@ -757,7 +890,7 @@ public class SimulationConditionsPanel extends JPanel {
 			SimulationOptions defaults = f.getDefault();
 			options.copyConditionsFrom(defaults);
 		});
-		this.add(restoreDefaults, "span, split 3, skip, gapright para, right");
+		buttons.add(restoreDefaults);
 
 		// Save as default
 		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
@@ -765,7 +898,9 @@ public class SimulationConditionsPanel extends JPanel {
 			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 			f.saveDefault(options);
 		});
-		this.add(saveDefaults, "gapright para, right");
+		buttons.add(saveDefaults);
+
+		this.add(buttons, "span, right");
 	}
 
 	/**
