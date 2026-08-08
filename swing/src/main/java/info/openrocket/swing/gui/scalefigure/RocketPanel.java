@@ -598,13 +598,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private void updatePanViewUiState() {
 		boolean active = isPanViewModeActive();
-		if (panViewButton != null) {
-			String tooltipKey = active
-					? "RocketPanel.btn.panView.active.ttip"
-					: "RocketPanel.btn.panView.ttip";
-			panViewButton.setToolTipText(trans.get(tooltipKey));
-			panViewButton.getAccessibleContext().setAccessibleDescription(trans.get(tooltipKey));
-		}
+		updatePanViewButtonTooltip(active);
 		if (figure3d != null) {
 			figure3d.setPanModeEnabled(active);
 		}
@@ -621,15 +615,30 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 	}
 
-	private void updatePanViewButtonVisibility() {
+	private void updatePanViewButtonAvailability() {
 		if (panViewButton == null) {
 			return;
 		}
-		panViewButton.setVisible(is3d);
-		if (ribbon != null) {
-			ribbon.revalidate();
-			ribbon.repaint();
+		panViewButton.setVisible(true);
+		panViewButton.setEnabled(is3d);
+		updatePanViewButtonTooltip(isPanViewModeActive());
+	}
+
+	private void updatePanViewButtonTooltip(boolean active) {
+		if (panViewButton == null) {
+			return;
 		}
+		String tooltipKey;
+		if (!is3d) {
+			tooltipKey = "RocketPanel.btn.panView.disabled2D.ttip";
+		} else if (active) {
+			tooltipKey = "RocketPanel.btn.panView.active.ttip";
+		} else {
+			tooltipKey = "RocketPanel.btn.panView.ttip";
+		}
+		String tooltip = trans.get(tooltipKey);
+		panViewButton.setToolTipText(tooltip);
+		panViewButton.getAccessibleContext().setAccessibleDescription(tooltip);
 	}
 
 	private Cursor getViewportCursor() {
@@ -685,7 +694,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		is3d = true;
 		updateCaliperUiState();
-		updatePanViewButtonVisibility();
+		updatePanViewButtonAvailability();
 		figureCardLayout.show(figureHolder, "3d");
 		figure3d.startRendering();
 		rotationControl.setEnabled(false);
@@ -710,7 +719,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		is3d = false;
 		setPanViewModeActive(false);
-		updatePanViewButtonVisibility();
+		updatePanViewButtonAvailability();
 		figureCardLayout.show(figureHolder, "2d");
 		figure3d.stopRendering();
 
@@ -899,7 +908,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ribbon.add(zoomInButton, "cell 3 1, split 3");
 		ribbon.add(zoomFitButton, "cell 3 1");
 		ribbon.add(panViewButton, "cell 3 1");
-		updatePanViewButtonVisibility();
+		updatePanViewButtonAvailability();
 
 		// Show CG/CP
 		final JCheckBox showCGCP = new JCheckBox();
