@@ -254,7 +254,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private ViewRotationControl rotationControl;
 	private ScaleSelector scaleSelector;
 	private JComboBox<RocketPanel.VIEW_TYPE> viewSelector;
-	private ThemedToggleButton panViewButton;
+	private JToggleButton panViewButton;
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
@@ -887,7 +887,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
 		JButton zoomInButton = scaleSelector.getZoomInButton();
 		JButton zoomFitButton = scaleSelector.getZoomFitButton();
-		panViewButton = new ThemedToggleButton(Icons.PAN_VIEW);
+		// Keep the enabled icon in both states; the selected outline indicates
+		// whether the persistent pan mode is active.
+		panViewButton = new JToggleButton(Icons.PAN_VIEW);
 		panViewButton.putClientProperty(FlatClientProperties.STYLE_CLASS, "panMode");
 		panViewButton.setToolTipText(trans.get("RocketPanel.btn.panView.ttip"));
 		panViewButton.addActionListener(e -> updatePanViewUiState());
