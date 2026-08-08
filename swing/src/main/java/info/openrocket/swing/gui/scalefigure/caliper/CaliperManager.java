@@ -364,7 +364,7 @@ public class CaliperManager {
 			// Check vertical caliper lines - try handle first, then line
 			if (caliper1Line != null) {
 				// Check handle bounds
-				java.awt.geom.Rectangle2D.Double handleBounds = caliper1Line.getHandleBounds(transform);
+				java.awt.geom.Rectangle2D.Double handleBounds = caliper1Line.getHandleBounds(transform, visibleRect);
 				boolean hitHandle = handleBounds != null && handleBounds.contains(screenPoint.x, screenPoint.y);
 				
 				// Check if near the line itself
@@ -381,7 +381,7 @@ public class CaliperManager {
 			}
 			if (caliper2Line != null) {
 				// Check handle bounds
-				java.awt.geom.Rectangle2D.Double handleBounds = caliper2Line.getHandleBounds(transform);
+				java.awt.geom.Rectangle2D.Double handleBounds = caliper2Line.getHandleBounds(transform, visibleRect);
 				boolean hitHandle = handleBounds != null && handleBounds.contains(screenPoint.x, screenPoint.y);
 				
 				// Check if near the line itself
@@ -714,7 +714,7 @@ public class CaliperManager {
 
 	private boolean isHandleOrLineHit(CaliperLine line, Point screenPoint,
 									  java.awt.geom.AffineTransform transform, Rectangle visibleRect) {
-		java.awt.geom.Rectangle2D.Double handleBounds = line.getHandleBounds(transform);
+		java.awt.geom.Rectangle2D.Double handleBounds = line.getHandleBounds(transform, visibleRect);
 		boolean hitHandle = handleBounds != null && handleBounds.contains(screenPoint.x, screenPoint.y);
 		boolean hitLine = line.isPointNearLine(screenPoint.x, screenPoint.y, transform, visibleRect);
 		return hitHandle || hitLine;
@@ -1073,11 +1073,11 @@ public class CaliperManager {
 		Rectangle visibleRect = figure.getVisibleRect();
 		if (mode == CaliperMode.VERTICAL) {
 			if (caliper1Line != null) {
-				java.awt.geom.Rectangle2D.Double b = caliper1Line.getHandleBounds(transform);
+				java.awt.geom.Rectangle2D.Double b = caliper1Line.getHandleBounds(transform, visibleRect);
 				if (b != null && b.contains(screenX, screenY)) return 1;
 			}
 			if (caliper2Line != null) {
-				java.awt.geom.Rectangle2D.Double b = caliper2Line.getHandleBounds(transform);
+				java.awt.geom.Rectangle2D.Double b = caliper2Line.getHandleBounds(transform, visibleRect);
 				if (b != null && b.contains(screenX, screenY)) return 2;
 			}
 		} else {
@@ -1621,4 +1621,3 @@ public class CaliperManager {
 		return true;
 	}
 }
-
