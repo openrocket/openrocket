@@ -1036,13 +1036,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			refreshInfoMessage();
 
 		//// Configure display button
-		JButton configureDisplayButton = new JButton(Icons.CONFIGURE_DISPLAY);
+		JButton configureDisplayButton = new JButton(
+				trans.get("RocketPanel.btn.configureDisplay"), Icons.CONFIGURE_DISPLAY);
 		configureDisplayButton.setToolTipText(trans.get("RocketPanel.btn.configureDisplay.ttip"));
 		configureDisplayButton.addActionListener(e -> showDisplaySettingsDialog());
-		bottomRow.add(configureDisplayButton, "pushx, right, gapright unrel");
+		bottomRow.add(configureDisplayButton, "pushx, right, gapright rel");
 
 		//// Screenshot button
-		JButton screenshotButton = new JButton(Icons.SCREENSHOT);
+		JButton screenshotButton = new JButton(
+				trans.get("RocketPanel.btn.captureDesignView"), Icons.SCREENSHOT);
 		screenshotButton.setToolTipText(trans.get("RocketPanel.btn.captureDesignView.ttip"));
 		screenshotButton.addActionListener(e -> showCaptureDesignViewDialog());
 		bottomRow.add(screenshotButton, "right, gapright unrel");
