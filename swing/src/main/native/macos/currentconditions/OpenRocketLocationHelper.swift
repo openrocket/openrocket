@@ -8,6 +8,9 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     private var timeout: Timer?
 
     func start() {
+        timeout = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) { _ in
+            self.fail("Location Services timed out.")
+        }
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
 
@@ -35,9 +38,6 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     private func startLocationUpdates() {
         guard !started else { return }
         started = true
-        timeout = Timer.scheduledTimer(withTimeInterval: 15, repeats: false) { _ in
-            self.fail("Location Services timed out.")
-        }
         manager.startUpdatingLocation()
     }
 
@@ -61,6 +61,9 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        if let locationError = error as? CLError, locationError.code == .locationUnknown {
+            return
+        }
         fail(error.localizedDescription)
     }
 
