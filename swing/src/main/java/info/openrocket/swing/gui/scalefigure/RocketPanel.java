@@ -91,6 +91,9 @@ import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -107,6 +110,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GraphicsConfiguration;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.Graphics2D;
@@ -127,6 +131,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -242,6 +247,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	/* Caliper tool */
 	private CaliperManager caliperManager = null;
 	private JPanel ribbon = null;  // Reference to ribbon for panel positioning
+	/** Strong reference required because UI theme listeners are stored weakly. */
+	private Runnable caliperThemeChangeListener;
 
 	private double cpAOA = Double.NaN;
 	private double cpTheta = Double.NaN;
@@ -2248,11 +2255,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		horizontalModeIcon.setToolTipText(trans.get("RocketPanel.radio.CaliperHorizontal.ttip"));
 		verticalModeIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		horizontalModeIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		verticalModeIcon.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override public void mouseClicked(java.awt.event.MouseEvent e) { verticalRadio.doClick(); }
+		verticalModeIcon.addMouseListener(new MouseAdapter() {
+			@Override public void mouseClicked(MouseEvent e) { verticalRadio.doClick(); }
 		});
-		horizontalModeIcon.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override public void mouseClicked(java.awt.event.MouseEvent e) { horizontalRadio.doClick(); }
+		horizontalModeIcon.addMouseListener(new MouseAdapter() {
+			@Override public void mouseClicked(MouseEvent e) { horizontalRadio.doClick(); }
 		});
 		modeGroup.add(verticalRadio);
 		modeGroup.add(horizontalRadio);
@@ -2282,9 +2289,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		distanceField.setOpaque(true);
 		distanceField.setBackground(valueBg);
 		distanceField.setForeground(valueFg);
-		distanceField.setBorder(new javax.swing.border.CompoundBorder(
-				new javax.swing.border.LineBorder(caliperColor, 1, true),
-				new javax.swing.border.EmptyBorder(1, 4, 1, 4)));
+		distanceField.setBorder(new CompoundBorder(
+				new LineBorder(caliperColor, 1, true),
+				new EmptyBorder(1, 4, 1, 4)));
 		distanceField.setFont(distanceField.getFont().deriveFont(Font.BOLD));
 		distanceField.setHorizontalAlignment(JTextField.CENTER);
 
@@ -2297,7 +2304,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		diamond1Btn.setBorderPainted(false);
 		diamond1Btn.setContentAreaFilled(false);
 		diamond1Btn.setFocusPainted(false);
-		diamond1Btn.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		diamond1Btn.setMargin(new Insets(0, 0, 0, 0));
 		diamond1Btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		diamond1Btn.setToolTipText(trans.get("RocketPanel.popup.CaliperDiamond1.ttip"));
 		diamond1Btn.addActionListener(e -> showCaliperPositionPopup(1, diamond1Btn));
@@ -2308,7 +2315,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		diamond2Btn.setBorderPainted(false);
 		diamond2Btn.setContentAreaFilled(false);
 		diamond2Btn.setFocusPainted(false);
-		diamond2Btn.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		diamond2Btn.setMargin(new Insets(0, 0, 0, 0));
 		diamond2Btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		diamond2Btn.setToolTipText(trans.get("RocketPanel.popup.CaliperDiamond2.ttip"));
 		diamond2Btn.addActionListener(e -> showCaliperPositionPopup(2, diamond2Btn));
@@ -2364,7 +2371,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		});
 
 		// Update colors when the UI theme changes
-		UITheme.Theme.addUIThemeChangeListener(() -> {
+		caliperThemeChangeListener = () -> {
 			Color newCaliperColor = GUIUtil.getUITheme().getCaliperColor();
 			Color newValueBg = GUIUtil.getUITheme().getCaliperValueBackgroundColor();
 			Color newValueFg = GUIUtil.getUITheme().getCaliperValueForegroundColor();
@@ -2378,9 +2385,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 			distanceField.setBackground(newValueBg);
 			distanceField.setForeground(newValueFg);
-			distanceField.setBorder(new javax.swing.border.CompoundBorder(
-					new javax.swing.border.LineBorder(newCaliperColor, 1, true),
-					new javax.swing.border.EmptyBorder(1, 4, 1, 4)));
+			distanceField.setBorder(new CompoundBorder(
+					new LineBorder(newCaliperColor, 1, true),
+					new EmptyBorder(1, 4, 1, 4)));
 
 			Color newHoverColor = ColorConversion.brightenColor(newCaliperColor, 50);
 			diamond1Btn.setIcon(createCaliperDiamondIcon("1", newCaliperColor, newDiamondLabelColor));
@@ -2389,7 +2396,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			diamond2Btn.setRolloverIcon(createCaliperDiamondIcon("2", newHoverColor, newDiamondLabelColor));
 
 			panel.repaint();
-		});
+			// Reattach and repaint figure elements, which live outside Swing's UI delegate hierarchy.
+			updateCaliperElements();
+			figure.updateFigure();
+		};
+		UITheme.Theme.addUIThemeChangeListener(caliperThemeChangeListener);
 
 		return panel;
 	}
