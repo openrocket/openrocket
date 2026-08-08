@@ -27,19 +27,35 @@ import org.joml.Vector4f;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.lwjgl.BufferUtils;
 
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import javax.imageio.ImageIO;
+
 import static info.openrocket.swing.gui.figure3d.constants.RenderingConstants.SURFACE_ID_OUTSIDE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_ALPHA_SIZE;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_INTERNAL_FORMAT;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glGetTexImage;
+import static org.lwjgl.opengl.GL11.glGetTexLevelParameteri;
+import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 
 /**
  * Live-GL regression coverage for intersecting translucent geometry and mixed opaque /
@@ -103,6 +119,41 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 			assertTrue(difference.outlierFraction() <= 0.001,
 					() -> "Too many opaque texture pixels changed with component opacity: " + difference);
 		}
+	}
+
+	@Test
+	@Timeout(value = 60, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void decalTexturePreservesSemiTransparentAlphaPrecision() throws Exception {
+		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
+				"Texture format regression test requires a live graphical environment");
+		ByteBuffer encodedTexture = createSemiTransparentPng();
+		AtomicInteger internalFormat = new AtomicInteger();
+		AtomicInteger alphaBits = new AtomicInteger();
+		AtomicInteger storedAlpha = new AtomicInteger();
+
+		try (RenderHarness harness = createHarness(orchestrator -> {
+			Texture texture = new Texture(encodedTexture);
+			try {
+				texture.bind();
+				internalFormat.set(glGetTexLevelParameteri(
+						GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT));
+				alphaBits.set(glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_ALPHA_SIZE));
+				ByteBuffer readback = BufferUtils.createByteBuffer(2 * 2 * 4);
+				glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, readback);
+				storedAlpha.set(Byte.toUnsignedInt(readback.get(3)));
+			} finally {
+				texture.cleanup();
+			}
+		})) {
+			GoldenImageTestSupport.awaitInitialized(harness);
+		}
+
+		assertEquals(GL_SRGB8_ALPHA8, internalFormat.get(),
+				"Decals should use a deterministic sized sRGB format");
+		assertTrue(alphaBits.get() >= 8,
+				() -> "Decal alpha storage has only " + alphaBits.get() + " bits");
+		assertEquals(128, storedAlpha.get(),
+				"A semi-transparent texel should survive GPU upload without quantization");
 	}
 
 	private static RenderHarness createHarness(Consumer<Scene3DOrchestrator> initializationHook)
@@ -259,6 +310,25 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 		appearance.setShine(0.0f);
 		appearance.setOpacity(opacity);
 		return appearance;
+	}
+
+	private static ByteBuffer createSemiTransparentPng() throws IOException {
+		BufferedImage image = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
+		int pixel = (128 << 24) | (192 << 16) | (96 << 8) | 48;
+		for (int y = 0; y < image.getHeight(); y++) {
+			for (int x = 0; x < image.getWidth(); x++) {
+				image.setRGB(x, y, pixel);
+			}
+		}
+
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		if (!ImageIO.write(image, "png", output)) {
+			throw new IllegalStateException("PNG writer should be available");
+		}
+		byte[] bytes = output.toByteArray();
+		ByteBuffer buffer = BufferUtils.createByteBuffer(bytes.length);
+		buffer.put(bytes).flip();
+		return buffer;
 	}
 
 	private static void reverseSceneObjects(RenderHarness harness) {

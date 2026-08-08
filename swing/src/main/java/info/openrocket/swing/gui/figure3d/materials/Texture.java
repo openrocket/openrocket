@@ -43,8 +43,8 @@ import static org.lwjgl.opengl.GL11.glTexSubImage2D;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-import static org.lwjgl.opengl.GL21.GL_SRGB;
-import static org.lwjgl.opengl.GL21.GL_SRGB_ALPHA;
+import static org.lwjgl.opengl.GL21.GL_SRGB8;
+import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL30.GL_RGB32F;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.opengl.GL11.glGetFloat;
@@ -284,11 +284,12 @@ public class Texture {
 
 			this.width = width;
 			this.height = height;
-			this.internalFormat = GL_SRGB_ALPHA;
+			this.internalFormat = GL_SRGB8_ALPHA8;
 			this.format = GL_RGBA;
 
-			// Upload texture data to GPU, specifying SRGB_ALPHA format for automatic gamma correction
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+			// Use a sized format so every driver preserves the same eight-bit alpha precision.
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0,
+					GL_RGBA, GL_UNSIGNED_BYTE, image);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			// Free the loaded image memory
@@ -357,7 +358,7 @@ public class Texture {
 		int faceWidth = 0;
 		int faceHeight = 0;
 		int detectedFormat = GL_RGB;
-		int detectedInternalFormat = GL_SRGB;
+		int detectedInternalFormat = GL_SRGB8;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
@@ -366,7 +367,7 @@ public class Texture {
 			for (int i = 0; i < cubemapFiles.length; i++) {
 				ByteBuffer image = loadImage(cubemapFiles[i], w, h, channels, 0);
 				int format = (channels.get(0) == 4) ? GL_RGBA : GL_RGB;
-				int internalFormat = (channels.get(0) == 4) ? GL_SRGB_ALPHA : GL_SRGB;
+				int internalFormat = (channels.get(0) == 4) ? GL_SRGB8_ALPHA8 : GL_SRGB8;
 				faceWidth = w.get(0);
 				faceHeight = h.get(0);
 				detectedFormat = format;
@@ -404,7 +405,7 @@ public class Texture {
 
 		int faceSize = 0;
 		int detectedFormat = GL_RGB;
-		int detectedInternalFormat = GL_SRGB;
+		int detectedInternalFormat = GL_SRGB8;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
@@ -416,7 +417,7 @@ public class Texture {
 			int atlasHeight = h.get(0);
 			int numChannels = channels.get(0);
 			int format = (numChannels == 4) ? GL_RGBA : GL_RGB;
-			int internalFormat = (numChannels == 4) ? GL_SRGB_ALPHA : GL_SRGB;
+			int internalFormat = (numChannels == 4) ? GL_SRGB8_ALPHA8 : GL_SRGB8;
 			detectedFormat = format;
 			detectedInternalFormat = internalFormat;
 
@@ -570,10 +571,11 @@ public class Texture {
 			}
 			bleedTransparentRgb(image, w.get(0), h.get(0));
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, w.get(), h.get(), 0,
+					GL_RGBA, GL_UNSIGNED_BYTE, image);
 			this.width = w.get(0);
 			this.height = h.get(0);
-			this.internalFormat = GL_SRGB_ALPHA;
+			this.internalFormat = GL_SRGB8_ALPHA8;
 			this.format = GL_RGBA;
 			glGenerateMipmap(GL_TEXTURE_2D);
 			STBImage.stbi_image_free(image);
