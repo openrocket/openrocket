@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
@@ -63,6 +64,12 @@ class HudOverlay {
 
 	/** Lower bound on the interval between low-priority repaints, in milliseconds. */
 	private static final long MIN_PAINT_INTERVAL_MS = 66;
+	/**
+	 * Apple's deprecated OpenGL driver has shown stale texture contents when a PBO
+	 * upload is immediately sampled in the same frame. HUD uploads are infrequent,
+	 * so use the deterministic host-pointer path on macOS.
+	 */
+	private static final boolean USE_PBO = SystemInfo.getPlatform() != SystemInfo.Platform.MAC_OS;
 
 	private final HUDPanel panel;
 	private final GLScenePanel canvas;
@@ -98,6 +105,20 @@ class HudOverlay {
 
 	void markForUpdate() {
 		needsUpdate = true;
+	}
+
+	/**
+	 * Stops presenting pixels laid out for an obsolete logical canvas size.
+	 * The framebuffer can lag the Swing layout during a live resize, so keeping
+	 * the previous full-screen texture visible would stretch it to the new bounds.
+	 */
+	void invalidateForResize() {
+		synchronized (lock) {
+			bufferReady.set(false);
+			textureReady = false;
+		}
+		markForUpdate();
+		requestRepaint(true);
 	}
 
 	/** Creates the shader, texture and quad the overlay is drawn with. */
@@ -157,14 +178,16 @@ class HudOverlay {
 			// Create texture directly for THIS context - don't use shared pool
 			texture = new Texture(fbWidth, fbHeight, true);
 
-			// Allocate the PBO at the same capacity as the host pixel buffer so
-			// glBufferData(orphan) → glBufferSubData(host) → glTexSubImage2D(0L)
-			// can stream uploads without ever stalling on prior GPU usage.
-			pbo = glGenBuffers();
-			pboCapacityBytes = paddedSize;
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-			glBufferData(GL_PIXEL_UNPACK_BUFFER, pboCapacityBytes, GL_STREAM_DRAW);
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+			if (USE_PBO) {
+				// Allocate the PBO at the same capacity as the host pixel buffer so
+				// glBufferData(orphan) → glBufferSubData(host) → glTexSubImage2D(0L)
+				// can stream uploads without ever stalling on prior GPU usage.
+				pbo = glGenBuffers();
+				pboCapacityBytes = paddedSize;
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
+				glBufferData(GL_PIXEL_UNPACK_BUFFER, pboCapacityBytes, GL_STREAM_DRAW);
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+			}
 		}
 	}
 
@@ -313,7 +336,11 @@ class HudOverlay {
 		imageBuffer.rewind();
 		lastPaintTimeMs = System.currentTimeMillis();
 		bufferReady.set(true);
-		canvas.markRenderActivity();
+		// The frame which requested this Swing repaint has already finished. Queue
+		// a follow-up frame so the render thread consumes the new pixel buffer now;
+		// merely marking the view dirty can leave it showing the previous HUD until
+		// some unrelated activity schedules another frame.
+		canvas.requestHudUpload();
 	}
 
 	/** Uploads the last rasterised image to the texture, if the EDT has produced one. */
@@ -348,7 +375,7 @@ class HudOverlay {
 						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0L);
 				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 			} else {
-				// Fallback if PBO allocation failed.
+				// Direct macOS path, or fallback if PBO allocation failed.
 				glBindTexture(GL_TEXTURE_2D, texture.getId());
 				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.getWidth(), image.getHeight(),
 						GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, imageBuffer);

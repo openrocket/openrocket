@@ -440,6 +440,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/**
+	 * Schedules the frame which uploads a HUD image rasterised asynchronously by Swing.
+	 */
+	void requestHudUpload() {
+		requestRenderNow();
+	}
+
+	/**
 	 * Asks the owner to render a frame as soon as possible, rather than waiting for the
 	 * next scheduler tick to notice that the canvas is dirty.
 	 */
@@ -1025,13 +1032,19 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		glViewport(0, 0, framebufferWidth, framebufferHeight);
 		scene3DOrchestrator.resize(windowWidth, windowHeight, framebufferWidth, framebufferHeight);
 
-		if (hudOverlay != null && (framebufferWidth != lastFramebufferWidth
-				|| framebufferHeight != lastFramebufferHeight)) {
-			hudOverlay.initTexture();
-			lastFramebufferWidth = framebufferWidth;
-			lastFramebufferHeight = framebufferHeight;
-			hudOverlay.markForUpdate();
-			hudOverlay.requestRepaint(true);
+		if (hudOverlay != null) {
+			if (framebufferWidth != lastFramebufferWidth || framebufferHeight != lastFramebufferHeight) {
+				hudOverlay.initTexture();
+				lastFramebufferWidth = framebufferWidth;
+				lastFramebufferHeight = framebufferHeight;
+				hudOverlay.markForUpdate();
+				hudOverlay.requestRepaint(true);
+			} else {
+				// AWT's logical bounds can advance before lwjgl3-awt reports the
+				// corresponding native framebuffer. Do not stretch the old HUD across
+				// that transient size; the EDT repaint will restore it immediately.
+				hudOverlay.invalidateForResize();
+			}
 		}
 
 		resizeRequested = false;
