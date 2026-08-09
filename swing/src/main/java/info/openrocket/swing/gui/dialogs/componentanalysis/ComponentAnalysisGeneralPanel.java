@@ -229,7 +229,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.longitudeStabilityTableModel = new CAColumnTableModel(
 
 				//// Component
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component")) {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component"),
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component.ttip")) {
 					@Override
 					public Object getValueAt(int row) {
 						Object c = stabData.get(row).name;
@@ -242,8 +243,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return 200;
 					}
 				},
-				// would be per-instance mass
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.EachMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
+				// Mass represented by one instance of this row.
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.EachMass") + " (" +
+						UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.EachMass.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
 
 					@Override
@@ -251,7 +254,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).eachMass);
 					}
 				},
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.AllMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.AllMass") + " (" +
+						UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.AllMass.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
 
 					@Override
@@ -259,7 +264,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).cm.getWeight());
 					}
 				},
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG") + " (" +
+						UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 
 					@Override
@@ -267,7 +274,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).cm.getX());
 					}
 				},
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP") + " (" +
+						UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 
 					@Override
@@ -275,7 +284,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).cpx);
 					}
 				},
-				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
+				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CNa.ttip")) {
 					@Override
 					public Object getValueAt(int row) {
 						return NOUNIT.toUnit(stabData.get(row).cna);
