@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -71,5 +72,14 @@ class ComponentAnalysisGeneralPanelTest extends BaseTestCase {
 
 		assertTrue(mountIndex >= 0);
 		assertEquals(motorConfiguration, sources.get(mountIndex + 1));
+	}
+
+	@Test
+	void componentCellToolTipUsesTheFullNameOnlyInTheComponentColumn() {
+		String componentName = "A component name that is wider than its table cell";
+
+		assertEquals(componentName, ComponentAnalysisGeneralPanel.getComponentCellToolTip(componentName, 0));
+		assertNull(ComponentAnalysisGeneralPanel.getComponentCellToolTip(componentName, 1));
+		assertNull(ComponentAnalysisGeneralPanel.getComponentCellToolTip(null, 0));
 	}
 }

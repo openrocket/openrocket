@@ -800,6 +800,13 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 	}
 
 	/**
+	 * Returns the full, untruncated value for component-column tooltips.
+	 */
+	static String getComponentCellToolTip(Object value, int column) {
+		return column == 0 && value != null ? value.toString() : null;
+	}
+
+	/**
 	 * Default cell renderer for the tables.
 	 */
 	private class CustomCellRenderer extends DefaultTableCellRenderer {
@@ -840,6 +847,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 											   boolean isSelected, boolean hasFocus, int row, int column) {
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			label.setIcon(null);
+			label.setToolTipText(getComponentCellToolTip(value, column));
 
 			if (value instanceof Double) {
 				label.setText(formatDouble((Double) value));
