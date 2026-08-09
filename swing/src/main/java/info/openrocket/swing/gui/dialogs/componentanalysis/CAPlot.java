@@ -54,7 +54,7 @@ public class CAPlot extends Plot<CADataType, CADataBranch, CAPlotConfiguration> 
 		series.setLegendKey(dataIndex + ":" + componentIndex);
 		series.updateDescription();
 
-		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
+		List<Double> plotx = branch.getView(filledConfig.getDomainAxisType());
 		List<Double> ploty = branch.get(type, component);
 
 		int pointCount = plotx.size();

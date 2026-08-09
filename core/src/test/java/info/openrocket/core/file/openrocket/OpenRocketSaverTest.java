@@ -55,7 +55,6 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.extension.impl.ScriptingExtension;
 import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
@@ -698,7 +697,7 @@ public class OpenRocketSaverTest {
 		FlightDataBranch loadedBranch = loadedData.getBranch(0);
 		assertNotNull(loadedBranch);
 
-		List<Double> times = loadedBranch.get(FlightDataType.TYPE_TIME);
+		List<Double> times = loadedBranch.getView(FlightDataType.TYPE_TIME);
 		assertNotNull(times);
 		assertFalse(times.isEmpty());
 

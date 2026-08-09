@@ -50,8 +50,8 @@ public class DampingRatioTest extends BaseTestCase {
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
 		assertNotNull(branch);
 
-		List<Double> zeta = branch.get(FlightDataType.TYPE_DAMPING_RATIO);
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
+		List<Double> zeta = branch.getView(FlightDataType.TYPE_DAMPING_RATIO);
+		List<Double> time = branch.getView(FlightDataType.TYPE_TIME);
 
 		assertNotNull(zeta);
 		assertNotNull(time);
