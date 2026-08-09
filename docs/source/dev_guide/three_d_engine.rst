@@ -74,7 +74,8 @@ its panel is active.
 Important lifecycle rules are:
 
 * Add and remove canvases on the Swing event dispatch thread.
-* Create, resize, and destroy GL resources only while the owning context is current.
+* Create and resize GL resources only while the owning context is current. ``GLScenePanel.disposeGL`` releases
+  them during lwjgl3-awt's context-current canvas-disposal callback.
 * Keep GPU object caches scoped to a canvas or renderer; contexts do not share object identifiers.
 * Restore the canvas's LWJGL capabilities before rendering because capabilities are thread-local and the
   shared scheduler switches contexts between canvases.

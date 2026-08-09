@@ -133,6 +133,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Initialization guard - prevents resize/render operations before GL is fully ready
 	private volatile boolean glInitialized = false;
 	public volatile boolean glInitFailed = false;
+	private final AtomicBoolean cleanupStarted = new AtomicBoolean(false);
+	private final AtomicBoolean hostCleanupFinished = new AtomicBoolean(false);
 	// Swap count when the current recovery began. Follow-up redraws stop as soon as
 	// a frame completes.
 	private volatile int recoveryBaselineSwapCount = 0;
@@ -517,7 +519,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	public void removeNotify() {
 		detachAncestorWindowListener();
-		super.removeNotify();
+		beginCleanup();
+		try {
+			super.removeNotify();
+		} finally {
+			finishCleanup();
+		}
 	}
 
 	private void scheduleStartupFrameRecoverySequence() {
@@ -1178,6 +1185,23 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	public void cleanup() {
+		beginCleanup();
+		try {
+			// disposeCanvas() invokes disposeGL() with the context current, and is
+			// idempotent when AWT removal has already disposed the native context.
+			disposeCanvas();
+		} catch (RuntimeException e) {
+			log.warn("Error disposing 3D canvas: {}", e.getMessage(), e);
+		} finally {
+			finishCleanup();
+		}
+	}
+
+	private void beginCleanup() {
+		if (!cleanupStarted.compareAndSet(false, true)) {
+			return;
+		}
+
 		// Prevent any further rendering/resize operations
 		wheelInteractionEndTimer.stop();
 		resizeSettleTimer.stop();
@@ -1194,16 +1218,35 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (scene3DOrchestrator != null) {
 			scene3DOrchestrator.shutdown();
 		}
+	}
 
-		boolean canAttemptContextCleanup = context != 0L
-				&& isDisplayable() && getWidth() > 0 && getHeight() > 0;
-		if (canAttemptContextCleanup) {
-			cleanupGLResourcesInContext();
-		} else {
-			log.debug("Skipping GL cleanup for canvas without an initialized, displayable context");
+	@Override
+	protected void disposeGL() {
+		GLCapabilities capabilities = glCapabilities;
+		if (capabilities == null) {
+			return;
 		}
 
-		// Always free native memory - this doesn't require GL context
+		GLCapabilities previousCapabilities = null;
+		try {
+			try {
+				previousCapabilities = GL.getCapabilities();
+			} catch (IllegalStateException ignored) {
+				// No capabilities were installed on the disposal thread.
+			}
+			GL.setCapabilities(capabilities);
+			cleanupGLResources();
+		} finally {
+			GL.setCapabilities(previousCapabilities);
+		}
+	}
+
+	private void finishCleanup() {
+		if (!hostCleanupFinished.compareAndSet(false, true)) {
+			return;
+		}
+
+		// Host memory does not require a current GL context.
 		if (hudOverlay != null) {
 			hudOverlay.cleanupHostResources();
 		}
@@ -1214,33 +1257,27 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/**
-	 * Releases GL-side resources with the context current and before peer teardown.
-	 * lwjgl3-awt serializes this with rendering and native context disposal.
+	 * Releases GL-side resources from {@link #disposeGL()}, while lwjgl3-awt has
+	 * made this canvas's context current and serialized disposal with rendering.
 	 */
-	private void cleanupGLResourcesInContext() {
-		try {
-			runInContext(() -> {
-				if (scene3DOrchestrator != null) {
-					try {
-						Scene scene = scene3DOrchestrator.getScene();
-						GLRenderer renderer = scene3DOrchestrator.getRenderer();
-						if (scene != null) {
-							scene.cleanup();
-						}
-						if (renderer != null) {
-							renderer.cleanup();
-						}
-						scene3DOrchestrator.getDecalTextureCache().cleanup();
-					} catch (Exception e) {
-						log.warn("Error cleaning 3D resources: {}", e.getMessage());
-					}
+	private void cleanupGLResources() {
+		if (scene3DOrchestrator != null) {
+			try {
+				Scene scene = scene3DOrchestrator.getScene();
+				GLRenderer renderer = scene3DOrchestrator.getRenderer();
+				if (scene != null) {
+					scene.cleanup();
 				}
-				if (hudOverlay != null) {
-					hudOverlay.cleanupGlResources();
+				if (renderer != null) {
+					renderer.cleanup();
 				}
-			});
-		} catch (Exception e) {
-			log.warn("GL context unavailable during cleanup, some GL resources may leak: {}", e.getMessage());
+				scene3DOrchestrator.getDecalTextureCache().cleanup();
+			} catch (Exception e) {
+				log.warn("Error cleaning 3D resources: {}", e.getMessage());
+			}
+		}
+		if (hudOverlay != null) {
+			hudOverlay.cleanupGlResources();
 		}
 	}
 

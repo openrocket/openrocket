@@ -493,9 +493,6 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		detachInteractionSyncListener(panel);
 		panel.setInitializationHook(null);
 		panel.setGraphicsResetCallback(null);
-		// Release GL resources while the peer is still displayable, then let
-		// AWTGLCanvas.removeNotify() dispose the native context during removal.
-		panel.cleanup();
 		remove(panel);
 		glPanel = null;
 		revalidate();

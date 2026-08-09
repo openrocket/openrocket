@@ -210,7 +210,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		selectionBridgeInstalled = false;
 		revalidate();
 		repaint();
-		failedPanel.cleanup();
 
 		ensureCanvasCreatedOnEdt();
 		GLScenePanel panel = glScenePanel;
@@ -847,8 +846,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	@Override
 	public void removeNotify() {
-		// Release GL resources while the child canvas is still displayable. The
-		// subsequent AWT removeNotify() owns native context and peer disposal.
 		cleanup();
 		super.removeNotify();
 	}
