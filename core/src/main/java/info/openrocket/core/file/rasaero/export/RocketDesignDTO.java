@@ -19,30 +19,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import info.openrocket.core.file.rasaero.CustomBooleanAdapter;
-import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 import java.util.List;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
 @SuppressWarnings("unused")
 public class RocketDesignDTO {
-    // Separate typed fields replace the former polymorphic List<BasePartDTO>,
-    // ensuring each component serializes with its correct XML element name
-    // (NoseCone, BodyTube, Transition, BoatTail) — mirroring JAXB @XmlElementRefs.
-    @JacksonXmlProperty(localName = RASAeroCommonConstants.NOSE_CONE)
-    private NoseConeDTO noseCone = null;
-
+    // A single ordered list of external parts preserves the original component order
+    // (e.g. NoseCone → BodyTube → Transition → BodyTube). This matters because the
+    // importer constructs components sequentially, so grouping them by type would
+    // change the resulting geometry. PartListSerializer derives each element's XML name
+    // from its runtime type, mirroring the former JAXB @XmlElementRefs behaviour.
     @JacksonXmlElementWrapper(useWrapping = false)
-    @JacksonXmlProperty(localName = RASAeroCommonConstants.BODY_TUBE)
-    private final List<BodyTubeDTO> bodyTubes = new ArrayList<>();
-
-    @JacksonXmlElementWrapper(useWrapping = false)
-    @JacksonXmlProperty(localName = RASAeroCommonConstants.TRANSITION)
-    private final List<TransitionDTO> transitions = new ArrayList<>();
-
-    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOATTAIL)
-    private BoattailDTO boattail = null;
+    @JsonSerialize(contentUsing = PartListSerializer.class)
+    private final List<BasePartDTO> externalPart = new ArrayList<>();
 
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER)
@@ -222,24 +212,11 @@ public class RocketDesignDTO {
     }
 
     public List<BasePartDTO> getExternalPart() {
-        List<BasePartDTO> result = new ArrayList<>();
-        if (noseCone != null) result.add(noseCone);
-        result.addAll(bodyTubes);
-        result.addAll(transitions);
-        if (boattail != null) result.add(boattail);
-        return result;
+        return externalPart;
     }
 
     public void addExternalPart(BasePartDTO theExternalPartDTO) {
-        if (theExternalPartDTO instanceof BoattailDTO) {
-            boattail = (BoattailDTO) theExternalPartDTO;
-        } else if (theExternalPartDTO instanceof NoseConeDTO) {
-            noseCone = (NoseConeDTO) theExternalPartDTO;
-        } else if (theExternalPartDTO instanceof BodyTubeDTO) {
-            bodyTubes.add((BodyTubeDTO) theExternalPartDTO);
-        } else if (theExternalPartDTO instanceof TransitionDTO) {
-            transitions.add((TransitionDTO) theExternalPartDTO);
-        }
+        externalPart.add(theExternalPartDTO);
     }
 
     public List<BoosterDTO> getBoosters() {
