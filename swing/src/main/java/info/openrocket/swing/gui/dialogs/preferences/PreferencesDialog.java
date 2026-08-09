@@ -45,7 +45,7 @@ public class PreferencesDialog extends JDialog {
 	private BasicFrame parentFrame;
 
 	private boolean storePreferences = true;
-	private File initPrefsFile = null;
+	private File preferencesSnapshotFile = null;
 	private SimulationPreferencesPanel simulationPanel = null;
 
 	public final static int TAB_GENERAL = 0;
