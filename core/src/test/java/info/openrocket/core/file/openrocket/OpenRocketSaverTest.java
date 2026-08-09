@@ -375,6 +375,33 @@ public class OpenRocketSaverTest {
 		assertEquals(280.0, loadedSim.getOptions().getLaunchTemperature(), 1e-12);
 		assertEquals(95000.0, loadedSim.getOptions().getLaunchPressure(), 1e-9);
 	}
+
+	@Test
+	public void testFixedRandomSeedSavedAndLoaded() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		Simulation fixedSeedSimulation = new Simulation(rocket);
+		fixedSeedSimulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		fixedSeedSimulation.getOptions().setRandomSeed(-123456789);
+		fixedSeedSimulation.getOptions().setRandomSeedFixed(true);
+		rocketDoc.addSimulation(fixedSeedSimulation);
+
+		Simulation randomSeedSimulation = new Simulation(rocket);
+		randomSeedSimulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		randomSeedSimulation.getOptions().setRandomSeed(987654321);
+		rocketDoc.addSimulation(randomSeedSimulation);
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument loadedDocument = loadRocket(file.getPath());
+
+		Simulation loadedFixedSeedSimulation = loadedDocument.getSimulations().get(0);
+		assertTrue(loadedFixedSeedSimulation.getOptions().isRandomSeedFixed());
+		assertEquals(-123456789, loadedFixedSeedSimulation.getOptions().getRandomSeed());
+
+		Simulation loadedRandomSeedSimulation = loadedDocument.getSimulations().get(1);
+		assertFalse(loadedRandomSeedSimulation.getOptions().isRandomSeedFixed());
+	}
 	
 	////////////////////////////////
 	// Tests for File Version 1.11 //
@@ -668,7 +695,7 @@ public class OpenRocketSaverTest {
 		FlightDataBranch loadedBranch = loadedData.getBranch(0);
 		assertNotNull(loadedBranch);
 
-		List<Double> times = loadedBranch.get(FlightDataType.TYPE_TIME);
+		List<Double> times = loadedBranch.getView(FlightDataType.TYPE_TIME);
 		assertNotNull(times);
 		assertFalse(times.isEmpty());
 
