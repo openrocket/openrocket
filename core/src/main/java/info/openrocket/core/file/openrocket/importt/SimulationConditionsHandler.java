@@ -2,6 +2,7 @@ package info.openrocket.core.file.openrocket.importt;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.DocumentLoadingContext;
@@ -12,9 +13,8 @@ import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.SimulationOptions;
-import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.simulation.SimulationStepperMethod;
-import java.util.List;
+import info.openrocket.core.util.GeodeticComputationStrategy;
 
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
@@ -161,6 +161,14 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setSimulationStepperMethodChoice(stepperMethod);
 				} else {
 					warnings.add("Unknown Simulation Stepper '" + content + "'");
+				}
+			}
+			case "randomseed" -> {
+				try {
+					options.setRandomSeed(Integer.parseInt(content.trim()));
+					options.setRandomSeedFixed(true);
+				} catch (NumberFormatException exception) {
+					warnings.add("Illegal random seed defined, ignoring.");
 				}
 			}
 			case "atmosphere" -> atmosphereHandler.storeSettings(options, warnings);
