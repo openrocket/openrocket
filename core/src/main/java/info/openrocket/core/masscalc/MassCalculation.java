@@ -2,13 +2,14 @@ package info.openrocket.core.masscalc;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.util.CoordinateIF;
@@ -194,13 +195,12 @@ public class MassCalculation {
 
 	// =========== Private Instance Functions ========================
 
-	private MassCalculation calculateMountData(){
+	private MassCalculation calculateMountData(final MotorConfiguration motorConfig,
+			final MotorClusterState motorState) {
 		if( ! config.isComponentActive(this.root)) {
 			return this;
 		}
 		
-		final MotorMount mount = (MotorMount)root;
-		MotorConfiguration motorConfig = mount.getMotorConfig( config.getId() );
 		if( motorConfig.isEmpty() ){
 			return this;
 		}
@@ -210,15 +210,9 @@ public class MassCalculation {
 		// we're using a synthetic time to do a static analysis.
 		// If we do have MotorClusterStates, we need to adjust
 		// time according to motor ignition time.
-		double motorTime = simulationTime;
-		if (activeMotorList != null) {
-			for (MotorClusterState currentMotorState : activeMotorList ) {
-				if (currentMotorState.getMotor() == motor) {
-					motorTime = currentMotorState.getMotorTime(simulationTime);
-					break;
-				}
-			}
-		}
+		final double motorTime = motorState == null
+				? simulationTime
+				: motorState.getMotorTime(simulationTime);
 
 		final double mountXPosition = root.getPosition().getX();
 		
@@ -413,63 +407,52 @@ public class MassCalculation {
 		return this;
 	}
 
+	/**
+	 * Calculates motor mass by visiting only active motor mounts.  Each mount's
+	 * instance zero represents one complete cluster at a physical parent instance;
+	 * {@link #calculateMountData(MotorConfiguration, MotorClusterState)} aggregates
+	 * the remaining instances in that cluster.
+	 *
+	 * @return this calculation with all active motor data merged into it
+	 */
 	MassCalculation calculateMotors() {
-		final RocketComponent component = this.root;
-		final Transformation parentTransform = this.transform;
-		
-		final int instanceCount = component.getInstanceCount();
-		CoordinateIF[] instanceLocations = component.getInstanceLocations();
-
-//		// vvv DEBUG
-//		if( this.config.isComponentActive(component) ){
-//			System.err.println(String.format( "%s[%s]....", prefix, component.getName()));
-//		}
-
-		if (component.isMotorMount()) {
-			MassCalculation motor = this.copy(component, parentTransform);
-			
-			motor.calculateMountData();
-
-			this.merge( motor );
-
-//			// vvv DEBUG
-//			if( 0 < motor.getMass() ) {
-//				System.err.println(String.format( "%s........++ motorData: %s", prefix, propellant.toCMDebug()));
-//			}
-
-		}
-		
-		// iterate over the aggregated instances for the whole tree.
-		MassCalculation children = this.copy(component, parentTransform );
-		for( int instanceNumber = 0; instanceNumber < instanceCount; ++instanceNumber) {
-			CoordinateIF currentLocation = instanceLocations[instanceNumber];
-			Transformation currentTransform = parentTransform.applyTransformation( Transformation.getTranslationTransform( currentLocation ));
-			
-			for (RocketComponent child : component.getChildren()) {
-				// child data, relative to rocket reference frame
-				MassCalculation eachChild = copy( child, currentTransform);
-				
-				eachChild.prefix = prefix + "....";
-				eachChild.calculateMotors(); 
-				
-				// accumulate children's data
-				children.merge( eachChild );
+		if (activeMotorList == null) {
+			for (MotorConfiguration motorConfig : config.getActiveMotors()) {
+				calculateMotorInstances(motorConfig, null);
+			}
+		} else {
+			for (MotorClusterState motorState : activeMotorList) {
+				calculateMotorInstances(motorState.getConfig(), motorState);
 			}
 		}
-		
-		if( MIN_MASS < children.getMass() ) {
-			this.merge( children );
-			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
+
+		return this;
+	}
+
+	/**
+	 * Adds every parent-instanced cluster for one active motor configuration.
+	 *
+	 * @param motorConfig active motor configuration to add
+	 * @param motorState simulation state, or {@code null} for a static calculation
+	 */
+	private void calculateMotorInstances(final MotorConfiguration motorConfig,
+			final MotorClusterState motorState) {
+		final RocketComponent mount = (RocketComponent) motorConfig.getMount();
+		final List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts(mount);
+		if (contexts == null) {
+			return;
 		}
 
-		
-//		// vvv DEBUG
-//		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
-//			System.err.println(String.format( "%s....<< return assemblyData:   %s (tree @%s)", prefix, this.toCMDebug(), component.getName() ));
-//		}
-//      // ^^^ DEBUG
-		
-		return this;
+		for (InstanceContext context : contexts) {
+			// calculateMountData aggregates all instances belonging to this parent.
+			if (context.instanceNumber != 0) {
+				continue;
+			}
+
+			final MassCalculation motor = copy(mount, context.getParentTransform());
+			motor.calculateMountData(motorConfig, motorState);
+			merge(motor);
+		}
 	}
 	
 	/** 
@@ -491,4 +474,3 @@ public class MassCalculation {
 	}
 
 }
-

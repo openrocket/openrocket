@@ -460,12 +460,12 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 			// constructs entry in-place if this component is active
 			if (this.isComponentActive(component)) {
-				results.emplace(component, currentInstanceNumber, currentTransform);
+				results.emplace(component, currentInstanceNumber, currentTransform, parentTransform);
 			} else if (component instanceof ParallelStage && stages.get(component.getStageNumber()).active) {
 				// Boosters with no children are marked as inactive, but still need to be
 				// rendered.
 				// See GitHub issue #1980 for more information.
-				extraRenderInstances.emplace(component, currentInstanceNumber, currentTransform);
+				extraRenderInstances.emplace(component, currentInstanceNumber, currentTransform, parentTransform);
 			}
 
 			for (RocketComponent child : component.getChildren()) {
