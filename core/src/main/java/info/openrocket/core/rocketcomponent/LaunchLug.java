@@ -213,6 +213,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		}
 		
 		this.radialOffset = parentRadius + radius;
+		clearCoordinateCaches();
 	}
 	
 	@Override

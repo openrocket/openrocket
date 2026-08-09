@@ -35,16 +35,19 @@ public class SimulationHandler extends AbstractElementHandler {
     private final int simulationNr;
 
     // Motor information
+    private String sustainerEngineName;
     private ThrustCurveMotor sustainerEngine;
     private Double sustainerIgnitionDelay;
     private Double sustainerLaunchWt;
     private Double sustainerCG;
+    private String booster1EngineName;
     private ThrustCurveMotor booster1Engine;
     private Double booster1IgnitionDelay;
     private Double booster1SeparationDelay;
     private Double booster1LaunchWt;
     private Double booster1CG;
     private Boolean includeBooster1;
+    private String booster2EngineName;
     private ThrustCurveMotor booster2Engine;
     private Double booster2SeparationDelay;
     private Double booster2LaunchWt;
@@ -86,6 +89,7 @@ public class SimulationHandler extends AbstractElementHandler {
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         if (RASAeroCommonConstants.SUSTAINER_ENGINE.equals(element)) {
+            sustainerEngineName = content;
             sustainerEngine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY.equals(element)) {
             sustainerIgnitionDelay = Double.parseDouble(content);
@@ -94,6 +98,7 @@ public class SimulationHandler extends AbstractElementHandler {
         } else if (RASAeroCommonConstants.SUSTAINER_CG.equals(element)) {
             sustainerCG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.BOOSTER1_ENGINE.equals(element)) {
+            booster1EngineName = content;
             booster1Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY.equals(element)) {
             booster1IgnitionDelay = Double.parseDouble(content);
@@ -106,6 +111,7 @@ public class SimulationHandler extends AbstractElementHandler {
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER1.equals(element)) {
             includeBooster1 = Boolean.parseBoolean(content);
         } else if (RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element)) {
+            booster2EngineName = content;
             booster2Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element)) {
             booster2SeparationDelay = Double.parseDouble(content);
@@ -228,12 +234,6 @@ public class SimulationHandler extends AbstractElementHandler {
     }
 
     private void applyMassOverrides(WarningSet warnings) {
-        // Don't do anything if the mass has already been overridden by a previous
-        // simulation
-        if (rocket.getStage(0).isMassOverridden()) {
-            return;
-        }
-
         applySustainerMassOverride();
         applyBooster1MassOverride(warnings);
         applyBooster2MassOverride(warnings);
@@ -248,7 +248,9 @@ public class SimulationHandler extends AbstractElementHandler {
      * @return the final sustainer mass
      */
     private double applySustainerMassOverride() {
-        if (sustainerLaunchWt == null || sustainerLaunchWt == 0) {
+        AxialStage sustainer = rocket.getStage(0);
+        if (sustainer == null || sustainer.isMassOverridden() || sustainerLaunchWt == null || sustainerLaunchWt == 0
+                || isMotorUnresolved(sustainerEngineName, sustainerEngine)) {
             return 0;
         }
 
@@ -259,7 +261,6 @@ public class SimulationHandler extends AbstractElementHandler {
         }
 
         double sustainerWt = sustainerLaunchWt - sustainerMotorWt;
-        AxialStage sustainer = rocket.getStage(0);
         sustainer.setMassOverridden(true);
         sustainer.setSubcomponentsOverriddenMass(true);
         sustainer.setOverrideMass(sustainerWt);
@@ -277,7 +278,10 @@ public class SimulationHandler extends AbstractElementHandler {
      * @return the final booster1 mass
      */
     private double applyBooster1MassOverride(WarningSet warnings) {
-        if (!includeBooster1 || booster1LaunchWt == null || booster1LaunchWt == 0 || sustainerLaunchWt == null) {
+        AxialStage booster = rocket.getStage(1);
+        if (!Boolean.TRUE.equals(includeBooster1) || booster == null || booster.isMassOverridden()
+                || booster1LaunchWt == null || booster1LaunchWt == 0 || sustainerLaunchWt == null
+                || isMotorUnresolved(booster1EngineName, booster1Engine)) {
             return 0;
         }
 
@@ -317,7 +321,10 @@ public class SimulationHandler extends AbstractElementHandler {
      * @return the final booster2 mass
      */
     private double applyBooster2MassOverride(WarningSet warnings) {
-        if (!includeBooster2 || booster2LaunchWt == null || booster2LaunchWt == 0 || booster1LaunchWt == null) {
+        AxialStage booster = rocket.getStage(2);
+        if (!Boolean.TRUE.equals(includeBooster2) || booster == null || booster.isMassOverridden()
+                || booster2LaunchWt == null || booster2LaunchWt == 0 || booster1LaunchWt == null
+                || isMotorUnresolved(booster2EngineName, booster2Engine)) {
             return 0;
         }
 
@@ -358,12 +365,6 @@ public class SimulationHandler extends AbstractElementHandler {
      */
     private void applyCGOverrides(MotorMount sustainerMount, MotorMount booster1Mount, MotorMount booster2Mount,
             FlightConfigurationId fcid) {
-        // Don't do anything if the CG has already been overridden by a previous
-        // simulation
-        if (rocket.getStage(0).isCGOverridden()) {
-            return;
-        }
-
         applySustainerCGOverride(sustainerMount, fcid);
         applyBooster1CGOverride(booster1Mount, fcid);
         applyBooster2CGOverride(booster2Mount, fcid);
@@ -378,11 +379,11 @@ public class SimulationHandler extends AbstractElementHandler {
      * @return the CG of the sustainer
      */
     private Double applySustainerCGOverride(MotorMount sustainerMount, FlightConfigurationId fcid) {
-        if (sustainerCG == null) {
+        AxialStage sustainer = rocket.getStage(0);
+        if (sustainer == null || sustainer.isCGOverridden() || sustainerCG == null
+                || isMotorUnresolved(sustainerEngineName, sustainerEngine)) {
             return null;
         }
-
-        AxialStage sustainer = rocket.getStage(0);
 
         /*
          * sustainerCG is the combined CG of the sustainer and its motor (if present),
@@ -410,12 +411,12 @@ public class SimulationHandler extends AbstractElementHandler {
      * @return the CG of booster1
      */
     private Double applyBooster1CGOverride(MotorMount booster1Mount, FlightConfigurationId fcid) {
-        if (!includeBooster1 || booster1CG == null || sustainerCG == null || booster1LaunchWt == null
-                || sustainerLaunchWt == null) {
+        AxialStage booster = rocket.getStage(1);
+        if (!Boolean.TRUE.equals(includeBooster1) || booster == null || booster.isCGOverridden() || booster1CG == null
+                || sustainerCG == null || booster1LaunchWt == null || sustainerLaunchWt == null
+                || isMotorUnresolved(booster1EngineName, booster1Engine)) {
             return null;
         }
-
-        AxialStage booster = rocket.getStage(1);
 
         // Do a back-transform of the combined CG of the sustainer and booster1 to get
         // the CG of booster1
@@ -452,12 +453,12 @@ public class SimulationHandler extends AbstractElementHandler {
      * @return the CG of booster2
      */
     private Double applyBooster2CGOverride(MotorMount booster2Mount, FlightConfigurationId fcid) {
-        if (!includeBooster2 || booster2CG == null || booster1CG == null || sustainerCG == null ||
-                booster2LaunchWt == null || booster1LaunchWt == null || sustainerLaunchWt == null) {
+        AxialStage booster = rocket.getStage(2);
+        if (!Boolean.TRUE.equals(includeBooster2) || booster == null || booster.isCGOverridden() || booster2CG == null
+                || booster1CG == null || sustainerCG == null || booster2LaunchWt == null || booster1LaunchWt == null
+                || sustainerLaunchWt == null || isMotorUnresolved(booster2EngineName, booster2Engine)) {
             return null;
         }
-
-        AxialStage booster = rocket.getStage(2);
 
         // Do a back-transform of the combined CG of the sustainer, booster1, and
         // booster2 to get the CG of booster2
@@ -478,6 +479,18 @@ public class SimulationHandler extends AbstractElementHandler {
         booster.setOverrideCGX(CG);
 
         return CG;
+    }
+
+    /**
+     * Returns whether RASAero specified a motor whose mass and CG cannot be
+     * removed from the loaded stage values.
+     *
+     * @param motorName the motor description from the RASAero file
+     * @param motor     the matching OpenRocket motor, or {@code null}
+     * @return {@code true} when a named motor could not be resolved
+     */
+    private boolean isMotorUnresolved(String motorName, ThrustCurveMotor motor) {
+        return motorName != null && !motorName.isBlank() && motor == null;
     }
 
     /**

@@ -35,6 +35,8 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -73,6 +75,7 @@ public class SimulationConfigDialog extends JDialog {
 
 	private final SimulationPlotPanel plotTab;
 	private final SimulationExportPanel exportTab;
+	private static final int DIALOG_SCREEN_MARGIN = 80;
 
 	private static Color multiCompEditColor;
 
@@ -106,7 +109,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		this.setLayout(new BorderLayout());
 
-		final JPanel contentPanel = new JPanel(new MigLayout("fill"));
+		final JPanel contentPanel = new JPanel(new MigLayout("fill", "[grow]", "[][grow]"));
 
 		// ======== Top panel ========
 		addTopPanel(document, contentPanel);
@@ -116,10 +119,12 @@ public class SimulationConfigDialog extends JDialog {
 		this.tabbedPane = new JTabbedPane();
 
 		//// Launch conditions
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Launchcond"), new SimulationConditionsPanel(simulationList[0]));
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Launchcond"),
+				createTabScrollPane(new SimulationConditionsPanel(simulationList[0])));
 
 		//// Simulation options
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Simopt"), new SimulationOptionsPanel(document, simulationList[0]));
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Simopt"),
+				createTabScrollPane(new SimulationOptionsPanel(document, simulationList[0])));
 
 		//// Simulation Warnings
 		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
@@ -164,12 +169,6 @@ public class SimulationConfigDialog extends JDialog {
 
 		contentPanel.add(tabbedPane, "grow, push, wrap");
 
-		// Create a scroll pane for the content
-		JScrollPane scrollPane = new JScrollPane(contentPanel);
-		scrollPane.setBorder(null);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
 		// ======== Bottom panel ========
 		JPanel bottomPanel = generateBottomPanel();
 
@@ -211,10 +210,11 @@ public class SimulationConfigDialog extends JDialog {
 
 		});
 
-		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(contentPanel, BorderLayout.CENTER);
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		this.validate();
 		this.pack();
+		capDialogToScreenBounds();
 
 		this.setLocationByPlatform(true);
 
@@ -229,6 +229,37 @@ public class SimulationConfigDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.rememberWindowSize(this);
+		capDialogToScreenBounds();
+	}
+
+	/**
+	 * Keep the dialog header and buttons fixed while tall tab contents scroll inside the tab body.
+	 */
+	private JScrollPane createTabScrollPane(JPanel panel) {
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.setBorder(null);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setMinimumSize(new Dimension(0, 0));
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		return scrollPane;
+	}
+
+	/**
+	 * Prevent the packed or restored dialog size from exceeding the usable screen area.
+	 */
+	private void capDialogToScreenBounds() {
+		Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int maxWidth = Math.max(0, screenBounds.width - DIALOG_SCREEN_MARGIN);
+		int maxHeight = Math.max(0, screenBounds.height - DIALOG_SCREEN_MARGIN);
+
+		if (maxWidth == 0 || maxHeight == 0) {
+			return;
+		}
+
+		int width = Math.min(getWidth(), maxWidth);
+		int height = Math.min(getHeight(), maxHeight);
+		setSize(new Dimension(width, height));
 	}
 
 	private static void initColors() {

@@ -44,6 +44,24 @@ public class QuaternionTest {
 	}
 
 	@Test
+	public void rotationAboutAxisMatchesRotationVector() {
+		// A quarter turn about z takes the x axis onto the y axis
+		Quaternion q = Quaternion.rotation(Coordinate.Z_UNIT, Math.PI / 2);
+		CoordinateIF c = q.rotate(Coordinate.X_UNIT);
+
+		assertEquals(0.0, c.getX(), 1.0e-12);
+		assertEquals(1.0, c.getY(), 1.0e-12);
+		assertEquals(0.0, c.getZ(), 1.0e-12);
+
+		// and must agree with the rotation vector form of the same rotation
+		Quaternion v = Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2));
+		assertEquals(v.getW(), q.getW(), 1.0e-12);
+		assertEquals(v.getX(), q.getX(), 1.0e-12);
+		assertEquals(v.getY(), q.getY(), 1.0e-12);
+		assertEquals(v.getZ(), q.getZ(), 1.0e-12);
+	}
+
+	@Test
 	public void rotationVectorZeroLengthReturnsIdentityQuaternion() {
 		Quaternion q = Quaternion.rotation(new Coordinate(0, 0, 0));
 		assertEquals(1.0, q.getW(), 1.0e-12);

@@ -603,6 +603,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// only do it if one of the "important" (user specified) parameters has really
 		// changed.
 		boolean isChanged = false;
+		boolean averageWindChanged = false;
+		boolean multiLevelWindChanged = false;
 
 		if (this.windModelType != src.windModelType) {
 			isChanged = true;
@@ -610,10 +612,12 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		}
 		if (!this.averageWindModel.equals(src.averageWindModel)) {
 			isChanged = true;
+			averageWindChanged = true;
 			this.averageWindModel.loadFrom(src.averageWindModel);
 		}
 		if (!this.multiLevelPinkNoiseWindModel.equals(src.multiLevelPinkNoiseWindModel)) {
 			isChanged = true;
+			multiLevelWindChanged = true;
 			this.multiLevelPinkNoiseWindModel.loadFrom(src.multiLevelPinkNoiseWindModel);
 		}
 
@@ -687,6 +691,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.geodeticComputation = src.geodeticComputation;
 		}
+		if (this.stepperMethodChoice != src.stepperMethodChoice) {
+			isChanged = true;
+			this.stepperMethodChoice = src.stepperMethodChoice;
+		}
 
 		if (!Objects.equals(this.dragLookupCsvPath, src.dragLookupCsvPath) || this.dragLookupTable != src.dragLookupTable) {
 			isChanged = true;
@@ -704,6 +712,15 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			// Only copy the randomSeed if something else has changed.
 			// Honestly, I don't really see a need for that.
 			this.randomSeed = src.randomSeed;
+
+			// The nested wind models are updated in bulk above, bypassing their
+			// setters. Notify their listeners so bound controls refresh as well.
+			if (averageWindChanged) {
+				this.averageWindModel.fireChangeEvent();
+			}
+			if (multiLevelWindChanged) {
+				this.multiLevelPinkNoiseWindModel.fireChangeEvent();
+			}
 			fireChangeEvent();
 		}
 	}
@@ -730,6 +747,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.maxSimulationTime, o.maxSimulationTime)) &&
+				this.stepperMethodChoice == o.stepperMethodChoice &&
 				this.windModelType == o.windModelType &&
 				this.averageWindModel.equals(o.averageWindModel) &&
 				this.multiLevelPinkNoiseWindModel.equals(o.multiLevelPinkNoiseWindModel) &&
@@ -783,7 +801,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
 
+		// Seed the throwaway clone rather than the configured model, so that the seed
+		// governs the run without becoming part of the configuration's identity.
 		WindModel windModel = getWindModel().clone();
+		windModel.setSeed(randomSeed);
 		conditions.setWindModel(windModel);
 		conditions.setAtmosphericModel(getAtmosphericModel());
 
@@ -832,6 +853,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    timeStep:  %f\n", timeStep))
 				.concat(String.format("    maxTime:  %f\n", maxSimulationTime))
 				.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
+				.concat(String.format("    stepperMethodChoice: %s\n", stepperMethodChoice))
 				.concat("]\n");
 	}
 

@@ -295,6 +295,7 @@ public class RailButton extends ExternalComponent
 		}
 		
 		this.radialDistance_m = parentRadius;
+		clearCoordinateCaches();
 	}
 	
 	

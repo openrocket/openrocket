@@ -27,6 +27,7 @@ import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.DegreeUnit;
@@ -78,8 +79,6 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
     public static final String PLOT_SHOW_EVENTS = "ShowPlotEvents";
-    
-    public static final String CALIPER_OPEN_MINIMIZED = "CaliperOpenMinimized";
 
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
 
@@ -88,6 +87,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
 	private static final String CHECK_MOTOR_DATABASE_UPDATES = "CheckMotorDatabaseUpdates";
+	private static final String AUTO_INSTALL_MOTOR_DATABASE_UPDATES = "AutoInstallMotorDatabaseUpdates";
 	private static final String IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS = "IgnoreMotorDatabaseUpdateVersions";
 
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
@@ -190,7 +190,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// SVG export options
 	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
-  public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
+    public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
 	public static final String SVG_CROSSHAIR_COLOR = "SVGCrosshairColor";
 	public static final String SVG_CROSSHAIR_SIZE = "SVGCrosshairSize";
 	public static final String SVG_SHOW_LABELS = "SVGShowLabels";
@@ -324,6 +324,22 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putBoolean(CHECK_MOTOR_DATABASE_UPDATES, check);
 	}
 
+	/**
+	 * Returns whether motor database updates should be installed without asking the user for confirmation.
+	 * @return true if available motor database updates are installed automatically
+	 */
+	public final boolean getAutoInstallMotorDatabaseUpdates() {
+		return this.getBoolean(AUTO_INSTALL_MOTOR_DATABASE_UPDATES, false);
+	}
+
+	/**
+	 * Sets whether motor database updates should be installed without asking the user for confirmation.
+	 * @param autoInstall true to install available motor database updates automatically
+	 */
+	public final void setAutoInstallMotorDatabaseUpdates(boolean autoInstall) {
+		this.putBoolean(AUTO_INSTALL_MOTOR_DATABASE_UPDATES, autoInstall);
+	}
+
 	public final List<String> getIgnoreMotorDatabaseUpdateVersions() {
 		return List.of(this.getString(IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS, "").split("\n"));
 	}
@@ -387,7 +403,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public final boolean getLaunchIntoWind() {
-		return this.getBoolean(LAUNCH_INTO_WIND, false);
+		return this.getBoolean(LAUNCH_INTO_WIND, true);
 	}
 	
 	public final void setLaunchIntoWind(boolean check) {
@@ -456,7 +472,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public void setLaunchRodAngle(double launchRodAngle) {
-		launchRodAngle = MathUtil.clamp(launchRodAngle, -Math.PI / 6.0, Math.PI / 6.0);
+		// Use the same limit as SimulationOptions, since the launch preferences and a
+		// simulation's launch conditions are edited with the same panel.
+		launchRodAngle = MathUtil.clamp(launchRodAngle, -SimulationOptions.MAX_LAUNCH_ROD_ANGLE,
+				SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_ANGLE, 0), launchRodAngle))
 			return;
 		this.putDouble(LAUNCH_ROD_ANGLE, launchRodAngle);
@@ -465,7 +484,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	
 	public double getLaunchRodDirection() {
-		if (this.getBoolean(LAUNCH_INTO_WIND, false)) {
+		if (getLaunchIntoWind()) {
 			// When launching into wind, sync the launch rod direction with wind direction
 			double windDirection = this.getDouble(WIND_DIRECTION, Math.PI / 2);
 			this.setLaunchRodDirection(windDirection);
@@ -644,7 +663,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isa) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
-			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchRelativeHumidity()).getRelativeHumidity());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();

@@ -217,6 +217,30 @@ public class RocketTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testComponentLocationCacheInvalidatesOnMove() {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage stage = (AxialStage) rocket.getChild(0);
+		final BodyTube body = (BodyTube) stage.getChild(1);
+		final FinSet fins = (FinSet) body.getChild(0);
+
+		// Warm the caches before moving the fin set so the assertions cover invalidation as well.
+		final CoordinateIF initialAbsolute = fins.getComponentLocations()[0];
+		final CoordinateIF initialRelative = fins.toRelative(Coordinate.NUL, body)[0];
+
+		fins.setAxialMethod(AxialMethod.TOP);
+		fins.setAxialOffset(0.16);
+
+		final CoordinateIF movedAbsolute = fins.getComponentLocations()[0];
+		final CoordinateIF movedRelative = fins.toRelative(Coordinate.NUL, body)[0];
+
+		assertNotEquals(initialAbsolute, movedAbsolute, "Absolute component location cache was not invalidated");
+		assertEquals(new Coordinate(0.23, 0.012, 0), movedAbsolute, "Absolute component location is incorrect");
+
+		assertNotEquals(initialRelative, movedRelative, "Relative component location cache was not invalidated");
+		assertEquals(new Coordinate(0.16, 0.012, 0), movedRelative, "Relative component location is incorrect");
+	}
+
+	@Test
 	public void testRemoveReadjustLocation() {
 		final Rocket rocket = TestRockets.makeEstesAlphaIII();
 

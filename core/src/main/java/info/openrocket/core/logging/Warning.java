@@ -50,7 +50,9 @@ public abstract class Warning extends Message {
 		 */
 		public LargeAOA(double aoa) {
 			this.aoa = aoa;
-			setPriority(MessagePriority.NORMAL);
+			// Informative: it reports that the aerodynamic model is out of its envelope,
+			// which is worth knowing on a windy day, not that the flight has gone wrong.
+			setPriority(MessagePriority.LOW);
 		}
 
 		public double getAOA() {

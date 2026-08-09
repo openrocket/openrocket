@@ -55,13 +55,14 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 	}
 
 	@Test
-	void rocketIsExcludedFromPerInstanceDrag() {
-		assertFalse(CADataType.isComponentRelevantForType(rocket, CADataType.PER_INSTANCE_CD));
+	void rocketProvidesFallbackDataForPerInstanceDrag() {
+		assertTrue(CADataType.isComponentRelevantForType(rocket, CADataType.PER_INSTANCE_CD));
 	}
 
 	@Test
-	void rollCoefficientsAreLimitedToFinSets() {
+	void rollCoefficientsAreLimitedToFinSetsAndRocketTotal() {
 		assertTrue(CADataType.isComponentRelevantForType(finSet, CADataType.ROLL_FORCING_COEFFICIENT));
+		assertTrue(CADataType.isComponentRelevantForType(rocket, CADataType.ROLL_FORCING_COEFFICIENT));
 		assertFalse(CADataType.isComponentRelevantForType(aerodynamicComponent, CADataType.ROLL_FORCING_COEFFICIENT));
 	}
 
@@ -85,7 +86,7 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 	}
 
 	@Test
-	void calculateComponentsForRollTypesOnlyReturnsFinSets() {
+	void calculateComponentsForRollTypesReturnsRocketTotalAndFinSets() {
 		when(configuration.getAllActiveComponents()).thenReturn(List.of(
 				rocket,
 				finSet,
@@ -95,7 +96,8 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 
 		List<RocketComponent> components = CADataType.calculateComponentsForType(configuration, CADataType.ROLL_DAMPING_COEFFICIENT);
 
-		assertEquals(1, components.size());
-		assertEquals(finSet, components.get(0));
+		assertEquals(2, components.size());
+		assertEquals(rocket, components.get(0));
+		assertEquals(finSet, components.get(1));
 	}
 }

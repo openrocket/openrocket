@@ -3,11 +3,13 @@ package info.openrocket.swing.gui.plot;
 import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.simulation.DataType;
 import info.openrocket.core.unit.Unit;
+import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
 
+import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,6 +38,8 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 
 	/** The corresponding Axis on which they will be plotted, or null to auto-select. */
 	protected ArrayList<Integer> plotDataAxes = new ArrayList<>();
+	protected ArrayList<Color> plotDataColors = new ArrayList<>();
+	protected ArrayList<LineStyle> plotDataLineStyles = new ArrayList<>();
 
 	/** The domain (x) axis. */
 	protected T domainAxisType = null;
@@ -65,6 +69,8 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		plotDataTypes.add(type);
 		plotDataUnits.add(type.getUnitGroup().getDefaultUnit());
 		plotDataAxes.add(-1);
+		plotDataColors.add(null);
+		plotDataLineStyles.add(LineStyle.SOLID);
 	}
 
 	public void addPlotDataType(T type, int axis) {
@@ -74,6 +80,8 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		plotDataTypes.add(type);
 		plotDataUnits.add(type.getUnitGroup().getDefaultUnit());
 		plotDataAxes.add(axis);
+		plotDataColors.add(null);
+		plotDataLineStyles.add(LineStyle.SOLID);
 	}
 
 
@@ -114,6 +122,8 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		plotDataTypes.remove(index);
 		plotDataUnits.remove(index);
 		plotDataAxes.remove(index);
+		plotDataColors.remove(index);
+		plotDataLineStyles.remove(index);
 	}
 
 
@@ -128,6 +138,30 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 
 	public int getAxis(int index) {
 		return plotDataAxes.get(index);
+	}
+
+	public Color getPlotDataColor(int index) {
+		return plotDataColors.get(index);
+	}
+
+	public void setPlotDataColor(int index, Color color) {
+		plotDataColors.set(index, color);
+	}
+
+	public LineStyle getPlotDataLineStyle(int index) {
+		return plotDataLineStyles.get(index);
+	}
+
+	public void setPlotDataLineStyle(int index, LineStyle style) {
+		plotDataLineStyles.set(index, style);
+	}
+
+	/**
+	 * Reset all per-series colors and line styles to their defaults (null color, SOLID line style).
+	 */
+	public void clearPlotAppearances() {
+		Collections.fill(plotDataColors, null);
+		Collections.fill(plotDataLineStyles, LineStyle.SOLID);
 	}
 
 	/**
@@ -182,6 +216,10 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 	@SuppressWarnings("unchecked")
 	public <C extends PlotConfiguration<T, B>> C fillAutoAxes(B data) {
 		C config = (C) recursiveFillAutoAxes(data).getU();
+		if (config == null) {
+			// Keep plotting functional even if every axis combination scores as NaN/Infinity.
+			config = (C) this.cloneConfiguration();
+		}
 		config.fitAxes(data);
 		return config;
 	}
@@ -219,13 +257,25 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		for (int i = 0; i < axesCount; i++) {
 			copy.plotDataAxes.set(autoindex, i);
 			Pair<PlotConfiguration<T, B>, Double> result = copy.recursiveFillAutoAxes(data);
-			if (result.getV() > bestValue) {
+			if (best == null || isBetterGoodness(result.getV(), bestValue)) {
 				best = result.getU();
 				bestValue = result.getV();
 			}
 		}
 
 		return new Pair<>(best, bestValue);
+	}
+
+	/**
+	 * Prefer finite goodness values when choosing an automatic axis assignment.
+	 * If every candidate score is non-finite, keep the first result as a fallback
+	 * so plotting can continue instead of returning a null configuration.
+	 */
+	private boolean isBetterGoodness(double candidateValue, double bestValue) {
+		if (!Double.isFinite(candidateValue)) {
+			return false;
+		}
+		return !Double.isFinite(bestValue) || candidateValue > bestValue;
 	}
 
 
@@ -528,6 +578,8 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 			copy.plotDataTypes = this.plotDataTypes.clone();
 			copy.plotDataAxes = this.plotDataAxes.clone();
 			copy.plotDataUnits = this.plotDataUnits.clone();
+			copy.plotDataColors = this.plotDataColors.clone();
+			copy.plotDataLineStyles = this.plotDataLineStyles.clone();
 
 			// Deep-clone all Axis since they are mutable
 			copy.allAxes = new ArrayList<>();

@@ -220,7 +220,9 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * Pre-calculates the fin geometry values.
 	 */
 	protected void calculateFinGeometry(FinSet component) {
-		
+
+		geometryWarnings.clear();
+
 		span = component.getSpan();
 		finArea = component.getPlanformArea();
 		if (finArea < MathUtil.EPSILON) {
@@ -229,11 +231,10 @@ public class FinSetCalc extends RocketComponentCalc {
 		} else {
 			ar = 2 * pow2(span) / finArea;
 		}
-		
+
 		// Check geometry; don't consider points along fin root for this
 		// (doing so will cause spurious jagged fin warnings)
 		CoordinateIF[] points = component.getFinPoints();
-		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
 			if ((points[i].getY() > points[i - 1].getY() + 0.001) && down) {

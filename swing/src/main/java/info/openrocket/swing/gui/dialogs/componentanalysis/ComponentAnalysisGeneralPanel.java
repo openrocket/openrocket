@@ -89,9 +89,11 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 	private final Rocket rocket;
 	private final DoubleModel theta, aoa, mach, roll;
 	private final JToggleButton worstToggle;
+	private final JTabbedPane analysisTabbedPane;
 	private boolean fakeChange = false;
 	private final AerodynamicCalculator aerodynamicCalculator;
 	private final CAParameters parameters;
+	private Settings closedSettings;
 
 	private final ColumnTableModel longitudeStabilityTableModel;
 	private final ColumnTableModel dragTableModel;
@@ -106,6 +108,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 	public ComponentAnalysisGeneralPanel(Window parent, final RocketPanel rocketPanel) {
+		this(parent, rocketPanel, null);
+	}
+
+	public ComponentAnalysisGeneralPanel(Window parent, final RocketPanel rocketPanel, Settings initialSettings) {
 		super(new MigLayout("fill", "[120lp][70lp][50lp][]"));
 
 		this.rocket = rocketPanel.getDocument().getRocket();
@@ -115,12 +121,24 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		// Create CAParameters
 		this.parameters = new CAParameters(rocket, rocketPanel.getFigure().getRotation());
-		this.parameters.addListener(rocketPanel);
+		if (initialSettings != null) {
+			parameters.setTheta(initialSettings.theta);
+			parameters.setAOA(initialSettings.aoa);
+			parameters.setMach(initialSettings.mach);
+			parameters.setRollRate(initialSettings.rollRate);
+		}
+		parameters.addListener(rocketPanel);
 
 		this.aoa = new DoubleModel(parameters, "AOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
-		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
+		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0, 6.0);
 		this.theta = new DoubleModel(parameters, "Theta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		this.roll = new DoubleModel(parameters, "RollRate", UnitGroup.UNITS_ROLL);
+		if (initialSettings != null) {
+			theta.setCurrentUnit(initialSettings.thetaUnit);
+			aoa.setCurrentUnit(initialSettings.aoaUnit);
+			mach.setCurrentUnit(initialSettings.machUnit);
+			roll.setCurrentUnit(initialSettings.rollRateUnit);
+		}
 
 		//// Wind direction:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.winddir")));
@@ -134,7 +152,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.add(slider, "growx, split 2");
 		//// Worst button
 		this.worstToggle = new JToggleButton(trans.get("ComponentAnalysisGeneralTab.ToggleBut.worst"));
-		this.worstToggle.setSelected(true);
+		this.worstToggle.setSelected(initialSettings == null || initialSettings.worstSelected);
 		this.worstToggle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -203,8 +221,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		// Tabbed pane
 
-		JTabbedPane tabbedPane = new JTabbedPane();
-		this.add(tabbedPane, "spanx, growx, growy, pushy");
+		this.analysisTabbedPane = new JTabbedPane();
+		this.add(analysisTabbedPane, "spanx, growx, growy, pushy");
 
 
 		// Create the Longitudinal Stability (CM vs CP) data table
@@ -296,7 +314,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Stability and Stability information
-		tabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.TabStability"),
+		analysisTabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.TabStability"),
 				null, scrollpane, trans.get("ComponentAnalysisGeneralTab.TabStability.ttip"));
 
 
@@ -385,7 +403,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Drag characteristics and Drag characteristics tooltip
-		tabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.dragTabchar"), null, scrollpane,
+		analysisTabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.dragTabchar"), null, scrollpane,
 				trans.get("ComponentAnalysisGeneralTab.dragTabchar.ttip"));
 
 
@@ -454,8 +472,12 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Roll dynamics and Roll dynamics tooltip
-		tabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.rollTableModel"), null, scrollpane,
+		analysisTabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.rollTableModel"), null, scrollpane,
 				trans.get("ComponentAnalysisGeneralTab.rollTableModel.ttip"));
+		if (initialSettings != null && initialSettings.selectedTab >= 0 &&
+				initialSettings.selectedTab < analysisTabbedPane.getTabCount()) {
+			analysisTabbedPane.setSelectedIndex(initialSettings.selectedTab);
+		}
 
 
 		//// Reference length:
@@ -504,23 +526,18 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		dragTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, dragTable));
 		rollTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, rollTable));
 
-		// Remove listeners when closing window
+		// Remove listeners when closing the window, but keep the current analysis
+		// conditions in the design view so reopening starts from the same state.
 		parent.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				theta.setValue(parameters.getInitialTheta());
-
-				//System.out.println("Closing method called: " + this);
+				closedSettings = captureSettings();
+				parameters.removeListener(rocketPanel);
 				rocket.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				mach.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				theta.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				aoa.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				roll.removeChangeListener(ComponentAnalysisGeneralPanel.this);
-				//System.out.println("SETTING NAN VALUES");
-				rocketPanel.setCPAOA(Double.NaN);
-				rocketPanel.setCPTheta(Double.NaN);
-				rocketPanel.setCPMach(Double.NaN);
-				rocketPanel.setCPRoll(Double.NaN);
 			}
 		});
 	}
@@ -552,6 +569,46 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 	public Rocket getRocket() {
 		return rocket;
+	}
+
+	/**
+	 * Return the user-adjustable state which should be restored when the dialog is reopened.
+	 */
+	Settings getSettings() {
+		return closedSettings != null ? closedSettings : captureSettings();
+	}
+
+	private Settings captureSettings() {
+		return new Settings(parameters.getTheta(), parameters.getAOA(), parameters.getMach(),
+				parameters.getRollRate(), theta.getCurrentUnit(), aoa.getCurrentUnit(), mach.getCurrentUnit(),
+				roll.getCurrentUnit(), worstToggle.isSelected(), analysisTabbedPane.getSelectedIndex());
+	}
+
+	static final class Settings {
+		private final double theta;
+		private final double aoa;
+		private final double mach;
+		private final double rollRate;
+		private final Unit thetaUnit;
+		private final Unit aoaUnit;
+		private final Unit machUnit;
+		private final Unit rollRateUnit;
+		private final boolean worstSelected;
+		private final int selectedTab;
+
+		private Settings(double theta, double aoa, double mach, double rollRate, Unit thetaUnit,
+						 Unit aoaUnit, Unit machUnit, Unit rollRateUnit, boolean worstSelected, int selectedTab) {
+			this.theta = theta;
+			this.aoa = aoa;
+			this.mach = mach;
+			this.rollRate = rollRate;
+			this.thetaUnit = thetaUnit;
+			this.aoaUnit = aoaUnit;
+			this.machUnit = machUnit;
+			this.rollRateUnit = rollRateUnit;
+			this.worstSelected = worstSelected;
+			this.selectedTab = selectedTab;
+		}
 	}
 
 	/**

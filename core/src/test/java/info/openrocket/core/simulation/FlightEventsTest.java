@@ -125,6 +125,10 @@ public class FlightEventsTest extends BaseTestCase {
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
+		// Tumbling is declared after a dwell rather than at a single step, which makes its
+		// time sensitive to the integrator's random perturbation.  Pin the seed so the event
+		// times asserted below are a property of the rocket rather than of the run.
+		sim.getOptions().setRandomSeed(1);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
@@ -135,6 +139,9 @@ public class FlightEventsTest extends BaseTestCase {
 		sustainerMount.setMotorConfig(motorConfig, fcid);
 
 		Warning warn = new Warning.HighSpeedDeployment(53.2, chute);
+
+		// LargeAOA does not compare its angle, so the value here is immaterial.
+		Warning largeAOA = new Warning.LargeAOA(0);
 
 		sim.simulate();
 
@@ -167,7 +174,9 @@ public class FlightEventsTest extends BaseTestCase {
 					new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
 					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
 					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
-					new FlightEvent(FlightEvent.Type.TUMBLE, 2.1, null),
+					// No large-AOA warning here: this branch is the separated booster, whose
+					// tumble is expected rather than worth reporting.
+					new FlightEvent(FlightEvent.Type.TUMBLE, 2.16, null),
 					new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
 					new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 					new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
@@ -193,6 +202,10 @@ public class FlightEventsTest extends BaseTestCase {
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
+		// Tumbling is declared after a dwell rather than at a single step, which makes its
+		// time sensitive to the integrator's random perturbation.  Pin the seed so the event
+		// times asserted below are a property of the rocket rather than of the run.
+		sim.getOptions().setRandomSeed(1);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
@@ -217,7 +230,10 @@ public class FlightEventsTest extends BaseTestCase {
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 		
 		Warning warn = new Warning.HighSpeedDeployment(53.2, sideChutes);
-		
+
+		// LargeAOA does not compare its angle, so the value here is immaterial.
+		Warning largeAOA = new Warning.LargeAOA(0);
+
 		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
@@ -235,6 +251,9 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.IGNITION, 2.11, sustainerBody),
+						// Tumbling is declared once a high angle of attack has persisted, so the
+						// angle is reported before the departure it is the onset of.
+						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.37, null, largeAOA),
 						new FlightEvent(FlightEvent.Type.SIM_ABORT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null, simAbort)
 				};
 
@@ -282,7 +301,7 @@ public class FlightEventsTest extends BaseTestCase {
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo) {
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
-			
+
 		// Test that all expected events are present, in the right order, at the right
 		// time, from the right sources
 		for (int i = 0; i < Math.min(expectedEvents.length, actualEvents.length); i++) {
@@ -311,6 +330,10 @@ public class FlightEventsTest extends BaseTestCase {
 				// event times that are dependent on simulation step time shouldn't be held to
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
+					// A large-AOA warning is raised on the first step past the stall angle, so
+					// it is as sensitive to step size and to the wind sample as a tumble is.
+					// Other warnings are tied to deterministic events and stay held to EPSILON.
+					(actualWarning instanceof Warning.LargeAOA) ||
 					(actual.getType() == FlightEvent.Type.APOGEE) ||
 					(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
 					(actual.getType() == FlightEvent.Type.SIMULATION_END) ? (5 * sim.getOptions().getTimeStep())

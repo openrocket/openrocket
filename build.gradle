@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.ApacheNoticeResourceTransformer
 
 plugins {
     id 'com.gradleup.shadow' version '9.2.2'
@@ -205,8 +206,52 @@ tasks.named('check') {
 jar {
     archiveBaseName = 'OpenRocket'
 
+    // The license dialog links to this file inside the JAR
+    from(rootProject.file('LICENSE.TXT'))
+
     manifest {
         attributes(baseManifestAttributes)
+    }
+}
+
+// Collects the license and notice file of every bundled dependency into a directory of
+// its own. Dependencies that use the standard META-INF names all end up at the same path
+// in the shaded JAR, where the last file copied silently wins: 29 of the bundled JARs
+// ship a META-INF/LICENSE* and 18 a META-INF/NOTICE*, but only one file per name survives.
+def thirdPartyLicenseDir = layout.buildDirectory.dir('third-party-licenses')
+
+def collectThirdPartyLicenses = tasks.register('collectThirdPartyLicenses') {
+    group = 'build'
+    description = 'Collects the license and notice file of every bundled dependency.'
+
+    def runtimeClasspath = configurations.runtimeClasspath
+    inputs.files(runtimeClasspath).withPropertyName('runtimeClasspath')
+    outputs.dir(thirdPartyLicenseDir).withPropertyName('thirdPartyLicenseDir')
+
+    doLast {
+        def target = thirdPartyLicenseDir.get().asFile
+        delete(target)
+
+        runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+            def module = artifact.moduleVersion.id
+            copy {
+                from(zipTree(artifact.file)) {
+                    include 'META-INF/LICENSE*'
+                    include 'META-INF/NOTICE*'
+                    // Flatten, so the files do not land in a nested META-INF directory
+                    eachFile { details -> details.path = details.name }
+                    includeEmptyDirs = false
+                }
+                into new File(target, "${module.group}.${module.name}")
+            }
+        }
+
+        // Drop the directories of the dependencies that ship no license file at all
+        target.listFiles()?.each { file ->
+            if (file.directory && file.list().length == 0) {
+                file.delete()
+            }
+        }
     }
 }
 
@@ -217,11 +262,39 @@ dependencies {
 }
 
 tasks.named('shadowJar', ShadowJar) {
-    dependsOn(':core:processResources')
+    dependsOn(':core:processResources', collectThirdPartyLicenses)
     archiveBaseName = 'OpenRocket'
     archiveVersion = '' + version
     archiveClassifier = ''
     dependsOn(distTar, distZip)
+
+    // The license dialog links to this file inside the JAR
+    from(rootProject.file('LICENSE.TXT'))
+
+    // Keep the license text of every dependency, not just the last one copied
+    from(thirdPartyLicenseDir) {
+        into 'META-INF/third-party-licenses'
+    }
+
+    // Concatenate the NOTICE files, as section 4d of the Apache License 2.0 requires,
+    // instead of letting one dependency's notice overwrite all of the others
+    transform(ApacheNoticeResourceTransformer) {
+        projectName = 'OpenRocket'
+    }
+
+    // Concatenate the service files as well, so no service provider is lost: both
+    // graal-js and its regex language register a Truffle language provider.
+    mergeServiceFiles()
+
+    // The task drops duplicate paths before the transformers above ever see them, which
+    // would leave only one of the ~18 notices and one of the two Truffle providers. Let
+    // the files that get merged through in full, while classes keep the default strategy:
+    // both a modular and a non-modular JNA are on the class path, and copying duplicate
+    // class entries into the JAR is exactly what the default strategy is there to avoid.
+    filesMatching(['META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/NOTICE.md',
+                   'META-INF/services/*']) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 
     manifest {
         attributes(baseManifestAttributes)

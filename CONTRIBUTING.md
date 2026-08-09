@@ -42,7 +42,7 @@ Explain the new feature in detail:
 * Why is this new feature important
 
 ## Development
-Please read our [Developer's Guide](https://openrocket.readthedocs.io/en/latest/dev_guide/development_overview.html). If you still have questions about how to set up your environment, with which issues you should start etc., then don't be afraid to send us a message on [Slack](https://join.slack.com/t/openrocket/shared_invite/zt-dh0wtpc4-WmkSK1ysqAOqHa6eFN7zgA).
+Please read our [Developer's Guide](https://openrocket.readthedocs.io/en/latest/dev_guide/development_overview.html). If you still have questions about how to set up your environment, with which issues you should start etc., then don't be afraid to send us a message on [Discord](https://discord.gg/qD2G5v2FAw).
 
 Developing OpenRocket may be daunting at first, but if you keep Google, your IDE's search and debug features, and the other developers as close friends, then you will easily create your first pull request.
 

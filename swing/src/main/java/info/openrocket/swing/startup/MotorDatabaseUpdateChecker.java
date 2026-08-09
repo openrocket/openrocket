@@ -121,68 +121,89 @@ public abstract class MotorDatabaseUpdateChecker {
 			return;
 		}
 
-		// 5) Respect "skip this version": if the user previously chose to ignore this remote version,
-		//    don't prompt again (but do show feedback for manual checks).
+		// 5) When automatic installation is enabled, install the update without prompting.
+		//    A previously skipped version is deliberately ignored in this mode: enabling auto-install is
+		//    a more recent expression of intent, and otherwise the user would be stuck on that version.
 		String remoteVersion = Long.toString(remote.getDatabaseVersion());
-		if (prefs.getIgnoreMotorDatabaseUpdateVersions().contains(remoteVersion)) {
-			if (userInitiated) {
-				String message = trans.get("MotorDbUpdate.Skipped.message") + "\n\n" +
-						trans.get("MotorDbUpdate.Available.remoteVersion") + " " + remoteVersion;
-				JOptionPane.showMessageDialog(parent, message,
-						trans.get("MotorDbUpdate.Skipped.title"),
-						JOptionPane.INFORMATION_MESSAGE);
+		boolean autoInstall = prefs.getAutoInstallMotorDatabaseUpdates();
+
+		if (!autoInstall) {
+			// 5a) Respect "skip this version": if the user previously chose to ignore this remote version,
+			//     don't prompt again (but do show feedback for manual checks).
+			if (prefs.getIgnoreMotorDatabaseUpdateVersions().contains(remoteVersion)) {
+				if (userInitiated) {
+					String message = trans.get("MotorDbUpdate.Skipped.message") + "\n\n" +
+							trans.get("MotorDbUpdate.Available.remoteVersion") + " " + remoteVersion;
+					JOptionPane.showMessageDialog(parent, message,
+							trans.get("MotorDbUpdate.Skipped.title"),
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				return;
 			}
-			return;
-		}
 
-		// 6) Prompt the user: install now / not now / skip this version.
-		//    The prompt also includes a "Don't ask me again" checkbox which disables startup checks.
-		JPanel prompt = new JPanel(new MigLayout("fillx, ins 0", "[grow]"));
-		String message = "<html>" +
-				trans.get("MotorDbUpdate.Available.message") + "<br><br>" +
-				trans.get("MotorDbUpdate.Available.yourVersion") + " <b>" + localVersion + "</b><br>" +
-				trans.get("MotorDbUpdate.Available.remoteVersion") + " <b>" + remoteVersion + "</b><br>" +
-				trans.get("MotorDbUpdate.Available.question") +
-				"</html>";
-		prompt.add(new JLabel(message), "growx, wrap para");
+			// 6) Prompt the user: install now / not now / skip this version.
+			//    The prompt also includes an "Always install automatically" checkbox which enables
+			//    auto-installation from now on, and a "Don't ask me again" checkbox which disables
+			//    startup checks. Those two are mutually exclusive.
+			JPanel prompt = new JPanel(new MigLayout("fillx, ins 0", "[grow]"));
+			String message = "<html>" +
+					trans.get("MotorDbUpdate.Available.message") + "<br><br>" +
+					trans.get("MotorDbUpdate.Available.yourVersion") + " <b>" + localVersion + "</b><br>" +
+					trans.get("MotorDbUpdate.Available.remoteVersion") + " <b>" + remoteVersion + "</b><br>" +
+					trans.get("MotorDbUpdate.Available.question") +
+					"</html>";
+			prompt.add(new JLabel(message), "growx, wrap para");
 
-		JCheckBox dontAskAgain = new JCheckBox(trans.get("MotorDbUpdate.Available.dontAskAgain"));
-		dontAskAgain.setToolTipText(trans.get("MotorDbUpdate.Available.dontAskAgain.ttip"));
-		prompt.add(dontAskAgain, "growx, wrap");
+			final JCheckBox autoInstallBox = new JCheckBox(trans.get("MotorDbUpdate.Available.autoInstall"));
+			autoInstallBox.setToolTipText(trans.get("MotorDbUpdate.Available.autoInstall.ttip"));
+			prompt.add(autoInstallBox, "growx, wrap");
 
-		Object[] options = new Object[]{
-				trans.get("MotorDbUpdate.Available.btn.install"),
-				trans.get("MotorDbUpdate.Available.btn.later"),
-				trans.get("MotorDbUpdate.Available.btn.skipVersion"),
-		};
+			final JCheckBox dontAskAgain = new JCheckBox(trans.get("MotorDbUpdate.Available.dontAskAgain"));
+			dontAskAgain.setToolTipText(trans.get("MotorDbUpdate.Available.dontAskAgain.ttip"));
+			prompt.add(dontAskAgain, "growx, wrap");
 
-		int res = JOptionPane.showOptionDialog(
-				parent,
-				prompt,
-				trans.get("MotorDbUpdate.Available.title"),
-				JOptionPane.DEFAULT_OPTION,
-				JOptionPane.INFORMATION_MESSAGE,
-				null,
-				options,
-				options[0]);
+			// Installing automatically and never checking again are contradictory, so only allow one of them.
+			autoInstallBox.addActionListener(e -> dontAskAgain.setEnabled(!autoInstallBox.isSelected()));
+			dontAskAgain.addActionListener(e -> autoInstallBox.setEnabled(!dontAskAgain.isSelected()));
 
-		// Apply the "Don't ask me again" choice immediately, regardless of which button was clicked.
-		if (dontAskAgain.isSelected()) {
-			prefs.setCheckMotorDatabaseUpdates(false);
-		}
+			Object[] options = new Object[]{
+					trans.get("MotorDbUpdate.Available.btn.install"),
+					trans.get("MotorDbUpdate.Available.btn.later"),
+					trans.get("MotorDbUpdate.Available.btn.skipVersion"),
+			};
 
-		// "Skip this version": add this remote version to the ignore list and exit.
-		if (res == 2) {
-			List<String> ignored = new ArrayList<>(prefs.getIgnoreMotorDatabaseUpdateVersions());
-			if (!ignored.contains(remoteVersion)) {
-				ignored.add(remoteVersion);
-				prefs.setIgnoreMotorDatabaseUpdateVersions(ignored);
+			int res = JOptionPane.showOptionDialog(
+					parent,
+					prompt,
+					trans.get("MotorDbUpdate.Available.title"),
+					JOptionPane.DEFAULT_OPTION,
+					JOptionPane.INFORMATION_MESSAGE,
+					null,
+					options,
+					options[0]);
+
+			// Apply the checkbox choices immediately, regardless of which button was clicked: they apply
+			// to future updates, not to the one currently being offered.
+			if (autoInstallBox.isSelected()) {
+				prefs.setAutoInstallMotorDatabaseUpdates(true);
 			}
-			return;
-		}
-		// Anything other than "Install" exits without changes ("Not now", dialog close, etc.).
-		if (res != 0) {
-			return;
+			if (dontAskAgain.isSelected()) {
+				prefs.setCheckMotorDatabaseUpdates(false);
+			}
+
+			// "Skip this version": add this remote version to the ignore list and exit.
+			if (res == 2) {
+				List<String> ignored = new ArrayList<>(prefs.getIgnoreMotorDatabaseUpdateVersions());
+				if (!ignored.contains(remoteVersion)) {
+					ignored.add(remoteVersion);
+					prefs.setIgnoreMotorDatabaseUpdateVersions(ignored);
+				}
+				return;
+			}
+			// Anything other than "Install" exits without changes ("Not now", dialog close, etc.).
+			if (res != 0) {
+				return;
+			}
 		}
 
 		// 7) Download and install the remote database.
@@ -196,9 +217,16 @@ public abstract class MotorDatabaseUpdateChecker {
 					return Boolean.TRUE;
 				});
 
+		// An unattended auto-install at startup should not interrupt the user with result dialogs;
+		// the outcome is logged instead. Manual checks and explicit "Install" clicks always report back.
+		boolean reportResult = userInitiated || !autoInstall;
+
 		if (installedResult.value == null || !installedResult.value) {
 			// Unable to download and install the motor database update.
-			// Always show failure details here because the user explicitly clicked "Install".
+			if (!reportResult) {
+				log.warn("Automatic motor database update to version {} failed", remoteVersion);
+				return;
+			}
 			String failureMessage = trans.get("MotorDbUpdate.Failed.message");
 			if (installedResult.error != null) {
 				failureMessage = failureMessage + "\n\n" + formatThrowable(installedResult.error);
@@ -210,6 +238,10 @@ public abstract class MotorDatabaseUpdateChecker {
 		}
 
 		// 8) Success: notify the user.
+		if (!reportResult) {
+			log.info("Automatically installed motor database version {}", remoteVersion);
+			return;
+		}
 		JOptionPane.showMessageDialog(parent,
 				trans.get("MotorDbUpdate.Installed.message"),
 				trans.get("MotorDbUpdate.Installed.title"),

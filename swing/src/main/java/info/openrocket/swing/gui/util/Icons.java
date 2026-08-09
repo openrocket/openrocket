@@ -415,6 +415,13 @@ public class Icons {
 	public static final Icon RESET = loadSvgIcon(
 			"pix/icons/lucide/rotate-cw.svg",
 			"Reset");
+	public static final Icon SET_AS_DEFAULT = loadSvgIcon(
+			"pix/icons/lucide/bookmark-check.svg",
+			"Set as default",
+			Map.of(
+					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
+					0x2D2DBD, "OR.icons.tintColor"
+			));
 
 	public static final Icon NOT_FAVORITE = loadIcon(
 			"pix/icons/lucide/star-off.svg",

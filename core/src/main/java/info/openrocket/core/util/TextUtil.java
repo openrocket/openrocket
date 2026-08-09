@@ -6,6 +6,7 @@ import java.util.Locale;
 
 public class TextUtil {
 	public static final int DEFAULT_DECIMAL_PLACES = 3;
+	public static final int STORAGE_DECIMAL_PLACES = 6;
 
 	private static final char[] HEX = {
 			'0', '1', '2', '3', '4', '5', '6', '7',
