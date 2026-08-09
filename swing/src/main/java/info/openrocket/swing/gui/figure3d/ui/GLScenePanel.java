@@ -732,6 +732,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		GLData data = new GLData();
 		data.majorVersion = 3;
 		data.minorVersion = 3;
+		data.versionPolicy = GLData.VersionPolicy.AT_LEAST;
 		data.profile = GLData.Profile.CORE;
 		data.doubleBuffer = true;
 		// The macOS backend rejects debug-context attributes. GLDebug can still install

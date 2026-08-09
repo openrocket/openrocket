@@ -58,6 +58,7 @@ public final class GLContextDiagnostics {
 		} else {
 			description.append(" version unspecified");
 		}
+		description.append(", version-policy=").append(describeEnum(data.versionPolicy));
 		description.append(", profile=").append(describeEnum(data.profile));
 		description.append(", RGBA=").append(data.redSize).append('/').append(data.greenSize)
 				.append('/').append(data.blueSize).append('/').append(data.alphaSize);

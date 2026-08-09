@@ -61,10 +61,11 @@ The main entry points are:
 GL Host and Render Scheduling
 =============================
 
-``GLScenePanel`` requests an OpenGL 3.3 core, double-buffered context through lwjgl3-awt. The requested
-and effective ``GLData`` are recorded by ``GLContextDiagnostics`` during initialization. The AWT default
-framebuffer is deliberately single-sampled; scene MSAA is implemented by ``RealisticRenderer`` in its
-own off-screen render target and resolved before presentation.
+``GLScenePanel`` requests the highest supported OpenGL core, double-buffered context that is at least
+version 3.3 through lwjgl3-awt. The requested and effective ``GLData`` are recorded by
+``GLContextDiagnostics`` during initialization. The AWT default framebuffer is deliberately
+single-sampled; scene MSAA is implemented by ``RealisticRenderer`` in its own off-screen render target
+and resolved before presentation.
 
 ``SharedCanvasRenderScheduler`` serializes every active ``AWTGLCanvas`` onto one background thread named
 ``figure3d-render``. This avoids concurrent JAWT rendering across design windows and Photo Studio. The
