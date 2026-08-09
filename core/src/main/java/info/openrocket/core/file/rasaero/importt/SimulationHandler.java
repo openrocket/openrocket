@@ -300,7 +300,6 @@ public class SimulationHandler extends AbstractElementHandler {
             boosterWt = booster1LaunchWt - boosterMotorWt - sustainerLaunchWt;
         }
 
-        AxialStage booster = rocket.getStage(1);
         if (booster == null) {
             return 0;
         }
