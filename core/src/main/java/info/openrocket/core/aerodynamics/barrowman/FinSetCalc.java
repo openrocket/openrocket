@@ -153,6 +153,16 @@ public class FinSetCalc extends RocketComponentCalc {
 		if (Double.isNaN(tau) || Double.isInfinite(tau)) {
 			tau = 0;
 		}
+		/*
+		 * TODO: Replace this scalar approximation with the complete fin/body
+		 * method from NACA Report 1307. Calculate fin-in-body and body-in-fin
+		 * CNa and CP separately (equations 13-34 and 58-71; charts 1-5 and
+		 * 10-16), then combine their moments. The report's two-panel,
+		 * constant-radius model must first be generalized and validated for
+		 * radial fin sets; preserve this approximation as the fallback outside
+		 * the full method's applicability range. See the technical documentation
+		 * subsection "Future complete NACA implementation" for the full roadmap.
+		 */
 		cna *= calculateBodyFinInterferenceFactor(tau, conditions.getMach());
 		//		logger.debug("Component cna = {}", cna);
 		

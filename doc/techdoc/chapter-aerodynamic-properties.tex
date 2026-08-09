@@ -1147,11 +1147,57 @@ pressure would require the full NACA method.  Since the additional
 normal force acts on the body, it is not included in the fin-cant roll
 forcing term.
 
-% TODO: FUTURE: supersonic interference effects, MIL-HDBK page 5-25 or B'man
-
-
-
 \pagebreak[4]
+\paragraph{Future complete NACA implementation.}
+Here ``complete'' refers to the fin--body portions of Report 1307, not
+to its separate wing--tail vortex-interference model.  The scalar
+correction above is intentionally an interim model.  A future
+implementation should perform the following work, mapping the report's
+wing notation to the rocket fins:
+
+\begin{enumerate}
+\item Keep the fin-in-body and body-in-fin loads separate,
+\begin{align}
+\del{\CNa}_{F(B)} &= K_{F(B)}\;\del{\CNa}_F, \\
+\del{\CNa}_{B(F)} &= K_{B(F)}\;\del{\CNa}_F.
+\end{align}
+Determine both factors from equations 13--34 and charts 1--5 of
+Report 1307.  The calculation needs the body-radius/total-semispan
+ratio $r/s$ (the report measures $s$ from the axis to the fin tip),
+$\beta A$ with $\beta=\sqrt{|M_\infty^2-1|}$, taper ratio, and edge
+sweep.  It must apply the report's slender-body/planar-model selection
+rule derived from the restriction in equation 22.  The planar model of
+equations 23--31 distinguishes subsonic and supersonic fin edges and
+configurations with and without an afterbody.  All terms must use a
+consistent OpenRocket reference area when they are combined.
+
+\item Calculate the two centers of pressure independently.  Use
+equations 58--65 and charts 10--13 for the fins in the presence of the
+body.  Use equations 66--71 and charts 14--16 for the force transferred
+to the body: the image-vortex lifting-line model of figure 15 and
+Appendix D for subsonic flow, and the Mach-line planar model of figure 4
+for supersonic flow.  Combine the two normal forces and their moments,
+following the force-weighted procedure of equation 82.  Only the force
+on the fin surface should contribute to cant-driven roll.
+
+\item Generalize and validate the report's unbanked two-panel wing
+model before using it for radial fin sets.  The implementation must
+define how the loads from each fin orientation are projected and
+superposed without counting the shared body response more than once.
+It must also define an explicit fallback to the present approximation
+for geometries outside the method's assumptions, including large
+angles of attack, strongly varying body radius, forward-swept leading
+edges, and swept-back trailing edges.
+
+\item Implement closed-form equations directly and store any digitized
+chart data with source and interpolation metadata.  Regression tests
+should reproduce the fin/body entries of the computing example in
+table I, exercise the chart boundaries and afterbody alternatives, and
+verify finite, continuous behavior through the transonic range.
+\end{enumerate}
+
+
+
 \subsection{Pitch damping moment}
 
 So far the effect of the current pitch angular velocity has been
