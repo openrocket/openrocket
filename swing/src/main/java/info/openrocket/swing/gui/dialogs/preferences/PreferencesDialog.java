@@ -64,8 +64,8 @@ public class PreferencesDialog extends JDialog {
 
 		this.parentFrame = parent;
 
-		// First store the initial preferences
-		initPrefsFile = storeInitPreferences();
+		// Keep a rollback point for changes made after the dialog opens or is applied.
+		preferencesSnapshotFile = storePreferencesSnapshot();
 
 		JPanel panel = new JPanel(new MigLayout("fill, gap unrel", "[grow]",
 				"[grow][]"));
@@ -133,7 +133,18 @@ public class PreferencesDialog extends JDialog {
 				}
 			}
 		});
-		panel.add(cancelButton, "span, split 2, right, tag cancel");
+		panel.add(cancelButton, "span, split 3, right, tag cancel");
+
+		//// Apply button
+		JButton applyButton = new JButton(trans.get("dlg.but.apply"));
+		applyButton.setToolTipText(trans.get("PreferencesDialog.btn.Apply.ttip"));
+		applyButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				applyChanges();
+			}
+		});
+		panel.add(applyButton, "tag apply");
 
 		//// Ok button
 		JButton okButton = new JButton(trans.get("dlg.but.ok"));
@@ -163,25 +174,16 @@ public class PreferencesDialog extends JDialog {
 					if (simulationPanel != null) {
 						simulationPanel.prepareForSave();
 					}
-					preferences.storeDefaultUnits();
+					storeAndApplyPreferences(preferences, parentFrame);
 				} else {
-					loadInitPreferences();
+					loadPreferencesSnapshot();
+					refreshParentFrame(parentFrame);
 				}
 
 				// Store the preference for showing the confirmation dialog
 				preferences.setShowDiscardPreferencesConfirmation(isShowDiscardConfirmation);
 
-				// Delete the init prefs
-				if (initPrefsFile != null) {
-					initPrefsFile.delete();
-				}
-
-				// Make sure unit change applies to the rocket figure
-				if (parent != null) {
-					parent.getRocketPanel().updateExtras();
-					parent.getRocketPanel().updateFigures();
-					parent.getRocketPanel().updateRulers();
-				}
+				deletePreferencesSnapshot();
 			}
 		});
 
@@ -203,34 +205,96 @@ public class PreferencesDialog extends JDialog {
 	}
 
 	/**
-	 * Store the intial preferences in a temporary file, and return that file.
-	 * @return the file containing the initial preferences, or null if something went wrong
+	 * Applies the current preferences while leaving the dialog open. The updated
+	 * snapshot ensures that Cancel only rolls back edits made after this action.
 	 */
-	private File storeInitPreferences() {
+	private void applyChanges() {
+		storeAndApplyPreferences(preferences, parentFrame);
+		replacePreferencesSnapshot();
+	}
+
+	/**
+	 * Stores the current preferences in a temporary file.
+	 *
+	 * @return the file containing the preferences, or {@code null} if they could not be stored
+	 */
+	private File storePreferencesSnapshot() {
 		try {
 			File outputFile = Files.createTempFile("ORInitPrefs_" + System.currentTimeMillis(), ".xml").toFile();
 			try (FileOutputStream outputFos = new FileOutputStream(outputFile)) {
 				PreferencesExporter.exportPreferencesToFile(preferences.getPreferences(), outputFos, false);
-				log.debug("Initial preferences stored in temporary file: " + outputFile.getAbsolutePath());
+				log.debug("Preferences snapshot stored in temporary file: {}", outputFile.getAbsolutePath());
 			} catch (BackingStoreException e) {
-				log.error("Could not store initial preferences", e);
+				log.error("Could not store preferences snapshot", e);
 				return null;
 			}
 			return outputFile;
 		} catch (IOException e) {
-			log.error("Could not create temporary preferences file", e);
+			log.error("Could not create temporary preferences snapshot", e);
 			return null;
 		}
 	}
 
 	/**
-	 * Loads the initial stored preferences back (restores preferences).
+	 * Replaces the rollback point after preferences have been applied.
 	 */
-	private void loadInitPreferences() {
-		if (initPrefsFile == null) {
+	private void replacePreferencesSnapshot() {
+		File updatedSnapshotFile = storePreferencesSnapshot();
+		if (updatedSnapshotFile == null) {
 			return;
 		}
-		PreferencesImporter.importPreferences(initPrefsFile);
+
+		deletePreferencesSnapshot();
+		preferencesSnapshotFile = updatedSnapshotFile;
+	}
+
+	/**
+	 * Restores the preferences from the most recent rollback point.
+	 */
+	private void loadPreferencesSnapshot() {
+		if (preferencesSnapshotFile == null) {
+			return;
+		}
+		PreferencesImporter.importPreferences(preferencesSnapshotFile);
+	}
+
+	/**
+	 * Deletes the temporary rollback point when it is replaced or no longer needed.
+	 */
+	private void deletePreferencesSnapshot() {
+		if (preferencesSnapshotFile == null) {
+			return;
+		}
+		if (preferencesSnapshotFile.exists() && !preferencesSnapshotFile.delete()) {
+			log.warn("Could not delete preferences snapshot: {}", preferencesSnapshotFile.getAbsolutePath());
+		}
+		preferencesSnapshotFile = null;
+	}
+
+	/**
+	 * Stores preferences that are held outside the backing preferences tree and
+	 * refreshes the visible rocket panel.
+	 *
+	 * @param preferences preferences to store
+	 * @param parent parent frame to refresh, or {@code null} when none is open
+	 */
+	static void storeAndApplyPreferences(SwingPreferences preferences, BasicFrame parent) {
+		preferences.storeDefaultUnits();
+		refreshParentFrame(parent);
+	}
+
+	/**
+	 * Refreshes elements whose presentation depends on application preferences.
+	 *
+	 * @param parent parent frame to refresh, or {@code null} when none is open
+	 */
+	private static void refreshParentFrame(BasicFrame parent) {
+		if (parent == null) {
+			return;
+		}
+		parent.getRocketPanel().updateExtras();
+		parent.getRocketPanel().updateFigures();
+		parent.getRocketPanel().updateRulers();
 	}
 
 	private JPanel createCancelOperationContent() {
