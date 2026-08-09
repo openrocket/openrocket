@@ -11,7 +11,6 @@ import info.openrocket.core.masscalc.CMAnalysisEntry;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
-import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -688,7 +687,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				dragData.add(forces);
 			}
 
-			if (comp instanceof FinSet) {
+			// Roll forces are available both per fin set and as assembly totals.
+			if (isComponentSupportedInRollTable(comp)) {
 				rollData.add(forces);
 			}
 			// // We _would_ check this, except TubeFinSet doesn't implement cant angles... so they can't impart any roll torque
@@ -741,6 +741,13 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 	 */
 	static boolean isComponentSupportedInDragTable(RocketComponent component) {
 		return CADataType.isComponentRelevantForType(component, CADataType.TOTAL_CD);
+	}
+
+	/**
+	 * Returns whether roll data is calculated at the component's aggregation level.
+	 */
+	static boolean isComponentSupportedInRollTable(RocketComponent component) {
+		return CADataType.isComponentRelevantForType(component, CADataType.TOTAL_ROLL_COEFFICIENT);
 	}
 
 	/**
