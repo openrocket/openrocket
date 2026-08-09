@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.WarningSet;
@@ -650,8 +651,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				log.warn("Could not find massData entry for component: " + comp.getName());
 				continue;
 			}
-
-			if ((comp instanceof ComponentAssembly) && !(comp instanceof Rocket)){
+			if (!isComponentSupportedInStabilityTable(comp)) {
 				continue;
 			}
 
@@ -674,7 +674,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			}
 
 			if (forces.getCP() != null) {
-				if ((comp instanceof Rocket) &&
+				if ((comp instanceof ComponentAssembly) &&
 						(forces.getCP().getWeight() < MathUtil.EPSILON)) {
 					row.cpx = Double.NaN;
 				} else {
@@ -724,6 +724,15 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		longitudeStabilityTableModel.fireTableDataChanged();
 		dragTableModel.fireTableDataChanged();
 		rollTableModel.fireTableDataChanged();
+	}
+
+	/**
+	 * Returns whether a component has a meaningful row in the combined mass and stability table.
+	 * Physical components contribute mass data, while assemblies additionally require aggregate stability data.
+	 */
+	static boolean isComponentSupportedInStabilityTable(RocketComponent component) {
+		return !(component instanceof ComponentAssembly) ||
+				CADataType.isComponentRelevantForType(component, CADataType.CNa);
 	}
 
 	/**
