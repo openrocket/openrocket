@@ -84,6 +84,7 @@ import static info.openrocket.core.util.Chars.ALPHA;
 public class ComponentAnalysisGeneralPanel extends JPanel implements StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisDialog.class);
 	private static final Translator trans = Application.getTranslator();
+	private static final int COMPONENT_HIERARCHY_INDENT = 12;
 
 
 	private final FlightConditions conditions;
@@ -312,6 +313,11 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				}
 				Object source = stabData.get(row).source;
 				return source instanceof RocketComponent ? (RocketComponent) source : null;
+			}
+
+			@Override
+			public int getHierarchyDepthForRow(int row) {
+				return stabData.get(row).hierarchyDepth;
 			}
 		};
 
@@ -655,7 +661,25 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		dragData.clear();
 		rollData.clear();
 
-		for (final RocketComponent comp: configuration.getAllComponents()) {
+		for (Object source : getStabilityTableSources(configuration)) {
+			if (source instanceof MotorConfiguration motorConfig) {
+				CMAnalysisEntry cmEntry = cmMap.get(motorConfig.getMotor().getDesignation().hashCode());
+				if (cmEntry == null) {
+					continue;
+				}
+
+				RocketComponent mount = (RocketComponent) motorConfig.getMount();
+				LongitudinalStabilityRow motorRow = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source,
+						getComponentHierarchyDepth(mount) + 1);
+				motorRow.eachMass = cmEntry.eachMass;
+				motorRow.cm = cmEntry.totalCM;
+				motorRow.cpx = 0.0;
+				motorRow.cna = 0.0;
+				stabData.add(motorRow);
+				continue;
+			}
+
+			final RocketComponent comp = (RocketComponent) source;
 			CMAnalysisEntry cmEntry = cmMap.get(comp.hashCode());
 			if (null == cmEntry) {
 				log.warn("Could not find massData entry for component: " + comp.getName());
@@ -669,7 +693,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			if (cmEntry.source instanceof Rocket) {
 				name = trans.get("ComponentAnalysisGeneralTab.TOTAL");
 			}
-			LongitudinalStabilityRow row = new LongitudinalStabilityRow(name, cmEntry.source);
+			LongitudinalStabilityRow row = new LongitudinalStabilityRow(name, cmEntry.source,
+					getComponentHierarchyDepth(comp));
 			stabData.add(row);
 
 			row.source = cmEntry.source;
@@ -709,22 +734,6 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			// }
 		}
 
-		for (final MotorConfiguration config: configuration.getActiveMotors()) {
-			CMAnalysisEntry cmEntry = cmMap.get(config.getMotor().getDesignation().hashCode());
-			if (null == cmEntry) {
-				continue;
-			}
-
-			LongitudinalStabilityRow row = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source);
-			stabData.add(row);
-
-			row.source = cmEntry.source;
-			row.eachMass = cmEntry.eachMass;
-			row.cm = cmEntry.totalCM;
-			row.cpx = 0.0;
-			row.cna = 0.0;
-		}
-
 		// Set warnings
 		if (set.isEmpty()) {
 			warningList.setListData(new String[] {trans.get("ComponentAnalysisGeneralTab.noWarnings")
@@ -759,6 +768,35 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 	 */
 	static boolean isComponentSupportedInRollTable(RocketComponent component) {
 		return CADataType.isComponentRelevantForType(component, CADataType.TOTAL_ROLL_COEFFICIENT);
+	}
+
+	/**
+	 * Returns components in tree order with each active motor directly after its mount.
+	 */
+	static List<Object> getStabilityTableSources(FlightConfiguration configuration) {
+		List<Object> sources = new ArrayList<>();
+		for (RocketComponent component : configuration.getAllComponents()) {
+			sources.add(component);
+			for (MotorConfiguration motorConfig : configuration.getActiveMotors()) {
+				if (motorConfig.getMount() == component) {
+					sources.add(motorConfig);
+				}
+			}
+		}
+		return sources;
+	}
+
+	/**
+	 * Returns the number of ancestors used to indent a component row.
+	 */
+	static int getComponentHierarchyDepth(RocketComponent component) {
+		int depth = 0;
+		RocketComponent ancestor = component.getParent();
+		while (ancestor != null) {
+			depth++;
+			ancestor = ancestor.getParent();
+		}
+		return depth;
 	}
 
 	/**
@@ -820,6 +858,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			// Use the same component-type icons as the component tree in the name column.
 			if (column == 0 && table.getModel() instanceof CAColumnTableModel model) {
 				int modelRow = table.convertRowIndexToModel(row);
+				int hierarchyDepth = model.getHierarchyDepthForRow(modelRow);
+				label.setBorder(BorderFactory.createCompoundBorder(label.getBorder(),
+						BorderFactory.createEmptyBorder(0, hierarchyDepth * COMPONENT_HIERARCHY_INDENT, 0, 0)));
 				RocketComponent component = model.getComponentForRow(modelRow);
 				if (component != null) {
 					label.setIcon(ComponentIcons.getSmallIcon(component));
@@ -994,10 +1035,12 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		public CoordinateIF cm;
 		public double cpx;
 		public double cna;
+		public int hierarchyDepth;
 
-		public LongitudinalStabilityRow(final String _name, final Object _source){
+		public LongitudinalStabilityRow(final String _name, final Object _source, final int _hierarchyDepth){
 			name = _name;
 			source = _source;
+			hierarchyDepth = _hierarchyDepth;
 			eachMass = Double.NaN;
 			cm = Coordinate.NaN;
 			cpx = Double.NaN;
@@ -1012,6 +1055,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		public RocketComponent getComponentForRow(int row) {
 			throw new RuntimeException("Not implemented");
+		}
+
+		public int getHierarchyDepthForRow(int row) {
+			return getComponentHierarchyDepth(getComponentForRow(row));
 		}
 	}
 
