@@ -31,6 +31,7 @@ import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.components.StageSelector;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.main.ComponentIcons;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -798,8 +799,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
-													   boolean isSelected, boolean hasFocus, int row, int column) {
+											   boolean isSelected, boolean hasFocus, int row, int column) {
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			label.setIcon(null);
 
 			if (value instanceof Double) {
 				label.setText(formatDouble((Double) value));
@@ -814,6 +816,15 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 			if ((row < 0) || (row >= data.size()))
 				return label;
+
+			// Use the same component-type icons as the component tree in the name column.
+			if (column == 0 && table.getModel() instanceof CAColumnTableModel model) {
+				int modelRow = table.convertRowIndexToModel(row);
+				RocketComponent component = model.getComponentForRow(modelRow);
+				if (component != null) {
+					label.setIcon(ComponentIcons.getSmallIcon(component));
+				}
+			}
 
 			// Set selected color
 			if (isSelected) {
