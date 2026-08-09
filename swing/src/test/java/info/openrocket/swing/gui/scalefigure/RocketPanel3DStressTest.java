@@ -4,6 +4,8 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Timeout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
@@ -20,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RocketPanel3DStressTest extends BaseTestCase {
@@ -115,6 +119,41 @@ class RocketPanel3DStressTest extends BaseTestCase {
 			}
 		} finally {
 			disposeHarness(harness);
+		}
+	}
+
+	@Test
+	@Timeout(value = 45, unit = TimeUnit.SECONDS)
+	void themeChangeDoesNotOverlayVisibleThreeDCanvas() throws Exception {
+		assumeMacUiEnvironment();
+
+		FrameHarness harness = createStandaloneHarness();
+		UITheme.Theme originalTheme = GUIUtil.getUITheme();
+		try {
+			onEdt(() -> {
+				harness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D);
+			});
+			awaitFresh3DFrame(harness.panel.getFigure3d(), 0, 0, 4_000,
+					"theme-change overlay regression startup");
+			assertTrue(onEdt(harness.panel.getFigure3d()::isShowing),
+					"3D view should be showing before changing theme");
+
+			UITheme.Theme alternateTheme = UITheme.isLightTheme(originalTheme)
+					? UITheme.Themes.DARK
+					: UITheme.Themes.LIGHT;
+			int animationLayer = JLayeredPane.DRAG_LAYER.intValue() + 1;
+			int overlayCount = onEdt(() -> {
+				alternateTheme.applyTheme();
+				return harness.frame.getLayeredPane().getComponentsInLayer(animationLayer).length;
+			});
+			assertEquals(0, overlayCount,
+					"Theme change must not put FlatLaf's lightweight animation layer over the native 3D canvas");
+		} finally {
+			try {
+				onEdt(originalTheme::applyTheme);
+			} finally {
+				disposeHarness(harness);
+			}
 		}
 	}
 
