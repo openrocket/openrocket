@@ -743,8 +743,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		data.samples = getRequestedSampleCount();
 		// Do not request an sRGB default framebuffer: the macOS backend rejects that
 		// pixel-format attribute, and presentation is already gamma-corrected by the renderer.
-		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
-		data.swapInterval = 0;
+		// Disable the swap interval to avoid vsync stalls when multiple canvases share a thread.
+		// On Linux, an explicit zero makes GLX swap-control support mandatory; leaving it
+		// unspecified also permits valid contexts that only expose SGI swap control (or none).
+		data.swapInterval = SystemInfo.getPlatform() == SystemInfo.Platform.UNIX ? null : 0;
 		if (REQUEST_ROBUST_CONTEXT) {
 			// Windows resets the graphics context when the driver's watchdog fires, when the
 			// display driver is updated, and on some sleep/resume paths. Without robustness

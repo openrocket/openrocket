@@ -198,10 +198,12 @@ shared scheduler. Code that adds GL state or caching must therefore be both cont
 the next scheduled frame belongs to another canvas.
 
 On Linux, lwjgl3-awt follows LWJGL's context selection: X11 sessions use GLX, while Wayland sessions use
-EGL with the X11 window supplied by AWT under XWayland. This is not a native Wayland surface. The macOS
-backend does not accept every optional context attribute, so the host does not request a debug context or
-an sRGB default framebuffer there. Robust context reset detection is requested only on supported Windows
-configurations.
+EGL with the X11 window supplied by AWT under XWayland. This is not a native Wayland surface. OpenRocket
+leaves the Linux swap interval unspecified so GLX implementations without EXT or MESA swap control can
+still create a context; other platforms request a zero swap interval to avoid serializing the shared
+render thread on vertical refresh. The macOS backend does not accept every optional context attribute, so
+the host does not request a debug context or an sRGB default framebuffer there. Robust context reset
+detection is requested only on supported Windows configurations.
 
 Package Map
 ===========
