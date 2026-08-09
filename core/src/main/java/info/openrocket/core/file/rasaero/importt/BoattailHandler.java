@@ -56,23 +56,14 @@ public class BoattailHandler extends TransitionHandler {
         pod.setComment(
                 "Because boattails in RASAero can be recessed, we will add the boattail using an inline pod set to the previous component.");
 
-        // Search backwards for the last BodyTube; elements may be ordered with
-        // transitions after body tubes depending on the serializer field ordering.
-        BodyTube lastBodyTube = null;
-        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
-            RocketComponent child = parent.getChild(i);
-            if (child instanceof BodyTube) {
-                lastBodyTube = (BodyTube) child;
-                break;
-            }
-        }
-
-        if (lastBodyTube != null) {
-            lastBodyTube.addChild(pod);
+        // Add the pod to the parent's last child, or to a phantom tube if the last
+        // child is a nose cone/transition
+        RocketComponent lastChild = parent.getChild(parent.getChildCount() - 1);
+        if (lastChild instanceof BodyTube) {
+            lastChild.addChild(pod);
             pod.setAxialMethod(AxialMethod.TOP);
-            pod.setAxialOffset(lastBodyTube.getLength());
-        } else if (parent.getChild(parent.getChildCount() - 1) instanceof Transition) {
-            // Fallback: no body tubes found; attach to a phantom tube after the last transition
+            pod.setAxialOffset(lastChild.getLength());
+        } else if (lastChild instanceof Transition) {
             BodyTube phantomBodyTube = new BodyTube();
             phantomBodyTube.setLength(0);
             phantomBodyTube.setOuterRadiusAutomatic(true);

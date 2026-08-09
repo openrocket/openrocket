@@ -27,6 +27,7 @@ import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
@@ -286,6 +287,90 @@ public class RASAeroSaverTest {
             assertTrue(importedStage.getChild(2) instanceof Transition
                     && !(importedStage.getChild(2) instanceof NoseCone), " child 2 should be a Transition");
             assertTrue(importedStage.getChild(3) instanceof BodyTube, " child 3 should be a BodyTube");
+        } catch (IllegalStateException ise) {
+            fail(ise.getMessage());
+        } catch (RocketLoadException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Regression test: a boattail must be attached to the component immediately preceding it, not
+     * to an earlier body tube found by searching backwards. For a NoseCone → BodyTube → Transition →
+     * BoatTail design, the boattail is recessed via an inline pod on a phantom body tube appended
+     * after the Transition; the earlier "real" body tube must be left untouched.
+     */
+    @Test
+    public void testBoattailAttachedToPrecedingComponent() {
+        OpenRocketDocument originalDocument = OpenRocketDocumentFactory.createEmptyRocket();
+        Rocket rocket = originalDocument.getRocket();
+        AxialStage stage = new AxialStage();
+        rocket.addChild(stage);
+
+        NoseCone nose = new NoseCone();
+        nose.setShapeType(Transition.Shape.OGIVE);
+        nose.setLength(0.1);
+        nose.setBaseRadius(0.025);
+        stage.addChild(nose);
+
+        BodyTube tube = new BodyTube();
+        tube.setOuterRadius(0.025);
+        tube.setLength(0.2);
+        stage.addChild(tube);
+
+        Transition transition = new Transition();
+        transition.setShapeType(Transition.Shape.CONICAL);
+        transition.setForeRadius(0.025);
+        transition.setAftRadius(0.02);
+        transition.setLength(0.05);
+        stage.addChild(transition);
+
+        // The last transition of a single-stage design is exported as a BoatTail.
+        Transition boattail = new Transition();
+        boattail.setShapeType(Transition.Shape.CONICAL);
+        boattail.setForeRadius(0.02);
+        boattail.setAftRadius(0.015);
+        boattail.setLength(0.03);
+        stage.addChild(boattail);
+
+        try {
+            WarningSet warnings = new WarningSet();
+            ErrorSet errors = new ErrorSet();
+            String result = new RASAeroSaver().marshalToRASAero(originalDocument, warnings, errors);
+            assertEquals(0, errors.size(), " unexpected RASAero export errors: " + errors);
+            assertTrue(result.contains("<BoatTail>"), " the last transition should be exported as a BoatTail");
+
+            Path output = Files.createTempFile("boattail-order", ".CDX1");
+            Files.write(output, result.getBytes(StandardCharsets.UTF_8));
+            RASAeroLoader loader = new RASAeroLoader();
+            InputStream stream = new FileInputStream(output.toFile());
+            OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
+            DocumentLoadingContext context = new DocumentLoadingContext();
+            context.setOpenRocketDocument(importedDocument);
+            context.setMotorFinder(new DatabaseMotorFinder());
+            loader.loadFromStream(context, new BufferedInputStream(stream), null);
+
+            AxialStage importedStage = importedDocument.getRocket().getStage(0);
+            // The phantom body tube holding the boattail pod is appended after the Transition, so the
+            // stage gains a 4th child. Searching backwards for a body tube would instead attach the pod
+            // to the earlier body tube and leave the stage with only 3 children.
+            assertEquals(4, importedStage.getChildCount(),
+                    " expected a phantom body tube appended after the transition");
+            assertTrue(importedStage.getChild(1) instanceof BodyTube, " child 1 should be the original body tube");
+            assertEquals(0, importedStage.getChild(1).getChildCount(),
+                    " boattail must NOT be attached to the earlier body tube");
+            assertTrue(importedStage.getChild(2) instanceof Transition
+                    && !(importedStage.getChild(2) instanceof NoseCone), " child 2 should be the Transition");
+
+            RocketComponent phantom = importedStage.getChild(3);
+            assertTrue(phantom instanceof BodyTube, " child 3 should be the boattail phantom body tube");
+            assertEquals(1, phantom.getChildCount(), " phantom tube should hold the boattail pod");
+            RocketComponent pod = phantom.getChild(0);
+            assertTrue(pod instanceof PodSet, " phantom tube child should be a PodSet");
+            assertEquals(1, pod.getChildCount());
+            RocketComponent importedBoattail = pod.getChild(0);
+            assertTrue(importedBoattail instanceof Transition, " pod child should be the boattail transition");
+            assertEquals("Boattail", importedBoattail.getName());
         } catch (IllegalStateException ise) {
             fail(ise.getMessage());
         } catch (RocketLoadException | IOException e) {
