@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.Icon;
 import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -243,7 +244,14 @@ public class UITheme {
         // Static list of listeners (weak to avoid leaks)
         static List<WeakReference<Runnable>> themeChangeListeners = new ArrayList<>();
 
-        // Static method to add a listener
+        /**
+         * Add a weak theme-change listener.
+         *
+         * <p>Callers using a capturing lambda or instance method reference must keep a strong
+         * reference to the runnable for as long as they expect to receive notifications.</p>
+         *
+         * @param listener listener to invoke after a theme change
+         */
         static void addUIThemeChangeListener(Runnable listener) {
             if (listener == null) {
                 return;
@@ -2066,6 +2074,10 @@ public class UITheme {
 
         // Update all components
         FlatLaf.updateUI();
+
+        // Root-pane client properties are application overrides and survive FlatLaf.updateUI().
+        // Reapply them after the component trees have adopted their new theme colors.
+        applyThemeToOpenRootPanes(theme);
         Theme.notifyUIThemeChangeListeners();
         if (lafChangeAnimationActive) {
             FlatAnimatedLafChange.hideSnapshotWithAnimation();
@@ -2094,6 +2106,30 @@ public class UITheme {
             }
         }
         return false;
+    }
+
+    /**
+     * Refresh theme-specific root-pane properties on every existing Swing window.
+     *
+     * @param theme the newly applied UI theme
+     */
+    private static void applyThemeToOpenRootPanes(Theme theme) {
+        applyThemeToRootPanes(theme, Window.getWindows());
+    }
+
+    /**
+     * Apply the theme to the root pane of each supplied Swing window.
+     *
+     * @param theme the newly applied UI theme
+     * @param windows candidate windows to refresh
+     */
+    static void applyThemeToRootPanes(Theme theme, Window[] windows) {
+        for (Window window : windows) {
+            if (window instanceof RootPaneContainer) {
+                RootPaneContainer rootPaneContainer = (RootPaneContainer) window;
+                theme.applyThemeToRootPane(rootPaneContainer.getRootPane());
+            }
+        }
     }
 
     private static void commonApplyThemeToRootPane(JRootPane rootPane, Color TextColor) {

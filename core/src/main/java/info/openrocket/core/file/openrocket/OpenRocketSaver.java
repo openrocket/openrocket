@@ -379,6 +379,9 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchlongitude", cond.getLaunchLongitude());
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
 		writeElement("simulationsteppermethod", cond.getSimulationStepperMethodChoice().name().toLowerCase(Locale.ENGLISH));
+		if (cond.isRandomSeedFixed()) {
+			writeElement("randomseed", cond.getRandomSeed());
+		}
 
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");
@@ -647,7 +650,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Retrieve the data from the branch
 		List<List<Double>> data = new ArrayList<>(types.length);
 		for (FlightDataType type : types) {
-			data.add(branch.getClone(type));
+			data.add(branch.get(type));
 		}
 		
 		// Build the <databranch> tag
@@ -739,7 +742,7 @@ public class OpenRocketSaver extends RocketSaver {
 		if (types.length == 0)
 			return 0;
 		
-		final List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> timeData = branch.getView(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
 			// If time data not available, store all points
 			return branch.getLength();

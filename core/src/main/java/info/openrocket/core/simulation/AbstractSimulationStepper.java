@@ -605,8 +605,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * @return the motor mass time-derivative, or NaN if it cannot be computed
 		 */
 		private static double computeMotorMassDerivative(FlightDataBranch dataBranch) {
-			List<Double> motorMass = dataBranch.get(FlightDataType.TYPE_MOTOR_MASS);
-			List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+			List<Double> motorMass = dataBranch.getView(FlightDataType.TYPE_MOTOR_MASS);
+			List<Double> time = dataBranch.getView(FlightDataType.TYPE_TIME);
 			if (motorMass == null || time == null) {
 				return Double.NaN;
 			}

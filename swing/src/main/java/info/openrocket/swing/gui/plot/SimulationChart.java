@@ -63,9 +63,9 @@ public class SimulationChart extends ChartPanel {
 	
 	private MouseWheelHandler mouseWheelHandler = null;
 
-    private String hoveredLegendLabel = null;
+    private Comparable<?> hoveredLegendKey = null;
 
-    private final Set<String> selectedLegendLabels = new HashSet<>();
+    private final Set<Comparable<?>> selectedLegendKeys = new HashSet<>();
 
     private final Map<String, Stroke> baseStrokes = new HashMap<>();
 	
@@ -188,15 +188,16 @@ public class SimulationChart extends ChartPanel {
     @Override
     public void mouseMoved(MouseEvent e) {
         super.mouseMoved(e);
-        String legendLabel = null;
+        Comparable<?> legendKey = null;
         ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(e.getX(), e.getY());
 
-        if (entity instanceof LegendItemEntity) {
-            legendLabel = entity.getToolTipText();
+        if (entity instanceof LegendItemEntity legendItemEntity) {
+            legendKey = getLegendKey(legendItemEntity);
         }
 
-        if ((legendLabel == null && hoveredLegendLabel != null)||(legendLabel != null && !legendLabel.equals(hoveredLegendLabel))) {
-            hoveredLegendLabel = legendLabel;
+        if ((legendKey == null && hoveredLegendKey != null) ||
+                (legendKey != null && !legendKey.equals(hoveredLegendKey))) {
+            hoveredLegendKey = legendKey;
             updateHighlightingSet();
         }
     }
@@ -210,12 +211,13 @@ public class SimulationChart extends ChartPanel {
         if (e.getButton() != MouseEvent.BUTTON1) return;
         ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(e.getX(), e.getY());
 
-        if (entity instanceof LegendItemEntity) {
-            String label = entity.getToolTipText();
-            if (selectedLegendLabels.contains(label)) {
-                selectedLegendLabels.remove(label);
+        if (entity instanceof LegendItemEntity legendItemEntity) {
+            Comparable<?> legendKey = getLegendKey(legendItemEntity);
+            if (legendKey == null) return;
+            if (selectedLegendKeys.contains(legendKey)) {
+                selectedLegendKeys.remove(legendKey);
             }
-            else selectedLegendLabels.add(label);
+            else selectedLegendKeys.add(legendKey);
             updateHighlightingSet();
         }
     }
@@ -225,7 +227,7 @@ public class SimulationChart extends ChartPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Set<String> labelsToHighlight = new HashSet<>(selectedLegendLabels);
+        Set<Comparable<?>> keysToHighlight = new HashSet<>(selectedLegendKeys);
         EntityCollection entities = getChartRenderingInfo().getEntityCollection();
         Graphics2D g2 = (Graphics2D) g.create();
         try {
@@ -233,9 +235,9 @@ public class SimulationChart extends ChartPanel {
             g2.setStroke(new BasicStroke(4.0f));
             for (int i = 0; i < entities.getEntityCount(); i++) {
                 ChartEntity entity = entities.getEntity(i);
-                if (entity instanceof LegendItemEntity) {
-                    String label = entity.getToolTipText();
-                    if (label != null && labelsToHighlight.contains(label)) {
+                if (entity instanceof LegendItemEntity legendItemEntity) {
+                    Comparable<?> legendKey = getLegendKey(legendItemEntity);
+                    if (legendKey != null && keysToHighlight.contains(legendKey)) {
                         Rectangle2D swatchBorder = getRectangle2D(entity);
                         g2.draw(swatchBorder);
                     }
@@ -263,17 +265,26 @@ public class SimulationChart extends ChartPanel {
         );
     }
 
-    private void updateHighlightingSet() {
-        Set<String> labelsToHighlight = new HashSet<>(selectedLegendLabels);
-        if (hoveredLegendLabel != null) {
-            labelsToHighlight.add(hoveredLegendLabel);
-        }
-        applyLegendHighlight(labelsToHighlight);
+    /**
+     * Returns the stable series identity attached to a legend item. The tooltip fallback supports charts
+     * whose legend items do not yet provide an explicit series key.
+     */
+    private static Comparable<?> getLegendKey(LegendItemEntity entity) {
+        Comparable<?> seriesKey = entity.getSeriesKey();
+        return seriesKey != null ? seriesKey : entity.getToolTipText();
     }
 
-    private void applyLegendHighlight(Set<String> labelsToHighlight) {
+    private void updateHighlightingSet() {
+        Set<Comparable<?>> keysToHighlight = new HashSet<>(selectedLegendKeys);
+        if (hoveredLegendKey != null) {
+            keysToHighlight.add(hoveredLegendKey);
+        }
+        applyLegendHighlight(keysToHighlight);
+    }
+
+    void applyLegendHighlight(Set<Comparable<?>> keysToHighlight) {
         XYPlot plot = getChart().getXYPlot();
-        boolean hasHighlight = labelsToHighlight != null;
+        boolean hasHighlight = keysToHighlight != null && !keysToHighlight.isEmpty();
 
         for (int r = 0; r < plot.getRendererCount(); r++) {
             XYItemRenderer renderer = plot.getRenderer(r);
@@ -287,14 +298,13 @@ public class SimulationChart extends ChartPanel {
                 BasicStroke base = (BasicStroke) baseStrokes.computeIfAbsent(key, k -> renderer.getSeriesStroke(finalS));
 
                 BasicStroke stroke = base;
-                // Match by base name so all branches of a variable are highlighted together.
-                // For MetadataXYSeries, the legend label equals the base name (branch 0 has no prefix),
-                // so checking baseName works for every branch regardless of which stage is selected.
-                String matchKey = dataset.getSeries(s).getDescription();
+                // Match by stable identity instead of display text because component names can be duplicated.
+                // Regular simulation branches deliberately share one key for each configured data series.
+                Comparable<?> matchKey = dataset.getSeries(s).getDescription();
                 if (dataset.getSeries(s) instanceof MetadataXYSeries) {
-                    matchKey = ((MetadataXYSeries) dataset.getSeries(s)).getBaseName();
+                    matchKey = ((MetadataXYSeries) dataset.getSeries(s)).getLegendKey();
                 }
-                if (hasHighlight && labelsToHighlight.contains(matchKey)) {
+                if (hasHighlight && keysToHighlight.contains(matchKey)) {
                     stroke = new BasicStroke(base.getLineWidth() * 3.0f, base.getEndCap(), base.getLineJoin(), base.getMiterLimit(), base.getDashArray(), base.getDashPhase());
                 }
 

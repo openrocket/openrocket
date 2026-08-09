@@ -2,8 +2,13 @@ package info.openrocket.core.simulation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -92,8 +97,9 @@ public class FlightEventsTest extends BaseTestCase {
 	/**
 	 * Should not get a sim abort if recovery device deploys when upper stage motor never fires
 	 */
-	@Test
-	public void testDeployNoMotorEnabled() throws SimulationException {
+	@ParameterizedTest(name = "{0}")
+	@EnumSource(SimulationStepperMethod.class)
+	public void testDeployNoMotorEnabled(SimulationStepperMethod method) throws SimulationException {
 		final Rocket rocket = TestRockets.makeBeta();
 		final AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		
@@ -124,6 +130,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions().setSimulationStepperMethodChoice(method);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
 		// Tumbling is declared after a dwell rather than at a single step, which makes its
 		// time sensitive to the integrator's random perturbation.  Pin the seed so the event
@@ -189,7 +196,52 @@ public class FlightEventsTest extends BaseTestCase {
 			checkLastRecord(sim, b);
 		}
 	}
-	
+
+	/**
+	 * Scheduled deployments immediately before and after a regular timestep boundary
+	 * must be handled exactly once and retain their scheduled event time.
+	 */
+	@ParameterizedTest(name = "{0}, delay={1}")
+	@MethodSource("steppersAndBoundaryDelays")
+	public void testDeploymentNearTimeStepBoundary(SimulationStepperMethod method, double deployDelay)
+			throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage stage = rocket.getStage(0);
+		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
+
+		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
+		deploymentConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.EJECTION);
+		deploymentConfig.setDeployDelay(deployDelay);
+		parachute.getDeploymentConfigurations().setDefault(deploymentConfig);
+
+		final Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		simulation.getOptions().setISAAtmosphere(true);
+		simulation.getOptions().setTimeStep(0.05);
+		simulation.getOptions().setRandomSeed(1);
+		simulation.getOptions().setSimulationStepperMethodChoice(method);
+		simulation.simulate();
+
+		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
+		FlightEvent ejection = branch.getLastEvent(FlightEvent.Type.EJECTION_CHARGE);
+		assertNotNull(ejection, "precondition: motor must produce an ejection event");
+
+		List<FlightEvent> deployments = branch.getEvents().stream()
+				.filter(event -> event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT)
+				.toList();
+		assertEquals(1, deployments.size(), "deployment must neither be skipped nor duplicated");
+		assertEquals(ejection.getTime() + deployDelay, deployments.get(0).getTime(), 1.0e-12,
+				"deployment must retain its scheduled time across a timestep boundary");
+	}
+
+	private static Stream<Arguments> steppersAndBoundaryDelays() {
+		return Stream.of(
+				Arguments.of(SimulationStepperMethod.RK4, 0.049),
+				Arguments.of(SimulationStepperMethod.RK4, 0.051),
+				Arguments.of(SimulationStepperMethod.RK6, 0.049),
+				Arguments.of(SimulationStepperMethod.RK6, 0.051));
+	}
+
 
 	/**
 	 * Tests for a multi-stage design.
