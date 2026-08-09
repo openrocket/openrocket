@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 
 import org.junit.jupiter.api.Test;
 
+import info.openrocket.core.database.Databases;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.material.Material;
@@ -22,6 +23,32 @@ import info.openrocket.swing.util.BaseTestCase;
  * Tests synchronization between the material databases and the preferences table.
  */
 public class MaterialEditPanelTest extends BaseTestCase {
+
+	/**
+	 * The table snapshot must include every application and document material for each material
+	 * type. This guards against omitting a database while rebuilding the snapshot.
+	 */
+	@Test
+	public void materialTableIncludesAllDatabaseMaterials() throws Exception {
+		SwingUtilities.invokeAndWait(() -> {
+			OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+			document.getDocumentPreferences().addMaterial(Material.newMaterial(Material.Type.BULK,
+					"Document bulk material", 1000, MaterialGroup.CUSTOM, true, true));
+			document.getDocumentPreferences().addMaterial(Material.newMaterial(Material.Type.SURFACE,
+					"Document surface material", 0.1, MaterialGroup.CUSTOM, true, true));
+			document.getDocumentPreferences().addMaterial(Material.newMaterial(Material.Type.LINE,
+					"Document line material", 0.001, MaterialGroup.CUSTOM, true, true));
+
+			MaterialEditPanel panel = new MaterialEditPanel(document);
+			JTable table = findTable(panel);
+			assertNotNull(table);
+
+			int applicationMaterialCount = Databases.BULK_MATERIAL.size() + Databases.SURFACE_MATERIAL.size()
+					+ Databases.LINE_MATERIAL.size();
+			int documentMaterialCount = document.getDocumentPreferences().getTotalMaterialCount();
+			assertEquals(applicationMaterialCount + documentMaterialCount, table.getModel().getRowCount());
+		});
+	}
 
 	/**
 	 * A material edit temporarily removes a database row before adding its replacement. The table
