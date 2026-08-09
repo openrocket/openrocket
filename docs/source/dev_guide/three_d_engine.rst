@@ -196,10 +196,11 @@ Every canvas has an independent context and resource lifetime, but all canvases 
 shared scheduler. Code that adds GL state or caching must therefore be both context-local and safe when
 the next scheduled frame belongs to another canvas.
 
-The host uses LWJGL's native OpenGL context API so lwjgl3-awt's X11/GLX backend continues to work under
-XWayland rather than switching to EGL. The macOS backend does not accept every optional context
-attribute, so the host does not request a debug context or an sRGB default framebuffer there. Robust
-context reset detection is requested only on supported Windows configurations.
+On Linux, lwjgl3-awt follows LWJGL's context selection: X11 sessions use GLX, while Wayland sessions use
+EGL with the X11 window supplied by AWT under XWayland. This is not a native Wayland surface. The macOS
+backend does not accept every optional context attribute, so the host does not request a debug context or
+an sRGB default framebuffer there. Robust context reset detection is requested only on supported Windows
+configurations.
 
 Package Map
 ===========

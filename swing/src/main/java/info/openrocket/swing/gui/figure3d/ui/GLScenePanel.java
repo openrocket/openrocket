@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.awt.GLData;
-import org.lwjgl.system.Configuration;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPopupMenu;
@@ -198,12 +197,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// us here. This also covers macOS now that lwjgl3-awt presents through its
 		// native layer again.
 		System.setProperty("sun.awt.noerasebackground", "true");
-
-		// LWJGL 3.3.4+ auto-detects Wayland and tries to initialise EGL, which conflicts
-		// with lwjgl3-awt's PlatformLinuxGLCanvas (X11/GLX). Forcing "native" here prevents
-		// that auto-switch and keeps the GLX path active. On Wayland systems, XWayland must
-		// be running; on X11-only or other platforms this is a no-op.
-		Configuration.OPENGL_CONTEXT_API.set("native");
 
 		// Ensure Swing popups render above the heavyweight AWTGLCanvas (notably on macOS).
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
