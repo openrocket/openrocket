@@ -1113,79 +1113,39 @@ case.
 \subsubsection{Fin--body interference}
 
 The normal force coefficient must still be corrected for fin--body
-interference, which increases the overall produced normal force.  Here
-two distinct effects can be identified: the normal force on the fins
-due to the presence of the body and the normal force on the body due
-to the presence of fins.  Of these the former is significantly larger;
-the latter is therefore ignored.  The effect of the extra fin lift is
-taken into account using a correction term
+interference, which increases the overall produced normal force.  Two
+distinct effects are included: the normal force on the fins due to the
+presence of the body and the normal force on the body due to the
+presence of the fins.  Define
 %
 \begin{equation}
-\del{\CNa}_{T(B)} = K_{T(B)}\;\del{\CNa}_N
+\tau = \frac{r_t}{s+r_t},
 \end{equation}
 %
-where $\del{\CNa}_{T(B)}$ is the normal force coefficient derivative
-of the tail in the presence of the body.  The term $K_{T(B)}$ can be
-approximated by~\cite{barrowman-rd}
+where $s$ is the exposed fin span from root to tip and $r_t$ is the
+body radius at the fin position.  The classical Barrowman correction
+for the fins in the presence of the body is~\cite{barrowman-rd}
 %
 \begin{equation}
-K_{T(B)} = 1 + \frac{r_t}{s + r_t},
+K_{T(B)} = 1 + \tau.
 \end{equation}
 %
-where $s$ is the fin span from root to tip and $r_t$ is the body
-radius at the fin position.  The value $\del{\CNa}_{T(B)}$ is then
-used as the final normal force coefficient derivative of the fins.
-
-
-%The normal force coefficient must still be corrected for fin--body
-%interference, which increases the produced normal force.  The effect
-%of the interference can be split into two components, the normal force
-%of the fins in the presence of the body $\del{\CNa}_{T(B)}$ and of the
-%body in the presence of the fins $\del{\CNa}_{B(T)}$.  (The subscript
-%$T$ refers to {\it tail}.)  The interference is taken into account
-%using the correction factors
-%%
-%\begin{align}
-%\del{\CNa}_{T(B)} &= K_{T(B)}\;\del{\CNa}_N \\
-%\del{\CNa}_{B(T)} &= K_{B(T)}\;\del{\CNa}_N.
-%\end{align}
-%%
-%In his original report, Barrowman simplified the factor $K_{T(B)}$ to
-%%
-%\begin{equation}
-%K_{T(B)} = 1 + \frac{r_t}{s + r_t},
-%\end{equation}
-%%
-%where $s$ is the fin span from root to tip and $r_t$ is the body
-%radius at the fin position, and ignored the effect of $K_{B(T)}$ as
-%small compared to $K_{T(B)}$ for typical fin dimensions.  However,
-%$K_{T(B)}$ may be significant for fins with a span short compared to
-%the body radius.  In his thesis, a more accurate equation for
-%$K_{T(B)}$ is provided, and $K_{B(T)}$ is given
-%as~\cite[p.~31]{barrowman-thesis}
-%%
-%\begin{equation}
-%K_{B(T)} = \del{1 + \frac{r_t}{s + r_t}}^2 - K_{T(B)}.
-%\end{equation}
-%%
-%Therefore the total interference effect can be accounted for by a
-%factor
-%%
-%\begin{equation}
-%K_T = K_{T(B)} + K_{B(T)} = \del{1 + \frac{r_t}{s + r_t}}^2
-%\end{equation}
-%%
-%and
-%%
-%\begin{equation}
-%\del{\CNa}_{\rm fins} = K_T\; (\CNa)_N.
-%\end{equation}
-
-%This equation takes the increase on body lift and adds it as an
-%additional force on the fins.  The equation holds at subsonic speeds
-%and also at supersonic speeds until the fin tip Mach cone intersects
-%the body.  In the latter case more complex interference factors would
-%be required, which have been ignored in the current software.
+The slender-body expressions for the two interference effects in
+NACA Report 1307, equations 14 and 21, combine to~\cite{naca-1307}
+%
+\begin{equation}
+K_T = K_{T(B)} + K_{B(T)} = (1+\tau)^2.
+\end{equation}
+%
+This combined factor is used through Mach 0.9.  OpenRocket does not
+yet model the fin-tip Mach-cone geometry needed for the body term at
+supersonic speeds, so $K_{B(T)}=\tau(1+\tau)$ is linearly blended to
+zero between Mach 0.9 and Mach 1.5.  Above Mach 1.5 only the established
+$K_{T(B)}$ correction is retained.  The body contribution is lumped at
+the fin-set center of pressure; calculating its separate center of
+pressure would require the full NACA method.  Since the additional
+normal force acts on the body, it is not included in the fin-cant roll
+forcing term.
 
 % TODO: FUTURE: supersonic interference effects, MIL-HDBK page 5-25 or B'man
 
@@ -2373,4 +2333,3 @@ of fins & factor     \\
 \end{tabular}
 \end{center}
 \end{table}
-

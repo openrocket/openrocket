@@ -84,7 +84,7 @@ public class FinSetCalcTest {
 		// get the forces for the three fins
 		AerodynamicForces forces = sumFins(fins, rocket);
 
-		double exp_cna_fins = 24.146933;
+		double exp_cna_fins = 28.82053382;
 		double exp_cpx_fins = 0.0193484;
 
 		assertEquals(exp_cna_fins, forces.getCP().getWeight(), EPSILON, " FinSetCalc produces bad CNa: ");
@@ -109,7 +109,7 @@ public class FinSetCalcTest {
 		// get the forces for the four fins
 		AerodynamicForces forces = sumFins(fins, rocket);
 
-		double exp_cna_fins = 32.195911;
+		double exp_cna_fins = 38.42737843;
 		double exp_cpx_fins = 0.0193484;
 
 		assertEquals(exp_cna_fins, forces.getCP().getWeight(), EPSILON, " FinSetCalc produces bad CNa: ");
