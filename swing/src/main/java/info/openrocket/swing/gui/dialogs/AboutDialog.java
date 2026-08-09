@@ -58,6 +58,7 @@ public class AboutDialog extends JDialog {
 		"Sibo Van Gool (Dutch)<br>" +
 		"Oleksandr Hladin (Ukrainian)" +
 		"Mohamed Amin Elkebsi (Arabic)<br>" +
+	    "Yüksel Dağhan Güven (Turkish)<br>" +
 		"<br>" +
 		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
 		"<br>" +

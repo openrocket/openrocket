@@ -630,6 +630,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// only do it if one of the "important" (user specified) parameters has really
 		// changed.
 		boolean isChanged = false;
+		boolean averageWindChanged = false;
+		boolean multiLevelWindChanged = false;
 
 		if (this.windModelType != src.windModelType) {
 			isChanged = true;
@@ -637,10 +639,12 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		}
 		if (!this.averageWindModel.equals(src.averageWindModel)) {
 			isChanged = true;
+			averageWindChanged = true;
 			this.averageWindModel.loadFrom(src.averageWindModel);
 		}
 		if (!this.multiLevelPinkNoiseWindModel.equals(src.multiLevelPinkNoiseWindModel)) {
 			isChanged = true;
+			multiLevelWindChanged = true;
 			this.multiLevelPinkNoiseWindModel.loadFrom(src.multiLevelPinkNoiseWindModel);
 		}
 
@@ -738,6 +742,15 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (isChanged) {
 			this.randomSeedFixed = src.randomSeedFixed;
 			this.randomSeed = src.randomSeed;
+
+			// The nested wind models are updated in bulk above, bypassing their
+			// setters. Notify their listeners so bound controls refresh as well.
+			if (averageWindChanged) {
+				this.averageWindModel.fireChangeEvent();
+			}
+			if (multiLevelWindChanged) {
+				this.multiLevelPinkNoiseWindModel.fireChangeEvent();
+			}
 			fireChangeEvent();
 		}
 	}

@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement by sending them a 
-private email, message on Slack, or any other communication method that you find 
+private email, message on Discord, or any other communication method that you find 
 suitable.
 All complaints will be reviewed and investigated promptly and fairly.
 

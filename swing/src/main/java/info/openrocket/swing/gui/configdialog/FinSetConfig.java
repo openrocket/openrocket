@@ -553,7 +553,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
 		register(m);
 
-	    JSpinner spin = new JSpinner(m.getSpinnerModel());
+	    JSpinner spin = new JSpinner(m.getSpinnerModel(0.1));
 	    spin.setEditor(new SpinnerEditor(spin));
 	    spin.setToolTipText(tip);
 	    filletPanel.add(spin, "growx, w 40");
