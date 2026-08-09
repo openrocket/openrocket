@@ -379,17 +379,11 @@ public class MassCalculation {
 			}
 			this.addMass(compCM);
 			
-			if(null != analysisMap){
+			if(null != analysisMap && !(component instanceof ComponentAssembly)){
 				final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
-				if( component instanceof ComponentAssembly) {
-					// For ComponentAssemblies, record the _assembly_ information
-					entry.updateEachMass(children.getMass() / component.getInstanceCount());
-					entry.updateAverageCM(this.centerOfMass);
-				}else{
-					// For actual components, record the mass of the component, and disregard children
-					entry.updateEachMass(compCM.getWeight());
-					entry.updateAverageCM(compCM);
-				}
+				// For physical components, record only the component and disregard its children.
+				entry.updateEachMass(compCM.getWeight());
+				entry.updateAverageCM(compCM);
 			}
 			
 			final double compIx = component.getRotationalUnitInertia() * compCM.getWeight();
@@ -403,6 +397,13 @@ public class MassCalculation {
 		}
 
 		this.merge( children );
+
+		if (null != analysisMap && this.config.isComponentActive(component) &&
+				component instanceof ComponentAssembly) {
+			// Record the complete structural subtree after its child mass has been merged.
+			final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
+			entry.updateAssemblyMass(this.centerOfMass, component.getInstanceCount());
+		}
 
 		// // vvv DEBUG
 		// if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
@@ -462,6 +463,13 @@ public class MassCalculation {
 			//System.err.println(String.format( "%s....assembly mass (incl/children):  %s", prefix, this.toCMDebug()));
 		}
 
+		if (null != analysisMap && this.config.isComponentActive(component) &&
+				component instanceof ComponentAssembly && MIN_MASS < this.getMass()) {
+			// Merge motor casing and propellant into the assembly's structural mass and CG.
+			final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
+			entry.updateAssemblyMass(this.centerOfMass, component.getInstanceCount());
+		}
+
 		
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) && 0 < this.getMass() ) {
@@ -491,4 +499,3 @@ public class MassCalculation {
 	}
 
 }
-
