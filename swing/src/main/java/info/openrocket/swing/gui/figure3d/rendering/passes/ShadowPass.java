@@ -15,6 +15,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.UUID;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -360,7 +361,7 @@ public class ShadowPass implements RenderPass {
 		List<SceneObject> objects = scene.getObjects();
 		hash = hashInt(hash, objects.size());
 		for (SceneObject object : objects) {
-			hash = hashInt(hash, object.getId());
+			hash = hashUuid(hash, object.getId());
 			hash = hashBoolean(hash, object.isRenderOnTop());
 			hash = hashBoolean(hash, object.getAppearance().isUnlit());
 			hash = hashFloat(hash, object.getAppearance().getOpacity());
@@ -410,6 +411,16 @@ public class ShadowPass implements RenderPass {
 
 	private static long hashBoolean(long hash, boolean value) {
 		return hashInt(hash, value ? 1 : 0);
+	}
+
+	private static long hashUuid(long hash, UUID value) {
+		hash = hashLong(hash, value.getMostSignificantBits());
+		return hashLong(hash, value.getLeastSignificantBits());
+	}
+
+	private static long hashLong(long hash, long value) {
+		hash ^= value;
+		return hash * HASH_PRIME;
 	}
 
 	private static long hashInt(long hash, int value) {

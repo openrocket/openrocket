@@ -11,16 +11,15 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 /**
  * Mesh instance with its transform, appearance, interaction state, and optional
  * component associations.
  */
 public class SceneObject {
 
-	// TODO: use UUIDs instead
-	private static int nextId = -1; // Static counter to assign unique IDs to each SceneObject
-
-	private final int id;
+	private final UUID id;
 	private final RocketComponent rocketComponent;		// Selection and rocket-wide behavior
 	private final RocketComponent appearanceSourceComponent;
 
@@ -56,7 +55,7 @@ public class SceneObject {
 
 	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
 			Mesh mesh, Vector3f position, Appearance3D appearance) {
-		this.id = nextId++;
+		this.id = UUID.randomUUID();
 		this.rocketComponent = component;
 		this.appearanceSourceComponent = appearanceSourceComponent;
 		this.mesh = mesh;
@@ -92,9 +91,9 @@ public class SceneObject {
 	/**
 	 * Gets the unique identifier for this scene object.
 	 * 
-	 * @return the unique integer ID assigned to this object
+	 * @return the UUID assigned to this object
 	 */
-	public int getId() {
+	public UUID getId() {
 		return id;
 	}
 
