@@ -7,6 +7,9 @@ import java.io.Serializable;
  *
  * The weight is a non-negative value that can be used for weighted averages
  * of coordinates.  A weight of zero indicates an unweighted coordinate.
+ * Implementations must follow the numeric behavior of {@link Coordinate}. Methods
+ * returning a coordinate may either return a new value or mutate and return the
+ * receiver, so callers must always use the returned value.
  **/
 public interface CoordinateIF extends Cloneable, Serializable {
 	/**
@@ -175,15 +178,20 @@ public interface CoordinateIF extends Cloneable, Serializable {
 	}
 
 	/**
-	 * Cross product of two Coordinates taken as vectors
+	 * Cross product of two Coordinates taken as vectors. The resulting coordinate
+	 * is unweighted, regardless of the weights of the operands.
+	 *
+	 * @param other Coordinate to take the cross product with
+	 * @return the cross product with weight zero
 	 */
 	CoordinateIF cross(CoordinateIF other);
 
 	/**
-	 * Returns a new coordinate which has the same direction from the origin as this
-	 * coordinate but is at a distance of one.  If this coordinate is the origin,
-	 * this method throws an <code>IllegalStateException</code>.  The weight of the
-	 * coordinate is unchanged.
+	 * Return a coordinate which has the same direction from the origin as this
+	 * coordinate but is at a distance of one. If this coordinate is the origin,
+	 * this method throws an <code>IllegalStateException</code>. The weight of the
+	 * coordinate is unchanged. Mutable implementations may update and return the
+	 * receiver.
 	 *
 	 * @return   the coordinate normalized to distance one of the origin.
 	 * @throws   IllegalStateException  if this coordinate is the origin.
