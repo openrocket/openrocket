@@ -683,7 +683,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				row.cna = forces.getCP().getWeight();
 			}
 
-			if (!Double.isNaN(forces.getCD())) {
+			// Include aerodynamic components and every aggregation level with calculated drag data.
+			if (!Double.isNaN(forces.getCD()) && isComponentSupportedInDragTable(comp)) {
 				dragData.add(forces);
 			}
 
@@ -733,6 +734,13 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 	static boolean isComponentSupportedInStabilityTable(RocketComponent component) {
 		return !(component instanceof ComponentAssembly) ||
 				CADataType.isComponentRelevantForType(component, CADataType.CNa);
+	}
+
+	/**
+	 * Returns whether drag data is calculated at the component's aggregation level.
+	 */
+	static boolean isComponentSupportedInDragTable(RocketComponent component) {
+		return CADataType.isComponentRelevantForType(component, CADataType.TOTAL_CD);
 	}
 
 	/**

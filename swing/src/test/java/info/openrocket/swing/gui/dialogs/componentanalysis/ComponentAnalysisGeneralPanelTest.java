@@ -17,6 +17,7 @@ class ComponentAnalysisGeneralPanelTest extends BaseTestCase {
 		AxialStage stage = new AxialStage();
 
 		assertTrue(ComponentAnalysisGeneralPanel.isComponentSupportedInStabilityTable(stage));
+		assertTrue(ComponentAnalysisGeneralPanel.isComponentSupportedInDragTable(stage));
 	}
 
 	@Test
@@ -24,5 +25,6 @@ class ComponentAnalysisGeneralPanelTest extends BaseTestCase {
 		Rocket rocket = new Rocket();
 
 		assertTrue(ComponentAnalysisGeneralPanel.isComponentSupportedInStabilityTable(rocket));
+		assertTrue(ComponentAnalysisGeneralPanel.isComponentSupportedInDragTable(rocket));
 	}
 }
