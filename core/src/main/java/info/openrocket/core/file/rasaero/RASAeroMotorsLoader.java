@@ -23,25 +23,32 @@ public abstract class RASAeroMotorsLoader {
         if (motorString == null) {
             return null;
         }
+        String normalizedMotorString = motorString.trim();
+        if (normalizedMotorString.isEmpty()) {
+            return null;
+        }
         if (allMotors == null) {
             loadAllMotors(warnings);
         }
         /*
          * RASAero file motor strings are formatted as "<motorName>  (<manufacturer>)"
          */
-        String[] split = motorString.split("\\s{2}");
-        if (split.length != 2) {
-            return null;
-        }
-        String motorName = AbstractMotorLoader.removeDelay(split[0]);
-        String manufacturer = split[1].replaceAll("^\\(|\\)$", ""); // Remove beginning and ending parenthesis
-        for (ThrustCurveMotor motor : allMotors) {
-            if (motorName.equals(motor.getDesignation()) && motor.getManufacturer().matches(manufacturer)) {
-                return motor;
+        String[] split = normalizedMotorString.split("\\s{2,}", 2);
+        if (split.length == 2) {
+            String motorName = AbstractMotorLoader.removeDelay(split[0].trim());
+            String manufacturer = split[1].trim().replaceAll("^\\(|\\)$", "");
+            for (ThrustCurveMotor motor : allMotors) {
+                if (motorName.equals(motor.getDesignation()) && motor.getManufacturer().matches(manufacturer)) {
+                    return motor;
+                }
             }
         }
-        warnings.add("Could not find motor '" + motorString
-                + "' in the OpenRocket motors database. Please add it manually.");
+        if (warnings != null) {
+            warnings.add("Could not find motor '" + normalizedMotorString
+                    + "' in the OpenRocket motors database. Stage mass and CG overrides were skipped because "
+                    + "RASAero values include motor mass. Add the motor and set the stage's dry mass and CG "
+                    + "manually.");
+        }
         return null;
     }
 

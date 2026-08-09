@@ -121,13 +121,8 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 	 * @return true if the component is relevant for the given CADataType, false otherwise
 	 */
 	public static boolean isComponentRelevantForType(RocketComponent component, CADataType type) {
-		// Only aerodynamic and rockets are relevant for any CADataType
+		// Only aerodynamic components and the rocket-level totals are relevant.
 		if (!component.isAerodynamic() && !(component instanceof Rocket)) {
-			return false;
-		}
-
-		// Doesn't make sense to calculate per-instance drag for rockets
-		if (component instanceof Rocket && type.equals(CADataType.PER_INSTANCE_CD)) {
 			return false;
 		}
 
@@ -137,7 +132,7 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 			return true;
 		} else if (type.equals(CADataType.ROLL_FORCING_COEFFICIENT) || type.equals(CADataType.ROLL_DAMPING_COEFFICIENT) ||
 				type.equals(CADataType.TOTAL_ROLL_COEFFICIENT)) {
-			return component instanceof FinSet;
+			return component instanceof FinSet || component instanceof Rocket;
 		}
 		return false;
 	}
