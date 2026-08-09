@@ -19,7 +19,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import info.openrocket.core.ServicesForTesting;
 import info.openrocket.core.database.ComponentPresetDao;
@@ -46,6 +49,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -55,7 +59,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.extension.impl.ScriptingExtension;
 import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
@@ -401,20 +405,9 @@ public class OpenRocketSaverTest {
 		rocket.createFlightConfiguration(fcid);
 		rocket.setSelectedConfiguration(fcid);
 
-		ThrustCurveMotor motor = new ThrustCurveMotor.Builder()
-				.setManufacturer(Manufacturer.getManufacturer("Custom"))
-				.setDesignation("F12X")
-				.setDescription("Desc")
-				.setCaseInfo("info")
-				.setMotorType(Motor.Type.UNKNOWN)
-				.setStandardDelays(new double[] { 0, 3, 5, Motor.PLUGGED_DELAY })
-				.setDiameter(0.024)
-				.setLength(0.07)
-				.setTimePoints(new double[] { 0, 1, 2 })
-				.setThrustPoints(new double[] { 0, 1, 0 })
-				.setCGPoints(new CoordinateIF[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
-				.setDigest("digestA")
-				.build();
+		ThrustCurveMotor prototype = createEmbeddedTestMotor("");
+		String motorDigest = createRaspStyleDigest(prototype);
+		ThrustCurveMotor motor = createEmbeddedTestMotor(motorDigest);
 
 		MotorConfiguration motorConfig = new MotorConfiguration(innerTube, fcid);
 		motorConfig.setMotor(motor);
@@ -431,16 +424,18 @@ public class OpenRocketSaverTest {
 
 		// Verify the .ork zip contains a thrustcurves/<digest>.rse entry
 		boolean foundRseEntry = false;
-		try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file)) {
-			java.util.zip.ZipEntry rseEntry = zipFile.getEntry("thrustcurves/digestA.rse");
-			assertNotNull(rseEntry, "Expected thrustcurves/digestA.rse entry in .ork zip");
+		try (ZipFile zipFile = new ZipFile(file)) {
+			String entryName = "thrustcurves/" + motorDigest + ".rse";
+			ZipEntry rseEntry = zipFile.getEntry(entryName);
+			assertNotNull(rseEntry, "Expected " + entryName + " entry in .ork zip");
 			foundRseEntry = true;
 
 			// Verify the .rse file is parseable
 			try (InputStream rseStream = zipFile.getInputStream(rseEntry)) {
 				GeneralMotorLoader loader = new GeneralMotorLoader();
-				List<ThrustCurveMotor.Builder> motors = loader.load(rseStream, "digestA.rse");
+				List<ThrustCurveMotor.Builder> motors = loader.load(rseStream, motorDigest + ".rse");
 				assertFalse(motors.isEmpty(), "Expected at least one motor from .rse file");
+				assertEquals(Motor.Type.UNKNOWN, motors.get(0).build().getMotorType());
 			}
 		}
 		assertTrue(foundRseEntry);
@@ -451,8 +446,8 @@ public class OpenRocketSaverTest {
 		FlightConfigurationId loadedFcid = loadedRocket.getSelectedConfiguration().getFlightConfigurationID();
 
 		MotorMount motorMount = null;
-		for (java.util.Iterator<info.openrocket.core.rocketcomponent.RocketComponent> it = loadedRocket.iterator(true); it.hasNext();) {
-			info.openrocket.core.rocketcomponent.RocketComponent c = it.next();
+		for (Iterator<RocketComponent> it = loadedRocket.iterator(true); it.hasNext();) {
+			RocketComponent c = it.next();
 			if (c instanceof MotorMount mount && mount.isMotorMount()) {
 				motorMount = mount;
 				break;
@@ -469,6 +464,8 @@ public class OpenRocketSaverTest {
 		// Verify thrust curve data round-tripped correctly
 		ThrustCurveMotor loadedTCM = (ThrustCurveMotor) loadedMotor;
 		assertEquals(motor.getDesignation(), loadedTCM.getDesignation());
+		assertEquals(motor.getMotorType(), loadedTCM.getMotorType());
+		assertEquals(motor.getDigest(), loadedTCM.getDigest());
 		assertEquals(3, loadedTCM.getTimePoints().length);
 	}
 	
@@ -754,6 +751,40 @@ public class OpenRocketSaverTest {
 			fail("IOException: " + e);
 		}
 		throw new RuntimeException("Could not load motor");
+	}
+
+	/**
+	 * Build the custom motor used to exercise embedded RSE fallback.  Estes has a
+	 * known SINGLE default, making an explicitly UNKNOWN type observable on load.
+	 */
+	private static ThrustCurveMotor createEmbeddedTestMotor(String digest) {
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
+				.setDesignation("F12X")
+				.setDescription("Desc")
+				.setCaseInfo("info")
+				.setMotorType(Motor.Type.UNKNOWN)
+				.setStandardDelays(new double[] { 0, 3, 5, Motor.PLUGGED_DELAY })
+				.setDiameter(0.024)
+				.setLength(0.07)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 1, 0 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.035, 0, 0, 0.100),
+						new Coordinate(0.033, 0, 0, 0.070),
+						new Coordinate(0.031, 0, 0, 0.040)
+				})
+				.setDigest(digest)
+				.build();
+	}
+
+	/** Create the digest that would have been assigned by a RASP motor loader. */
+	private static String createRaspStyleDigest(ThrustCurveMotor motor) {
+		MotorDigest digest = new MotorDigest();
+		digest.update(MotorDigest.DataType.TIME_ARRAY, motor.getTimePoints());
+		digest.update(MotorDigest.DataType.MASS_SPECIFIC, motor.getLaunchMass(), motor.getBurnoutMass());
+		digest.update(MotorDigest.DataType.FORCE_PER_TIME, motor.getThrustPoints());
+		return digest.getDigest();
 	}
 	
 	public static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
