@@ -193,6 +193,11 @@ public class FlightEventsTest extends BaseTestCase {
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
+		// The simulation has two independent random sources: the wind (PinkNoiseWindModel) and the
+		// stepper's small pitch/yaw perturbation (seeded from getRandomSeed()). Pin both so the event
+		// sequence and times are a property of the design rather than of the run.
+		sim.getOptions().setRandomSeed(0);
+		sim.getOptions().getAverageWindModel().setSeed(0);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
@@ -217,7 +222,10 @@ public class FlightEventsTest extends BaseTestCase {
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 		
 		Warning warn = new Warning.RecoveryHighSpeedDeployment(53.2, sideChutes);
-		
+
+		// LargeAOA.equals() does not compare the angle, so the value here is immaterial.
+		Warning largeAOA = new Warning.LargeAOA(0);
+
 		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
@@ -235,6 +243,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.IGNITION, 2.11, sustainerBody),
+						// The sustainer hits a large angle of attack, then tumbles under thrust and aborts.
+						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.36, null, largeAOA),
 						new FlightEvent(FlightEvent.Type.SIM_ABORT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null, simAbort)
 				};
 
@@ -244,8 +254,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.11, centerBoosterBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 3.89, rocket),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.74, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.62, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null)
 				};
@@ -311,6 +321,9 @@ public class FlightEventsTest extends BaseTestCase {
 				// event times that are dependent on simulation step time shouldn't be held to
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
+					// A large-AOA warning fires on the first step past the stall angle, so its time is
+					// as step- and wind-sensitive as a tumble.
+					(actualWarning instanceof Warning.LargeAOA) ||
 					(actual.getType() == FlightEvent.Type.APOGEE) ||
 					(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
 					(actual.getType() == FlightEvent.Type.SIMULATION_END) ? (5 * sim.getOptions().getTimeStep())
