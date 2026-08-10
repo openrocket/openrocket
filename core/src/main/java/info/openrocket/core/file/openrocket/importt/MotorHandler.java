@@ -1,5 +1,7 @@
 package info.openrocket.core.file.openrocket.importt;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +16,9 @@ import info.openrocket.core.file.simplesax.PlainTextHandler;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.ThrustCurveMotor;
+import info.openrocket.core.util.DecalNotFoundException;
 
 import org.xml.sax.SAXException;
 
@@ -65,7 +69,7 @@ class MotorHandler extends AbstractElementHandler {
 
 		// Try loading from embedded .rse file in the zip archive.
 		if (digest != null && !digest.isEmpty()) {
-			Motor zipMotor = loadMotorFromZip(digest);
+			Motor zipMotor = loadMotorFromZip(digest, warnings);
 			if (zipMotor != null) {
 				return zipMotor;
 			}
@@ -80,20 +84,43 @@ class MotorHandler extends AbstractElementHandler {
 	 * Attempt to load a motor from a {@code thrustcurves/<digest>.rse} entry in the .ork zip archive.
 	 *
 	 * @param motorDigest the motor digest used as the filename
-	 * @return the loaded motor, or {@code null} if not found or not parseable
+	 * @param warnings warnings sink for an attachment that exists but cannot be used
+	 * @return the loaded motor, or {@code null} if the attachment is absent or invalid
 	 */
-	private Motor loadMotorFromZip(String motorDigest) {
+	private Motor loadMotorFromZip(String motorDigest, WarningSet warnings) {
+		String attachmentName = "thrustcurves/" + motorDigest + ".rse";
 		try {
-			Attachment attachment = context.getAttachmentFactory().getAttachment("thrustcurves/" + motorDigest + ".rse");
+			Attachment attachment = context.getAttachmentFactory().getAttachment(attachmentName);
 			try (InputStream is = attachment.getBytes()) {
 				GeneralMotorLoader loader = new GeneralMotorLoader();
 				List<ThrustCurveMotor.Builder> motors = loader.load(is, motorDigest + ".rse");
-				if (!motors.isEmpty()) {
-					return motors.get(0).build();
+				if (motors.isEmpty()) {
+					warnings.add(Warning.fromString("Embedded motor attachment '" + attachmentName
+							+ "' contains no motors."));
+					return null;
 				}
+
+				for (ThrustCurveMotor.Builder builder : motors) {
+					ThrustCurveMotor motor = builder.build();
+					if (MotorDigest.isDigestCompatible(motor, motorDigest)) {
+						// Keep the digest referenced by the ORK file stable across future saves.
+						return builder.setDigest(motorDigest).build();
+					}
+				}
+
+				warnings.add(Warning.fromString("Embedded motor attachment '" + attachmentName
+						+ "' contains no motor matching digest '" + motorDigest + "'."));
 			}
-		} catch (Exception e) {
-			// Entry not found or parse error — fall through.
+		} catch (DecalNotFoundException | FileNotFoundException e) {
+			// Missing attachments are expected for files that rely on the motor database.
+			return null;
+		} catch (IOException | IllegalArgumentException e) {
+			String reason = e.getMessage();
+			if (reason == null || reason.isBlank()) {
+				reason = e.getClass().getSimpleName();
+			}
+			warnings.add(Warning.fromString("Unable to load embedded motor attachment '" + attachmentName
+					+ "': " + reason));
 		}
 		return null;
 	}

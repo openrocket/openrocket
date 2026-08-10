@@ -98,8 +98,8 @@ class CADataBranchTest {
 		sweep.setValue(CADataType.CP_X, component, 2.0);
 
 		assertEquals(2, sweep.getLength());
-		assertEquals(sweep.getLength(), sweep.get(CADomainDataType.MACH).size());
-		assertEquals(sweep.getLength(), sweep.get(CADataType.CP_X).size());
+		assertEquals(sweep.getLength(), sweep.getView(CADomainDataType.MACH).size());
+		assertEquals(sweep.getLength(), sweep.getView(CADataType.CP_X).size());
 		assertEquals(sweep.getLength(), sweep.get(CADataType.CP_X, component).size());
 	}
 

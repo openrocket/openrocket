@@ -117,9 +117,9 @@ public class SimulationRunDialog extends JDialog {
 
 		this.simulations = simulations;
 
-		// Randomize the simulation random seeds
+		// Randomize seeds unless the user requested reproducible simulation runs.
 		for (Simulation sim : simulations) {
-			sim.getOptions().randomizeSeed();
+			sim.getOptions().randomizeSeedIfNotFixed();
 		}
 
 		// Initialize the simulations

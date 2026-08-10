@@ -138,6 +138,7 @@ of our repository).
    * - 1.11
      - OpenRocket 26.xx
      - * Added ``<simulationsteppermethod>`` to simulation conditions
+       * Added optional ``<randomseed>`` to simulation conditions for reproducible runs
        * Added simulation table column visibility preferences
        * Include file preview image (``preview.png``) in .ork zip file
        * Embedded thrust curve motor data as ``.rse`` (RockSim engine) files in a ``thrustcurves/`` directory within the .ork zip archive, keyed by motor digest
@@ -935,6 +936,7 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
             <launchlongitude>0.0</launchlongitude>
             <geodeticmethod>flat</geodeticmethod>
             <simulationsteppermethod>rk4</simulationsteppermethod>
+            <randomseed>12345</randomseed>
             <atmosphere model="isa"/>
             <timestep>0.05</timestep>
             <maxtime>1200.0</maxtime>
@@ -951,6 +953,9 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
          <!-- Simulation 2 content -->
       </simulation>
    <simulations>
+
+The optional ``<randomseed>`` element contains a signed 32-bit integer. When present, OpenRocket reuses that seed for
+each run of the simulation. When absent, OpenRocket generates a new seed for every run.
 
 Wind Models
 ^^^^^^^^^^^

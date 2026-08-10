@@ -1,6 +1,8 @@
 package info.openrocket.core.preferences;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,6 +102,18 @@ public class ApplicationPreferencesTest {
                 "getLaunchRodDirection should return default Math.PI/2 when not set");
     }
 
+    @Test
+    @DisplayName("random seed preferences default to per-run randomization and retain fixed values")
+    public void testRandomSeedPreferences() {
+        assertFalse(prefs.isRandomSeedFixed());
+
+        prefs.setRandomSeed(-123456789);
+        prefs.setRandomSeedFixed(true);
+
+        assertEquals(-123456789, prefs.getRandomSeed());
+        assertTrue(prefs.isRandomSeedFixed());
+    }
+
     private static class PreferencesModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -109,4 +123,3 @@ public class ApplicationPreferencesTest {
         }
     }
 }
-
