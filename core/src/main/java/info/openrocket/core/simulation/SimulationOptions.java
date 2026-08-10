@@ -857,7 +857,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.recoverySpeedWarning, o.recoverySpeedWarning) &&
 				MathUtil.equals(this.drogueLowSpeedWarning, o.drogueLowSpeedWarning) &&
 				MathUtil.equals(this.recoveryDrogueMainHighSpeedWarning, o.recoveryDrogueMainHighSpeedWarning) &&
-				MathUtil.equals(this.recoveryDrogueMainLowSpeedWarning, o.recoveryDrogueMainLowSpeedWarning);
+				MathUtil.equals(this.recoveryDrogueMainLowSpeedWarning, o.recoveryDrogueMainLowSpeedWarning) &&
 				this.randomSeedFixed == o.randomSeedFixed &&
 				(!this.randomSeedFixed || this.randomSeed == o.randomSeed);
 	}
