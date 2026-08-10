@@ -113,6 +113,7 @@ public class SaveFileChooserTest {
 				chooser.approveSelection();
 
 				assertFalse(chooser.isInvalidLocationWarningShown());
+				assertFalse(chooser.isIllegalFilenameWarningShown());
 				assertTrue(approved.get());
 			} finally {
 				// Uninstall the UI to stop any platform directory-model work started by JFileChooser.
@@ -127,6 +128,7 @@ public class SaveFileChooserTest {
 	private static final class TestSaveFileChooser extends SaveFileChooser {
 		private FileSystemView testFileSystemView;
 		private boolean invalidLocationWarningShown;
+		private boolean illegalFilenameWarningShown;
 
 		@Override
 		public FileSystemView getFileSystemView() {
@@ -138,12 +140,21 @@ public class SaveFileChooserTest {
 			invalidLocationWarningShown = true;
 		}
 
+		@Override
+		protected void showIllegalFilenameWarning(String fileName, char c) {
+			illegalFilenameWarningShown = true;
+		}
+
 		private void setTestFileSystemView(FileSystemView fileSystemView) {
 			testFileSystemView = fileSystemView;
 		}
 
 		private boolean isInvalidLocationWarningShown() {
 			return invalidLocationWarningShown;
+		}
+
+		private boolean isIllegalFilenameWarningShown() {
+			return illegalFilenameWarningShown;
 		}
 
 		/**
