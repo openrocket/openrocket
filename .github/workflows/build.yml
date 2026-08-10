@@ -23,10 +23,10 @@ jobs:
           # Exercise the platform-specific Gradle and test paths on Windows and macOS.
           - os: windows-latest
             gradle_command: .\gradlew.bat
-            gradle_tasks: test
+            gradle_tasks: test -x jacocoTestReport
           - os: macos-latest
             gradle_command: ./gradlew
-            gradle_tasks: test
+            gradle_tasks: test -x jacocoTestReport
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
