@@ -26,6 +26,8 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	protected double cd = Parachute.DEFAULT_CD;
 	protected boolean cdAutomatic = true;
 	////
+	private boolean drogue = false;
+	////
 	private final Material.Surface defaultMaterial;
 	private Material.Surface material;
 
@@ -83,9 +85,25 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		this.cdAutomatic = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-	
-	
-	
+
+	public boolean isDrogue() {
+		return drogue;
+	}
+
+	public void setDrogue(boolean drogue) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof RecoveryDevice) {
+				((RecoveryDevice) listener).setDrogue(drogue);
+			}
+		}
+		if (this.drogue == drogue)
+			return;
+		this.drogue = drogue;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+
+
 	public final Material getMaterial() {
 		return material;
 	}
@@ -169,6 +187,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	protected RocketComponent copyWithOriginalID() {
 		RecoveryDevice copy = (RecoveryDevice) super.copyWithOriginalID();
 		copy.deploymentConfigurations = new FlightConfigurableParameterSet<>(deploymentConfigurations);
+		copy.drogue = this.drogue;
 		return copy;
 	}
 

@@ -191,6 +191,26 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setMaxSimulationTime(d);
 				}
 			}
+			case "recoveryspeedwarning" -> {
+				if (!Double.isNaN(d) && d > 0) {
+					options.setRecoverySpeedWarning(d);
+				}
+			}
+			case "drogueLowspeedwarning" -> {
+				if (!Double.isNaN(d) && d > 0) {
+					options.setDrogueLowSpeedWarning(d);
+				}
+			}
+			case "recoverydroguemainhighspeedwarning" -> {
+				if (!Double.isNaN(d) && d > 0) {
+					options.setRecoveryDrogueMainHighSpeedWarning(d);
+				}
+			}
+			case "recoverydroguemainlowspeedwarning" -> {
+				if (!Double.isNaN(d) && d > 0) {
+					options.setRecoveryDrogueMainLowSpeedWarning(d);
+				}
+			}
 			// draglookupcsv and stabilitylookupcsv are now handled by CsvLookupHandler
 			// This case is for backward compatibility with old file format (simple text content)
 			case "draglookupcsv" -> {

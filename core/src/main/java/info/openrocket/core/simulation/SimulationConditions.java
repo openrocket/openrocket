@@ -60,6 +60,11 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private double maxSimulationTime = RK4SimulationStepper.RECOMMENDED_MAX_TIME;
 	private double maximumAngleStep = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 
+	private double recoverySpeedWarning = 20.0;
+	private double drogueLowSpeedWarning = 3.048;
+	private double recoveryDrogueMainHighSpeedWarning = 30.48;
+	private double recoveryDrogueMainLowSpeedWarning = 15.24;
+
 
 	private List<SimulationListener> simulationListeners = new ArrayList<>();
 
@@ -227,6 +232,42 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setMaximumAngleStep(double maximumAngle) {
 		this.maximumAngleStep = maximumAngle;
+		this.modID = new ModID();
+	}
+
+	public double getRecoverySpeedWarning() {
+		return recoverySpeedWarning;
+	}
+
+	public void setRecoverySpeedWarning(double recoverySpeedWarning) {
+		this.recoverySpeedWarning = recoverySpeedWarning;
+		this.modID = new ModID();
+	}
+
+	public double getDrogueLowSpeedWarning() {
+		return drogueLowSpeedWarning;
+	}
+
+	public void setDrogueLowSpeedWarning(double drogueLowSpeedWarning) {
+		this.drogueLowSpeedWarning = drogueLowSpeedWarning;
+		this.modID = new ModID();
+	}
+
+	public double getRecoveryDrogueMainHighSpeedWarning() {
+		return recoveryDrogueMainHighSpeedWarning;
+	}
+
+	public void setRecoveryDrogueMainHighSpeedWarning(double recoveryDrogueMainHighSpeedWarning) {
+		this.recoveryDrogueMainHighSpeedWarning = recoveryDrogueMainHighSpeedWarning;
+		this.modID = new ModID();
+	}
+
+	public double getRecoveryDrogueMainLowSpeedWarning() {
+		return recoveryDrogueMainLowSpeedWarning;
+	}
+
+	public void setRecoveryDrogueMainLowSpeedWarning(double recoveryDrogueMainLowSpeedWarning) {
+		this.recoveryDrogueMainLowSpeedWarning = recoveryDrogueMainLowSpeedWarning;
 		this.modID = new ModID();
 	}
 

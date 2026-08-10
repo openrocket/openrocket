@@ -408,6 +408,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
+		writeElement("recoveryspeedwarning", cond.getRecoverySpeedWarning());
+		writeElement("drogueLowspeedwarning", cond.getDrogueLowSpeedWarning());
+		writeElement("recoverydroguemainhighspeedwarning", cond.getRecoveryDrogueMainHighSpeedWarning());
+		writeElement("recoverydroguemainlowspeedwarning", cond.getRecoveryDrogueMainLowSpeedWarning());
 		if (cond.getDragLookupCsvPath() != null || cond.getDragLookupTable() != null) {
 			writeCsvLookup("draglookup", cond.getDragLookupCsvPath(), cond.getDragLookupCsvRows());
 		}
@@ -510,8 +514,8 @@ public class OpenRocketSaver extends RocketSaver {
 					writeElement("parameter", ((Warning.LargeAOA) w).getAOA());
 				}
 
-				if (w instanceof Warning.HighSpeedDeployment) {
-					writeElement("parameter", ((Warning.HighSpeedDeployment) w).getSpeed());
+				if (w instanceof Warning.RecoveryHighSpeedDeployment) {
+					writeElement("parameter", ((Warning.RecoveryHighSpeedDeployment) w).getSpeed());
 				}
 
 				// We write the whole string content for backwards compatibility with old versions
