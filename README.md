@@ -151,10 +151,10 @@ OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licens
 ⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
 
 
-<a href="https://www.star-history.com/?type=date&repos=openrocket%2Fopenrocket">
+<a href="https://star-history.dera.page/#openrocket/openrocket&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&theme=dark&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=openrocket/openrocket&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=openrocket/openrocket&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=openrocket/openrocket&type=date&legend=top-left" />
  </picture>
 </a>
