@@ -1,6 +1,6 @@
 package info.openrocket.core.aerodynamics;
 
-import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
@@ -240,7 +240,8 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 			return CD;
 		if (component.isCDOverriddenByAncestor())
 			return 0;
-		if (component.isCDOverridden()) {
+		// Assembly values are pre-aggregated with their descendants and direct override.
+		if (component.isCDOverridden() && !(component instanceof ComponentAssembly)) {
 			return component.getOverrideCD();
 		}
 		return CD;
@@ -261,7 +262,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	public double getPressureCD() {
 		if (component == null)
 			return pressureCD;
-		if (component.isCDOverridden() ||
+		if ((component.isCDOverridden() && !(component instanceof ComponentAssembly)) ||
 				component.isCDOverriddenByAncestor()) {
 			return 0;
 		}
@@ -279,7 +280,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	public double getBaseCD() {
 		if (component == null)
 			return baseCD;
-		if (component.isCDOverridden() ||
+		if ((component.isCDOverridden() && !(component instanceof ComponentAssembly)) ||
 				component.isCDOverriddenByAncestor()) {
 			return 0;
 		}
@@ -297,7 +298,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	public double getFrictionCD() {
 		if (component == null)
 			return frictionCD;
-		if (component.isCDOverridden() ||
+		if ((component.isCDOverridden() && !(component instanceof ComponentAssembly)) ||
 				component.isCDOverriddenByAncestor()) {
 			return 0;
 		}
@@ -315,9 +316,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	public double getOverrideCD() {
 		if (component == null)
 			return overrideCD;
-		if (!(component instanceof Rocket) &&
-				(!component.isCDOverridden() ||
-						component.isCDOverriddenByAncestor()))
+		if (component.isCDOverriddenByAncestor())
+			return 0;
+		// For assemblies this field contains all override contributions in the subtree.
+		if (!(component instanceof ComponentAssembly) && !component.isCDOverridden())
 			return 0;
 		return overrideCD;
 	}

@@ -808,4 +808,71 @@ public class BarrowmanCalculatorTest {
 		assertEquals(cnAll,  cpRestored.getWeight(), EPSILON, "CNa should be restored after re-enabling all stages");
 		assertEquals(cpxAll, cpRestored.getX(),      EPSILON, "CP should be restored after re-enabling all stages");
 	}
+
+	@Test
+	public void testStageDragAggregatesAerodynamicDescendants() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		FlightConditions conditions = new FlightConditions(config);
+
+		Map<RocketComponent, AerodynamicForces> forceMap = calculator.getForceAnalysis(
+				config, conditions, new WarningSet());
+
+		for (int stageNumber = 0; stageNumber < rocket.getStageCount(); stageNumber++) {
+			AxialStage stage = rocket.getStage(stageNumber);
+			AerodynamicForces stageForces = forceMap.get(stage);
+			double expectedPressureCD = 0;
+			double expectedBaseCD = 0;
+			double expectedFrictionCD = 0;
+			double expectedTotalCD = 0;
+			for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
+				RocketComponent component = entry.getKey();
+				if (component.isAerodynamic() && stage.isAncestor(component)) {
+					int instanceCount = config.getActiveInstances().count(component);
+					expectedPressureCD += entry.getValue().getPressureCD() * instanceCount;
+					expectedBaseCD += entry.getValue().getBaseCD() * instanceCount;
+					expectedFrictionCD += entry.getValue().getFrictionCD() * instanceCount;
+					expectedTotalCD += entry.getValue().getCD() * instanceCount;
+				}
+			}
+
+			assertNotNull(stageForces, "Force map missing stage: " + stage.getName());
+			assertTrue(expectedTotalCD > 0, "Stage has no aerodynamic drag: " + stage.getName());
+			int stageInstanceCount = config.getActiveInstances().count(stage);
+			assertEquals(expectedPressureCD / stageInstanceCount, stageForces.getPressureCD(), EPSILON);
+			assertEquals(expectedBaseCD / stageInstanceCount, stageForces.getBaseCD(), EPSILON);
+			assertEquals(expectedFrictionCD / stageInstanceCount, stageForces.getFrictionCD(), EPSILON);
+			assertEquals(expectedTotalCD, stageForces.getCDTotal(), EPSILON,
+					"Stage drag does not equal its aerodynamic descendants: " + stage.getName());
+		}
+	}
+
+	@Test
+	public void testStageDragRespectsAssemblyOverrides() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		AxialStage stage = rocket.getStage(0);
+		stage.setCDOverridden(true);
+		stage.setOverrideCD(0.5);
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		FlightConditions conditions = new FlightConditions(config);
+
+		Map<RocketComponent, AerodynamicForces> forceMap = calculator.getForceAnalysis(
+				config, conditions, new WarningSet());
+		double descendantCD = 0;
+		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
+			if (entry.getKey().isAerodynamic() && stage.isAncestor(entry.getKey())) {
+				descendantCD += entry.getValue().getCDTotal();
+			}
+		}
+		assertEquals(0.5 + descendantCD, forceMap.get(stage).getCDTotal(), EPSILON);
+
+		stage.setSubcomponentsOverriddenCD(true);
+		forceMap = calculator.getForceAnalysis(config, conditions, new WarningSet());
+		assertEquals(0.5, forceMap.get(stage).getCDTotal(), EPSILON);
+		assertEquals(0, forceMap.get(stage).getPressureCD(), EPSILON);
+		assertEquals(0, forceMap.get(stage).getBaseCD(), EPSILON);
+		assertEquals(0, forceMap.get(stage).getFrictionCD(), EPSILON);
+	}
 }

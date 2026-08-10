@@ -3,6 +3,7 @@ package info.openrocket.core.masscalc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -207,6 +208,25 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expCM.getZ(), actualRocketLaunchCM.getZ(), EPSILON, "Simple Rocket CM.getZ() is incorrect: ");
 		assertEquals(expCM.getWeight(), actualRocketLaunchCM.getWeight(), EPSILON, "Simple Rocket CM.getWeight() is incorrect: ");
 		assertEquals(expCM, actualRocketLaunchCM, "Simple Rocket CM is incorrect: ");
+	}
+
+	@Test
+	public void testAlphaIIIStageAnalysisIncludesMotorMass() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		AxialStage stage = (AxialStage) rocket.getChild(0);
+
+		Map<Integer, CMAnalysisEntry> analysis = MassCalculator.getCMAnalysis(config);
+		CMAnalysisEntry rocketEntry = analysis.get(rocket.hashCode());
+		CMAnalysisEntry stageEntry = analysis.get(stage.hashCode());
+
+		// A one-stage rocket provides an exact aggregate check: both rows represent the same launch mass.
+		assertEquals(rocketEntry.totalCM.getWeight(), stageEntry.totalCM.getWeight(), EPSILON,
+				"Stage aggregate mass should include its configured motor and propellant");
+		assertEquals(rocketEntry.totalCM.getX(), stageEntry.totalCM.getX(), EPSILON,
+				"Stage aggregate CG should include its configured motor and propellant");
+		assertEquals(stageEntry.totalCM.getWeight(), stageEntry.eachMass, EPSILON,
+				"A single stage instance should have the same instance and aggregate mass");
 	}
 
 	@Test
