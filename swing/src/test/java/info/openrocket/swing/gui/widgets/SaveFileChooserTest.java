@@ -66,13 +66,14 @@ public class SaveFileChooserTest {
 	public void testVirtualShellDirectoryPreventsApproval() throws Exception {
 		File directory = tempDirectory.toFile();
 		FileSystemView fileSystemView = mock(FileSystemView.class);
-		when(fileSystemView.isFileSystem(directory)).thenReturn(false);
 
 		SwingUtilities.invokeAndWait(() -> {
 			TestSaveFileChooser chooser = new TestSaveFileChooser();
 			try {
 				chooser.setCurrentDirectory(directory);
 				chooser.setSelectedFile(new File(directory, "rocket.obj"));
+				// Windows may normalize the selected directory to a different File representation.
+				when(fileSystemView.isFileSystem(chooser.getCurrentDirectory())).thenReturn(false);
 				chooser.setTestFileSystemView(fileSystemView);
 				AtomicBoolean approved = new AtomicBoolean(false);
 				chooser.addActionListener(event -> approved.set(
@@ -96,14 +97,14 @@ public class SaveFileChooserTest {
 	public void testFileSystemDirectoryAllowsApproval() throws Exception {
 		File directory = tempDirectory.toFile();
 		FileSystemView fileSystemView = mock(FileSystemView.class);
-		when(fileSystemView.isFileSystem(directory)).thenReturn(true);
-		when(fileSystemView.isTraversable(directory)).thenReturn(true);
 
 		SwingUtilities.invokeAndWait(() -> {
 			TestSaveFileChooser chooser = new TestSaveFileChooser();
 			try {
 				chooser.setCurrentDirectory(directory);
 				chooser.setSelectedFile(new File(directory, "rocket.obj"));
+				// Stub the platform-normalized directory that approveSelection actually validates.
+				when(fileSystemView.isFileSystem(chooser.getCurrentDirectory())).thenReturn(true);
 				chooser.setTestFileSystemView(fileSystemView);
 				AtomicBoolean approved = new AtomicBoolean(false);
 				chooser.addActionListener(event -> approved.set(
