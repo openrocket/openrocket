@@ -355,9 +355,8 @@ public class PhotoSettings extends AbstractChangeSource {
 		fireChangeEvent();
 	}
 
-	// ---- Slider-adjusting flag ----
-	// Set to true while a slider thumb is being dragged; the render is deferred
-	// until the drag completes (mouse released) to avoid redundant GL work.
+	// Allows callers which update several properties together to defer rendering
+	// until the complete batch has been applied.
 	private boolean adjusting = false;
 
 	public boolean isAdjusting() {
@@ -365,8 +364,8 @@ public class PhotoSettings extends AbstractChangeSource {
 	}
 
 	/**
-	 * Call with {@code true} on mouse-press and {@code false} on mouse-release.
-	 * Releasing ({@code false}) fires one change event so the deferred render runs.
+	 * Call with {@code true} before a batch and {@code false} after its final update.
+	 * Ending the batch fires one change event so the deferred render runs.
 	 */
 	public void setAdjusting(boolean adjusting) {
 		this.adjusting = adjusting;

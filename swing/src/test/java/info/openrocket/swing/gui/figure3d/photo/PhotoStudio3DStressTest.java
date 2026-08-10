@@ -197,7 +197,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					final int iteration = i;
 					phase.set("mutate-photo-settings-" + iteration);
 					onEdt(() -> {
-						mutatePhotoSettings(currentHarness.settings, iteration);
+						mutatePhotoSettingsLive(currentHarness.settings, iteration);
 						currentHarness.frame.setSize(960 + (iteration % 3) * 70, 680 + (iteration % 2) * 60);
 						currentHarness.frame.setLocation(90 + iteration * 15, 90 + iteration * 11);
 						currentHarness.frame.validate();
@@ -1298,7 +1298,17 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	}
 
 	private static void mutatePhotoSettings(PhotoSettings settings, int iteration) {
-		settings.setAdjusting(true);
+		mutatePhotoSettings(settings, iteration, true);
+	}
+
+	private static void mutatePhotoSettingsLive(PhotoSettings settings, int iteration) {
+		mutatePhotoSettings(settings, iteration, false);
+	}
+
+	private static void mutatePhotoSettings(PhotoSettings settings, int iteration, boolean batchUpdates) {
+		if (batchUpdates) {
+			settings.setAdjusting(true);
+		}
 		settings.setBackgroundType(PhotoSettings.BackgroundType.values()[iteration % PhotoSettings.BackgroundType.values().length]);
 		settings.setSky(TEST_SKIES[iteration % TEST_SKIES.length]);
 		settings.setView(
@@ -1323,7 +1333,9 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		settings.setFlameAspectRatio(0.85 + iteration * 0.28);
 		settings.setSparkConcentration(Math.min(0.95, 0.20 + iteration * 0.12));
 		settings.setSparkWeight(Math.min(0.95, 0.10 + iteration * 0.16));
-		settings.setAdjusting(false);
+		if (batchUpdates) {
+			settings.setAdjusting(false);
+		}
 	}
 
 	private static void assumeUiEnvironment() {

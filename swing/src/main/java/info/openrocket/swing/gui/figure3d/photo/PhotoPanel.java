@@ -126,6 +126,11 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private double lastViewAlt;
 	private double lastViewDistance;
 	private double lastFov;
+	private boolean rocketTransformSettingsTracked;
+	private double lastPitch;
+	private double lastYaw;
+	private double lastRoll;
+	private double lastAdvance;
 	private volatile boolean renderLoopRunning = false;
 	private static final String[] MOUNTAINS_CUBEMAP = {
 			"/datafiles/sky/box/East.jpg",
@@ -200,7 +205,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		debug("PhotoPanel ctor");
 		settings.addChangeListener(e -> {
 			if (settings.isAdjusting()) {
-				// Slider is being dragged — defer the apply until mouse release.
+				// A caller is applying a batch of related values; render the completed batch.
 				pendingApply.set(true);
 				return;
 			}
@@ -332,6 +337,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		debug("applySettings: enqueue");
 		orchestrator.enqueueGlTask(() -> {
+			// Changes made before this task starts are included because the task reads
+			// the latest settings. Only changes arriving while it runs need another pass.
+			pendingApply.set(false);
 			try {
 				applySettingsOnGlThread(orchestrator);
 			} finally {
@@ -341,6 +349,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 				}
 			}
 		});
+		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	private void startRenderLoop() {
@@ -557,7 +566,11 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 					restoreCamera(camera, currentCameraState);
 				}
 			}
-			applyRocketTransform(scene, config);
+			if (rebuild || isRocketTransformRequired(scene)) {
+				if (applyRocketTransform(scene, config)) {
+					rememberRocketTransformSettings();
+				}
+			}
 		} finally {
 			suppressCameraToSettingsSync.set(false);
 		}
@@ -577,6 +590,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 	private void invalidateCachedSceneState() {
 		cameraSettingsTracked = false;
+		rocketTransformSettingsTracked = false;
+		baseTransforms.clear();
+		baseEmitters.clear();
 		lastSky = null;
 		lastSkyColor = null;
 		lastSkyOpacity = Float.NaN;
@@ -748,15 +764,15 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		light.setDirection(-x, -y, z);
 	}
 
-	private void applyRocketTransform(Scene scene, RenderingConfiguration config) {
+	private boolean applyRocketTransform(Scene scene, RenderingConfiguration config) {
 		if (document == null) {
 			debug("applyRocketTransform: no document");
-			return;
+			return false;
 		}
 		BoundingBox bounds = document.getRocket().getBoundingBox();
 		if (bounds == null || bounds.isEmpty()) {
 			debug("applyRocketTransform: empty bounds");
-			return;
+			return false;
 		}
 		double centerX = (bounds.min.getX() + bounds.max.getX()) / 2.0;
 		double advance = settings.getAdvance();
@@ -794,6 +810,36 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 
 		applyParticleTransform(scene, config, globalTransform);
+		return true;
+	}
+
+	private boolean isRocketTransformRequired(Scene scene) {
+		if (!rocketTransformSettingsTracked
+				|| !MathUtil.equals(settings.getPitch(), lastPitch, CAMERA_SETTINGS_EPSILON)
+				|| !MathUtil.equals(settings.getYaw(), lastYaw, CAMERA_SETTINGS_EPSILON)
+				|| !MathUtil.equals(settings.getRoll(), lastRoll, CAMERA_SETTINGS_EPSILON)
+				|| !MathUtil.equals(settings.getAdvance(), lastAdvance, CAMERA_SETTINGS_EPSILON)) {
+			return true;
+		}
+		for (SceneObject object : scene.getObjects()) {
+			if (object.getRocketComponent() != null && !baseTransforms.containsKey(object)) {
+				return true;
+			}
+		}
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (!baseEmitters.containsKey(emitter)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void rememberRocketTransformSettings() {
+		lastPitch = settings.getPitch();
+		lastYaw = settings.getYaw();
+		lastRoll = settings.getRoll();
+		lastAdvance = settings.getAdvance();
+		rocketTransformSettingsTracked = true;
 	}
 
 	private void applyParticleTransform(Scene scene, RenderingConfiguration config, Matrix4f globalTransform) {
