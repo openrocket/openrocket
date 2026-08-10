@@ -22,7 +22,7 @@ public class SparkSettings extends ParticleSettings {
 				2.0f,           // Spread factor
 				false,          // Burst
 				new Vector3f(0, 0, 0),      // Gravity
-				new Vector3f(1.0f, 0.8f, 0.2f), new Vector3f(1.0f, 1.0f, 0.8f),     // Color range
+				new Vector3f(1.0f, 0.28f, 0.02f), new Vector3f(1.0f, 0.92f, 0.58f), // Color range
 				config);
 	}
 
@@ -36,7 +36,7 @@ public class SparkSettings extends ParticleSettings {
 				5.0f,           // Spread factor
 				false,          // Burst
 				new Vector3f(0, 0, 0),      // Gravity
-				new Vector3f(1.0f, 0.8f, 0.2f), new Vector3f(1.0f, 1.0f, 0.8f),     // Color range
+				new Vector3f(1.0f, 0.28f, 0.02f), new Vector3f(1.0f, 0.92f, 0.58f), // Color range
 				config);
 	}
 
@@ -59,7 +59,7 @@ public class SparkSettings extends ParticleSettings {
 				10.0f * spreadScale,          // Spread factor
 				false,          // Burst
 				new Vector3f(0, -9.8f * weight, 0),      // Gravity
-				new Vector3f(1.0f, 0.8f, 0.2f), new Vector3f(1.0f, 1.0f, 0.8f),     // Color range
+				new Vector3f(1.0f, 0.28f, 0.02f), new Vector3f(1.0f, 0.92f, 0.58f), // Color range
 				config);
 	}
 
