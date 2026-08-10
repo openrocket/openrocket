@@ -17,7 +17,7 @@ public class CADomainDataType extends CADataType {
 	public static final CADomainDataType AOA = new CADomainDataType(trans.get("CADomainDataType.lbl.angleofattack"),
 			"a", UnitGroup.UNITS_ANGLE, CADataTypeGroup.DOMAIN_PARAMETER, 0.0, Math.PI, Math.PI / 30, Math.PI / 1800, 1);
 	public static final CADomainDataType MACH = new CADomainDataType(trans.get("CADomainDataType.lbl.machnumber"),
-			"M", UnitGroup.UNITS_COEFFICIENT, CADataTypeGroup.DOMAIN_PARAMETER, 0, 3.0, 0.025, 0.001, 2);
+			"M", UnitGroup.UNITS_COEFFICIENT, CADataTypeGroup.DOMAIN_PARAMETER, 0, 5.0, 0.025, 0.001, 2);
 	public static final CADomainDataType ROLL_RATE = new CADomainDataType(trans.get("CADomainDataType.lbl.rollrate"),
 			"r", UnitGroup.UNITS_ROLL, CADataTypeGroup.DOMAIN_PARAMETER, -20 * 2 * Math.PI, 20 * 2 * Math.PI,
 			Math.PI, Math.PI / 10, 3);

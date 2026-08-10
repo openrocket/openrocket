@@ -69,41 +69,51 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		branch.setOptimumAltitude(optimumAltitude);
 	}
 	
-	// Find the full flight data type given name only
+	// Find the full flight data type given the value stored in the XML file.
 	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
 	// not the nicest but this is always the case anyway.
 	private FlightDataType findFlightDataType(String name) {
-		
-		// Kevins version with lookup by key. Not using right now
-		/*
-		if ( key != null ) {
-			for (FlightDataType t : FlightDataType.ALL_TYPES){
-				if (t.getKey().equals(key) ){
-					return t;
-				}
-			}
+		// 1. Try the stable save key (files saved with the current format store e.g. "TYPE_DRAG_COEFF")
+		FlightDataType byKey = FlightDataType.getTypeBySaveKey(name);
+		if (byKey != null) {
+			return byKey;
 		}
-		*/
-		
-		// Look in built in types
+
+		// 2. Try matching by display name (files saved before save keys were introduced)
 		for (FlightDataType t : FlightDataType.ALL_TYPES) {
 			if (t.getName().equals(name)) {
 				return t;
 			}
 		}
 
-		// Replace deprecated 'Position upwind' with new 'Position North of launch' option
+		// 3. Replace deprecated 'Position upwind' with new 'Position North of launch' option
 		if (name.equals(trans.get("FlightDataType.TYPE_UPWIND"))) {
 			return FlightDataType.TYPE_POSITION_Y;
 		}
-		
-		// Look in custom expressions
+
+		// 4. Legacy English name mappings: type names were updated to include symbol suffixes
+		// (e.g. "Drag coefficient" -> "Drag coefficient (CD)"). Maps names from files saved
+		// before that rename so they still load correctly.
+		switch (name) {
+			case "Drag coefficient":           return FlightDataType.TYPE_DRAG_COEFF;
+			case "Axial drag coefficient":     return FlightDataType.TYPE_AXIAL_DRAG_COEFF;
+			case "Friction drag coefficient":  return FlightDataType.TYPE_FRICTION_DRAG_COEFF;
+			case "Pressure drag coefficient":  return FlightDataType.TYPE_PRESSURE_DRAG_COEFF;
+			case "Base drag coefficient":      return FlightDataType.TYPE_BASE_DRAG_COEFF;
+			case "Normal force coefficient":   return FlightDataType.TYPE_NORMAL_FORCE_COEFF;
+			case "Pitch moment coefficient":   return FlightDataType.TYPE_PITCH_MOMENT_COEFF;
+			case "Roll rate":                  return FlightDataType.TYPE_ROLL_RATE;
+			case "Pitch rate":                 return FlightDataType.TYPE_PITCH_RATE;
+			case "Yaw rate":                   return FlightDataType.TYPE_YAW_RATE;
+		}
+
+		// 5. Look in custom expressions
 		for (CustomExpression exp : simHandler.getDocument().getCustomExpressions()) {
 			if (exp.getName().equals(name)) {
 				return exp.getType();
 			}
 		}
-		
+
 		log.warn("Could not find the flight data type '" + name + "' used in the XML file. Substituted type with unknown symbol and units.");
 		return FlightDataType.getType(name, "Unknown", UnitGroup.UNITS_NONE);
 	}

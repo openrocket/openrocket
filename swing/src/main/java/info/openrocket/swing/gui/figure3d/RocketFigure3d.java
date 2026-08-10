@@ -106,6 +106,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 
 	private static Color backgroundColor;
 	private Color customBackgroundColor = null;
+	/** Strong reference required because UI theme listeners are stored weakly. */
+	private final Runnable themeChangeListener;
 
 	static {
 		initColors();
@@ -114,6 +116,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public RocketFigure3d(final OpenRocketDocument document) {
 		this.document = document;
 		this.rkt = document.getRocket();
+		this.themeChangeListener = this::refreshAfterThemeChange;
+		UITheme.Theme.addUIThemeChangeListener(themeChangeListener);
 		this.setLayout(new BorderLayout());
 		
 		//Only initialize GL if 3d is enabled.
@@ -134,6 +138,15 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 
 	public static void updateColors() {
 		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+	}
+
+	/**
+	 * Refresh the OpenGL canvas after Swing has finished updating the component tree.
+	 * Deferring the repaint prevents the look-and-feel refresh from replacing the
+	 * rendered custom background with the theme default.
+	 */
+	void refreshAfterThemeChange() {
+		SwingUtilities.invokeLater(this::repaint);
 	}
 
 	/**

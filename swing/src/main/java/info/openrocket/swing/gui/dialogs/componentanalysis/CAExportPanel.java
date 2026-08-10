@@ -44,6 +44,11 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 	private static final int OPTION_FIELD_DESCRIPTIONS = 1;
 
 	public CAExportPanel(ComponentAnalysisPlotExportPanel parent, CADataType[] types, boolean[] selected) {
+		this(parent, types, selected, null);
+	}
+
+	private CAExportPanel(ComponentAnalysisPlotExportPanel parent, CADataType[] types, boolean[] selected,
+						  Settings initialSettings) {
 		super(types, selected,
 				new CsvOptionPanel(CAExportPanel.class, true,
 						trans.get("CAExportPanel.checkbox.Includecadesc"),
@@ -56,9 +61,19 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 
 		// Initialize selected components map
 		for (int i = 0; i < types.length; i++) {
-			updateSelectedComponents(types[i], new ArrayList<>(), parent.getComponentsForType(types[i]),
+			List<RocketComponent> initialComponents = initialSettings != null ?
+					initialSettings.selectedComponents.get(types[i]) : null;
+			updateSelectedComponents(types[i], initialComponents, parent.getComponentsForType(types[i]),
 					selectedComponentsLabels.get(i), selectedComponentsScrollPanes.get(i));
+			if (initialSettings != null && initialSettings.units.containsKey(types[i])) {
+				setSelectedUnit(i, initialSettings.units.get(types[i]));
+			}
 		}
+	}
+
+	@Override
+	protected boolean hasExtraComponent() {
+		return true;
 	}
 
 	@Override
@@ -97,7 +112,10 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 					selectedComponentsMap.get(type)
 			);
 			List<RocketComponent> newSelectedComponents = dialog.showDialog();
-			updateSelectedComponents(type, newSelectedComponents, availableComponents, selectedComponentsLabel, scrollPane);
+			if (newSelectedComponents != null) {
+				updateSelectedComponents(type, newSelectedComponents, availableComponents,
+						selectedComponentsLabel, scrollPane);
+			}
 		});
 
 		return panel;
@@ -111,7 +129,7 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 	private void updateSelectedComponents(CADataType type, List<RocketComponent> components,
 										  List<RocketComponent> componentsForType, JTextArea label,
 										  JScrollPane scrollPane) {
-		components = (components != null && !components.isEmpty()) ? components : componentsForType.subList(0, 1);
+		components = CAPlotTypeSelector.retainValidComponentsOrRocket(components, componentsForType);
 		List<RocketComponent> selectedComponentsList = this.selectedComponentsMap.computeIfAbsent(type, k -> new ArrayList<>());
 		selectedComponentsList.clear();
 		selectedComponentsList.addAll(components);
@@ -130,13 +148,49 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		scrollPane.repaint();
 	}
 
-	public static CAExportPanel create(ComponentAnalysisPlotExportPanel parent, CADataType[] types) {
+	public static CAExportPanel create(ComponentAnalysisPlotExportPanel parent, CADataType[] types,
+									   Settings initialSettings) {
 		boolean[] selected = new boolean[types.length];
 		for (int i = 0; i < types.length; i++) {
-			selected[i] = ((SwingPreferences) Application.getPreferences()).isComponentAnalysisDataTypeExportSelected(types[i]);
+			if (initialSettings != null && initialSettings.selected.containsKey(types[i])) {
+				selected[i] = initialSettings.selected.get(types[i]);
+			} else {
+				selected[i] = ((SwingPreferences) Application.getPreferences())
+						.isComponentAnalysisDataTypeExportSelected(types[i]);
+			}
 		}
 
-		return new CAExportPanel(parent, types, selected);
+		return new CAExportPanel(parent, types, selected, initialSettings);
+	}
+
+	/**
+	 * Capture export choices before the component-analysis dialog is disposed.
+	 */
+	Settings getSettings() {
+		csvOptions.storePreferences();
+		Map<CADataType, Boolean> selectedSettings = new HashMap<>();
+		Map<CADataType, Unit> unitSettings = new HashMap<>();
+		Map<CADataType, List<RocketComponent>> componentSettings = new HashMap<>();
+		for (int i = 0; i < types.length; i++) {
+			selectedSettings.put(types[i], selected[i]);
+			unitSettings.put(types[i], units[i]);
+			componentSettings.put(types[i], new ArrayList<>(selectedComponentsMap.get(types[i])));
+			prefs.setComponentAnalysisExportSelected(types[i], selected[i]);
+		}
+		return new Settings(selectedSettings, unitSettings, componentSettings);
+	}
+
+	static final class Settings {
+		private final Map<CADataType, Boolean> selected;
+		private final Map<CADataType, Unit> units;
+		private final Map<CADataType, List<RocketComponent>> selectedComponents;
+
+		private Settings(Map<CADataType, Boolean> selected, Map<CADataType, Unit> units,
+						 Map<CADataType, List<RocketComponent>> selectedComponents) {
+			this.selected = selected;
+			this.units = units;
+			this.selectedComponents = selectedComponents;
+		}
 	}
 
 	@Override

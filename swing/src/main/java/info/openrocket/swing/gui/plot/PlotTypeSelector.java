@@ -11,6 +11,7 @@ import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.Icons;
 
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.Serial;
 import java.util.List;
@@ -26,6 +27,8 @@ import javax.swing.JPanel;
 public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Group> extends JPanel {
 	protected static final Translator trans = Application.getTranslator();
 	private static final long serialVersionUID = 9056324972817542570L;
+	/** Fixed logical width shared by the X- and Y-axis data type selectors. */
+	static final String DATA_TYPE_SELECTOR_WIDTH = "200lp!";
 
 	private final String[] POSITIONS = {Util.PlotAxisSelection.AUTO.getName(),
 			Util.PlotAxisSelection.LEFT.getName(), Util.PlotAxisSelection.RIGHT.getName()};
@@ -52,14 +55,21 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 			}
 		};
 		typeSelector.setSelectedItem(type);
-		this.add(typeSelector, "gapright para, top");
+		updateTypeSelectorTooltip();
+		typeSelector.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				updateTypeSelectorTooltip();
+			}
+		});
+		// Keep long localized data type names from hiding the controls at the end of the row.
+		this.add(typeSelector, "width " + DATA_TYPE_SELECTOR_WIDTH + ", gapright unrel, top");
 
 		this.add(new JLabel("Unit:"), "top");
 		unitSelector = new UnitSelector(type.getUnitGroup());
 		if (unit != null) {
 			unitSelector.setSelectedUnit(unit);
 		}
-		this.add(unitSelector, "width 40lp, gapright para, top");
+		this.add(unitSelector, "width 40lp, gapright unrel, top");
 
 		this.add(new JLabel("Axis:"), "top");
 		axisSelector = new JComboBox<>(POSITIONS);
@@ -88,6 +98,14 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 
 	public T getSelectedType() {
 		return (T) typeSelector.getSelectedItem();
+	}
+
+	/**
+	 * Shows the complete data type name when the fixed-width selector truncates the label.
+	 */
+	private void updateTypeSelectorTooltip() {
+		T selectedType = getSelectedType();
+		typeSelector.setToolTipText(selectedType != null ? getDisplayString(selectedType) : null);
 	}
 
 	public Unit getSelectedUnit() {

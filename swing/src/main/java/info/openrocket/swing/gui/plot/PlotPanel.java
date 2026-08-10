@@ -123,6 +123,12 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
 		domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(typesX), trans.get("FlightDataComboBox.placeholder"));
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
+		updateDomainTypeSelectorTooltip();
+		domainTypeSelector.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				updateDomainTypeSelectorTooltip();
+			}
+		});
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -138,7 +144,8 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 				setToCustom();
 			}
 		});
-		this.add(domainTypeSelector, "gapright para");
+		// Keep long localized data type names from determining the dialog width.
+		this.add(domainTypeSelector, "width " + PlotTypeSelector.DATA_TYPE_SELECTOR_WIDTH + ", gapright unrel");
 
 		//// Unit:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")));
@@ -152,7 +159,7 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 				configuration.setDomainAxisUnit(domainUnitSelector.getSelectedUnit());
 			}
 		});
-		this.add(domainUnitSelector, "width 40lp, gapright para");
+		this.add(domainUnitSelector, "width 40lp, gapright unrel");
 
 		// Extra X widgets
 		if (extraWidgetsX != null) {
@@ -166,6 +173,14 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 		} else {
 			this.add(new JLabel(), "wrap unrel");
 		}
+	}
+
+	/**
+	 * Shows the complete X-axis data type name when its fixed-width selector truncates the label.
+	 */
+	private void updateDomainTypeSelectorTooltip() {
+		T selectedType = (T) domainTypeSelector.getSelectedItem();
+		domainTypeSelector.setToolTipText(selectedType != null ? selectedType.toString() : null);
 	}
 
 	protected JPanel addYAxisSelector(T[] typesY, Component[] extraWidgetsY) {

@@ -68,7 +68,7 @@ class CAParameterSweepTest extends ComponentAnalysisTestBase {
 		double initialMach = parameters.getMach();
 		CADataBranch branch = sweep.sweep(CADomainDataType.MACH, 0.5, 0.6, 0.1, initialMach);
 
-		List<Double> machDomain = branch.get(CADomainDataType.MACH);
+		List<Double> machDomain = branch.getView(CADomainDataType.MACH);
 		assertNotNull(machDomain);
 		assertEquals(List.of(0.5, 0.6), machDomain);
 
@@ -111,6 +111,27 @@ class CAParameterSweepTest extends ComponentAnalysisTestBase {
 		assertEquals(0.4, captured.get(1).getRollRate(), EPSILON);
 
 		assertEquals(2, branch.getLength());
+	}
+
+	@Test
+	void sweepWithAFineStepKeepsTheDomainValuesMonotonic() {
+		CAParameterSweep sweep = new CAParameterSweep(parameters, aerodynamicCalculator, rocket);
+
+		when(aerodynamicCalculator.getForceAnalysis(any(), any(), any()))
+				.thenReturn(new LinkedHashMap<>());
+
+		// The smallest wind direction step the GUI allows.  Its plain string form has
+		// enough decimals that scaling the domain values by 10^decimals used to run
+		// past the range of a long.
+		double delta = Math.PI / 1800;
+		CADataBranch branch = sweep.sweep(CADomainDataType.WIND_DIRECTION, 6.0, 2 * Math.PI, delta, 0.15);
+
+		List<Double> direction = branch.getView(CADomainDataType.WIND_DIRECTION);
+		assertEquals(branch.getLength(), direction.size());
+		for (int i = 1; i < direction.size(); i++) {
+			assertEquals(delta, direction.get(i) - direction.get(i - 1), 1e-6,
+					"domain values are not evenly spaced at index " + i);
+		}
 	}
 
 	private AerodynamicForces createRocketForces(RocketComponent component, double cpX, double cna, double pressureCd,

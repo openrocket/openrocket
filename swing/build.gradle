@@ -34,6 +34,8 @@ configurations {
     }
 }
 
+def flatlafVersionValue = "3.7.2"
+
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
@@ -81,9 +83,9 @@ dependencies {
     implementation 'io.github.g00fy2:versioncompare:1.5.0'
     implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.9.1'
 
-    implementation 'com.formdev:flatlaf:3.6.2'
-    implementation 'com.formdev:flatlaf-extras:3.6.2'
-    implementation 'com.formdev:flatlaf-intellij-themes:3.6.2'
+    implementation "com.formdev:flatlaf:$flatlafVersionValue"
+    implementation "com.formdev:flatlaf-extras:$flatlafVersionValue"
+    implementation "com.formdev:flatlaf-intellij-themes:$flatlafVersionValue"
     implementation 'com.github.weisj:jsvg:2.0.0'
 
     implementation 'ch.qos.logback:logback-core:1.5.20'

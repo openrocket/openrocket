@@ -11,6 +11,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.Unit;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.components.UnitSelector;
@@ -66,7 +67,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 
 	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, OpenRocketDocument document,
 											CAParameters parameters, AerodynamicCalculator aerodynamicCalculator,
-											Rocket rocket) {
+											Rocket rocket, Settings initialSettings) {
 		super(new MigLayout("fill, height 500px!", "[]", "[grow]"));
 
 		this.parent = parent;
@@ -79,19 +80,21 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 		this.types = getValidTypes();
 
 		// ======== Top panel ========
-		addTopPanel();
+		addTopPanel(initialSettings);
 
 		// ======== Tabbed pane ========
 		this.tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, "spanx, growx, growy, pushy, wrap");
 
 		//// Plot data
-		this.plotTab = CAPlotPanel.create(this, types);
+		this.plotTab = CAPlotPanel.create(this, types,
+				initialSettings != null ? initialSettings.plotConfiguration : null);
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Plot"), null, this.plotTab);
 		this.plotTab.addPlotConfigurationListener(this);
 
 		//// Export data
-		this.exportTab = CAExportPanel.create(this, types);
+		this.exportTab = CAExportPanel.create(this, types,
+				initialSettings != null ? initialSettings.exportSettings : null);
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Export"), null, this.exportTab);
 
 		// Create the OK button
@@ -115,6 +118,10 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 				}
 			}
 		});
+		if (initialSettings != null && initialSettings.selectedTab >= 0 &&
+				initialSettings.selectedTab < tabbedPane.getTabCount()) {
+			tabbedPane.setSelectedIndex(initialSettings.selectedTab);
+		}
 
 		validate();
 
@@ -122,7 +129,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 		rocket.addComponentChangeListener(e -> invalidateCache());
 	}
 
-	private void addTopPanel() {
+	private void addTopPanel(Settings initialSettings) {
 		JPanel topPanel = new JPanel(new MigLayout("fill, ins unrel unrel 0 unrel"));
 		TitledBorder border = BorderFactory.createTitledBorder(trans.get("CAPlotExportDialog.XAxisConfiguration"));
 		topPanel.setBorder(border);
@@ -131,11 +138,18 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 		topPanel.add(new JLabel(trans.get("CAPlotExportDialog.lbl.XAxis")), "top, split 2");
 		this.parameterSelector = new JComboBox<>(CADomainDataType.ALL_DOMAIN_TYPES);
 		this.parameterSelector.setToolTipText(trans.get("CAPlotExportDialog.lbl.XAxis.ttip"));
-		parameterSelector.setSelectedItem(CADomainDataType.MACH);
+		CADomainDataType initialParameter = initialSettings != null ?
+				initialSettings.selectedParameter : CADomainDataType.MACH;
+		parameterSelector.setSelectedItem(initialParameter);
 		topPanel.add(parameterSelector, "top, growx");
 
 		// Update the models
 		updateModels(getSelectedParameter());
+		if (initialSettings != null) {
+			minModel.setCurrentUnit(initialSettings.minUnit);
+			maxModel.setCurrentUnit(initialSettings.maxUnit);
+			deltaModel.setCurrentUnit(initialSettings.deltaUnit);
+		}
 
 		JPanel minMaxPanel = new JPanel(new MigLayout("fill, ins 0"));
 
@@ -336,5 +350,36 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 	public void onPlotConfigurationChanged(CAPlotConfiguration newConfiguration) {
 		CADomainDataType type = (CADomainDataType) newConfiguration.getDomainAxisType();
 		this.parameterSelector.setSelectedItem(type);
+	}
+
+	/**
+	 * Capture all plot/export choices which should be restored when this document's dialog is reopened.
+	 */
+	Settings getSettings() {
+		return new Settings(getSelectedParameter(), tabbedPane.getSelectedIndex(),
+				plotTab.getConfiguration().cloneConfiguration(), exportTab.getSettings(),
+				minModel.getCurrentUnit(), maxModel.getCurrentUnit(), deltaModel.getCurrentUnit());
+	}
+
+	static final class Settings {
+		private final CADomainDataType selectedParameter;
+		private final int selectedTab;
+		private final CAPlotConfiguration plotConfiguration;
+		private final CAExportPanel.Settings exportSettings;
+		private final Unit minUnit;
+		private final Unit maxUnit;
+		private final Unit deltaUnit;
+
+		private Settings(CADomainDataType selectedParameter, int selectedTab,
+						 CAPlotConfiguration plotConfiguration, CAExportPanel.Settings exportSettings,
+						 Unit minUnit, Unit maxUnit, Unit deltaUnit) {
+			this.selectedParameter = selectedParameter;
+			this.selectedTab = selectedTab;
+			this.plotConfiguration = plotConfiguration;
+			this.exportSettings = exportSettings;
+			this.minUnit = minUnit;
+			this.maxUnit = maxUnit;
+			this.deltaUnit = deltaUnit;
+		}
 	}
 }
