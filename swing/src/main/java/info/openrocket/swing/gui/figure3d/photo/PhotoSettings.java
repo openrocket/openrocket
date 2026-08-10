@@ -18,8 +18,8 @@ public class PhotoSettings extends AbstractChangeSource {
 
 	private double viewAlt = -0.23;
 	private double viewAz = 2.08;
-	private double viewDistance = 0.44;
-	private double fov = 1.4;
+	private double viewDistance = 0.80;
+	private double fov = Math.toRadians(50.0);
 
 	private double lightAlt = 0.35;
 	private double lightAz = -1;
