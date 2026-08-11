@@ -11,7 +11,25 @@ on:
 
 jobs:
   gradle:
-    runs-on: ubuntu-latest
+    name: Gradle (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Keep static analysis, coverage verification, and distribution creation on Linux.
+          - os: ubuntu-latest
+            gradle_command: ./gradlew
+            gradle_tasks: check build dist
+          # Exercise the platform-specific Gradle and test paths on Windows and macOS.
+          - os: windows-latest
+            gradle_command: .\gradlew.bat
+            gradle_tasks: test -x jacocoTestReport
+          - os: macos-latest
+            gradle_command: ./gradlew
+            gradle_tasks: test -x jacocoTestReport
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository and submodules
@@ -26,28 +44,29 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Execute Gradle build
-        run: ./gradlew check build dist
+        run: ${{ matrix.gradle_command }} ${{ matrix.gradle_tasks }}
       # If wanting to serialize all the engines during build
       #        run: ./gradlew serializeEnginesDist build dist
       - name: Upload build reports
-        if: always()
+        if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
           name: build-reports
           path: build/reports/
       - name: Upload SpotBugs reports
-        if: always()
+        if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
           name: spotbugs-reports
           path: '**/build/reports/spotbugs/**'
       - name: Upload Coverage HTML
-        if: always()
+        if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
           name: coverage-html
           path: '**/build/reports/jacoco/test/html/**'
       - name: Upload Artifact
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
           name: openrocket_build_${{ github.run_number }}

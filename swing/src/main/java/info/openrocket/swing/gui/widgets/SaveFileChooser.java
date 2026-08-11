@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -125,16 +126,26 @@ public class SaveFileChooser extends JFileChooser {
         Character c = FileUtils.getIllegalFilenameChar(fileName);
         if (c != null) {
             // Illegal character found
-            JOptionPane.showMessageDialog(getParent(),
-                    String.format(trans.get("SaveAsFileChooser.illegalFilename.message"), fileName, c),
-                    trans.get("SaveAsFileChooser.illegalFilename.title"),
-                    JOptionPane.WARNING_MESSAGE);
+            showIllegalFilenameWarning(fileName, c);
         } else {
             // Successful filename
             super.setSelectedFile(currentFile);
             setCurrentDirectory(cwd);
             super.approveSelection();
         }
+    }
+
+    /**
+     * Shows the warning used when the entered filename contains an illegal character.
+     *
+     * @param fileName the filename entered by the user
+     * @param c the offending character
+     */
+    protected void showIllegalFilenameWarning(String fileName, char c) {
+        JOptionPane.showMessageDialog(getParent(),
+                String.format(trans.get("SaveAsFileChooser.illegalFilename.message"), fileName, c),
+                trans.get("SaveAsFileChooser.illegalFilename.title"),
+                JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -175,6 +186,17 @@ public class SaveFileChooser extends JFileChooser {
 
         String fullPath = file.getAbsolutePath();
         String cwdPath = cwd.getAbsolutePath();
+
+        if (!fullPath.startsWith(cwdPath)) {
+            // Windows may normalize the chooser directory (case or 8.3 short names),
+            // so retry with canonical paths before treating the input as malformed.
+            try {
+                fullPath = file.getCanonicalPath();
+                cwdPath = cwd.getCanonicalPath();
+            } catch (IOException e) {
+                // Fall back to the absolute paths.
+            }
+        }
 
         try {
             String relativePath = fullPath.replaceFirst(Pattern.quote(cwdPath), "").trim();
