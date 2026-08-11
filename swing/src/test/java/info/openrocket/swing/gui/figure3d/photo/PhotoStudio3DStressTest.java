@@ -100,6 +100,11 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	private static final long CAPTURE_TIMEOUT_MS = 12_000;
 	private static final long CAMERA_SNAPSHOT_TIMEOUT_MS = 2_000;
 	private static final long EDT_CALL_TIMEOUT_MS = 2_500;
+	// Creating or disposing an AWTGLCanvas may include native peer setup/teardown and,
+	// for Photo Studio, up to two seconds of render-scheduler draining. Keep ordinary
+	// EDT responsiveness checks strict while allowing those lifecycle operations to
+	// complete on slower hosted macOS runners.
+	private static final long EDT_LIFECYCLE_TIMEOUT_MS = 15_000;
 	private static final long WATCHDOG_PERIOD_SECONDS = 5;
 	private static final RocketPanel.VIEW_TYPE[] WINDOWS_3D_VIEW_TYPES = {
 			RocketPanel.VIEW_TYPE.Figure3D,
@@ -1351,7 +1356,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 	private static PhotoHarness createPhotoHarness(String frameTitle) throws Exception {
 		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
-		onEdt("create Photo Studio harness", () -> {
+		onEdt("create Photo Studio harness", EDT_LIFECYCLE_TIMEOUT_MS, () -> {
 			OpenRocketDocument document = loadMotorizedDocumentUnchecked();
 			PhotoSettings settings = new PhotoSettings();
 			PhotoPanel panel = new PhotoPanel(document, settings);
@@ -1376,7 +1381,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 	private static DesignHarness createDesignHarness(OpenRocketDocument document) throws Exception {
 		AtomicReference<DesignHarness> harnessRef = new AtomicReference<>();
-		onEdt("create design-view harness", () -> {
+		onEdt("create design-view harness", EDT_LIFECYCLE_TIMEOUT_MS, () -> {
 			RocketPanel panel = new RocketPanel(document);
 			panel.setPreferredSize(new Dimension(900, 620));
 
@@ -1396,7 +1401,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		if (harness == null) {
 			return;
 		}
-		onEdt("dispose Photo Studio harness", () -> {
+		onEdt("dispose Photo Studio harness", EDT_LIFECYCLE_TIMEOUT_MS, () -> {
 			harness.panel.clearDoc();
 			harness.frame.dispose();
 		});
@@ -1406,7 +1411,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		if (harness == null) {
 			return;
 		}
-		onEdt("dispose design-view harness", () -> {
+		onEdt("dispose design-view harness", EDT_LIFECYCLE_TIMEOUT_MS, () -> {
 			harness.panel.setViewType(RocketPanel.VIEW_TYPE.SideView);
 			harness.frame.dispose();
 		});
@@ -2238,13 +2243,24 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	}
 
 	private static void onEdt(String context, Runnable runnable) throws Exception {
-		onEdt(context, () -> {
+		onEdt(context, EDT_CALL_TIMEOUT_MS, () -> {
 			runnable.run();
 			return null;
 		});
 	}
 
 	private static <T> T onEdt(String context, Supplier<T> supplier) throws Exception {
+		return onEdt(context, EDT_CALL_TIMEOUT_MS, supplier);
+	}
+
+	private static void onEdt(String context, long timeoutMs, Runnable runnable) throws Exception {
+		onEdt(context, timeoutMs, () -> {
+			runnable.run();
+			return null;
+		});
+	}
+
+	private static <T> T onEdt(String context, long timeoutMs, Supplier<T> supplier) throws Exception {
 		if (SwingUtilities.isEventDispatchThread()) {
 			return supplier.get();
 		}
@@ -2252,9 +2268,9 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		FutureTask<T> task = new FutureTask<>(supplier::get);
 		SwingUtilities.invokeLater(task);
 		try {
-			return task.get(EDT_CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			return task.get(timeoutMs, TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
-			String header = "EDT call timed out after " + EDT_CALL_TIMEOUT_MS + "ms while " + context;
+			String header = "EDT call timed out after " + timeoutMs + "ms while " + context;
 			printThreadDump(header);
 			throw new AssertionError(header, e);
 		} catch (ExecutionException e) {
