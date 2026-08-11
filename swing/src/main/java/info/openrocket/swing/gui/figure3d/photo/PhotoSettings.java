@@ -44,7 +44,7 @@ public class PhotoSettings extends AbstractChangeSource {
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
 	
-	private double sparkConcentration = 0.2;
+	private double sparkConcentration = 0.5;
 	private double sparkWeight = 0;
 	
 	private Sky sky = Mountains.instance;
