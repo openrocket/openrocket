@@ -118,7 +118,7 @@ public class IntegrationTest {
 		 
 		// Compute cg+cp + altitude
 	    //   double cgx, double mass, double cpx, double cna)
-		checkCgCp(0.248, 0.0645, 0.331, 14.88);
+		checkCgCp(0.248, 0.0645, 0.320, 12.0);
 		checkAlt(48.8);
 		
 		// Mass modification
@@ -128,7 +128,7 @@ public class IntegrationTest {
 		checkUndoState("Modify mass", null);
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.230, 0.0745, 0.331, 14.88);
+		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		checkAlt(37.4);
 		
 		// Non-change
@@ -142,7 +142,7 @@ public class IntegrationTest {
 		checkUndoState("Name change", null);
 		
 		// Check cg+cp
-		checkCgCp(0.230, 0.0745, 0.331, 14.88);
+		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		
 		// Aerodynamic modification
 		document.addUndoPosition("Remove component");
@@ -151,7 +151,7 @@ public class IntegrationTest {
 		checkUndoState("Remove component", null);
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.163, 0.0613, 0.275, 12.88);
+		checkCgCp(0.163, 0.0613, 0.275, 9.95);
 		checkAlt(45.6);
 		
 		// Undo "Remove component" change
@@ -160,7 +160,7 @@ public class IntegrationTest {
 		checkUndoState("Name change", "Remove component");
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.230, 0.0745, 0.331, 14.88);
+		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		checkAlt(37.4);
 		
 		// Undo "Name change" change
@@ -169,7 +169,7 @@ public class IntegrationTest {
 		checkUndoState("Modify mass", "Name change");
 		
 		// Check cg+cp
-		checkCgCp(0.230, 0.0745, 0.331, 14.88);
+		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		
 		// Undo "Modify mass" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
@@ -177,7 +177,7 @@ public class IntegrationTest {
 		checkUndoState(null, "Modify mass");
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.248, 0.0645, 0.331, 14.88);
+		checkCgCp(0.248, 0.0645, 0.320, 12.0);
 		checkAlt(48.87);
 		
 		// Redo "Modify mass" change
@@ -186,7 +186,7 @@ public class IntegrationTest {
 		checkUndoState("Modify mass", "Name change");
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.230, 0.0745, 0.331, 14.88);
+		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		checkAlt(37.4);
 		
 		// Mass modification
@@ -196,7 +196,7 @@ public class IntegrationTest {
 		checkUndoState("Modify mass2", null);
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.223, 0.0795, 0.331, 14.88);
+		checkCgCp(0.223, 0.0795, 0.320, 12.0);
 		checkAlt(33);
 		
 		// Perform component movement
@@ -213,7 +213,7 @@ public class IntegrationTest {
 		document.stopUndo();
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.221, 0.0797, 0.331, 14.88);
+		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(33);
 		
 		// Modify mass without setting undo description
@@ -221,7 +221,7 @@ public class IntegrationTest {
 		checkUndoState("Modify mass2", null);
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.215, 0.0847, 0.331, 14.88);
+		checkCgCp(0.215, 0.0847, 0.320, 12.0);
 		checkAlt(29.0);
 		
 		// Undo "Modify mass2" change
@@ -230,7 +230,7 @@ public class IntegrationTest {
 		checkUndoState("Move component", "Modify mass2");
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.221, 0.0797, 0.331, 14.88);
+		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(33);
 		
 		// Undo "Move component" change
@@ -239,7 +239,7 @@ public class IntegrationTest {
 		checkUndoState("Modify mass2", "Move component");
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.223, 0.0795, 0.331, 14.88);
+		checkCgCp(0.223, 0.0795, 0.320, 12.0);
 		checkAlt(33);
 		
 		// Redo "Move component" change
@@ -248,7 +248,7 @@ public class IntegrationTest {
 		checkUndoState("Move component", "Modify mass2");
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.221, 0.0797, 0.331, 14.88);
+		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(33);
 		
 	}
