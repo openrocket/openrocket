@@ -64,7 +64,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private static final float PHOTO_PARTICLE_LENGTH_SCALE = 0.82f;
 	private static final float PHOTO_SMOKE_LENGTH_SCALE = 0.50f;
 	private static final float PHOTO_FLAME_EXPOSURE_SCALE = 0.90f;
-	private static final float PHOTO_SPARK_SPREAD_SCALE = 0.70f;
+	private static final float PHOTO_SPARK_LENGTH_SCALE = 1.60f;
+	private static final float PHOTO_SPARK_SPREAD_SCALE = 0.4f;
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
 	private static final long RENDER_SHUTDOWN_TIMEOUT_MS = 2_000;
 	private final PhotoSettings settings;
@@ -910,6 +911,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		effects.setParticleLengthScale(PHOTO_PARTICLE_LENGTH_SCALE);
 		effects.setSmokeLengthScale(PHOTO_SMOKE_LENGTH_SCALE);
 		effects.setFlameExposureScale(PHOTO_FLAME_EXPOSURE_SCALE);
+		effects.setSparkLengthScale(PHOTO_SPARK_LENGTH_SCALE);
 		effects.setSparkSpreadScale(PHOTO_SPARK_SPREAD_SCALE);
 
 		boolean flameColorChanged = !Objects.equals(flameColor, lastFlameColor);

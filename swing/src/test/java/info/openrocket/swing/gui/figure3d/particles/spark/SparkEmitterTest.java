@@ -66,6 +66,20 @@ class SparkEmitterTest {
 		}
 	}
 
+	@Test
+	void intenseSettingsApplyDedicatedSparkLengthAndSpreadScales() {
+		RenderingConfiguration config = new RenderingConfiguration();
+		config.getVisualEffects().setParticleLengthScale(0.8f);
+		config.getVisualEffects().setSparkLengthScale(1.2f);
+		config.getVisualEffects().setSparkSpreadScale(0.58f);
+
+		SparkSettings settings = SparkSettings.intense(config, 1.0f, 1.0f, 0.0f);
+
+		assertEquals(0.768f, settings.minLife, EPSILON);
+		assertEquals(1.44f, settings.maxLife, EPSILON);
+		assertEquals(5.8f, settings.spread, EPSILON);
+	}
+
 	private static ParticleSettings createSettings(float spread) {
 		return new ParticleSettings(
 				10.0f, 100.0f,

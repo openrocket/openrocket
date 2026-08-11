@@ -40,6 +40,7 @@ public class VisualEffectsSettings {
 	public static final float DEFAULT_PARTICLE_LENGTH_SCALE = 1.0f;
 	public static final float DEFAULT_SMOKE_LENGTH_SCALE = 1.0f;
 	public static final float DEFAULT_FLAME_EXPOSURE_SCALE = 0.1f;
+	public static final float DEFAULT_SPARK_LENGTH_SCALE = 1.0f;
 	public static final float DEFAULT_SPARK_SPREAD_SCALE = 1.0f;
 
 	// Motion blur settings
@@ -75,6 +76,7 @@ public class VisualEffectsSettings {
 	private float particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
 	private float smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
 	private float flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
+	private float sparkLengthScale = DEFAULT_SPARK_LENGTH_SCALE;
 	private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
 	
 	// Motion Blur
@@ -480,6 +482,14 @@ public class VisualEffectsSettings {
 		this.flameExposureScale = Math.max(0.0f, flameExposureScale);
 	}
 
+	public float getSparkLengthScale() {
+		return sparkLengthScale;
+	}
+
+	public void setSparkLengthScale(float sparkLengthScale) {
+		this.sparkLengthScale = Math.max(0.0f, sparkLengthScale);
+	}
+
 	public float getSparkSpreadScale() {
 		return sparkSpreadScale;
 	}
@@ -518,6 +528,7 @@ public class VisualEffectsSettings {
 		particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
 		smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
 		flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
+		sparkLengthScale = DEFAULT_SPARK_LENGTH_SCALE;
 		sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
 	}
 

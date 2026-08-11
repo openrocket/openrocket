@@ -51,7 +51,8 @@ public class SparkSettings extends ParticleSettings {
 		float scale = Math.max(0.0f, exhaustScale);
 		float concentration = Math.max(0.0f, sparkConcentration);
 		float weight = Math.max(0.0f, sparkWeight);
-		float lengthScale = Math.max(0.0f, config.getVisualEffects().getParticleLengthScale());
+		float lengthScale = Math.max(0.0f, config.getVisualEffects().getParticleLengthScale())
+				* Math.max(0.0f, config.getVisualEffects().getSparkLengthScale());
 		float spreadScale = Math.max(0.0f, config.getVisualEffects().getSparkSpreadScale());
 		return new SparkSettings(10.0f * scale, 500 * concentration,    // Velocity and creation rate
 				0.8f * lengthScale, 1.5f * lengthScale,     // Life span
