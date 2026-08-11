@@ -302,7 +302,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		if (!captureQueued.compareAndSet(false, true)) {
 			return;
 		}
-		boolean transparent = settings.getSky() == null && settings.getSkyColorOpacity() < 1.0;
+		boolean transparent = settings.getBackgroundType() == PhotoSettings.BackgroundType.SOLID_COLOR
+				&& settings.getSkyColorOpacity() < 1.0;
 		panel.requestImageCapture(transparent, image -> {
 			List<ImageCallback> callbacks = new ArrayList<>(imageCallbacks);
 			imageCallbacks.clear();

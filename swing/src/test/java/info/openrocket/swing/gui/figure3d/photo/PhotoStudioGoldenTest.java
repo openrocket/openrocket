@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /** Golden image for the real Photo Studio settings and rendering path. */
@@ -87,6 +88,24 @@ class PhotoStudioGoldenTest extends BaseTestCase {
 					settings.setMotionBlurred(true);
 					settings.setMotionBlurAmount(9.0);
 				}, EFFECT_TOLERANCE);
+	}
+
+	@Test
+	void transparentSolidBackgroundCapturePreservesAlpha() throws Exception {
+		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
+				"Photo Studio transparency test requires a live graphical environment");
+		OpenRocketDocument document = GoldenImageTestSupport.createStyledRocketDocument();
+		PhotoSettings settings = createBaseSettings();
+		settings.setBackgroundType(PhotoSettings.BackgroundType.SOLID_COLOR);
+		settings.setSkyColorOpacity(0.0);
+		PhotoHarness harness = createHarness(document, settings);
+		try {
+			BufferedImage image = capture(harness.panel);
+			int cornerAlpha = image.getRGB(0, 0) >>> 24;
+			assertEquals(0, cornerAlpha, "Transparent exports must not contain the preview checkerboard");
+		} finally {
+			dispose(harness);
+		}
 	}
 
 	private static void renderPhotoStudio(String goldenResource, String candidateFileName,
