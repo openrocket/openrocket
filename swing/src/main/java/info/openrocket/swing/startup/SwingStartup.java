@@ -60,6 +60,12 @@ public class SwingStartup {
 	 * OpenRocket startup main method.
 	 */
 	public static void main(final String[] args) throws Exception {
+		// IDEs can launch this second-stage class directly. Route that invocation through the first-stage bootstrap so
+		// plugin migration and classpath setup are performed before any plugin classes are scanned.
+		if (!OpenRocket.isClasspathReady()) {
+			OpenRocket.main(args);
+			return;
+		}
 
 		// Check for "openrocket.debug" property before anything else
 		checkDebugStatus();
