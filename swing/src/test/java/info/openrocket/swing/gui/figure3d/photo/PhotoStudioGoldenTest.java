@@ -6,6 +6,7 @@ import info.openrocket.swing.gui.figure3d.GoldenImageTestSupport;
 import info.openrocket.swing.gui.figure3d.GoldenImageTestSupport.DifferenceTolerance;
 import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /** Golden image for the real Photo Studio settings and rendering path. */
+@Tag("requires-live-opengl")
 @Timeout(value = 90, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 class PhotoStudioGoldenTest extends BaseTestCase {
 

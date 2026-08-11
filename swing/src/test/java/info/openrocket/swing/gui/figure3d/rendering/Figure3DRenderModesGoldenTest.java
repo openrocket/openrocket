@@ -17,6 +17,7 @@ import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Vector4f;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /** Golden images for the three display modes offered by the design view. */
+@Tag("requires-live-opengl")
 class Figure3DRenderModesGoldenTest extends BaseTestCase {
 
 	private static final DifferenceTolerance TOLERANCE = new DifferenceTolerance(12, 1.75, 0.02);

@@ -48,6 +48,7 @@ import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.lwjgl.opengl.GL11;
@@ -91,6 +92,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("requires-live-opengl")
 class PhotoStudio3DStressTest extends BaseTestCase {
 
 	// Generous timeouts: these are awaits that return early on success, so large

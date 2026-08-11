@@ -75,6 +75,17 @@ allprojects {
     }
 }
 
+// Standard GitHub-hosted Windows runners do not expose the OpenGL 3.3 driver
+// required by the live AWTGLCanvas suites. Keep their compile coverage while
+// running the renderer tests on hosts with a usable GL implementation. A GPU or
+// self-hosted Windows job can opt back in with
+// -Dopenrocket.test.runLiveOpenGl=true.
+def runningOnWindowsGitHubActions =
+        System.getProperty('os.name', '').toLowerCase(Locale.ROOT).contains('windows')
+                && 'true'.equalsIgnoreCase(System.getenv('GITHUB_ACTIONS'))
+def excludeLiveOpenGlTests = Boolean.getBoolean('openrocket.test.excludeLiveOpenGl')
+        || (runningOnWindowsGitHubActions && !Boolean.getBoolean('openrocket.test.runLiveOpenGl'))
+
 subprojects {
     apply plugin: 'java'
 
@@ -145,7 +156,11 @@ subprojects {
     }
 
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            if (excludeLiveOpenGlTests) {
+                excludeTags 'requires-live-opengl'
+            }
+        }
         finalizedBy jacocoTestReport
 
         // The 3D tests drive real OpenGL contexts, so a failure there can be a native crash

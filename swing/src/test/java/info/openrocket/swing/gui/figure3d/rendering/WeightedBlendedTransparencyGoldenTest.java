@@ -25,6 +25,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.lwjgl.BufferUtils;
@@ -61,6 +62,7 @@ import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
  * Live-GL regression coverage for intersecting translucent geometry and mixed opaque /
  * translucent texture coverage.
  */
+@Tag("requires-live-opengl")
 class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 
 	private static final String GOLDEN_RESOURCE = "/figure3d/weighted-blended-transparency.png";
