@@ -76,15 +76,18 @@ allprojects {
 }
 
 // Standard GitHub-hosted Windows runners do not expose the OpenGL 3.3 driver
-// required by the live AWTGLCanvas suites. Keep their compile coverage while
-// running the renderer tests on hosts with a usable GL implementation. A GPU or
-// self-hosted Windows job can opt back in with
+// required by the live AWTGLCanvas suites, while hosted macOS runners are not
+// reliable under repeated native canvas setup/teardown. Keep their compile and
+// non-GL test coverage while running the renderer tests on Linux. A capable
+// self-hosted Windows or macOS job can opt back in with
 // -Dopenrocket.test.runLiveOpenGl=true.
-def runningOnWindowsGitHubActions =
-        System.getProperty('os.name', '').toLowerCase(Locale.ROOT).contains('windows')
-                && 'true'.equalsIgnoreCase(System.getenv('GITHUB_ACTIONS'))
+def operatingSystemName = System.getProperty('os.name', '').toLowerCase(Locale.ROOT)
+def runningOnGitHubActionsWithoutReliableLiveOpenGl =
+        'true'.equalsIgnoreCase(System.getenv('GITHUB_ACTIONS'))
+                && (operatingSystemName.contains('windows') || operatingSystemName.contains('mac'))
 def excludeLiveOpenGlTests = Boolean.getBoolean('openrocket.test.excludeLiveOpenGl')
-        || (runningOnWindowsGitHubActions && !Boolean.getBoolean('openrocket.test.runLiveOpenGl'))
+        || (runningOnGitHubActionsWithoutReliableLiveOpenGl
+                && !Boolean.getBoolean('openrocket.test.runLiveOpenGl'))
 
 subprojects {
     apply plugin: 'java'
