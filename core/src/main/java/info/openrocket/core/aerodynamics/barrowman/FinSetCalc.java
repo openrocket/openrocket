@@ -147,23 +147,13 @@ public class FinSetCalc extends RocketComponentCalc {
 			break;
 		}
 				
-		// Combined body-fin interference effect on the normal force
+		// Body-fin interference effect
 		double r = bodyRadius;
 		double tau = r / (span + r);
-		if (Double.isNaN(tau) || Double.isInfinite(tau)) {
+		if (Double.isNaN(tau) || Double.isInfinite(tau))
 			tau = 0;
-		}
-		/*
-		 * TODO: Replace this scalar approximation with the complete fin/body
-		 * method from NACA Report 1307. Calculate fin-in-body and body-in-fin
-		 * CNa and CP separately (equations 13-34 and 58-71; charts 1-5 and
-		 * 10-16), then combine their moments. The report's two-panel,
-		 * constant-radius model must first be generalized and validated for
-		 * radial fin sets; preserve this approximation as the fallback outside
-		 * the full method's applicability range. See the technical documentation
-		 * subsection "Future complete NACA implementation" for the full roadmap.
-		 */
-		cna *= calculateBodyFinInterferenceFactor(tau, conditions.getMach());
+		cna *= 1 + tau; // Classical Barrowman
+		//		cna *= pow2(1 + tau);	// Barrowman thesis (too optimistic??)
 		//		logger.debug("Component cna = {}", cna);
 		
 		// TODO: LOW: check for fin tip mach cone interference
@@ -179,8 +169,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Without body-fin interference effect:
 		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 		//			conditions.getRefLength();
-		// The body-in-fin lift does not act through the canted fin surface, so
-		// roll forcing retains only the classical fin-in-body correction.
+		// With body-fin interference effect:
 		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
@@ -423,34 +412,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		K1 = new LinearInterpolator(x, k1);
 		K2 = new LinearInterpolator(x, k2);
 		K3 = new LinearInterpolator(x, k3);
-	}
-
-	/**
-	 * Calculate the combined fin-in-body and body-in-fin normal-force multiplier.
-	 *
-	 * <p>For slender configurations, equations 14 and 21 of NACA Report 1307
-	 * combine to {@code (1 + tau)^2}.  OpenRocket does not yet model the
-	 * supersonic Mach-cone geometry needed for the body contribution, so that
-	 * additional term is blended out over the existing transonic CNa interval.
-	 * The classical fin-in-body term remains at all Mach numbers.</p>
-	 *
-	 * @param tau body radius divided by the fin semispan measured from the rocket axis
-	 * @param mach flight Mach number
-	 * @return total body-fin interference multiplier
-	 * @see <a href="https://ntrs.nasa.gov/citations/19930091008">NACA Report 1307</a>
-	 */
-	static double calculateBodyFinInterferenceFactor(double tau, double mach) {
-		double finInBodyFactor = 1 + tau;
-		if (mach <= CNA_SUBSONIC) {
-			return pow2(finInBodyFactor);
-		}
-		if (mach >= CNA_SUPERSONIC) {
-			return finInBodyFactor;
-		}
-
-		double bodyInFinFactor = tau * finInBodyFactor;
-		double bodyContributionWeight = (CNA_SUPERSONIC - mach) / (CNA_SUPERSONIC - CNA_SUBSONIC);
-		return finInBodyFactor + bodyContributionWeight * bodyInFinFactor;
 	}
 	
 	protected double calculateFinCNa1(FlightConditions conditions) {
