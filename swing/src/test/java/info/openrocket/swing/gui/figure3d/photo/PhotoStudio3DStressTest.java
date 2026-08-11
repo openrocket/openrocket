@@ -1365,7 +1365,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			frame.setVisible(true);
 
 			panel.setDoc(document);
-			harnessRef.set(new PhotoHarness(frame, panel, settings));
+			harnessRef.set(new PhotoHarness(frame, panel, settings, document));
 		});
 		return harnessRef.get();
 	}
@@ -2279,7 +2279,8 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		return "unknown call site";
 	}
 
-	private record PhotoHarness(JFrame frame, PhotoPanel panel, PhotoSettings settings) {
+	private record PhotoHarness(JFrame frame, PhotoPanel panel, PhotoSettings settings,
+			OpenRocketDocument document) {
 	}
 
 	private record DesignHarness(JFrame frame, RocketPanel panel) {
@@ -2529,6 +2530,54 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		@Override
 		public ThrustCurveMotorSetDatabase get() {
 			return db;
+		}
+	}
+
+	@Test
+	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void idlePhotoStudioDoesNotContinuouslyRenderStaticEffects() throws Exception {
+		assumeUiEnvironment();
+		PhotoHarness harness = null;
+		try {
+			harness = createPhotoHarness("PhotoStudio3DStressTest-idle-rendering");
+			PhotoHarness currentHarness = harness;
+			waitForShowing(currentHarness.panel, 2_000,
+					"Photo Studio panel should become visible before idle-rendering test");
+			awaitFreshPhotoFrame(currentHarness.panel, null, -1, -1, FRAME_TIMEOUT_MS,
+					"initial Photo Studio frame before idle-rendering test");
+			GLScenePanel canvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+					"Photo Studio idle-rendering canvas before enabling effects");
+			int beforeEffectsSwap = canvas.getSwapCallCount();
+			int beforeEffectsPaint = canvas.getPaintCallCount();
+			onEdt(() -> {
+				currentHarness.settings.setFlame(true);
+				currentHarness.settings.setSmoke(true);
+				currentHarness.settings.setSparks(true);
+				currentHarness.settings.setMotionBlurred(true);
+			});
+			awaitFreshPhotoFrame(currentHarness.panel, canvas, beforeEffectsSwap, beforeEffectsPaint,
+					FRAME_TIMEOUT_MS, "Photo Studio frame with all static effects enabled");
+
+			int beforeRocketChangeSwap = canvas.getSwapCallCount();
+			int beforeRocketChangePaint = canvas.getPaintCallCount();
+			onEdt(() -> {
+				RocketComponent component = currentHarness.document.getRocket().getChild(0).getChild(0);
+				component.setVisible(!component.isVisible());
+			});
+			awaitFreshPhotoFrame(currentHarness.panel, canvas, beforeRocketChangeSwap, beforeRocketChangePaint,
+					FRAME_TIMEOUT_MS, "rocket-model change should wake the idle Photo Studio renderer");
+
+			// Allow startup recovery and resize-settle requests to finish before measuring idle work.
+			Thread.sleep(400);
+			canvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+					"Photo Studio idle-rendering canvas");
+			int settledSwapCount = canvas.getSwapCallCount();
+			Thread.sleep(300);
+
+			assertTrue(canvas.getSwapCallCount() - settledSwapCount <= 1,
+					"Idle Photo Studio continuously rendered static effects: " + canvas.getDebugStateSummary());
+		} finally {
+			disposePhotoHarness(harness);
 		}
 	}
 

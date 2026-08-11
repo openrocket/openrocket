@@ -344,8 +344,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	/**
-	 * Registers a callback that is invoked when the user interacts with the canvas (mouse/keyboard/resize).
-	 * Used by the macOS render scheduler to prioritize recently active 3D views.
+	 * Registers a callback invoked when input, resize, or queued scene work makes the canvas stale.
+	 * Demand-driven hosts use it to schedule a fresh frame.
 	 */
 	public void setRenderActivityCallback(Runnable callback) {
 		this.renderActivityCallback = callback;
@@ -857,6 +857,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			int framebufferWidth, int framebufferHeight) throws Exception {
 		scene3DOrchestrator = Scene3DOrchestrator.create(
 				rocket, windowWidth, windowHeight, framebufferWidth, framebufferHeight);
+		scene3DOrchestrator.setGlTaskQueuedCallback(this::markRenderActivity);
 
 		// Create the scene mesh through the orchestrator so context-owned textures
 		// use this canvas's decal cache rather than the process-wide fallback cache.

@@ -133,6 +133,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private double lastRoll;
 	private double lastAdvance;
 	private volatile boolean renderLoopRunning = false;
+	// Photo Studio effects are static snapshots. Render only when settings, input,
+	// canvas state, or an export request makes the current frame stale.
+	private final AtomicBoolean dirty = new AtomicBoolean(true);
 	private static final String[] MOUNTAINS_CUBEMAP = {
 			"/datafiles/sky/box/East.jpg",
 			"/datafiles/sky/box/West.jpg",
@@ -247,6 +250,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		glPanel = panel;
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
+		glPanel.setRenderActivityCallback(this::markDirty);
+		glPanel.setRenderRequestCallback(this::requestRenderNow);
 		glPanel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
 		glPanel.setGlInitFailureCallback(() -> SwingUtilities.invokeLater(() -> showGLInitFailureUI(panel)));
 		attachInteractionSyncListener(glPanel);
@@ -318,9 +323,11 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 				}
 			});
 		});
+		markDirty();
 	}
 
 	private void applySettings() {
+		markDirty();
 		GLScenePanel panel = glPanel;
 		if (panel == null) {
 			debug("applySettings: no panel");
@@ -351,7 +358,6 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 				}
 			}
 		});
-		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	private void startRenderLoop() {
@@ -363,8 +369,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 		renderLoopRunning = true;
+		markDirty();
 		RENDER_SCHEDULER.register(this);
-		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	private void stopRenderLoop() {
@@ -391,9 +397,15 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 		if (!panel.isDisplayable() || !panel.isShowing()) {
+			if (!panel.hasCompletedFrame() || panel.hasPendingResize()) {
+				markDirty();
+			}
 			return;
 		}
 		if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			if (!panel.hasCompletedFrame() || panel.hasPendingResize()) {
+				markDirty();
+			}
 			return;
 		}
 		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
@@ -415,7 +427,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 	@Override
 	public boolean shouldRenderOnTick() {
-		return true;
+		// Atomically clear before rendering so activity arriving concurrently survives.
+		return dirty.getAndSet(false);
 	}
 
 	@Override
@@ -426,6 +439,15 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	@Override
 	public String getRenderDebugName() {
 		return "PhotoPanel";
+	}
+
+	private void markDirty() {
+		dirty.set(true);
+	}
+
+	private void requestRenderNow() {
+		markDirty();
+		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	private void showGLInitFailureUI(GLScenePanel failedPanel) {
@@ -484,6 +506,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		glPanel = panel;
 		panel.setInitializationHook(this::initializePhotoPanelOnGlThread);
+		panel.setRenderActivityCallback(this::markDirty);
+		panel.setRenderRequestCallback(this::requestRenderNow);
 		panel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
 		panel.setGlInitFailureCallback(() -> SwingUtilities.invokeLater(() -> showGLInitFailureUI(panel)));
 		attachInteractionSyncListener(panel);
@@ -503,6 +527,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		detachSceneListeners(panel);
 		detachInteractionSyncListener(panel);
 		panel.setInitializationHook(null);
+		panel.setRenderActivityCallback(null);
+		panel.setRenderRequestCallback(null);
 		panel.setGraphicsResetCallback(null);
 		remove(panel);
 		glPanel = null;

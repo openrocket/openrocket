@@ -68,9 +68,10 @@ single-sampled; scene MSAA is implemented by ``RealisticRenderer`` in its own of
 and resolved before presentation.
 
 ``SharedCanvasRenderScheduler`` serializes every active ``AWTGLCanvas`` onto one background thread named
-``figure3d-render``. This avoids concurrent JAWT rendering across design windows and Photo Studio. The
-design view renders only after it has been marked dirty, while Photo Studio renders continuously while
-its panel is active.
+``figure3d-render``. This avoids concurrent JAWT rendering across design windows and Photo Studio. Both
+views render only after they have been marked dirty by input, settings, model changes, resize, lifecycle,
+or export activity. Photo Studio's exhaust effects are frozen snapshots, so an idle panel does not need
+a render loop.
 
 Important lifecycle rules are:
 
@@ -187,8 +188,8 @@ finished display modes. It uses demand-driven rendering so inactive design windo
 continuous share of the render thread.
 
 Photo Studio uses the same scene and renderer in finished mode, but supplies its own camera semantics,
-background and light settings, animation, and optional flame, smoke, and spark effects. It runs a
-continuous render loop while active because particles and motion blur change with time.
+background and light settings, and optional flame, smoke, spark, and motion-blur effects. Those effects
+are deterministic snapshots; input and settings changes mark the panel dirty and schedule a fresh frame.
 
 Multi-Window and Platform Notes
 ===============================

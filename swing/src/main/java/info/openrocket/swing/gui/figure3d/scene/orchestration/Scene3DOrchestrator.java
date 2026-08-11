@@ -45,6 +45,7 @@ public class Scene3DOrchestrator {
 	private final AtomicBoolean shutdown = new AtomicBoolean(false);
 	private final RocketSceneSynchronizer rocketSynchronizer;
 	private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
+	private volatile Runnable glTaskQueuedCallback;
 
 	private volatile boolean exportRequested = false;
 	private volatile boolean exportTransparent = false;
@@ -260,6 +261,17 @@ public class Scene3DOrchestrator {
 			return;
 		}
 		glTaskQueue.add(task);
+		Runnable callback = glTaskQueuedCallback;
+		if (callback != null) {
+			callback.run();
+		}
+	}
+
+	/**
+	 * Registers a callback that wakes a demand-driven host after GL work is queued.
+	 */
+	public void setGlTaskQueuedCallback(Runnable callback) {
+		this.glTaskQueuedCallback = callback;
 	}
 
 	private void runPendingGlTasks() {
@@ -280,6 +292,7 @@ public class Scene3DOrchestrator {
 		if (!shutdown.compareAndSet(false, true)) {
 			return;
 		}
+		glTaskQueuedCallback = null;
 		glTaskQueue.clear();
 		if (rocketSynchronizer != null) {
 			rocketSynchronizer.dispose();
