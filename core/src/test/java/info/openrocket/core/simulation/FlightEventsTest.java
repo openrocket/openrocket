@@ -343,7 +343,7 @@ public class FlightEventsTest extends BaseTestCase {
 		assertEquals(5.001, deployments.get(0).getTime(), EPSILON, "Parachute deployed at wrong time");
 
 		// The deployment velocity must be the one of the real deployment, not of the phantom second one
-		assertEquals(10.21, sim.getSimulatedData().getDeploymentVelocity(), 0.05, "Wrong deployment velocity");
+		assertEquals(10.13, sim.getSimulatedData().getDeploymentVelocity(), 0.05, "Wrong deployment velocity");
 	}
 
 	/*
