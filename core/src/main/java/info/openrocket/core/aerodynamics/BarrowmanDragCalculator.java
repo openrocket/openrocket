@@ -163,8 +163,8 @@ public class BarrowmanDragCalculator implements DragCalculator {
 			}
 		}
 
-		double fB = (maxX - minX + 0.0001) / maxR;
-		double correction = (1 + 1.0 / (2 * fB));
+		double bodyLength = maxX - minX + 0.0001;
+		double correction = calculateBodyFrictionCorrection(bodyLength, maxR);
 
 		if (forceMap != null) {
 			for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
@@ -175,6 +175,21 @@ public class BarrowmanDragCalculator implements DragCalculator {
 		}
 
 		return otherFrictionCD + correction * bodyFrictionCD;
+	}
+
+	/**
+	 * Calculate the cylindrical-body wetted-area correction from OpenRocket
+	 * technical documentation equation (3.85). The body fineness ratio is the
+	 * body length divided by its maximum diameter, not its maximum radius.
+	 *
+	 * @param bodyLength aerodynamic body length
+	 * @param maxRadius maximum body radius
+	 * @return body skin-friction correction multiplier
+	 */
+	static double calculateBodyFrictionCorrection(double bodyLength, double maxRadius) {
+		double bodyDiameter = 2 * maxRadius;
+		double finenessRatio = bodyLength / bodyDiameter;
+		return 1 + 1.0 / (2 * finenessRatio);
 	}
 
 	private double calculateReynoldsNumber(FlightConfiguration configuration, FlightConditions conditions) {
