@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.ApacheNoticeResourceTransformer
+import org.gradle.api.tasks.compile.JavaCompile
 
 plugins {
     id 'com.gradleup.shadow' version '9.2.2'
@@ -91,6 +92,11 @@ def excludeLiveOpenGlTests = Boolean.getBoolean('openrocket.test.excludeLiveOpen
 
 subprojects {
     apply plugin: 'java'
+
+    // Java source files are UTF-8; otherwise javac uses the platform's default encoding.
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
 
     // Workaround for Windows "CreateProcess error=206" (command line too long).
     //

@@ -1941,6 +1941,95 @@ public class TestRockets {
 		return rocket;
 	}
 
+	/**
+	 * Alpha III with a pair of externally strapped-on, motorized pods.  The pod motors are A10-0s,
+	 * so they burn out and fire their ejection charges long before the sustainer motor does.  This
+	 * makes the design useful for verifying that pod motors don't fire events in the parent airframe.
+	 *
+	 * This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	 *
+	 * @return an Estes Alpha III carrying two motorized pods
+	 */
+	public static final Rocket makeEstesAlphaIIIWithMotorPods() {
+		final Rocket rocket = makeEstesAlphaIII();
+		rocket.setName("Alpha III with motor pods");
+
+		final AxialStage stage = rocket.getStage(0);
+		final BodyTube bodyTube = (BodyTube) stage.getChild(1);
+
+		final PodSet podSet = new PodSet();
+		podSet.setName("Motor Pods");
+		bodyTube.addChild(podSet);
+		podSet.setInstanceCount(2);
+		podSet.setAxialMethod(AxialMethod.BOTTOM);
+		podSet.setAxialOffset(0.0);
+		podSet.setRadiusMethod(RadiusMethod.RELATIVE);
+		podSet.setRadiusOffset(0.0);
+
+		final BodyTube podBody = new BodyTube(0.06, 0.0075, 0.0003);
+		podBody.setName("Pod Body Tube");
+		podSet.addChild(podBody);
+
+		final InnerTube podMount = new InnerTube();
+		podMount.setName("Pod Motor Mount");
+		podMount.setAxialMethod(AxialMethod.BOTTOM);
+		podMount.setAxialOffset(0.0);
+		podMount.setLength(0.045);
+		podMount.setOuterRadius(0.0065);
+		podMount.setThickness(0.0003);
+		podMount.setMotorMount(true);
+		podBody.addChild(podMount);
+
+		// The pod motors have no ejection delay, so their charges fire the instant they burn out.
+		for (FlightConfigurationId fcid : new FlightConfigurationId[] { TEST_FCID_0, TEST_FCID_1, TEST_FCID_2,
+				TEST_FCID_3, TEST_FCID_4 }) {
+			final MotorConfiguration motorConfig = new MotorConfiguration(podMount, fcid);
+			motorConfig.setMotor(generateMotor_A10_13mm());
+			motorConfig.setEjectionDelay(0.0);
+			podMount.setMotorConfig(motorConfig, fcid);
+		}
+
+		return rocket;
+	}
+
+	/**
+	 * Alpha III with a second motor mount next to the original one in the sustainer body tube.  The
+	 * second motor is an A10-5, whose ejection charge fires about a second after the main motor's,
+	 * so the design is useful for verifying that only the first ejection charge in an airframe
+	 * deploys its recovery devices.
+	 *
+	 * This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	 *
+	 * @return an Estes Alpha III with two motor mounts in its body tube
+	 */
+	public static final Rocket makeEstesAlphaIIIWithSecondMotor() {
+		final Rocket rocket = makeEstesAlphaIII();
+		rocket.setName("Alpha III with a second motor");
+
+		final AxialStage stage = rocket.getStage(0);
+		final BodyTube bodyTube = (BodyTube) stage.getChild(1);
+
+		final InnerTube secondMount = new InnerTube();
+		secondMount.setName("Second Motor Mount Tube");
+		bodyTube.addChild(secondMount);
+		secondMount.setAxialMethod(AxialMethod.TOP);
+		secondMount.setAxialOffset(0.06);
+		secondMount.setLength(0.045);
+		secondMount.setOuterRadius(0.0065);
+		secondMount.setThickness(0.0003);
+		secondMount.setMotorMount(true);
+
+		for (FlightConfigurationId fcid : new FlightConfigurationId[] { TEST_FCID_0, TEST_FCID_1, TEST_FCID_2,
+				TEST_FCID_3, TEST_FCID_4 }) {
+			final MotorConfiguration motorConfig = new MotorConfiguration(secondMount, fcid);
+			motorConfig.setMotor(generateMotor_A10_13mm());
+			motorConfig.setEjectionDelay(5.0);
+			secondMount.setMotorConfig(motorConfig, fcid);
+		}
+
+		return rocket;
+	}
+
 	// Alpha III modified to have an inline pod
 	public static final Rocket makeEstesAlphaIIIwithInlinePod() {
 

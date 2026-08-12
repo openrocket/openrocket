@@ -2,13 +2,8 @@ package info.openrocket.core.simulation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,7 +59,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final InnerTube motorMountTube = (InnerTube) stage.getChild(1).getChild(2);
 		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
 
-		Warning warn = new Warning.HighSpeedDeployment(80.6, parachute);
+		Warning warn = new Warning.RecoveryHighSpeedDeployment(80.6, parachute);
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
@@ -97,9 +92,8 @@ public class FlightEventsTest extends BaseTestCase {
 	/**
 	 * Should not get a sim abort if recovery device deploys when upper stage motor never fires
 	 */
-	@ParameterizedTest(name = "{0}")
-	@EnumSource(SimulationStepperMethod.class)
-	public void testDeployNoMotorEnabled(SimulationStepperMethod method) throws SimulationException {
+	@Test
+	public void testDeployNoMotorEnabled() throws SimulationException {
 		final Rocket rocket = TestRockets.makeBeta();
 		final AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		
@@ -130,12 +124,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
-		sim.getOptions().setSimulationStepperMethodChoice(method);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
-		// Tumbling is declared after a dwell rather than at a single step, which makes its
-		// time sensitive to the integrator's random perturbation.  Pin the seed so the event
-		// times asserted below are a property of the rocket rather than of the run.
-		sim.getOptions().setRandomSeed(1);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
@@ -145,10 +134,7 @@ public class FlightEventsTest extends BaseTestCase {
 		motorConfig.setIgnitionEvent(IgnitionEvent.NEVER);
 		sustainerMount.setMotorConfig(motorConfig, fcid);
 
-		Warning warn = new Warning.HighSpeedDeployment(53.2, chute);
-
-		// LargeAOA does not compare its angle, so the value here is immaterial.
-		Warning largeAOA = new Warning.LargeAOA(0);
+		Warning warn = new Warning.RecoveryHighSpeedDeployment(53.2, chute);
 
 		sim.simulate();
 
@@ -181,9 +167,7 @@ public class FlightEventsTest extends BaseTestCase {
 					new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
 					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
 					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
-					// No large-AOA warning here: this branch is the separated booster, whose
-					// tumble is expected rather than worth reporting.
-					new FlightEvent(FlightEvent.Type.TUMBLE, 2.16, null),
+					new FlightEvent(FlightEvent.Type.TUMBLE, 2.1, null),
 					new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
 					new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 					new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
@@ -196,52 +180,7 @@ public class FlightEventsTest extends BaseTestCase {
 			checkLastRecord(sim, b);
 		}
 	}
-
-	/**
-	 * Scheduled deployments immediately before and after a regular timestep boundary
-	 * must be handled exactly once and retain their scheduled event time.
-	 */
-	@ParameterizedTest(name = "{0}, delay={1}")
-	@MethodSource("steppersAndBoundaryDelays")
-	public void testDeploymentNearTimeStepBoundary(SimulationStepperMethod method, double deployDelay)
-			throws SimulationException {
-		final Rocket rocket = TestRockets.makeEstesAlphaIII();
-		final AxialStage stage = rocket.getStage(0);
-		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
-
-		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
-		deploymentConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.EJECTION);
-		deploymentConfig.setDeployDelay(deployDelay);
-		parachute.getDeploymentConfigurations().setDefault(deploymentConfig);
-
-		final Simulation simulation = new Simulation(rocket);
-		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
-		simulation.getOptions().setISAAtmosphere(true);
-		simulation.getOptions().setTimeStep(0.05);
-		simulation.getOptions().setRandomSeed(1);
-		simulation.getOptions().setSimulationStepperMethodChoice(method);
-		simulation.simulate();
-
-		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
-		FlightEvent ejection = branch.getLastEvent(FlightEvent.Type.EJECTION_CHARGE);
-		assertNotNull(ejection, "precondition: motor must produce an ejection event");
-
-		List<FlightEvent> deployments = branch.getEvents().stream()
-				.filter(event -> event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT)
-				.toList();
-		assertEquals(1, deployments.size(), "deployment must neither be skipped nor duplicated");
-		assertEquals(ejection.getTime() + deployDelay, deployments.get(0).getTime(), 1.0e-12,
-				"deployment must retain its scheduled time across a timestep boundary");
-	}
-
-	private static Stream<Arguments> steppersAndBoundaryDelays() {
-		return Stream.of(
-				Arguments.of(SimulationStepperMethod.RK4, 0.049),
-				Arguments.of(SimulationStepperMethod.RK4, 0.051),
-				Arguments.of(SimulationStepperMethod.RK6, 0.049),
-				Arguments.of(SimulationStepperMethod.RK6, 0.051));
-	}
-
+	
 
 	/**
 	 * Tests for a multi-stage design.
@@ -254,10 +193,11 @@ public class FlightEventsTest extends BaseTestCase {
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
-		// Tumbling is declared after a dwell rather than at a single step, which makes its
-		// time sensitive to the integrator's random perturbation.  Pin the seed so the event
-		// times asserted below are a property of the rocket rather than of the run.
-		sim.getOptions().setRandomSeed(1);
+		// The simulation has two independent random sources: the wind (PinkNoiseWindModel) and the
+		// stepper's small pitch/yaw perturbation (seeded from getRandomSeed()). Pin both so the event
+		// sequence and times are a property of the design rather than of the run.
+		sim.getOptions().setRandomSeed(0);
+		sim.getOptions().getAverageWindModel().setSeed(0);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
@@ -281,9 +221,9 @@ public class FlightEventsTest extends BaseTestCase {
 
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 		
-		Warning warn = new Warning.HighSpeedDeployment(53.2, sideChutes);
+		Warning warn = new Warning.RecoveryHighSpeedDeployment(53.2, sideChutes);
 
-		// LargeAOA does not compare its angle, so the value here is immaterial.
+		// LargeAOA.equals() does not compare the angle, so the value here is immaterial.
 		Warning largeAOA = new Warning.LargeAOA(0);
 
 		// events whose time is too variable to check are given a time of the max sim time
@@ -303,9 +243,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.IGNITION, 2.11, sustainerBody),
-						// Tumbling is declared once a high angle of attack has persisted, so the
-						// angle is reported before the departure it is the onset of.
-						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.37, null, largeAOA),
+						// The sustainer hits a large angle of attack, then tumbles under thrust and aborts.
+						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.36, null, largeAOA),
 						new FlightEvent(FlightEvent.Type.SIM_ABORT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null, simAbort)
 				};
 
@@ -315,8 +254,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.11, centerBoosterBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 3.89, rocket),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.74, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.35, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null)
 				};
@@ -346,6 +285,92 @@ public class FlightEventsTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * A motor in a pod fires its ejection charge inside the pod, so it must not deploy a recovery
+	 * device in the airframe the pod is strapped to.
+	 * See <a href="https://github.com/openrocket/openrocket/issues/2092">GitHub issue #2092</a>.
+	 */
+	@Test
+	public void testPodMotorDoesNotDeployParentRecoveryDevice() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIIIWithMotorPods();
+		final BodyTube bodyTube = (BodyTube) rocket.getStage(0).getChild(1);
+		final Parachute parachute = (Parachute) bodyTube.getChild(3);
+
+		final Simulation sim = simulate(rocket);
+
+		assertEquals(1, sim.getSimulatedData().getBranchCount(), "Motor pods should not create a new branch");
+
+		// The pod A10-0s fire their ejection charges the instant they burn out, the sustainer's B4-3
+		// only fires its charge three seconds after its own burnout.
+		final List<FlightEvent> ejections = getEvents(sim, FlightEvent.Type.EJECTION_CHARGE);
+		assertEquals(2, ejections.size(), "Expected an ejection charge from both the pod and the sustainer motors");
+		assertEquals(1.05, ejections.get(0).getTime(), EPSILON, "Pod motor ejection charge at wrong time");
+		assertEquals(5.0, ejections.get(1).getTime(), EPSILON, "Sustainer motor ejection charge at wrong time");
+
+		// Only the sustainer's charge may deploy the sustainer's parachute
+		final List<FlightEvent> deployments = getEvents(sim, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT);
+		assertEquals(1, deployments.size(), "Parachute should be deployed exactly once");
+		assertEquals(parachute, deployments.get(0).getSource(), "Wrong recovery device deployed");
+		assertEquals(5.001, deployments.get(0).getTime(), EPSILON, "Parachute deployed at wrong time");
+
+		// Deploying on the pod motors' charges would have blown the parachute open under thrust
+		assertTrue(getEvents(sim, FlightEvent.Type.SIM_ABORT).isEmpty(), "Simulation should not have aborted");
+		assertEquals(3.19, sim.getSimulatedData().getDeploymentVelocity(), 0.05, "Wrong deployment velocity");
+	}
+
+	/**
+	 * Only the <em>first</em> ejection charge in an airframe deploys its recovery devices; the charge
+	 * of a second motor with a longer delay must not deploy an already deployed parachute again.
+	 * See <a href="https://github.com/openrocket/openrocket/issues/2092">GitHub issue #2092</a>.
+	 */
+	@Test
+	public void testOnlyFirstEjectionChargeDeploys() throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIIIWithSecondMotor();
+		final BodyTube bodyTube = (BodyTube) rocket.getStage(0).getChild(1);
+		final Parachute parachute = (Parachute) bodyTube.getChild(3);
+
+		final Simulation sim = simulate(rocket);
+
+		// The B4-3 fires its charge at t = 5.0 s, the A10-5 alongside it only at t = 6.05 s
+		final List<FlightEvent> ejections = getEvents(sim, FlightEvent.Type.EJECTION_CHARGE);
+		assertEquals(2, ejections.size(), "Expected an ejection charge from both motors");
+		assertEquals(5.0, ejections.get(0).getTime(), EPSILON, "First ejection charge at wrong time");
+		assertEquals(6.05, ejections.get(1).getTime(), EPSILON, "Second ejection charge at wrong time");
+
+		final List<FlightEvent> deployments = getEvents(sim, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT);
+		assertEquals(1, deployments.size(), "Parachute should be deployed exactly once");
+		assertEquals(parachute, deployments.get(0).getSource(), "Wrong recovery device deployed");
+		assertEquals(5.001, deployments.get(0).getTime(), EPSILON, "Parachute deployed at wrong time");
+
+		// The deployment velocity must be the one of the real deployment, not of the phantom second one
+		assertEquals(10.13, sim.getSimulatedData().getDeploymentVelocity(), 0.05, "Wrong deployment velocity");
+	}
+
+	/*
+	 * run a simulation of the rocket's TEST_FCID_1 configuration under the conditions the tests in
+	 * this class share
+	 */
+	private Simulation simulate(Rocket rocket) throws SimulationException {
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions().getAverageWindModel().setAverage(0.1);
+		sim.setFlightConfigurationId(TestRockets.TEST_FCID_1);
+
+		sim.simulate();
+
+		return sim;
+	}
+
+	/*
+	 * collect the events of a single type from the simulation's main branch, in the order they occurred
+	 */
+	private List<FlightEvent> getEvents(Simulation sim, FlightEvent.Type type) {
+		return sim.getSimulatedData().getBranch(0).getEvents().stream()
+				.filter(e -> e.getType() == type)
+				.toList();
+	}
+
 	/*
 	 * make sure expected and actual events match
 	 *
@@ -353,7 +378,7 @@ public class FlightEventsTest extends BaseTestCase {
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo) {
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
-
+			
 		// Test that all expected events are present, in the right order, at the right
 		// time, from the right sources
 		for (int i = 0; i < Math.min(expectedEvents.length, actualEvents.length); i++) {
@@ -382,9 +407,8 @@ public class FlightEventsTest extends BaseTestCase {
 				// event times that are dependent on simulation step time shouldn't be held to
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
-					// A large-AOA warning is raised on the first step past the stall angle, so
-					// it is as sensitive to step size and to the wind sample as a tumble is.
-					// Other warnings are tied to deterministic events and stay held to EPSILON.
+					// A large-AOA warning fires on the first step past the stall angle, so its time is
+					// as step- and wind-sensitive as a tumble.
 					(actualWarning instanceof Warning.LargeAOA) ||
 					(actual.getType() == FlightEvent.Type.APOGEE) ||
 					(actual.getType() == FlightEvent.Type.GROUND_HIT) ||

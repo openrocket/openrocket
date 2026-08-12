@@ -3,6 +3,7 @@ package info.openrocket.core.masscalc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -32,6 +33,7 @@ import info.openrocket.core.util.Coordinate;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationConditions;
 import info.openrocket.core.simulation.SimulationStatus;
@@ -210,6 +212,25 @@ public class MassCalculatorTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testAlphaIIIStageAnalysisIncludesMotorMass() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		AxialStage stage = (AxialStage) rocket.getChild(0);
+
+		Map<Integer, CMAnalysisEntry> analysis = MassCalculator.getCMAnalysis(config);
+		CMAnalysisEntry rocketEntry = analysis.get(rocket.hashCode());
+		CMAnalysisEntry stageEntry = analysis.get(stage.hashCode());
+
+		// A one-stage rocket provides an exact aggregate check: both rows represent the same launch mass.
+		assertEquals(rocketEntry.totalCM.getWeight(), stageEntry.totalCM.getWeight(), EPSILON,
+				"Stage aggregate mass should include its configured motor and propellant");
+		assertEquals(rocketEntry.totalCM.getX(), stageEntry.totalCM.getX(), EPSILON,
+				"Stage aggregate CG should include its configured motor and propellant");
+		assertEquals(stageEntry.totalCM.getWeight(), stageEntry.eachMass, EPSILON,
+				"A single stage instance should have the same instance and aggregate mass");
+	}
+
+	@Test
 	public void testAlphaIIIMotorMass() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -235,6 +256,23 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expCM, actualMotorData.cm, "Simple Rocket CM is incorrect: ");
 	}
 
+	@Test
+	public void testMotorMassSkipsNonMotorTreeTraversal() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		BodyTube body = (BodyTube) rocket.getChild(0).getChild(1);
+		CountingMassComponent nonMotorComponent = new CountingMassComponent();
+		body.addChild(nonMotorComponent);
+
+		// Component events may update the instance map while the test rocket is assembled.
+		nonMotorComponent.resetInstanceLocationCalls();
+		RigidBody motorData = MassCalculator.calculateMotor(config);
+
+		assertEquals(0, nonMotorComponent.getInstanceLocationCalls(),
+				"Motor mass calculation should not traverse non-motor components");
+		assertEquals(0.0164, motorData.getMass(), EPSILON,
+				"Skipping unrelated components must preserve the active motor mass");
+	}
 
 	@Test
 	public void testAlphaIIIMotorSimulationMass() {
@@ -276,6 +314,44 @@ public class MassCalculatorTest extends BaseTestCase {
 			double expMass = activeMotor.getTotalMass(simTime - ignitionTime);
 			assertEquals(expMass, actualMotorData.getMass(), EPSILON, " Motor Mass " + desig + " is incorrect: ");
 		}
+	}
+
+	@Test
+	public void testSimulationMotorMassUsesEachMountIgnitionTime() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube body = (BodyTube) rocket.getChild(0).getChild(1);
+		InnerTube firstMount = (InnerTube) body.getChild(2);
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		FlightConfigurationId fcid = config.getFlightConfigurationID();
+		Motor sharedMotor = firstMount.getMotorConfig(fcid).getMotor();
+
+		InnerTube secondMount = new InnerTube();
+		secondMount.setLength(firstMount.getLength());
+		secondMount.setMotorMount(true);
+		body.addChild(secondMount);
+		MotorConfiguration secondConfig = new MotorConfiguration(secondMount, fcid);
+		secondConfig.setMotor(sharedMotor);
+		secondMount.setMotorConfig(secondConfig, fcid);
+		config.update();
+
+		SimulationStatus status = new SimulationStatus(config, new SimulationConditions());
+		MotorClusterState firstState = status.getMotors().stream()
+				.filter(state -> state.getMount() == firstMount)
+				.findFirst()
+				.orElseThrow();
+		MotorClusterState secondState = status.getMotors().stream()
+				.filter(state -> state.getMount() == secondMount)
+				.findFirst()
+				.orElseThrow();
+
+		firstState.ignite(0.0);
+		secondState.ignite(1.0);
+		status.setSimulationTime(1.5);
+
+		double expectedMass = sharedMotor.getTotalMass(1.5) + sharedMotor.getTotalMass(0.5);
+		RigidBody motorData = MassCalculator.calculateMotor(status);
+		assertEquals(expectedMass, motorData.getMass(), EPSILON,
+				"Each motor mount must use its own ignition time");
 	}
 	
 	@Test
@@ -1466,5 +1542,26 @@ public class MassCalculatorTest extends BaseTestCase {
 				"Mass should be fully restored after re-enabling all stages");
 		assertEquals(cmxAll, restored.getCM().getX(), EPSILON,
 				"CG should be fully restored after re-enabling all stages");
+	}
+
+	/**
+	 * Records calls made by the former recursive motor-mass tree walk.
+	 */
+	private static class CountingMassComponent extends MassComponent {
+		private int instanceLocationCalls;
+
+		@Override
+		public CoordinateIF[] getInstanceLocations() {
+			instanceLocationCalls++;
+			return super.getInstanceLocations();
+		}
+
+		private int getInstanceLocationCalls() {
+			return instanceLocationCalls;
+		}
+
+		private void resetInstanceLocationCalls() {
+			instanceLocationCalls = 0;
+		}
 	}
 }

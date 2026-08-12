@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.IntStream;
 
 import javax.swing.JOptionPane;
@@ -17,7 +16,6 @@ import javax.swing.ToolTipManager;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.JarMigrationHelper;
-import info.openrocket.core.plugin.PluginHelper;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import net.miginfocom.layout.LayoutUtil;
@@ -63,6 +61,12 @@ public class SwingStartup {
 	 * OpenRocket startup main method.
 	 */
 	public static void main(final String[] args) throws Exception {
+		// IDEs can launch this second-stage class directly. Route that invocation through the first-stage bootstrap so
+		// plugin migration and classpath setup are performed before any plugin classes are scanned.
+		if (!OpenRocket.isClasspathReady()) {
+			OpenRocket.main(args);
+			return;
+		}
 
 		// Check for "openrocket.debug" property before anything else
 		checkDebugStatus();
@@ -255,22 +259,23 @@ public class SwingStartup {
 		log.info("Checking update status");
 		checkUpdateStatus(updateRetriever);
 
-		// Check if plugins were migrated, if so, display a message
-		final List<File> files = PluginHelper.getPluginJars();
-		final Translator trans = Application.getTranslator();
-		files.stream()
-				.filter(f -> f.getName().contains(JarMigrationHelper.MIGRATION_SUFFIX + JarMigrationHelper.NEW_MIGRATION_SUFFIX))
-				.forEach(f -> displayPluginMigratedMessage(f, trans));
+		// Check if plugins were migrated during this startup, if so, display a message
+		final String migratedJars = System.getProperty(JarMigrationHelper.MIGRATED_JARS_PROPERTY);
+		if (migratedJars != null) {
+			System.clearProperty(JarMigrationHelper.MIGRATED_JARS_PROPERTY);
+			final Translator trans = Application.getTranslator();
+			for (String path : migratedJars.split(File.pathSeparator)) {
+				displayPluginMigratedMessage(new File(path), trans);
+			}
+		}
 	}
 
 	private static void displayPluginMigratedMessage(File f, Translator trans) {
-		File newFile = new File(f.getAbsolutePath().replace(JarMigrationHelper.NEW_MIGRATION_SUFFIX, ""));
-		f.renameTo(newFile);
 		String message = String.format(trans.get("SwingStartup.pluginMigrated"),
-				newFile.getName().replace(JarMigrationHelper.MIGRATION_SUFFIX, ""), newFile);
+				f.getName().replace(JarMigrationHelper.MIGRATION_SUFFIX, ""), f);
 		JOptionPane.showMessageDialog(null, message, "Plugin migrated", JOptionPane.INFORMATION_MESSAGE);
 	}
-	
+
 	/**
 	 * Check that the JRE is not running headless.
 	 */
