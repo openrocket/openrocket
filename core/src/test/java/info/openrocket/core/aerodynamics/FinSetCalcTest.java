@@ -23,6 +23,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.PolyInterpolator;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.Transformation;
 
@@ -32,6 +33,17 @@ public class FinSetCalcTest {
 	protected final double EPSILON = 0.0001;
 
 	private static Injector injector;
+
+	/** Exposes the single-fin CNa calculation for interpolation tests. */
+	private static class TestableFinSetCalc extends FinSetCalc {
+		TestableFinSetCalc(FinSet fins) {
+			super(fins);
+		}
+
+		double calculateFinCNa(FlightConditions conditions) {
+			return calculateFinCNa1(conditions);
+		}
+	}
 
 	@BeforeAll
 	public static void setup() {
@@ -67,6 +79,48 @@ public class FinSetCalcTest {
 		}
 
 		return assemblyForces;
+	}
+
+	/**
+	 * Verify that the transonic interpolation uses the derivative of the
+	 * subsonic model at Mach 0.9, independent of the Mach being queried.
+	 */
+	@Test
+	public void testTransonicCNaUsesSubsonicEndpointDerivative() {
+		final double subsonicMach = 0.9;
+		final double supersonicMach = 1.5;
+		final double queryMach = 1.2;
+		final double derivativeStep = 0.000001;
+
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setAOA(0);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+
+		conditions.setMach(subsonicMach);
+		double subsonicValue = calculator.calculateFinCNa(conditions);
+		conditions.setMach(subsonicMach - derivativeStep);
+		double belowSubsonicValue = calculator.calculateFinCNa(conditions);
+		double subsonicDerivative = (subsonicValue - belowSubsonicValue) / derivativeStep;
+
+		conditions.setMach(supersonicMach);
+		double supersonicValue = calculator.calculateFinCNa(conditions);
+		double supersonicBetaCubed = Math.pow(supersonicMach * supersonicMach - 1, 1.5);
+		double supersonicDerivative = -fins.getPlanformArea() / conditions.getRefArea()
+				* 2 * supersonicMach / supersonicBetaCubed;
+
+		PolyInterpolator interpolator = new PolyInterpolator(
+				new double[] { subsonicMach, supersonicMach },
+				new double[] { subsonicMach, supersonicMach },
+				new double[] { subsonicMach });
+		double expected = interpolator.interpolate(queryMach, subsonicValue, supersonicValue,
+				subsonicDerivative, supersonicDerivative, 0);
+
+		conditions.setMach(queryMach);
+		double actual = calculator.calculateFinCNa(conditions);
+		assertEquals(expected, actual, EPSILON,
+				"Transonic CNa should use the derivative at the Mach 0.9 endpoint");
 	}
 
 	@Test

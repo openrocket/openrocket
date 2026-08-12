@@ -481,7 +481,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		double sq = MathUtil.safeSqrt(1 + (1 - pow2(CNA_SUBSONIC)) * pow2(span * span / (finArea * cosGamma)));
 		subV = 2 * Math.PI * pow2(span) / ref / (1 + sq);
-		subD = 2 * mach * Math.PI * pow(span, 6) / (pow2(finArea * cosGamma) * ref *
+		subD = 2 * CNA_SUBSONIC * Math.PI * pow(span, 6) / (pow2(finArea * cosGamma) * ref *
 				sq * pow2(1 + sq));
 		
 		superV = finArea * (K1.getValue(CNA_SUPERSONIC) + K2.getValue(CNA_SUPERSONIC) * alpha +
