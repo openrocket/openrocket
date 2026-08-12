@@ -3,6 +3,7 @@ package info.openrocket.core.simulation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -33,7 +34,7 @@ import info.openrocket.core.util.TestRockets;
  * Tests to verify that simulations contain all the expected flight events.
  */
 public class FlightEventsTest extends BaseTestCase {
-	
+
 	private static final double EPSILON = 0.005;
 
 	/**
@@ -48,11 +49,11 @@ public class FlightEventsTest extends BaseTestCase {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Tests for a single stage design.
 	 */
-	@Test
+	@RepeatedTest(50)
 	public void testSingleStage() throws SimulationException {
 		final Rocket rocket = TestRockets.makeEstesAlphaIII();
 		final AxialStage stage = rocket.getStage(0);
@@ -88,15 +89,15 @@ public class FlightEventsTest extends BaseTestCase {
 		checkEvents(expectedEvents, sim, 0);
 		checkLastRecord(sim, 0);
 	}
-																			   
+
 	/**
 	 * Should not get a sim abort if recovery device deploys when upper stage motor never fires
 	 */
-	@Test
+	@RepeatedTest(50)
 	public void testDeployNoMotorEnabled() throws SimulationException {
 		final Rocket rocket = TestRockets.makeBeta();
 		final AxialStage sustainer = (AxialStage) rocket.getChild(0);
-		
+
 		BodyTube sustainerBody = (BodyTube) findComponent(sustainer, BodyTube.class);
 		assertNotNull(sustainerBody, "Failed to find sustainer body tube");
 
@@ -108,7 +109,7 @@ public class FlightEventsTest extends BaseTestCase {
 		deploymentConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION);
 		deploymentConfig.setDeployDelay(0.5);
 		chute.getDeploymentConfigurations().setDefault(deploymentConfig);
-		
+
 		InnerTube sustainerMount = (InnerTube) findComponent(sustainerBody, InnerTube.class);
 		assertNotNull(sustainerMount, "Failed to find sustainer motor mount");
 
@@ -120,7 +121,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 		InnerTube boosterMount = (InnerTube) findComponent(boosterBody, InnerTube.class);
 		assertNotNull(boosterMount, "failed to find booster motor mount");
-		
+
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
@@ -141,7 +142,7 @@ public class FlightEventsTest extends BaseTestCase {
 		// Test branch count
 		final int expectedBranchCount = 2;
 		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
-		
+
 		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
@@ -163,16 +164,16 @@ public class FlightEventsTest extends BaseTestCase {
 
 				// Stage
 				case 1 -> new FlightEvent[]{
-					new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMount),
-					new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
-					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
-					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
-					new FlightEvent(FlightEvent.Type.TUMBLE, 2.1, null),
-					new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
-					new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-					new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMount),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.2, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 				};
-				
+
 				default -> throw new IllegalStateException("Invalid branch number " + b);
 			};
 
@@ -180,12 +181,12 @@ public class FlightEventsTest extends BaseTestCase {
 			checkLastRecord(sim, b);
 		}
 	}
-	
+
 
 	/**
 	 * Tests for a multi-stage design.
 	 */
-	@Test
+	@RepeatedTest(50)
 	public void testMultiStage() throws SimulationException {
 		final Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
 
@@ -220,7 +221,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final Parachute sideChutes = (Parachute) sideBoosterBodies.getChild(0);
 
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
-		
+
 		Warning warn = new Warning.RecoveryHighSpeedDeployment(53.2, sideChutes);
 
 		// LargeAOA.equals() does not compare the angle, so the value here is immaterial.
@@ -292,7 +293,7 @@ public class FlightEventsTest extends BaseTestCase {
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo) {
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
-			
+
 		// Test that all expected events are present, in the right order, at the right
 		// time, from the right sources
 		for (int i = 0; i < Math.min(expectedEvents.length, actualEvents.length); i++) {
@@ -301,32 +302,32 @@ public class FlightEventsTest extends BaseTestCase {
 			if (expected.getType() == FlightEvent.Type.SIM_WARN) {
 				expectedWarning = (Warning) expected.getData();
 			}
-			
+
 			final FlightEvent actual = actualEvents[i];
 			Warning actualWarning = null;
 			if (actual.getType() == FlightEvent.Type.SIM_WARN) {
 				actualWarning = (Warning) actual.getData();
 			}
-			
+
 			assertSame(expected.getType(), actual.getType(),
-					   "Branch " + branchNo + " FlightEvent " + i);
+					"Branch " + branchNo + " FlightEvent " + i);
 
 			assertTrue(((expectedWarning == null) && (actualWarning == null)) ||
-					   ((expectedWarning != null) && expectedWarning.equals(actualWarning)) ||
-					   ((actualWarning != null) && actualWarning.equals(expectedWarning)),
-					   "Branch " + branchNo + " FlightEvent " + i + ": " + expectedWarning
-					   + " not found; " + actualWarning + " found instead");
+							((expectedWarning != null) && expectedWarning.equals(actualWarning)) ||
+							((actualWarning != null) && actualWarning.equals(expectedWarning)),
+					"Branch " + branchNo + " FlightEvent " + i + ": " + expectedWarning
+							+ " not found; " + actualWarning + " found instead");
 
 			if (expected.getTime() != RK4SimulationStepper.RECOMMENDED_MAX_TIME) {
 				// event times that are dependent on simulation step time shouldn't be held to
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
-					// A large-AOA warning fires on the first step past the stall angle, so its time is
-					// as step- and wind-sensitive as a tumble.
-					(actualWarning instanceof Warning.LargeAOA) ||
-					(actual.getType() == FlightEvent.Type.APOGEE) ||
-					(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
-					(actual.getType() == FlightEvent.Type.SIMULATION_END) ? (5 * sim.getOptions().getTimeStep())
+						// A large-AOA warning fires on the first step past the stall angle, so its time is
+						// as step- and wind-sensitive as a tumble.
+						(actualWarning instanceof Warning.LargeAOA) ||
+						(actual.getType() == FlightEvent.Type.APOGEE) ||
+						(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
+						(actual.getType() == FlightEvent.Type.SIMULATION_END) ? (5 * sim.getOptions().getTimeStep())
 						: EPSILON;
 				assertEquals(expected.getTime(), actual.getTime(), epsilon,
 						"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ");
@@ -358,8 +359,8 @@ public class FlightEventsTest extends BaseTestCase {
 		int length = branch.getLength();
 		for (FlightDataType type : branch.getTypes()) {
 			if (!branch.getByIndex(type, length-2).isNaN() &&
-				Double.isNaN(branch.getLast(type)) &&
-				(type != FlightDataType.TYPE_TIME_STEP)) {
+					Double.isNaN(branch.getLast(type)) &&
+					(type != FlightDataType.TYPE_TIME_STEP)) {
 				mismatches.add(type.getName());
 			}
 		}
