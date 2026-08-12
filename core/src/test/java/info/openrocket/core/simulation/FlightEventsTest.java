@@ -82,8 +82,8 @@ public class FlightEventsTest extends BaseTestCase {
 				new FlightEvent(FlightEvent.Type.SIM_WARN, 2.0, null, warn),
 				new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 				new FlightEvent(FlightEvent.Type.APOGEE, 2.48, rocket),
-				new FlightEvent(FlightEvent.Type.GROUND_HIT, 42.97, null),
-				new FlightEvent(FlightEvent.Type.SIMULATION_END, 42.97, null)
+				new FlightEvent(FlightEvent.Type.GROUND_HIT, 43.51, null),
+				new FlightEvent(FlightEvent.Type.SIMULATION_END, 43.51, null)
 		};
 
 		checkEvents(expectedEvents, sim, 0);
@@ -255,8 +255,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.11, centerBoosterBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.74, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 3.35, rocket),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.43, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.65, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null)
 				};

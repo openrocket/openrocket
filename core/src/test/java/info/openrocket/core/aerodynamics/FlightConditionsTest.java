@@ -1,6 +1,11 @@
 package info.openrocket.core.aerodynamics;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -18,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 
 class FlightConditionsTest {
@@ -69,6 +75,17 @@ class FlightConditionsTest {
 		conditions.setRefArea(newArea);
 		assertEquals(newArea, conditions.getRefArea(), EPSILON);
 		assertEquals(Math.sqrt(newArea / Math.PI) * 2, conditions.getRefLength(), EPSILON);
+	}
+
+	@Test
+	void testSetAndGetThrustingMotorBaseArea() {
+		double motorArea = Math.PI * Math.pow(0.018 / 2, 2);
+		ComponentAssembly assembly = ((BodyTube) rocket.getChild(0).getChild(0)).getAssembly();
+
+		conditions.setThrustingMotorBaseAreas(Map.of(assembly, motorArea));
+
+		assertEquals(motorArea, conditions.getThrustingMotorBaseArea(), EPSILON);
+		assertEquals(motorArea, conditions.getThrustingMotorBaseArea(assembly), EPSILON);
 	}
 
 	@Test
@@ -154,6 +171,8 @@ class FlightConditionsTest {
 		conditions.setAOA(Math.PI / 6);
 		conditions.setMach(0.7);
 		conditions.setRollRate(3.0);
+		ComponentAssembly assembly = ((BodyTube) rocket.getChild(0).getChild(0)).getAssembly();
+		conditions.setThrustingMotorBaseAreas(Map.of(assembly, 0.00025));
 		AtmosphericConditions atm = new AtmosphericConditions(280, 90000);
 		conditions.setAtmosphericConditions(atm);
 
@@ -163,6 +182,11 @@ class FlightConditionsTest {
 		assertEquals(conditions.getAOA(), cloned.getAOA(), EPSILON);
 		assertEquals(conditions.getMach(), cloned.getMach(), EPSILON);
 		assertEquals(conditions.getRollRate(), cloned.getRollRate(), EPSILON);
+		assertEquals(conditions.getThrustingMotorBaseArea(), cloned.getThrustingMotorBaseArea(), EPSILON);
+		assertEquals(conditions.getThrustingMotorBaseAreas(), cloned.getThrustingMotorBaseAreas());
+		cloned.setThrustingMotorBaseAreas(Map.of());
+		assertEquals(0.00025, conditions.getThrustingMotorBaseArea(assembly), EPSILON,
+				"Changing a clone's wake areas must not modify the original conditions");
 		assertEquals(conditions.getAtmosphericConditions().getTemperature(),
 				cloned.getAtmosphericConditions().getTemperature(), EPSILON);
 		assertEquals(conditions.getAtmosphericConditions().getPressure(),
@@ -181,7 +205,8 @@ class FlightConditionsTest {
 
 		assertTrue(conditions1.equals(conditions2));
 
-		conditions2.setMach(0.8);
+		ComponentAssembly assembly = ((BodyTube) rocket.getChild(0).getChild(0)).getAssembly();
+		conditions2.setThrustingMotorBaseAreas(Map.of(assembly, 0.00025));
 		assertFalse(conditions1.equals(conditions2));
 	}
 

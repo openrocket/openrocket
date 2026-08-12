@@ -2108,11 +2108,47 @@ The base drag is disrupted when a motor exhausts into the area.  A
 full examination of the process would need much more detailed
 information about the motor and would be unnecessarily complicated.  A
 reasonable approximation is achieved by subtracting the area of the
-thrusting motors from the base reference area~\cite[p.~23]{fleeman}.
-Thus, if the base is the same size as the motor itself, no base drag
-is generated.  On the other hand, if the base is large with only a
-small motor in the center, the base drag is approximately the same as
-when coasting.
+thrusting motors from the exposed terminal body-base wake into which
+they exhaust~\cite[p.~23]{fleeman}.  OpenRocket treats the core and each
+parallel-stage or pod assembly as separate wakes.  For each wake $b$, it
+calculates the remaining area as
+%
+\begin{equation}
+A_{{\rm base,powered},b} = \max\left(0, A_{{\rm base},b} -
+  \sum_{i \in \mathcal{T}_b} N_i \pi \left(\frac{d_i}{2}\right)^2\right),
+\label{eq-powered-base-area}
+\end{equation}
+%
+where $A_{{\rm base},b}$ is the total projected terminal base area of
+wake $b$, and $\mathcal{T}_b$ contains the motor configurations that
+exhaust into that wake and are both active and currently thrusting.
+$N_i$ is the number of physical motors represented by configuration
+$i$, and $d_i$ is the motor outer diameter.  Motor data files do not
+provide nozzle-exit geometry, so the motor cross-sectional area is used
+as a first-order proxy for the area disrupted by the exhaust plume.  The
+resulting terminal body-base contribution, expressed using the global
+reference area, is
+%
+\begin{equation}
+(C_{D_0})_{\rm base,powered} = \frac{1}{\Aref}
+  \sum_{b \in \mathcal{B}} A_{{\rm base,powered},b}
+  (C_{D\bullet})_{\rm base}.
+\label{eq-powered-base-drag}
+\end{equation}
+%
+where $\mathcal{B}$ is the set of exposed terminal body-base wakes.  A
+motor area is clamped within its own wake, so it cannot reduce the base
+drag of an unrelated core, booster, or pod.  The base area here is the
+projected area of the low-pressure wake bounded by the external body
+radius, not merely the annular material area of a thin tube wall.
+
+This correction is applied only to terminal body bases.  Base drag at
+internal body-radius reductions and fin trailing edges is calculated
+unchanged.  If no active motor is thrusting in a wake, its summation is
+zero and its coasting result is recovered.  Thus, if a base is the same
+size as its motors, no body-base drag is generated.  On the other hand,
+if the base is large with only a small motor in the center, the base drag
+is approximately the same as when coasting.
 
 The equation presented above ignores the effect that the rear body
 slope angle has on the base pressure.  A boattail at the end of the

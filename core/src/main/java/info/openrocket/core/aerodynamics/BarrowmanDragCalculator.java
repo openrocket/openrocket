@@ -355,25 +355,21 @@ public class BarrowmanDragCalculator implements DragCalculator {
 			// Base drag for symmetric components (body tubes, nose cones, transitions)
 			if (c instanceof SymmetricComponent) {
 				SymmetricComponent s = (SymmetricComponent) c;
-				double foreRadius = s.getForeRadius();
-				double aftRadius = s.getAftRadius();
-				if (s.getLength() == 0) {
-					double componentMaxR = Math.max(foreRadius, aftRadius);
-					foreRadius = componentMaxR;
-					aftRadius = componentMaxR;
-				}
+				double area = calculateSymmetricComponentBaseArea(configuration, s);
 
-				SymmetricComponent nextComponent = s.getNextSymmetricComponent();
-				double nextRadius;
-				if ((nextComponent != null) && configuration.isComponentActive(nextComponent)) {
-					nextRadius = nextComponent.getForeRadius();
-				} else {
-					nextRadius = 0.0;
-				}
-
-				if (nextRadius < aftRadius) {
-					double area = Math.PI * (pow2(aftRadius) - pow2(nextRadius));
-					double cd = base * area / conditions.getRefArea();
+				if (area > 0) {
+					// A component assembly represents one independent core, booster, or pod
+					// wake.  Clamp motor area against that wake only, so excess motor area
+					// cannot reduce base drag on another body.  Internal diameter steps are
+					// outside the terminal wake and remain unchanged.
+					double areaScale = 1;
+					if (isTerminalSymmetricComponent(configuration, s)) {
+						double totalComponentArea = instanceCount * area;
+						double motorArea = conditions.getThrustingMotorBaseArea(s.getAssembly());
+						double excludedMotorArea = Math.min(motorArea, totalComponentArea);
+						areaScale = (totalComponentArea - excludedMotorArea) / totalComponentArea;
+					}
+					double cd = base * area * areaScale / conditions.getRefArea();
 					total += instanceCount * cd;
 					if (forceMap != null && forceMap.get(s) != null) {
 						forceMap.get(s).setBaseCD(cd);
@@ -392,6 +388,41 @@ public class BarrowmanDragCalculator implements DragCalculator {
 		}
 
 		return total;
+	}
+
+	/**
+	 * Return whether this component ends at an exposed base in the active flight
+	 * configuration rather than at an internal radius discontinuity.
+	 */
+	private boolean isTerminalSymmetricComponent(FlightConfiguration configuration,
+			SymmetricComponent component) {
+		SymmetricComponent nextComponent = component.getNextSymmetricComponent();
+		return nextComponent == null || !configuration.isComponentActive(nextComponent);
+	}
+
+	/**
+	 * Calculate the exposed aft-facing area of one symmetric component instance.
+	 */
+	private double calculateSymmetricComponentBaseArea(FlightConfiguration configuration,
+			SymmetricComponent component) {
+		double foreRadius = component.getForeRadius();
+		double aftRadius = component.getAftRadius();
+		if (component.getLength() == 0) {
+			aftRadius = Math.max(foreRadius, aftRadius);
+		}
+
+		SymmetricComponent nextComponent = component.getNextSymmetricComponent();
+		double nextRadius;
+		if (nextComponent != null && configuration.isComponentActive(nextComponent)) {
+			nextRadius = nextComponent.getForeRadius();
+		} else {
+			nextRadius = 0;
+		}
+
+		if (nextRadius >= aftRadius) {
+			return 0;
+		}
+		return Math.PI * (pow2(aftRadius) - pow2(nextRadius));
 	}
 
 	private double calculateOverrideCD(FlightConfiguration configuration,
