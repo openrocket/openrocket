@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
@@ -24,12 +25,18 @@ import org.joml.Vector4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
@@ -48,6 +55,7 @@ import java.util.stream.Collectors;
 public class RocketFigure3d extends JPanel implements SharedCanvasRenderScheduler.Client {
 
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
+	private static final Translator trans = Application.getTranslator();
 	// JAWT drawing-surface access must be serialized across canvases. The shared
 	// scheduler renders every dirty view each tick, so idle views add no work.
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
@@ -79,7 +87,8 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	private volatile boolean selectionBridgeInstalled = false;
 	private RocketComponent[] pendingSelection;
 	private boolean glFailureLogged = false;
-	private boolean glNativesUnavailable = false;
+	private volatile boolean glUnavailable = false;
+	private JPanel glFailurePanel;
 	private Color customBackgroundColor = null;
 	private volatile int currentType = TYPE_FINISHED;
 	private volatile boolean drawCarets = true;
@@ -142,7 +151,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	}
 
 	private void ensureCanvasCreatedOnEdt() {
-		if (!enable3d || glNativesUnavailable) {
+		if (!enable3d || glUnavailable) {
 			return;
 		}
 		if (!SwingUtilities.isEventDispatchThread()) {
@@ -156,10 +165,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		try {
 			panel = new GLScenePanel(document.getRocket(), hudPanel);
 		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
-			glNativesUnavailable = true;
 			log.warn("3D view disabled: LWJGL native libraries not available for {}/{}. " +
 					"Use a platform-specific build or install the appropriate natives.",
 					System.getProperty("os.name"), System.getProperty("os.arch"), e);
+			showGLInitFailureUI(null);
 			return;
 		}
 		panel.setPanModeEnabled(panModeEnabled);
@@ -168,6 +177,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		panel.setRenderActivityCallback(this::markDirty);
 		panel.setRenderRequestCallback(this::requestRenderNow);
 		panel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
+		panel.setGlInitFailureCallback(() -> showGLInitFailureUI(panel));
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
@@ -187,6 +197,64 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		applyBackgroundColor(panel);
 		revalidate();
 		repaint();
+	}
+
+	/** Replaces a failed native canvas with an explanatory message in the design view. */
+	void showGLInitFailureUI(GLScenePanel failedPanel) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> showGLInitFailureUI(failedPanel));
+			return;
+		}
+		if (disposed || failedPanel != null && glScenePanel != failedPanel) {
+			return;
+		}
+
+		glUnavailable = true;
+		stopRendering();
+		if (failedPanel != null) {
+			failedPanel.setRenderActivityCallback(null);
+			failedPanel.setRenderRequestCallback(null);
+			failedPanel.setGraphicsResetCallback(null);
+			failedPanel.setGlInitFailureCallback(null);
+			remove(failedPanel);
+			glScenePanel = null;
+			failedPanel.cleanup();
+		}
+		selectionBridgeInstalled = false;
+
+		if (glFailurePanel == null) {
+			glFailurePanel = createGLFailurePanel();
+		}
+		if (glFailurePanel.getParent() != this) {
+			add(glFailurePanel, BorderLayout.CENTER);
+		}
+		revalidate();
+		repaint();
+	}
+
+	private JPanel createGLFailurePanel() {
+		JPanel fallback = new JPanel(new GridBagLayout());
+		fallback.setBackground(getBackgroundColor());
+
+		JLabel title = new JLabel(trans.get("glInitFailed.title"));
+		title.setHorizontalAlignment(SwingConstants.CENTER);
+		Font font = title.getFont();
+		title.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 2.0f));
+
+		JLabel detail = new JLabel(trans.get("glInitFailed.detail"));
+		detail.setHorizontalAlignment(SwingConstants.CENTER);
+
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.weightx = 1.0;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.insets = new Insets(0, 16, 8, 16);
+		fallback.add(title, constraints);
+		constraints.gridy = 1;
+		constraints.insets = new Insets(0, 16, 0, 16);
+		fallback.add(detail, constraints);
+		return fallback;
 	}
 
 	private void rebuildCanvasAfterGraphicsReset(GLScenePanel failedPanel) {
@@ -262,7 +330,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (panel == null) {
 			// Canvas not created yet — keep dirty so the scheduler retries each tick
 			// until the EDT creates it.
-			markDirty();
+			if (!glUnavailable) {
+				markDirty();
+			}
 			return;
 		}
 		if (!panel.isDisplayable() || !panel.isShowing() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
@@ -345,7 +415,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	@Override
 	public boolean isRenderActive() {
-		return enable3d && renderingEnabled && !disposed;
+		return enable3d && renderingEnabled && !glUnavailable && !disposed;
 	}
 
 	@Override
@@ -390,6 +460,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 				return;
 			}
 			ensureCanvasCreatedOnEdt();
+			if (glUnavailable) {
+				renderingEnabled = false;
+				return;
+			}
 			GLScenePanel panel = glScenePanel;
 			if (panel != null) {
 				applyBackgroundColor(panel);
@@ -747,6 +821,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	public String getCanvasDebugState() {
 		if (!enable3d) {
 			return "3d-disabled";
+		}
+		if (glUnavailable) {
+			return "3d-unavailable";
 		}
 		GLScenePanel panel = glScenePanel;
 		return panel != null ? panel.getDebugStateSummary() : "panel=null";
