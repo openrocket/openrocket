@@ -104,6 +104,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final CountDownLatch glInitLatch = new CountDownLatch(1);
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
+	private static final byte[] STRAIGHT_SRGB_BY_PREMULTIPLIED_CHANNEL_AND_ALPHA =
+			createStraightSrgbLookup();
 	// Only Windows both loses contexts often enough to matter and supports
 	// WGL_ARB_create_context_robustness across all three vendors, so the request is limited
 	// to it: a driver that rejects the attribute would fail context creation outright, and
@@ -1080,7 +1082,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
 	}
 
-	private BufferedImage bufferToImage(ByteBuffer buffer, int width, int height) {
+	static BufferedImage bufferToImage(ByteBuffer buffer, int width, int height) {
 		buffer.rewind();
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
@@ -1091,10 +1093,44 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				int g = buffer.get(i + 1) & 0xFF;
 				int b = buffer.get(i + 2) & 0xFF;
 				int a = buffer.get(i + 3) & 0xFF;
+				if (a == 0) {
+					// Fully transparent PNG pixels must not retain an invisible matte.
+					r = 0;
+					g = 0;
+					b = 0;
+				} else if (a < 0xFF) {
+					// Rendering and MSAA resolve operate on premultiplied linear RGB in an
+					// sRGB framebuffer. PNG stores straight-alpha sRGB, so decode before
+					// unpremultiplying and encode again afterwards.
+					r = unpremultiplySrgbChannel(r, a);
+					g = unpremultiplySrgbChannel(g, a);
+					b = unpremultiplySrgbChannel(b, a);
+				}
 				image.setRGB(x, height - 1 - y, (a << 24) | (r << 16) | (g << 8) | b);
 			}
 		}
 		return image;
+	}
+
+	private static int unpremultiplySrgbChannel(int channel, int alpha) {
+		return STRAIGHT_SRGB_BY_PREMULTIPLIED_CHANNEL_AND_ALPHA[(alpha << 8) | channel] & 0xFF;
+	}
+
+	private static byte[] createStraightSrgbLookup() {
+		byte[] lookup = new byte[256 * 256];
+		for (int alpha = 1; alpha < 0xFF; alpha++) {
+			float normalizedAlpha = alpha / 255.0f;
+			for (int channel = 0; channel < 256; channel++) {
+				float premultipliedLinear = ColorUtils.srgbChannelToLinear(channel / 255.0f);
+				float straightLinear = Math.min(1.0f, premultipliedLinear / normalizedAlpha);
+				int straightSrgb = Math.round(ColorUtils.linearChannelToSrgb(straightLinear) * 255.0f);
+				lookup[(alpha << 8) | channel] = (byte) straightSrgb;
+			}
+		}
+		for (int channel = 0; channel < 256; channel++) {
+			lookup[(0xFF << 8) | channel] = (byte) channel;
+		}
+		return lookup;
 	}
 
 	private void writePng(ByteBuffer buffer, int width, int height, String filePath) {

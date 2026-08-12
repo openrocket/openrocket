@@ -272,7 +272,10 @@ public class RealisticRenderer implements GLRenderer {
 		if (!renderBackground) {
 			if (scene.getBackground() instanceof SolidColorBackground solidBackground) {
 				Vector4f color = solidBackground.getColor();
-				glClearColor(color.x, color.y, color.z, color.w);
+				// The off-screen pipeline uses premultiplied linear RGB while blending and
+				// resolving MSAA. An unassociated clear color would otherwise survive under
+				// zero alpha and bleed the invisible matte into anti-aliased edges.
+				glClearColor(color.x * color.w, color.y * color.w, color.z * color.w, color.w);
 			} else {
 				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			}

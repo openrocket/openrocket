@@ -44,10 +44,19 @@ public final class ColorUtils {
 		);
 	}
 
-	private static float srgbChannelToLinear(float srgb) {
+	/** Converts one sRGB channel to linear light. */
+	public static float srgbChannelToLinear(float srgb) {
 		if (srgb <= 0.04045f) {
 			return srgb / 12.92f;
 		}
 		return (float) Math.pow((srgb + 0.055f) / 1.055f, 2.4f);
+	}
+
+	/** Converts one linear-light channel to sRGB. */
+	public static float linearChannelToSrgb(float linear) {
+		if (linear <= 0.0031308f) {
+			return linear * 12.92f;
+		}
+		return 1.055f * (float) Math.pow(linear, 1.0f / 2.4f) - 0.055f;
 	}
 }
