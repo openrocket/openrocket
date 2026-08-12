@@ -1,8 +1,8 @@
-#version 330 core
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 texCoords;
-layout (location = 2) in vec4 color; // RGB + alpha
-layout (location = 3) in float aAgeRatio;
+#version 140
+in vec3 position;
+in vec2 texCoords;
+in vec4 color; // RGB + alpha
+in float aAgeRatio;
 
 uniform mat4 projection;
 uniform mat4 view;

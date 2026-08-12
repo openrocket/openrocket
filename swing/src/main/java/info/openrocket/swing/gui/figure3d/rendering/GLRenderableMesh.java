@@ -109,8 +109,9 @@ public class GLRenderableMesh implements Renderable {
 		GL33.glVertexAttribPointer(2, Vertex.TEX_COORD_FLOATS, GL33.GL_FLOAT, false, STRIDE_BYTES, TEX_COORD_OFFSET_BYTES);
 		GL33.glEnableVertexAttribArray(2);
 
-		// Surface ID attribute (location = 3)
-		GL33.glVertexAttribPointer(3, Vertex.SURFACE_ID_FLOATS, GL33.GL_FLOAT, false, STRIDE_BYTES, SURFACE_ID_OFFSET_BYTES);
+		// Surface ID attribute (location = 3). The FloatBuffer carries the integer's
+		// raw bits; use an integer attribute pointer so GLSL receives it directly.
+		GL33.glVertexAttribIPointer(3, Vertex.SURFACE_ID_FLOATS, GL33.GL_INT, STRIDE_BYTES, SURFACE_ID_OFFSET_BYTES);
 		GL33.glEnableVertexAttribArray(3);
 	}
 

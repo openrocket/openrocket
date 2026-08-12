@@ -730,12 +730,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		});
 	}
 
-	private static GLData createGLData() {
+	static GLData createGLData() {
 		GLData data = new GLData();
 		data.majorVersion = 3;
-		data.minorVersion = 3;
+		data.minorVersion = 1;
 		data.versionPolicy = GLData.VersionPolicy.AT_LEAST;
-		data.profile = GLData.Profile.CORE;
+		// OpenGL 3.1 predates core/compatibility profile selection. The renderer's
+		// vertex attributes and fragment output are bound before shader linking, so
+		// it does not need GLSL 3.30's explicit-location syntax. Keeping this profile
+		// unspecified also permits Mesa's desktop OpenGL 3.1 context on Raspberry Pi.
+		data.profile = null;
 		data.doubleBuffer = true;
 		// The macOS backend rejects debug-context attributes. GLDebug can still install
 		// a KHR_debug/ARB_debug_output callback when the resulting context supports it.

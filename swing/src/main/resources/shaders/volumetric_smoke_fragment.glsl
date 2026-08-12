@@ -1,4 +1,4 @@
-#version 330 core
+#version 140
 in vec2 texCoord;
 in vec3 smokeColor;
 in float smokeAlpha;

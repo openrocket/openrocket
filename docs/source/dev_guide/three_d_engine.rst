@@ -61,8 +61,10 @@ The main entry points are:
 GL Host and Render Scheduling
 =============================
 
-``GLScenePanel`` requests the highest supported OpenGL core, double-buffered context that is at least
-version 3.3 through lwjgl3-awt. The requested and effective ``GLData`` are recorded by
+``GLScenePanel`` requests the highest supported double-buffered OpenGL context that is at least
+version 3.1 through lwjgl3-awt. OpenGL 3.1 has no core/compatibility profile selector, so the profile is
+left unspecified. Shader attribute and output locations are bound before program linking instead of
+depending on GLSL 3.30 syntax. The requested and effective ``GLData`` are recorded by
 ``GLContextDiagnostics`` during initialization. The AWT default framebuffer is deliberately
 single-sampled; scene MSAA is implemented by ``RealisticRenderer`` in its own off-screen render target
 and resolved before presentation.
@@ -204,7 +206,9 @@ leaves the Linux swap interval unspecified so GLX implementations without EXT or
 still create a context; other platforms request a zero swap interval to avoid serializing the shared
 render thread on vertical refresh. The macOS backend does not accept every optional context attribute, so
 the host does not request a debug context or an sRGB default framebuffer there. Robust context reset
-detection is requested only on supported Windows configurations.
+detection is requested only on supported Windows configurations. Raspberry Pi 5's Mesa V3D driver exposes
+desktop OpenGL 3.1, so it can use the normal renderer without pretending to support OpenGL 3.3 or routing
+desktop GL through Zink.
 
 Package Map
 ===========

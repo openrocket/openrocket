@@ -16,6 +16,7 @@ import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL20.glAttachShader;
+import static org.lwjgl.opengl.GL20.glBindAttribLocation;
 import static org.lwjgl.opengl.GL20.glCompileShader;
 import static org.lwjgl.opengl.GL20.glCreateProgram;
 import static org.lwjgl.opengl.GL20.glCreateShader;
@@ -35,6 +36,7 @@ import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniform3f;
 import static org.lwjgl.opengl.GL20.glUniform4f;
+import static org.lwjgl.opengl.GL30.glBindFragDataLocation;
 import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 import static org.lwjgl.opengl.GL40.GL_TESS_CONTROL_SHADER;
 import static org.lwjgl.opengl.GL40.GL_TESS_EVALUATION_SHADER;
@@ -108,6 +110,7 @@ public class GLShader implements GpuResource {
 
 		glAttachShader(newProgramId, vertexShader);
 		glAttachShader(newProgramId, fragmentShader);
+		bindShaderLocations(newProgramId);
 		glLinkProgram(newProgramId);
 
 		if (glGetProgrami(newProgramId, GL_LINK_STATUS) == 0) {
@@ -118,6 +121,26 @@ public class GLShader implements GpuResource {
 		}
 
 		return newProgramId;
+	}
+
+	/**
+	 * Keeps mesh layouts stable on OpenGL 3.1, whose GLSL 1.40 does not have
+	 * {@code layout(location = ...)} declarations yet. Binding names that are not
+	 * active in a particular program is explicitly allowed and has no effect.
+	 */
+	private void bindShaderLocations(int program) {
+		bindAttributes(program, 0, "aPos", "position");
+		bindAttributes(program, 1, "aNormal", "aTexCoord", "texCoords", "aTrailCoord");
+		bindAttributes(program, 2, "aColor", "aColorAlpha", "color");
+		bindAttributes(program, 3, "aSurfaceID", "aAgeRatio", "aAlpha");
+		glBindAttribLocation(program, "/shaders/vertex.glsl".equals(vertexPath) ? 2 : 1, "aTexCoords");
+		glBindFragDataLocation(program, 0, "FragColor");
+	}
+
+	private static void bindAttributes(int program, int location, String... names) {
+		for (String name : names) {
+			glBindAttribLocation(program, location, name);
+		}
 	}
 
 	/**

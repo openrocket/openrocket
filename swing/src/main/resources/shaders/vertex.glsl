@@ -1,10 +1,10 @@
-#version 330 core
+#version 140
 
 // Vertex attributes from the VBO
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in float aSurfaceID_float; // Receive the packed float
+in vec3 aPos;
+in vec3 aNormal;
+in vec2 aTexCoords;
+in int aSurfaceID;
 
 // Outputs to the fragment shader
 out mediump vec3 v_fragPos;
@@ -36,7 +36,7 @@ void main()
     v_objectPos = aPos;
     v_objectNormal = aNormal;
     v_texCoord = aTexCoords;
-    v_surfaceID = floatBitsToInt(aSurfaceID_float); // Unpack float to int
+    v_surfaceID = aSurfaceID;
 
     // Calculate the vertex position in eye space
     vec4 vertexPosEyeSpace = view * worldPos;

@@ -76,7 +76,7 @@ allprojects {
     }
 }
 
-// Standard GitHub-hosted Windows runners do not expose the OpenGL 3.3 driver
+// Standard GitHub-hosted Windows runners do not expose the hardware OpenGL context
 // required by the live AWTGLCanvas suites, while hosted macOS runners are not
 // reliable under repeated native canvas setup/teardown. Keep their compile and
 // non-GL test coverage while running the renderer tests on Linux. A capable

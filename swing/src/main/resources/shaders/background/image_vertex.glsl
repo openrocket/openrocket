@@ -1,6 +1,6 @@
-#version 330 core
+#version 140
 
-layout (location = 0) in vec2 aPos;
+in vec2 aPos;
 
 out vec2 TexCoords;
 

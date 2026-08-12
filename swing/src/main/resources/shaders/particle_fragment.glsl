@@ -1,4 +1,4 @@
-#version 330 core
+#version 140
 in vec3 particleColor;
 in vec2 trailCoord;
 in float particleAlpha;

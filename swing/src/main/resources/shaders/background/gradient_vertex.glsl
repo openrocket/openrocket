@@ -1,7 +1,7 @@
-#version 330 core
+#version 140
 
 // A quad with vertices at (-1,-1), (1,-1), (-1,1), (1,1)
-layout (location = 0) in vec2 aPos;
+in vec2 aPos;
 
 // Pass the vertex position to the fragment shader
 out vec2 v_pos;

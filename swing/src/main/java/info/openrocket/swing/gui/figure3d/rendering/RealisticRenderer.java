@@ -40,7 +40,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glViewport;
 
 /**
- * Main OpenGL 3.3 renderer for a figure3d scene.
+ * Main OpenGL 3.1 renderer for a figure3d scene.
  *
  * Owns the scene shader, render passes, particle renderers, and offscreen targets
  * used to draw a single view. Like everything in this package, it talks directly

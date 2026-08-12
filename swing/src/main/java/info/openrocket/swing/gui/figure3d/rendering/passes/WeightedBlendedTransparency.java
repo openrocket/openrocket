@@ -64,7 +64,7 @@ import static org.lwjgl.opengl.GL30.glGenTextures;
 /**
  * Accumulates translucent fragments without depending on object or triangle draw order.
  *
- * <p>OpenGL 3.3 does not guarantee per-attachment blend functions, so accumulation and
+ * <p>The minimum OpenGL 3.1 feature set does not provide per-attachment blend functions, so accumulation and
  * revealage are drawn in two geometry passes. Both passes read the resolved opaque depth
  * attachment and leave depth writes disabled. The result is then composited over the opaque
  * scene in one full-screen pass.</p>

@@ -12,9 +12,9 @@ class GLContextDiagnosticsTest {
 	void recordsRequestedAndEffectiveContextAttributesWithoutKeepingGLData() {
 		GLData requested = new GLData();
 		requested.majorVersion = 3;
-		requested.minorVersion = 3;
+		requested.minorVersion = 1;
 		requested.versionPolicy = GLData.VersionPolicy.AT_LEAST;
-		requested.profile = GLData.Profile.CORE;
+		requested.profile = null;
 		requested.samples = 0;
 		requested.swapInterval = 0;
 
@@ -30,7 +30,7 @@ class GLContextDiagnosticsTest {
 
 		String recorded = GLContextDiagnostics.record(requested, effective);
 
-		assertTrue(recorded.contains("requested [OpenGL 3.3, version-policy=at_least, profile=core"));
+		assertTrue(recorded.contains("requested [OpenGL 3.1, version-policy=at_least, profile=unspecified"));
 		assertTrue(recorded.contains("effective [OpenGL 4.1, version-policy=at_least, profile=core"));
 		assertTrue(recorded.contains("RGBA=8/8/8/8, depth/stencil=24/8"));
 		assertTrue(recorded.contains("sample-buffers=1, samples=4"));

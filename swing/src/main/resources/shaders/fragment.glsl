@@ -1,4 +1,4 @@
-#version 330 core
+#version 140
 
 // Output color
 out vec4 FragColor;
@@ -245,8 +245,14 @@ vec3 getSurfaceNormal(vec3 normal) {
         dot(noiseDx, objectBitangent), dot(noiseDy, objectBitangent));
 
     vec2 bumpVec = vec2(0.0);
-    if (abs(determinant(screenToSurface)) > 1e-12) {
-        bumpVec = inverse(screenToSurface) * vec2(dFdx(height), dFdy(height));
+    float screenToSurfaceDeterminant =
+            screenToSurface[0][0] * screenToSurface[1][1]
+            - screenToSurface[1][0] * screenToSurface[0][1];
+    if (abs(screenToSurfaceDeterminant) > 1e-12) {
+        mat2 surfaceToScreen = mat2(
+            screenToSurface[1][1], -screenToSurface[0][1],
+            -screenToSurface[1][0], screenToSurface[0][0]) / screenToSurfaceDeterminant;
+        bumpVec = surfaceToScreen * vec2(dFdx(height), dFdy(height));
     }
     bumpVec = clamp(bumpVec, vec2(-1.5), vec2(1.5));
 
