@@ -98,6 +98,26 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.26.3'
 }
 
+tasks.register('buildMacLocationHelper', Exec) {
+    group = 'build'
+    description = 'Builds and signs the native macOS location helper used by current conditions.'
+    onlyIf { org.gradle.internal.os.OperatingSystem.current().isMacOsX() }
+    workingDir projectDir
+    commandLine 'sh', 'src/main/native/macos/currentconditions/build-helper.sh',
+            'src/main/resources/info/openrocket/swing/currentconditions/macos/OpenRocketLocationHelper.zip'
+    inputs.files('src/main/native/macos/currentconditions/OpenRocketLocationHelper.swift',
+            'src/main/native/macos/currentconditions/Info.plist',
+            'src/main/native/macos/currentconditions/build-helper.sh')
+	inputs.property('signingIdentity', System.getenv('OPENROCKET_MAC_SIGNING_IDENTITY') ?: '-')
+    outputs.file('src/main/resources/info/openrocket/swing/currentconditions/macos/OpenRocketLocationHelper.zip')
+}
+
+// Release builders pass the same Developer ID identity used for the outer app. This ensures the nested helper is
+// signed before the enclosing OpenRocket bundle is signed and notarized. Local builds keep the checked-in helper.
+if (System.getenv('OPENROCKET_MAC_SIGNING_IDENTITY')) {
+    tasks.named('processResources') { dependsOn tasks.named('buildMacLocationHelper') }
+}
+
 jacocoTestCoverageVerification {
     dependsOn jacocoTestReport
     violationRules {

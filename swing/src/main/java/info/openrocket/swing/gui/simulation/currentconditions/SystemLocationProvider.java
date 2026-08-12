@@ -19,6 +19,7 @@ import info.openrocket.core.arch.SystemInfo;
  */
 public class SystemLocationProvider {
 	private static final long LOCATION_TIMEOUT_SECONDS = 20;
+	private static final double MAX_ACCEPTABLE_ACCURACY_METRES = 1_000;
 	private static final String MAC_OS_HELPER =
 			"/info/openrocket/swing/currentconditions/macos/OpenRocketLocationHelper.zip";
 	private static final List<String> GEOCLUE_COMMANDS = List.of(
@@ -34,26 +35,38 @@ public class SystemLocationProvider {
 	private static final String WINDOWS_SCRIPT = """
 			$ErrorActionPreference = 'Stop'
 			Add-Type -AssemblyName System.Runtime.WindowsRuntime
+			Add-Type -AssemblyName PresentationFramework
 			[Windows.Devices.Geolocation.Geolocator, Windows.Devices.Geolocation, ContentType=WindowsRuntime] | Out-Null
 			[Windows.Devices.Geolocation.GeolocationAccessStatus, Windows.Devices.Geolocation, ContentType=WindowsRuntime] | Out-Null
 			[Windows.Devices.Geolocation.Geoposition, Windows.Devices.Geolocation, ContentType=WindowsRuntime] | Out-Null
 			$asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
 			  $_.Name -eq 'AsTask' -and $_.IsGenericMethod -and $_.GetParameters().Count -eq 1
 			})[0]
-			$accessOperation = [Windows.Devices.Geolocation.Geolocator]::RequestAccessAsync()
-			$accessTask = $asTask.MakeGenericMethod(
-			  [Windows.Devices.Geolocation.GeolocationAccessStatus]).Invoke($null, @($accessOperation))
-			if (-not $accessTask.Wait(15000)) { throw 'Windows Location Services permission request timed out.' }
-			if ($accessTask.Result -ne [Windows.Devices.Geolocation.GeolocationAccessStatus]::Allowed) {
-			  throw 'Location access is disabled or denied. Enable it in Settings > Privacy & security > Location.'
-			}
-			$locator = [Windows.Devices.Geolocation.Geolocator]::new()
-			$locator.DesiredAccuracyInMeters = 10
-			$operation = $locator.GetGeopositionAsync(
-			  [TimeSpan]::FromSeconds(30), [TimeSpan]::FromSeconds(15))
-			$task = $asTask.MakeGenericMethod([Windows.Devices.Geolocation.Geoposition]).Invoke($null, @($operation))
-			if (-not $task.Wait(17000)) { throw 'Windows Location Services timed out.' }
-			$coordinate = $task.Result.Coordinate
+			$window = [System.Windows.Window]::new()
+			$window.Title = 'OpenRocket Location Permission'
+			$window.Width = 1
+			$window.Height = 1
+			$window.WindowStyle = 'ToolWindow'
+			$window.ShowInTaskbar = $false
+			$window.Show()
+			$window.Activate() | Out-Null
+			$coordinate = $window.Dispatcher.Invoke([Func[object]]{
+			  $accessOperation = [Windows.Devices.Geolocation.Geolocator]::RequestAccessAsync()
+			  $accessTask = $asTask.MakeGenericMethod(
+			    [Windows.Devices.Geolocation.GeolocationAccessStatus]).Invoke($null, @($accessOperation))
+			  if (-not $accessTask.Wait(15000)) { throw 'Windows Location Services permission request timed out.' }
+			  if ($accessTask.Result -ne [Windows.Devices.Geolocation.GeolocationAccessStatus]::Allowed) {
+			    throw 'Location access is disabled or denied. Enable it in Settings > Privacy & security > Location.'
+			  }
+			  $locator = [Windows.Devices.Geolocation.Geolocator]::new()
+			  $locator.DesiredAccuracyInMeters = 10
+			  $operation = $locator.GetGeopositionAsync(
+			    [TimeSpan]::FromSeconds(30), [TimeSpan]::FromSeconds(15))
+			  $task = $asTask.MakeGenericMethod([Windows.Devices.Geolocation.Geoposition]).Invoke($null, @($operation))
+			  if (-not $task.Wait(17000)) { throw 'Windows Location Services timed out.' }
+			  return $task.Result.Coordinate
+			})
+			$window.Close()
 			$position = $coordinate.Point.Position
 			$culture = [System.Globalization.CultureInfo]::InvariantCulture
 			$position.Latitude.ToString($culture) + "`t" + $position.Longitude.ToString($culture) + "`t" +
@@ -61,12 +74,19 @@ public class SystemLocationProvider {
 			""";
 
 	public DeviceLocation locate() throws LocationException {
-		return switch (SystemInfo.getPlatform()) {
+		DeviceLocation location = switch (SystemInfo.getPlatform()) {
 			case MAC_OS -> locateMacOs();
-			case WINDOWS -> run(List.of("powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy",
+			case WINDOWS -> run(List.of("powershell.exe", "-NoProfile", "-Sta", "-ExecutionPolicy",
 					"Bypass", "-Command", WINDOWS_SCRIPT), "Windows Location Services");
 			case UNIX -> locateLinux();
 		};
+		if (Double.isFinite(location.horizontalAccuracy())
+				&& location.horizontalAccuracy() > MAX_ACCEPTABLE_ACCURACY_METRES) {
+			throw new LocationException(String.format(Locale.ROOT,
+					"%s reported only %.0f m accuracy. Choose the launch site manually instead.",
+					location.source(), location.horizontalAccuracy()));
+		}
+		return location;
 	}
 
 	private static DeviceLocation locateMacOs() throws LocationException {

@@ -1,4 +1,4 @@
-package info.openrocket.core.conditions;
+package info.openrocket.swing.gui.simulation.currentconditions;
 
 import java.time.Instant;
 import java.util.List;
@@ -9,6 +9,8 @@ import java.util.List;
 public record CurrentConditions(
 		double latitude,
 		double longitude,
+		double modelLatitude,
+		double modelLongitude,
 		double elevation,
 		Instant validAt,
 		double temperature,
