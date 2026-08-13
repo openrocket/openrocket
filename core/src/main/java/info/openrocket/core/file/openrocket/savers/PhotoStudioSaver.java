@@ -22,41 +22,41 @@ public class PhotoStudioSaver {
         if (photoSettings == null || photoSettings.size() == 0)
             return elements;
 
-        elements.add("<roll>" + photoSettings.get("roll") + "</roll>");
-        elements.add("<yaw>" + photoSettings.get("yaw") + "</yaw>");
-        elements.add("<pitch>" + photoSettings.get("pitch") + "</pitch>");
-        elements.add("<advance>" + photoSettings.get("advance") + "</advance>");
+        emitValue("roll", elements, photoSettings.get("roll"));
+        emitValue("yaw", elements, photoSettings.get("yaw"));
+        emitValue("pitch", elements, photoSettings.get("pitch"));
+        emitValue("advance", elements, photoSettings.get("advance"));
 
-        elements.add("<viewAlt>" + photoSettings.get("viewAlt") + "</viewAlt>");
-        elements.add("<viewAz>" + photoSettings.get("viewAz") + "</viewAz>");
-        elements.add("<viewDistance>" + photoSettings.get("viewDistance") + "</viewDistance>");
-        elements.add("<fov>" + photoSettings.get("fov") + "</fov>");
+        emitValue("viewAlt", elements, photoSettings.get("viewAlt"));
+        emitValue("viewAz", elements, photoSettings.get("viewAz"));
+        emitValue("viewDistance", elements, photoSettings.get("viewDistance"));
+        emitValue("fov", elements, photoSettings.get("fov"));
 
-        elements.add("<lightAlt>" + photoSettings.get("lightAlt") + "</lightAlt>");
-        elements.add("<lightAz>" + photoSettings.get("lightAz") + "</lightAz>");
-        elements.add("<lightStrength>" + photoSettings.get("lightStrength") + "</lightStrength>");
+        emitValue("lightAlt", elements, photoSettings.get("lightAlt"));
+        emitValue("lightAz", elements, photoSettings.get("lightAz"));
+        emitValue("lightStrength", elements, photoSettings.get("lightStrength"));
         emitColor("sunlight", elements, photoSettings.get("sunlight"));
-        elements.add("<ambiance>" + photoSettings.get("ambiance") + "</ambiance>");
+        emitValue("ambiance", elements, photoSettings.get("ambiance"));
 
         emitColor("skyColor", elements, photoSettings.get("skyColor"));
-        elements.add("<backgroundType>" + photoSettings.get("backgroundType") + "</backgroundType>");
+        emitValue("backgroundType", elements, photoSettings.get("backgroundType"));
         emitColor("gradientTopColor", elements, photoSettings.get("gradientTopColor"));
         emitColor("gradientBottomColor", elements, photoSettings.get("gradientBottomColor"));
 
-        elements.add("<motionBlurred>" + photoSettings.get("motionBlurred") + "</motionBlurred>");
-        elements.add("<motionBlurAmount>" + photoSettings.get("motionBlurAmount") + "</motionBlurAmount>");
-        elements.add("<flame>" + photoSettings.get("flame") + "</flame>");
+        emitValue("motionBlurred", elements, photoSettings.get("motionBlurred"));
+        emitValue("motionBlurAmount", elements, photoSettings.get("motionBlurAmount"));
+        emitValue("flame", elements, photoSettings.get("flame"));
         emitColor("flameColor", elements, photoSettings.get("flameColor"));
-        elements.add("<smoke>" + photoSettings.get("smoke") + "</smoke>");
+        emitValue("smoke", elements, photoSettings.get("smoke"));
         emitColor("smokeColor", elements, photoSettings.get("smokeColor"));
-        elements.add("<sparks>" + photoSettings.get("sparks") + "</sparks>");
-        elements.add("<exhaustScale>" + photoSettings.get("exhaustScale") + "</exhaustScale>");
-        elements.add("<flameAspectRatio>" + photoSettings.get("flameAspectRatio") + "</flameAspectRatio>");
+        emitValue("sparks", elements, photoSettings.get("sparks"));
+        emitValue("exhaustScale", elements, photoSettings.get("exhaustScale"));
+        emitValue("flameAspectRatio", elements, photoSettings.get("flameAspectRatio"));
 
-        elements.add("<sparkConcentration>" + photoSettings.get("sparkConcentration") + "</sparkConcentration>");
-        elements.add("<sparkWeight>" + photoSettings.get("sparkWeight") + "</sparkWeight>");
+        emitValue("sparkConcentration", elements, photoSettings.get("sparkConcentration"));
+        emitValue("sparkWeight", elements, photoSettings.get("sparkWeight"));
 
-        elements.add("<sky>" + photoSettings.get("sky") + "</sky>");
+        emitValue("sky", elements, photoSettings.get("sky"));
 
         return elements;
     }
@@ -76,10 +76,19 @@ public class PhotoStudioSaver {
     }
 
     private static void emitColor(String elementName, List<String> elements, String content) {
+        if (content == null) {
+            return;
+        }
         ORColor color = getColor(content);
         if (color != null) {
             elements.add("<" + elementName + " " + color.toXMLAttributes() + "/>");
         } else
             elements.add(String.format("<%s></%s>", elementName, elementName));
+    }
+
+    private static void emitValue(String elementName, List<String> elements, String content) {
+        if (content != null) {
+            elements.add(String.format("<%s>%s</%s>", elementName, content, elementName));
+        }
     }
 }

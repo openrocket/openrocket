@@ -1,6 +1,5 @@
 package info.openrocket.swing.file.photo;
 
-import info.openrocket.core.file.openrocket.importt.OpenRocketHandler;
 import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
 import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
 import info.openrocket.core.util.ORColor;
@@ -27,7 +26,7 @@ import java.util.Map;
 public class PhotoStudioGetter {
     private PhotoSettings p = null;
     private Map<String, String> parameters = null;
-    private static final Logger log = LoggerFactory.getLogger(OpenRocketHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(PhotoStudioGetter.class);
     private boolean backgroundTypeExplicitlySet = false;
 
     public PhotoStudioGetter(Map<String, String> par) {
@@ -110,7 +109,8 @@ public class PhotoStudioGetter {
             return;
         }
         if ("lightStrength".equals(element)) {
-            p.setLightStrength(Double.parseDouble(content));
+            Double value = parseDouble(element, content);
+            if (value != null) p.setLightStrength(value);
             return;
         }
         if ("ambiance".equals(element)) {
@@ -150,7 +150,8 @@ public class PhotoStudioGetter {
             return;
         }
         if ("motionBlurAmount".equals(element)) {
-            p.setMotionBlurAmount(Double.parseDouble(content));
+            Double value = parseDouble(element, content);
+            if (value != null) p.setMotionBlurAmount(value);
             return;
         }
         if ("flame".equals(element)) {
@@ -234,5 +235,14 @@ public class PhotoStudioGetter {
         int blue = Integer.parseInt(values[2]);
         int alpha = Integer.parseInt(values[3]);
         return new ORColor(red, green, blue, alpha);
+    }
+
+    private Double parseDouble(String element, String content) {
+        try {
+            return Double.parseDouble(content);
+        } catch (NumberFormatException | NullPointerException e) {
+            log.warn("Invalid Photo Studio value for '{}': '{}'; using the default.", element, content);
+            return null;
+        }
     }
 }
