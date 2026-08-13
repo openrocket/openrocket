@@ -47,7 +47,18 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	 *               individual instances for each cluster member will be added.
 	 */
 	public InnerBodyTubeDTO(InnerTube bt, AttachableParts parent) {
-		super(bt);
+		this(bt, parent, null);
+	}
+
+	/**
+	 * Full copy constructor used while exporting a complete document.
+	 *
+	 * @param bt      the corresponding OR inner body tube
+	 * @param parent  the RockSim attached-parts container
+	 * @param context per-export motor-mount mapping state
+	 */
+	public InnerBodyTubeDTO(InnerTube bt, AttachableParts parent, RockSimExportContext context) {
+		super(bt, context);
 		setEngineOverhang(bt.getMotorOverhang() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 		setID(bt.getInnerRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
 		setOD(bt.getOuterRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
@@ -57,46 +68,46 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 		setRadialAngle(bt.getRadialDirection());
 		setRadialLoc(bt.getRadialPosition() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
+		// RockSim represents each cluster member as a separate tube.  Expand the
+		// cluster before converting children so no references are recorded for the
+		// temporary aggregate DTO that is discarded.
+		if (bt.getClusterConfiguration().getClusterCount() > 1) {
+			handleCluster(bt, parent, context);
+			parent.removeAttachedPart(this);
+			return;
+		}
+
 		List<RocketComponent> children = bt.getChildren();
 		for (RocketComponent rocketComponents : children) {
 			if (rocketComponents instanceof InnerTube) {
 				final InnerTube innerTube = (InnerTube) rocketComponents;
-				// Only if the inner tube is NOT a cluster, then create the corresponding
-				// Rocksim DTO and add it
-				// to the list of attached parts. If it is a cluster, then it is handled
-				// specially outside of this
-				// loop.
+				InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this, context);
+				// Cluster members add themselves to this container while being split.
 				if (innerTube.getInstanceCount() == 1) {
-					addAttachedPart(new InnerBodyTubeDTO(innerTube, this));
+					addAttachedPart(innerBodyTubeDTO);
 				}
 			} else if (rocketComponents instanceof BodyTube) {
-				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents));
+				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents, context));
 			} else if (rocketComponents instanceof Transition) {
-				addAttachedPart(new TransitionDTO((Transition) rocketComponents));
+				addAttachedPart(new TransitionDTO((Transition) rocketComponents, context));
 			} else if (rocketComponents instanceof EngineBlock) {
 				addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponents));
 			} else if (rocketComponents instanceof TubeCoupler) {
-				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents));
+				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents, this, context));
 			} else if (rocketComponents instanceof CenteringRing) {
 				addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponents));
 			} else if (rocketComponents instanceof Bulkhead) {
 				addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponents));
 			} else if (rocketComponents instanceof Streamer) {
-				addAttachedPart(new StreamerDTO((Streamer) rocketComponents));
+				addAttachedPart(new StreamerDTO((Streamer) rocketComponents, context));
 			} else if (rocketComponents instanceof Parachute) {
-				addAttachedPart(new ParachuteDTO((Parachute) rocketComponents));
+				addAttachedPart(new ParachuteDTO((Parachute) rocketComponents, context));
 			} else if (rocketComponents instanceof MassObject) {
 				addAttachedPart(new MassObjectDTO((MassObject) rocketComponents));
 			}
 		}
-		// Do the cluster. For now this splits the cluster into separate tubes, which is
-		// how Rocksim represents it.
-		// The import (from Rocksim to OR) could be augmented to be more intelligent and
-		// try to determine if the
-		// co-located tubes are a cluster.
-		if (bt.getClusterConfiguration().getClusterCount() > 1) {
-			handleCluster(bt, parent);
-			parent.removeAttachedPart(this);
+		if (context != null && bt.isMotorMount()) {
+			context.registerMotorMount(bt, getSerialNumber());
 		}
 	}
 
@@ -109,7 +120,7 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	 * @param p  the collection (parent's attached parts really) to which all
 	 *           cluster tubes will be added
 	 */
-	private void handleCluster(InnerTube it, AttachableParts p) {
+	private void handleCluster(InnerTube it, AttachableParts p, RockSimExportContext context) {
 
 		// old version - Oct, 19 2015
 		// Coordinate[] coords = { Coordinate.NUL };
@@ -121,7 +132,10 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 		for (int x = 0; x < coords.length; x++) {
 			InnerTube partialClone = InnerTube.makeIndividualClusterComponent(coords[x], it.getName() + " #" + (x + 1),
 					it);
-			p.addAttachedPart(new InnerBodyTubeDTO(partialClone, p));
+			if (context != null) {
+				context.registerSplitComponentTree(it, partialClone);
+			}
+			p.addAttachedPart(new InnerBodyTubeDTO(partialClone, p, context));
 		}
 	}
 
