@@ -4,6 +4,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.rasaero.CustomBooleanAdapter;
 import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
+import info.openrocket.core.file.rasaero.RASAeroMotorsLoader.RASAeroMotor;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
@@ -128,7 +129,7 @@ public class SimulationDTO {
      * @param errors     a list to add export errors to
      */
     public SimulationDTO(Rocket rocket, Simulation simulation, Map<AxialStage, MotorMount> mounts,
-            List<ThrustCurveMotor> motors,
+            List<RASAeroMotor> motors,
             WarningSet warnings, ErrorSet errors) {
         String simulationName = simulation != null ? simulation.getName() : "DEFAULT";
         FlightConfigurationId fcid = simulation != null ? simulation.getFlightConfigurationId() : null;

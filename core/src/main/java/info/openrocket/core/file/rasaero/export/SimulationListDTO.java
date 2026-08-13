@@ -4,11 +4,10 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.file.rasaero.RASAeroMotorsLoader;
+import info.openrocket.core.file.rasaero.RASAeroMotorsLoader.RASAeroMotor;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
-import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -46,7 +45,7 @@ public class SimulationListDTO {
         }
 
         // Load all RASAero motors
-        List<ThrustCurveMotor> motors = RASAeroMotorsLoader.loadAllRASAeroMotors(warnings);
+        List<RASAeroMotor> motors = RASAeroMotorsLoader.loadAllRASAeroMotors(warnings);
 
         // Add all the simulations
         for (Simulation simulation : document.getSimulations()) {
