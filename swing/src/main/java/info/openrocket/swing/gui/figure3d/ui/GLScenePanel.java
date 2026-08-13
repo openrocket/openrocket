@@ -962,14 +962,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				markHudForUpdate();
 			}
 
-			// Check for an export request before the main render
+			// Check for an export request before the main render. The export frame is
+			// captured off-screen only; the normal display frame below is what gets
+			// presented, so a transparent-background export never flashes on screen.
 			if (scene3DOrchestrator.isExportRequested()) {
 				handleExport(sceneView, renderer);
-				shouldSwap = true;
-				return;
 			}
 
-			// --- Main Display Rendering (if not exporting) --
+			// --- Main Display Rendering --
 			renderer.render(sceneView, true);
 			renderer.presentResolvedToCurrentFramebuffer();
 
@@ -1000,8 +1000,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		ByteBuffer exportBuffer = captureResolvedFramebuffer(renderer, exportWidth, exportHeight);
 		scene3DOrchestrator.clearExportRequest();
-
-		renderer.presentResolvedToCurrentFramebuffer();
 
 		if (exportBuffer == null) {
 			log.warn("Export skipped: no framebuffer data available");
