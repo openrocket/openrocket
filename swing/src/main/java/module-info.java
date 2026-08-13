@@ -25,7 +25,7 @@ open module info.openrocket.swing {
 	requires org.jogamp.jogl.all;
 	requires java.scripting;
 	requires org.fife.RSyntaxTextArea;
-	requires jakarta.xml.bind;
+	requires com.fasterxml.jackson.core;
 	requires jcommon;
 	requires java.prefs;
 	requires com.jthemedetector;

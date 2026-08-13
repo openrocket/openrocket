@@ -4,18 +4,15 @@ import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.util.CoordinateIF;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  */
-@XmlRootElement(name = RockSimCommonConstants.CUSTOM_FIN_SET)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.CUSTOM_FIN_SET)
 public class CustomFinSetDTO extends FinSetDTO {
 
-    @XmlElement(name = RockSimCommonConstants.POINT_LIST)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.POINT_LIST)
     private String pointList = "";
 
     /**

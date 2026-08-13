@@ -15,12 +15,8 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlElementRefs;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,28 +25,20 @@ import java.util.List;
  * responsible for adapting an OpenRocket
  * Transition to a RockSim Transition.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class AbstractTransitionDTO extends BasePartDTO implements AttachableParts {
 
-    @XmlElement(name = RockSimCommonConstants.SHAPE_CODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHAPE_CODE)
     private int shapeCode = 1;
-    @XmlElement(name = RockSimCommonConstants.CONSTRUCTION_TYPE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.CONSTRUCTION_TYPE)
     private int constructionType = 1;
-    @XmlElement(name = RockSimCommonConstants.WALL_THICKNESS)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.WALL_THICKNESS)
     private double wallThickness = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHAPE_PARAMETER)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHAPE_PARAMETER)
     private double shapeParameter = 0.0d;
 
-    @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
-    @XmlElementRefs({
-            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = InnerBodyTubeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.FIN_SET, type = FinSetDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.CUSTOM_FIN_SET, type = CustomFinSetDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.RING, type = CenteringRingDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.STREAMER, type = StreamerDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class) })
+    @JacksonXmlElementWrapper(localName = RockSimCommonConstants.ATTACHED_PARTS)
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = PartListSerializer.class)
+    @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = AttachedPartsDeserializer.class)
     List<BasePartDTO> attachedParts = new ArrayList<>();
 
     /**

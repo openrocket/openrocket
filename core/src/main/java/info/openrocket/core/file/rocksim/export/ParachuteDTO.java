@@ -4,32 +4,29 @@ import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.rocksim.importt.BaseHandler;
 import info.openrocket.core.rocketcomponent.Parachute;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  */
-@XmlRootElement(name = RockSimCommonConstants.PARACHUTE)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.PARACHUTE)
 public class ParachuteDTO extends BasePartDTO {
 
-    @XmlElement(name = RockSimCommonConstants.DIAMETER)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DIAMETER)
     private double dia = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_COUNT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHROUD_LINE_COUNT)
     private int ShroudLineCount = 0;
-    @XmlElement(name = RockSimCommonConstants.THICKNESS)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.THICKNESS)
     private double thickness = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_LEN)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHROUD_LINE_LEN)
     private double shroudLineLen = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.CHUTE_COUNT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.CHUTE_COUNT)
     private int chuteCount = 1;
-    @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_MASS_PER_MM)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHROUD_LINE_MASS_PER_MM)
     private double shroudLineMassPerMM = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_MATERIAL)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHROUD_LINE_MATERIAL)
     private String shroudLineMaterial = "";
-    @XmlElement(name = RockSimCommonConstants.DRAG_COEFFICIENT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DRAG_COEFFICIENT)
     private double dragCoefficient = 0.75d;
 
     /**

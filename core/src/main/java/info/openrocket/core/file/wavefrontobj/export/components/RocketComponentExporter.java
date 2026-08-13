@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
@@ -36,7 +36,7 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
      * @param groupName The name of the group to export to
      * @param LOD Level of detail to use for the export (e.g. '80')
      */
-    public RocketComponentExporter(@NotNull DefaultObj obj, @NotNull FlightConfiguration config, @NotNull CoordTransform transformer,
+    public RocketComponentExporter(@Nonnull DefaultObj obj, @Nonnull FlightConfiguration config, @Nonnull CoordTransform transformer,
                                    T component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
                                    WarningSet warnings) {
         this.obj = obj;

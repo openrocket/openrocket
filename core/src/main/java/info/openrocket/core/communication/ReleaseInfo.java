@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class ReleaseInfo {
 
     private static final Logger log = LoggerFactory.getLogger(ReleaseInfo.class);
 
-    public ReleaseInfo(@NotNull JsonObject obj) {
+    public ReleaseInfo(@Nonnull JsonObject obj) {
         this.obj = Objects.requireNonNull(obj, "JsonObject cannot be null");
     }
 

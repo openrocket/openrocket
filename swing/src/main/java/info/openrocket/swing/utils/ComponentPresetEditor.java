@@ -29,7 +29,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
-import jakarta.xml.bind.JAXBException;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.preset.ButtonColumn;
@@ -401,10 +400,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 	 *
 	 * @return true if the file was written
 	 *
-	 * @throws JAXBException thrown if the data could not be marshaled
-	 * @throws IOException   thrown if there was a problem with writing the file
+	 * @throws IOException   thrown if the data could not be marshaled or there was a problem writing the file
 	 */
-	private boolean saveAsORC() throws JAXBException, IOException {
+	private boolean saveAsORC() throws IOException {
 		File file = null;
 		
 		final JFileChooser chooser = new SaveFileChooser();

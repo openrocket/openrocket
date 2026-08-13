@@ -3,10 +3,9 @@ package info.openrocket.core.preset.xml;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.InvalidComponentPresetException;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
+
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,22 +30,12 @@ import java.util.List;
 public class OpenRocketComponentSaver {
 
     private static final Logger log = LoggerFactory.getLogger(OpenRocketComponentSaver.class);
-    /**
-     * The JAXBContext. JAXBContext is thread-safe.
-     */
-    private static JAXBContext context = null;
 
-    static {
-        try {
-            context = JAXBContext.newInstance(OpenRocketComponentDTO.class);
-        } catch (JAXBException jaxb) {
-            log.error("Unable to create JAXBContext for loading of *.orc files.", jaxb);
-        }
-    }
+    private static final XmlMapper XML_MAPPER =
+            (XmlMapper) new XmlMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
     public boolean save(File file, List<Material> theMaterialList, List<ComponentPreset> thePresetList)
-            throws JAXBException,
-            IOException {
+            throws IOException {
         BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
         writer.write(marshalToOpenRocketComponent(theMaterialList, thePresetList));
@@ -65,13 +54,10 @@ public class OpenRocketComponentSaver {
      *
      * @return ORC-compliant XML
      *
-     * @throws JAXBException
+     * @throws IOException
      */
     public String marshalToOpenRocketComponent(List<Material> theMaterialList, List<ComponentPreset> thePresetList,
-            boolean isLegacy) throws JAXBException {
-        /** The context is thread-safe, but marshallers are not. Create a local one. */
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            boolean isLegacy) throws IOException {
         StringWriter sw = new StringWriter();
 
         // We're going to sort the initial data since that makes the output much easier
@@ -101,7 +87,8 @@ public class OpenRocketComponentSaver {
 
 		});
 
-        marshaller.marshal(toOpenRocketComponentDTO(theMaterialList, thePresetList, isLegacy), sw);
+        sw.write(XML_MAPPER.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(toOpenRocketComponentDTO(theMaterialList, thePresetList, isLegacy)));
         return sw.toString();
     }
 
@@ -114,10 +101,10 @@ public class OpenRocketComponentSaver {
      *
      * @return ORC-compliant XML
      *
-     * @throws JAXBException
+     * @throws IOException
      */
     public String marshalToOpenRocketComponent(List<Material> theMaterialList, List<ComponentPreset> thePresetList)
-            throws JAXBException {
+            throws IOException {
         return marshalToOpenRocketComponent(theMaterialList, thePresetList, false);
     }
 
@@ -134,7 +121,7 @@ public class OpenRocketComponentSaver {
      * @throws InvalidComponentPresetException
      *
      */
-    public OpenRocketComponentDTO unmarshalFromOpenRocketComponent(Reader is) throws JAXBException,
+    public OpenRocketComponentDTO unmarshalFromOpenRocketComponent(Reader is) throws IOException,
             InvalidComponentPresetException {
         return fromOpenRocketComponent(is);
     }
@@ -146,12 +133,10 @@ public class OpenRocketComponentSaver {
      * @param theMaterialList the list of materials to be included
      * @param thePresetList   the list of presets to be included
      *
-     * @throws JAXBException
      * @throws IOException   thrown if the stream could not be written
      */
     public void save(OutputStream dest, List<Material> theMaterialList, List<ComponentPreset> thePresetList)
-            throws IOException,
-            JAXBException {
+            throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
         writer.write(marshalToOpenRocketComponent(theMaterialList, thePresetList));
         writer.flush();
@@ -169,19 +154,13 @@ public class OpenRocketComponentSaver {
      *         null if the data could not be read
      *         or was in an invalid format
      */
-    private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) throws JAXBException {
-        /**
-         * The context is thread-safe, but unmarshallers are not. Create a local one.
-         */
+    private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) throws IOException {
         try {
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            return (OpenRocketComponentDTO) unmarshaller.unmarshal(is); // new StreamSource(is));
+            return XML_MAPPER.readValue(is, OpenRocketComponentDTO.class);
         } catch (Exception e) {
-            log.error("Unable to create unmarshaller for loading of *.orc files.", e);
+            log.error("Unable to unmarshal *.orc file.", e);
             return null;
         }
-
-
     }
 
     /**

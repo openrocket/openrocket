@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.shapes;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
@@ -27,7 +27,7 @@ public class TubeExporter {
      * @param foreInnerVertices A list to add the indices of the fore (top) inner vertices to, or null if the indices are not needed
      * @param aftInnerVertices A list to add the indices of the aft (bottom) inner vertices to, or null if the indices are not needed
      */
-    public static void addTubeMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+    public static void addTubeMesh(@Nonnull DefaultObj obj, @Nonnull CoordTransform transformer, String groupName,
                                    float foreOuterRadius, float aftOuterRadius,
                                    float foreInnerRadius, float aftInnerRadius, float length, int numSides,
                                    List<Integer> foreOuterVertices, List<Integer> aftOuterVertices,

@@ -3,21 +3,18 @@ package info.openrocket.core.file.rocksim.export;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.Streamer;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This class models a Rocksim XML element for a streamer.
  */
-@XmlRootElement(name = RockSimCommonConstants.STREAMER)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.STREAMER)
 public class StreamerDTO extends BasePartDTO {
 
-    @XmlElement(name = RockSimCommonConstants.WIDTH)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.WIDTH)
     private double width = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.DRAG_COEFFICIENT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DRAG_COEFFICIENT)
     private double dragCoefficient = 0.75d;
 
     /**

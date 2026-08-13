@@ -8,23 +8,17 @@ import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.ArrayList;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlElementRefs;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.List;
 
 /**
  * Placeholder for a Rocksim Stage.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = StageDTODeserializer.class)
 public class StageDTO {
 
-    @XmlElementRefs({
-            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class)
-    })
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = PartListSerializer.class)
+    @com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper(useWrapping = false)
     private final List<BasePartDTO> externalPart = new ArrayList<>();
 
     /**

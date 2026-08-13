@@ -3,23 +3,20 @@ package info.openrocket.core.file.rocksim.export;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.NoseCone;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This class models a RockSim XML Element for a nose cone.
  */
-@XmlRootElement(name = RockSimCommonConstants.NOSE_CONE)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.NOSE_CONE)
 public class NoseConeDTO extends AbstractTransitionDTO {
 
-    @XmlElement(name = RockSimCommonConstants.BASE_DIA)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.BASE_DIA)
     private double baseDia = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHOULDER_LEN)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHOULDER_LEN)
     private double shoulderLen = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHOULDER_OD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHOULDER_OD)
     private double shoulderOD = 0.0d;
 
     /**

@@ -4,13 +4,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
-import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.MemoryManagement;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
@@ -26,6 +23,8 @@ import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.MemoryManagement;
 
 /**
  * This class is responsible for converting an OpenRocket design to a Rocksim design.
@@ -36,7 +35,10 @@ public class RockSimSaver extends RocketSaver {
 	 * The logger.
 	 */
 	private static final Logger log = LoggerFactory.getLogger(RockSimSaver.class);
-	
+
+	private static final XmlMapper XML_MAPPER = (XmlMapper) new XmlMapper()
+			.enable(SerializationFeature.INDENT_OUTPUT);
+
 	/**
 	 * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant XML.
 	 *
@@ -44,20 +46,14 @@ public class RockSimSaver extends RocketSaver {
 	 * @return Rocksim-compliant XML
 	 */
 	public String marshalToRockSim(OpenRocketDocument doc) {
-		
+
 		try {
-			JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
-			Marshaller marshaller = binder.createMarshaller();
-			marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			StringWriter sw = new StringWriter();
-			
-			marshaller.marshal(toRockSimDocumentDTO(doc), sw);
-			return sw.toString();
+			return XML_MAPPER.writerWithDefaultPrettyPrinter()
+					.writeValueAsString(toRockSimDocumentDTO(doc));
 		} catch (Exception e) {
 			log.error("Could not marshal a design to RockSim format.", e);
 		}
-		
+
 		return null;
 	}
 	
