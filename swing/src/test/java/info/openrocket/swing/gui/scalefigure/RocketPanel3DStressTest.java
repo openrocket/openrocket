@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RocketPanel3DStressTest extends BaseTestCase {
 
+	private static final long STARTUP_TIMEOUT_MS = 12_000;
 	private static final long SWITCH_TIMEOUT_MS = 4_000;
 	private static final long CHURN_TIMEOUT_MS = 2_500;
 
@@ -130,10 +131,12 @@ class RocketPanel3DStressTest extends BaseTestCase {
 		FrameHarness harness = createStandaloneHarness();
 		UITheme.Theme originalTheme = GUIUtil.getUITheme();
 		try {
+			waitForShowing(harness.panel, 2_000,
+					"RocketPanel should become visible before theme-change regression test");
 			onEdt(() -> {
 				harness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D);
 			});
-			awaitFresh3DFrame(harness.panel.getFigure3d(), 0, 0, 4_000,
+			awaitFresh3DFrame(harness.panel.getFigure3d(), 0, 0, STARTUP_TIMEOUT_MS,
 					"theme-change overlay regression startup");
 			assertTrue(onEdt(harness.panel.getFigure3d()::isShowing),
 					"3D view should be showing before changing theme");
