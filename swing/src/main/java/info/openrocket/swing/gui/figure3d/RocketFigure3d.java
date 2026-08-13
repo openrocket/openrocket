@@ -628,7 +628,6 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	public void setDrawCarets(boolean draw) {
 		markDirty();
 		drawCarets = draw;
-		hudPanel.setVisible(draw);
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
 			Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
