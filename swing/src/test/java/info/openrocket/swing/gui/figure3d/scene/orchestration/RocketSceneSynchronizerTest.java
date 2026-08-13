@@ -5,6 +5,8 @@ import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.geometry.RocketSceneSnapshot;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraControls;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
@@ -12,6 +14,8 @@ import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +24,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -207,18 +212,35 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 	}
 
 	@Test
-	void rebuildEventsCoalesceBeforeBuildingQueuedSnapshots() {
+	void rebuildEventsCoalesceGlWorkButApplyTheLatestSnapshot() {
 		SceneView scene = mock(SceneView.class);
 		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
-		when(orchestrator.getRenderingConfiguration()).thenReturn(new RenderingConfiguration());
+		RenderingConfiguration configuration = new RenderingConfiguration();
+		when(orchestrator.getRenderingConfiguration()).thenReturn(configuration);
+		when(orchestrator.getCameraController()).thenReturn(mock(CameraControls.class));
+		when(scene.getObjects()).thenReturn(new ArrayList<>());
+		when(scene.getSelectedObjects()).thenReturn(new ArrayList<>());
+		when(scene.getParticleEmitters()).thenReturn(new ArrayList<>());
 
 		Rocket rocket = new Rocket();
 		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket);
+		RocketSceneSnapshot firstSnapshot = mock(RocketSceneSnapshot.class);
+		RocketSceneSnapshot latestSnapshot = mock(RocketSceneSnapshot.class);
 
-		ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
-		synchronizer.componentChanged(event);
-		synchronizer.componentChanged(event);
+		try (MockedStatic<RocketMeshBuilder> meshBuilder = mockStatic(RocketMeshBuilder.class)) {
+			meshBuilder.when(() -> RocketMeshBuilder.buildSnapshot(rocket, configuration))
+					.thenReturn(firstSnapshot, latestSnapshot);
 
-		verify(orchestrator, times(1)).enqueueGlTask(any(Runnable.class));
+			ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
+			synchronizer.componentChanged(event);
+			synchronizer.componentChanged(event);
+
+			ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+			verify(orchestrator, times(1)).enqueueGlTask(taskCaptor.capture());
+			taskCaptor.getValue().run();
+
+			meshBuilder.verify(() -> RocketMeshBuilder.applySnapshot(scene, latestSnapshot, configuration));
+			meshBuilder.verify(() -> RocketMeshBuilder.applySnapshot(scene, firstSnapshot, configuration), never());
+		}
 	}
 }

@@ -33,11 +33,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final Rocket rocket;
 	private final ConcurrentLinkedQueue<RocketComponent> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
-	// Holds the rocket snapshot waiting to be applied on the GL thread. rebuildQueued is
-	// set before snapshot construction so coalesced model events do not each build a
-	// snapshot that would be discarded before the queued GL task can run.
+	// Holds the latest rocket snapshot waiting to be applied on the GL thread. Every
+	// model event replaces this value, while only the first event queues GL work.
 	private final AtomicReference<RocketSceneSnapshot> pendingSnapshot = new AtomicReference<>();
-	private final AtomicBoolean rebuildQueued = new AtomicBoolean(false);
 	private final AtomicReference<CameraUpdateBehavior> pendingCameraUpdateBehavior =
 			new AtomicReference<>(CameraUpdateBehavior.NONE);
 	private volatile FlightConfigurationId lastSelectedConfigurationId;
@@ -110,7 +108,6 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		rocket.removeComponentChangeListener(this);
 		pendingAppearanceUpdates.clear();
 		pendingSnapshot.set(null);
-		rebuildQueued.set(false);
 	}
 
 	private void queueAppearanceUpdates(RocketComponent component) {
@@ -180,20 +177,16 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	private void queueRebuild(CameraUpdateBehavior requestedCameraUpdate) {
 		pendingCameraUpdateBehavior.accumulateAndGet(requestedCameraUpdate, CameraUpdateBehavior::merge);
-		if (!rebuildQueued.compareAndSet(false, true)) {
-			return;
-		}
 
 		// Capture the rocket on the calling thread (the EDT, inside fireComponentChangeEvent's
-		// mutex) so the GL thread never reads mid-edit model state.
-		try {
-			RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket,
-					scene3DOrchestrator.getRenderingConfiguration());
-			pendingSnapshot.set(snapshot);
-		} catch (RuntimeException | Error e) {
-			pendingSnapshot.set(null);
-			rebuildQueued.set(false);
-			throw e;
+		// mutex) so the GL thread never reads mid-edit model state. Replacing a pending
+		// snapshot is necessary: otherwise rapid edits leave the queued task holding an
+		// earlier model state with no later event available to correct it.
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket,
+				scene3DOrchestrator.getRenderingConfiguration());
+		RocketSceneSnapshot previous = pendingSnapshot.getAndSet(snapshot);
+		if (previous != null) {
+			return;
 		}
 
 		scene3DOrchestrator.enqueueGlTask(this::flushRebuild);
@@ -202,7 +195,6 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private void flushRebuild() {
 		pendingAppearanceUpdates.clear();
 		RocketSceneSnapshot snapshot = pendingSnapshot.getAndSet(null);
-		rebuildQueued.set(false);
 		if (snapshot == null) {
 			return;
 		}
