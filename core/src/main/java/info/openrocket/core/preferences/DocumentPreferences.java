@@ -2,11 +2,11 @@ package info.openrocket.core.preferences;
 
 import info.openrocket.core.database.Database;
 import info.openrocket.core.material.Material;
-import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.StateChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * ORPreferences specific to an OpenRocket document (= preferences that are saved in the document file, not
@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class DocumentPreferences implements ChangeSource, ORPreferences {
+public class DocumentPreferences extends AbstractChangeSource implements ORPreferences {
 	// Map that stores all the document preferences
 	private final Map<String, DocumentPreference> preferencesMap = new HashMap<>();
 
@@ -48,16 +48,6 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 
 	@Override
-	public void addChangeListener(StateChangeListener listener) {
-
-	}
-
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-
-	}
-
-	@Override
 	public boolean getBoolean(String key, boolean defaultValue) {
 		DocumentPreference pref = preferencesMap.get(key);
 		return preferencesMap.containsKey(key) ? (Boolean) pref.getValue() : defaultValue;
@@ -65,7 +55,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putBoolean(String key, boolean value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	@Override
@@ -76,7 +66,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putInt(String key, int value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	@Override
@@ -87,7 +77,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putDouble(String key, double value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	@Override
@@ -98,7 +88,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putString(String key, String value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	/**
@@ -125,11 +115,19 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 */
 	public void putColor(String key, java.awt.Color value) {
 		if (value == null) {
-			preferencesMap.remove(key);
+			removePreference(key);
 		} else {
-			String colorString = stringifyColor(value);
-			preferencesMap.put(key, new DocumentPreference(colorString));
+			putPreference(key, stringifyColor(value));
 		}
+	}
+
+	private void putPreference(String key, Object value) {
+		DocumentPreference current = preferencesMap.get(key);
+		if (current != null && Objects.equals(current.getValue(), value)) {
+			return;
+		}
+		preferencesMap.put(key, new DocumentPreference(value));
+		fireChangeEvent();
 	}
 	
 	/**
@@ -177,7 +175,9 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	}
 
 	public void removePreference(String key) {
-		preferencesMap.remove(key);
+		if (preferencesMap.remove(key) != null) {
+			fireChangeEvent();
+		}
 	}
 
 	public Database<Material> getBulkMaterials() {
