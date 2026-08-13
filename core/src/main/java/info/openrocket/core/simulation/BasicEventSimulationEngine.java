@@ -25,6 +25,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
+import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -78,7 +79,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			// Set up rocket configuration
 			this.fcid = simulationConditions.getFlightConfigurationID();
 			FlightConfiguration origConfig = simulationConditions.getRocket().getFlightConfiguration(this.fcid);
-			FlightConfiguration simulationConfig = origConfig.clone(simulationConditions.getRocket().copyWithOriginalID());
+			Rocket simulationRocket = simulationConditions.getRocket().copyWithOriginalID();
+			// Resolve configuration-dependent component positions on the private simulation copy.
+			simulationRocket.setSelectedConfiguration(this.fcid);
+			FlightConfiguration simulationConfig = origConfig.clone(simulationRocket);
 			simulationConfig.copyStages(origConfig); // Clone the stage activation configuration
 			
 			currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
