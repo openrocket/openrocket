@@ -38,42 +38,11 @@ public class SimulationListDTO {
         Map<AxialStage, MotorMount> mounts = new HashMap<>();
         Rocket rocket = document.getRocket();
 
-        // Fetch all the motor mounts from the design
+        // RASAero supports one motor per stage, so retain the first populated mount
+        // found in each core stage.
         for (RocketComponent child : rocket.getChildren()) {
             AxialStage stage = (AxialStage) child;
-            if (mounts.containsKey(stage)) {
-                continue;
-            }
-            for (RocketComponent stageChild : stage.getChildren()) {
-                if (stageChild instanceof BodyTube) {
-                    // First check if the body tube itself has a motor
-                    if (((BodyTube) stageChild).hasMotor()) {
-                        mounts.put(stage, (BodyTube) stageChild);
-                        break;
-                    }
-                    // Then check if it has an inner tube with a motor
-                    else {
-                        boolean addedMount = false;
-                        for (RocketComponent tubeChild : stageChild.getChildren()) {
-                            if (tubeChild instanceof MotorMount && ((MotorMount) tubeChild).hasMotor()) {
-                                mounts.put(stage, (MotorMount) tubeChild);
-                                addedMount = true;
-                                break;
-                            }
-                        }
-                        if (addedMount) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // If at this point, we still don't have a mount, there is probably a mount
-            // without a motor.
-            // In that case, add a null mount, so that mass/CG export happens.
-            if (!mounts.containsKey(stage)) {
-                mounts.put(stage, null);
-            }
+            mounts.put(stage, findMotorMount(stage));
         }
 
         // Load all RASAero motors
@@ -91,6 +60,27 @@ public class SimulationListDTO {
         }
 
         motors.clear();
+    }
+
+    /**
+     * Finds the first populated motor mount anywhere within a core stage.
+     * Structural inner tubes may contain another inner tube that acts as the actual
+     * motor mount, so checking only direct body-tube children is insufficient.
+     *
+     * @param stage the core stage whose component subtree is searched
+     * @return the first populated mount in the stage, or {@code null} when absent
+     */
+    static MotorMount findMotorMount(AxialStage stage) {
+        for (RocketComponent component : stage.getAllChildren()) {
+            if (component instanceof MotorMount) {
+                MotorMount mount = (MotorMount) component;
+                // Exclude mounts belonging to nested parallel stages.
+                if (component.getStage() == stage && mount.hasMotor()) {
+                    return mount;
+                }
+            }
+        }
+        return null;
     }
 
     public List<SimulationDTO> getSimulations() {
