@@ -220,6 +220,23 @@ class FlightConditionsTest {
 	}
 
 	@Test
+	void testHumidityOnlyAtmosphericChangeIsApplied() {
+		double dryDensity = conditions.getAtmosphericConditions().getDensity();
+		AtmosphericConditions humid = new AtmosphericConditions(
+				AtmosphericConditions.STANDARD_TEMPERATURE,
+				AtmosphericConditions.STANDARD_PRESSURE, 1.0);
+		int[] changeCount = { 0 };
+		conditions.addChangeListener(event -> changeCount[0]++);
+
+		conditions.setAtmosphericConditions(humid);
+
+		assertEquals(1.0, conditions.getAtmosphericConditions().getRelativeHumidity(), EPSILON);
+		assertTrue(conditions.getAtmosphericConditions().getDensity() < dryDensity,
+				"Applying humid conditions should reduce density at fixed pressure and temperature");
+		assertEquals(1, changeCount[0], "A humidity-only atmospheric change should fire a change event");
+	}
+
+	@Test
 	void testGetVelocityWithChangedAtmosphere() {
 		AtmosphericConditions atm = new AtmosphericConditions(280, 90000);
 		conditions.setAtmosphericConditions(atm);
