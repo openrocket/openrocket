@@ -15,7 +15,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.EventObject;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -70,22 +69,18 @@ public class PhotoFrame extends JFrame {
 	private final Translator trans = Application.getTranslator();
 
 	private final PhotoPanel photoPanel;
+	private final PhotoSettings photoSettings;
+	private final StateChangeListener photoSettingsListener;
 	private final JDialog settings;
+	private final PhotoSettingsConfig settingsConfig;
 	private final AtomicBoolean resourcesReleased = new AtomicBoolean(false);
 	private final Window ownerWindow;
+	private final WindowAdapter ownerWindowListener;
 	private volatile OpenRocketDocument currentDocument;
 
 	public PhotoFrame(OpenRocketDocument document, Window parent) {
 		this(false, document, parent);
 		setTitle(trans.get("PhotoFrame.title") + " - " + document.getRocket().getName());
-
-		// Close this window when the parent is closed
-		parent.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				dispose();
-			}
-		});
 	}
 
 	public PhotoFrame(boolean app, OpenRocketDocument document) {
@@ -95,23 +90,27 @@ public class PhotoFrame extends JFrame {
 	private PhotoFrame(boolean app, OpenRocketDocument document, Window ownerWindow) {
 		this.ownerWindow = ownerWindow;
 		this.currentDocument = document;
-		PhotoSettings p = new PhotoStudioGetter(document.getPhotoSettings()).getPhotoSettings();
+		this.ownerWindowListener = new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				dispose();
+			}
+		};
+		this.photoSettings = new PhotoStudioGetter(document.getPhotoSettings()).getPhotoSettings();
 
 		// Send the new PhotoSetting to the core module
-		p.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				Map<String, String> par = PhotoStudioSetter.getPhotoSettings(p);
-				OpenRocketDocument doc = currentDocument;
-				if (doc != null) {
-					doc.setPhotoSettings(par);
-				}
+		this.photoSettingsListener = event -> {
+			Map<String, String> parameters = PhotoStudioSetter.getPhotoSettings(photoSettings);
+			OpenRocketDocument doc = currentDocument;
+			if (doc != null) {
+				doc.setPhotoSettings(parameters);
 			}
-		});
+		};
+		photoSettings.addChangeListener(photoSettingsListener);
 
 		this.setMinimumSize(new Dimension(160, 150));
 		this.setSize(1024, 768);
-		photoPanel = new PhotoPanel(document, p);
+		photoPanel = new PhotoPanel(document, photoSettings);
 		setJMenuBar(getMenu(app));
 		setContentPane(photoPanel);
 
@@ -145,7 +144,8 @@ public class PhotoFrame extends JFrame {
 		GUIUtil.setWindowIcons(this);
 
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title"), Dialog.ModalityType.MODELESS);
-		settings.setContentPane(new PhotoSettingsConfig(p, document));
+		settingsConfig = new PhotoSettingsConfig(photoSettings, document);
+		settings.setContentPane(settingsConfig);
 		settings.setPreferredSize(new Dimension(600, 500));
 		settings.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		settings.setAlwaysOnTop(false);
@@ -155,6 +155,9 @@ public class PhotoFrame extends JFrame {
 		settings.setLocationByPlatform(true);
 		GUIUtil.rememberWindowSize(settings);
 		GUIUtil.rememberWindowPosition(settings);
+		if (ownerWindow != null) {
+			ownerWindow.addWindowListener(ownerWindowListener);
+		}
 	}
 
 	public static void openForDocument(OpenRocketDocument document, Window parent) {
@@ -347,6 +350,14 @@ public class PhotoFrame extends JFrame {
 		if (!resourcesReleased.compareAndSet(false, true)) {
 			return;
 		}
+		if (ownerWindow != null) {
+			ownerWindow.removeWindowListener(ownerWindowListener);
+			if (activeFramesByOwner.get(ownerWindow) == this) {
+				activeFramesByOwner.remove(ownerWindow);
+			}
+		}
+		photoSettings.removeChangeListener(photoSettingsListener);
+		settingsConfig.dispose();
 		currentDocument = null;
 		photoPanel.clearDoc();
 		settings.dispose();

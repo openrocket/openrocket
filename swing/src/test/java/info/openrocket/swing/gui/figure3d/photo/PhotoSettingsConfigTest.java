@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Component;
+import java.lang.reflect.Field;
+import java.util.Collection;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.util.BaseTestCase;
 
@@ -26,23 +30,26 @@ class PhotoSettingsConfigTest extends BaseTestCase {
 		SwingUtilities.invokeAndWait(() -> {
 			OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
 			PhotoSettingsConfig config = new PhotoSettingsConfig(new PhotoSettings(), document);
+			try {
+				JPanel effectsPanel = effectsPanel(config);
+				assertEquals(2, effectsPanel.getComponentCount());
 
-			JPanel effectsPanel = effectsPanel(config);
-			assertEquals(2, effectsPanel.getComponentCount());
+				JPanel particleEffectsPanel = assertInstanceOf(JPanel.class, effectsPanel.getComponent(0));
+				JPanel motionBlurPanel = assertInstanceOf(JPanel.class, effectsPanel.getComponent(1));
+				assertNull(particleEffectsPanel.getBorder());
+				assertTrue(borderTitle(motionBlurPanel).contains("PhotoSettingsConfig.lbl.motionBlur"));
 
-			JPanel particleEffectsPanel = assertInstanceOf(JPanel.class, effectsPanel.getComponent(0));
-			JPanel motionBlurPanel = assertInstanceOf(JPanel.class, effectsPanel.getComponent(1));
-			assertNull(particleEffectsPanel.getBorder());
-			assertTrue(borderTitle(motionBlurPanel).contains("PhotoSettingsConfig.lbl.motionBlur"));
-
-			JPanel smokePanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.smoke");
-			JPanel flamePanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.flame");
-			JPanel sparksPanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.sparks");
-			int exhaustScaleIndex = labelIndex(particleEffectsPanel,
-					"PhotoSettingsConfig.lbl.exhaustScale");
-			assertTrue(exhaustScaleIndex < componentIndex(particleEffectsPanel, smokePanel));
-			assertTrue(exhaustScaleIndex < componentIndex(particleEffectsPanel, flamePanel));
-			assertTrue(exhaustScaleIndex < componentIndex(particleEffectsPanel, sparksPanel));
+				JPanel smokePanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.smoke");
+				JPanel flamePanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.flame");
+				JPanel sparksPanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.sparks");
+				int exhaustScaleIndex = labelIndex(particleEffectsPanel,
+						"PhotoSettingsConfig.lbl.exhaustScale");
+				assertTrue(exhaustScaleIndex < componentIndex(particleEffectsPanel, smokePanel));
+				assertTrue(exhaustScaleIndex < componentIndex(particleEffectsPanel, flamePanel));
+				assertTrue(exhaustScaleIndex < componentIndex(particleEffectsPanel, sparksPanel));
+			} finally {
+				config.dispose();
+			}
 		});
 	}
 
@@ -57,21 +64,46 @@ class PhotoSettingsConfigTest extends BaseTestCase {
 					TestRockets.makeEstesAlphaIII());
 			document.getRocket().setSelectedConfiguration(TestRockets.TEST_FCID_0);
 			PhotoSettingsConfig config = new PhotoSettingsConfig(settings, document);
-			JPanel particleEffectsPanel = assertInstanceOf(JPanel.class,
-					effectsPanel(config).getComponent(0));
+			try {
+				JPanel particleEffectsPanel = assertInstanceOf(JPanel.class,
+						effectsPanel(config).getComponent(0));
 
-			assertExhaustScaleEnabled(particleEffectsPanel, false);
-			settings.setSmoke(true);
-			assertExhaustScaleEnabled(particleEffectsPanel, true);
-			settings.setSmoke(false);
-			assertExhaustScaleEnabled(particleEffectsPanel, false);
-			settings.setFlame(true);
-			assertExhaustScaleEnabled(particleEffectsPanel, true);
-			settings.setSparks(true);
-			settings.setFlame(false);
-			assertExhaustScaleEnabled(particleEffectsPanel, true);
-			settings.setSparks(false);
-			assertExhaustScaleEnabled(particleEffectsPanel, false);
+				assertExhaustScaleEnabled(particleEffectsPanel, false);
+				settings.setSmoke(true);
+				assertExhaustScaleEnabled(particleEffectsPanel, true);
+				settings.setSmoke(false);
+				assertExhaustScaleEnabled(particleEffectsPanel, false);
+				settings.setFlame(true);
+				assertExhaustScaleEnabled(particleEffectsPanel, true);
+				settings.setSparks(true);
+				settings.setFlame(false);
+				assertExhaustScaleEnabled(particleEffectsPanel, true);
+				settings.setSparks(false);
+				assertExhaustScaleEnabled(particleEffectsPanel, false);
+			} finally {
+				config.dispose();
+			}
+		});
+	}
+
+	@Test
+	void disposeRemovesOwnedSettingsAndRocketListeners() throws Exception {
+		SwingUtilities.invokeAndWait(() -> {
+			PhotoSettings settings = new PhotoSettings();
+			OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+			int originalRocketListenerCount = listenerCount(document.getRocket(), Rocket.class, "listenerList");
+			PhotoSettingsConfig config = new PhotoSettingsConfig(settings, document);
+
+			assertTrue(listenerCount(settings, AbstractChangeSource.class, "listeners") > 0);
+			assertEquals(originalRocketListenerCount + 1,
+					listenerCount(document.getRocket(), Rocket.class, "listenerList"));
+
+			config.dispose();
+			config.dispose();
+
+			assertEquals(0, listenerCount(settings, AbstractChangeSource.class, "listeners"));
+			assertEquals(originalRocketListenerCount,
+					listenerCount(document.getRocket(), Rocket.class, "listenerList"));
 		});
 	}
 
@@ -122,5 +154,15 @@ class PhotoSettingsConfigTest extends BaseTestCase {
 			}
 		}
 		throw new AssertionError("Component is not a direct child of the expected panel");
+	}
+
+	private static int listenerCount(Object source, Class<?> declaringClass, String fieldName) {
+		try {
+			Field field = declaringClass.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return ((Collection<?>) field.get(source)).size();
+		} catch (ReflectiveOperationException e) {
+			throw new AssertionError("Could not inspect listener registrations", e);
+		}
 	}
 }

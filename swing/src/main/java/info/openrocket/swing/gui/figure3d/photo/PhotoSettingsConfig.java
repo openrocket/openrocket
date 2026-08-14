@@ -3,7 +3,10 @@ package info.openrocket.swing.gui.figure3d.photo;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -46,14 +49,24 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.core.util.Invalidatable;
 import info.openrocket.core.util.StateChangeListener;
 
 @SuppressWarnings("serial")
 public class PhotoSettingsConfig extends JTabbedPane {
 	private final Translator trans = Application.getTranslator();
+	private final PhotoSettings settings;
+	private final OpenRocketDocument document;
+	private final List<Invalidatable> models = new ArrayList<>();
+	private final AtomicBoolean disposed = new AtomicBoolean(false);
+	private final StateChangeListener colorChangeListener;
+	private StateChangeListener motorEffectsSettingsListener;
+	private StateChangeListener rocketChangeListener;
 
 	public PhotoSettingsConfig(PhotoSettings p, OpenRocketDocument document) {
 		super();
+		this.settings = p;
+		this.document = document;
 
 		setPreferredSize(new Dimension(240, 320));
 
@@ -75,11 +88,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		final ColorChooserButton flameColorButton = createColorButton(p::getFlameColor, p::setFlameColor);
 		flameColorButton.setMaximumSize(new Dimension(35, 25));
 
-		p.addChangeListener(new StateChangeListener() {
-			{
-				stateChanged(null);
-			}
-
+		colorChangeListener = new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				sunLightColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSunlight()));
@@ -89,7 +98,9 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				smokeColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSmokeColor()));
 				flameColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getFlameColor()));
 			}
-		});
+		};
+		colorChangeListener.stateChanged(null);
+		p.addChangeListener(colorChangeListener);
 
 		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[][][]")) {
 			{
@@ -99,28 +110,28 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Pitch
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.pitch")));
-				DoubleModel pitchModel = new DoubleModel(p, "Pitch", UnitGroup.UNITS_ANGLE);
+				DoubleModel pitchModel = track(new DoubleModel(p, "Pitch", UnitGroup.UNITS_ANGLE));
 				add(new EditableSpinner(pitchModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(pitchModel), "growx");
 				add(photoSlider(pitchModel.getSliderModel(0, 2 * Math.PI)), "pushx, left, wrap");
 
 				/// Yaw
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.yaw")));
-				DoubleModel yawModel = new DoubleModel(p, "Yaw", UnitGroup.UNITS_ANGLE);
+				DoubleModel yawModel = track(new DoubleModel(p, "Yaw", UnitGroup.UNITS_ANGLE));
 				add(new EditableSpinner(yawModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(yawModel), "growx");
 				add(photoSlider(yawModel.getSliderModel(0, 2 * Math.PI)), "wrap");
 
 				/// Roll
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.roll")));
-				DoubleModel rollModel = new DoubleModel(p, "Roll", UnitGroup.UNITS_ANGLE);
+				DoubleModel rollModel = track(new DoubleModel(p, "Roll", UnitGroup.UNITS_ANGLE));
 				add(new EditableSpinner(rollModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(rollModel), "growx");
 				add(photoSlider(rollModel.getSliderModel(0, 2 * Math.PI)), "wrap");
 
 				/// Advance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.advance")));
-				DoubleModel advanceModel = new DoubleModel(p, "Advance", UnitGroup.UNITS_LENGTH);
+				DoubleModel advanceModel = track(new DoubleModel(p, "Advance", UnitGroup.UNITS_LENGTH));
 				add(new EditableSpinner(advanceModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(advanceModel), "growx");
 				add(photoSlider(advanceModel.getSliderModel(-document.getRocket().getLength(), document.getRocket().getLength())), "wrap");
@@ -131,28 +142,30 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// View azimuth
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAz")));
-				DoubleModel viewAzModel = new DoubleModel(p, "ViewAz", UnitGroup.UNITS_ANGLE);
+				DoubleModel viewAzModel = track(new DoubleModel(p, "ViewAz", UnitGroup.UNITS_ANGLE));
 				add(new EditableSpinner(viewAzModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAzModel), "growx");
 				add(photoSlider(viewAzModel.getSliderModel(0, 2 * Math.PI)), "wrap");
 
 				/// View altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAlt")));
-				DoubleModel viewAltModle = new DoubleModel(p, "ViewAlt", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+				DoubleModel viewAltModle = track(
+						new DoubleModel(p, "ViewAlt", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI));
 				add(new EditableSpinner(viewAltModle.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAltModle), "growx");
 				add(photoSlider(viewAltModle.getSliderModel()), "wrap");
 
 				/// View distance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vDist")));
-				DoubleModel viewDistanceModel = new DoubleModel(p, "ViewDistance", UnitGroup.UNITS_LENGTH);
+				DoubleModel viewDistanceModel = track(new DoubleModel(p, "ViewDistance", UnitGroup.UNITS_LENGTH));
 				add(new EditableSpinner(viewDistanceModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewDistanceModel), "growx");
 				add(photoSlider(viewDistanceModel.getSliderModel(0, 2 * document.getRocket().getLength())), "wrap");
 
 				/// FoV
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.fov")));
-				DoubleModel fovModel = new DoubleModel(p, "Fov", UnitGroup.UNITS_ANGLE, Math.PI * 10/180, Math.PI * 160/180);
+				DoubleModel fovModel = track(new DoubleModel(p, "Fov", UnitGroup.UNITS_ANGLE,
+						Math.PI * 10 / 180, Math.PI * 160 / 180));
 				add(new EditableSpinner(fovModel.getSpinnerModel()), "growx");
 				add(new UnitSelector(fovModel), "growx");
 				add(photoSlider(fovModel.getSliderModel()), "wrap");
@@ -171,28 +184,31 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Light strength
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightStrength")));
-				DoubleModel lightStrengthModel = new DoubleModel(p, "LightStrength", UnitGroup.UNITS_RELATIVE, 0, 2);
+				DoubleModel lightStrengthModel = track(
+						new DoubleModel(p, "LightStrength", UnitGroup.UNITS_RELATIVE, 0, 2));
 				add(new EditableSpinner(lightStrengthModel.getSpinnerModel()), "growx, split 2");
 				add(new UnitSelector(lightStrengthModel));
 				add(photoSlider(lightStrengthModel.getSliderModel(0, 2)), "pushx, left, wrap");
 
 				/// Ambiance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.amb")));
-				DoubleModel ambianceModel = new DoubleModel(p, "Ambiance", UnitGroup.UNITS_RELATIVE, 0, 1);
+				DoubleModel ambianceModel = track(
+						new DoubleModel(p, "Ambiance", UnitGroup.UNITS_RELATIVE, 0, 1));
 				add(new EditableSpinner(ambianceModel.getSpinnerModel()), "growx, split 2");
 				add(new UnitSelector(ambianceModel));
 				add(photoSlider(ambianceModel.getSliderModel(0, 1)), "pushx, left, wrap");
 
 				/// Light azimuth
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAz")));
-				DoubleModel lightAzModel = new DoubleModel(p, "LightAz", UnitGroup.UNITS_ANGLE);
+				DoubleModel lightAzModel = track(new DoubleModel(p, "LightAz", UnitGroup.UNITS_ANGLE));
 				add(new EditableSpinner(lightAzModel.getSpinnerModel()), "growx, split 2");
 				add(new UnitSelector(lightAzModel));
 				add(photoSlider(lightAzModel.getSliderModel(-Math.PI, Math.PI)), "wrap");
 
 				/// Light altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightAlt")));
-				DoubleModel lightAltModel = new DoubleModel(p, "LightAlt", UnitGroup.UNITS_ANGLE, -Math.PI / 2, Math.PI / 2);
+				DoubleModel lightAltModel = track(new DoubleModel(p, "LightAlt", UnitGroup.UNITS_ANGLE,
+						-Math.PI / 2, Math.PI / 2));
 				add(new EditableSpinner(lightAltModel.getSpinnerModel()), "growx, split 2");
 				add(new UnitSelector(lightAltModel));
 				add(photoSlider(lightAltModel.getSliderModel(-Math.PI / 2, Math.PI / 2)), "wrap");
@@ -220,15 +236,14 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				solidCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColor")));
 				solidCard.add(skyColorButton, "wrap");
 				solidCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColorOpacity")));
-				DoubleModel skyColorOpacityModel = new DoubleModel(p, "SkyColorOpacity", UnitGroup.UNITS_RELATIVE, 0, 1);
+				DoubleModel skyColorOpacityModel = track(
+						new DoubleModel(p, "SkyColorOpacity", UnitGroup.UNITS_RELATIVE, 0, 1));
 				EditableSpinner skyColorOpacitySpinner = new EditableSpinner(skyColorOpacityModel.getSpinnerModel());
 				solidCard.add(skyColorOpacitySpinner, "growx, split 2");
 				UnitSelector skyColorOpacityUnitSelector = new UnitSelector(skyColorOpacityModel);
 				solidCard.add(skyColorOpacityUnitSelector);
 				BasicSlider skyColorOpacitySlider = photoSlider(skyColorOpacityModel.getSliderModel());
 				solidCard.add(skyColorOpacitySlider, "wrap");
-				p.addChangeListener(skyColorOpacityModel);
-
 				// -- Gradient card --
 				JPanel gradientCard = new JPanel(new MigLayout("fill, insets 0", "[][][]"));
 				gradientCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.gradientTopColor")));
@@ -306,7 +321,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				// Exhaust scale applies to smoke, flame, and sparks, so keep it above them.
 				JLabel exhaustScaleLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.exhaustScale"));
 				particleEffectsPanel.add(exhaustScaleLabel);
-				DoubleModel exhaustScaleModel = new DoubleModel(p, "ExhaustScale", 100, UnitGroup.UNITS_NONE, 0, 1000);
+				DoubleModel exhaustScaleModel = track(
+						new DoubleModel(p, "ExhaustScale", 100, UnitGroup.UNITS_NONE, 0, 1000));
 				EditableSpinner exhaustScaleSpinner = new EditableSpinner(exhaustScaleModel.getSpinnerModel());
 				BasicSlider exhaustScaleSlider = photoSlider(exhaustScaleModel.getSliderModel(0, 1000));
 				particleEffectsPanel.add(exhaustScaleSpinner, "growx");
@@ -318,7 +334,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				JPanel smokePanel = createTitledControlPanel(trans.get("PhotoSettingsConfig.lbl.smoke"));
 				JLabel smokeLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.enabled"));
 				smokePanel.add(smokeLabel);
-				BooleanModel smokeModel = new BooleanModel(p, "Smoke");
+				BooleanModel smokeModel = track(new BooleanModel(p, "Smoke"));
 				JCheckBox smokeCheck = new JCheckBox(smokeModel);
 				smokePanel.add(smokeCheck);
 
@@ -327,7 +343,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Smoke opacity
 				JLabel smokeOpacityLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity"));
-				DoubleModel smokeOpacityModel = new DoubleModel(p, "SmokeOpacity", UnitGroup.UNITS_RELATIVE, 0, 1);
+				DoubleModel smokeOpacityModel = track(
+						new DoubleModel(p, "SmokeOpacity", UnitGroup.UNITS_RELATIVE, 0, 1));
 				EditableSpinner opacitySpinner = new EditableSpinner(smokeOpacityModel.getSpinnerModel());
 				UnitSelector opacitySelector = new UnitSelector(smokeOpacityModel);
 				BasicSlider opacitySlider = photoSlider(smokeOpacityModel.getSliderModel(0, 1));
@@ -344,7 +361,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				JPanel flamePanel = createTitledControlPanel(trans.get("PhotoSettingsConfig.lbl.flame"));
 				JLabel flameLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.enabled"));
 				flamePanel.add(flameLabel);
-				BooleanModel fireModel = new BooleanModel(p, "Flame");
+				BooleanModel fireModel = track(new BooleanModel(p, "Flame"));
 				JCheckBox flameCheck = new JCheckBox(fireModel);
 				flamePanel.add(flameCheck);
 
@@ -353,8 +370,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Flame aspect ratio
 				JLabel flameAspectLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.flameAspect"));
-				DoubleModel flameAspectModel = new DoubleModel(p, "FlameAspectRatio", 100, UnitGroup.UNITS_NONE, 25,
-						250);
+				DoubleModel flameAspectModel = track(new DoubleModel(p, "FlameAspectRatio", 100,
+						UnitGroup.UNITS_NONE, 25, 250));
 				EditableSpinner flameAspectSpinner = new EditableSpinner(flameAspectModel.getSpinnerModel());
 				BasicSlider flameAspectSlider = photoSlider(flameAspectModel.getSliderModel(25, 250));
 				flamePanel.add(flameAspectLabel, "gapleft unrel");
@@ -368,15 +385,15 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				JPanel sparksPanel = createTitledControlPanel(trans.get("PhotoSettingsConfig.lbl.sparks"));
 				JLabel sparksLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.enabled"));
 				sparksPanel.add(sparksLabel);
-				BooleanModel sparksModel = new BooleanModel(p, "Sparks");
+				BooleanModel sparksModel = track(new BooleanModel(p, "Sparks"));
 				JCheckBox sparksCheck = new JCheckBox(sparksModel);
 				sparksPanel.add(sparksCheck, "wrap");
 				fireModel.addEnableComponent(sparksCheck);
 
 				/// Sparks concentration
 				JLabel sparkConcentrationLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkConcentration"));
-				DoubleModel sparkConcentrationModel = new DoubleModel(p, "SparkConcentration",
-						UnitGroup.UNITS_RELATIVE, 0, 1);
+				DoubleModel sparkConcentrationModel = track(new DoubleModel(p, "SparkConcentration",
+						UnitGroup.UNITS_RELATIVE, 0, 1));
 				EditableSpinner sparkConcentrationSpinner = new EditableSpinner(sparkConcentrationModel.getSpinnerModel());
 				UnitSelector sparkConcentrationSelector = new UnitSelector(sparkConcentrationModel);
 				BasicSlider sparkConcentrationSlider = photoSlider(sparkConcentrationModel.getSliderModel(0, 1));
@@ -390,7 +407,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Spark weight
 				JLabel sparkWeightLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkWeight"));
-				DoubleModel sparkWeightModel = new DoubleModel(p, "SparkWeight", UnitGroup.UNITS_RELATIVE, 0, 1);
+				DoubleModel sparkWeightModel = track(
+						new DoubleModel(p, "SparkWeight", UnitGroup.UNITS_RELATIVE, 0, 1));
 				EditableSpinner sparkWeightSpinner = new EditableSpinner(sparkWeightModel.getSpinnerModel());
 				UnitSelector sparkWeightSelector = new UnitSelector(sparkWeightModel);
 				BasicSlider sparkWeightSlider = photoSlider(sparkWeightModel.getSliderModel(0, 1));
@@ -410,12 +428,13 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Motion blur enabled
 				motionBlurPanel.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.enabled")));
-				BooleanModel speedModel = new BooleanModel(p, "MotionBlurred");
+				BooleanModel speedModel = track(new BooleanModel(p, "MotionBlurred"));
 				motionBlurPanel.add(new JCheckBox(speedModel), "wrap");
 
 				/// Motion blur amount
 				motionBlurPanel.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.motionBlurAmount")));
-				DoubleModel motionBlurAmountModel = new DoubleModel(p, "MotionBlurAmount", UnitGroup.UNITS_NONE, 0, 20);
+				DoubleModel motionBlurAmountModel = track(
+						new DoubleModel(p, "MotionBlurAmount", UnitGroup.UNITS_NONE, 0, 20));
 				EditableSpinner motionBlurAmountSpinner = new EditableSpinner(motionBlurAmountModel.getSpinnerModel());
 				BasicSlider motionBlurAmountSlider = photoSlider(motionBlurAmountModel.getSliderModel(0, 20));
 				motionBlurPanel.add(motionBlurAmountSpinner, "growx");
@@ -433,12 +452,41 @@ public class PhotoSettingsConfig extends JTabbedPane {
 						sparkConcentrationSelector,
 						sparkConcentrationSlider, sparkWeightLabel, sparkWeightSpinner, sparkWeightSelector, sparkWeightSlider,
 						exhaustScaleLabel, exhaustScaleSpinner, exhaustScaleSlider);
-				p.addChangeListener(e -> refreshMotorEffectsAvailability.run());
-				document.getRocket().addChangeListener(e -> SwingUtilities.invokeLater(refreshMotorEffectsAvailability));
+				motorEffectsSettingsListener = e -> refreshMotorEffectsAvailability.run();
+				rocketChangeListener = e -> SwingUtilities.invokeLater(() -> {
+					if (!disposed.get()) {
+						refreshMotorEffectsAvailability.run();
+					}
+				});
+				p.addChangeListener(motorEffectsSettingsListener);
+				document.getRocket().addChangeListener(rocketChangeListener);
 				refreshMotorEffectsAvailability.run();
 			}
 		}));
 
+	}
+
+	private <T extends Invalidatable> T track(T model) {
+		models.add(model);
+		return model;
+	}
+
+	/** Releases listeners and adapter models owned by this settings pane. */
+	public void dispose() {
+		if (!disposed.compareAndSet(false, true)) {
+			return;
+		}
+		settings.removeChangeListener(colorChangeListener);
+		if (motorEffectsSettingsListener != null) {
+			settings.removeChangeListener(motorEffectsSettingsListener);
+		}
+		if (rocketChangeListener != null) {
+			document.getRocket().removeChangeListener(rocketChangeListener);
+		}
+		for (Invalidatable model : models) {
+			model.invalidateMe();
+		}
+		models.clear();
 	}
 
 	private void updateMotorEffectsAvailability(OpenRocketDocument document, PhotoSettings settings,
