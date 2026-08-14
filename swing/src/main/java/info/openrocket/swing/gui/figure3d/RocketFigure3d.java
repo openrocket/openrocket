@@ -60,6 +60,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	// JAWT drawing-surface access must be serialized across canvases. The shared
 	// scheduler renders every dirty view each tick, so idle views add no work.
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
+	private static final int IMAGE_CAPTURE_TIMEOUT_MS = 2_000;
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -837,12 +838,25 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		AtomicReference<BufferedImage> result = new AtomicReference<>();
 		if (SwingUtilities.isEventDispatchThread()) {
 			SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+			AtomicBoolean completed = new AtomicBoolean(false);
+			Timer timeout = new Timer(IMAGE_CAPTURE_TIMEOUT_MS, event -> {
+				if (completed.compareAndSet(false, true)) {
+					log.warn("Timed out capturing 3D image");
+					loop.exit();
+				}
+			});
+			timeout.setRepeats(false);
 			panel.requestImageCapture(false, image -> {
-				result.set(image);
-				loop.exit();
+				if (completed.compareAndSet(false, true)) {
+					result.set(image);
+					timeout.stop();
+					loop.exit();
+				}
 			});
 			requestRenderNow();
+			timeout.start();
 			loop.enter();
+			timeout.stop();
 			return compositeHudOverlay(result.get(), panel);
 		}
 
@@ -853,7 +867,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		});
 		requestRenderNow();
 		try {
-			if (!latch.await(2, TimeUnit.SECONDS)) {
+			if (!latch.await(IMAGE_CAPTURE_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
 				log.warn("Timed out capturing 3D image");
 				return null;
 			}

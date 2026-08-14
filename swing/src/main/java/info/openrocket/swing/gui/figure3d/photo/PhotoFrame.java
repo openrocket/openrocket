@@ -252,6 +252,10 @@ public class PhotoFrame extends JFrame {
 
 	/** Prompts for a destination and writes the rendered photo to it as a PNG. */
 	private void savePhoto(BufferedImage image) {
+		if (image == null) {
+			log.warn("Photo capture failed; no image was available to save");
+			return;
+		}
 		log.info("Got image {} to save...", image);
 
 		final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"), ".png");

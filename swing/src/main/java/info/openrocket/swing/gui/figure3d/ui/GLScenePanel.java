@@ -830,7 +830,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
-			frameExportQueue.failPendingCaptures();
+			frameExportQueue.closeAndFailPendingCaptures();
 			throw new RuntimeException("Failed to initialize renderer", e);
 		}
 	}
@@ -899,7 +899,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 		} catch (Throwable t) {
 			glInitFailed = true;
-			frameExportQueue.failPendingCaptures();
+			frameExportQueue.closeAndFailPendingCaptures();
 			String msg = t.getMessage();
 			if (!glInitialized) {
 				log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", msg, t);
@@ -983,7 +983,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			try {
 				handleExport(sceneView, renderer, request);
 			} catch (RuntimeException | Error e) {
-				frameExportQueue.failPendingCaptures();
+				frameExportQueue.closeAndFailPendingCaptures();
 				throw e;
 			}
 		}
@@ -1182,7 +1182,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			edtCompletion.accept(null);
 			return;
 		}
-		frameExportQueue.requestImageCapture(transparent, edtCompletion);
+		if (!frameExportQueue.requestImageCapture(transparent, edtCompletion)) {
+			edtCompletion.accept(null);
+			return;
+		}
 		requestRenderNow();
 	}
 
@@ -1245,7 +1248,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		wheelInteractionActive = false;
 		updateCameraInteractionMode();
 		glInitialized = false;
-		frameExportQueue.failPendingCaptures();
+		frameExportQueue.closeAndFailPendingCaptures();
 		startupRecoveryGeneration.incrementAndGet();
 		if (hudOverlay != null) {
 			hudOverlay.resetPendingWork();
