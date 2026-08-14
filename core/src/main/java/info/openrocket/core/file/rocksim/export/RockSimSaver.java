@@ -6,26 +6,28 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-
-import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.MemoryManagement;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
-
-import info.openrocket.core.logging.ErrorSet;
-import info.openrocket.core.logging.WarningSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.RocketSaver;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
+import info.openrocket.core.logging.ErrorSet;
+import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.MemoryManagement;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for converting an OpenRocket design to a Rocksim design.
@@ -95,28 +97,40 @@ public class RockSimSaver extends RocketSaver {
 	 * @return a corresponding Rocksim representation
 	 */
 	private RockSimDocumentDTO toRockSimDocumentDTO(OpenRocketDocument doc) {
-		RockSimDocumentDTO rsd = new RockSimDocumentDTO();
-
-		rsd.setDesign(toRockSimDesignDTO(doc.getRocket()));
-
-		return rsd;
+		Rocket exportRocket = doc.getRocket().copyWithOriginalID();
+		// Component serials are references shared by the design, motors, and
+		// deployment events.  Serialize their allocation so separate exports cannot
+		// interleave the static sequence used by the existing DTO hierarchy.
+		synchronized (BasePartDTO.class) {
+			BasePartDTO.resetCurrentSerialNumber();
+			try {
+				RockSimDocumentDTO result = new RockSimDocumentDTO();
+				RockSimExportContext context = new RockSimExportContext();
+				result.setDesign(toRockSimDesignDTO(exportRocket, context));
+				result.setSimulationResultsList(new SimulationResultsListDTO(doc, context));
+				return result;
+			} finally {
+				BasePartDTO.resetCurrentSerialNumber();
+				MemoryManagement.collectable(exportRocket);
+			}
+		}
 	}
 
-	private RockSimDesignDTO toRockSimDesignDTO(Rocket rocket) {
+	private RockSimDesignDTO toRockSimDesignDTO(Rocket rocket, RockSimExportContext context) {
 		RockSimDesignDTO result = new RockSimDesignDTO();
-		result.setDesign(toRocketDesignDTO(rocket));
+		result.setDesign(toRocketDesignDTO(rocket, context));
 		return result;
 	}
 
-	private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
-		rocket = rocket.copyWithOriginalID();		// Make sure we don't change the original design.
+	private RocketDesignDTO toRocketDesignDTO(Rocket rocket, RockSimExportContext context) {
 		RocketDesignDTO result = new RocketDesignDTO();
+		List<AxialStage> axialStages = getAxialStages(rocket);
 
 		final FlightConfiguration configuration = rocket.getEmptyConfiguration();
 		final RigidBody spentData = MassCalculator.calculateStructure(configuration);
 		final double cg = spentData.cm.getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
-		int stageCount = rocket.getChildCount();
+		int stageCount = axialStages.size();
 		if (stageCount == 3) {
 			result.setStage321CG(cg);
 		} else if (stageCount == 2) {
@@ -128,26 +142,33 @@ public class RockSimSaver extends RocketSaver {
 		result.setName(rocket.getName());
 		result.setStageCount(stageCount);
 		if (stageCount > 0) {
-			result.setStage3(toStageDTO(rocket.getChild(0).getStage(), result, 3));
+			result.setStage3(toStageDTO(axialStages.get(0), result, 3, context));
 		}
 		if (stageCount > 1) {
-			result.setStage2(toStageDTO(rocket.getChild(1).getStage(), result, 2));
+			result.setStage2(toStageDTO(axialStages.get(1), result, 2, context));
 		}
 		if (stageCount > 2) {
-			result.setStage1(toStageDTO(rocket.getChild(2).getStage(), result, 1));
+			result.setStage1(toStageDTO(axialStages.get(2), result, 1, context));
 		}
-		// Set the last serial number element and reset it.
+		// Record the final component serial number in the RockSim design.
 		result.setLastSerialNumber(BasePartDTO.getCurrentSerialNumber());
-		BasePartDTO.resetCurrentSerialNumber();
-
-		// Clean up
-		MemoryManagement.collectable(rocket);
 
 		return result;
 	}
 
-	private StageDTO toStageDTO(AxialStage stage, RocketDesignDTO designDTO, int stageNumber) {
-		return new StageDTO(stage, designDTO, stageNumber);
+	private List<AxialStage> getAxialStages(Rocket rocket) {
+		List<AxialStage> stages = new ArrayList<>();
+		for (RocketComponent child : rocket.getChildren()) {
+			if (child instanceof AxialStage) {
+				stages.add((AxialStage) child);
+			}
+		}
+		return stages;
+	}
+
+	private StageDTO toStageDTO(AxialStage stage, RocketDesignDTO designDTO, int stageNumber,
+			RockSimExportContext context) {
+		return new StageDTO(stage, designDTO, stageNumber, context);
 	}
 
 }
