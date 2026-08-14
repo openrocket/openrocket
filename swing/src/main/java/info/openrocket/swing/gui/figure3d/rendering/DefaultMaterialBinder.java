@@ -20,6 +20,11 @@ import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_REPEAT;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_BINDING_2D;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+import static org.lwjgl.opengl.GL13.GL_ACTIVE_TEXTURE;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL33.GL_LINEAR_MIPMAP_LINEAR;
 import static org.lwjgl.opengl.GL33.GL_TEXTURE_2D;
@@ -179,10 +184,20 @@ public final class DefaultMaterialBinder implements GpuResource {
 	}
 
 	private Appearance3D createDefaultAppearance(RocketComponent component) {
+		// Default decals are uploaded lazily during the first unfinished-mode draw.
+		// Preserve the current binding so that upload cannot replace the depth map
+		// which the active scene shader samples later in the same draw call.
+		int activeTextureUnit = glGetInteger(GL_ACTIVE_TEXTURE);
+		int boundTexture = glGetInteger(GL_TEXTURE_BINDING_2D);
 		final Appearance3D[] appearance = new Appearance3D[1];
-		AppearanceFactory.withDecalTextureCache(decalTextureCache,
-				() -> appearance[0] = AppearanceFactory.createDefaultFrom(component));
-		return appearance[0];
+		try {
+			AppearanceFactory.withDecalTextureCache(decalTextureCache,
+					() -> appearance[0] = AppearanceFactory.createDefaultFrom(component));
+			return appearance[0];
+		} finally {
+			glActiveTexture(activeTextureUnit);
+			glBindTexture(GL_TEXTURE_2D, boundTexture);
+		}
 	}
 
 	@Override
