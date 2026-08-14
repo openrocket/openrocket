@@ -38,21 +38,31 @@ public final class GLErrors {
 	}
 
 	/**
-	 * Clears errors left by earlier GL work before a checked operation begins.
+	 * Starts a resource-creation phase at the native-canvas boundary.
 	 *
 	 * <p>Error flags belong to a context rather than to an individual call. A
 	 * transient default-framebuffer failure during native window setup can
-	 * therefore remain pending until later resource creation checks the context.
-	 * Clearing at the boundary keeps the subsequent {@link #check(String)} local
-	 * to the operation it names. Stale errors remain available in debug logs.</p>
+	 * therefore remain pending until later resource creation checks the context. At
+	 * this boundary that one known error is safe to discard. Any other error is
+	 * surfaced instead of being misattributed to, or hidden by, a later upload.</p>
 	 *
 	 * @param operation description of the operation about to begin
 	 */
-	public static void beginCheck(String operation) {
-		List<Integer> errors = drainErrors();
-		if (!errors.isEmpty()) {
-			log.debug("Cleared stale OpenGL error before '{}': {}", operation, errorStrings(errors));
+	public static void beginResourceCreation(String operation) {
+		verifyResourceBoundary(operation, drainErrors());
+	}
+
+	static void verifyResourceBoundary(String operation, List<Integer> errors) {
+		if (errors.isEmpty()) {
+			return;
 		}
+		if (errors.stream().allMatch(error -> error == GL_INVALID_FRAMEBUFFER_OPERATION)) {
+			log.debug("Ignored transient default-framebuffer error before '{}': {}",
+					operation, errorStrings(errors));
+			return;
+		}
+		log.error("OpenGL error before '{}': {}", operation, errorStrings(errors));
+		throw new GLException("before " + operation, errors);
 	}
 
 	/**

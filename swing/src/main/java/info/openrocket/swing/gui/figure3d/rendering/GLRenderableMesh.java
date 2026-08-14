@@ -42,7 +42,6 @@ public class GLRenderableMesh implements Renderable {
 		try {
 			vertexBuffer = packVertexData(mesh.getVertices());
 			indexBuffer = packIndexData(mesh.getIndices());
-			GLErrors.beginCheck(UPLOAD_OPERATION);
 
 			vertexArrayId = GL33.glGenVertexArrays();
 			GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayId, "mesh vao");

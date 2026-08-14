@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.lwjgl.opengl.GL11.GL_INVALID_ENUM;
 import static org.lwjgl.opengl.GL11.GL_INVALID_OPERATION;
@@ -51,5 +53,20 @@ public class GLErrorsTest {
 	public void testDebugDisabledByDefault() {
 		System.clearProperty(GLErrors.DEBUG_PROPERTY);
 		assertTrue(!GLErrors.isDebugEnabled());
+	}
+
+	@Test
+	public void testResourceBoundaryIgnoresOnlyFramebufferErrors() {
+		assertDoesNotThrow(() -> GLErrors.verifyResourceBoundary(
+				"rocket scene resource creation", List.of(GL_INVALID_FRAMEBUFFER_OPERATION)));
+
+		GLException outOfMemory = assertThrows(GLException.class, () -> GLErrors.verifyResourceBoundary(
+				"rocket scene resource creation", List.of(GL_OUT_OF_MEMORY)));
+		assertEquals(List.of(GL_OUT_OF_MEMORY), outOfMemory.getErrorCodes());
+
+		GLException mixed = assertThrows(GLException.class, () -> GLErrors.verifyResourceBoundary(
+				"rocket scene resource creation",
+				List.of(GL_INVALID_FRAMEBUFFER_OPERATION, GL_OUT_OF_MEMORY)));
+		assertEquals(List.of(GL_INVALID_FRAMEBUFFER_OPERATION, GL_OUT_OF_MEMORY), mixed.getErrorCodes());
 	}
 }

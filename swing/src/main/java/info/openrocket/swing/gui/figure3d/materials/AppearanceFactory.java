@@ -8,9 +8,10 @@ import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.swing.gui.figure3d.rendering.GLException;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
@@ -362,6 +363,8 @@ public abstract class AppearanceFactory {
 				buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
 				return new Texture(buffer);
 			}
+		} catch (GLException e) {
+			throw e;
 		} catch (Exception e) {
 			log.error("Failed to load decal image from OpenRocket component.", e);
 			return null;

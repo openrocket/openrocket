@@ -42,6 +42,7 @@ import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
+import info.openrocket.swing.gui.figure3d.rendering.GLErrors;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.SharedRenderable;
 import org.joml.Matrix4f;
@@ -149,6 +150,7 @@ public abstract class RocketMeshBuilder {
 
 	/** Allocates all resources without mutating the destination scene. */
 	public static PreparedSnapshot prepareSnapshot(RocketSceneSnapshot snapshot, RenderingConfiguration config) {
+		GLErrors.beginResourceCreation("rocket scene resource creation");
 		List<SceneObject> objects = new ArrayList<>();
 		List<ParticleEmitter> particleEmitters = new ArrayList<>();
 		try {

@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.materials;
 
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
+import info.openrocket.swing.gui.figure3d.rendering.GLErrors;
 import info.openrocket.swing.gui.figure3d.rendering.TextureStateManager;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL;
@@ -66,7 +67,13 @@ public class Texture {
 	private int internalFormat;
 	private int format;
 
-	private void trackCreation(String label) {
+	private void completeCreation(String label) {
+		try {
+			GLErrors.check("texture upload (" + label + ")");
+		} catch (RuntimeException | Error e) {
+			abandonTexture();
+			throw e;
+		}
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, textureId, label);
 	}
 
@@ -293,7 +300,7 @@ public class Texture {
 					GL_RGBA, GL_UNSIGNED_BYTE, image);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
-			trackCreation("file:" + filePath);
+			completeCreation("file:" + filePath);
 		} catch (RuntimeException | Error e) {
 			abandonTexture();
 			throw new IllegalStateException("Failed to create texture from '" + filePath + "'", e);
@@ -341,7 +348,7 @@ public class Texture {
 		this.height = height;
 		this.internalFormat = GL_RGBA;
 		this.format = GL_RGBA;
-		trackCreation("procedural:" + width + "x" + height);
+		completeCreation("procedural:" + width + "x" + height);
 	}
 
 	/**
@@ -392,7 +399,7 @@ public class Texture {
 		this.height = faceHeight;
 		this.internalFormat = detectedInternalFormat;
 		this.format = detectedFormat;
-		trackCreation("cubemap");
+		completeCreation("cubemap");
 	}
 
 	/**
@@ -502,7 +509,7 @@ public class Texture {
 		this.height = faceSize;
 		this.internalFormat = detectedInternalFormat;
 		this.format = detectedFormat;
-		trackCreation("cubemap-atlas");
+		completeCreation("cubemap-atlas");
 	}
 
 
@@ -544,7 +551,7 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		trackCreation("hdr:" + filePath);
+		completeCreation("hdr:" + filePath);
 	}
 
 	/**
@@ -588,7 +595,7 @@ public class Texture {
 		} finally {
 			STBImage.stbi_set_flip_vertically_on_load(false);
 		}
-		trackCreation("memory");
+		completeCreation("memory");
 	}
 
 	/**
@@ -619,7 +626,7 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		trackCreation("mutable:" + width + "x" + height);
+		completeCreation("mutable:" + width + "x" + height);
 	}
 
 	/**
