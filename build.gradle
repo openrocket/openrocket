@@ -149,6 +149,13 @@ subprojects {
         useJUnitPlatform()
         finalizedBy jacocoTestReport
 
+        // Keep verification output independent of the host operating-system locale.
+        // These properties are applied when the test JVM starts, before locale-sensitive
+        // classes can cache formatting state.
+        systemProperty 'user.language', 'en'
+        systemProperty 'user.country', 'US'
+        systemProperty 'user.variant', ''
+
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
             exceptionFormat = 'full'
