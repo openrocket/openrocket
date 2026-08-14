@@ -15,7 +15,6 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
 import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
 
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -119,7 +117,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		CameraControls camera = mock(CameraControls.class);
 		when(camera.isZoomFitting()).thenReturn(true);
 		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
-		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		RocketSceneSynchronizer synchronizer = rebuildingSynchronizer(orchestrator, emptyScene(), rocket);
 
 		// The event Rocket.loadFrom() fires for both undo and redo.
 		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.UNDO_CHANGE
@@ -137,7 +135,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		CameraControls camera = mock(CameraControls.class);
 		when(camera.isZoomFitting()).thenReturn(true);
 		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
-		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		RocketSceneSynchronizer synchronizer = rebuildingSynchronizer(orchestrator, emptyScene(), rocket);
 
 		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE));
 		drainEdt();
@@ -152,7 +150,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		CameraControls camera = mock(CameraControls.class);
 		when(camera.isZoomFitting()).thenReturn(false);
 		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
-		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		RocketSceneSynchronizer synchronizer = rebuildingSynchronizer(orchestrator, emptyScene(), rocket);
 		ComponentChangeEvent addRemoveEvent = new ComponentChangeEvent(rocket,
 				ComponentChangeEvent.TREE_CHANGE | ComponentChangeEvent.AEROMASS_CHANGE);
 
@@ -172,7 +170,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		CameraControls camera = mock(CameraControls.class);
 		when(camera.isZoomFitting()).thenReturn(true);
 		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
-		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		RocketSceneSynchronizer synchronizer = rebuildingSynchronizer(orchestrator, emptyScene(), rocket);
 		ComponentChangeEvent addRemoveEvent = new ComponentChangeEvent(rocket,
 				ComponentChangeEvent.TREE_CHANGE | ComponentChangeEvent.AEROMASS_CHANGE);
 
@@ -191,7 +189,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		Rocket rocket = new Rocket();
 		CameraControls camera = mock(CameraControls.class);
 		Scene3DOrchestrator orchestrator = rebuildingOrchestrator(camera);
-		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, emptyScene(), rocket);
+		RocketSceneSynchronizer synchronizer = rebuildingSynchronizer(orchestrator, emptyScene(), rocket);
 
 		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.TREE_CHANGE));
 		drainEdt();
@@ -221,6 +219,13 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		return orchestrator;
 	}
 
+	private static RocketSceneSynchronizer rebuildingSynchronizer(
+			Scene3DOrchestrator orchestrator, SceneView scene, Rocket rocket) {
+		return new RocketSceneSynchronizer(orchestrator, scene, rocket,
+				() -> RocketMeshBuilder.buildSnapshot(rocket, orchestrator.getRenderingConfiguration()),
+				(snapshot, configuration) -> mock(RocketMeshBuilder.PreparedSnapshot.class));
+	}
+
 	@Test
 	void rebuildEventsCoalesceSnapshotConstructionAndGlWork() throws Exception {
 		SceneView scene = mock(SceneView.class);
@@ -237,30 +242,29 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		RocketMeshBuilder.PreparedSnapshot prepared = mock(RocketMeshBuilder.PreparedSnapshot.class);
 		AtomicInteger buildCount = new AtomicInteger();
 		AtomicReference<RocketSceneSnapshot> modelState = new AtomicReference<>();
+		List<RocketSceneSnapshot> preparedSnapshots = new ArrayList<>();
 		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket, () -> {
 			buildCount.incrementAndGet();
 			return modelState.get();
+		}, (snapshot, ignored) -> {
+			preparedSnapshots.add(snapshot);
+			return prepared;
 		});
 
-		try (MockedStatic<RocketMeshBuilder> meshBuilder = mockStatic(RocketMeshBuilder.class)) {
-			meshBuilder.when(() -> RocketMeshBuilder.prepareSnapshot(latestSnapshot, configuration))
-					.thenReturn(prepared);
+		ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
+		modelState.set(mock(RocketSceneSnapshot.class));
+		synchronizer.componentChanged(event);
+		modelState.set(latestSnapshot);
+		synchronizer.componentChanged(event);
+		drainEdt();
 
-			ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
-			modelState.set(mock(RocketSceneSnapshot.class));
-			synchronizer.componentChanged(event);
-			modelState.set(latestSnapshot);
-			synchronizer.componentChanged(event);
-			drainEdt();
+		ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+		verify(orchestrator, times(1)).enqueueGlTask(taskCaptor.capture());
+		taskCaptor.getValue().run();
 
-			ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
-			verify(orchestrator, times(1)).enqueueGlTask(taskCaptor.capture());
-			taskCaptor.getValue().run();
-
-			assertEquals(1, buildCount.get());
-			meshBuilder.verify(() -> RocketMeshBuilder.prepareSnapshot(latestSnapshot, configuration));
-			verify(prepared).commitTo(scene);
-		}
+		assertEquals(1, buildCount.get());
+		assertEquals(List.of(latestSnapshot), preparedSnapshots);
+		verify(prepared).commitTo(scene);
 	}
 
 	@Test
@@ -277,6 +281,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		RocketMeshBuilder.PreparedSnapshot prepared = mock(RocketMeshBuilder.PreparedSnapshot.class);
 		AtomicInteger buildCount = new AtomicInteger();
 		AtomicReference<RocketSceneSynchronizer> synchronizerReference = new AtomicReference<>();
+		List<RocketSceneSnapshot> preparedSnapshots = new ArrayList<>();
 		ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
 		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, rocket, () -> {
 			if (buildCount.getAndIncrement() == 0) {
@@ -284,25 +289,22 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 				return firstSnapshot;
 			}
 			return latestSnapshot;
+		}, (snapshot, ignored) -> {
+			preparedSnapshots.add(snapshot);
+			return prepared;
 		});
 		synchronizerReference.set(synchronizer);
 
-		try (MockedStatic<RocketMeshBuilder> meshBuilder = mockStatic(RocketMeshBuilder.class)) {
-			meshBuilder.when(() -> RocketMeshBuilder.prepareSnapshot(latestSnapshot, configuration))
-					.thenReturn(prepared);
+		synchronizer.componentChanged(event);
+		drainEdt();
+		drainEdt();
 
-			synchronizer.componentChanged(event);
-			drainEdt();
-			drainEdt();
+		ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+		verify(orchestrator).enqueueGlTask(taskCaptor.capture());
+		taskCaptor.getValue().run();
 
-			ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
-			verify(orchestrator).enqueueGlTask(taskCaptor.capture());
-			taskCaptor.getValue().run();
-
-			assertEquals(2, buildCount.get());
-			meshBuilder.verify(() -> RocketMeshBuilder.prepareSnapshot(latestSnapshot, configuration));
-			meshBuilder.verify(() -> RocketMeshBuilder.prepareSnapshot(firstSnapshot, configuration), never());
-		}
+		assertEquals(2, buildCount.get());
+		assertEquals(List.of(latestSnapshot), preparedSnapshots);
 	}
 
 	@Test
@@ -339,21 +341,19 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		Rocket rocket = new Rocket();
 		RocketSceneSnapshot snapshot = mock(RocketSceneSnapshot.class);
 		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(
-				orchestrator, scene, rocket, () -> snapshot);
+				orchestrator, scene, rocket, () -> snapshot,
+				(ignoredSnapshot, ignoredConfiguration) -> {
+					throw new IllegalStateException("upload failed");
+				});
 
-		try (MockedStatic<RocketMeshBuilder> meshBuilder = mockStatic(RocketMeshBuilder.class)) {
-			meshBuilder.when(() -> RocketMeshBuilder.prepareSnapshot(snapshot, configuration))
-					.thenThrow(new IllegalStateException("upload failed"));
+		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE));
+		drainEdt();
+		ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+		verify(orchestrator).enqueueGlTask(taskCaptor.capture());
 
-			synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE));
-			drainEdt();
-			ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
-			verify(orchestrator).enqueueGlTask(taskCaptor.capture());
-
-			assertThrows(IllegalStateException.class, () -> taskCaptor.getValue().run());
-			verify(scene, never()).removeObject(existingObject);
-			verify(existingObject, never()).cleanup();
-		}
+		assertThrows(IllegalStateException.class, () -> taskCaptor.getValue().run());
+		verify(scene, never()).removeObject(existingObject);
+		verify(existingObject, never()).cleanup();
 	}
 
 	private static void drainEdt() throws Exception {

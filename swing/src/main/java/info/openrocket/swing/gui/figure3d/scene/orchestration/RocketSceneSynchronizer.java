@@ -14,6 +14,7 @@ import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -34,6 +36,8 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final SceneView scene;
 	private final Rocket rocket;
 	private final Supplier<RocketSceneSnapshot> snapshotBuilder;
+	private final BiFunction<RocketSceneSnapshot, RenderingConfiguration, RocketMeshBuilder.PreparedSnapshot>
+			snapshotPreparer;
 	private final ConcurrentLinkedQueue<PendingAppearanceUpdate> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
 	private final AtomicBoolean snapshotBuildQueued = new AtomicBoolean(false);
@@ -67,15 +71,23 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 */
 	public RocketSceneSynchronizer(Scene3DOrchestrator scene3DOrchestrator, SceneView scene, Rocket rocket) {
 		this(scene3DOrchestrator, scene, rocket,
-				() -> RocketMeshBuilder.buildSnapshot(rocket, scene3DOrchestrator.getRenderingConfiguration()));
+				() -> RocketMeshBuilder.buildSnapshot(rocket, scene3DOrchestrator.getRenderingConfiguration()),
+				RocketMeshBuilder::prepareSnapshot);
 	}
 
 	RocketSceneSynchronizer(Scene3DOrchestrator scene3DOrchestrator, SceneView scene, Rocket rocket,
 			Supplier<RocketSceneSnapshot> snapshotBuilder) {
+		this(scene3DOrchestrator, scene, rocket, snapshotBuilder, RocketMeshBuilder::prepareSnapshot);
+	}
+
+	RocketSceneSynchronizer(Scene3DOrchestrator scene3DOrchestrator, SceneView scene, Rocket rocket,
+			Supplier<RocketSceneSnapshot> snapshotBuilder,
+			BiFunction<RocketSceneSnapshot, RenderingConfiguration, RocketMeshBuilder.PreparedSnapshot> snapshotPreparer) {
 		this.scene3DOrchestrator = scene3DOrchestrator;
 		this.scene = scene;
 		this.rocket = rocket;
 		this.snapshotBuilder = snapshotBuilder;
+		this.snapshotPreparer = snapshotPreparer;
 		this.lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
 		this.rocket.addComponentChangeListener(this);
 	}
@@ -334,7 +346,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private void applyRebuildSnapshot(RocketSceneSnapshot snapshot, CameraUpdateBehavior cameraUpdateBehavior) {
 		RocketMeshBuilder.PreparedSnapshot prepared = AppearanceFactory.withDecalTextureCache(
 				scene3DOrchestrator.getDecalTextureCache(),
-				() -> RocketMeshBuilder.prepareSnapshot(snapshot, scene3DOrchestrator.getRenderingConfiguration()));
+				() -> snapshotPreparer.apply(snapshot, scene3DOrchestrator.getRenderingConfiguration()));
 		try {
 			commitPreparedSnapshot(snapshot, cameraUpdateBehavior, prepared);
 		} finally {
