@@ -325,11 +325,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * </ol>
 	 *
 	 * <p>Other scene infrastructure, such as light visualizers, is preserved.</p>
+	 *
+	 * @param refocusCamera whether a zoom-fitted camera should be reframed after the rebuild
 	 */
-	public void rebuildRocketScene() {
-		rebuildRocketScene(CameraUpdateBehavior.REFIT_IF_FIT);
-	}
-
 	public void rebuildRocketScene(boolean refocusCamera) {
 		rebuildRocketScene(refocusCamera ? CameraUpdateBehavior.REFIT_IF_FIT : CameraUpdateBehavior.NONE);
 	}

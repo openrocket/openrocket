@@ -22,8 +22,6 @@ import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,9 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Coordinates scene state, input, synchronization, and rendering for a figure3d view.
  */
 public class Scene3DOrchestrator {
-
-	private static final Logger log = LoggerFactory.getLogger(Scene3DOrchestrator.class);
-
 	private final Scene scene;
 	private final GLRenderer renderer;
 	private final RenderingConfiguration renderingConfiguration;

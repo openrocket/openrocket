@@ -17,7 +17,6 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Mutable scene containing rocket objects, camera, lights, particles, and selection state.
@@ -81,11 +80,6 @@ public class Scene implements SceneView {
 	@Override
 	public void removeObject(SceneObject object) {
 		objects.remove(object);
-	}
-
-	@Override
-	public void removeObjectsIf(Predicate<SceneObject> predicate) {
-		objects.removeIf(predicate);
 	}
 
 	@Override

@@ -89,35 +89,13 @@ public abstract class RocketMeshBuilder {
 	}
 
 	/**
-	 * Populates the given scene with meshes generated from a Rocket data model.
-	 *
-	 * <p>This is the main entry point for converting a complete rocket design into 3D geometry.
-	 * It processes all visible components in the rocket hierarchy, generates appropriate meshes
-	 * for each component type, and adds them to the scene with correct positioning and scaling.</p>
-	 *
-	 * <p>This convenience method reads the rocket model on the calling thread; for incremental
-	 * rebuilds where the model is being concurrently edited (e.g. slider drags) the rocket read
-	 * and the scene mutation should be split between threads using
-	 * {@link #buildSnapshot(Rocket, RenderingConfiguration)} on the EDT and
-	 * {@link #applySnapshot(SceneView, RocketSceneSnapshot, RenderingConfiguration)} on the GL thread.</p>
-	 *
-	 * @param scene The scene to add the generated mesh objects to
-	 * @param rocket The rocket data model containing all component definitions
-	 * @param config The rendering configuration specifying visual options and quality settings
-	 */
-	public static void buildRocketMesh(SceneView scene, Rocket rocket, RenderingConfiguration config) {
-		applySnapshot(scene, buildSnapshot(rocket, config), config);
-	}
-
-	/**
 	 * Captures all rocket-derived data needed to (re)build the 3D scene into an immutable
 	 * snapshot. Intended to be called on the thread that owns the rocket model (the EDT for
 	 * the running app), so the snapshot reflects a consistent view of the rocket even when
 	 * it would otherwise be raced by edits before the GL thread renders.
 	 *
 	 * <p>This is pure CPU work: meshes and transforms are pre-computed but no GPU resources
-	 * are allocated. Pair with {@link #applySnapshot} to commit the snapshot to a scene on
-	 * the GL thread.</p>
+	 * are allocated. Pair with {@link #prepareSnapshot} on the GL thread.</p>
 	 */
 	public static RocketSceneSnapshot buildSnapshot(Rocket rocket, RenderingConfiguration config) {
 		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
@@ -131,21 +109,6 @@ public abstract class RocketMeshBuilder {
 				flightConfig.getExtraRenderInstances().entrySet(), config,
 				RenderingConstants.WORLD_SCALE, lowestMotorInstances);
 		return new RocketSceneSnapshot(componentInstances, motorInstances, flightConfig.getId());
-	}
-
-	/**
-	 * Commits a previously-built {@link RocketSceneSnapshot} to the scene. Allocates GPU
-	 * resources (vertex buffers via {@link SceneObject}, textures via {@link AppearanceFactory})
-	 * and must run on the GL thread. The origin axes are also (re)added here since they are
-	 * not rocket-derived and don't need to be in the snapshot.
-	 */
-	public static void applySnapshot(SceneView scene, RocketSceneSnapshot snapshot, RenderingConfiguration config) {
-		PreparedSnapshot prepared = prepareSnapshot(snapshot, config);
-		try {
-			prepared.commitTo(scene);
-		} finally {
-			prepared.cleanupIfUncommitted();
-		}
 	}
 
 	/** Allocates all resources without mutating the destination scene. */
@@ -501,68 +464,6 @@ public abstract class RocketMeshBuilder {
 		zAxisObject.setRenderOnTop(onTop);
 		zAxisObject.setOriginAxis(true);
 		objectConsumer.accept(zAxisObject);
-	}
-
-	/**
-	 * Rebuilds all particle emitters in the scene based on current scene properties.
-	 * This should be called when particle settings change.
-	 */
-	public static void rebuildParticles(Scene scene, Rocket rocket, RenderingConfiguration config) {
-		// Clear existing particle emitters
-		scene.clearParticleEmitters();
-
-		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
-		InstanceMap lowestMotorInstances = flightConfig.getLowestMotorInstances();
-		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : flightConfig.getActiveInstances().entrySet()) {
-			RocketComponent component = entry.getKey();
-			if (!component.isVisible() || !(component instanceof MotorMount)) {
-				continue;
-			}
-
-			rebuildMotorParticles(scene, flightConfig.getId(), (RocketComponent & MotorMount) component,
-					entry.getValue(), config, RenderingConstants.WORLD_SCALE, lowestMotorInstances);
-		}
-	}
-
-	private static <T extends RocketComponent & MotorMount> void rebuildMotorParticles(
-			Scene scene, FlightConfigurationId fcid, T mount, List<InstanceContext> instanceContexts,
-			RenderingConfiguration config, float worldScale, InstanceMap lowestMotorInstances) {
-		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
-		if (motorCfg == null) return;
-
-		Motor motor = motorCfg.getMotor();
-		if (motor == null) return;
-		if (instanceContexts == null || instanceContexts.isEmpty()) {
-			return;
-		}
-
-		for (InstanceContext context : instanceContexts) {
-			CoordinateIF instanceLocation = context.getLocation();
-			CoordinateIF instanceAngle = new Coordinate(
-					context.transform.getXrotation(),
-					context.transform.getYrotation(),
-					context.transform.getZrotation());
-
-			// Calculate motor position (same logic as in buildMotor)
-			double motorFrontRelToMountFront = mount.getLength() + mount.getMotorOverhang() - motor.getLength();
-			double motorCenterRelToMountFront = motorFrontRelToMountFront + motor.getLength() / 2.0;
-			CoordinateIF motorCenterAbsolute = instanceLocation.add(motorCenterRelToMountFront, 0, 0);
-
-			Vector3f positionInEngineCS = new Vector3f(
-					(float) motorCenterAbsolute.getX(),
-					(float) motorCenterAbsolute.getY(),
-					(float) motorCenterAbsolute.getZ() * -1.0f
-			).mul(worldScale);
-
-			Matrix4f rotationMatrix = new Matrix4f()
-					.rotateX(-(float) instanceAngle.getX())
-					.rotateY(-(float) instanceAngle.getY())
-					.rotateZ(-(float) instanceAngle.getZ());
-
-			if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
-				addParticles(scene::addParticleEmitter, worldScale, positionInEngineCS, motor, rotationMatrix, config);
-			}
-		}
 	}
 
 	private static boolean isLowestMotorInstance(InstanceMap lowestMotorInstances, RocketComponent mount,

@@ -83,7 +83,6 @@ public final class GLDebug {
 			installedContexts.add(caps);
 			callbacks.put(caps, callback);
 			log.info("OpenGL debug output enabled for {}", contextLabel);
-			GLUtils.setDebugMode(true);
 		}
 	}
 

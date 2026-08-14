@@ -26,7 +26,8 @@ The main data and rendering flow is:
          -> RocketSceneSynchronizer
             model thread: RocketMeshBuilder.buildSnapshot()
                           -> immutable RocketSceneSnapshot
-            GL thread:    RocketMeshBuilder.applySnapshot()
+            GL thread:    RocketMeshBuilder.prepareSnapshot()
+                          -> PreparedSnapshot.commitTo(SceneView)
                           -> SceneObject and GPU resources
          -> RealisticRenderer
       -> resolved scene texture
@@ -105,14 +106,15 @@ change the camera, update rendering configuration, rebuild the rocket, and reque
 ``RocketSceneSynchronizer`` listens for component changes and chooses the least expensive safe update:
 
 * Appearance-only changes are coalesced and update existing appearances on the GL thread.
-* Structural, geometry, visibility, and selected-configuration changes build a ``RocketSceneSnapshot``
-  on the calling model thread. This captures a consistent model state before a queued GL task replaces
-  the rocket-derived scene objects and particle emitters.
+* Structural, geometry, visibility, and selected-configuration changes coalesce at the tail of the Swing
+  event queue and build the newest ``RocketSceneSnapshot`` there. A queued GL task then replaces the
+  rocket-derived scene objects and particle emitters.
 
-``RocketMeshBuilder.buildSnapshot`` is CPU-only. ``RocketMeshBuilder.applySnapshot`` creates
+``RocketMeshBuilder.buildSnapshot`` is CPU-only. ``RocketMeshBuilder.prepareSnapshot`` creates
 ``SceneObject`` instances, appearances, textures, motors, particle emitters, and other context-owned
-resources. Keeping these phases separate prevents the render thread from reading a rocket while it is
-being edited.
+resources without changing the live scene. The orchestrator commits that prepared replacement only
+after all allocations succeed. Keeping these phases separate prevents the render thread from reading a
+rocket while it is being edited and preserves the old scene if resource preparation fails.
 
 Geometry and Materials
 ======================

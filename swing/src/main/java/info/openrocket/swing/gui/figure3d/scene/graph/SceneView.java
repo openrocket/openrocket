@@ -8,7 +8,6 @@ import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import org.joml.Vector3f;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Scene operations shared by renderers, controllers, and UI consumers.
@@ -33,9 +32,6 @@ public interface SceneView {
 
 	/** Removes an object from the scene. */
 	void removeObject(SceneObject object);
-
-	/** Removes every object matching the predicate. */
-	void removeObjectsIf(Predicate<SceneObject> predicate);
 
 	/** Removes all objects from the scene. */
 	void clearObjects();

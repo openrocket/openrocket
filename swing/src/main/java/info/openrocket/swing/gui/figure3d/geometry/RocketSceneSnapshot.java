@@ -14,7 +14,7 @@ import java.util.List;
  *
  * <p>The snapshot is built on the EDT (where the rocket model is consistent under
  * {@code Rocket}'s mutex during a {@code fireComponentChangeEvent}) and consumed
- * later on the GL thread by {@link RocketMeshBuilder#applySnapshot}. This avoids
+ * later on the GL thread by {@link RocketMeshBuilder#prepareSnapshot}. This avoids
  * reading mutable rocket fields (component lengths/radii, instance maps, etc.)
  * from the GL thread, where they could race with concurrent edits and produce
  * partially-updated geometry — for example, a body tube with the new length but
