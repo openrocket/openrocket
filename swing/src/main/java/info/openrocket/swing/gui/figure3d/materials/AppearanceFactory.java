@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * A factory class to create engine-specific Appearance objects
@@ -55,14 +56,20 @@ public abstract class AppearanceFactory {
 	}
 
 	public static void withDecalTextureCache(DecalTextureCache cache, Runnable task) {
-		if (cache == null) {
+		withDecalTextureCache(cache, () -> {
 			task.run();
-			return;
+			return null;
+		});
+	}
+
+	public static <T> T withDecalTextureCache(DecalTextureCache cache, Supplier<T> task) {
+		if (cache == null) {
+			return task.get();
 		}
 		DecalTextureCache previous = ACTIVE_DECAL_TEXTURE_CACHE.get();
 		ACTIVE_DECAL_TEXTURE_CACHE.set(cache);
 		try {
-			task.run();
+			return task.get();
 		} finally {
 			if (previous == null) {
 				ACTIVE_DECAL_TEXTURE_CACHE.remove();

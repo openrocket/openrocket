@@ -36,6 +36,7 @@ public class SceneObject {
 	private boolean isSelected = false;					// Whether this object is currently selected
 	private boolean isSelectable = true;				// Whether this object can be selected by the user
 	private boolean renderOnTop = false;				// Whether this object should always render on top of others
+	private boolean originAxis = false;
 
 	private DragListener onDragListener = null;		// A listener that defines what happens when this object is dragged.
 
@@ -196,6 +197,14 @@ public class SceneObject {
 
 	public void setRenderOnTop(boolean renderOnTop) {
 		this.renderOnTop = renderOnTop;
+	}
+
+	public boolean isOriginAxis() {
+		return originAxis;
+	}
+
+	public void setOriginAxis(boolean originAxis) {
+		this.originAxis = originAxis;
 	}
 
 	public void setOnDragListener(DragListener listener) {

@@ -49,6 +49,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Factory class responsible for building complete 3D mesh representations of rockets and their components.
@@ -74,6 +75,34 @@ import java.util.Set;
  * right-handed system (+X radially right, +Y longitudinal up, -Z into screen).</p>
  */
 public abstract class RocketMeshBuilder {
+	/** GPU resources prepared before an existing rocket scene is replaced. */
+	public static final class PreparedSnapshot {
+		private final List<SceneObject> objects;
+		private final List<ParticleEmitter> particleEmitters;
+		private boolean committed;
+
+		private PreparedSnapshot(List<SceneObject> objects, List<ParticleEmitter> particleEmitters) {
+			this.objects = objects;
+			this.particleEmitters = particleEmitters;
+		}
+
+		public void commitTo(SceneView scene) {
+			for (SceneObject object : objects) {
+				scene.addObject(object);
+			}
+			for (ParticleEmitter emitter : particleEmitters) {
+				scene.addParticleEmitter(emitter);
+			}
+			committed = true;
+		}
+
+		public void cleanupIfUncommitted() {
+			if (!committed) {
+				objects.forEach(SceneObject::cleanup);
+			}
+		}
+	}
+
 	/**
 	 * Populates the given scene with meshes generated from a Rocket data model.
 	 *
@@ -126,13 +155,37 @@ public abstract class RocketMeshBuilder {
 	 * not rocket-derived and don't need to be in the snapshot.
 	 */
 	public static void applySnapshot(SceneView scene, RocketSceneSnapshot snapshot, RenderingConfiguration config) {
+		PreparedSnapshot prepared = prepareSnapshot(snapshot, config);
+		try {
+			prepared.commitTo(scene);
+		} finally {
+			prepared.cleanupIfUncommitted();
+		}
+	}
+
+	/** Allocates all resources without mutating the destination scene. */
+	public static PreparedSnapshot prepareSnapshot(RocketSceneSnapshot snapshot, RenderingConfiguration config) {
+		List<SceneObject> objects = new ArrayList<>();
+		List<ParticleEmitter> particleEmitters = new ArrayList<>();
+		try {
+			prepareSnapshotObjects(objects, particleEmitters, snapshot, config);
+			createOriginAxes(objects::add, config, true, true);
+			return new PreparedSnapshot(objects, particleEmitters);
+		} catch (RuntimeException | Error e) {
+			objects.forEach(SceneObject::cleanup);
+			throw e;
+		}
+	}
+
+	private static void prepareSnapshotObjects(List<SceneObject> objects, List<ParticleEmitter> particleEmitters,
+			RocketSceneSnapshot snapshot, RenderingConfiguration config) {
 		IdentityHashMap<RocketComponent, Appearance3D> componentAppearances = new IdentityHashMap<>();
 		for (RocketSceneSnapshot.ComponentInstance ci : snapshot.getComponentInstances()) {
 			Appearance3D appearance = componentAppearances.computeIfAbsent(ci.component(),
 					ignored -> AppearanceFactory.createFrom(ci.appearance()));
 			SceneObject obj = new SceneObject(ci.component(), ci.mesh(), new Vector3f(0, 0, 0), appearance);
 			obj.getModelMatrix().set(ci.modelMatrix());
-			scene.addObject(obj);
+			objects.add(obj);
 		}
 
 		for (RocketSceneSnapshot.MotorInstance mi : snapshot.getMotorInstances()) {
@@ -142,14 +195,12 @@ public abstract class RocketMeshBuilder {
 					mi.mountForSelectionGrouping(), mi.motorMesh(),
 					new Vector3f(0, 0, 0), motorAppearance);
 			motorObj.getModelMatrix().set(mi.modelMatrix());
-			scene.addObject(motorObj);
+			objects.add(motorObj);
 
 			if (mi.particleEmitterPlan() != null) {
-				addParticles(scene, mi.particleEmitterPlan(), config);
+				addParticles(particleEmitters::add, mi.particleEmitterPlan(), config);
 			}
 		}
-
-		createOriginAxes(scene, config, true, true);
 	}
 
 	private static void collectInstances(List<RocketSceneSnapshot.ComponentInstance> componentInstances,
@@ -265,17 +316,19 @@ public abstract class RocketMeshBuilder {
 		return new RocketSceneSnapshot.MotorInstance(mount, motorMesh, motor, modelMatrix, emitterPlan);
 	}
 
-	private static void addParticles(SceneView scene, RocketSceneSnapshot.ParticleEmitterPlan plan,
-									 RenderingConfiguration config) {
+	private static void addParticles(Consumer<ParticleEmitter> emitterConsumer,
+			RocketSceneSnapshot.ParticleEmitterPlan plan,
+			RenderingConfiguration config) {
 		Vector3f positionInEngineCS = plan.motorCenterEngineCS();
 		Motor motor = plan.motor();
 		Matrix4f rotationMatrix = plan.motorRotationMatrix();
 		float worldScale = plan.worldScale();
-		addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config);
+		addParticles(emitterConsumer, worldScale, positionInEngineCS, motor, rotationMatrix, config);
 	}
 
-	private static void addParticles(SceneView scene, float worldScale, Vector3f positionInEngineCS, Motor motor,
-									 Matrix4f rotationMatrix, RenderingConfiguration config) {
+	private static void addParticles(Consumer<ParticleEmitter> emitterConsumer, float worldScale,
+			Vector3f positionInEngineCS, Motor motor,
+			Matrix4f rotationMatrix, RenderingConfiguration config) {
 		VisualEffectsSettings settings = config.getVisualEffects();
 
 		// Skip particle creation if particle effects are disabled globally
@@ -301,7 +354,7 @@ public abstract class RocketMeshBuilder {
 			if (time != null) {
 				sparkEmitter.captureStaticParticles(time);
 			}
-			scene.addParticleEmitter(sparkEmitter);
+			emitterConsumer.accept(sparkEmitter);
 		}
 
 		// Add smoke particles if enabled
@@ -314,7 +367,7 @@ public abstract class RocketMeshBuilder {
 			if (time != null) {
 				smokeEmitter.captureStaticParticles(time);
 			}
-			scene.addParticleEmitter(smokeEmitter);
+			emitterConsumer.accept(smokeEmitter);
 		}
 
 		// Add flame particles if enabled
@@ -325,7 +378,7 @@ public abstract class RocketMeshBuilder {
 			if (time != null) {
 				flameEmitter.captureStaticParticles(time);
 			}
-			scene.addParticleEmitter(flameEmitter);
+			emitterConsumer.accept(flameEmitter);
 		}
 	}
 
@@ -390,6 +443,11 @@ public abstract class RocketMeshBuilder {
 	 * @param onTop If true, the axes will be rendered on top of all other objects.
 	 */
 	public static void createOriginAxes(SceneView scene, RenderingConfiguration config, boolean useORCoordinateSystem, boolean onTop) {
+		createOriginAxes(scene::addObject, config, useORCoordinateSystem, onTop);
+	}
+
+	private static void createOriginAxes(Consumer<SceneObject> objectConsumer, RenderingConfiguration config,
+			boolean useORCoordinateSystem, boolean onTop) {
 		// Check if origin axes should be visible
 		if (!config.getVisualEffects().isOriginAxesVisible()) {
 			return;
@@ -411,7 +469,8 @@ public abstract class RocketMeshBuilder {
 		xAxisObject.getModelMatrix().scale(scale); // No rotation needed
 		xAxisObject.setSelectable(false);
 		xAxisObject.setRenderOnTop(onTop);
-		scene.addObject(xAxisObject);
+		xAxisObject.setOriginAxis(true);
+		objectConsumer.accept(xAxisObject);
 
 		// --- OR Y-Axis (Radial Up) -> Engine +Y (Up) ---
 		Appearance3D yAxisAppearance = new Appearance3D(new Vector3f(0.3f, 1.0f, 0.3f));
@@ -420,7 +479,8 @@ public abstract class RocketMeshBuilder {
 		yAxisObject.getModelMatrix().rotate((float) Math.toRadians(90), 0, 0, 1).scale(scale);
 		yAxisObject.setSelectable(false);
 		yAxisObject.setRenderOnTop(onTop);
-		scene.addObject(yAxisObject);
+		yAxisObject.setOriginAxis(true);
+		objectConsumer.accept(yAxisObject);
 
 		// --- OR Z-Axis (Radial Right) -> Engine -Z (Into Screen) ---
 		Appearance3D zAxisAppearance = new Appearance3D(new Vector3f(0.3f, 0.3f, 1.0f));
@@ -434,7 +494,8 @@ public abstract class RocketMeshBuilder {
 		}
 		zAxisObject.setSelectable(false);
 		zAxisObject.setRenderOnTop(onTop);
-		scene.addObject(zAxisObject);
+		zAxisObject.setOriginAxis(true);
+		objectConsumer.accept(zAxisObject);
 	}
 	
 	/**
@@ -494,7 +555,7 @@ public abstract class RocketMeshBuilder {
 					.rotateZ(-(float) instanceAngle.getZ());
 
 			if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
-				addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config);
+				addParticles(scene::addParticleEmitter, worldScale, positionInEngineCS, motor, rotationMatrix, config);
 			}
 		}
 	}
@@ -518,8 +579,11 @@ public abstract class RocketMeshBuilder {
 	 * This should be called when axis visibility changes.
 	 */
 	public static void rebuildOriginAxes(Scene scene, RenderingConfiguration config, boolean useORCoordinateSystem, boolean onTop) {
-		// Remove existing axis objects
-		scene.removeObjectsIf(obj -> !obj.isSelectable() && obj.isRenderOnTop() == onTop);
+		List<SceneObject> axes = scene.getObjects().stream().filter(SceneObject::isOriginAxis).toList();
+		for (SceneObject axis : axes) {
+			scene.removeObject(axis);
+			axis.cleanup();
+		}
 		
 		// Recreate axes if they should be visible
 		createOriginAxes(scene, config, useORCoordinateSystem, onTop);

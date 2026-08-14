@@ -259,13 +259,12 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * 
 	 * <p>The rebuild process:</p>
 	 * <ol>
-	 *   <li>Identifies all rocket-related scene objects</li>
-	 *   <li>Removes them from the scene and cleans up their GPU resources</li>
-	 *   <li>Regenerates the entire rocket mesh from the current model state</li>
-	 *   <li>Adds the new objects back to the scene</li>
+	 *   <li>Prepares all replacement GPU resources</li>
+	 *   <li>Removes the old rocket and origin-axis objects</li>
+	 *   <li>Commits the prepared objects and particle emitters</li>
 	 * </ol>
-	 * 
-	 * <p>Non-rocket objects (axes, lights, etc.) are preserved during this operation.</p>
+	 *
+	 * <p>Other scene infrastructure, such as light visualizers, is preserved.</p>
 	 */
 	public void rebuildRocketScene() {
 		rebuildRocketScene(CameraUpdateBehavior.REFIT_IF_FIT);
@@ -286,6 +285,18 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private void applyRebuildSnapshot(RocketSceneSnapshot snapshot, CameraUpdateBehavior cameraUpdateBehavior) {
+		RocketMeshBuilder.PreparedSnapshot prepared = AppearanceFactory.withDecalTextureCache(
+				scene3DOrchestrator.getDecalTextureCache(),
+				() -> RocketMeshBuilder.prepareSnapshot(snapshot, scene3DOrchestrator.getRenderingConfiguration()));
+		try {
+			commitPreparedSnapshot(snapshot, cameraUpdateBehavior, prepared);
+		} finally {
+			prepared.cleanupIfUncommitted();
+		}
+	}
+
+	private void commitPreparedSnapshot(RocketSceneSnapshot snapshot, CameraUpdateBehavior cameraUpdateBehavior,
+			RocketMeshBuilder.PreparedSnapshot prepared) {
 		lastSelectedConfigurationId = snapshot.getFlightConfigurationId();
 		boolean hadSelection = !scene.getSelectedObjects().isEmpty();
 		Set<RocketComponent> selectedRocketComponents = captureSelectedRocketComponents();
@@ -294,9 +305,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		// First, create a list of all objects to be removed to avoid modification-during-iteration errors.
 		List<SceneObject> objectsToRemove = new ArrayList<>();
 		for (SceneObject obj : scene.getObjects()) {
-			// We only remove objects that are part of the rocket.
-			// Scenery like the coordinate axes will remain.
-			if (obj.getRocketComponent() != null) {
+			if (obj.getRocketComponent() != null || obj.isOriginAxis()) {
 				objectsToRemove.add(obj);
 			}
 		}
@@ -318,10 +327,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		}
 		scene.clearParticleEmitters();
 
-		// Apply the prebuilt snapshot — meshes and transforms are already computed against a
-		// consistent view of the rocket, so this never touches the live model on the GL thread.
-		AppearanceFactory.withDecalTextureCache(scene3DOrchestrator.getDecalTextureCache(),
-				() -> RocketMeshBuilder.applySnapshot(scene, snapshot, scene3DOrchestrator.getRenderingConfiguration()));
+		prepared.commitTo(scene);
 		scene3DOrchestrator.applyRocketRotationToScene();
 		restoreSelectionAfterRebuild(hadSelection, selectedRocketComponents, persistentSelection);
 		if (cameraUpdateBehavior == CameraUpdateBehavior.REFIT_IF_FIT
