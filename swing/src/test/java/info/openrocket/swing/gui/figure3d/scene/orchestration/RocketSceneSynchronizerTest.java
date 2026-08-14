@@ -154,8 +154,10 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		ComponentChangeEvent addRemoveEvent = new ComponentChangeEvent(rocket,
 				ComponentChangeEvent.TREE_CHANGE | ComponentChangeEvent.AEROMASS_CHANGE);
 
-		synchronizer.componentChanged(addRemoveEvent);
-		synchronizer.componentChanged(addRemoveEvent);
+		SwingUtilities.invokeAndWait(() -> {
+			synchronizer.componentChanged(addRemoveEvent);
+			synchronizer.componentChanged(addRemoveEvent);
+		});
 		drainEdt();
 
 		verify(orchestrator, never()).refitOnRocketBoundsChange();
@@ -174,8 +176,10 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		ComponentChangeEvent addRemoveEvent = new ComponentChangeEvent(rocket,
 				ComponentChangeEvent.TREE_CHANGE | ComponentChangeEvent.AEROMASS_CHANGE);
 
-		synchronizer.componentChanged(addRemoveEvent);
-		synchronizer.componentChanged(addRemoveEvent);
+		SwingUtilities.invokeAndWait(() -> {
+			synchronizer.componentChanged(addRemoveEvent);
+			synchronizer.componentChanged(addRemoveEvent);
+		});
 		drainEdt();
 
 		verify(orchestrator).refitOnRocketBoundsChange();
@@ -252,10 +256,12 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		});
 
 		ComponentChangeEvent event = new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE);
-		modelState.set(mock(RocketSceneSnapshot.class));
-		synchronizer.componentChanged(event);
-		modelState.set(latestSnapshot);
-		synchronizer.componentChanged(event);
+		SwingUtilities.invokeAndWait(() -> {
+			modelState.set(mock(RocketSceneSnapshot.class));
+			synchronizer.componentChanged(event);
+			modelState.set(latestSnapshot);
+			synchronizer.componentChanged(event);
+		});
 		drainEdt();
 
 		ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -317,8 +323,10 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 			return mock(RocketSceneSnapshot.class);
 		});
 
-		synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE));
-		synchronizer.dispose();
+		SwingUtilities.invokeAndWait(() -> {
+			synchronizer.componentChanged(new ComponentChangeEvent(rocket, ComponentChangeEvent.MASS_CHANGE));
+			synchronizer.dispose();
+		});
 		drainEdt();
 
 		assertEquals(0, buildCount.get());
