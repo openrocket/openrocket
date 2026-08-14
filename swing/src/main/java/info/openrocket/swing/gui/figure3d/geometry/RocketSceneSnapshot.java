@@ -1,7 +1,9 @@
 package info.openrocket.swing.gui.figure3d.geometry;
 
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -27,6 +29,7 @@ public final class RocketSceneSnapshot {
 	 */
 	public record ComponentInstance(
 			RocketComponent component,
+			AppearanceFactory.ComponentAppearanceSnapshot appearance,
 			Mesh mesh,
 			Matrix4f modelMatrix
 	) {}
@@ -62,10 +65,13 @@ public final class RocketSceneSnapshot {
 
 	private final List<ComponentInstance> componentInstances;
 	private final List<MotorInstance> motorInstances;
+	private final FlightConfigurationId flightConfigurationId;
 
-	public RocketSceneSnapshot(List<ComponentInstance> componentInstances, List<MotorInstance> motorInstances) {
+	public RocketSceneSnapshot(List<ComponentInstance> componentInstances, List<MotorInstance> motorInstances,
+			FlightConfigurationId flightConfigurationId) {
 		this.componentInstances = List.copyOf(componentInstances);
 		this.motorInstances = List.copyOf(motorInstances);
+		this.flightConfigurationId = flightConfigurationId;
 	}
 
 	public List<ComponentInstance> getComponentInstances() {
@@ -74,5 +80,9 @@ public final class RocketSceneSnapshot {
 
 	public List<MotorInstance> getMotorInstances() {
 		return motorInstances;
+	}
+
+	public FlightConfigurationId getFlightConfigurationId() {
+		return flightConfigurationId;
 	}
 }

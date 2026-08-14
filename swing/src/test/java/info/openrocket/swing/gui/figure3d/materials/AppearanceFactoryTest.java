@@ -96,6 +96,19 @@ class AppearanceFactoryTest {
 	}
 
 	@Test
+	void capturedAppearanceDoesNotReadLaterComponentState() {
+		RocketComponent component = mock(RocketComponent.class);
+		Appearance capturedAppearance = new Appearance(new ORColor(0, 0, 255), 0.3);
+		when(component.getAppearance()).thenReturn(capturedAppearance);
+
+		AppearanceFactory.ComponentAppearanceSnapshot snapshot =
+				AppearanceFactory.captureComponentAppearance(component);
+		when(component.getAppearance()).thenReturn(new Appearance(new ORColor(255, 0, 0), 0.8));
+
+		assertSame(capturedAppearance, snapshot.appearance());
+	}
+
+	@Test
 	void externalComponentsKeepTheRoughnessOfTheirFinish() {
 		ExternalComponent external = mock(ExternalComponent.class);
 		when(external.getAppearance()).thenReturn(new Appearance(new ORColor(200, 200, 200), 0.3));

@@ -116,7 +116,7 @@ public abstract class RocketMeshBuilder {
 		collectInstances(componentInstances, motorInstances, flightConfig.getId(),
 				flightConfig.getExtraRenderInstances().entrySet(), config,
 				RenderingConstants.WORLD_SCALE, lowestMotorInstances);
-		return new RocketSceneSnapshot(componentInstances, motorInstances);
+		return new RocketSceneSnapshot(componentInstances, motorInstances, flightConfig.getId());
 	}
 
 	/**
@@ -128,7 +128,8 @@ public abstract class RocketMeshBuilder {
 	public static void applySnapshot(SceneView scene, RocketSceneSnapshot snapshot, RenderingConfiguration config) {
 		IdentityHashMap<RocketComponent, Appearance3D> componentAppearances = new IdentityHashMap<>();
 		for (RocketSceneSnapshot.ComponentInstance ci : snapshot.getComponentInstances()) {
-			Appearance3D appearance = componentAppearances.computeIfAbsent(ci.component(), AppearanceFactory::createFrom);
+			Appearance3D appearance = componentAppearances.computeIfAbsent(ci.component(),
+					ignored -> AppearanceFactory.createFrom(ci.appearance()));
 			SceneObject obj = new SceneObject(ci.component(), ci.mesh(), new Vector3f(0, 0, 0), appearance);
 			obj.getModelMatrix().set(ci.modelMatrix());
 			scene.addObject(obj);
@@ -189,6 +190,8 @@ public abstract class RocketMeshBuilder {
 		}
 
 		double angleOffsetX = component instanceof RailButton ? component.getAngleOffset() : 0.0;
+		AppearanceFactory.ComponentAppearanceSnapshot appearance = mesh != null
+				? AppearanceFactory.captureComponentAppearance(component) : null;
 
 		for (InstanceContext context : instanceContexts) {
 			CoordinateIF instanceLocation = context.getLocation();
@@ -199,7 +202,7 @@ public abstract class RocketMeshBuilder {
 
 			if (mesh != null) {
 				Matrix4f modelMatrix = computeComponentModelMatrix(instanceLocation, instanceAngle, component, worldScale);
-				componentInstances.add(new RocketSceneSnapshot.ComponentInstance(component, mesh, modelMatrix));
+				componentInstances.add(new RocketSceneSnapshot.ComponentInstance(component, appearance, mesh, modelMatrix));
 			}
 
 			if (isMotorMount) {

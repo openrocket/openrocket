@@ -31,7 +31,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final Scene3DOrchestrator scene3DOrchestrator;
 	private final SceneView scene;
 	private final Rocket rocket;
-	private final ConcurrentLinkedQueue<RocketComponent> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
+	private final ConcurrentLinkedQueue<PendingAppearanceUpdate> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
 	// Holds the latest rocket snapshot waiting to be applied on the GL thread. Every
 	// model event replaces this value, while only the first event queues GL work.
@@ -39,6 +39,11 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final AtomicReference<CameraUpdateBehavior> pendingCameraUpdateBehavior =
 			new AtomicReference<>(CameraUpdateBehavior.NONE);
 	private volatile FlightConfigurationId lastSelectedConfigurationId;
+
+	private record PendingAppearanceUpdate(
+			RocketComponent component,
+			AppearanceFactory.ComponentAppearanceSnapshot appearance) {
+	}
 
 	private enum CameraUpdateBehavior {
 		NONE,
@@ -129,7 +134,8 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		if (component == null || pendingSnapshot.get() != null) {
 			return;
 		}
-		pendingAppearanceUpdates.add(component);
+		pendingAppearanceUpdates.add(new PendingAppearanceUpdate(
+				component, AppearanceFactory.captureComponentAppearance(component)));
 		if (appearanceQueued.compareAndSet(false, true)) {
 			scene3DOrchestrator.enqueueGlTask(this::flushAppearanceUpdates);
 		}
@@ -141,9 +147,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 				pendingAppearanceUpdates.clear();
 				return;
 			}
-			RocketComponent component;
-			while ((component = pendingAppearanceUpdates.poll()) != null) {
-				updateComponentAppearance(component);
+			PendingAppearanceUpdate update;
+			while ((update = pendingAppearanceUpdates.poll()) != null) {
+				updateComponentAppearance(update);
 			}
 		} finally {
 			appearanceQueued.set(false);
@@ -209,15 +215,15 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * <p>The method ensures proper resource management by cleaning up old appearance resources
 	 * before applying new ones, preventing GPU memory leaks during visual updates.</p>
 	 * 
-	 * @param component the RocketComponent whose appearance should be updated
+	 * @param update component identity and immutable appearance state captured with the model event
 	 */
-	private void updateComponentAppearance(RocketComponent component) {
+	private void updateComponentAppearance(PendingAppearanceUpdate update) {
 		AppearanceFactory.withDecalTextureCache(scene3DOrchestrator.getDecalTextureCache(),
-				() -> updateComponentAppearanceWithCache(component));
+				() -> updateComponentAppearanceWithCache(update));
 	}
 
-	private void updateComponentAppearanceWithCache(RocketComponent component) {
-		if (component == null) return;
+	private void updateComponentAppearanceWithCache(PendingAppearanceUpdate update) {
+		RocketComponent component = update.component();
 
 		// A component's instances share one appearance, so update that object in place when possible.
 		Appearance3D oldAppearance = null;
@@ -232,9 +238,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		// changes do not reload and upload the same texture every time.
 		Appearance3D newAppearance = oldAppearance;
 		if (newAppearance == null) {
-			newAppearance = AppearanceFactory.createFrom(component);
+			newAppearance = AppearanceFactory.createFrom(update.appearance());
 		} else {
-			AppearanceFactory.updateFrom(newAppearance, component);
+			AppearanceFactory.updateFrom(newAppearance, update.appearance());
 		}
 
 		// Apply a newly created appearance to every instance sourced from this component.
@@ -280,7 +286,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private void applyRebuildSnapshot(RocketSceneSnapshot snapshot, CameraUpdateBehavior cameraUpdateBehavior) {
-		lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
+		lastSelectedConfigurationId = snapshot.getFlightConfigurationId();
 		boolean hadSelection = !scene.getSelectedObjects().isEmpty();
 		Set<RocketComponent> selectedRocketComponents = captureSelectedRocketComponents();
 		List<SceneObject> persistentSelection = capturePersistentSelection();

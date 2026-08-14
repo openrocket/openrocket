@@ -38,6 +38,13 @@ public abstract class AppearanceFactory {
 	private static final DecalTextureCache DEFAULT_DECAL_TEXTURE_CACHE = new DecalTextureCache();
 	private static final ThreadLocal<DecalTextureCache> ACTIVE_DECAL_TEXTURE_CACHE = new ThreadLocal<>();
 
+	/** Immutable component appearance state captured on the model-owning thread. */
+	public record ComponentAppearanceSnapshot(
+			Appearance appearance,
+			ExternalComponent.Finish finish,
+			boolean scaleTextureFromTop) {
+	}
+
 	@FunctionalInterface
 	interface TextureLoader {
 		Texture load(DecalImage decalImage);
@@ -78,26 +85,38 @@ public abstract class AppearanceFactory {
 	 * @return A configured Appearance object for the rendering engine.
 	 */
 	public static Appearance3D createFrom(RocketComponent component) {
+		return createFrom(captureComponentAppearance(component));
+	}
+
+	public static Appearance3D createFrom(ComponentAppearanceSnapshot snapshot) {
 		Appearance3D appearance3D = new Appearance3D();
-		updateFrom(appearance3D, component);
+		updateFrom(appearance3D, snapshot);
 		return appearance3D;
 	}
 
 	public static void updateFrom(Appearance3D appearance3D, RocketComponent component) {
-		Appearance orAppearance = getAppearance(component);
+		updateFrom(appearance3D, captureComponentAppearance(component));
+	}
+
+	public static void updateFrom(Appearance3D appearance3D, ComponentAppearanceSnapshot snapshot) {
+		applyOrAppearanceToAppearance3D(appearance3D, snapshot.appearance(), snapshot.finish());
+		appearance3D.getTextureTransform().setScaleFromTop(snapshot.scaleTextureFromTop());
+	}
+
+	public static ComponentAppearanceSnapshot captureComponentAppearance(RocketComponent component) {
+		Appearance appearance = getAppearance(component);
 		ExternalComponent.Finish finish = null;
 		if (component instanceof ExternalComponent) {
 			finish = ((ExternalComponent) component).getFinish();
 		}
-		applyOrAppearanceToAppearance3D(appearance3D, orAppearance, finish);
-		applyComponentTextureMapping(appearance3D, component);
+		return new ComponentAppearanceSnapshot(appearance, finish, !(component instanceof FinSet));
 	}
 
 	public static Appearance3D createDefaultFrom(RocketComponent component) {
 		Appearance defaultAppearance = DefaultAppearance.getDefaultAppearance(component);
 		Appearance3D appearance3D = new Appearance3D();
 		applyOrAppearanceToAppearance3D(appearance3D, defaultAppearance, null);
-		applyComponentTextureMapping(appearance3D, component);
+		appearance3D.getTextureTransform().setScaleFromTop(!(component instanceof FinSet));
 		return appearance3D;
 	}
 
@@ -352,15 +371,6 @@ public abstract class AppearanceFactory {
 			ret = DefaultAppearance.getDefaultAppearance(c);
 		}
 		return ret;
-	}
-
-	private static void applyComponentTextureMapping(Appearance3D appearance3D, RocketComponent component) {
-		if (appearance3D == null || component == null) {
-			return;
-		}
-		if (component instanceof FinSet) {
-			appearance3D.getTextureTransform().setScaleFromTop(false);
-		}
 	}
 
 	/**
