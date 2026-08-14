@@ -86,9 +86,10 @@ Important lifecycle rules are:
   shared scheduler switches contexts between canvases.
 * Treat the window size and the native framebuffer size as separate values, especially on HiDPI displays.
 
-``GLScenePanel`` also detects context resets where the platform supports robustness and asks its wrapper
-to rebuild the canvas. Startup redraw recovery handles cases where a valid off-screen frame has not yet
-appeared in the AWT framebuffer.
+On Windows, ``GLScenePanel`` first requests a robust context so it can detect graphics resets and ask its
+wrapper to rebuild the canvas. Because WGL robustness is optional, context creation retries once without
+those attributes when the robust attempt fails. Startup redraw recovery handles cases where a valid
+off-screen frame has not yet appeared in the AWT framebuffer.
 
 Scene Orchestration and Threading
 =================================

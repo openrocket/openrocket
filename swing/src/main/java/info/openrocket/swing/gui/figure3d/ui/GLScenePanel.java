@@ -66,6 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.LongSupplier;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -100,11 +101,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final byte[] STRAIGHT_SRGB_BY_PREMULTIPLIED_CHANNEL_AND_ALPHA =
 			createStraightSrgbLookup();
 	private static final AtomicLong EXPORT_SEQUENCE = new AtomicLong();
-	// Only Windows both loses contexts often enough to matter and supports
-	// WGL_ARB_create_context_robustness across all three vendors, so the request is limited
-	// to it: a driver that rejects the attribute would fail context creation outright, and
-	// losing the 3D view entirely is worse than losing the diagnostic.
-	// openrocket.figure3d.disableRobustContext turns it off if a driver does object.
+	// Only Windows loses contexts often enough for robust-context reset detection to be
+	// worthwhile. The WGL extension is optional, so context creation retries without these
+	// attributes when the driver does not support them. The system property skips the first
+	// attempt for drivers known to object to robust contexts.
 	private static final boolean REQUEST_ROBUST_CONTEXT =
 			SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS
 					&& !Boolean.getBoolean("openrocket.figure3d.disableRobustContext");
@@ -782,13 +782,45 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	protected void beforeRender() {
-		super.beforeRender();
+		runWithOptionalRobustnessFallback(data, () -> context, super::beforeRender);
 		// When multiple AWTGLCanvas instances are rendered from the same thread (e.g. on macOS),
 		// the active OpenGL context changes between calls. LWJGL requires updating the
 		// thread-local capabilities to match the current context.
 		GLCapabilities caps = glCapabilities;
 		if (caps != null) {
 			GL.setCapabilities(caps);
+		}
+	}
+
+	/**
+	 * Tries the requested context first, then removes the optional robustness attributes and
+	 * retries once when context creation did not produce a native context. If both attempts
+	 * fail, the original failure is retained as a suppressed exception for diagnostics.
+	 */
+	static void runWithOptionalRobustnessFallback(GLData requestedData, LongSupplier contextHandle,
+			Runnable contextPreparation) {
+		try {
+			contextPreparation.run();
+		} catch (RuntimeException robustFailure) {
+			if (!requestedData.robustness || contextHandle.getAsLong() != 0L) {
+				throw robustFailure;
+			}
+
+			requestedData.robustness = false;
+			requestedData.loseContextOnReset = false;
+			requestedData.contextResetIsolation = false;
+			Throwable cause = robustFailure.getCause();
+			log.warn("Robust OpenGL context creation failed ({}); retrying without optional robustness",
+					cause != null ? cause.getMessage() : robustFailure.getMessage());
+
+			try {
+				contextPreparation.run();
+			} catch (RuntimeException fallbackFailure) {
+				if (fallbackFailure != robustFailure) {
+					fallbackFailure.addSuppressed(robustFailure);
+				}
+				throw fallbackFailure;
+			}
 		}
 	}
 
@@ -840,11 +872,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	/** Reads back what the context supports and sets the state the renderer assumes. */
 	private void configureGlState() {
 		glCapabilities = GL.createCapabilities();
-		robustnessAvailable = glCapabilities.GL_ARB_robustness;
+		// Some drivers expose GL_ARB_robustness entry points even on a context that was
+		// created without robust access. Only a genuinely robust context can provide the
+		// reset reporting this code relies on.
+		robustnessAvailable = effective.robustness && glCapabilities.GL_ARB_robustness;
 		graphicsResetDetected = false;
 		if (REQUEST_ROBUST_CONTEXT && !robustnessAvailable) {
-			log.info("Robust context requested but ARB_robustness is unavailable; "
-					+ "a driver reset will not be reported.");
+			log.info("Robust OpenGL context unavailable; a driver reset will not be reported.");
 		}
 		GLDebug.enableIfRequested("AWT-canvas");
 		glEnable(GL_DEPTH_TEST);
