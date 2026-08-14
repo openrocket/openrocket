@@ -38,6 +38,24 @@ public final class GLErrors {
 	}
 
 	/**
+	 * Clears errors left by earlier GL work before a checked operation begins.
+	 *
+	 * <p>Error flags belong to a context rather than to an individual call. A
+	 * transient default-framebuffer failure during native window setup can
+	 * therefore remain pending until later resource creation checks the context.
+	 * Clearing at the boundary keeps the subsequent {@link #check(String)} local
+	 * to the operation it names. Stale errors remain available in debug logs.</p>
+	 *
+	 * @param operation description of the operation about to begin
+	 */
+	public static void beginCheck(String operation) {
+		List<Integer> errors = drainErrors();
+		if (!errors.isEmpty()) {
+			log.debug("Cleared stale OpenGL error before '{}': {}", operation, errorStrings(errors));
+		}
+	}
+
+	/**
 	 * Drains all pending OpenGL error flags and throws if any were set.
 	 *
 	 * Intended for initialization and resource-creation code where an error means

@@ -22,6 +22,7 @@ public class GLRenderableMesh implements Renderable {
 	private static final int SURFACE_ID_OFFSET_BYTES =
 			(Vertex.POSITION_FLOATS + Vertex.NORMAL_FLOATS + Vertex.TEX_COORD_FLOATS) * Float.BYTES;
 	private static final int STRIDE_BYTES = Vertex.FLOATS_PER_VERTEX * Float.BYTES;
+	private static final String UPLOAD_OPERATION = "mesh buffer upload";
 
 	private final int vertexArrayObjectId;
 	private final int vertexBufferObjectId;
@@ -41,6 +42,7 @@ public class GLRenderableMesh implements Renderable {
 		try {
 			vertexBuffer = packVertexData(mesh.getVertices());
 			indexBuffer = packIndexData(mesh.getIndices());
+			GLErrors.beginCheck(UPLOAD_OPERATION);
 
 			vertexArrayId = GL33.glGenVertexArrays();
 			GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayId, "mesh vao");
@@ -52,7 +54,7 @@ public class GLRenderableMesh implements Renderable {
 			uploadElementBuffer(elementBufferId, indexBuffer);
 			configureVertexAttributes();
 
-			GLErrors.check("mesh buffer upload");
+			GLErrors.check(UPLOAD_OPERATION);
 			uploaded = true;
 		} finally {
 			GL33.glBindVertexArray(0);
