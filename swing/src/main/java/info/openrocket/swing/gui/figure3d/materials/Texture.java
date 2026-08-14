@@ -270,13 +270,14 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		applyAnisotropicFilteringIfAvailable();
 
+		ByteBuffer image = null;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
 			IntBuffer channels = stack.mallocInt(1);
 
 			// Load image data, forcing 4 channels (RGBA) for consistency
-			ByteBuffer image = loadImage(filePath, w, h, channels, 4);
+			image = loadImage(filePath, w, h, channels, 4);
 
 			int width = w.get();
 			int height = h.get();
@@ -292,12 +293,14 @@ public class Texture {
 					GL_RGBA, GL_UNSIGNED_BYTE, image);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
-			// Free the loaded image memory
-			STBImage.stbi_image_free(image);
 			trackCreation("file:" + filePath);
-		} catch (Exception e) {
+		} catch (RuntimeException | Error e) {
 			abandonTexture();
-			log.error("Exception while loading texture: {}", e.getMessage());
+			throw new IllegalStateException("Failed to create texture from '" + filePath + "'", e);
+		} finally {
+			if (image != null) {
+				STBImage.stbi_image_free(image);
+			}
 		}
 	}
 

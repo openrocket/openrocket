@@ -232,11 +232,7 @@ public class Scene3DOrchestrator {
 	private void runPendingGlTasks() {
 		Runnable task;
 		while ((task = glTaskQueue.poll()) != null) {
-			try {
-				task.run();
-			} catch (Exception e) {
-				log.warn("GL task failed", e);
-			}
+			task.run();
 		}
 	}
 

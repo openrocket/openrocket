@@ -899,6 +899,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 		} catch (Throwable t) {
 			glInitFailed = true;
+			frameExportQueue.failPendingCaptures();
 			String msg = t.getMessage();
 			if (!glInitialized) {
 				log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", msg, t);
@@ -968,8 +969,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				renderer.resetTextureState();
 			}
 			shouldSwap = true;
-		} catch (Exception ex) {
-			log.error("Error during paintGL", ex);
 		} finally {
 			if (shouldSwap) {
 				swapBuffers();
