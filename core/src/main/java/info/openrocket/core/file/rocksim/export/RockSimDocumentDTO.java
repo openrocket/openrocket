@@ -20,6 +20,9 @@ public class RockSimDocumentDTO {
     @XmlElement(name = RockSimCommonConstants.DESIGN_INFORMATION)
     private RockSimDesignDTO design;
 
+    @XmlElement(name = RockSimCommonConstants.SIMULATION_RESULTS_LIST)
+    private SimulationResultsListDTO simulationResultsList;
+
     /**
      * Constructor.
      */
@@ -42,6 +45,24 @@ public class RockSimDocumentDTO {
      */
     public void setDesign(RockSimDesignDTO theDesign) {
         this.design = theDesign;
+    }
+
+    /**
+     * Return the simulations and their motor configurations.
+     *
+     * @return the RockSim simulation list
+     */
+    public SimulationResultsListDTO getSimulationResultsList() {
+        return simulationResultsList;
+    }
+
+    /**
+     * Set the simulations and their motor configurations.
+     *
+     * @param theSimulationResultsList the RockSim simulation list
+     */
+    public void setSimulationResultsList(SimulationResultsListDTO theSimulationResultsList) {
+        simulationResultsList = theSimulationResultsList;
     }
 
     /**
