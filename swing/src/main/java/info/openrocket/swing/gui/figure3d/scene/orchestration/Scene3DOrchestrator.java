@@ -47,9 +47,6 @@ public class Scene3DOrchestrator {
 	private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
 	private volatile Runnable glTaskQueuedCallback;
 
-	private volatile boolean exportRequested = false;
-	private volatile boolean exportTransparent = false;
-
 	private long lastFrameTime;
 	private volatile PlaybackClock playbackClock = null;
 
@@ -189,48 +186,6 @@ public class Scene3DOrchestrator {
 	 */
 	public Scene getScene() {
 		return scene;
-	}
-
-	/**
-	 * Requests an export of the current rendered frame to a PNG file.
-	 * 
-	 * <p>The export will be processed on the next render cycle. The file will be
-	 * saved with a timestamp-based filename in the current working directory.</p>
-	 * 
-	 * @param transparent If true, exports with a transparent background; 
-	 *                   if false, includes the scene background
-	 */
-	public void requestExport(boolean transparent) {
-		this.exportRequested = true;
-		this.exportTransparent = transparent;
-	}
-
-	/**
-	 * Checks if a PNG export has been requested and is pending.
-	 * 
-	 * @return true if an export is waiting to be processed
-	 */
-	public boolean isExportRequested() {
-		return exportRequested;
-	}
-
-	/**
-	 * Checks if the pending export should use a transparent background.
-	 * 
-	 * @return true if the export should have a transparent background
-	 */
-	public boolean isExportTransparent() {
-		return exportTransparent;
-	}
-
-	/**
-	 * Clears any pending export request.
-	 * 
-	 * <p>This method should be called after an export has been processed
-	 * to prevent duplicate exports.</p>
-	 */
-	public void clearExportRequest() {
-		this.exportRequested = false;
 	}
 
 	/**

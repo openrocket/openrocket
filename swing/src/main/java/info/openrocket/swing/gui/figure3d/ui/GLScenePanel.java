@@ -154,7 +154,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Runnable uiThemeListener;
 	private volatile StateChangeListener graphicsPreferencesListener;
 	private volatile ApplicationPreferences listenedApplicationPreferences;
-	private final AtomicReference<ImageCaptureRequest> imageCaptureRequest = new AtomicReference<>();
+	private final FrameExportQueue frameExportQueue = new FrameExportQueue();
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
 	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
@@ -180,16 +180,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			markRenderActivity();
 		}
 	};
-
-	private static final class ImageCaptureRequest {
-		private final boolean transparent;
-		private final Consumer<BufferedImage> callback;
-
-		private ImageCaptureRequest(boolean transparent, Consumer<BufferedImage> callback) {
-			this.transparent = transparent;
-			this.callback = callback;
-		}
-	}
 
 	static {
 		// AWT normally erases a heavyweight Canvas before repainting it after a
@@ -726,7 +716,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		keyboardHandler.addSinglePressAction(KeyEvent.VK_F, scene3DOrchestrator::focusOnRocket);
 		keyboardHandler.addSinglePressAction(KeyEvent.VK_E, () -> {
 			// Shift exports with a transparent background.
-			scene3DOrchestrator.requestExport(keyboardHandler.isKeyPressed(KeyEvent.VK_SHIFT));
+			frameExportQueue.requestFileExport(keyboardHandler.isKeyPressed(KeyEvent.VK_SHIFT));
+			requestRenderNow();
 		});
 	}
 
@@ -839,6 +830,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
+			frameExportQueue.failPendingCaptures();
 			throw new RuntimeException("Failed to initialize renderer", e);
 		}
 	}
@@ -877,11 +869,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (initHook != null) {
 			initHook.accept(scene3DOrchestrator);
 		}
-		ImageCaptureRequest pendingCapture = imageCaptureRequest.get();
-		if (pendingCapture != null) {
-			scene3DOrchestrator.requestExport(pendingCapture.transparent);
-		}
-
 		if (hudOverlay != null) {
 			hudOverlay.getPanel().setSceneViewController(this.scene3DOrchestrator);
 			hudOverlay.getPanel().setGLScenePanel(this);
@@ -965,8 +952,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Check for an export request before the main render. The export frame is
 			// captured off-screen only; the normal display frame below is what gets
 			// presented, so a transparent-background export never flashes on screen.
-			if (scene3DOrchestrator.isExportRequested()) {
-				handleExport(sceneView, renderer);
+			if (!frameExportQueue.isEmpty()) {
+				handlePendingExports(sceneView, renderer);
 			}
 
 			// --- Main Display Rendering --
@@ -991,30 +978,43 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	private void handleExport(Scene sceneView, GLRenderer renderer) {
-		boolean renderBackground = !scene3DOrchestrator.isExportTransparent();
-		renderer.render(sceneView, renderBackground);
-
-		int exportWidth = renderer.getRenderWidth();
-		int exportHeight = renderer.getRenderHeight();
-
-		ByteBuffer exportBuffer = captureResolvedFramebuffer(renderer, exportWidth, exportHeight);
-		scene3DOrchestrator.clearExportRequest();
-
-		if (exportBuffer == null) {
-			log.warn("Export skipped: no framebuffer data available");
-			return;
+	private void handlePendingExports(Scene sceneView, GLRenderer renderer) {
+		FrameExportQueue.Request request;
+		while ((request = frameExportQueue.poll()) != null) {
+			try {
+				handleExport(sceneView, renderer, request);
+			} catch (RuntimeException | Error e) {
+				frameExportQueue.failPendingCaptures();
+				throw e;
+			}
 		}
+	}
 
-		ImageCaptureRequest captureRequest = imageCaptureRequest.getAndSet(null);
-		if (captureRequest != null) {
-			BufferedImage image = bufferToImage(exportBuffer, exportWidth, exportHeight);
-			SwingUtilities.invokeLater(() -> captureRequest.callback.accept(image));
-			return;
+	private void handleExport(Scene sceneView, GLRenderer renderer, FrameExportQueue.Request request) {
+		BufferedImage capturedImage = null;
+		try {
+			renderer.render(sceneView, !request.isTransparent());
+
+			int exportWidth = renderer.getRenderWidth();
+			int exportHeight = renderer.getRenderHeight();
+			ByteBuffer exportBuffer = captureResolvedFramebuffer(renderer, exportWidth, exportHeight);
+			if (exportBuffer == null) {
+				log.warn("Export skipped: no framebuffer data available");
+				return;
+			}
+
+			if (request.isImageCapture()) {
+				capturedImage = bufferToImage(exportBuffer, exportWidth, exportHeight);
+				return;
+			}
+
+			String filePath = "export_" + System.currentTimeMillis() + ".png";
+			EXPORT_EXECUTOR.submit(() -> writePng(exportBuffer, exportWidth, exportHeight, filePath));
+		} finally {
+			if (request.isImageCapture()) {
+				request.complete(capturedImage);
+			}
 		}
-
-		String filePath = "export_" + System.currentTimeMillis() + ".png";
-		EXPORT_EXECUTOR.submit(() -> writePng(exportBuffer, exportWidth, exportHeight, filePath));
 	}
 
 	private void handlePendingResize() {
@@ -1178,11 +1178,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (callback == null) {
 			return;
 		}
-		imageCaptureRequest.set(new ImageCaptureRequest(transparent, callback));
-		Scene3DOrchestrator orchestrator = scene3DOrchestrator;
-		if (orchestrator != null) {
-			orchestrator.requestExport(transparent);
+		Consumer<BufferedImage> edtCompletion = image -> SwingUtilities.invokeLater(() -> callback.accept(image));
+		if (cleanupStarted.get() || glInitFailed) {
+			edtCompletion.accept(null);
+			return;
 		}
+		frameExportQueue.requestImageCapture(transparent, edtCompletion);
+		requestRenderNow();
 	}
 
 	public void setInitializationHook(Consumer<Scene3DOrchestrator> initializationHook) {
@@ -1244,6 +1246,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		wheelInteractionActive = false;
 		updateCameraInteractionMode();
 		glInitialized = false;
+		frameExportQueue.failPendingCaptures();
 		startupRecoveryGeneration.incrementAndGet();
 		if (hudOverlay != null) {
 			hudOverlay.resetPendingWork();
