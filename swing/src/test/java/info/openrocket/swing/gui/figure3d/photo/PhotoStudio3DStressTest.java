@@ -840,7 +840,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
 							"Windows active canvas after interaction iteration " + iteration);
 					assertDesignRenderMode(activeCanvas, viewType, "after interaction iteration " + iteration);
-					assertFalse(activeCanvas.glInitFailed,
+					assertFalse(activeCanvas.hasGlInitFailed(),
 							"Windows GL renderer failed after interaction iteration " + iteration + ": "
 									+ activeCanvas.getDebugStateSummary());
 					assertTrue(activeCanvas != canvas || activeCanvas.getRenderCallCount() > beforeRender,
@@ -903,7 +903,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 							FRAME_TIMEOUT_MS, viewType.name() + " frame after sustained panning");
 					GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(),
 							FRAME_TIMEOUT_MS, viewType.name() + " canvas after sustained panning");
-					assertFalse(activeCanvas.glInitFailed,
+					assertFalse(activeCanvas.hasGlInitFailed(),
 							"Windows GL renderer failed during sustained " + viewType.name() + " panning: "
 									+ activeCanvas.getDebugStateSummary());
 					assertTrue(activeCanvas != canvas || activeCanvas.getRenderCallCount() > beforeRender,
@@ -959,7 +959,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 						int beforeRender = canvas.getRenderCallCount();
 						dragCanvasForDuration(canvas, currentHarness.frame, maximumFrameSize,
 								WINDOWS_GESTURE_SOAK_SECONDS_PER_MODE, viewType, dragMode, phase);
-						assertFalse(canvas.glInitFailed,
+						assertFalse(canvas.hasGlInitFailed(),
 								"Windows GL renderer failed during sustained " + dragMode.label + " in "
 										+ viewType.name() + ": " + canvas.getDebugStateSummary());
 						assertTrue(canvas.getRenderCallCount() > beforeRender,
@@ -1034,7 +1034,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					GLScenePanel activeCanvas = awaitReadyDesignCanvas(
 							gesture.harness.panel.getFigure3d(), FRAME_TIMEOUT_MS,
 							"Windows multi-context canvas after panning " + gesture.contextIndex);
-					assertFalse(activeCanvas.glInitFailed,
+					assertFalse(activeCanvas.hasGlInitFailed(),
 							"Windows GL renderer failed in concurrent context " + gesture.contextIndex + ": "
 									+ activeCanvas.getDebugStateSummary());
 					assertTrue(activeCanvas.getRenderCallCount() > gesture.initialRenderCount,
@@ -1095,7 +1095,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 				GLScenePanel activeCanvas = awaitReadyDesignCanvas(currentHarness.panel.getFigure3d(),
 						FRAME_TIMEOUT_MS, viewType.name() + " canvas after constrained rendering");
-				assertFalse(activeCanvas.glInitFailed,
+				assertFalse(activeCanvas.hasGlInitFailed(),
 						"Constrained profile failed the GL renderer in " + viewType.name() + ": "
 								+ activeCanvas.getDebugStateSummary());
 				assertConstrainedSceneSampling(activeCanvas, viewType);
@@ -1590,7 +1590,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 
 	private static boolean isCanvasReady(GLScenePanel canvas) {
 		return canvas != null
-				&& !canvas.glInitFailed
+				&& !canvas.hasGlInitFailed()
 				&& canvas.awaitInitialized(0)
 				&& canvas.getScene3DOrchestrator() != null;
 	}
@@ -1619,7 +1619,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			if (snapshot != null) {
 				return snapshot;
 			}
-			if (canvas.glInitFailed) {
+			if (canvas.hasGlInitFailed()) {
 				break;
 			}
 			Thread.sleep(25);
@@ -1965,7 +1965,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					int elapsedWholeSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(nowNanos - startNanos);
 					phase.set("windows-drag-soak-" + viewType.name() + "-" + dragMode.label + "-"
 							+ elapsedWholeSeconds + "s-of-" + durationSeconds + "s");
-					assertFalse(canvas.glInitFailed,
+					assertFalse(canvas.hasGlInitFailed(),
 							"Windows GL renderer failed during " + viewType.name() + " " + dragMode.label + " at "
 									+ elapsedWholeSeconds + " seconds: " + canvas.getDebugStateSummary());
 					int renderCount = canvas.getRenderCallCount();
@@ -2052,7 +2052,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 					phase.set("windows-multi-context-health-" + elapsedWholeSeconds + "s-of-"
 							+ durationSeconds + "s");
 					for (MultiContextGesture gesture : gestures) {
-						assertFalse(gesture.canvas.glInitFailed,
+						assertFalse(gesture.canvas.hasGlInitFailed(),
 								"Windows GL renderer failed in concurrent context " + gesture.contextIndex
 										+ " at " + elapsedWholeSeconds + " seconds: "
 										+ gesture.canvas.getDebugStateSummary());

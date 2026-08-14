@@ -392,7 +392,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		if (panel == null) {
 			return;
 		}
-		if (panel.glInitFailed) {
+		if (panel.hasGlInitFailed()) {
 			stopRenderLoop();
 			return;
 		}

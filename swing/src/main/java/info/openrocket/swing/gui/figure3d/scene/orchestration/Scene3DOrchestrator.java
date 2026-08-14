@@ -100,15 +100,6 @@ public class Scene3DOrchestrator {
 	}
 
 	/**
-	 * Sets where the centre of gravity and centre of pressure markers are drawn.
-	 *
-	 * <p>The renderer does not work these out itself: the centre of pressure depends on the
-	 * flight conditions the user has chosen, which only the owning view knows.</p>
-	 *
-	 * @param cg centre of gravity, or {@code null}/NaN when there is nothing to show
-	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
-	 */
-	/**
 	 * Framebuffer pixels per logical pixel, as reported by the current viewport.
 	 *
 	 * @return the display scale, 1.0 when the viewport has no usable size yet
@@ -121,6 +112,15 @@ public class Scene3DOrchestrator {
 		return (float) viewport.getFramebufferHeight() / windowHeight;
 	}
 
+	/**
+	 * Sets where the centre of gravity and centre of pressure markers are drawn.
+	 *
+	 * <p>The renderer does not work these out itself: the centre of pressure depends on the
+	 * flight conditions the user has chosen, which only the owning view knows.</p>
+	 *
+	 * @param cg centre of gravity, or {@code null}/NaN when there is nothing to show
+	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
+	 */
 	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
 		renderer.setCaretPositions(cg, cp);
 	}
@@ -164,13 +164,13 @@ public class Scene3DOrchestrator {
 
 		// --- Simulation playback (if bound) ---
 		if (playbackClock != null) {
-				playbackClock.update(deltaTime);
-				double t = playbackClock.getTime();
-				for (var obj : scene.getObjects()) {
-					if (obj.hasPoseProvider()) {
-						obj.applyPoseAtTime(t);
-					}
+			playbackClock.update(deltaTime);
+			double t = playbackClock.getTime();
+			for (var obj : scene.getObjects()) {
+				if (obj.hasPoseProvider()) {
+					obj.applyPoseAtTime(t);
 				}
+			}
 		}
 	}
 

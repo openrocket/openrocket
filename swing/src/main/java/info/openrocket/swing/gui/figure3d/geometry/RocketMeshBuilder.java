@@ -59,7 +59,10 @@ import java.util.function.Consumer;
  * Converts rocket components and instances into immutable CPU-side scene snapshots,
  * then realizes those snapshots as context-owned renderables and particle emitters.
  */
-public abstract class RocketMeshBuilder {
+public final class RocketMeshBuilder {
+	private RocketMeshBuilder() {
+	}
+
 	/** GPU resources prepared before an existing rocket scene is replaced. */
 	public static final class PreparedSnapshot {
 		private final List<SceneObject> objects;
@@ -356,13 +359,14 @@ public abstract class RocketMeshBuilder {
 	 * </ul>
 	 */
 	private static Matrix4f computeComponentModelMatrix(CoordinateIF loc, CoordinateIF ang,
-														RocketComponent component, float worldScale) {
-		double offsetX = (component instanceof Coaxial || component instanceof Transition || component instanceof MassObject) ? component.getLength() / 2.0 : 0;
+			RocketComponent component, float worldScale) {
+		double offsetX = component instanceof Coaxial || component instanceof Transition || component instanceof MassObject
+				? component.getLength() / 2.0 : 0;
 
 		Vector3f positionInEngineCS = new Vector3f(
-				(float)(loc.getX() + offsetX),
-				(float)(loc.getY()),
-				(float)(loc.getZ()) * -1.0f // Flip Z to convert from LHS to RHS
+				(float) (loc.getX() + offsetX),
+				(float) loc.getY(),
+				(float) loc.getZ() * -1.0f // Flip Z to convert from LHS to RHS
 		).mul(worldScale);
 
 		Matrix4f rotationMatrix = new Matrix4f()
@@ -384,15 +388,16 @@ public abstract class RocketMeshBuilder {
 		} else if (component instanceof Coaxial) {
 			return CoaxialGenerator.create((RocketComponent & Coaxial) component, config);
 		} else if (component instanceof FinSet) {
-			return FinSetGenerator.create((FinSet) component, (SymmetricComponent) component.getParent(), config);
+			return FinSetGenerator.create(
+					(FinSet) component, (SymmetricComponent) component.getParent(), config);
 		} else if (component instanceof RailButton) {
 			return RailButtonGenerator.create((RailButton) component, config);
 		} else if (component instanceof MassObject) {
 			return MassObjectGenerator.create((MassObject) component, config);
 		}
-		throw new IllegalArgumentException("Unsupported RocketComponent type: " + component.getClass().getSimpleName());
+		throw new IllegalArgumentException(
+				"Unsupported RocketComponent type: " + component.getClass().getSimpleName());
 	}
-
 
 	// HELPER METHODS
 
@@ -403,10 +408,11 @@ public abstract class RocketMeshBuilder {
 	 * - Blue arrow points radially "up" (+Z in OR, -Z in Engine).
 	 * @param scene The scene to add the axis objects to.
 	 * @param config The rendering configuration.
-	 * @param useORCoordinateSystem If true, uses OpenRocket's coordinate system; otherwise,uses the engine's coordinate system.
+	 * @param useORCoordinateSystem whether to use OpenRocket axes instead of engine axes
 	 * @param onTop If true, the axes will be rendered on top of all other objects.
 	 */
-	public static void createOriginAxes(SceneView scene, RenderingConfiguration config, boolean useORCoordinateSystem, boolean onTop) {
+	public static void createOriginAxes(SceneView scene, RenderingConfiguration config,
+			boolean useORCoordinateSystem, boolean onTop) {
 		createOriginAxes(scene::addObject, config, useORCoordinateSystem, onTop);
 	}
 

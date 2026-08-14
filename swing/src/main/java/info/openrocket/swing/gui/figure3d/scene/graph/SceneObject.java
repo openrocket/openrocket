@@ -108,11 +108,6 @@ public class SceneObject {
 		this(null, mesh, position, appearance);
 	}
 
-	/**
-	 * Gets the unique identifier for this scene object.
-	 *
-	 * @return the UUID assigned to this object
-	 */
 	public UUID getId() {
 		return id;
 	}
@@ -135,11 +130,6 @@ public class SceneObject {
 		return appearanceSourceComponent;
 	}
 
-	/**
-	 * Checks if this object is currently selected by the user.
-	 *
-	 * @return true if the object is selected, false otherwise
-	 */
 	public boolean isSelected() {
 		return isSelected;
 	}
@@ -287,8 +277,8 @@ public class SceneObject {
 	public void applyPoseAtTime(double t) {
 		if (poseProvider == null) return;
 		if (baseModelSnapshot == null) {
-				baseModelSnapshot = new Matrix4f(this.modelMatrix);
-			}
+			baseModelSnapshot = new Matrix4f(this.modelMatrix);
+		}
 		Vector3f p = poseProvider.getPosition(t);
 		Quaternionf q = poseProvider.getOrientation(t);
 		dynamicTransform.identity().translate(p).rotate(q);

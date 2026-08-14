@@ -17,6 +17,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Mutable scene containing rocket objects, camera, lights, particles, and selection state.
@@ -24,11 +25,14 @@ import java.util.List;
 public class Scene implements SceneView {
 
 	private final List<SceneObject> objects;
+	private final List<SceneObject> objectsView;
 	private final List<ParticleEmitter> particleEmitters;
+	private final List<ParticleEmitter> particleEmittersView;
 	private Camera camera;
 	private final LightManager lightManager;
 	private Background background;
 	private final List<SceneObject> selectedObjects = new ArrayList<>();
+	private final List<SceneObject> selectedObjectsView = Collections.unmodifiableList(selectedObjects);
 	private final List<SelectionListener> selectionListeners = new ArrayList<>();
 	private boolean fogEnabled = false;
 	private float fogDensity = 0.07f;
@@ -51,7 +55,9 @@ public class Scene implements SceneView {
 		this.rocket = rocket;
 		this.camera = camera;
 		this.objects = new ArrayList<>();
+		this.objectsView = Collections.unmodifiableList(objects);
 		this.particleEmitters = new ArrayList<>();
+		this.particleEmittersView = Collections.unmodifiableList(particleEmitters);
 		this.lightManager = new LightManager(this);
 		this.lightManager.setVisualizersVisible(config.getVisualEffects().areLightVisualizersVisible());
 		this.lightManager.addLight(light);
@@ -74,7 +80,7 @@ public class Scene implements SceneView {
 
 	@Override
 	public void addObject(SceneObject object) {
-		objects.add(object);
+		objects.add(Objects.requireNonNull(object, "object"));
 	}
 
 	@Override
@@ -92,28 +98,29 @@ public class Scene implements SceneView {
 	 * All objects will be rendered and made available for interaction.
 	 *
 	 * @param objects the list of SceneObjects to add to the scene
-	 * @throws IllegalArgumentException if the objects list is null or empty
+	 * @throws NullPointerException if the list or one of its elements is null
 	 */
 	public void addObjects(List<SceneObject> objects) {
-		if (objects == null || objects.isEmpty()) {
-			throw new IllegalArgumentException("Objects list cannot be null or empty");
+		Objects.requireNonNull(objects, "objects");
+		for (SceneObject object : objects) {
+			Objects.requireNonNull(object, "objects contains null");
 		}
 		this.objects.addAll(objects);
 	}
 
 	@Override
 	public List<SceneObject> getObjects() {
-		return Collections.unmodifiableList(objects);
+		return objectsView;
 	}
 
 	@Override
 	public void addParticleEmitter(ParticleEmitter emitter) {
-		particleEmitters.add(emitter);
+		particleEmitters.add(Objects.requireNonNull(emitter, "emitter"));
 	}
 
 	@Override
 	public List<ParticleEmitter> getParticleEmitters() {
-		return Collections.unmodifiableList(particleEmitters);
+		return particleEmittersView;
 	}
 
 	@Override
@@ -210,9 +217,8 @@ public class Scene implements SceneView {
 
 	@Override
 	public List<SceneObject> getSelectedObjects() {
-		return Collections.unmodifiableList(selectedObjects);
+		return selectedObjectsView;
 	}
-
 
 	@Override
 	public Camera getCamera() {
@@ -226,6 +232,7 @@ public class Scene implements SceneView {
 		this.camera = camera;
 	}
 
+	@Override
 	public LightController getLightController() {
 		return lightManager;
 	}

@@ -291,7 +291,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	}
 
 	private void maybeInstallSelectionBridge(GLScenePanel panel) {
-		if (selectionBridgeInstalled || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (selectionBridgeInstalled || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			return;
 		}
 		applyBackgroundColor(panel);
@@ -354,7 +354,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (processPendingContextResetRebuild(panel)) {
 			return;
 		}
-		if (panel.glInitFailed) {
+		if (panel.hasGlInitFailed()) {
 			if (!glFailureLogged) {
 				log.error("GL initialization/rendering failed in RocketFigure3d");
 				glFailureLogged = true;
@@ -520,7 +520,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		// drawable is being resized. Match it to the scene so this fallback can
 		// never appear as a white flash.
 		panel.setBackground(color);
-		if (panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			return;
 		}
 		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
@@ -571,7 +571,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		markDirty();
 		currentType = type;
 		GLScenePanel panel = glScenePanel;
-		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			return;
 		}
 		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
@@ -681,7 +681,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		}
 		pendingZoomScale = scale;
 		GLScenePanel panel = glScenePanel;
-		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			return;
 		}
 		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
@@ -695,7 +695,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	public void zoomToFit() {
 		pendingZoomScale = 1.0;
 		GLScenePanel panel = glScenePanel;
-		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			return;
 		}
 		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
@@ -755,7 +755,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		markDirty();
 		RocketComponent[] copy = components != null ? components.clone() : null;
 		GLScenePanel panel = glScenePanel;
-		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			pendingSelection = copy;
 			return;
 		}
@@ -831,7 +831,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			return null;
 		}
 		GLScenePanel panel = glScenePanel;
-		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
 			return null;
 		}
 

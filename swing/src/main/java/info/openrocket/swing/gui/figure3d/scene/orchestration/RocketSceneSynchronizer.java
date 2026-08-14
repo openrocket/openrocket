@@ -309,7 +309,6 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 				obj.setAppearance(newAppearance);
 			}
 		}
-
 	}
 
 	/**
@@ -416,7 +415,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private void restoreSelectionAfterRebuild(boolean hadSelection, Set<RocketComponent> selectedRocketComponents,
-											  List<SceneObject> persistentSelection) {
+			List<SceneObject> persistentSelection) {
 		if (!hadSelection && selectedRocketComponents.isEmpty() && persistentSelection.isEmpty()) {
 			return;
 		}

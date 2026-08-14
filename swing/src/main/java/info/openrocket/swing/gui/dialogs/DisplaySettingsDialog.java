@@ -3,12 +3,14 @@ package info.openrocket.swing.gui.dialogs;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.components.ColorChooserButton;
+import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
+import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
-import info.openrocket.swing.gui.components.ColorChooserButton;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
@@ -31,6 +33,7 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.function.Consumer;
 
 /**
  * Dialog for configuring design view display settings.
@@ -493,7 +496,7 @@ public class DisplaySettingsDialog extends JDialog {
 		scaleCaretsCheckBox.setEnabled(enabled);
 	}
 
-	private void applyRenderingChange(java.util.function.Consumer<RenderingConfiguration> change,
+	private void applyRenderingChange(Consumer<RenderingConfiguration> change,
 			boolean rebuildScene) {
 		Scene3DOrchestrator orchestrator = getScene3DOrchestrator();
 		if (orchestrator == null) {
@@ -511,7 +514,7 @@ public class DisplaySettingsDialog extends JDialog {
 		rocketPanel.getFigure3d().updateFigure();
 	}
 
-	private void applyVisualEffectsChange(java.util.function.Consumer<info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings> change,
+	private void applyVisualEffectsChange(Consumer<VisualEffectsSettings> change,
 			boolean rebuildOriginAxes, boolean updateLightVisualizers) {
 		Scene3DOrchestrator orchestrator = getScene3DOrchestrator();
 		if (orchestrator == null) {
@@ -521,7 +524,7 @@ public class DisplaySettingsDialog extends JDialog {
 			RenderingConfiguration config = orchestrator.getRenderingConfiguration();
 			change.accept(config.getVisualEffects());
 			if (rebuildOriginAxes) {
-				info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder.rebuildOriginAxes(
+				RocketMeshBuilder.rebuildOriginAxes(
 						orchestrator.getScene(), config, true, true);
 			}
 			if (updateLightVisualizers) {
@@ -872,7 +875,7 @@ public class DisplaySettingsDialog extends JDialog {
 	 * Helper to save default color only if different from theme default.
 	 */
 	private void saveDefaultIfDifferent(Color currentColor, Color themeDefault,
-			java.util.function.Consumer<Color> setter) {
+			Consumer<Color> setter) {
 		if (currentColor != null && !currentColor.equals(themeDefault)) {
 			setter.accept(currentColor);
 		} else {

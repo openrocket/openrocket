@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.rendering.passes.AmbientOcclusionPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.BackgroundPass;
@@ -62,7 +63,8 @@ public class RealisticRenderer implements GLRenderer {
 	private static final String MAIN_FRAGMENT_SHADER_PATH = "/shaders/fragment.glsl";
 
 	private final GLShader mainShader;
-	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
+	private final Vector4f selectionColor = ColorUtils.srgbToLinear(
+			new Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
 	private final Vector3f blurRocketAxis = new Vector3f();
 	private final Vector4f blurOrigin = new Vector4f();
 	private final Vector4f blurTip = new Vector4f();
@@ -281,6 +283,7 @@ public class RealisticRenderer implements GLRenderer {
 			}
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		} else {
+			// Every BackgroundPass branch clears depth before drawing its background.
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
 	}
@@ -396,22 +399,27 @@ public class RealisticRenderer implements GLRenderer {
 		resolvedTextureId = renderTarget.getColorTextureId();
 	}
 
+	@Override
 	public int getResolvedTextureId() {
 		return resolvedTextureId;
 	}
 
+	@Override
 	public int getResolvedFramebufferId() {
 		return renderTarget.getFramebufferId();
 	}
 
+	@Override
 	public int getRenderWidth() {
 		return screenWidth;
 	}
 
+	@Override
 	public int getRenderHeight() {
 		return screenHeight;
 	}
 
+	@Override
 	public void presentResolvedToCurrentFramebuffer() {
 		fullscreenQuad.present(resolvedTextureId, screenWidth, screenHeight);
 	}
@@ -445,7 +453,7 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	@Override
-	public void setCaretPositions(info.openrocket.core.util.CoordinateIF cg, info.openrocket.core.util.CoordinateIF cp) {
+	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
 		caretsPass.setPositions(cg, cp);
 	}
 

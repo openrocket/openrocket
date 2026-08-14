@@ -23,14 +23,14 @@ import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import org.joml.Vector4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBRobustness;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.opengl.awt.GLData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.awt.GLData;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPopupMenu;
@@ -56,35 +56,36 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_READ_BUFFER;
-import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.glReadBuffer;
 import static org.lwjgl.opengl.GL11.glReadPixels;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
+import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 
 /**
  * AWTGLCanvas-backed scene panel. Each canvas owns its context-local GL resources
@@ -93,17 +94,7 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-	private final AtomicInteger renderCallCount = new AtomicInteger(0);
-	private final AtomicInteger paintCallCount = new AtomicInteger(0);
-	private final AtomicInteger swapCallCount = new AtomicInteger(0);
-
-	private Scene3DOrchestrator scene3DOrchestrator;
-	private final KeyboardHandler keyboardHandler;
-
 	private static final double CLICK_DRAG_THRESHOLD_SQ = 5 * 5;
-
-	private final HudOverlay hudOverlay;
-	private final CountDownLatch glInitLatch = new CountDownLatch(1);
 	private static final int WHEEL_INTERACTION_IDLE_MS = 150;
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
 	private static final byte[] STRAIGHT_SRGB_BY_PREMULTIPLIED_CHANNEL_AND_ALPHA =
@@ -118,7 +109,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS
 					&& !Boolean.getBoolean("openrocket.figure3d.disableRobustContext");
 	private static final int[] STARTUP_FRAME_RECOVERY_DELAYS_MS = {150, 400, 800, 1500, 3000, 5000};
+	private static final ExecutorService EXPORT_EXECUTOR;
+
+	private final AtomicInteger renderCallCount = new AtomicInteger(0);
+	private final AtomicInteger paintCallCount = new AtomicInteger(0);
+	private final AtomicInteger swapCallCount = new AtomicInteger(0);
+	private final KeyboardHandler keyboardHandler;
+	private final HudOverlay hudOverlay;
+	private final CountDownLatch glInitLatch = new CountDownLatch(1);
 	private final AtomicInteger startupRecoveryGeneration = new AtomicInteger(0);
+	private Scene3DOrchestrator scene3DOrchestrator;
 
 	// Track dimensions to detect actual size changes
 	private int lastFramebufferWidth = -1;
@@ -136,7 +136,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	// Initialization guard - prevents resize/render operations before GL is fully ready
 	private volatile boolean glInitialized = false;
-	public volatile boolean glInitFailed = false;
+	private volatile boolean glInitFailed = false;
 	private final AtomicBoolean cleanupStarted = new AtomicBoolean(false);
 	private final AtomicBoolean hostCleanupFinished = new AtomicBoolean(false);
 	// Swap count when the current recovery began. Follow-up redraws stop as soon as
@@ -149,7 +149,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean graphicsResetDetected = false;
 
 	private final Rocket rocket;
-	private static final ExecutorService EXPORT_EXECUTOR;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 	private volatile Runnable renderActivityCallback;
@@ -399,7 +398,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		int status = ARBRobustness.glGetGraphicsResetStatusARB();
-		if (status == org.lwjgl.opengl.GL11.GL_NO_ERROR) {
+		if (status == GL_NO_ERROR) {
 			return false;
 		}
 
@@ -1174,6 +1173,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
+	/** @return whether this canvas failed to initialize its OpenGL context */
+	public boolean hasGlInitFailed() {
+		return glInitFailed;
+	}
+
 	@Override
 	public void markHudForUpdate() {
 		if (hudOverlay != null) {
@@ -1377,6 +1381,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		Vector4f linear = ColorUtils.srgbToLinear(new Vector4f(srgbR, srgbG, srgbB, alpha));
 		scene.setBackground(new SolidColorBackground(linear.x, linear.y, linear.z, linear.w));
 	}
+
 	private void installThemeListener() {
 		if (uiThemeListener != null) {
 			return;
