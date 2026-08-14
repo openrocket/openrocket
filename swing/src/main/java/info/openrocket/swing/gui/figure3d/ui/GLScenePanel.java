@@ -52,6 +52,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -60,6 +61,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.concurrent.CountDownLatch;
@@ -106,6 +108,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final int RESIZE_SETTLE_IDLE_MS = 120;
 	private static final byte[] STRAIGHT_SRGB_BY_PREMULTIPLIED_CHANNEL_AND_ALPHA =
 			createStraightSrgbLookup();
+	private static final AtomicLong EXPORT_SEQUENCE = new AtomicLong();
 	// Only Windows both loses contexts often enough to matter and supports
 	// WGL_ARB_create_context_robustness across all three vendors, so the request is limited
 	// to it: a driver that rejects the attribute would fail context creation outright, and
@@ -1007,7 +1010,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				return;
 			}
 
-			String filePath = "export_" + System.currentTimeMillis() + ".png";
+			String filePath = nextQuickExportPath();
 			EXPORT_EXECUTOR.submit(() -> writePng(exportBuffer, exportWidth, exportHeight, filePath));
 		} finally {
 			if (request.isImageCapture()) {
@@ -1086,6 +1089,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	static BufferedImage bufferToImage(ByteBuffer buffer, int width, int height) {
 		buffer.rewind();
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -1107,10 +1111,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					g = unpremultiplySrgbChannel(g, a);
 					b = unpremultiplySrgbChannel(b, a);
 				}
-				image.setRGB(x, height - 1 - y, (a << 24) | (r << 16) | (g << 8) | b);
+				pixels[(height - 1 - y) * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
 			}
 		}
 		return image;
+	}
+
+	static String nextQuickExportPath() {
+		return "export_" + System.currentTimeMillis() + "_" + EXPORT_SEQUENCE.incrementAndGet() + ".png";
 	}
 
 	private static int unpremultiplySrgbChannel(int channel, int alpha) {

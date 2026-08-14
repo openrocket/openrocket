@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GLScenePanelImageConversionTest {
 
@@ -25,6 +27,33 @@ class GLScenePanelImageConversionTest {
 		assertEquals(0x80BBBBBB, image.getRGB(0, 0));
 		assertEquals(0x00000000, image.getRGB(1, 0));
 		assertEquals(0xFF0A141E, image.getRGB(2, 0));
+	}
+
+	@Test
+	void flipsFramebufferRowsWhenWritingTheBackingRaster() {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(4 * 4);
+		putRgba(buffer, 255, 0, 0, 255);
+		putRgba(buffer, 0, 255, 0, 255);
+		putRgba(buffer, 0, 0, 255, 255);
+		putRgba(buffer, 255, 255, 255, 255);
+		buffer.flip();
+
+		BufferedImage image = GLScenePanel.bufferToImage(buffer, 2, 2);
+
+		assertEquals(0xFF0000FF, image.getRGB(0, 0));
+		assertEquals(0xFFFFFFFF, image.getRGB(1, 0));
+		assertEquals(0xFFFF0000, image.getRGB(0, 1));
+		assertEquals(0xFF00FF00, image.getRGB(1, 1));
+	}
+
+	@Test
+	void quickExportPathsRemainUniqueWithinOneProcess() {
+		String first = GLScenePanel.nextQuickExportPath();
+		String second = GLScenePanel.nextQuickExportPath();
+
+		assertNotEquals(first, second);
+		assertTrue(first.startsWith("export_"));
+		assertTrue(first.endsWith(".png"));
 	}
 
 	private static void putRgba(ByteBuffer buffer, int red, int green, int blue, int alpha) {

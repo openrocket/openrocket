@@ -144,7 +144,6 @@ public class GLRenderableMesh implements Renderable {
 	@Override
 	public void render() {
 		GL33.glBindVertexArray(vertexArrayObjectId);
-		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, elementBufferObjectId);
 		GL33.glDrawElements(GL33.GL_TRIANGLES, indexCount, GL33.GL_UNSIGNED_INT, 0);
 		GL33.glBindVertexArray(0);
 	}

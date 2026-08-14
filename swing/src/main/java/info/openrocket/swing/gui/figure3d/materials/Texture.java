@@ -182,9 +182,9 @@ public class Texture {
 	private static void bleedTransparentRgb(ByteBuffer image, int width, int height) {
 		int pixelCount = width * height;
 		byte[] source = new byte[pixelCount * 4];
-		for (int i = 0; i < source.length; i++) {
-			source[i] = image.get(i);
-		}
+		ByteBuffer sourceBuffer = image.duplicate();
+		sourceBuffer.clear();
+		sourceBuffer.get(source);
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
