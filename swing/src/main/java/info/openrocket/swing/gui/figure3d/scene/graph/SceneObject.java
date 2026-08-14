@@ -11,6 +11,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -37,6 +38,7 @@ public class SceneObject {
 	private boolean isSelectable = true;				// Whether this object can be selected by the user
 	private boolean renderOnTop = false;				// Whether this object should always render on top of others
 	private boolean originAxis = false;
+	private boolean cleaned = false;
 
 	private DragListener onDragListener = null;		// A listener that defines what happens when this object is dragged.
 
@@ -56,13 +58,24 @@ public class SceneObject {
 
 	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
 			Mesh mesh, Vector3f position, Appearance3D appearance) {
+		this(component, appearanceSourceComponent, mesh, new GLRenderableMesh(mesh), position, appearance);
+	}
+
+	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
+			Mesh mesh, Renderable renderableMesh, Vector3f position, Appearance3D appearance) {
 		this.id = UUID.randomUUID();
 		this.rocketComponent = component;
 		this.appearanceSourceComponent = appearanceSourceComponent;
 		this.mesh = mesh;
-		this.renderableMesh = new GLRenderableMesh(mesh); // Create the renderable version here
+		this.renderableMesh = Objects.requireNonNull(renderableMesh, "renderableMesh");
 		this.modelMatrix.translate(position);
 		this.appearance = appearance;
+	}
+
+	/** Creates a component object using a caller-owned renderable lease. */
+	public static SceneObject withRenderable(RocketComponent component, Mesh mesh, Renderable renderableMesh,
+			Vector3f position, Appearance3D appearance) {
+		return new SceneObject(component, component, mesh, renderableMesh, position, appearance);
 	}
 
 	/**
@@ -74,6 +87,12 @@ public class SceneObject {
 	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
 			Mesh mesh, Vector3f position, Appearance3D appearance) {
 		return new SceneObject(selectionComponent, null, mesh, position, appearance);
+	}
+
+	/** Creates an independently styled object using a caller-owned renderable lease. */
+	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
+			Mesh mesh, Renderable renderableMesh, Vector3f position, Appearance3D appearance) {
+		return new SceneObject(selectionComponent, null, mesh, renderableMesh, position, appearance);
 	}
 
 	/**
@@ -227,7 +246,7 @@ public class SceneObject {
 
 	/**
 	 * Returns the renderable mesh, used by the renderer.
-	 * @return The GLRenderableMesh object.
+	 * @return the GPU-backed renderable or shared-resource lease
 	 */
 	public Renderable getRenderableMesh() {
 		return renderableMesh;
@@ -283,7 +302,14 @@ public class SceneObject {
 	 * and should be called when the object is no longer needed.
 	 */
 	public void cleanup() {
-		renderableMesh.cleanup();
-		appearance.cleanup();
+		if (cleaned) {
+			return;
+		}
+		cleaned = true;
+		try {
+			renderableMesh.cleanup();
+		} finally {
+			appearance.cleanup();
+		}
 	}
 }

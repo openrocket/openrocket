@@ -41,6 +41,9 @@ import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
+import info.openrocket.swing.gui.figure3d.rendering.Renderable;
+import info.openrocket.swing.gui.figure3d.rendering.SharedRenderable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -180,10 +183,13 @@ public abstract class RocketMeshBuilder {
 	private static void prepareSnapshotObjects(List<SceneObject> objects, List<ParticleEmitter> particleEmitters,
 			RocketSceneSnapshot snapshot, RenderingConfiguration config) {
 		IdentityHashMap<RocketComponent, Appearance3D> componentAppearances = new IdentityHashMap<>();
+		IdentityHashMap<Mesh, SharedRenderable> renderables = new IdentityHashMap<>();
 		for (RocketSceneSnapshot.ComponentInstance ci : snapshot.getComponentInstances()) {
 			Appearance3D appearance = componentAppearances.computeIfAbsent(ci.component(),
 					ignored -> AppearanceFactory.createFrom(ci.appearance()));
-			SceneObject obj = new SceneObject(ci.component(), ci.mesh(), new Vector3f(0, 0, 0), appearance);
+			Renderable renderable = acquireRenderable(renderables, ci.mesh());
+			SceneObject obj = SceneObject.withRenderable(ci.component(), ci.mesh(), renderable,
+					new Vector3f(0, 0, 0), appearance);
 			obj.getModelMatrix().set(ci.modelMatrix());
 			objects.add(obj);
 		}
@@ -191,8 +197,9 @@ public abstract class RocketMeshBuilder {
 		for (RocketSceneSnapshot.MotorInstance mi : snapshot.getMotorInstances()) {
 			// Match legacy behavior: motor appearances are not shared across instances.
 			Appearance3D motorAppearance = AppearanceFactory.createFrom(mi.motor());
+			Renderable renderable = acquireRenderable(renderables, mi.motorMesh());
 			SceneObject motorObj = SceneObject.withIndependentAppearance(
-					mi.mountForSelectionGrouping(), mi.motorMesh(),
+					mi.mountForSelectionGrouping(), mi.motorMesh(), renderable,
 					new Vector3f(0, 0, 0), motorAppearance);
 			motorObj.getModelMatrix().set(mi.modelMatrix());
 			objects.add(motorObj);
@@ -201,6 +208,12 @@ public abstract class RocketMeshBuilder {
 				addParticles(particleEmitters::add, mi.particleEmitterPlan(), config);
 			}
 		}
+	}
+
+	private static Renderable acquireRenderable(IdentityHashMap<Mesh, SharedRenderable> renderables, Mesh mesh) {
+		SharedRenderable shared = renderables.computeIfAbsent(mesh,
+				ignored -> new SharedRenderable(new GLRenderableMesh(mesh)));
+		return shared.acquire();
 	}
 
 	private static void collectInstances(List<RocketSceneSnapshot.ComponentInstance> componentInstances,
@@ -239,6 +252,13 @@ public abstract class RocketMeshBuilder {
 		if (mesh == null && !isMotorMount) {
 			return;
 		}
+		Mesh motorMesh = null;
+		if (isMotorMount) {
+			MotorConfiguration motorConfig = ((MotorMount) component).getMotorConfig(fcid);
+			if (motorConfig != null && motorConfig.getMotor() != null) {
+				motorMesh = MotorGenerator.create(motorConfig.getMotor(), config);
+			}
+		}
 
 		double angleOffsetX = component instanceof RailButton ? component.getAngleOffset() : 0.0;
 		AppearanceFactory.ComponentAppearanceSnapshot appearance = mesh != null
@@ -260,7 +280,7 @@ public abstract class RocketMeshBuilder {
 				@SuppressWarnings("unchecked")
 				RocketSceneSnapshot.MotorInstance motor = collectMotor(fcid,
 						(RocketComponent & MotorMount) component, instanceLocation, instanceAngle,
-						worldScale, config, context, lowestMotorInstances);
+						worldScale, motorMesh, context, lowestMotorInstances);
 				if (motor != null) {
 					motorInstances.add(motor);
 				}
@@ -274,15 +294,13 @@ public abstract class RocketMeshBuilder {
 	 */
 	private static <T extends RocketComponent & MotorMount> RocketSceneSnapshot.MotorInstance collectMotor(
 			FlightConfigurationId fcid, T mount, CoordinateIF mountLocation, CoordinateIF mountAngle,
-			float worldScale, RenderingConfiguration config, InstanceContext context,
+			float worldScale, Mesh motorMesh, InstanceContext context,
 			InstanceMap lowestMotorInstances) {
 		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
 		if (motorCfg == null) return null;
 
 		Motor motor = motorCfg.getMotor();
-		if (motor == null) return null;
-
-		Mesh motorMesh = MotorGenerator.create(motor, config);
+		if (motor == null || motorMesh == null) return null;
 
 		// The motor's position is relative to the mount's front end.
 		double motorFrontRelToMountFront = mount.getLength() + mount.getMotorOverhang() - motor.getLength();
@@ -465,7 +483,9 @@ public abstract class RocketMeshBuilder {
 		// --- OR X-Axis (Longitudinal) -> Engine +X (Right) ---
 		Appearance3D xAxisAppearance = new Appearance3D(new Vector3f(1.0f, 0.3f, 0.3f));
 		xAxisAppearance.setUnlit(true);
-		SceneObject xAxisObject = new SceneObject(arrowMesh, new Vector3f(0, 0, 0), xAxisAppearance);
+		SharedRenderable arrowRenderable = new SharedRenderable(new GLRenderableMesh(arrowMesh));
+		SceneObject xAxisObject = SceneObject.withRenderable(null, arrowMesh, arrowRenderable.acquire(),
+				new Vector3f(0, 0, 0), xAxisAppearance);
 		xAxisObject.getModelMatrix().scale(scale); // No rotation needed
 		xAxisObject.setSelectable(false);
 		xAxisObject.setRenderOnTop(onTop);
@@ -475,7 +495,8 @@ public abstract class RocketMeshBuilder {
 		// --- OR Y-Axis (Radial Up) -> Engine +Y (Up) ---
 		Appearance3D yAxisAppearance = new Appearance3D(new Vector3f(0.3f, 1.0f, 0.3f));
 		yAxisAppearance.setUnlit(true);
-		SceneObject yAxisObject = new SceneObject(arrowMesh, new Vector3f(0, 0, 0), yAxisAppearance);
+		SceneObject yAxisObject = SceneObject.withRenderable(null, arrowMesh, arrowRenderable.acquire(),
+				new Vector3f(0, 0, 0), yAxisAppearance);
 		yAxisObject.getModelMatrix().rotate((float) Math.toRadians(90), 0, 0, 1).scale(scale);
 		yAxisObject.setSelectable(false);
 		yAxisObject.setRenderOnTop(onTop);
@@ -485,7 +506,8 @@ public abstract class RocketMeshBuilder {
 		// --- OR Z-Axis (Radial Right) -> Engine -Z (Into Screen) ---
 		Appearance3D zAxisAppearance = new Appearance3D(new Vector3f(0.3f, 0.3f, 1.0f));
 		zAxisAppearance.setUnlit(true);
-		SceneObject zAxisObject = new SceneObject(arrowMesh, new Vector3f(0, 0, 0), zAxisAppearance);
+		SceneObject zAxisObject = SceneObject.withRenderable(null, arrowMesh, arrowRenderable.acquire(),
+				new Vector3f(0, 0, 0), zAxisAppearance);
 		if (useORCoordinateSystem) {
 			zAxisObject.getModelMatrix().rotate((float) Math.toRadians(90), 0, 1, 0).scale(scale);
 		} else {
