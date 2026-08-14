@@ -29,6 +29,8 @@ import javax.swing.JTabbedPane;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Dialog for configuring design view display settings.
@@ -42,6 +44,7 @@ public class DisplaySettingsDialog extends JDialog {
 
 	private final RocketPanel rocketPanel;
 	private final DocumentPreferences docPreferences;
+	private final boolean originalDocumentWasSaved;
 	private final Figure3DPreferences.Values originalDocument3DPreferences;
 	private final GraphicsQualitySettings.RenderQuality originalRenderQuality;
 	private final boolean originalShadowsEnabled;
@@ -80,12 +83,14 @@ public class DisplaySettingsDialog extends JDialog {
 	// Easter egg: track clicks when settings are already at default
 	private int defaultStateClickCount = 0;
 	private boolean updatingRenderingControls = false;
+	private boolean cancelling = false;
 	
 	public DisplaySettingsDialog(Window parent, RocketPanel rocketPanel) {
 		super(parent, trans.get("RocketPanel.dlg.displaySettings.title"), Dialog.ModalityType.APPLICATION_MODAL);
 
 		this.rocketPanel = rocketPanel;
 		this.docPreferences = rocketPanel.getDocument().getDocumentPreferences();
+		this.originalDocumentWasSaved = rocketPanel.getDocument().isSaved();
 		this.originalDocument3DPreferences = Figure3DPreferences.load(docPreferences, prefs);
 		
 		// Get current colors from document preferences (null if not explicitly set)
@@ -122,25 +127,11 @@ public class DisplaySettingsDialog extends JDialog {
 		panel.add(saveAsDefaultButton, "split 3, right");
 		
 		JButton okButton = new JButton(trans.get("button.ok"));
-		okButton.addActionListener(e -> {
-			dispose();
-		});
+		okButton.addActionListener(e -> dispose());
 		panel.add(okButton, "gap para");
 		
 		JButton cancelButton = new JButton(trans.get("button.cancel"));
-		cancelButton.addActionListener(e -> {
-			// Revert to original colors (null means not set, will use theme/default)
-			docPreferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, original2DBgColor);
-			docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, original3DBgColor);
-			docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, original2DTextColor);
-			docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, original3DTextColor);
-			revert3DRenderingSettings();
-			revertAdvancedSettings();
-			update2DView();
-			update3DView();
-			updateTextColors();
-			dispose();
-		});
+		cancelButton.addActionListener(e -> cancelAndDispose());
 		panel.add(cancelButton, "gap para");
 		
 		add(panel);
@@ -148,6 +139,35 @@ public class DisplaySettingsDialog extends JDialog {
 		setLocationRelativeTo(getParent());
 		
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				cancelAndDispose();
+			}
+		});
+	}
+
+	private void cancelAndDispose() {
+		if (cancelling) {
+			return;
+		}
+		cancelling = true;
+
+		// Revert live-preview changes before closing. A clean document must remain clean.
+		docPreferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, original2DBgColor);
+		docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, original3DBgColor);
+		docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, original2DTextColor);
+		docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, original3DTextColor);
+		revert3DRenderingSettings();
+		revertAdvancedSettings();
+		update2DView();
+		update3DView();
+		updateTextColors();
+		if (originalDocumentWasSaved) {
+			rocketPanel.getDocument().setSaved(true);
+		}
+		dispose();
 	}
 
 	private JPanel createGeneralSettingsPanel() {
