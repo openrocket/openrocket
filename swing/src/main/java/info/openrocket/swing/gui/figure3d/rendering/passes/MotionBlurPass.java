@@ -21,8 +21,8 @@ import static org.lwjgl.opengl.GL33.glUniform1i;
 import static org.lwjgl.opengl.GL33.glUniform2f;
 
 /**
- * Screen-space motion blur, applied as a single full-screen pass. Blur direction
- * comes from the previous frame's motion vectors; the strength is configurable.
+ * Directional screen-space motion blur. The projected rocket axis supplies the
+ * direction, while scene depth keeps the background sharp.
  */
 public class MotionBlurPass implements ScreenTexturePass {
 

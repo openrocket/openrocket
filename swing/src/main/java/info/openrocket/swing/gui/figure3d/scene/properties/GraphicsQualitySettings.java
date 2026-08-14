@@ -14,17 +14,13 @@ public class GraphicsQualitySettings {
 	public static final boolean DEFAULT_AMBIENT_OCCLUSION = false;
 	public static final boolean DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION = false;
 
-	/**
-	 * Defines overall rendering quality levels that affect multiple visual aspects.
-	 * The quality level influences mesh tessellation detail, particle system density,
-	 * surface effect complexity, and other performance-sensitive rendering features.
-	 */
+	/** Overall quality tiers used by size- and sample-count decisions. */
 	public enum RenderQuality {
-		/** Optimized for performance: lower mesh detail, reduced particle count, basic effects */
+		/** Lowest GPU cost. */
 		LOW,
-		/** Balanced rendering: moderate detail level with good performance */
+		/** Balanced detail and GPU cost. */
 		MEDIUM,
-		/** Maximum visual quality: high mesh detail, full particle effects, advanced shading */
+		/** Highest available detail. */
 		HIGH
 	}
 
@@ -38,140 +34,58 @@ public class GraphicsQualitySettings {
 	private boolean ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
 	private volatile boolean reduceEffectsDuringInteraction = DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION;
 
-	// Render Quality
-
-	/**
-	 * Gets the current overall rendering quality level.
-	 *
-	 * @return the active RenderQuality setting
-	 */
 	public RenderQuality getQuality() {
 		return quality;
 	}
 
-	/**
-	 * Sets the overall rendering quality level.
-	 * This affects mesh tessellation, particle density, and effect complexity.
-	 *
-	 * @param quality the RenderQuality level to apply
-	 */
 	public void setQuality(RenderQuality quality) {
 		this.quality = quality;
 	}
 
-	// Transparency and Culling
-
-	/**
-	 * Gets the opacity level used for X-ray transparency rendering.
-	 *
-	 * @return opacity value between 0.0 (fully transparent) and 1.0 (fully opaque)
-	 */
 	public float getXrayOpacity() {
 		return xrayOpacity;
 	}
 
-	/**
-	 * Sets the opacity level for X-ray transparency rendering.
-	 *
-	 * @param xrayOpacity opacity value between 0.0 (fully transparent) and 1.0 (fully opaque)
-	 */
 	public void setXrayOpacity(float xrayOpacity) {
 		this.xrayOpacity = xrayOpacity;
 	}
 
-	/**
-	 * Checks if backface culling optimization is enabled.
-	 * When enabled, surfaces facing away from the camera are not rendered, improving performance.
-	 *
-	 * @return true if backface culling is active
-	 */
 	public boolean isBackfaceCullingEnabled() {
 		return useBackfaceCulling;
 	}
 
-	/**
-	 * Enables or disables backface culling optimization.
-	 * Disabling culling is useful for wireframe modes or transparent materials.
-	 *
-	 * @param useBackfaceCulling true to enable culling optimization, false to render all faces
-	 */
 	public void setBackfaceCullingEnabled(boolean useBackfaceCulling) {
 		this.useBackfaceCulling = useBackfaceCulling;
 	}
 
-	// Surface Effects
-
-	/**
-	 * Checks if surface roughness bump mapping effects are enabled.
-	 * This adds surface detail through normal map perturbation for more realistic materials.
-	 *
-	 * @return true if roughness bump mapping is active
-	 */
 	public boolean isRoughnessBumpEnabled() {
 		return enableRoughnessBump;
 	}
 
-	/**
-	 * Enables or disables surface roughness bump mapping effects.
-	 * When enabled, adds surface detail and realistic material appearance.
-	 *
-	 * @param enableRoughnessBump true to enable advanced surface effects, false for basic materials
-	 */
 	public void setRoughnessBumpEnabled(boolean enableRoughnessBump) {
 		this.enableRoughnessBump = enableRoughnessBump;
 	}
 
-	// Anti-Aliasing
-
-	/**
-	 * Checks if Fast Approximate Anti-Aliasing (FXAA) is enabled.
-	 * FXAA smooths jagged edges in the rendered image for better visual quality.
-	 *
-	 * @return true if FXAA post-processing is active
-	 */
 	public boolean isFXAAEnabled() {
 		return enableFXAA;
 	}
 
-	/**
-	 * Enables or disables Fast Approximate Anti-Aliasing (FXAA).
-	 * FXAA is a post-processing technique that smooths jagged edges with minimal performance impact.
-	 *
-	 * @param enableFXAA true to enable anti-aliasing, false to disable edge smoothing
-	 */
 	public void setFXAAEnabled(boolean enableFXAA) {
 		this.enableFXAA = enableFXAA;
 	}
 
-	/**
-	 * Checks whether the offscreen scene target should use multisampling.
-	 *
-	 * @return true when MSAA is allowed for quality levels that request samples
-	 */
 	public boolean isMSAAEnabled() {
 		return enableMSAA;
 	}
 
-	/**
-	 * Enables or disables multisample anti-aliasing for the offscreen scene target.
-	 *
-	 * @param enableMSAA true to use the quality level's sample count, false to use none
-	 */
 	public void setMSAAEnabled(boolean enableMSAA) {
 		this.enableMSAA = enableMSAA;
 	}
 
 	/**
-	 * Multisample count for the offscreen scene target at this quality level.
+	 * Returns the quality tier's scene sample count, or zero when MSAA is disabled.
 	 *
-	 * <p>Measured on an M1 Pro at 3200x2000, this is the largest single cost in the frame
-	 * once the roughness bump is accounted for: 4x costs about 5.8 ms of a 12.7 ms frame,
-	 * 2x about 2.5 ms. Tying it to the quality level is what gives the level a real effect
-	 * on frame time — mesh tessellation, which is what it used to control, barely matters
-	 * for a renderer that is fill-rate bound. Disabling MSAA overrides the level and
-	 * returns zero samples.</p>
-	 *
-	 * @return the requested sample count, 0 to render without multisampling
+	 * @return requested off-screen sample count
 	 */
 	public int getSceneSampleCount() {
 		if (!enableMSAA) {
@@ -253,63 +167,31 @@ public class GraphicsQualitySettings {
 		};
 	}
 
-	/**
-	 * Checks if shadow rendering is enabled.
-	 * @return true when shadow mapping should be performed
-	 */
 	public boolean isShadowsEnabled() {
 		return shadowsEnabled;
 	}
 
-	/**
-	 * Enables or disables shadow rendering.
-	 * @param enabled whether shadows should be rendered
-	 */
 	public void setShadowsEnabled(boolean enabled) {
 		this.shadowsEnabled = enabled;
 	}
 
-	/**
-	 * Checks if screen-space ambient occlusion is enabled.
-	 *
-	 * @return true when the AO post-process should run
-	 */
 	public boolean isAmbientOcclusionEnabled() {
 		return ambientOcclusionEnabled;
 	}
 
-	/**
-	 * Enables or disables screen-space ambient occlusion.
-	 *
-	 * @param enabled whether AO should be rendered
-	 */
 	public void setAmbientOcclusionEnabled(boolean enabled) {
 		this.ambientOcclusionEnabled = enabled;
 	}
 
-	/**
-	 * Checks whether costly effects should be suspended while the user moves the camera.
-	 *
-	 * @return true when interaction rendering should favor stability and responsiveness
-	 */
 	public boolean shouldReduceEffectsDuringInteraction() {
 		return reduceEffectsDuringInteraction;
 	}
 
-	/**
-	 * Selects whether shadows and costly post-processing are suspended during camera interaction.
-	 *
-	 * @param reduce true to reduce effects until the interaction ends
-	 */
 	public void setReduceEffectsDuringInteraction(boolean reduce) {
 		this.reduceEffectsDuringInteraction = reduce;
 	}
 
-	/**
-	 * Returns the SSAO sample count to use for the current quality level.
-	 *
-	 * @return number of SSAO kernel samples
-	 */
+	/** @return SSAO kernel sample count for the current quality tier */
 	public int getAmbientOcclusionSampleCount() {
 		return switch (quality) {
 			case LOW -> 12;
@@ -318,11 +200,7 @@ public class GraphicsQualitySettings {
 		};
 	}
 
-	/**
-	 * Returns the screen-space AO sampling radius in view-space units.
-	 *
-	 * @return AO radius
-	 */
+	/** @return screen-space AO radius in view-space units */
 	public float getAmbientOcclusionRadius() {
 		return switch (quality) {
 			case LOW -> 0.30f;
@@ -331,11 +209,7 @@ public class GraphicsQualitySettings {
 		};
 	}
 
-	/**
-	 * Returns the AO intensity multiplier for the current quality level.
-	 *
-	 * @return AO strength multiplier
-	 */
+	/** @return AO intensity multiplier for the current quality tier */
 	public float getAmbientOcclusionStrength() {
 		return switch (quality) {
 			case LOW -> 0.70f;
@@ -344,18 +218,12 @@ public class GraphicsQualitySettings {
 		};
 	}
 
-	/**
-	 * Returns a small depth bias used to reduce self-occlusion artifacts.
-	 *
-	 * @return AO bias
-	 */
+	/** @return depth bias used to limit AO self-occlusion */
 	public float getAmbientOcclusionBias() {
 		return 0.015f;
 	}
 
-	/**
-	 * Restores the graphics quality settings to their built-in defaults.
-	 */
+	/** Restores the built-in defaults. */
 	public void resetToDefaults() {
 		quality = DEFAULT_QUALITY;
 		xrayOpacity = DEFAULT_XRAY_OPACITY;

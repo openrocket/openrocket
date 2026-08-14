@@ -19,49 +19,25 @@ public class DisplaySettings {
 	// Whether surfaces tagged as "inside" should be rendered (used for hollow geometry).
 	private boolean renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
 
-	/**
-	 * Gets the current rendering mode.
-	 *
-	 * @return the active RenderMode determining how geometry is displayed
-	 */
 	public RenderMode getMode() {
 		return mode;
 	}
 
-	/**
-	 * Sets the rendering mode for the 3D visualization.
-	 * This change affects how all geometry in the scene is rendered.
-	 *
-	 * @param mode the RenderMode to activate
-	 */
 	public void setMode(RenderMode mode) {
 		this.mode = mode;
 	}
 
-	/**
-	 * Checks whether inside surfaces of hollow components should be rendered.
-	 *
-	 * @return true if internal surfaces should be drawn
-	 */
 	public boolean isRenderInternalSurfaces() {
 		return renderInternalSurfaces;
 	}
 
-	/**
-	 * Enables or disables rendering of inside surfaces on hollow geometry.
-	 *
-	 * @param renderInternalSurfaces true to render internal surfaces, false to suppress them
-	 */
 	public void setRenderInternalSurfaces(boolean renderInternalSurfaces) {
 		this.renderInternalSurfaces = renderInternalSurfaces;
 	}
 
-	/**
-	 * Restores the display settings to their built-in defaults.
-	 */
+	/** Restores the built-in defaults. */
 	public void resetToDefaults() {
 		mode = DEFAULT_RENDER_MODE;
 		renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
 	}
-
 }

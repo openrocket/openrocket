@@ -276,14 +276,13 @@ public class SceneObject {
 	public void clearPoseProvider() {
 		this.poseProvider = null;
 		if (baseModelSnapshot != null) {
-				// Restore original static transform
-						this.modelMatrix.set(baseModelSnapshot);
-			}
+			this.modelMatrix.set(baseModelSnapshot);
+		}
 	}
 
 	/**
-	 * Applies the pose at time t by composing dynamic transform * base static transform.
-	 * Lazily snapshots the current model matrix as the "base" the first time it runs.
+	 * Applies the dynamic pose before the object's original model transform, which is
+	 * captured on the first call.
 	 */
 	public void applyPoseAtTime(double t) {
 		if (poseProvider == null) return;
@@ -296,11 +295,7 @@ public class SceneObject {
 		this.modelMatrix.set(dynamicTransform).mul(baseModelSnapshot);
 	}
 
-	/**
-	 * Cleans up all resources associated with this scene object.
-	 * This method releases GPU memory used by meshes and textures,
-	 * and should be called when the object is no longer needed.
-	 */
+	/** Releases this object's resource leases. Subsequent calls have no effect. */
 	public void cleanup() {
 		if (cleaned) {
 			return;

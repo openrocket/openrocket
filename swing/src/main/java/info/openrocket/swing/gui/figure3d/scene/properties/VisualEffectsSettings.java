@@ -79,317 +79,140 @@ public class VisualEffectsSettings {
 	private float sparkLengthScale = DEFAULT_SPARK_LENGTH_SCALE;
 	private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
 
-	// Motion Blur
-
-	/**
-	 * Checks if motion blur post-processing effect is enabled.
-	 * Motion blur creates trailing effects during camera movement for cinematic visualization.
-	 *
-	 * @return true if motion blur is active
-	 */
 	public boolean isMotionBlurEnabled() {
 		return motionBlurEnabled;
 	}
 
-	/**
-	 * Enables or disables motion blur post-processing effect.
-	 *
-	 * @param motionBlurEnabled true to enable motion blur, false to disable
-	 */
 	public void setMotionBlurEnabled(boolean motionBlurEnabled) {
 		this.motionBlurEnabled = motionBlurEnabled;
 	}
 
-	/**
-	 * Gets the motion blur intensity factor.
-	 * Higher values create more pronounced blur effects during camera movement.
-	 *
-	 * @return the motion blur intensity factor
-	 */
 	public float getMotionBlurFactor() {
 		return motionBlurFactor;
 	}
 
-	/**
-	 * Sets the motion blur intensity factor.
-	 *
-	 * @param motionBlurFactor the intensity factor (typically 1.0 to 10.0)
-	 */
 	public void setMotionBlurFactor(float motionBlurFactor) {
 		this.motionBlurFactor = motionBlurFactor;
 	}
 
-	// Display Elements
-
-	/**
-	 * Checks if coordinate origin axes are visible in the scene.
-	 * The axes provide spatial reference for understanding rocket orientation.
-	 *
-	 * @return true if origin axes are displayed
-	 */
 	public boolean isOriginAxesVisible() {
 		return originAxesVisible;
 	}
 
-	/**
-	 * Shows or hides the coordinate origin axes in the scene.
-	 *
-	 * @param originAxesVisible true to show axes, false to hide them
-	 */
 	public void setOriginAxesVisible(boolean originAxesVisible) {
 		this.originAxesVisible = originAxesVisible;
 	}
 
-	/**
-	 * Checks if scene light visualizers should be shown.
-	 *
-	 * @return true if light visualizers are visible
-	 */
 	public boolean areLightVisualizersVisible() {
 		return lightVisualizersVisible;
 	}
 
-	/**
-	 * Shows or hides scene light visualizers.
-	 *
-	 * @param lightVisualizersVisible true to show light visuals, false to hide them
-	 */
 	public void setLightVisualizersVisible(boolean lightVisualizersVisible) {
 		this.lightVisualizersVisible = lightVisualizersVisible;
 	}
 
-	/**
-	 * Checks if the camera point-of-interest marker should be shown.
-	 *
-	 * @return true if the camera pivot marker is visible
-	 */
 	public boolean isCameraPointOfInterestVisible() {
 		return cameraPointOfInterestVisible;
 	}
 
-	/**
-	 * Shows or hides the camera point-of-interest marker.
-	 *
-	 * @param cameraPointOfInterestVisible true to show the marker, false to hide it
-	 */
 	public void setCameraPointOfInterestVisible(boolean cameraPointOfInterestVisible) {
 		this.cameraPointOfInterestVisible = cameraPointOfInterestVisible;
 	}
 
-	/**
-	 * Checks if CG/CP carets should be rendered.
-	 *
-	 * @return true if carets are visible
-	 */
 	public boolean areCaretsVisible() {
 		return caretsVisible;
 	}
 
-	/**
-	 * Shows or hides the CG/CP carets.
-	 *
-	 * @param caretsVisible true to render carets, false to suppress them
-	 */
 	public void setCaretsVisible(boolean caretsVisible) {
 		this.caretsVisible = caretsVisible;
 	}
 
-	/**
-	 * @return true if mouse drag rotates the rocket instead of orbiting the camera
-	 */
 	public boolean isRotateRocketOnDrag() {
 		return rotateRocketOnDrag;
 	}
 
-	/**
-	 * Sets whether mouse drag rotates the rocket instead of orbiting the camera.
-	 * @param rotateRocketOnDrag true to rotate the rocket, false to rotate the view
-	 */
 	public void setRotateRocketOnDrag(boolean rotateRocketOnDrag) {
 		this.rotateRocketOnDrag = rotateRocketOnDrag;
 	}
 
-	/**
-	 * @return the mouse-drag rotation sensitivity multiplier for 3D orbit controls
-	 */
 	public float getDragRotationSensitivity() {
 		return dragRotationSensitivity;
 	}
 
-	/**
-	 * Sets the mouse-drag rotation sensitivity multiplier for 3D orbit controls.
-	 * @param dragRotationSensitivity the sensitivity multiplier
-	 */
 	public void setDragRotationSensitivity(float dragRotationSensitivity) {
 		this.dragRotationSensitivity = Math.max(0.05f, dragRotationSensitivity);
 	}
 
-	/**
-	 * @return true if CG/CP carets scale with the camera view (zoom)
-	 */
 	public boolean isCaretScaleWithView() {
 		return caretScaleWithView;
 	}
 
-	/**
-	 * Sets whether CG/CP carets scale with the camera view (zoom).
-	 * @param caretScaleWithView true to scale with view, false for fixed size
-	 */
 	public void setCaretScaleWithView(boolean caretScaleWithView) {
 		this.caretScaleWithView = caretScaleWithView;
 	}
 
-	/**
-	 * Gets the ambient light factor applied to lit geometry.
-	 *
-	 * @return ambient light strength, where 0 disables ambient fill light
-	 */
 	public float getAmbientLightFactor() {
 		return ambientLightFactor;
 	}
 
-	/**
-	 * Sets the ambient light factor applied to lit geometry.
-	 *
-	 * @param ambientLightFactor ambient light strength
-	 */
 	public void setAmbientLightFactor(float ambientLightFactor) {
 		this.ambientLightFactor = Math.max(0.0f, ambientLightFactor);
 	}
 
-	// Global Particle Settings
-
-	/**
-	 * Checks if particle effects are globally enabled.
-	 * This master setting controls all particle systems in the visualization.
-	 *
-	 * @return true if particle effects are active
-	 */
 	public boolean areParticleEffectsEnabled() {
 		return particleEffectsEnabled;
 	}
 
-	/**
-	 * Globally enables or disables all particle effects.
-	 * When disabled, no particle systems will be rendered regardless of individual settings.
-	 *
-	 * @param particleEffectsEnabled true to enable all particle systems, false to disable
-	 */
 	public void setParticleEffectsEnabled(boolean particleEffectsEnabled) {
 		this.particleEffectsEnabled = particleEffectsEnabled;
 	}
 
-	/**
-	 * Checks if particles are rendered in static mode.
-	 * Static particles freeze the particle simulation at a specific time point.
-	 *
-	 * @return true if particles are static, false if they animate over time
-	 */
 	public boolean areStaticParticles() {
 		return staticParticles;
 	}
 
-	/**
-	 * Sets particle animation mode.
-	 *
-	 * @param staticParticles true for frozen particle state, false for animated particles
-	 */
 	public void setStaticParticles(boolean staticParticles) {
 		this.staticParticles = staticParticles;
 	}
 
-	/**
-	 * Gets the particle simulation time when in static mode.
-	 * This determines which frame of the particle animation is displayed.
-	 *
-	 * @return the simulation time in seconds
-	 */
 	public float getParticleTime() {
 		return particleTime;
 	}
 
-	/**
-	 * Sets the particle simulation time for static mode.
-	 *
-	 * @param particleTime the simulation time in seconds
-	 */
 	public void setParticleTime(float particleTime) {
 		this.particleTime = particleTime;
 	}
 
-	// Individual Particle Types
-
-	/**
-	 * Checks if spark particle effects are enabled.
-	 * Spark particles simulate high-energy debris from motor exhaust.
-	 *
-	 * @return true if spark particles are active
-	 */
 	public boolean areSparkParticlesEnabled() {
 		return sparkParticlesEnabled;
 	}
 
-	/**
-	 * Enables or disables spark particle effects.
-	 *
-	 * @param sparkParticlesEnabled true to enable spark particles, false to disable
-	 */
 	public void setSparkParticlesEnabled(boolean sparkParticlesEnabled) {
 		this.sparkParticlesEnabled = sparkParticlesEnabled;
 	}
 
-	/**
-	 * Checks if smoke particle effects are enabled.
-	 * Smoke particles simulate exhaust plumes and atmospheric interaction.
-	 *
-	 * @return true if smoke particles are active
-	 */
 	public boolean areSmokeParticlesEnabled() {
 		return smokeParticlesEnabled;
 	}
 
-	/**
-	 * Enables or disables smoke particle effects.
-	 *
-	 * @param smokeParticlesEnabled true to enable smoke particles, false to disable
-	 */
 	public void setSmokeParticlesEnabled(boolean smokeParticlesEnabled) {
 		this.smokeParticlesEnabled = smokeParticlesEnabled;
 	}
 
-	/**
-	 * Checks if flame particle effects are enabled.
-	 * Flame particles simulate the bright core of motor exhaust.
-	 *
-	 * @return true if flame particles are active
-	 */
 	public boolean areFlameParticlesEnabled() {
 		return flameParticlesEnabled;
 	}
 
-	/**
-	 * Enables or disables flame particle effects.
-	 *
-	 * @param flameParticlesEnabled true to enable flame particles, false to disable
-	 */
 	public void setFlameParticlesEnabled(boolean flameParticlesEnabled) {
 		this.flameParticlesEnabled = flameParticlesEnabled;
 	}
 
-	/**
-	 * Gets the base smoke color used for smoke particle generation.
-	 *
-	 * @return RGB smoke color in 0..1 space
-	 */
+	/** @return a defensive copy of the linear RGB smoke colour */
 	public Vector3f getSmokeColor() {
 		return new Vector3f(smokeColor);
 	}
 
-	/**
-	 * Sets the base smoke color used for smoke particle generation.
-	 *
-	 * @param smokeColor RGB smoke color in 0..1 space
-	 */
+	/** Copies the supplied linear RGB smoke colour. */
 	public void setSmokeColor(Vector3f smokeColor) {
 		if (smokeColor == null) {
 			throw new IllegalArgumentException("smokeColor must not be null");
@@ -397,20 +220,12 @@ public class VisualEffectsSettings {
 		this.smokeColor = new Vector3f(smokeColor);
 	}
 
-	/**
-	 * Gets the base flame color used for flame particle generation.
-	 *
-	 * @return RGB flame color in 0..1 space
-	 */
+	/** @return a defensive copy of the linear RGB flame colour */
 	public Vector3f getFlameColor() {
 		return new Vector3f(flameColor);
 	}
 
-	/**
-	 * Sets the base flame color used for flame particle generation.
-	 *
-	 * @param flameColor RGB flame color in 0..1 space
-	 */
+	/** Copies the supplied linear RGB flame colour. */
 	public void setFlameColor(Vector3f flameColor) {
 		if (flameColor == null) {
 			throw new IllegalArgumentException("flameColor must not be null");
@@ -498,9 +313,7 @@ public class VisualEffectsSettings {
 		this.sparkSpreadScale = Math.max(0.0f, sparkSpreadScale);
 	}
 
-	/**
-	 * Restores the visual-effects settings to their built-in defaults.
-	 */
+	/** Restores the built-in defaults. */
 	public void resetToDefaults() {
 		motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
 		motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;

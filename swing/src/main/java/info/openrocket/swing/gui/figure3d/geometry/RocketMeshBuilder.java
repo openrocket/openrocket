@@ -55,27 +55,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * Factory class responsible for building complete 3D mesh representations of rockets and their components.
- *
- * <p>This class provides the main entry point for converting OpenRocket's internal rocket data model
- * into renderable 3D geometry. It handles the complex process of traversing rocket component hierarchies,
- * generating appropriate meshes for each component type, positioning them correctly in 3D space, and
- * managing coordinate system transformations between OpenRocket's conventions and the rendering engine.</p>
- *
- * <p>Key responsibilities include:</p>
- * <ul>
- *   <li>Converting rocket component data to 3D meshes using appropriate generators</li>
- *   <li>Handling coordinate system transformations (OpenRocket LHS to Engine RHS)</li>
- *   <li>Managing component positioning, scaling, and rotation</li>
- *   <li>Creating motor meshes and particle effects for propulsion visualization</li>
- *   <li>Generating coordinate system axes for reference</li>
- *   <li>Supporting various rendering configurations and visual effects</li>
- * </ul>
- *
- * <p>The class uses a world scaling factor to bring rocket dimensions (typically in meters)
- * to appropriate rendering units, and handles the conversion between OpenRocket's left-handed
- * coordinate system (+X longitudinal, +Y into screen, +Z radially up) and the engine's
- * right-handed system (+X radially right, +Y longitudinal up, -Z into screen).</p>
+ * Converts rocket components and instances into immutable CPU-side scene snapshots,
+ * then realizes those snapshots as context-owned renderables and particle emitters.
  */
 public abstract class RocketMeshBuilder {
 	/** GPU resources prepared before an existing rocket scene is replaced. */

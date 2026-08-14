@@ -6,8 +6,8 @@ import info.openrocket.swing.gui.figure3d.materials.Texture;
  * A background sampled from a high dynamic range equirectangular image, tone
  * mapped for display.
  *
- * <p>The image is a 2:1 rectangle covering the whole sphere, longitude across and
- * latitude down; .HDR and .EXR are supported.</p>
+ * <p>The HDR image is a 2:1 rectangle covering the whole sphere, longitude across
+ * and latitude down.</p>
  */
 public class HDRIBackground implements Background {
 

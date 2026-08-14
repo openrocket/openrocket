@@ -173,7 +173,8 @@ display frame proceeds as follows:
 
 When interaction-effect reduction is active, shadows, ambient occlusion, motion blur, and outlines are
 skipped while the user is dragging, scrolling, or resizing. Image export reads the resolved scene before
-the HUD is drawn.
+the GPU HUD is drawn. Design-view captures then composite the same HUD through Java2D; Photo Studio
+captures intentionally contain only the scene.
 
 Render-pass implementations live under
 :file:`swing/src/main/java/info/openrocket/swing/gui/figure3d/rendering/passes/`. Important passes and

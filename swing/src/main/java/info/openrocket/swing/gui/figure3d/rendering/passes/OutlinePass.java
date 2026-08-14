@@ -68,8 +68,8 @@ import static org.lwjgl.opengl.GL30.glUniform4f;
  * <p>Runs in five steps, over a scene framebuffer and a separate mask framebuffer:
  * copy the scene texture to the output, render the selected objects as white
  * silhouettes into the mask, detect edges in the mask, colour those edges, and
- * blend the result over the scene. The whole pass is skipped when nothing is
- * selected.</p>
+ * blend the result over the scene. With no selection it performs only the scene
+ * copy, keeping the presentation path stable between frames.</p>
  */
 public class OutlinePass implements ScreenTexturePass {
 
