@@ -27,29 +27,51 @@ public class GLRenderableMesh implements Renderable {
 	private final int vertexBufferObjectId;
 	private final int elementBufferObjectId;
 	private final int indexCount;
+	private boolean cleaned;
 
 	/** @param mesh source mesh whose data is uploaded to GL buffers */
 	public GLRenderableMesh(Mesh mesh) {
-		FloatBuffer vertexBuffer = packVertexData(mesh.getVertices());
-		IntBuffer indexBuffer = packIndexData(mesh.getIndices());
 		this.indexCount = mesh.getIndices().size();
+		FloatBuffer vertexBuffer = null;
+		IntBuffer indexBuffer = null;
+		int vertexArrayId = 0;
+		int vertexBufferId = 0;
+		int elementBufferId = 0;
+		boolean uploaded = false;
+		try {
+			vertexBuffer = packVertexData(mesh.getVertices());
+			indexBuffer = packIndexData(mesh.getIndices());
 
-		vertexArrayObjectId = GL33.glGenVertexArrays();
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayObjectId, "mesh vao");
-		GL33.glBindVertexArray(vertexArrayObjectId);
+			vertexArrayId = GL33.glGenVertexArrays();
+			GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayId, "mesh vao");
+			GL33.glBindVertexArray(vertexArrayId);
 
-		vertexBufferObjectId = uploadVertexBuffer(vertexBuffer);
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, vertexBufferObjectId, "mesh vbo");
-		elementBufferObjectId = uploadElementBuffer(indexBuffer);
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, elementBufferObjectId, "mesh ebo");
-		configureVertexAttributes();
+			vertexBufferId = createBuffer("mesh vbo");
+			uploadVertexBuffer(vertexBufferId, vertexBuffer);
+			elementBufferId = createBuffer("mesh ebo");
+			uploadElementBuffer(elementBufferId, indexBuffer);
+			configureVertexAttributes();
 
-		GL33.glBindVertexArray(0);
+			GLErrors.check("mesh buffer upload");
+			uploaded = true;
+		} finally {
+			GL33.glBindVertexArray(0);
+			if (vertexBuffer != null) {
+				MemoryUtil.memFree(vertexBuffer);
+			}
+			if (indexBuffer != null) {
+				MemoryUtil.memFree(indexBuffer);
+			}
+			if (!uploaded) {
+				deleteBuffer(vertexBufferId);
+				deleteBuffer(elementBufferId);
+				deleteVertexArray(vertexArrayId);
+			}
+		}
 
-		MemoryUtil.memFree(vertexBuffer);
-		MemoryUtil.memFree(indexBuffer);
-
-		GLErrors.check("mesh buffer upload");
+		this.vertexArrayObjectId = vertexArrayId;
+		this.vertexBufferObjectId = vertexBufferId;
+		this.elementBufferObjectId = elementBufferId;
 	}
 
 	/**
@@ -77,18 +99,20 @@ public class GLRenderableMesh implements Renderable {
 		return indexBuffer;
 	}
 
-	private static int uploadVertexBuffer(FloatBuffer vertexBuffer) {
+	private static int createBuffer(String label) {
 		int bufferId = GL33.glGenBuffers();
-		GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, bufferId);
-		GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertexBuffer, GL33.GL_STATIC_DRAW);
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, bufferId, label);
 		return bufferId;
 	}
 
-	private static int uploadElementBuffer(IntBuffer indexBuffer) {
-		int bufferId = GL33.glGenBuffers();
+	private static void uploadVertexBuffer(int bufferId, FloatBuffer vertexBuffer) {
+		GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, bufferId);
+		GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertexBuffer, GL33.GL_STATIC_DRAW);
+	}
+
+	private static void uploadElementBuffer(int bufferId, IntBuffer indexBuffer) {
 		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, bufferId);
 		GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL33.GL_STATIC_DRAW);
-		return bufferId;
 	}
 
 	/**
@@ -126,11 +150,28 @@ public class GLRenderableMesh implements Renderable {
 
 	@Override
 	public void cleanup() {
-		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, vertexBufferObjectId);
-		GL33.glDeleteBuffers(vertexBufferObjectId);
-		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, elementBufferObjectId);
-		GL33.glDeleteBuffers(elementBufferObjectId);
-		GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayObjectId);
-		GL33.glDeleteVertexArrays(vertexArrayObjectId);
+		if (cleaned) {
+			return;
+		}
+		cleaned = true;
+		deleteBuffer(vertexBufferObjectId);
+		deleteBuffer(elementBufferObjectId);
+		deleteVertexArray(vertexArrayObjectId);
+	}
+
+	private static void deleteBuffer(int bufferId) {
+		if (bufferId == 0) {
+			return;
+		}
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, bufferId);
+		GL33.glDeleteBuffers(bufferId);
+	}
+
+	private static void deleteVertexArray(int vertexArrayId) {
+		if (vertexArrayId == 0) {
+			return;
+		}
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vertexArrayId);
+		GL33.glDeleteVertexArrays(vertexArrayId);
 	}
 }
