@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -33,6 +35,7 @@ public final class SharedCanvasRenderScheduler {
 	}
 
 	private final ArrayList<Client> active = new ArrayList<>();
+	private final Set<Client> immediatePending = ConcurrentHashMap.newKeySet();
 	private final ScheduledExecutorService executor;
 
 	private SharedCanvasRenderScheduler() {
@@ -60,11 +63,19 @@ public final class SharedCanvasRenderScheduler {
 		synchronized (active) {
 			active.remove(client);
 		}
+		immediatePending.remove(client);
 	}
 
 	public void requestImmediate(Client client) {
+		if (!immediatePending.add(client)) {
+			return;
+		}
 		executor.execute(() -> {
+			immediatePending.remove(client);
 			if (!client.isRenderActive()) {
+				return;
+			}
+			if (!client.shouldRenderOnTick()) {
 				return;
 			}
 			try {

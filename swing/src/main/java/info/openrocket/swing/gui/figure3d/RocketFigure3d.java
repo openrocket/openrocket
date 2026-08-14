@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -102,7 +103,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	private volatile CoordinateIF latestCP = null;
 	// Demand-driven rendering: the background thread only calls renderFrame() when this is true.
 	// Starts true so the first frame renders immediately without an explicit trigger.
-	private volatile boolean dirty = true;
+	private final AtomicBoolean dirty = new AtomicBoolean(true);
 	private final AtomicReference<GLScenePanel> pendingContextResetRebuild = new AtomicReference<>();
 	// Camera pose captured from a canvas that is about to be rebuilt, so the new
 	// canvas resumes at the same view instead of resetting to the default pose.
@@ -410,7 +411,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	/** Marks this view as needing a render on the next scheduler tick. */
 	void markDirty() {
-		dirty = true;
+		dirty.set(true);
 	}
 
 	@Override
@@ -420,12 +421,8 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	@Override
 	public boolean shouldRenderOnTick() {
-		if (!dirty) {
-			return false;
-		}
-		// Clear before rendering so marks set during renderFrame() survive.
-		dirty = false;
-		return true;
+		// Atomically clear before rendering so activity arriving concurrently survives.
+		return dirty.getAndSet(false);
 	}
 
 	@Override
