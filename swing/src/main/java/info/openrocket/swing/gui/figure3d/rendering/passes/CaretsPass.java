@@ -88,10 +88,10 @@ public class CaretsPass implements RenderPass {
 
 	/**
 	 * Creates a new carets pass for the given scene and configuration.
-	 * 
+	 *
 	 * Initializes the aerodynamic calculator, creates caret geometry, and sets up
 	 * automatic position updates when the rocket configuration changes.
-	 * 
+	 *
 	 * @param rocket The rocket to analyze
 	 * @param config Rendering configuration for quality settings
 	 */

@@ -11,4 +11,3 @@ public interface SceneInputProcessor {
 	void updateDimensions(ViewportDimensions viewport);
 	InputState getInputState();
 }
-

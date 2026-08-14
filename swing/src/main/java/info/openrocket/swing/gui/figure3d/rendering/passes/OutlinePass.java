@@ -95,11 +95,11 @@ public class OutlinePass implements ScreenTexturePass {
 
 	/**
 	 * Creates a new outline rendering pass with dual framebuffer system.
-	 * 
+	 *
 	 * Initializes the complete outline rendering pipeline including scene composition,
 	 * mask generation, and edge detection shaders. Sets up framebuffer resources for
 	 * the specified resolution.
-	 * 
+	 *
 	 * @param mainShader The main geometry shader for mask rendering
 	 * @param mainShaderUniforms Cached uniform locations for performance
 	 * @param textureStateManager Manager for optimized texture state changes
@@ -229,7 +229,7 @@ public class OutlinePass implements ScreenTexturePass {
 
 	/**
 	 * Renders a texture to the current framebuffer using full-screen quad.
-	 * 
+	 *
 	 * @param textureId The OpenGL texture ID to render
 	 */
 	private void drawScreenTexture(int textureId) {
@@ -239,10 +239,10 @@ public class OutlinePass implements ScreenTexturePass {
 
 	/**
 	 * Applies edge detection and outline rendering using the selection mask.
-	 * 
+	 *
 	 * Processes the selection mask texture to detect edges and renders colored
 	 * outlines with proper alpha blending over the scene.
-	 * 
+	 *
 	 * @param width Screen width for edge detection calculations
 	 * @param height Screen height for edge detection calculations
 	 * @param maskTexture The selection mask texture containing object silhouettes

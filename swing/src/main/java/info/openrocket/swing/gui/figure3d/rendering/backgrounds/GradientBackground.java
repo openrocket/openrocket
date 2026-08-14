@@ -11,11 +11,11 @@ public class GradientBackground implements Background {
 
 	/**
 	 * Creates a new gradient background with specified top and bottom colors.
-	 * 
+	 *
 	 * Colors are automatically converted from sRGB to linear color space for
 	 * accurate color interpolation during rendering. This ensures proper
 	 * gamma correction and realistic color blending.
-	 * 
+	 *
 	 * @param srgbTopColor The top color in sRGB color space (typically sky color)
 	 * @param srgbBottomColor The bottom color in sRGB color space (typically ground color)
 	 */
@@ -26,7 +26,7 @@ public class GradientBackground implements Background {
 
 	/**
 	 * Gets the top color of the gradient in linear color space.
-	 * 
+	 *
 	 * @return The top color as a linear RGB vector
 	 */
 	public Vector3f getTopColor() {
@@ -35,7 +35,7 @@ public class GradientBackground implements Background {
 
 	/**
 	 * Gets the bottom color of the gradient in linear color space.
-	 * 
+	 *
 	 * @return The bottom color as a linear RGB vector
 	 */
 	public Vector3f getBottomColor() {

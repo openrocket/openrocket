@@ -56,7 +56,7 @@ public class LightManager implements LightController {
 
 	/**
 	 * Gets the list of all active lights in the scene.
-	 * 
+	 *
 	 * @return an unmodifiable view of all lights managed by this controller
 	 */
 	@Override
@@ -66,7 +66,7 @@ public class LightManager implements LightController {
 
 	/**
 	 * Gets a specific light by its index in the light list.
-	 * 
+	 *
 	 * @param index the zero-based index of the light to retrieve
 	 * @return the light at the specified index
 	 * @throws IndexOutOfBoundsException if the index is out of range
@@ -82,7 +82,7 @@ public class LightManager implements LightController {
 	/**
 	 * Replaces an existing light at the specified index with a new light.
 	 * Automatically handles removal of old light visuals and creation of new ones.
-	 * 
+	 *
 	 * @param light the new light to set at the specified index
 	 * @param index the zero-based index where the light should be placed
 	 * @throws IndexOutOfBoundsException if the index is out of range
@@ -109,7 +109,7 @@ public class LightManager implements LightController {
 	/**
 	 * Removes a light from the manager and its visual representation from the scene.
 	 * Both the logical light and any associated visual objects will be removed.
-	 * 
+	 *
 	 * @param light the light to remove from the scene
 	 */
 	@Override
@@ -169,13 +169,13 @@ public class LightManager implements LightController {
 	 * This method handles cleanup of light visualizers and prepares the manager
 	 * for disposal. Light objects themselves are lightweight and don't require
 	 * explicit cleanup, but their visual representations are managed by the scene.
-	 * 
+	 *
 	 * <p>Note: Visual objects (SceneObjects) are cleaned up by the main scene
 	 * cleanup process. This method is provided for consistency and future extensions.</p>
 	 */
 	@Override
 	public void cleanup() {
-		// Light objects themselves don't have resources to clean up.  
+		// Light objects themselves don't have resources to clean up.
 		// The visualizer SceneObjects will be cleaned up by the Scene's main cleanup method.
 	}
 

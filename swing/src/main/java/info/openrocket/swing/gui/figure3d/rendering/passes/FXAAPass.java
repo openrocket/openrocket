@@ -31,10 +31,10 @@ public class FXAAPass implements ScreenTexturePass {
 
 	/**
 	 * Creates a new FXAA post-processing pass.
-	 * 
+	 *
 	 * Initializes the FXAA shaders and creates framebuffer resources for the
 	 * specified resolution. The pass is ready to process input textures immediately.
-	 * 
+	 *
 	 * @param fullscreenQuad shared full-screen geometry
 	 * @param initialWidth Initial framebuffer width in pixels
 	 * @param initialHeight Initial framebuffer height in pixels

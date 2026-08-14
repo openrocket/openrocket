@@ -56,12 +56,12 @@ import java.util.function.Consumer;
 
 /**
  * Factory class responsible for building complete 3D mesh representations of rockets and their components.
- * 
+ *
  * <p>This class provides the main entry point for converting OpenRocket's internal rocket data model
  * into renderable 3D geometry. It handles the complex process of traversing rocket component hierarchies,
  * generating appropriate meshes for each component type, positioning them correctly in 3D space, and
  * managing coordinate system transformations between OpenRocket's conventions and the rendering engine.</p>
- * 
+ *
  * <p>Key responsibilities include:</p>
  * <ul>
  *   <li>Converting rocket component data to 3D meshes using appropriate generators</li>
@@ -71,10 +71,10 @@ import java.util.function.Consumer;
  *   <li>Generating coordinate system axes for reference</li>
  *   <li>Supporting various rendering configurations and visual effects</li>
  * </ul>
- * 
- * <p>The class uses a world scaling factor to bring rocket dimensions (typically in meters) 
- * to appropriate rendering units, and handles the conversion between OpenRocket's left-handed 
- * coordinate system (+X longitudinal, +Y into screen, +Z radially up) and the engine's 
+ *
+ * <p>The class uses a world scaling factor to bring rocket dimensions (typically in meters)
+ * to appropriate rendering units, and handles the conversion between OpenRocket's left-handed
+ * coordinate system (+X longitudinal, +Y into screen, +Z radially up) and the engine's
  * right-handed system (+X radially right, +Y longitudinal up, -Z into screen).</p>
  */
 public abstract class RocketMeshBuilder {
@@ -353,7 +353,7 @@ public abstract class RocketMeshBuilder {
 		if (!settings.areParticleEffectsEnabled()) {
 			return;
 		}
-		
+
 		Vector3f motorCenter = new Vector3f(positionInEngineCS).add((float) motor.getLength(), 0f, 0f);
 		Vector3f exhaustDirection = new Vector3f(1, 0, 0);
 		rotationMatrix.transformDirection(exhaustDirection);
@@ -519,7 +519,7 @@ public abstract class RocketMeshBuilder {
 		zAxisObject.setOriginAxis(true);
 		objectConsumer.accept(zAxisObject);
 	}
-	
+
 	/**
 	 * Rebuilds all particle emitters in the scene based on current scene properties.
 	 * This should be called when particle settings change.
@@ -540,19 +540,19 @@ public abstract class RocketMeshBuilder {
 					entry.getValue(), config, RenderingConstants.WORLD_SCALE, lowestMotorInstances);
 		}
 	}
-	
+
 	private static <T extends RocketComponent & MotorMount> void rebuildMotorParticles(
 			Scene scene, FlightConfigurationId fcid, T mount, List<InstanceContext> instanceContexts,
 			RenderingConfiguration config, float worldScale, InstanceMap lowestMotorInstances) {
 		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
 		if (motorCfg == null) return;
-		
+
 		Motor motor = motorCfg.getMotor();
 		if (motor == null) return;
 		if (instanceContexts == null || instanceContexts.isEmpty()) {
 			return;
 		}
-		
+
 		for (InstanceContext context : instanceContexts) {
 			CoordinateIF instanceLocation = context.getLocation();
 			CoordinateIF instanceAngle = new Coordinate(
@@ -564,13 +564,13 @@ public abstract class RocketMeshBuilder {
 			double motorFrontRelToMountFront = mount.getLength() + mount.getMotorOverhang() - motor.getLength();
 			double motorCenterRelToMountFront = motorFrontRelToMountFront + motor.getLength() / 2.0;
 			CoordinateIF motorCenterAbsolute = instanceLocation.add(motorCenterRelToMountFront, 0, 0);
-			
+
 			Vector3f positionInEngineCS = new Vector3f(
 					(float) motorCenterAbsolute.getX(),
 					(float) motorCenterAbsolute.getY(),
 					(float) motorCenterAbsolute.getZ() * -1.0f
 			).mul(worldScale);
-			
+
 			Matrix4f rotationMatrix = new Matrix4f()
 					.rotateX(-(float) instanceAngle.getX())
 					.rotateY(-(float) instanceAngle.getY())
@@ -595,7 +595,7 @@ public abstract class RocketMeshBuilder {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Rebuilds origin axes based on current scene properties.
 	 * This should be called when axis visibility changes.
@@ -606,7 +606,7 @@ public abstract class RocketMeshBuilder {
 			scene.removeObject(axis);
 			axis.cleanup();
 		}
-		
+
 		// Recreate axes if they should be visible
 		createOriginAxes(scene, config, useORCoordinateSystem, onTop);
 	}

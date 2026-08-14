@@ -15,11 +15,11 @@ public class HDRIBackground implements Background {
 
 	/**
 	 * Creates a new HDRI background from an equirectangular HDR texture.
-	 * 
+	 *
 	 * The texture should contain HDR data in equirectangular projection format
 	 * with a 2:1 aspect ratio. The texture data will be used for both background
 	 * rendering and environment lighting calculations.
-	 * 
+	 *
 	 * @param hdriTexture The HDR texture in equirectangular format containing environment data
 	 */
 	public HDRIBackground(Texture hdriTexture) {
@@ -28,7 +28,7 @@ public class HDRIBackground implements Background {
 
 	/**
 	 * Gets the HDR texture used for environment mapping.
-	 * 
+	 *
 	 * @return The equirectangular HDR texture containing environment data
 	 */
 	public Texture getHdriTexture() {

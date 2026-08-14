@@ -51,12 +51,12 @@ public abstract class ParticleEmitter {
 	 */
 	public void update(float deltaTime) {
 		currentTime += deltaTime;
-		
+
 		if (isStaticMode) {
 			// In static mode, don't update particles or create new ones
 			return;
 		}
-		
+
 		updateParticleList(deltaTime);
 
 		// Create new particles
@@ -100,7 +100,7 @@ public abstract class ParticleEmitter {
 	protected float getNoiseTime() {
 		return currentTime;
 	}
-	
+
 	/**
 	 * Captures a static snapshot of particles at a specific time for performance.
 	 * @param captureTime simulation time to capture particles at
@@ -110,22 +110,22 @@ public abstract class ParticleEmitter {
 		simulateToTime(captureTime);
 		this.isStaticMode = true;
 	}
-	
+
 	public void setStaticMode(boolean staticMode) {
 		this.isStaticMode = staticMode;
 		if (!staticMode) {
 			staticParticles.clear();
 		}
 	}
-	
+
 	public boolean isStaticMode() {
 		return isStaticMode;
 	}
-	
+
 	public float getStaticCaptureTime() {
 		return staticCaptureTime;
 	}
-	
+
 	/**
 	 * Fast-forwards simulation to capture particles at a target time.
 	 * @param targetTime the simulation time to advance to
@@ -137,21 +137,21 @@ public abstract class ParticleEmitter {
 		timeSinceLastCreation = 0;
 		currentTime = 0;
 		random = new Random(baseSeed);
-		
+
 		// Simulate up to target time with small time steps
 		float timeStep = 0.016f; // ~60 FPS time step
-		
+
 		while (currentTime < targetTime) {
 			float deltaTime = Math.min(timeStep, targetTime - currentTime);
-			
+
 			updateParticleList(deltaTime);
 
 			// Create new particles
 			emitPendingParticles(deltaTime);
-			
+
 			currentTime += deltaTime;
 		}
-		
+
 		// Copy current particles to static particles
 		for (Particle p : particles) {
 			staticParticles.add(p.clone());

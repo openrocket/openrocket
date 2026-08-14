@@ -16,12 +16,12 @@ void main()
 {
     // Simple pass-through - no billboard effect, just render as regular quads
     gl_Position = projection * view * vec4(aPos, 1.0);
-    
+
     texCoord = aTexCoord;
     smokeColor = aColorAlpha.rgb;
     smokeAlpha = aColorAlpha.a;
     worldPos = aPos;
-    
+
     // Calculate view direction for lighting. The view rotation is orthonormal,
     // so its inverse is its transpose; spell that multiplication out because
     // GLSL 1.40 does not provide the matrix inverse built-in.

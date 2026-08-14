@@ -12,7 +12,7 @@ public class RenderingConfiguration {
 	private final VisualEffectsSettings visualEffects;
 	private final GraphicsQualitySettings quality;
 	private final DisplaySettings display;
-	
+
 	private final List<Consumer<RenderingConfiguration>> listeners = new ArrayList<>();
 
 	/**
@@ -26,7 +26,7 @@ public class RenderingConfiguration {
 
 	/**
 	 * Gets the visual effects settings (particles, motion blur, display elements).
-	 * 
+	 *
 	 * @return The visual effects configuration
 	 */
 	public VisualEffectsSettings getVisualEffects() {
@@ -35,7 +35,7 @@ public class RenderingConfiguration {
 
 	/**
 	 * Gets the graphics quality settings (render quality, anti-aliasing, surface effects).
-	 * 
+	 *
 	 * @return The graphics quality configuration
 	 */
 	public GraphicsQualitySettings getQuality() {
@@ -44,7 +44,7 @@ public class RenderingConfiguration {
 
 	/**
 	 * Gets the display settings (render modes, wireframe, transparency).
-	 * 
+	 *
 	 * @return The display configuration
 	 */
 	public DisplaySettings getDisplay() {
@@ -55,7 +55,7 @@ public class RenderingConfiguration {
 
 	/**
 	 * Adds a listener that will be notified when any configuration changes.
-	 * 
+	 *
 	 * @param listener The listener to add
 	 */
 	public void addListener(Consumer<RenderingConfiguration> listener) {
@@ -64,7 +64,7 @@ public class RenderingConfiguration {
 
 	/**
 	 * Removes a previously added listener.
-	 * 
+	 *
 	 * @param listener The listener to remove
 	 */
 	public void removeListener(Consumer<RenderingConfiguration> listener) {

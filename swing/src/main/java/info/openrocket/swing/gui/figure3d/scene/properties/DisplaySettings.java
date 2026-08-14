@@ -21,7 +21,7 @@ public class DisplaySettings {
 
 	/**
 	 * Gets the current rendering mode.
-	 * 
+	 *
 	 * @return the active RenderMode determining how geometry is displayed
 	 */
 	public RenderMode getMode() {
@@ -31,7 +31,7 @@ public class DisplaySettings {
 	/**
 	 * Sets the rendering mode for the 3D visualization.
 	 * This change affects how all geometry in the scene is rendered.
-	 * 
+	 *
 	 * @param mode the RenderMode to activate
 	 */
 	public void setMode(RenderMode mode) {

@@ -6,7 +6,7 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
 import org.joml.Vector3f;
 
 public class FlameSettings extends ParticleSettings {
-	
+
 	public final float noiseScale;
 	public final float noiseSpeed;
 	public final float flickerIntensity;

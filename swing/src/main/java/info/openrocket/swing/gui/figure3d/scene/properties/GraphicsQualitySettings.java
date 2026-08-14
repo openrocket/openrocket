@@ -39,10 +39,10 @@ public class GraphicsQualitySettings {
 	private volatile boolean reduceEffectsDuringInteraction = DEFAULT_REDUCE_EFFECTS_DURING_INTERACTION;
 
 	// Render Quality
-	
+
 	/**
 	 * Gets the current overall rendering quality level.
-	 * 
+	 *
 	 * @return the active RenderQuality setting
 	 */
 	public RenderQuality getQuality() {
@@ -52,7 +52,7 @@ public class GraphicsQualitySettings {
 	/**
 	 * Sets the overall rendering quality level.
 	 * This affects mesh tessellation, particle density, and effect complexity.
-	 * 
+	 *
 	 * @param quality the RenderQuality level to apply
 	 */
 	public void setQuality(RenderQuality quality) {
@@ -60,10 +60,10 @@ public class GraphicsQualitySettings {
 	}
 
 	// Transparency and Culling
-	
+
 	/**
 	 * Gets the opacity level used for X-ray transparency rendering.
-	 * 
+	 *
 	 * @return opacity value between 0.0 (fully transparent) and 1.0 (fully opaque)
 	 */
 	public float getXrayOpacity() {
@@ -72,7 +72,7 @@ public class GraphicsQualitySettings {
 
 	/**
 	 * Sets the opacity level for X-ray transparency rendering.
-	 * 
+	 *
 	 * @param xrayOpacity opacity value between 0.0 (fully transparent) and 1.0 (fully opaque)
 	 */
 	public void setXrayOpacity(float xrayOpacity) {
@@ -82,7 +82,7 @@ public class GraphicsQualitySettings {
 	/**
 	 * Checks if backface culling optimization is enabled.
 	 * When enabled, surfaces facing away from the camera are not rendered, improving performance.
-	 * 
+	 *
 	 * @return true if backface culling is active
 	 */
 	public boolean isBackfaceCullingEnabled() {
@@ -92,7 +92,7 @@ public class GraphicsQualitySettings {
 	/**
 	 * Enables or disables backface culling optimization.
 	 * Disabling culling is useful for wireframe modes or transparent materials.
-	 * 
+	 *
 	 * @param useBackfaceCulling true to enable culling optimization, false to render all faces
 	 */
 	public void setBackfaceCullingEnabled(boolean useBackfaceCulling) {
@@ -100,11 +100,11 @@ public class GraphicsQualitySettings {
 	}
 
 	// Surface Effects
-	
+
 	/**
 	 * Checks if surface roughness bump mapping effects are enabled.
 	 * This adds surface detail through normal map perturbation for more realistic materials.
-	 * 
+	 *
 	 * @return true if roughness bump mapping is active
 	 */
 	public boolean isRoughnessBumpEnabled() {
@@ -114,7 +114,7 @@ public class GraphicsQualitySettings {
 	/**
 	 * Enables or disables surface roughness bump mapping effects.
 	 * When enabled, adds surface detail and realistic material appearance.
-	 * 
+	 *
 	 * @param enableRoughnessBump true to enable advanced surface effects, false for basic materials
 	 */
 	public void setRoughnessBumpEnabled(boolean enableRoughnessBump) {
@@ -122,11 +122,11 @@ public class GraphicsQualitySettings {
 	}
 
 	// Anti-Aliasing
-	
+
 	/**
 	 * Checks if Fast Approximate Anti-Aliasing (FXAA) is enabled.
 	 * FXAA smooths jagged edges in the rendered image for better visual quality.
-	 * 
+	 *
 	 * @return true if FXAA post-processing is active
 	 */
 	public boolean isFXAAEnabled() {
@@ -136,7 +136,7 @@ public class GraphicsQualitySettings {
 	/**
 	 * Enables or disables Fast Approximate Anti-Aliasing (FXAA).
 	 * FXAA is a post-processing technique that smooths jagged edges with minimal performance impact.
-	 * 
+	 *
 	 * @param enableFXAA true to enable anti-aliasing, false to disable edge smoothing
 	 */
 	public void setFXAAEnabled(boolean enableFXAA) {

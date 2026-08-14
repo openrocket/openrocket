@@ -418,10 +418,10 @@ public class RealisticRenderer implements GLRenderer {
 
 	/**
 	 * Resizes the renderer's viewport and all associated framebuffers.
-	 * 
+	 *
 	 * This method should be called when the window is resized to ensure
 	 * all rendering targets match the new dimensions.
-	 * 
+	 *
 	 * @param width New viewport width in pixels
 	 * @param height New viewport height in pixels
 	 */
@@ -482,20 +482,20 @@ public class RealisticRenderer implements GLRenderer {
 
 		textureStateManager.reset();
 	}
-	
+
 	private void onScenePropertiesChanged(RenderingConfiguration config) {
 		// Update motion blur settings
 		motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
 		renderTarget.setSamples(getRequestedSceneSampleCount());
 		resolvedTextureId = renderTarget.getColorTextureId();
-		
+
 		// Update post-processing chain based on current settings
 		updatePostProcessingChain();
 
 		shadowPass.setQuality(config.getQuality().getQuality());
 		shadowPass.setEnabled(config.getQuality().isShadowsEnabled());
 	}
-	
+
 	private void updatePostProcessingChain() {
 		postProcessingPasses.clear();
 		postProcessingPasses.add(outlinePass);

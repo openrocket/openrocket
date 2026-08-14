@@ -11,4 +11,3 @@ import java.util.List;
 public interface SelectionListener {
 	void onSelectionChanged(List<SceneObject> selectedObjects);
 }
-

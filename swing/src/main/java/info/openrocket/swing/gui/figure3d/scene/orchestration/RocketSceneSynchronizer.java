@@ -211,10 +211,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * Updates the visual appearance of all scene objects associated with a rocket component.
 	 * This method handles lightweight visual updates such as color changes, texture modifications,
 	 * or material property adjustments without requiring full geometry reconstruction.
-	 * 
+	 *
 	 * <p>The method ensures proper resource management by cleaning up old appearance resources
 	 * before applying new ones, preventing GPU memory leaks during visual updates.</p>
-	 * 
+	 *
 	 * @param update component identity and immutable appearance state captured with the model event
 	 */
 	private void updateComponentAppearance(PendingAppearanceUpdate update) {
@@ -256,7 +256,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * Performs a complete rebuild of all rocket-related objects in the scene.
 	 * This method is used for structural changes that cannot be handled with simple
 	 * appearance updates, such as component additions, removals, or geometry modifications.
-	 * 
+	 *
 	 * <p>The rebuild process:</p>
 	 * <ol>
 	 *   <li>Prepares all replacement GPU resources</li>

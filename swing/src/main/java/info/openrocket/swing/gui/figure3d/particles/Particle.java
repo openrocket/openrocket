@@ -40,7 +40,7 @@ public class Particle implements Cloneable {
 		this.orientation = new Quaternionf();
 		this.angularVelocity = new Vector3f();
 	}
-	
+
 	/**
 	 * Creates a particle with full properties including 3D rotation.
 	 * @param position initial position in 3D space
@@ -61,7 +61,7 @@ public class Particle implements Cloneable {
 		this.orientation = new Quaternionf(orientation);
 		this.angularVelocity = new Vector3f(angularVelocity);
 	}
-	
+
 	/**
 	 * Creates a deep copy of this particle.
 	 * @return a new Particle with identical properties
@@ -69,7 +69,7 @@ public class Particle implements Cloneable {
 	public Particle clone() {
 		Particle cloned = new Particle(
 			new Vector3f(this.position),
-			new Vector3f(this.velocity), 
+			new Vector3f(this.velocity),
 			new Vector3f(this.color),
 			this.size,
 			this.life,
@@ -91,7 +91,7 @@ public class Particle implements Cloneable {
 		if (life > 0) {
 			velocity.add(scratchVector.set(gravity).mul(deltaTime));
 			position.add(scratchVector.set(velocity).mul(deltaTime));
-			
+
 			// Update 3D rotation using angular velocity
 			float angularSpeedSquared = angularVelocity.lengthSquared();
 			if (angularSpeedSquared > 0) {
@@ -100,7 +100,7 @@ public class Particle implements Cloneable {
 				scratchAxis.set(angularVelocity).mul(1.0f / angularSpeed);
 				orientation.mul(scratchRotation.identity().rotateAxis(angle, scratchAxis));
 			}
-			
+
 			return true;
 		} else {
 			return false;
@@ -115,7 +115,7 @@ public class Particle implements Cloneable {
 	public boolean update(float deltaTime) {
 		return update(deltaTime, GRAVITY);
 	}
-	
+
 	// Getter methods
 	public Vector3f getPosition() { return position; }
 	public Vector3f getColor() { return color; }

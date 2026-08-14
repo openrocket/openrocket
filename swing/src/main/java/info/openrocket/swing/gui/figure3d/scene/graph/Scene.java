@@ -66,7 +66,7 @@ public class Scene implements SceneView {
 
 	/**
 	 * Gets the rocket model that this scene visualizes.
-	 * 
+	 *
 	 * @return the OpenRocket Rocket instance associated with this scene
 	 */
 	public Rocket getRocket() {
@@ -96,7 +96,7 @@ public class Scene implements SceneView {
 	/**
 	 * Adds multiple scene objects to the 3D environment in a single operation.
 	 * All objects will be rendered and made available for interaction.
-	 * 
+	 *
 	 * @param objects the list of SceneObjects to add to the scene
 	 * @throws IllegalArgumentException if the objects list is null or empty
 	 */

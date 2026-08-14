@@ -6,4 +6,3 @@ package info.openrocket.swing.gui.figure3d.rendering;
 public interface Renderable extends GpuResource {
 	void render();
 }
-

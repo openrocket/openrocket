@@ -28,10 +28,10 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 	private final CameraControls cameraController;
 	private final RenderingConfiguration renderingConfiguration;
 	private final InputState.DragDelta dragDelta = new InputState.DragDelta();
-	
+
 	// Viewport dimensions for coordinate conversion
 	private ViewportDimensions viewport;
-	
+
 	/**
 	 * @param inputState the input state tracker for mouse and keyboard events
 	 * @param raycaster the raycaster for 3D object intersection and selection
@@ -47,18 +47,18 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 		this.cameraController = cameraController;
 		this.renderingConfiguration = renderingConfiguration;
 	}
-	
+
 	@Override
 	public InputState getInputState() {
 		return inputState;
 	}
-	
+
 	/** Updates logical-to-framebuffer coordinate conversion for raycasting. */
 	@Override
 	public void updateDimensions(ViewportDimensions viewport) {
 		this.viewport = viewport;
 	}
-	
+
 	/** Consumes all input accumulated since the previous frame. */
 	@Override
 	public void processInput() {
@@ -67,7 +67,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 		processClickInput();
 		processDoubleClickInput();
 	}
-	
+
 	/**
 	 * Process scroll input for camera zooming.
 	 * Handles mouse wheel events to control camera dolly (zoom in/out).
@@ -82,7 +82,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 			cameraController.handleScroll(scrollDelta, mouseX, mouseY, viewportWidth, viewportHeight);
 		}
 	}
-	
+
 	/**
 	 * Process mouse drag input for camera movement and light manipulation.
 	 * Handles different drag modes: orbit (default), pan (with modifier), and light dragging.
@@ -117,7 +117,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 			}
 		}
 	}
-	
+
 	/**
 	 * Process click input for object selection using raycasting.
 	 * Performs 3D object intersection testing to enable selection of rocket components
@@ -131,7 +131,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 			scene.updateSelection(raycaster, inputState.isShiftPressed);
 		}
 	}
-	
+
 	/**
 	 * Process double-click input for object actions and component identification.
 	 * Uses raycasting to identify clicked objects and performs component-specific actions.
@@ -140,10 +140,10 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 		Point doubleClick = inputState.doubleClickPoint.getAndSet(null);
 		if (doubleClick != null) {
 			float[] pixelCoords = convertToFramebufferCoordinates(doubleClick.x, doubleClick.y);
-			
+
 			raycaster.update(pixelCoords[0], pixelCoords[1], viewport.getFramebufferWidth(), viewport.getFramebufferHeight(), cameraController.getCamera());
 			SceneObject intersectedObject = raycaster.getIntersectedObject(scene.getObjects());
-			
+
 			if (intersectedObject != null) {
 				RocketComponent component = intersectedObject.getRocketComponent();
 				if (component != null) {
@@ -154,11 +154,11 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 			}
 		}
 	}
-	
+
 	/**
 	 * Convert window coordinates to framebuffer coordinates for DPI-awareness.
 	 * This conversion is necessary for accurate raycasting on high-DPI displays.
-	 * 
+	 *
 	 * @param windowX the X coordinate in window space
 	 * @param windowY the Y coordinate in window space
 	 * @return array containing framebuffer X and Y coordinates
@@ -169,12 +169,12 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 			viewport.windowToFramebufferY(windowY)
 		};
 	}
-	
+
 	/**
 	 * Updates the main light's radial angle based on mouse movement during alt-drag.
 	 * Provides interactive control over directional lighting by rotating the light
 	 * direction around multiple axes based on mouse movement.
-	 * 
+	 *
 	 * @param dx horizontal mouse delta for Y-axis rotation
 	 * @param dy vertical mouse delta for perpendicular axis rotation
 	 */

@@ -46,7 +46,7 @@ public class SceneObject {
 	 * Constructs a new SceneObject associated with an OpenRocket component.
 	 * This constructor creates the full object representation including both
 	 * raw geometry and GPU-optimized rendering data.
-	 * 
+	 *
 	 * @param component the associated component for selection and rocket-wide behavior (may be null)
 	 * @param mesh the raw geometric mesh data
 	 * @param position the initial 3D position of the object
@@ -99,7 +99,7 @@ public class SceneObject {
 	 * Constructs a new SceneObject without an associated OpenRocket component.
 	 * This constructor is used for objects that are not directly part of the rocket
 	 * model, such as light visualizers, environment objects, or UI elements.
-	 * 
+	 *
 	 * @param mesh the raw geometric mesh data
 	 * @param position the initial 3D position of the object
 	 * @param appearance the visual appearance including materials and textures
@@ -110,7 +110,7 @@ public class SceneObject {
 
 	/**
 	 * Gets the unique identifier for this scene object.
-	 * 
+	 *
 	 * @return the UUID assigned to this object
 	 */
 	public UUID getId() {
@@ -119,7 +119,7 @@ public class SceneObject {
 
 	/**
 	 * Gets the component used to group this object for selection and rocket-wide behavior.
-	 * 
+	 *
 	 * @return the associated component, or null if this is not rocket-derived geometry
 	 */
 	public RocketComponent getRocketComponent() {
@@ -137,7 +137,7 @@ public class SceneObject {
 
 	/**
 	 * Checks if this object is currently selected by the user.
-	 * 
+	 *
 	 * @return true if the object is selected, false otherwise
 	 */
 	public boolean isSelected() {
@@ -147,7 +147,7 @@ public class SceneObject {
 	/**
 	 * Sets the selection state of this object.
 	 * Selected objects typically have different visual appearance (highlighting, outlines, etc.)
-	 * 
+	 *
 	 * @param selected true to select the object, false to deselect it
 	 */
 	public void setSelected(boolean selected) {
@@ -156,7 +156,7 @@ public class SceneObject {
 
 	/**
 	 * Checks if this object can be selected by user interaction.
-	 * 
+	 *
 	 * @return true if the object can be selected, false if it's non-interactive
 	 */
 	public boolean isSelectable() {
@@ -193,7 +193,7 @@ public class SceneObject {
 
 	/**
 	 * Checks if this object can be dragged by user interaction.
-	 * 
+	 *
 	 * @return true if the object has drag behavior configured, false otherwise
 	 */
 	public boolean isDraggable() {
@@ -282,9 +282,9 @@ public class SceneObject {
 	}
 
 	/**
- 	 * Applies the pose at time t by composing dynamic transform * base static transform.
- 	 * Lazily snapshots the current model matrix as the "base" the first time it runs.
- 	 */
+	 * Applies the pose at time t by composing dynamic transform * base static transform.
+	 * Lazily snapshots the current model matrix as the "base" the first time it runs.
+	 */
 	public void applyPoseAtTime(double t) {
 		if (poseProvider == null) return;
 		if (baseModelSnapshot == null) {
@@ -295,7 +295,7 @@ public class SceneObject {
 		dynamicTransform.identity().translate(p).rotate(q);
 		this.modelMatrix.set(dynamicTransform).mul(baseModelSnapshot);
 	}
-	
+
 	/**
 	 * Cleans up all resources associated with this scene object.
 	 * This method releases GPU memory used by meshes and textures,

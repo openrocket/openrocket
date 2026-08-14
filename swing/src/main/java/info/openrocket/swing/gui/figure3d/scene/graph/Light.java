@@ -44,7 +44,7 @@ public class Light {
 
 	/**
 	 * Gets the type of this light source.
-	 * 
+	 *
 	 * @return the light type (DIRECTIONAL or POINT)
 	 */
 	public LightType getType() {
@@ -54,7 +54,7 @@ public class Light {
 	/**
 	 * Gets the position of this light in world coordinates.
 	 * This property is only meaningful for point lights.
-	 * 
+	 *
 	 * @return the 3D position vector of the light
 	 */
 	public Vector3f getPosition() {
@@ -64,7 +64,7 @@ public class Light {
 	/**
 	 * Sets the position of this light in world coordinates.
 	 * This method is only meaningful for point lights.
-	 * 
+	 *
 	 * @param x the X coordinate of the light position
 	 * @param y the Y coordinate of the light position
 	 * @param z the Z coordinate of the light position
@@ -76,7 +76,7 @@ public class Light {
 	/**
 	 * Gets the direction vector of this light.
 	 * This property is only meaningful for directional lights.
-	 * 
+	 *
 	 * @return the normalized direction vector indicating light direction
 	 */
 	public Vector3f getDirection() {
@@ -86,7 +86,7 @@ public class Light {
 	/**
 	 * Sets the direction of this light.
 	 * The direction vector is automatically normalized. This method is only meaningful for directional lights.
-	 * 
+	 *
 	 * @param x the X component of the light direction
 	 * @param y the Y component of the light direction
 	 * @param z the Z component of the light direction
@@ -98,7 +98,7 @@ public class Light {
 	/**
 	 * Gets the color and intensity of this light.
 	 * Color components can exceed 1.0 for high-intensity lighting effects.
-	 * 
+	 *
 	 * @return the RGB color vector representing light color and intensity
 	 */
 	public Vector3f getColor() {
@@ -108,7 +108,7 @@ public class Light {
 	/**
 	 * Sets the color and intensity of this light.
 	 * Color components can exceed 1.0 for high-intensity lighting effects.
-	 * 
+	 *
 	 * @param r the red component of the light color
 	 * @param g the green component of the light color
 	 * @param b the blue component of the light color

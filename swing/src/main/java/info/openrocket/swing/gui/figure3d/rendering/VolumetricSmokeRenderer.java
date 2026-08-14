@@ -98,7 +98,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		lightIntensityLocation = shader.requireUniformLocation("lightIntensity");
 		ambientLightLocation = shader.requireUniformLocation("ambientLight");
 		lightSensitivityLocation = shader.requireUniformLocation("lightSensitivity");
-		
+
 		smokeTexture = new Texture("/textures/smoke2.png");
 
 		vao = glGenVertexArrays();
@@ -253,11 +253,11 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 
 	/**
 	 * Creates a camera-facing billboard quad for a single smoke particle.
-	 * 
+	 *
 	 * Generates a textured quad that always faces the camera using proper
 	 * billboard mathematics. The quad is constructed from two triangles with
 	 * appropriate texture coordinates for smoke texture mapping.
-	 * 
+	 *
 	 * @param position World position of the smoke particle
 	 * @param size Size of the billboard quad
 	 * @param alpha Transparency value for volumetric blending
@@ -268,17 +268,17 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	private int createParticleBillboard(Vector3f position, float size, float alpha, Vector3f color, Vector3f cameraPos) {
 		// Proper camera-facing billboard approach
 		Vector3f toCamera = new Vector3f(cameraPos).sub(position);
-		
+
 		// Handle edge case where camera is at particle position
 		if (toCamera.lengthSquared() < 0.001f) {
 			toCamera.set(0, 0, 1);
 		} else {
 			toCamera.normalize();
 		}
-		
+
 		// Use world up vector
 		Vector3f worldUp = new Vector3f(0, 1, 0);
-		
+
 		// Calculate billboard right vector (perpendicular to both toCamera and worldUp)
 		Vector3f right = new Vector3f(worldUp).cross(toCamera);
 		if (right.lengthSquared() < 0.001f) {
@@ -287,27 +287,27 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		} else {
 			right.normalize();
 		}
-		
+
 		// Calculate billboard up vector (perpendicular to both toCamera and right)
 		Vector3f up = new Vector3f(toCamera).cross(right).normalize();
-		
+
 		// Scale by size
 		right.mul(size);
 		up.mul(size);
-		
+
 		Vector3f[] vertices = new Vector3f[4];
 		vertices[0] = new Vector3f(position).sub(right).sub(up); // Bottom-left
-		vertices[1] = new Vector3f(position).add(right).sub(up); // Bottom-right  
+		vertices[1] = new Vector3f(position).add(right).sub(up); // Bottom-right
 		vertices[2] = new Vector3f(position).add(right).add(up); // Top-right
 		vertices[3] = new Vector3f(position).sub(right).add(up); // Top-left
 
 		float[][] texCoords = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
-		
+
 		// First triangle (0, 1, 2)
 		addVertex(vertices[0], texCoords[0], color, alpha);
 		addVertex(vertices[1], texCoords[1], color, alpha);
 		addVertex(vertices[2], texCoords[2], color, alpha);
-		
+
 		// Second triangle (0, 2, 3)
 		addVertex(vertices[0], texCoords[0], color, alpha);
 		addVertex(vertices[2], texCoords[2], color, alpha);
@@ -319,7 +319,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 
 	/**
 	 * Adds a single vertex to the volumetric smoke rendering buffer.
-	 * 
+	 *
 	 * @param position 3D world position of the vertex
 	 * @param texCoord 2D texture coordinates [u, v]
 	 * @param color RGB color values for the smoke

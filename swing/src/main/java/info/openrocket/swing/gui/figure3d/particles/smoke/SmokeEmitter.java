@@ -12,7 +12,7 @@ import org.joml.Vector3f;
  * Smoke particles rise and spread with quality-adjusted noise patterns.
  */
 public class SmokeEmitter extends ParticleEmitter {
-	
+
 	private final float noiseScale;
 	private final float noiseSpeed;
 	private final float lightSensitivity;
@@ -31,7 +31,7 @@ public class SmokeEmitter extends ParticleEmitter {
 		this.lightSensitivity = smokeSettings.lightSensitivity;
 		this.opacityMultiplier = smokeSettings.opacityMultiplier;
 	}
-	
+
 	public float getLightSensitivity() {
 		return lightSensitivity;
 	}
@@ -59,34 +59,34 @@ public class SmokeEmitter extends ParticleEmitter {
 
 		// Use Perlin noise for more coherent color variations
 		float time = getNoiseTime();
-		
+
 		// Add random offset to position to ensure variation even when particles spawn at same spot
 		float randomOffset = nextRandomFloat() * 100.0f;
-		
+
 		// Quality-adjusted noise computation - reduce noise samples for lower quality
 		float colorFactor = 0.5f;
 		switch (settings.config.getQuality().getQuality()) {
 			case MEDIUM, HIGH -> {
 				// Full multiple octaves of noise for high quality
 				float colorNoise1 = PerlinNoise.noise(
-					(position.x + randomOffset) * noiseScale, 
-					(position.y + randomOffset) * noiseScale + time * noiseSpeed, 
+					(position.x + randomOffset) * noiseScale,
+					(position.y + randomOffset) * noiseScale + time * noiseSpeed,
 					(position.z + randomOffset) * noiseScale
 				);
 				float colorNoise2 = PerlinNoise.noise(
-					(position.x + randomOffset * 0.7f) * noiseScale * 0.5f, 
-					(position.y + randomOffset * 0.7f) * noiseScale * 0.5f + time * noiseSpeed * 0.8f, 
+					(position.x + randomOffset * 0.7f) * noiseScale * 0.5f,
+					(position.y + randomOffset * 0.7f) * noiseScale * 0.5f + time * noiseSpeed * 0.8f,
 					(position.z + randomOffset * 0.7f) * noiseScale * 0.5f
 				) * 0.3f;
-				
+
 				float combinedNoise = colorNoise1 + colorNoise2;
 				colorFactor = (combinedNoise + 1.5f) / 3.0f;
 			}
 		}
-		
+
 		// Normalize and enhance contrast
 		colorFactor = MathUtil.clamp(colorFactor, 0.0f, 1.0f);
-		
+
 		// Interpolate between min and max color using noise factor
 		float r = settings.minColor.x + colorFactor * (settings.maxColor.x - settings.minColor.x);
 		float g = settings.minColor.y + colorFactor * (settings.maxColor.y - settings.minColor.y);
@@ -95,14 +95,14 @@ public class SmokeEmitter extends ParticleEmitter {
 
 		float size = nextRandomFloat() * (settings.maxSize - settings.minSize) + settings.minSize;
 		float life = nextRandomFloat() * (settings.maxLife - settings.minLife) + settings.minLife;
-		
+
 		// Random 3D orientation
 		Quaternionf orientation = new Quaternionf().rotateXYZ(
 			nextRandomFloat() * (float) (Math.PI * 2), // Random X rotation
-			nextRandomFloat() * (float) (Math.PI * 2), // Random Y rotation  
+			nextRandomFloat() * (float) (Math.PI * 2), // Random Y rotation
 			nextRandomFloat() * (float) (Math.PI * 2)  // Random Z rotation
 		);
-		
+
 		// Random 3D angular velocity (rotation around random axes)
 		Vector3f angularVelocity = new Vector3f(
 			nextRandomSignedFloat() * 0.3f, // X axis rotation speed

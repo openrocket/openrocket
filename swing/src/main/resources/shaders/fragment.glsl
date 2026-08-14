@@ -399,9 +399,9 @@ void main()
                 vec3 lightVector = currentLight.position - v_fragPos;
                 float distance = length(lightVector);
                 lightDir = lightVector / distance;
-                
+
                 attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
-                
+
                 if (distance > 50.0) {
                     attenuation = 0.0;
                 }

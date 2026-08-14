@@ -13,11 +13,11 @@ public class SkyboxBackground implements Background {
 
 	/**
 	 * Creates a new skybox background from a cubemap texture.
-	 * 
+	 *
 	 * The cubemap texture must contain six faces properly oriented for
 	 * seamless environment mapping. Each face should represent the view
 	 * in the corresponding direction from the center of the cube.
-	 * 
+	 *
 	 * @param cubemapTexture The cubemap texture containing six faces for complete 360-degree coverage
 	 */
 	public SkyboxBackground(Texture cubemapTexture) {
@@ -26,7 +26,7 @@ public class SkyboxBackground implements Background {
 
 	/**
 	 * Gets the cubemap texture used for skybox rendering.
-	 * 
+	 *
 	 * @return The six-faced cubemap texture containing the environment
 	 */
 	public Texture getCubemapTexture() {

@@ -67,7 +67,7 @@ public class Camera {
 
 	/**
 	 * Gets the current horizontal rotation angle (yaw) of the camera.
-	 * 
+	 *
 	 * @return the yaw angle in radians
 	 */
 	public float getAngleX() {
@@ -76,7 +76,7 @@ public class Camera {
 
 	/**
 	 * Sets the horizontal rotation angle (yaw) of the camera.
-	 * 
+	 *
 	 * @param angleX the yaw angle in radians
 	 */
 	public void setAngleX(float angleX) {
@@ -85,7 +85,7 @@ public class Camera {
 
 	/**
 	 * Gets the current vertical rotation angle (pitch) of the camera.
-	 * 
+	 *
 	 * @return the pitch angle in radians
 	 */
 	public float getAngleY() {
@@ -94,7 +94,7 @@ public class Camera {
 
 	/**
 	 * Sets the vertical rotation angle (pitch) of the camera.
-	 * 
+	 *
 	 * @param angleY the pitch angle in radians
 	 */
 	public void setAngleY(float angleY) {
@@ -128,7 +128,7 @@ public class Camera {
 		this.fov = (float) fov;
 		updateProjectionMatrix();
 	}
-	
+
 	private void updateProjectionMatrix() {
 		float nearPlane = getEffectiveNearPlane();
 		float farPlane = getEffectiveFarPlane();
@@ -170,7 +170,7 @@ public class Camera {
 	 * Automatically positions and zooms the camera to fit the specified 3D bounds.
 	 * The fitted distance is valid for every yaw around the world Y axis, so 100%
 	 * zoom remains stable while orbiting horizontally.
-	 * 
+	 *
 	 * @param boxDimensions the dimensions of the bounding box to fit in the view
 	 */
 	public void fitBounds(Vector3f boxDimensions) {
@@ -203,7 +203,7 @@ public class Camera {
 	/**
 	 * Orbits the camera around the center of interest based on mouse movement.
 	 * Updates both yaw and pitch angles while constraining pitch to prevent gimbal lock.
-	 * 
+	 *
 	 * @param dx horizontal mouse movement delta for yaw rotation
 	 * @param dy vertical mouse movement delta for pitch rotation
 	 */
@@ -380,7 +380,7 @@ public class Camera {
 
 	/**
 	 * Gets the camera's view transformation matrix.
-	 * 
+	 *
 	 * @return the 4x4 view matrix for transforming world coordinates to view space
 	 */
 	public Matrix4f getViewMatrix() {
@@ -398,7 +398,7 @@ public class Camera {
 
 	/**
 	 * Gets the camera's projection matrix.
-	 * 
+	 *
 	 * @return the 4x4 projection matrix for transforming view coordinates to clip space
 	 */
 	public Matrix4f getProjectionMatrix() {
@@ -407,7 +407,7 @@ public class Camera {
 
 	/**
 	 * Gets the camera's current position in world space.
-	 * 
+	 *
 	 * @return the camera's 3D position vector
 	 */
 	public Vector3f getPosition() {
@@ -420,7 +420,7 @@ public class Camera {
 		}
 		return destination.set(position);
 	}
-	
+
 	/** Builder for the camera settings needed when a scene is created. */
 	public static class Builder {
 		private float fov = CameraConstants.DEFAULT_FIELD_OF_VIEW;
@@ -428,7 +428,7 @@ public class Camera {
 		private float zNear = CameraConstants.DEFAULT_Z_NEAR;
 		private float zFar = CameraConstants.DEFAULT_Z_FAR;
 		private boolean fixedCenterOfInterest = true;
-		
+
 		/**
 		 * Sets the camera's field of view.
 		 * @param fov The field of view in radians (default: 45 degrees)
@@ -438,7 +438,7 @@ public class Camera {
 			this.fov = (float) fov;
 			return this;
 		}
-		
+
 		/**
 		 * Sets the camera's aspect ratio.
 		 * @param aspectRatio The aspect ratio (width / height, default: 1.0)
@@ -448,7 +448,7 @@ public class Camera {
 			this.aspectRatio = aspectRatio;
 			return this;
 		}
-		
+
 		/**
 		 * Sets the camera's near and far clipping planes.
 		 * @param zNear The near clipping plane distance (default: 0.1)
@@ -460,7 +460,7 @@ public class Camera {
 			this.zFar = zFar;
 			return this;
 		}
-		
+
 		/**
 		 * Sets whether the camera's center of interest is fixed.
 		 * @param fixed If true, the center of interest cannot be changed by panning (default: true)
@@ -470,7 +470,7 @@ public class Camera {
 			this.fixedCenterOfInterest = fixed;
 			return this;
 		}
-		
+
 		/**
 		 * Builds the Camera with the configured settings.
 		 * @return A new Camera instance
@@ -479,7 +479,7 @@ public class Camera {
 			return new Camera(fov, aspectRatio, zNear, zFar, fixedCenterOfInterest);
 		}
 	}
-	
+
 	/**
 	 * Creates a new camera builder.
 	 * @return A new Camera.Builder instance

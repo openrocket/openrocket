@@ -52,12 +52,12 @@ public class Scene3DOrchestrator {
 
 	/**
 	 * Updates the orchestrator's knowledge of the window and framebuffer dimensions.
-	 * 
+	 *
 	 * <p>This method should be called whenever the viewport is resized to ensure all
 	 * components are properly updated with the new dimensions. It handles the distinction
 	 * between logical window coordinates and physical framebuffer pixels, which is
 	 * important for high-DPI displays.</p>
-	 * 
+	 *
 	 * @param newWindowWidth The new logical window width in pixels
 	 * @param newWindowHeight The new logical window height in pixels
 	 * @param newFramebufferWidth The new framebuffer width in pixels
@@ -69,7 +69,7 @@ public class Scene3DOrchestrator {
 
 		// Update viewport dimensions
 		viewport.update(newWindowWidth, newWindowHeight, newFramebufferWidth, newFramebufferHeight);
-		
+
 		// Propagate resize event to relevant components
 		cameraController.resize(viewport.getAspectRatio());
 		if (wasZoomFitting) {
@@ -82,7 +82,7 @@ public class Scene3DOrchestrator {
 
 	/**
 	 * Automatically positions and orients the camera to frame the entire rocket.
-	 * 
+	 *
 	 * <p>This method calculates the rocket's bounding box and adjusts the camera
 	 * distance and center of interest to provide an optimal view of the complete
 	 * rocket geometry.</p>
@@ -181,7 +181,7 @@ public class Scene3DOrchestrator {
 
 	/**
 	 * Gets the managed 3D scene containing all rocket geometry and effects.
-	 * 
+	 *
 	 * @return The scene instance managed by this orchestrator
 	 */
 	public Scene getScene() {
@@ -190,7 +190,7 @@ public class Scene3DOrchestrator {
 
 	/**
 	 * Gets the unified rendering configuration containing all rendering settings.
-	 * 
+	 *
 	 * @return The rendering configuration instance
 	 */
 	public RenderingConfiguration getRenderingConfiguration() {
@@ -252,31 +252,31 @@ public class Scene3DOrchestrator {
 
 	/**
 	 * Gets the camera controller for external access to camera operations.
-	 * 
+	 *
 	 * @return The camera controller instance
 	 */
 	public CameraControls getCameraController() {
 		return cameraController;
 	}
-	
+
 	/**
 	 * Gets the input handler for external access to input state and processing.
-	 * 
+	 *
 	 * @return The input handler instance
 	 */
 	public SceneInputProcessor getInputHandler() {
 		return inputHandler;
 	}
-	
+
 	/**
 	 * Gets the viewport dimensions for external access to coordinate conversion.
-	 * 
+	 *
 	 * @return The viewport dimensions instance
 	 */
 	public ViewportDimensions getViewport() {
 		return viewport;
 	}
-	
+
 	/**
 	 * Creates an orchestrator using the figure 3D defaults and saved preferences.
 	 *
@@ -307,7 +307,7 @@ public class Scene3DOrchestrator {
 		Scene scene = new Scene(rocket, camera, config);
 		return new Scene3DOrchestrator(rocket, viewport, camera, scene, config);
 	}
-	
+
 	/**
 	 * Connects the configured scene resources and creates the renderer and controllers.
 	 *
@@ -345,7 +345,7 @@ public class Scene3DOrchestrator {
 				lightController.refreshVisualizer(light);
 			}
 		});
-		
+
 		this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController,
 				renderingConfiguration);
 		this.inputHandler.updateDimensions(viewport);

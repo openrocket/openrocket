@@ -25,17 +25,17 @@ public abstract class RenderingConstants {
 	public static final int LOW_FIN_ROOT_SEGMENTS = 3;
 	public static final int MEDIUM_FIN_ROOT_SEGMENTS = 5;
 	public static final int HIGH_FIN_ROOT_SEGMENTS = 7;
-	
+
 	// Root X segments (along root length)
 	public static final int LOW_FIN_ROOT_X_SEGMENTS = 4;
 	public static final int MEDIUM_FIN_ROOT_X_SEGMENTS = 6;
 	public static final int HIGH_FIN_ROOT_X_SEGMENTS = 8;
-	
+
 	// Fillet segments (for fillet arc)
 	public static final int LOW_FIN_FILLET_SEGMENTS = 6;
 	public static final int MEDIUM_FIN_FILLET_SEGMENTS = 8;
 	public static final int HIGH_FIN_FILLET_SEGMENTS = 10;
-	
+
 	// Fillet X segments (along fillet length)
 	public static final int LOW_FIN_FILLET_X_SEGMENTS = 4;
 	public static final int MEDIUM_FIN_FILLET_X_SEGMENTS = 6;

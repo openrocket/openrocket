@@ -35,7 +35,7 @@ public class PerlinNoise {
 	/**
 	 * Generates 3D Perlin noise at the given coordinates.
 	 * @param x X coordinate in noise space
-	 * @param y Y coordinate in noise space  
+	 * @param y Y coordinate in noise space
 	 * @param z Z coordinate in noise space
 	 * @return noise value between -1 and 1
 	 */

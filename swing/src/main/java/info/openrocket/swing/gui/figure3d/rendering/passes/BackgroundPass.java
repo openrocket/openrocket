@@ -88,11 +88,11 @@ public class BackgroundPass implements RenderPass {
 
 	/**
 	 * Creates a new background pass with all supported rendering techniques.
-	 * 
+	 *
 	 * Initializes shaders for gradient, skybox, HDRI, and checkerboard backgrounds,
 	 * and creates the necessary vertex array objects for rendering full-screen quads
 	 * and skybox cubes.
-	 * 
+	 *
 	 * @param textureStateManager Texture state manager for optimized texture binding
 	 * @throws ShaderException If shader compilation fails
 	 */
@@ -167,11 +167,11 @@ public class BackgroundPass implements RenderPass {
 
 	/**
 	 * Renders the appropriate background based on its type.
-	 * 
+	 *
 	 * Automatically detects the background type and dispatches to the appropriate
 	 * rendering method. Handles depth buffer state and texture binding for each
 	 * background technique.
-	 * 
+	 *
 	 * @param scene The scene containing camera and other rendering context
 	 * @param background The background object to render
 	 */

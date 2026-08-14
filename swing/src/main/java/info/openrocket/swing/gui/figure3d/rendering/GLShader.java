@@ -159,7 +159,7 @@ public class GLShader implements GpuResource {
 
 	/**
 	 * Gets the OpenGL program ID for this shader.
-	 * 
+	 *
 	 * @return The OpenGL program ID
 	 */
 	public int getProgramId() {

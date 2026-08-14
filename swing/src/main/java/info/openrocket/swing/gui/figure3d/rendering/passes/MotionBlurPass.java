@@ -40,10 +40,10 @@ public class MotionBlurPass implements ScreenTexturePass {
 
 	/**
 	 * Creates a new motion blur post-processing pass.
-	 * 
+	 *
 	 * Initializes motion blur shaders and creates framebuffer resources for the
 	 * specified resolution. The blur factor defaults to 1.0 for moderate effect.
-	 * 
+	 *
 	 * @param fullscreenQuad shared full-screen geometry
 	 * @param initialWidth Initial framebuffer width in pixels
 	 * @param initialHeight Initial framebuffer height in pixels

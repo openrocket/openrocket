@@ -51,15 +51,15 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 
 	public GraphicsPreferencesPanel(JDialog parent) {
 		super(parent, new MigLayout("fillx"));
-		
+
 		JPanel editorPrefPanel = new JPanel(new MigLayout("fill, ins n n n")) {
 			{ // Editor Options
 				TitledBorder border = BorderFactory.createTitledBorder(trans.get("pref.dlg.lbl.DecalEditor"));
 				GUIUtil.changeFontStyle(border, Font.BOLD);
 				setBorder(border);
-				
+
 				ButtonGroup execGroup = new ButtonGroup();
-				
+
 				JRadioButton showPrompt = new JRadioButton(trans.get("EditDecalDialog.lbl.prompt"));
 				showPrompt.setSelected(!preferences.isDecalEditorPreferenceSet());
 				showPrompt.addItemListener(new ItemListener() {
@@ -72,9 +72,9 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				});
 				add(showPrompt, "wrap");
 				execGroup.add(showPrompt);
-				
+
 				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
-					
+
 					JRadioButton systemRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.system"));
 					systemRadio.setSelected(preferences.isDecalEditorPreferenceSystem());
 					systemRadio.addItemListener(new ItemListener() {
@@ -87,43 +87,43 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					});
 					add(systemRadio, "wrap");
 					execGroup.add(systemRadio);
-					
+
 				}
-				
+
 				boolean commandLineIsSelected = preferences.isDecalEditorPreferenceSet() &&
 						!preferences.isDecalEditorPreferenceSystem();
 				final JRadioButton commandRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.cmdline"));
 				commandRadio.setSelected(commandLineIsSelected);
 				add(commandRadio, "wrap");
 				execGroup.add(commandRadio);
-				
+
 				final JTextField commandText = new JTextField();
 				commandText.setEnabled(commandLineIsSelected);
 				commandText.setText(commandLineIsSelected ? preferences.getDecalEditorCommandLine() : "");
 				commandText.getDocument().addDocumentListener(new DocumentListener() {
-					
+
 					@Override
 					public void insertUpdate(DocumentEvent e) {
 						preferences.setDecalEditorPreference(false, commandText.getText());
 					}
-					
+
 					@Override
 					public void removeUpdate(DocumentEvent e) {
 						preferences.setDecalEditorPreference(false, commandText.getText());
 					}
-					
+
 					@Override
 					public void changedUpdate(DocumentEvent e) {
 						preferences.setDecalEditorPreference(false, commandText.getText());
 					}
-					
+
 				});
 				add(commandText, "growx, wrap");
-				
+
 				final JButton chooser = new JButton(trans.get("EditDecalDialog.btn.chooser"));
 				chooser.setEnabled(commandLineIsSelected);
 				chooser.addActionListener(new ActionListener() {
-					
+
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						GraphicsEditorChooser.chooseEditor(GraphicsPreferencesPanel.this.parentDialog)
@@ -132,23 +132,23 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 									preferences.setDecalEditorPreference(false, commandLine);
 								});
 					}
-					
+
 				});
 				add(chooser, "wrap");
-				
+
 				commandRadio.addChangeListener(new ChangeListener() {
-					
+
 					@Override
 					public void stateChanged(ChangeEvent e) {
 						boolean enabled = commandRadio.isSelected();
 						commandText.setEnabled(enabled);
 						chooser.setEnabled(enabled);
 					}
-					
+
 				});
 			}
 		};
-		
+
 		/* Don't show the editor preferences panel when confined in a snap on Linux.
 		 * The snap confinement doesn't allow to run any edit commands, and instead
 		 * we will rely on using the xdg-open command which allows the user to pick
@@ -157,21 +157,21 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
 			this.add(editorPrefPanel, "growx, span");
 		}
-		
+
 		this.add(new JPanel(new MigLayout("fill, ins n n n", "[][grow]")) {
 			{ // GL Options
 				TitledBorder border = BorderFactory.createTitledBorder(trans.get("pref.dlg.opengl.lbl.title"));
 				GUIUtil.changeFontStyle(border, Font.BOLD);
 				setBorder(border);
-				
+
 				// The effects will take place the next time you open a window.
 				add(new StyledLabel(
 						trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
 						"span 2, wrap");
-				
+
 				BooleanModel enableGLModel =
 						new BooleanModel(preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLED, true));
-				
+
 				// Enable 3D Graphics
 				final JCheckBox enableGL = new JCheckBox(enableGLModel);
 				enableGL.setText(trans.get("pref.dlg.opengl.but.enableGL"));
@@ -211,7 +211,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				});
 				enableGLModel.addEnableComponent(renderQualityCombo);
 				add(renderQualityCombo, "alignx left, wrap");
-				
+
 				// Enable multisample anti-aliasing
 				final JCheckBox enableMSAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableMSAA"));
 				enableMSAA.setSelected(Figure3DPreferences.isMSAAEnabled(preferences));

@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * This controller handles camera positioning, movement, and user interactions such as orbiting,
  * panning, and zooming. It integrates with the OpenRocket rocket model to provide appropriate
  * camera positioning and focus behaviors for rocket visualization.
- * 
+ *
  * <p>Separated from Scene3DOrchestrator to improve separation of concerns and maintain
  * a clean architecture for camera management within the 3D visualization pipeline.</p>
  */
@@ -38,7 +38,7 @@ public class CameraController implements CameraControls {
 	// rather than "distance ≈ fitted distance" so that a resize-triggered re-fit
 	// cannot race with (and overwrite) a manual zoom that was applied in between.
 	private volatile boolean zoomFitting = true;
-	
+
 	/**
 	 * Constructs a new CameraController with the specified camera and scene references.
 	 *
@@ -54,11 +54,11 @@ public class CameraController implements CameraControls {
 		this.scene = scene;
 		this.renderingConfiguration = renderingConfiguration;
 	}
-	
+
 	/**
 	 * Initialize the camera with default settings for the given rocket.
 	 * Sets the default side view and establishes the center of interest based on rocket dimensions.
-	 * 
+	 *
 	 * @param rocket the rocket to initialize the camera for
 	 * @param aspectRatio the aspect ratio of the viewport for camera projection
 	 */
@@ -66,18 +66,18 @@ public class CameraController implements CameraControls {
 	public void initialize(Rocket rocket, float aspectRatio) {
 		camera.setSideView();
 		camera.setAspectRatio(aspectRatio);
-		
+
 		// Set initial center of interest based on rocket length
 		Vector3f centerOfInterest = new Vector3f(
 			(float) (rocket.getLength() / 2.0 * RenderingConstants.WORLD_SCALE),
-			0, 
+			0,
 			0
 		);
 		camera.setCenterOfInterest(centerOfInterest);
 		focusedDistance = camera.getDistance();
 		scene.updateRocketPivotFromCamera();
 	}
-	
+
 	/**
 	 * Focus the camera on the rocket by calculating appropriate bounds and position.
 	 * Automatically determines the optimal camera distance and center point to frame
@@ -155,7 +155,7 @@ public class CameraController implements CameraControls {
 		scene.updateRocketPivotFromCamera();
 		notifyCameraChanged();
 	}
-	
+
 	/**
 	 * Handle scroll input for camera dolly (zoom).
 	 *
@@ -230,10 +230,10 @@ public class CameraController implements CameraControls {
 
 		return new Vector3f(rayDir).mul(t).add(rayOrigin);
 	}
-	
+
 	/**
 	 * Handle mouse drag for camera orbit around the center of interest.
-	 * 
+	 *
 	 * @param dx the horizontal mouse movement delta
 	 * @param dy the vertical mouse movement delta
 	 */
@@ -245,10 +245,10 @@ public class CameraController implements CameraControls {
 		camera.orbit(dx, dy, sensitivity);
 		notifyCameraChanged();
 	}
-	
+
 	/**
 	 * Handle mouse drag for camera panning to translate the view.
-	 * 
+	 *
 	 * @param dx the horizontal mouse movement delta
 	 * @param dy the vertical mouse movement delta
 	 */
@@ -259,7 +259,7 @@ public class CameraController implements CameraControls {
 		scene.updateRocketPivotFromCamera();
 		notifyCameraChanged();
 	}
-	
+
 	/**
 	 * Update camera state and internal matrices.
 	 * This method should be called every frame to ensure camera transformations
@@ -295,20 +295,20 @@ public class CameraController implements CameraControls {
 		}
 		return zoomFitting;
 	}
-	
+
 	/**
 	 * Handle window/framebuffer resize by updating the camera's aspect ratio.
-	 * 
+	 *
 	 * @param newAspectRatio the new aspect ratio after window resize
 	 */
 	@Override
 	public void resize(float newAspectRatio) {
 		camera.setAspectRatio(newAspectRatio);
 	}
-	
+
 	/**
 	 * Get the underlying camera instance for direct access to camera properties.
-	 * 
+	 *
 	 * @return the camera instance managed by this controller
 	 */
 	@Override

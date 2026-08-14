@@ -30,4 +30,3 @@ public interface Raycaster {
 	 */
 	Vector3f getRayDirection();
 }
-

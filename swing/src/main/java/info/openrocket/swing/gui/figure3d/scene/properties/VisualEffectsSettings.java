@@ -46,7 +46,7 @@ public class VisualEffectsSettings {
 	// Motion blur settings
 	private boolean motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
 	private float motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;
-	
+
 	// Display elements
 	private boolean originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
 	private boolean lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
@@ -56,12 +56,12 @@ public class VisualEffectsSettings {
 	private float dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;
 	private boolean caretScaleWithView = DEFAULT_CARET_SCALE_WITH_VIEW;
 	private float ambientLightFactor = DEFAULT_AMBIENT_LIGHT_FACTOR;
-	
+
 	// Global particle settings
 	private boolean particleEffectsEnabled = DEFAULT_PARTICLE_EFFECTS_ENABLED;
 	private boolean staticParticles = DEFAULT_STATIC_PARTICLES;
 	private float particleTime = DEFAULT_PARTICLE_TIME;
-	
+
 	// Individual particle type settings
 	private boolean sparkParticlesEnabled = DEFAULT_SPARK_PARTICLES_ENABLED;
 	private boolean smokeParticlesEnabled = DEFAULT_SMOKE_PARTICLES_ENABLED;
@@ -78,13 +78,13 @@ public class VisualEffectsSettings {
 	private float flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
 	private float sparkLengthScale = DEFAULT_SPARK_LENGTH_SCALE;
 	private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
-	
+
 	// Motion Blur
-	
+
 	/**
 	 * Checks if motion blur post-processing effect is enabled.
 	 * Motion blur creates trailing effects during camera movement for cinematic visualization.
-	 * 
+	 *
 	 * @return true if motion blur is active
 	 */
 	public boolean isMotionBlurEnabled() {
@@ -93,7 +93,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Enables or disables motion blur post-processing effect.
-	 * 
+	 *
 	 * @param motionBlurEnabled true to enable motion blur, false to disable
 	 */
 	public void setMotionBlurEnabled(boolean motionBlurEnabled) {
@@ -103,7 +103,7 @@ public class VisualEffectsSettings {
 	/**
 	 * Gets the motion blur intensity factor.
 	 * Higher values create more pronounced blur effects during camera movement.
-	 * 
+	 *
 	 * @return the motion blur intensity factor
 	 */
 	public float getMotionBlurFactor() {
@@ -112,7 +112,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Sets the motion blur intensity factor.
-	 * 
+	 *
 	 * @param motionBlurFactor the intensity factor (typically 1.0 to 10.0)
 	 */
 	public void setMotionBlurFactor(float motionBlurFactor) {
@@ -120,11 +120,11 @@ public class VisualEffectsSettings {
 	}
 
 	// Display Elements
-	
+
 	/**
 	 * Checks if coordinate origin axes are visible in the scene.
 	 * The axes provide spatial reference for understanding rocket orientation.
-	 * 
+	 *
 	 * @return true if origin axes are displayed
 	 */
 	public boolean isOriginAxesVisible() {
@@ -133,7 +133,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Shows or hides the coordinate origin axes in the scene.
-	 * 
+	 *
 	 * @param originAxesVisible true to show axes, false to hide them
 	 */
 	public void setOriginAxesVisible(boolean originAxesVisible) {
@@ -258,11 +258,11 @@ public class VisualEffectsSettings {
 	}
 
 	// Global Particle Settings
-	
+
 	/**
 	 * Checks if particle effects are globally enabled.
 	 * This master setting controls all particle systems in the visualization.
-	 * 
+	 *
 	 * @return true if particle effects are active
 	 */
 	public boolean areParticleEffectsEnabled() {
@@ -272,7 +272,7 @@ public class VisualEffectsSettings {
 	/**
 	 * Globally enables or disables all particle effects.
 	 * When disabled, no particle systems will be rendered regardless of individual settings.
-	 * 
+	 *
 	 * @param particleEffectsEnabled true to enable all particle systems, false to disable
 	 */
 	public void setParticleEffectsEnabled(boolean particleEffectsEnabled) {
@@ -282,7 +282,7 @@ public class VisualEffectsSettings {
 	/**
 	 * Checks if particles are rendered in static mode.
 	 * Static particles freeze the particle simulation at a specific time point.
-	 * 
+	 *
 	 * @return true if particles are static, false if they animate over time
 	 */
 	public boolean areStaticParticles() {
@@ -291,7 +291,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Sets particle animation mode.
-	 * 
+	 *
 	 * @param staticParticles true for frozen particle state, false for animated particles
 	 */
 	public void setStaticParticles(boolean staticParticles) {
@@ -301,7 +301,7 @@ public class VisualEffectsSettings {
 	/**
 	 * Gets the particle simulation time when in static mode.
 	 * This determines which frame of the particle animation is displayed.
-	 * 
+	 *
 	 * @return the simulation time in seconds
 	 */
 	public float getParticleTime() {
@@ -310,7 +310,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Sets the particle simulation time for static mode.
-	 * 
+	 *
 	 * @param particleTime the simulation time in seconds
 	 */
 	public void setParticleTime(float particleTime) {
@@ -318,11 +318,11 @@ public class VisualEffectsSettings {
 	}
 
 	// Individual Particle Types
-	
+
 	/**
 	 * Checks if spark particle effects are enabled.
 	 * Spark particles simulate high-energy debris from motor exhaust.
-	 * 
+	 *
 	 * @return true if spark particles are active
 	 */
 	public boolean areSparkParticlesEnabled() {
@@ -331,7 +331,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Enables or disables spark particle effects.
-	 * 
+	 *
 	 * @param sparkParticlesEnabled true to enable spark particles, false to disable
 	 */
 	public void setSparkParticlesEnabled(boolean sparkParticlesEnabled) {
@@ -341,7 +341,7 @@ public class VisualEffectsSettings {
 	/**
 	 * Checks if smoke particle effects are enabled.
 	 * Smoke particles simulate exhaust plumes and atmospheric interaction.
-	 * 
+	 *
 	 * @return true if smoke particles are active
 	 */
 	public boolean areSmokeParticlesEnabled() {
@@ -350,7 +350,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Enables or disables smoke particle effects.
-	 * 
+	 *
 	 * @param smokeParticlesEnabled true to enable smoke particles, false to disable
 	 */
 	public void setSmokeParticlesEnabled(boolean smokeParticlesEnabled) {
@@ -360,7 +360,7 @@ public class VisualEffectsSettings {
 	/**
 	 * Checks if flame particle effects are enabled.
 	 * Flame particles simulate the bright core of motor exhaust.
-	 * 
+	 *
 	 * @return true if flame particles are active
 	 */
 	public boolean areFlameParticlesEnabled() {
@@ -369,7 +369,7 @@ public class VisualEffectsSettings {
 
 	/**
 	 * Enables or disables flame particle effects.
-	 * 
+	 *
 	 * @param flameParticlesEnabled true to enable flame particles, false to disable
 	 */
 	public void setFlameParticlesEnabled(boolean flameParticlesEnabled) {

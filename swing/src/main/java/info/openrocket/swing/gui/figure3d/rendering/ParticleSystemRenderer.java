@@ -11,10 +11,10 @@ import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
  * part of its frame, rather than driving the full scene pipeline themselves.
  */
 public interface ParticleSystemRenderer extends GpuResource {
-	
+
 	/**
 	 * Renders particle systems from the scene using this renderer.
-	 * 
+	 *
 	 * @param scene The scene containing particle emitters
 	 * @param camera The camera for view/projection matrices
 	 */

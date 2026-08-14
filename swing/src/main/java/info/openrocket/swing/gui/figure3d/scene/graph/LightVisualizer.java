@@ -218,7 +218,7 @@ public class LightVisualizer {
 	 * This method handles the complex 3D transformation needed to position and orient the ray geometry
 	 * so it appears to connect the origin with the sun visualizer, providing clear visual feedback
 	 * about the light direction.
-	 * 
+	 *
 	 * @param ray the SceneObject representing the directional light ray
 	 * @param sunPosition the current position of the "sun" visualizer that represents the light source
 	 */
