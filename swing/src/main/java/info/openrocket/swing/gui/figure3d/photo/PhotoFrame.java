@@ -234,11 +234,20 @@ public class PhotoFrame extends JFrame {
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
 		try {
 			OpenRocketDocument doc = new GeneralRocketLoader(file).load();
-			currentDocument = doc;
-			photoPanel.setDoc(doc);
+			reopenForDocument(doc);
 		} catch (RocketLoadException e1) {
 			log.warn("Unable to load {}", file.getAbsolutePath(), e1);
 		}
+	}
+
+	private void reopenForDocument(OpenRocketDocument document) {
+		PhotoFrame replacement = new PhotoFrame(true, document);
+		replacement.setTitle(trans.get("PhotoFrame.title") + " - " + document.getRocket().getName());
+		replacement.setBounds(getBounds());
+		replacement.setExtendedState(getExtendedState());
+		replacement.setDefaultCloseOperation(getDefaultCloseOperation());
+		dispose();
+		replacement.setVisible(true);
 	}
 
 	/** Prompts for a destination and writes the rendered photo to it as a PNG. */
