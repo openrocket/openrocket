@@ -42,7 +42,9 @@ configurations {
 
 def flatlafVersionValue = "3.7.2"
 def lwjglVersionValue = "3.4.2"
-def lwjgl3AwtVersionValue = "0.2.5-SNAPSHOT"
+def lwjgl3AwtGroupValue = "com.github.LWJGLX"
+// Pin the upstream commit used by the 0.2.5 snapshot until that version is released.
+def lwjgl3AwtVersionValue = "8affe68f2cce0bceffe4891b072541758ce09937"
 def jomlVersionValue = "1.10.9"
 
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
@@ -67,6 +69,7 @@ extraJavaModuleInfo {
 
 ext {
     lwjglVersion = lwjglVersionValue
+    lwjgl3AwtGroup = lwjgl3AwtGroupValue
     lwjgl3AwtVersion = lwjgl3AwtVersionValue
     jomlVersion = jomlVersionValue
 
@@ -177,7 +180,7 @@ dependencies {
     lwjglNativeArtifacts "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     lwjglNativeArtifacts "org.lwjgl:lwjgl-stb::$lwjglNatives"
 
-    implementation("org.lwjglx:lwjgl3-awt:${lwjgl3AwtVersion}")
+    implementation("${lwjgl3AwtGroup}:lwjgl3-awt:${lwjgl3AwtVersion}")
     implementation "org.joml:joml:${jomlVersion}"
 
     testImplementation 'ch.qos.logback:logback-classic:1.5.20'
