@@ -21,7 +21,7 @@ import com.sun.net.httpserver.HttpServer;
 
 class OpenMeteoClientTest {
 	private static final String RESPONSE = """
-			{"latitude":33.25,"longitude":-117.25,"elevation":29.0,"current":{
+			{"latitude":33.25,"longitude":-117.25,"elevation":29.0,"timezone":"America/Los_Angeles","current":{
 			"time":"2026-08-11T21:45","temperature_2m":22.7,"surface_pressure":1010.4,
 			"relative_humidity_2m":83,"wind_speed_10m":1.3,"wind_direction_10m":257,
 			"wind_gusts_10m":2.1,"wind_speed_80m":2.0,"wind_direction_80m":260}}
@@ -107,6 +107,24 @@ class OpenMeteoClientTest {
 		assertTrue(variables.contains("wind_speed_10m"));
 		assertTrue(variables.contains("geopotential_height_30hPa"));
 		assertEquals(69, variables.split(",").length);
+	}
+
+	@Test
+	void resolvesAndCachesTheTimezoneForCoordinates() throws Exception {
+		assertEquals("America/Los_Angeles", client().resolveTimezone(33.2448, -117.27761).getId());
+		assertEquals("America/Los_Angeles", client().resolveTimezone(33.2449, -117.2779).getId());
+		assertEquals(1, requests.get());
+	}
+
+	@Test
+	void parsesTimezoneFromLocationSearch() throws Exception {
+		String json = """
+				{"results":[{"name":"Starbase","country":"United States","latitude":25.99227,
+				"longitude":-97.180038,"timezone":"America/Chicago"}]}
+				""";
+
+		OpenMeteoClient.LocationSearchResult result = OpenMeteoClient.parseLocations(json).get(0);
+		assertEquals("America/Chicago", result.timezoneId());
 	}
 
 	private OpenMeteoClient client() {

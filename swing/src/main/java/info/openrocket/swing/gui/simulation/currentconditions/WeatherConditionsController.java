@@ -26,7 +26,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -89,50 +88,97 @@ public final class WeatherConditionsController {
 	}
 
 	private WeatherRequest chooseWeatherRequest(Window owner, SimulationOptions options) {
-		Instant now = Instant.now();
-		Instant firstForecastHour = now.truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.HOURS);
-		Instant lastForecastHour = LocalDate.ofInstant(now, ZoneOffset.UTC)
-				.plusDays(OpenMeteoClient.MAX_FORECAST_DAYS - 1L).atTime(23, 0).toInstant(ZoneOffset.UTC);
-
-		Instant initialForecastTime = selectedForecastTime != null
-				&& !selectedForecastTime.isBefore(firstForecastHour) && !selectedForecastTime.isAfter(lastForecastHour)
-				? selectedForecastTime : null;
-		Instant[] forecastTime = { initialForecastTime };
-		DateTimeFormatter forecastTimeFormat = DateTimeFormatter.ofPattern("MMM d, uuuu h:mm a z",
-				Locale.getDefault()).withZone(ZoneId.systemDefault());
+		Instant[] forecastTime = { selectedForecastTime };
+		ZoneId[] selectedTimezone = { timezoneOf(selectedWeatherLocation) };
 		JLabel dateTime = new JLabel(forecastTime[0] == null
-				? trans.get("simedtdlg.lbl.currentTime") : forecastTimeFormat.format(forecastTime[0]));
+				? trans.get("simedtdlg.lbl.currentTime") : formatForecastTime(forecastTime[0], selectedTimezone[0]));
 		JButton chooseDateTime = new JButton(trans.get("simedtdlg.but.chooseForecastTime"));
-		chooseDateTime.addActionListener(e -> {
-			ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(owner, forecastTime[0], firstForecastHour,
-					lastForecastHour);
-			if (chosen != null) {
-				forecastTime[0] = chosen.now() ? null : chosen.forecastAt();
-				dateTime.setText(chosen.now()
-						? trans.get("simedtdlg.lbl.currentTime") : forecastTimeFormat.format(chosen.forecastAt()));
-			}
-		});
 
 		DeviceLocation configuredLocation = new DeviceLocation(options.getLaunchLatitude(), options.getLaunchLongitude(),
 				options.getLaunchAltitude(), Double.NaN, trans.get("simedtdlg.lbl.configuredCoordinates"));
 		boolean launchSiteSet = Math.abs(options.getLaunchLatitude() - Application.getPreferences().getLaunchLatitude())
 				> 0.000001
 				|| Math.abs(options.getLaunchLongitude() - Application.getPreferences().getLaunchLongitude()) > 0.000001;
-		DeviceLocation[] selectedLocation = { selectedWeatherLocation };
+		DeviceLocation[] selectedLocation = { selectedWeatherLocation != null
+				? selectedWeatherLocation : launchSiteSet ? configuredLocation : null };
 		JLabel locationLabel = new JLabel(selectedWeatherLocation != null
 				? formatLocation(selectedWeatherLocation) : launchSiteSet
 				? formatLocation(configuredLocation)
 				: trans.get("simedtdlg.lbl.deviceLocationWillBeRequested"));
 		JButton chooseLocation = new JButton(trans.get("simedtdlg.but.chooseWeatherLocation"));
+		JLabel availability = new JLabel();
+		Runnable refreshTimezoneLabels = () -> {
+			ZoneId timezone = selectedTimezone[0] == null ? ZoneId.systemDefault() : selectedTimezone[0];
+			availability.setText(String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
+					OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
+			dateTime.setText(forecastTime[0] == null ? trans.get("simedtdlg.lbl.currentTime")
+					: formatForecastTime(forecastTime[0], timezone));
+		};
+		java.util.function.Consumer<DeviceLocation> updateLocation = chosen -> {
+			selectedLocation[0] = chosen;
+			selectedTimezone[0] = timezoneOf(chosen);
+			locationLabel.setText(formatLocation(chosen));
+			refreshTimezoneLabels.run();
+		};
 		chooseLocation.addActionListener(e -> {
 			DeviceLocation initial = selectedLocation[0] == null ? configuredLocation : selectedLocation[0];
 			DeviceLocation chosen = LocationPickerDialog.show(owner, initial, configuredLocation,
 					selectedLocation[0] == null && !launchSiteSet);
 			if (chosen != null) {
-				selectedLocation[0] = chosen;
-				locationLabel.setText(formatLocation(chosen));
+				updateLocation.accept(chosen);
 			}
 		});
+		chooseDateTime.addActionListener(e -> {
+			if (selectedLocation[0] == null) {
+				DeviceLocation chosen = LocationPickerDialog.show(owner, configuredLocation, configuredLocation, true);
+				if (chosen == null) {
+					return;
+				}
+				updateLocation.accept(chosen);
+			}
+			Runnable showPicker = () -> {
+				ZoneId timezone = selectedTimezone[0] == null ? ZoneId.systemDefault() : selectedTimezone[0];
+				Instant now = Instant.now();
+				Instant firstForecastHour = now.truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.HOURS);
+				Instant lastForecastHour = LocalDate.ofInstant(now, timezone)
+						.plusDays(OpenMeteoClient.MAX_FORECAST_DAYS - 1L).atTime(23, 0).atZone(timezone).toInstant();
+				Instant initial = forecastTime[0] != null && !forecastTime[0].isBefore(firstForecastHour)
+						&& !forecastTime[0].isAfter(lastForecastHour) ? forecastTime[0] : null;
+				ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(owner, initial, firstForecastHour,
+						lastForecastHour, timezone);
+				if (chosen != null) {
+					forecastTime[0] = chosen.now() ? null : chosen.forecastAt();
+					refreshTimezoneLabels.run();
+				}
+			};
+			if (selectedTimezone[0] != null) {
+				showPicker.run();
+				return;
+			}
+			chooseDateTime.setEnabled(false);
+			chooseDateTime.setText(trans.get("simedtdlg.lbl.resolvingTimezone"));
+			DeviceLocation location = selectedLocation[0];
+			new SwingWorker<ZoneId, Void>() {
+				@Override
+				protected ZoneId doInBackground() throws Exception {
+					return new OpenMeteoClient().resolveTimezone(location.latitude(), location.longitude());
+				}
+
+				@Override
+				protected void done() {
+					chooseDateTime.setEnabled(true);
+					chooseDateTime.setText(trans.get("simedtdlg.but.chooseForecastTime"));
+					try {
+						ZoneId timezone = get();
+						updateLocation.accept(location.withTimezone(timezone.getId()));
+						showPicker.run();
+					} catch (Exception exception) {
+						showCurrentConditionsError(chooseDateTime, trans.get("simedtdlg.msg.timezoneLookupFailed"));
+					}
+				}
+			}.execute();
+		});
+		refreshTimezoneLabels.run();
 
 		JPanel chooser = new JPanel(new MigLayout("insets 0, fillx", "[grow]"));
 		JPanel timeRow = new JPanel(new MigLayout("insets 0, fillx", "[][grow][]"));
@@ -140,8 +186,7 @@ public final class WeatherConditionsController {
 		timeRow.add(dateTime, "alignx left");
 		timeRow.add(chooseDateTime);
 		chooser.add(timeRow, "growx, wrap");
-		chooser.add(new JLabel(String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
-				OpenMeteoClient.MAX_FORECAST_DAYS, ZoneId.systemDefault().getId())), "span, gapbottom rel, wrap");
+		chooser.add(availability, "span, gapbottom rel, wrap");
 		chooser.add(new JSeparator(), "span, growx, gapbottom rel, wrap");
 		chooser.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")), "split 2, growx");
 		chooser.add(chooseLocation, "wrap");
@@ -159,9 +204,27 @@ public final class WeatherConditionsController {
 		return new WeatherRequest(forecastTime[0], locationSource, selectedLocation[0], false);
 	}
 
+	private static ZoneId timezoneOf(DeviceLocation location) {
+		if (location == null || location.timezoneId() == null || location.timezoneId().isBlank()) {
+			return null;
+		}
+		try {
+			return ZoneId.of(location.timezoneId());
+		} catch (RuntimeException ignored) {
+			return null;
+		}
+	}
+
+	private static String formatForecastTime(Instant time, ZoneId timezone) {
+		ZoneId zone = timezone == null ? ZoneId.systemDefault() : timezone;
+		return DateTimeFormatter.ofPattern("MMM d, uuuu h:mm a z", Locale.getDefault()).withZone(zone).format(time);
+	}
+
 	private static String formatLocation(DeviceLocation location) {
-		return String.format(Locale.ROOT, "%s: %.5f°, %.5f°", location.source(), location.latitude(),
-				location.longitude());
+		String timezone = location.timezoneId() == null || location.timezoneId().isBlank()
+				? "" : " (" + location.timezoneId() + ")";
+		return String.format(Locale.ROOT, "%s: %.5f°, %.5f°%s", location.source(), location.latitude(),
+				location.longitude(), timezone);
 	}
 
 	private void fetchWeatherConditions(JButton button, SimulationOptions options, WeatherRequest request) {
@@ -184,6 +247,9 @@ public final class WeatherConditionsController {
 				};
 				SwingUtilities.invokeLater(() -> button.setText(trans.get("simedtdlg.lbl.fetchingWeather")));
 				OpenMeteoClient client = new OpenMeteoClient();
+				if (timezoneOf(location) == null) {
+					location = location.withTimezone(client.resolveTimezone(location.latitude(), location.longitude()).getId());
+				}
 				FetchResult fetchResult;
 				if (request.isForecast()) {
 					fetchResult = request.forceRefresh()
@@ -205,6 +271,7 @@ public final class WeatherConditionsController {
 				boolean restarted = false;
 				try {
 					ConditionsLookup lookup = get();
+					selectedWeatherLocation = lookup.location();
 					WeatherPreviewResult previewResult = confirmWeatherConditions(panelOwner(button), lookup);
 					if (previewResult != null && previewResult.forceRefresh()) {
 						restarted = true;
@@ -220,7 +287,7 @@ public final class WeatherConditionsController {
 				} catch (ExecutionException e) {
 					Throwable cause = e.getCause();
 					if (cause instanceof RefreshRateLimitException rateLimit) {
-						String availableAt = formatWeatherTime(rateLimit.getAvailableAt());
+						String availableAt = formatWeatherTime(rateLimit.getAvailableAt(), timezoneOf(request.selectedLocation()));
 						showCurrentConditionsError(button, String.format(Locale.ROOT,
 								trans.get("simedtdlg.msg.forceRefreshRateLimited"), availableAt));
 					} else if (request.usesDeviceLocation() && cause instanceof LocationException) {
@@ -247,9 +314,10 @@ public final class WeatherConditionsController {
 		worker.execute();
 	}
 
-	private static String formatWeatherTime(Instant time) {
+	private static String formatWeatherTime(Instant time, ZoneId timezone) {
+		ZoneId zone = timezone == null ? ZoneId.systemDefault() : timezone;
 		return DateTimeFormatter.ofPattern("MMM d, uuuu h:mm:ss a z", Locale.getDefault())
-				.withZone(ZoneId.systemDefault()).format(time);
+				.withZone(zone).format(time);
 	}
 
 	private WeatherPreviewResult confirmWeatherConditions(Window owner, ConditionsLookup lookup) {
@@ -257,8 +325,9 @@ public final class WeatherConditionsController {
 		WeatherEdits edits = editsFor(conditions);
 		String preview = trans.get(lookup.request().isForecast()
 				? "simedtdlg.msg.forecastConditionsPreview" : "simedtdlg.msg.currentConditionsPreview");
+		ZoneId timezone = timezoneOf(lookup.location());
 		String validAt = DateTimeFormatter.ofPattern("MMM d, uuuu h:mm a z", Locale.getDefault())
-				.withZone(ZoneId.systemDefault()).format(conditions.validAt());
+				.withZone(timezone == null ? ZoneId.systemDefault() : timezone).format(conditions.validAt());
 		String accuracy = Double.isFinite(lookup.location().horizontalAccuracy())
 				? String.format(Locale.ROOT, " (±%.0f m)", lookup.location().horizontalAccuracy()) : "";
 		ApplySelection selection = weatherApplySelection;
@@ -273,7 +342,7 @@ public final class WeatherConditionsController {
 					Math.toDegrees(surfaceWind.direction()), conditions.windGust(), edits.windLayers.size(),
 					edits.windLayers.get(edits.windLayers.size() - 1).altitude(),
 					trans.get("simedtdlg.msg.weatherAttribution"));
-			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult());
+			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult(), timezone);
 			if (action == WeatherPreviewAction.APPLY) {
 				weatherApplySelection = selection;
 				return new WeatherPreviewResult(selection, edits, false);
@@ -293,7 +362,8 @@ public final class WeatherConditionsController {
 		}
 	}
 
-	private static WeatherPreviewAction showWeatherPreviewDialog(Window owner, String summary, FetchResult fetchResult) {
+	private static WeatherPreviewAction showWeatherPreviewDialog(Window owner, String summary, FetchResult fetchResult,
+			ZoneId timezone) {
 		JDialog dialog = new JDialog(owner, trans.get("simedtdlg.title.currentConditions"),
 				JDialog.ModalityType.APPLICATION_MODAL);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -339,7 +409,7 @@ public final class WeatherConditionsController {
 				if (Instant.now().isBefore(availableAt)) {
 					JOptionPane.showMessageDialog(dialog,
 							String.format(Locale.ROOT, trans.get("simedtdlg.msg.forceRefreshRateLimited"),
-									formatWeatherTime(availableAt)),
+									formatWeatherTime(availableAt, timezone)),
 							trans.get("simedtdlg.title.currentConditions"), JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}

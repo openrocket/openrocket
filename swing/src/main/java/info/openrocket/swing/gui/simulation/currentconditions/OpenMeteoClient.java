@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -51,6 +52,7 @@ public class OpenMeteoClient {
 	private static final double DEFAULT_UPPER_AIR_TURBULENCE_INTENSITY = 0.10;
 	private static final Map<WeatherCacheKey, CachedConditions> WEATHER_CACHE = new LinkedHashMap<>(16, 0.75f, true);
 	private static final Map<WeatherCacheKey, Instant> LAST_FORCE_REFRESH = new LinkedHashMap<>(16, 0.75f, true);
+	private static final Map<LocationCell, ZoneId> TIMEZONE_CACHE = new LinkedHashMap<>(16, 0.75f, true);
 	private static final Map<WeatherCacheKey, CompletableFuture<FetchResult>> IN_FLIGHT = new ConcurrentHashMap<>();
 	private static final Object REQUEST_RATE_LOCK = new Object();
 	private static final Object GEOCODING_RATE_LOCK = new Object();
@@ -282,6 +284,7 @@ public class OpenMeteoClient {
 	static synchronized void clearCachesForTesting() {
 		WEATHER_CACHE.clear();
 		LAST_FORCE_REFRESH.clear();
+		TIMEZONE_CACHE.clear();
 		IN_FLIGHT.clear();
 		nextRequestNanos = 0;
 		nextGeocodingRequestNanos = 0;
@@ -338,6 +341,53 @@ public class OpenMeteoClient {
 		}
 	}
 
+	public ZoneId resolveTimezone(double latitude, double longitude) throws IOException {
+		validateCoordinates(latitude, longitude);
+		LocationCell cell = LocationCell.of(latitude, longitude);
+		synchronized (OpenMeteoClient.class) {
+			ZoneId cached = TIMEZONE_CACHE.get(cell);
+			if (cached != null) {
+				return cached;
+			}
+		}
+		URI uri = weatherUri("latitude=" + format(latitude) + "&longitude=" + format(longitude)
+				+ "&timezone=auto&forecast_days=1");
+		throttleWeatherRequests();
+		HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+		connection.setConnectTimeout(10_000);
+		connection.setReadTimeout(20_000);
+		connection.setRequestProperty("Accept", "application/json");
+		connection.setRequestProperty("User-Agent", "OpenRocket weather location picker (https://openrocket.info/)");
+		try {
+			int status = connection.getResponseCode();
+			InputStream stream = status >= 200 && status < 300
+					? connection.getInputStream() : connection.getErrorStream();
+			String response = readResponse(stream);
+			if (status < 200 || status >= 300) {
+				throw new IOException("Timezone lookup returned HTTP " + status + responseReason(response));
+			}
+			ZoneId timezone = parseTimezone(response);
+			synchronized (OpenMeteoClient.class) {
+				if (TIMEZONE_CACHE.size() >= MAX_CACHE_ENTRIES) {
+					TIMEZONE_CACHE.remove(TIMEZONE_CACHE.keySet().iterator().next());
+				}
+				TIMEZONE_CACHE.put(cell, timezone);
+			}
+			return timezone;
+		} finally {
+			connection.disconnect();
+		}
+	}
+
+	static ZoneId parseTimezone(String json) throws IOException {
+		try {
+			JsonObject root = JsonParser.parseString(json).getAsJsonObject();
+			return ZoneId.of(requiredString(root, "timezone"));
+		} catch (IllegalStateException | JsonParseException | NullPointerException | java.time.DateTimeException e) {
+			throw new IOException("Timezone lookup returned an invalid response", e);
+		}
+	}
+
 	static List<LocationSearchResult> parseLocations(String json) throws IOException {
 		try {
 			JsonObject root = JsonParser.parseString(json).getAsJsonObject();
@@ -349,7 +399,8 @@ public class OpenMeteoClient {
 				JsonObject result = element.getAsJsonObject();
 				results.add(new LocationSearchResult(requiredString(result, "name"),
 						optionalString(result, "admin1"), optionalString(result, "country"),
-						requiredDouble(result, "latitude"), requiredDouble(result, "longitude")));
+						requiredDouble(result, "latitude"), requiredDouble(result, "longitude"),
+						optionalString(result, "timezone")));
 			}
 			return results;
 		} catch (IllegalStateException | JsonParseException | NullPointerException e) {
@@ -584,6 +635,12 @@ public class OpenMeteoClient {
 		}
 	}
 
+	private record LocationCell(long latitude, long longitude) {
+		private static LocationCell of(double latitude, double longitude) {
+			return new LocationCell(WeatherCacheKey.locationCell(latitude), WeatherCacheKey.locationCell(longitude));
+		}
+	}
+
 	private record CachedConditions(CurrentConditions conditions, Instant expiresAt) {
 	}
 
@@ -610,7 +667,7 @@ public class OpenMeteoClient {
 	}
 
 	public record LocationSearchResult(String name, String region, String country, double latitude,
-			double longitude) {
+			double longitude, String timezoneId) {
 		@Override
 		public String toString() {
 			return String.join(", ", java.util.stream.Stream.of(name, region, country)

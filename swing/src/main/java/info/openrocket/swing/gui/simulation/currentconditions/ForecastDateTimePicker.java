@@ -33,8 +33,7 @@ public final class ForecastDateTimePicker {
 	private ForecastDateTimePicker() {
 	}
 
-	public static Selection show(Window owner, Instant initial, Instant minimum, Instant maximum) {
-		ZoneId zone = ZoneId.systemDefault();
+	public static Selection show(Window owner, Instant initial, Instant minimum, Instant maximum, ZoneId zone) {
 		ZonedDateTime initialLocal = (initial == null ? minimum : initial).atZone(zone);
 		LocalDate minimumDate = minimum.atZone(zone).toLocalDate();
 		LocalDate maximumDate = maximum.atZone(zone).toLocalDate();

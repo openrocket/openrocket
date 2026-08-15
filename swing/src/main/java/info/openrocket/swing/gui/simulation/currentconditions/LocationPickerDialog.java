@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Window;
@@ -25,6 +26,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -39,8 +41,10 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -55,6 +59,7 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.simulation.currentconditions.OpenMeteoClient.LocationSearchResult;
+import info.openrocket.swing.gui.simulation.currentconditions.SavedPadRepository.SavedPad;
 import info.openrocket.swing.gui.util.URLUtil;
 
 /**
@@ -71,6 +76,7 @@ public final class LocationPickerDialog {
 				JDialog.ModalityType.APPLICATION_MODAL);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		MapPanel map = new MapPanel(initial.latitude(), initial.longitude());
+		SavedPadRepository padRepository = new SavedPadRepository();
 		Set<SwingWorker<?, ?>> dialogWorkers = ConcurrentHashMap.newKeySet();
 		DeviceLocation[] selected = { initial };
 		DeviceLocation[] result = { null };
@@ -135,6 +141,94 @@ public final class LocationPickerDialog {
 		JPanel mapControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
 		mapControls.add(myLocation);
 		mapControls.add(launchSite);
+		DefaultComboBoxModel<SavedPad> savedPadsModel = new DefaultComboBoxModel<>();
+		JComboBox<SavedPad> savedPads = new JComboBox<>(savedPadsModel);
+		savedPads.setPreferredSize(new Dimension(220, savedPads.getPreferredSize().height));
+		Runnable refreshSavedPads = () -> {
+			savedPadsModel.removeAllElements();
+			for (SavedPad pad : padRepository.load()) {
+				savedPadsModel.addElement(pad);
+			}
+			savedPads.setSelectedIndex(-1);
+			savedPads.setEnabled(savedPadsModel.getSize() > 0);
+		};
+		refreshSavedPads.run();
+		savedPads.addActionListener(e -> {
+			if (!(savedPads.getSelectedItem() instanceof SavedPad pad)) {
+				return;
+			}
+			DeviceLocation location = pad.location();
+			selected[0] = location;
+			map.setMarker(location.latitude(), location.longitude(), true, true);
+			map.setZoom(12);
+			updatingCoordinates[0] = true;
+			latitudeSpinner.setValue(location.latitude());
+			longitudeSpinner.setValue(location.longitude());
+			updatingCoordinates[0] = false;
+			status.setVisible(false);
+			useLocation.setEnabled(true);
+		});
+		JButton savePad = new JButton(TRANS.get("simedtdlg.but.savePad"));
+		savePad.addActionListener(e -> {
+			String name = JOptionPane.showInputDialog(dialog, TRANS.get("simedtdlg.msg.padName"),
+					TRANS.get("simedtdlg.title.savePad"), JOptionPane.PLAIN_MESSAGE);
+			if (name == null || name.isBlank()) {
+				return;
+			}
+			DeviceLocation location = selected[0];
+			savePad.setEnabled(false);
+			status.setText(TRANS.get("simedtdlg.lbl.resolvingTimezone"));
+			status.setVisible(true);
+			SwingWorker<DeviceLocation, Void> worker = new SwingWorker<>() {
+				@Override
+				protected DeviceLocation doInBackground() throws Exception {
+					if (location.timezoneId() != null && !location.timezoneId().isBlank()) {
+						return location;
+					}
+					ZoneId timezone = new OpenMeteoClient().resolveTimezone(location.latitude(), location.longitude());
+					return location.withTimezone(timezone.getId());
+				}
+
+				@Override
+				protected void done() {
+					dialogWorkers.remove(this);
+					savePad.setEnabled(true);
+					try {
+						DeviceLocation resolved = get();
+						selected[0] = resolved;
+						SavedPad saved = padRepository.save(name, resolved);
+						refreshSavedPads.run();
+						savedPads.setSelectedItem(saved);
+						status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.padSaved"), saved.name()));
+						status.setVisible(true);
+					} catch (Exception exception) {
+						status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.timezoneLookupFailedDetail"),
+								rootMessage(exception)));
+						status.setVisible(true);
+					}
+				}
+			};
+			dialogWorkers.add(worker);
+			worker.execute();
+		});
+		JButton deletePad = new JButton(TRANS.get("simedtdlg.but.deletePad"));
+		deletePad.addActionListener(e -> {
+			if (!(savedPads.getSelectedItem() instanceof SavedPad pad)) {
+				return;
+			}
+			int choice = JOptionPane.showConfirmDialog(dialog,
+					MessageFormat.format(TRANS.get("simedtdlg.msg.deletePad"), pad.name()),
+					TRANS.get("simedtdlg.title.deletePad"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (choice == JOptionPane.YES_OPTION) {
+				padRepository.delete(pad);
+				refreshSavedPads.run();
+			}
+		});
+		JPanel savedPadControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+		savedPadControls.add(new JLabel(TRANS.get("simedtdlg.lbl.savedPads")));
+		savedPadControls.add(savedPads);
+		savedPadControls.add(savePad);
+		savedPadControls.add(deletePad);
 		JPanel coordinateEditor = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
 		JLabel latitudeLabel = new JLabel(TRANS.get("simedtdlg.lbl.Latitude"));
 		latitudeLabel.setLabelFor(latitudeSpinner);
@@ -147,17 +241,18 @@ public final class LocationPickerDialog {
 
 		JButton cancel = new JButton(TRANS.get("dlg.but.cancel"));
 		cancel.addActionListener(e -> dialog.dispose());
-		useLocation.addActionListener(e -> {
-			result[0] = selected[0];
-			dialog.dispose();
-		});
+		useLocation.addActionListener(e -> resolveTimezoneAndClose(dialog, selected, result, useLocation, status,
+				dialogWorkers));
 		JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		actions.add(cancel);
 		actions.add(useLocation);
 
 		JPanel footer = new JPanel(new BorderLayout(8, 6));
-		footer.add(mapControls, BorderLayout.NORTH);
-		footer.add(coordinateEditor, BorderLayout.CENTER);
+		JPanel locationControls = new JPanel(new GridLayout(0, 1, 0, 6));
+		locationControls.add(mapControls);
+		locationControls.add(savedPadControls);
+		locationControls.add(coordinateEditor);
+		footer.add(locationControls, BorderLayout.NORTH);
 		JEditorPane attribution = new JEditorPane("text/html", TRANS.get("simedtdlg.lbl.mapAttribution"));
 		attribution.setEditable(false);
 		attribution.setFocusable(false);
@@ -253,8 +348,8 @@ public final class LocationPickerDialog {
 							results.toArray(), results.get(0));
 					if (choice != null) {
 						map.setMarker(choice.latitude(), choice.longitude(), true, true);
-					selected[0] = new DeviceLocation(choice.latitude(), choice.longitude(), Double.NaN, Double.NaN,
-								choice.toString());
+						selected[0] = new DeviceLocation(choice.latitude(), choice.longitude(), Double.NaN, Double.NaN,
+								choice.toString(), choice.timezoneId());
 						map.setZoom(10);
 						status.setVisible(false);
 						useLocation.setEnabled(true);
@@ -298,6 +393,42 @@ public final class LocationPickerDialog {
 				} catch (Exception e) {
 					status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.deviceLocationUnavailable"),
 							rootMessage(e)));
+					status.setVisible(true);
+				}
+			}
+		};
+		workers.add(worker);
+		worker.execute();
+	}
+
+	private static void resolveTimezoneAndClose(JDialog dialog, DeviceLocation[] selected, DeviceLocation[] result,
+			JButton useLocation, JLabel status, Set<SwingWorker<?, ?>> workers) {
+		DeviceLocation location = selected[0];
+		if (location.timezoneId() != null && !location.timezoneId().isBlank()) {
+			result[0] = location;
+			dialog.dispose();
+			return;
+		}
+		useLocation.setEnabled(false);
+		status.setText(TRANS.get("simedtdlg.lbl.resolvingTimezone"));
+		status.setVisible(true);
+		SwingWorker<DeviceLocation, Void> worker = new SwingWorker<>() {
+			@Override
+			protected DeviceLocation doInBackground() throws Exception {
+				ZoneId timezone = new OpenMeteoClient().resolveTimezone(location.latitude(), location.longitude());
+				return location.withTimezone(timezone.getId());
+			}
+
+			@Override
+			protected void done() {
+				workers.remove(this);
+				useLocation.setEnabled(true);
+				try {
+					result[0] = get();
+					dialog.dispose();
+				} catch (Exception exception) {
+					status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.timezoneLookupFailedDetail"),
+							rootMessage(exception)));
 					status.setVisible(true);
 				}
 			}
