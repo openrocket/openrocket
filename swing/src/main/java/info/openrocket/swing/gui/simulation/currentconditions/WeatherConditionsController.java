@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -174,8 +175,10 @@ public final class WeatherConditionsController {
 		refreshTimezoneLabels.run();
 
 		JPanel chooser = new JPanel(new MigLayout("insets 0, fillx", "[grow]"));
-		chooser.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")), "split 2, growx");
-		chooser.add(chooseLocation, "wrap");
+		JPanel locationRow = new JPanel(new MigLayout("insets 0, fillx", "[grow][]"));
+		locationRow.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")));
+		locationRow.add(chooseLocation);
+		chooser.add(locationRow, "growx, wrap");
 		chooser.add(locationLabel, "gapbottom rel, wrap");
 		chooser.add(new JSeparator(), "span, growx, gapbottom rel, wrap");
 		JPanel timeRow = new JPanel(new MigLayout("insets 0, fillx", "[][grow][]"));
@@ -184,6 +187,9 @@ public final class WeatherConditionsController {
 		timeRow.add(chooseDateTime);
 		chooser.add(timeRow, "growx, wrap");
 		chooser.add(availability, "span, wrap");
+		Dimension preferred = chooser.getPreferredSize();
+		int controlsWidth = Math.max(locationRow.getPreferredSize().width, timeRow.getPreferredSize().width);
+		chooser.setPreferredSize(new Dimension(Math.max(preferred.width, controlsWidth), preferred.height));
 
 		int choice = JOptionPane.showConfirmDialog(owner, chooser, trans.get("simedtdlg.title.currentConditions"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
