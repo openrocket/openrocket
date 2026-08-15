@@ -89,9 +89,7 @@ public final class WeatherConditionsController {
 
 	private WeatherRequest chooseWeatherRequest(Window owner, SimulationOptions options) {
 		Instant[] forecastTime = { selectedForecastTime };
-		JLabel dateTime = new JLabel(forecastTime[0] == null
-				? trans.get("simedtdlg.lbl.currentTime") : formatForecastTime(forecastTime[0],
-						timezoneOf(selectedWeatherLocation)));
+		JLabel dateTime = new JLabel();
 		JButton chooseDateTime = new JButton(trans.get("simedtdlg.but.chooseForecastTime"));
 
 		DeviceLocation configuredLocation = new DeviceLocation(options.getLaunchLatitude(), options.getLaunchLongitude(),
@@ -111,8 +109,11 @@ public final class WeatherConditionsController {
 							OpenMeteoClient.MAX_FORECAST_DAYS)
 					: String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
 							OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
-			dateTime.setText(forecastTime[0] == null ? trans.get("simedtdlg.lbl.currentTime")
-					: formatForecastTime(forecastTime[0], timezone));
+			String conditionsFor = trans.get("simedtdlg.lbl.conditionsFor");
+			dateTime.setText(forecastTime[0] == null
+					? "<html>" + conditionsFor + " " + trans.get("simedtdlg.lbl.currentTime") + "<br>&nbsp;</html>"
+					: "<html>" + conditionsFor + "<br>" + formatForecastTime(forecastTime[0], timezone)
+							+ "</html>");
 		};
 		java.util.function.Consumer<DeviceLocation> updateLocation = chosen -> {
 			selectedLocation[0] = chosen;
@@ -181,10 +182,9 @@ public final class WeatherConditionsController {
 		chooser.add(locationLabel, "gapbottom rel, wrap");
 		chooser.add(new JSeparator(), "span, growx, gapbottom rel, wrap");
 		JPanel timeRow = new JPanel(new MigLayout("insets 0, fillx", "[grow][]"));
-		timeRow.add(new JLabel(trans.get("simedtdlg.lbl.conditionsFor")));
+		timeRow.add(dateTime);
 		timeRow.add(chooseDateTime);
 		chooser.add(timeRow, "growx, wrap");
-		chooser.add(dateTime, "wrap");
 		chooser.add(availability, "span, wrap");
 
 		int choice = JOptionPane.showConfirmDialog(owner, chooser, trans.get("simedtdlg.title.currentConditions"),
