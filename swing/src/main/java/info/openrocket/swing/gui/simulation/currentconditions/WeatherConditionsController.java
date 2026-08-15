@@ -108,9 +108,12 @@ public final class WeatherConditionsController {
 		JButton chooseLocation = new JButton(trans.get("simedtdlg.but.chooseWeatherLocation"));
 		JLabel availability = new JLabel();
 		Runnable refreshTimezoneLabels = () -> {
-			ZoneId timezone = selectedTimezone[0] == null ? ZoneId.systemDefault() : selectedTimezone[0];
-			availability.setText(String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
-					OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
+			ZoneId timezone = selectedTimezone[0];
+			availability.setText(timezone == null
+					? String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailabilityPendingTimezone"),
+							OpenMeteoClient.MAX_FORECAST_DAYS)
+					: String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
+							OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
 			dateTime.setText(forecastTime[0] == null ? trans.get("simedtdlg.lbl.currentTime")
 					: formatForecastTime(forecastTime[0], timezone));
 		};
@@ -181,16 +184,16 @@ public final class WeatherConditionsController {
 		refreshTimezoneLabels.run();
 
 		JPanel chooser = new JPanel(new MigLayout("insets 0, fillx", "[grow]"));
+		chooser.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")), "split 2, growx");
+		chooser.add(chooseLocation, "wrap");
+		chooser.add(locationLabel, "gapbottom rel, wrap");
+		chooser.add(new JSeparator(), "span, growx, gapbottom rel, wrap");
 		JPanel timeRow = new JPanel(new MigLayout("insets 0, fillx", "[][grow][]"));
 		timeRow.add(new JLabel(trans.get("simedtdlg.lbl.conditionsFor")));
 		timeRow.add(dateTime, "alignx left");
 		timeRow.add(chooseDateTime);
 		chooser.add(timeRow, "growx, wrap");
-		chooser.add(availability, "span, gapbottom rel, wrap");
-		chooser.add(new JSeparator(), "span, growx, gapbottom rel, wrap");
-		chooser.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")), "split 2, growx");
-		chooser.add(chooseLocation, "wrap");
-		chooser.add(locationLabel, "wrap");
+		chooser.add(availability, "span, wrap");
 
 		int choice = JOptionPane.showConfirmDialog(owner, chooser, trans.get("simedtdlg.title.currentConditions"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);

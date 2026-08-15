@@ -67,6 +67,7 @@ import info.openrocket.swing.gui.util.URLUtil;
  */
 public final class LocationPickerDialog {
 	private static final Translator TRANS = Application.getTranslator();
+	private static final String LAUNCH_SITE_PAD_ID = "launch-site";
 	private LocationPickerDialog() {
 	}
 
@@ -89,8 +90,18 @@ public final class LocationPickerDialog {
 		latitudeSpinner.setEditor(new JSpinner.NumberEditor(latitudeSpinner, "0.00000"));
 		longitudeSpinner.setEditor(new JSpinner.NumberEditor(longitudeSpinner, "0.00000"));
 		boolean[] updatingCoordinates = { false };
+		DefaultComboBoxModel<SavedPad> savedPadsModel = new DefaultComboBoxModel<>();
+		JComboBox<SavedPad> savedPads = new JComboBox<>(savedPadsModel);
+		savedPads.setPreferredSize(new Dimension(220, savedPads.getPreferredSize().height));
+		Runnable clearSavedPadSelection = () -> {
+			if (savedPads.getSelectedIndex() >= 0) {
+				savedPads.setSelectedIndex(-1);
+			}
+			padRepository.clearLastSelected();
+		};
 
 		map.setLocationListener((selectedLatitude, selectedLongitude) -> {
+			clearSavedPadSelection.run();
 			selected[0] = new DeviceLocation(selectedLatitude, selectedLongitude, Double.NaN, Double.NaN,
 					TRANS.get("simedtdlg.lbl.mapSelection"));
 			status.setVisible(false);
@@ -104,6 +115,7 @@ public final class LocationPickerDialog {
 			if (updatingCoordinates[0]) {
 				return;
 			}
+			clearSavedPadSelection.run();
 			double selectedLatitude = ((Number) latitudeSpinner.getValue()).doubleValue();
 			double selectedLongitude = ((Number) longitudeSpinner.getValue()).doubleValue();
 			selected[0] = new DeviceLocation(selectedLatitude, selectedLongitude, Double.NaN, Double.NaN,
@@ -131,35 +143,48 @@ public final class LocationPickerDialog {
 		JButton myLocation = new JButton(TRANS.get("simedtdlg.but.myLocation"));
 		myLocation.addActionListener(e -> requestDeviceLocation(map, myLocation, useLocation, status, selected,
 				dialogWorkers));
-		JButton launchSite = new JButton(TRANS.get("simedtdlg.but.launchSite"));
-		launchSite.addActionListener(e -> {
-			map.setMarker(configured.latitude(), configured.longitude(), true, true);
-			selected[0] = configured;
-			status.setVisible(false);
-			useLocation.setEnabled(true);
-		});
-		JPanel mapControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-		mapControls.add(myLocation);
-		mapControls.add(launchSite);
-		DefaultComboBoxModel<SavedPad> savedPadsModel = new DefaultComboBoxModel<>();
-		JComboBox<SavedPad> savedPads = new JComboBox<>(savedPadsModel);
-		savedPads.setPreferredSize(new Dimension(220, savedPads.getPreferredSize().height));
+		JButton deletePad = new JButton(TRANS.get("simedtdlg.but.deletePad"));
+		deletePad.setEnabled(false);
+		boolean[] rebuildingSavedPads = { false };
 		Runnable refreshSavedPads = () -> {
+			String selectedId = padRepository.lastSelectedId();
+			List<SavedPad> pads = padRepository.load();
+			rebuildingSavedPads[0] = true;
 			savedPadsModel.removeAllElements();
-			for (SavedPad pad : padRepository.load()) {
+			boolean configuredIsSaved = pads.stream().anyMatch(pad -> sameCoordinates(pad.location(), configured));
+			if (!configuredIsSaved) {
+				savedPadsModel.addElement(new SavedPad(LAUNCH_SITE_PAD_ID,
+						TRANS.get("simedtdlg.but.launchSite"), configured.latitude(), configured.longitude(),
+						configured.timezoneId()));
+			}
+			for (SavedPad pad : pads) {
 				savedPadsModel.addElement(pad);
 			}
 			savedPads.setSelectedIndex(-1);
+			rebuildingSavedPads[0] = false;
 			savedPads.setEnabled(savedPadsModel.getSize() > 0);
+			SavedPad preferred = findPad(savedPadsModel, selectedId);
+			if (preferred == null) {
+				DeviceLocation fallback = LAUNCH_SITE_PAD_ID.equals(selectedId) ? configured : initial;
+				preferred = findPad(savedPadsModel, fallback);
+			}
+			if (preferred != null) {
+				savedPads.setSelectedItem(preferred);
+			}
 		};
-		refreshSavedPads.run();
 		savedPads.addActionListener(e -> {
-			if (!(savedPads.getSelectedItem() instanceof SavedPad pad)) {
+			if (rebuildingSavedPads[0]) {
 				return;
 			}
+			if (!(savedPads.getSelectedItem() instanceof SavedPad pad)) {
+				deletePad.setEnabled(false);
+				return;
+			}
+			deletePad.setEnabled(!LAUNCH_SITE_PAD_ID.equals(pad.id()));
+			padRepository.setLastSelected(pad);
 			DeviceLocation location = pad.location();
 			selected[0] = location;
-			map.setMarker(location.latitude(), location.longitude(), true, true);
+			map.setMarker(location.latitude(), location.longitude(), true, false);
 			map.setZoom(12);
 			updatingCoordinates[0] = true;
 			latitudeSpinner.setValue(location.latitude());
@@ -168,6 +193,7 @@ public final class LocationPickerDialog {
 			status.setVisible(false);
 			useLocation.setEnabled(true);
 		});
+		refreshSavedPads.run();
 		JButton savePad = new JButton(TRANS.get("simedtdlg.but.savePad"));
 		savePad.addActionListener(e -> {
 			String name = JOptionPane.showInputDialog(dialog, TRANS.get("simedtdlg.msg.padName"),
@@ -197,8 +223,8 @@ public final class LocationPickerDialog {
 						DeviceLocation resolved = get();
 						selected[0] = resolved;
 						SavedPad saved = padRepository.save(name, resolved);
+						padRepository.setLastSelected(saved);
 						refreshSavedPads.run();
-						savedPads.setSelectedItem(saved);
 						status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.padSaved"), saved.name()));
 						status.setVisible(true);
 					} catch (Exception exception) {
@@ -211,9 +237,8 @@ public final class LocationPickerDialog {
 			dialogWorkers.add(worker);
 			worker.execute();
 		});
-		JButton deletePad = new JButton(TRANS.get("simedtdlg.but.deletePad"));
 		deletePad.addActionListener(e -> {
-			if (!(savedPads.getSelectedItem() instanceof SavedPad pad)) {
+			if (!(savedPads.getSelectedItem() instanceof SavedPad pad) || LAUNCH_SITE_PAD_ID.equals(pad.id())) {
 				return;
 			}
 			int choice = JOptionPane.showConfirmDialog(dialog,
@@ -224,11 +249,12 @@ public final class LocationPickerDialog {
 				refreshSavedPads.run();
 			}
 		});
-		JPanel savedPadControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-		savedPadControls.add(new JLabel(TRANS.get("simedtdlg.lbl.savedPads")));
-		savedPadControls.add(savedPads);
-		savedPadControls.add(savePad);
-		savedPadControls.add(deletePad);
+		JPanel mapControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+		mapControls.add(myLocation);
+		mapControls.add(new JLabel(TRANS.get("simedtdlg.lbl.savedPads")));
+		mapControls.add(savedPads);
+		mapControls.add(savePad);
+		mapControls.add(deletePad);
 		JPanel coordinateEditor = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
 		JLabel latitudeLabel = new JLabel(TRANS.get("simedtdlg.lbl.Latitude"));
 		latitudeLabel.setLabelFor(latitudeSpinner);
@@ -250,7 +276,6 @@ public final class LocationPickerDialog {
 		JPanel footer = new JPanel(new BorderLayout(8, 6));
 		JPanel locationControls = new JPanel(new GridLayout(0, 1, 0, 6));
 		locationControls.add(mapControls);
-		locationControls.add(savedPadControls);
 		locationControls.add(coordinateEditor);
 		footer.add(locationControls, BorderLayout.NORTH);
 		JEditorPane attribution = new JEditorPane("text/html", TRANS.get("simedtdlg.lbl.mapAttribution"));
@@ -311,6 +336,34 @@ public final class LocationPickerDialog {
 		}
 		dialog.setVisible(true);
 		return result[0];
+	}
+
+	private static SavedPad findPad(DefaultComboBoxModel<SavedPad> model, String id) {
+		if (id == null) {
+			return null;
+		}
+		for (int i = 0; i < model.getSize(); i++) {
+			SavedPad pad = model.getElementAt(i);
+			if (pad.id().equals(id)) {
+				return pad;
+			}
+		}
+		return null;
+	}
+
+	private static SavedPad findPad(DefaultComboBoxModel<SavedPad> model, DeviceLocation location) {
+		for (int i = 0; i < model.getSize(); i++) {
+			SavedPad pad = model.getElementAt(i);
+			if (sameCoordinates(pad.location(), location)) {
+				return pad;
+			}
+		}
+		return null;
+	}
+
+	private static boolean sameCoordinates(DeviceLocation first, DeviceLocation second) {
+		return Math.abs(first.latitude() - second.latitude()) < 0.00001
+				&& Math.abs(first.longitude() - second.longitude()) < 0.00001;
 	}
 
 	private static void searchLocations(JDialog dialog, MapPanel map, JTextField search, JButton searchButton,
