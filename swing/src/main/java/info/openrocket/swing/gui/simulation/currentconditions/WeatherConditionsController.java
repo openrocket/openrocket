@@ -10,6 +10,8 @@ import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -68,7 +70,9 @@ import net.miginfocom.swing.MigLayout;
 /** Coordinates weather selection, retrieval, preview, customization, and application for a simulation editor. */
 public final class WeatherConditionsController {
 	private static final Translator trans = Application.getTranslator();
-	private static final int CHOOSER_WIDTH = 520;
+	private static final int DEFAULT_CHOOSER_WIDTH = 520;
+	private static final int MINIMUM_CHOOSER_WIDTH = 360;
+	private static final int DIALOG_HORIZONTAL_OVERHEAD = 160;
 	private Instant selectedForecastTime;
 	private DeviceLocation selectedWeatherLocation;
 	private ApplySelection weatherApplySelection = ApplySelection.all();
@@ -189,7 +193,8 @@ public final class WeatherConditionsController {
 		chooser.add(dateTime, "wrap");
 		chooser.add(availability, "span, wrap");
 		Dimension chooserSize = chooser.getPreferredSize();
-		chooser.setPreferredSize(new Dimension(CHOOSER_WIDTH, chooserSize.height));
+		int controlWidth = Math.max(locationRow.getPreferredSize().width, timeRow.getPreferredSize().width);
+		chooser.setPreferredSize(new Dimension(chooserWidth(owner, controlWidth), chooserSize.height));
 
 		int choice = JOptionPane.showConfirmDialog(owner, chooser, trans.get("simedtdlg.title.currentConditions"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -199,6 +204,22 @@ public final class WeatherConditionsController {
 			return null;
 		}
 		return new WeatherRequest(forecastTime[0], LocationSource.SELECTED, selectedLocation[0], false);
+	}
+
+	private static int chooserWidth(Window owner, int controlWidth) {
+		int preferredWidth = Math.max(DEFAULT_CHOOSER_WIDTH, controlWidth);
+		if (owner == null) {
+			return preferredWidth;
+		}
+		GraphicsConfiguration configuration = owner.getGraphicsConfiguration();
+		if (configuration == null) {
+			return preferredWidth;
+		}
+		Rectangle screen = configuration.getBounds();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(configuration);
+		int usableWidth = screen.width - insets.left - insets.right;
+		int maximumWidth = Math.max(MINIMUM_CHOOSER_WIDTH, usableWidth - DIALOG_HORIZONTAL_OVERHEAD);
+		return Math.min(preferredWidth, maximumWidth);
 	}
 
 	private static boolean sameCoordinates(DeviceLocation first, DeviceLocation second) {
