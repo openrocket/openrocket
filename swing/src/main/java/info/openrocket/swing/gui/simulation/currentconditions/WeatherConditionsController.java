@@ -68,7 +68,7 @@ import net.miginfocom.swing.MigLayout;
 /** Coordinates weather selection, retrieval, preview, customization, and application for a simulation editor. */
 public final class WeatherConditionsController {
 	private static final Translator trans = Application.getTranslator();
-	private static final int CHOOSER_WIDTH = 720;
+	private static final int CHOOSER_WIDTH = 520;
 	private Instant selectedForecastTime;
 	private DeviceLocation selectedWeatherLocation;
 	private ApplySelection weatherApplySelection = ApplySelection.all();
@@ -225,8 +225,12 @@ public final class WeatherConditionsController {
 	private static String formatLocation(DeviceLocation location) {
 		String timezone = location.timezoneId() == null || location.timezoneId().isBlank()
 				? "" : " (" + location.timezoneId() + ")";
-		return String.format(Locale.ROOT, "%s: %.5f°, %.5f°%s", location.source(), location.latitude(),
-				location.longitude(), timezone);
+		return String.format(Locale.ROOT, "<html>%s:<br>%.5f°, %.5f°%s</html>", escapeHtml(location.source()),
+				location.latitude(), location.longitude(), timezone);
+	}
+
+	private static String escapeHtml(String value) {
+		return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 	}
 
 	private void fetchWeatherConditions(JButton button, SimulationOptions options, WeatherRequest request) {
