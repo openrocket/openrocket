@@ -175,16 +175,12 @@ public final class WeatherConditionsController {
 		refreshTimezoneLabels.run();
 
 		JPanel chooser = new JPanel(new MigLayout("insets 0, fillx", "[grow]"));
-		JPanel locationRow = new JPanel(new MigLayout("insets 0, fillx", "[grow][]"));
-		locationRow.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")));
-		locationRow.add(chooseLocation);
-		chooser.add(locationRow, "growx, wrap");
+		chooser.add(new JLabel(trans.get("simedtdlg.msg.chooseWeatherLocation")), "wrap");
+		chooser.add(chooseLocation, "alignx right, wrap");
 		chooser.add(locationLabel, "gapbottom rel, wrap");
 		chooser.add(new JSeparator(), "span, growx, gapbottom rel, wrap");
-		JPanel timeRow = new JPanel(new MigLayout("insets 0, fillx", "[grow][]"));
-		timeRow.add(dateTime);
-		timeRow.add(chooseDateTime);
-		chooser.add(timeRow, "growx, wrap");
+		chooser.add(dateTime, "wrap");
+		chooser.add(chooseDateTime, "alignx right, wrap");
 		chooser.add(availability, "span, wrap");
 
 		int choice = JOptionPane.showConfirmDialog(owner, chooser, trans.get("simedtdlg.title.currentConditions"),
