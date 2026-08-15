@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -67,6 +68,7 @@ import net.miginfocom.swing.MigLayout;
 /** Coordinates weather selection, retrieval, preview, customization, and application for a simulation editor. */
 public final class WeatherConditionsController {
 	private static final Translator trans = Application.getTranslator();
+	private static final int CHOOSER_WIDTH = 720;
 	private Instant selectedForecastTime;
 	private DeviceLocation selectedWeatherLocation;
 	private ApplySelection weatherApplySelection = ApplySelection.all();
@@ -186,6 +188,8 @@ public final class WeatherConditionsController {
 		chooser.add(timeRow, "growx, wrap");
 		chooser.add(dateTime, "wrap");
 		chooser.add(availability, "span, wrap");
+		Dimension chooserSize = chooser.getPreferredSize();
+		chooser.setPreferredSize(new Dimension(CHOOSER_WIDTH, chooserSize.height));
 
 		int choice = JOptionPane.showConfirmDialog(owner, chooser, trans.get("simedtdlg.title.currentConditions"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
