@@ -12,7 +12,6 @@ import info.openrocket.core.startup.Application;
 /** Stores the user's named launch pads in the platform preferences store. */
 final class SavedPadRepository {
 	private static final String NODE_NAME = "weatherSavedPads";
-	private static final String LAST_SELECTED_PAD = "lastSelectedPad";
 	private final Preferences root;
 
 	SavedPadRepository() {
@@ -68,25 +67,9 @@ final class SavedPadRepository {
 	void delete(SavedPad pad) {
 		try {
 			root.node(pad.id()).removeNode();
-			if (pad.id().equals(lastSelectedId())) {
-				clearLastSelected();
-			}
 		} catch (BackingStoreException ignored) {
 			// The preferences backend is best effort; a failed deletion is harmless.
 		}
-	}
-
-	String lastSelectedId() {
-		String id = root.get(LAST_SELECTED_PAD, "").trim();
-		return id.isEmpty() ? null : id;
-	}
-
-	void setLastSelected(SavedPad pad) {
-		root.put(LAST_SELECTED_PAD, pad.id());
-	}
-
-	void clearLastSelected() {
-		root.remove(LAST_SELECTED_PAD);
 	}
 
 	record SavedPad(String id, String name, double latitude, double longitude, String timezoneId) {

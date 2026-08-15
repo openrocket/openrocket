@@ -89,22 +89,19 @@ public final class WeatherConditionsController {
 
 	private WeatherRequest chooseWeatherRequest(Window owner, SimulationOptions options) {
 		Instant[] forecastTime = { selectedForecastTime };
-		ZoneId[] selectedTimezone = { timezoneOf(selectedWeatherLocation) };
 		JLabel dateTime = new JLabel(forecastTime[0] == null
-				? trans.get("simedtdlg.lbl.currentTime") : formatForecastTime(forecastTime[0], selectedTimezone[0]));
+				? trans.get("simedtdlg.lbl.currentTime") : formatForecastTime(forecastTime[0],
+						timezoneOf(selectedWeatherLocation)));
 		JButton chooseDateTime = new JButton(trans.get("simedtdlg.but.chooseForecastTime"));
 
 		DeviceLocation configuredLocation = new DeviceLocation(options.getLaunchLatitude(), options.getLaunchLongitude(),
 				options.getLaunchAltitude(), Double.NaN, trans.get("simedtdlg.lbl.configuredCoordinates"));
-		boolean launchSiteSet = Math.abs(options.getLaunchLatitude() - Application.getPreferences().getLaunchLatitude())
-				> 0.000001
-				|| Math.abs(options.getLaunchLongitude() - Application.getPreferences().getLaunchLongitude()) > 0.000001;
-		DeviceLocation[] selectedLocation = { selectedWeatherLocation != null
-				? selectedWeatherLocation : launchSiteSet ? configuredLocation : null };
-		JLabel locationLabel = new JLabel(selectedWeatherLocation != null
-				? formatLocation(selectedWeatherLocation) : launchSiteSet
-				? formatLocation(configuredLocation)
-				: trans.get("simedtdlg.lbl.deviceLocationWillBeRequested"));
+		if (selectedWeatherLocation != null && sameCoordinates(selectedWeatherLocation, configuredLocation)) {
+			configuredLocation = configuredLocation.withTimezone(selectedWeatherLocation.timezoneId());
+		}
+		DeviceLocation[] selectedLocation = { configuredLocation };
+		ZoneId[] selectedTimezone = { timezoneOf(configuredLocation) };
+		JLabel locationLabel = new JLabel(formatLocation(configuredLocation));
 		JButton chooseLocation = new JButton(trans.get("simedtdlg.but.chooseWeatherLocation"));
 		JLabel availability = new JLabel();
 		Runnable refreshTimezoneLabels = () -> {
@@ -120,25 +117,18 @@ public final class WeatherConditionsController {
 		java.util.function.Consumer<DeviceLocation> updateLocation = chosen -> {
 			selectedLocation[0] = chosen;
 			selectedTimezone[0] = timezoneOf(chosen);
+			options.setLaunchLatitude(chosen.latitude());
+			options.setLaunchLongitude(chosen.longitude());
 			locationLabel.setText(formatLocation(chosen));
 			refreshTimezoneLabels.run();
 		};
 		chooseLocation.addActionListener(e -> {
-			DeviceLocation initial = selectedLocation[0] == null ? configuredLocation : selectedLocation[0];
-			DeviceLocation chosen = LocationPickerDialog.show(owner, initial, configuredLocation,
-					selectedLocation[0] == null && !launchSiteSet);
+			DeviceLocation chosen = LocationPickerDialog.show(owner, selectedLocation[0], false);
 			if (chosen != null) {
 				updateLocation.accept(chosen);
 			}
 		});
 		chooseDateTime.addActionListener(e -> {
-			if (selectedLocation[0] == null) {
-				DeviceLocation chosen = LocationPickerDialog.show(owner, configuredLocation, configuredLocation, true);
-				if (chosen == null) {
-					return;
-				}
-				updateLocation.accept(chosen);
-			}
 			Runnable showPicker = () -> {
 				ZoneId timezone = selectedTimezone[0] == null ? ZoneId.systemDefault() : selectedTimezone[0];
 				Instant now = Instant.now();
@@ -202,9 +192,12 @@ public final class WeatherConditionsController {
 		if (choice != JOptionPane.OK_OPTION) {
 			return null;
 		}
-		LocationSource locationSource = selectedLocation[0] != null ? LocationSource.SELECTED
-				: launchSiteSet ? LocationSource.CONFIGURED : LocationSource.DEVICE;
-		return new WeatherRequest(forecastTime[0], locationSource, selectedLocation[0], false);
+		return new WeatherRequest(forecastTime[0], LocationSource.SELECTED, selectedLocation[0], false);
+	}
+
+	private static boolean sameCoordinates(DeviceLocation first, DeviceLocation second) {
+		return Math.abs(first.latitude() - second.latitude()) < 0.00001
+				&& Math.abs(first.longitude() - second.longitude()) < 0.00001;
 	}
 
 	private static ZoneId timezoneOf(DeviceLocation location) {

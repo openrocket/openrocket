@@ -67,12 +67,10 @@ import info.openrocket.swing.gui.util.URLUtil;
  */
 public final class LocationPickerDialog {
 	private static final Translator TRANS = Application.getTranslator();
-	private static final String LAUNCH_SITE_PAD_ID = "launch-site";
 	private LocationPickerDialog() {
 	}
 
-	public static DeviceLocation show(Window owner, DeviceLocation initial, DeviceLocation configured,
-			boolean requestDeviceLocation) {
+	public static DeviceLocation show(Window owner, DeviceLocation initial, boolean requestDeviceLocation) {
 		JDialog dialog = new JDialog(owner, TRANS.get("simedtdlg.title.chooseWeatherLocation"),
 				JDialog.ModalityType.APPLICATION_MODAL);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -97,7 +95,6 @@ public final class LocationPickerDialog {
 			if (savedPads.getSelectedIndex() >= 0) {
 				savedPads.setSelectedIndex(-1);
 			}
-			padRepository.clearLastSelected();
 		};
 
 		map.setLocationListener((selectedLatitude, selectedLongitude) -> {
@@ -147,27 +144,16 @@ public final class LocationPickerDialog {
 		deletePad.setEnabled(false);
 		boolean[] rebuildingSavedPads = { false };
 		Runnable refreshSavedPads = () -> {
-			String selectedId = padRepository.lastSelectedId();
 			List<SavedPad> pads = padRepository.load();
 			rebuildingSavedPads[0] = true;
 			savedPadsModel.removeAllElements();
-			boolean configuredIsSaved = pads.stream().anyMatch(pad -> sameCoordinates(pad.location(), configured));
-			if (!configuredIsSaved) {
-				savedPadsModel.addElement(new SavedPad(LAUNCH_SITE_PAD_ID,
-						TRANS.get("simedtdlg.but.launchSite"), configured.latitude(), configured.longitude(),
-						configured.timezoneId()));
-			}
 			for (SavedPad pad : pads) {
 				savedPadsModel.addElement(pad);
 			}
 			savedPads.setSelectedIndex(-1);
 			rebuildingSavedPads[0] = false;
 			savedPads.setEnabled(savedPadsModel.getSize() > 0);
-			SavedPad preferred = findPad(savedPadsModel, selectedId);
-			if (preferred == null) {
-				DeviceLocation fallback = LAUNCH_SITE_PAD_ID.equals(selectedId) ? configured : initial;
-				preferred = findPad(savedPadsModel, fallback);
-			}
+			SavedPad preferred = findPad(savedPadsModel, initial);
 			if (preferred != null) {
 				savedPads.setSelectedItem(preferred);
 			}
@@ -180,8 +166,7 @@ public final class LocationPickerDialog {
 				deletePad.setEnabled(false);
 				return;
 			}
-			deletePad.setEnabled(!LAUNCH_SITE_PAD_ID.equals(pad.id()));
-			padRepository.setLastSelected(pad);
+			deletePad.setEnabled(true);
 			DeviceLocation location = pad.location();
 			selected[0] = location;
 			map.setMarker(location.latitude(), location.longitude(), true, false);
@@ -223,7 +208,6 @@ public final class LocationPickerDialog {
 						DeviceLocation resolved = get();
 						selected[0] = resolved;
 						SavedPad saved = padRepository.save(name, resolved);
-						padRepository.setLastSelected(saved);
 						refreshSavedPads.run();
 						status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.padSaved"), saved.name()));
 						status.setVisible(true);
@@ -238,7 +222,7 @@ public final class LocationPickerDialog {
 			worker.execute();
 		});
 		deletePad.addActionListener(e -> {
-			if (!(savedPads.getSelectedItem() instanceof SavedPad pad) || LAUNCH_SITE_PAD_ID.equals(pad.id())) {
+			if (!(savedPads.getSelectedItem() instanceof SavedPad pad)) {
 				return;
 			}
 			int choice = JOptionPane.showConfirmDialog(dialog,
@@ -336,19 +320,6 @@ public final class LocationPickerDialog {
 		}
 		dialog.setVisible(true);
 		return result[0];
-	}
-
-	private static SavedPad findPad(DefaultComboBoxModel<SavedPad> model, String id) {
-		if (id == null) {
-			return null;
-		}
-		for (int i = 0; i < model.getSize(); i++) {
-			SavedPad pad = model.getElementAt(i);
-			if (pad.id().equals(id)) {
-				return pad;
-			}
-		}
-		return null;
 	}
 
 	private static SavedPad findPad(DefaultComboBoxModel<SavedPad> model, DeviceLocation location) {
