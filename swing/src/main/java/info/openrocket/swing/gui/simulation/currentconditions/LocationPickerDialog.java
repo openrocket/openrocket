@@ -209,6 +209,7 @@ public final class LocationPickerDialog {
 						selected[0] = resolved;
 						SavedPad saved = padRepository.save(name, resolved);
 						refreshSavedPads.run();
+						savedPads.setSelectedItem(saved);
 						status.setText(MessageFormat.format(TRANS.get("simedtdlg.msg.padSaved"), saved.name()));
 						status.setVisible(true);
 					} catch (Exception exception) {
