@@ -143,8 +143,9 @@ public final class WeatherConditionsController {
 						.plusDays(OpenMeteoClient.MAX_FORECAST_DAYS - 1L).atTime(23, 0).atZone(timezone).toInstant();
 				Instant initial = forecastTime[0] != null && !forecastTime[0].isBefore(firstHistoricalHour)
 						&& !forecastTime[0].isAfter(lastForecastHour) ? forecastTime[0] : null;
-				ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(owner, initial, firstHistoricalHour,
-						lastForecastHour, timezone);
+				Window pickerOwner = SwingUtilities.getWindowAncestor(chooseDateTime);
+				ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(
+						pickerOwner == null ? owner : pickerOwner, initial, firstHistoricalHour, lastForecastHour, timezone);
 				if (chosen != null) {
 					forecastTime[0] = chosen.now() ? null : chosen.forecastAt();
 					refreshTimezoneLabels.run();

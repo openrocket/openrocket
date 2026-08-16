@@ -188,10 +188,6 @@ public final class ForecastDateTimePicker {
 		JPanel actions = new JPanel(new BorderLayout());
 		actions.add(now, BorderLayout.WEST);
 		actions.add(rightActions, BorderLayout.EAST);
-		JPanel legend = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-		legend.add(legendItem(UIManager.getColor("Actions.Red"), new Color(0xD32F2F),
-				TRANS.get("simedtdlg.lbl.currentDateLegend")));
-		legend.add(legendItem(Color.BLACK, Color.BLACK, TRANS.get("simedtdlg.lbl.selectedDateLegend")));
 
 		JPanel content = new JPanel(new BorderLayout(0, 10));
 		content.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
@@ -199,7 +195,6 @@ public final class ForecastDateTimePicker {
 		content.add(days, BorderLayout.CENTER);
 		JPanel bottom = new JPanel(new BorderLayout());
 		bottom.add(timePanel, BorderLayout.NORTH);
-		bottom.add(legend, BorderLayout.CENTER);
 		bottom.add(actions, BorderLayout.SOUTH);
 		content.add(bottom, BorderLayout.SOUTH);
 		dialog.setContentPane(content);
@@ -208,16 +203,6 @@ public final class ForecastDateTimePicker {
 		dialog.setLocationRelativeTo(owner);
 		dialog.setVisible(true);
 		return result[0];
-	}
-
-	private static JPanel legendItem(Color color, Color fallback, String text) {
-		Color markerColor = color == null ? fallback : color;
-		JLabel marker = new JLabel(" ");
-		marker.setBorder(BorderFactory.createLineBorder(markerColor, 2));
-		JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-		item.add(marker);
-		item.add(new JLabel(text));
-		return item;
 	}
 
 	static List<Instant> hourlyInstants(LocalDate date, ZoneId zone) {
