@@ -30,7 +30,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -114,9 +113,9 @@ public final class WeatherConditionsController {
 			ZoneId timezone = selectedTimezone[0];
 			availability.setText(timezone == null
 					? String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailabilityPendingTimezone"),
-							OpenMeteoClient.MAX_FORECAST_DAYS)
+							OpenMeteoClient.MAX_PAST_DAYS, OpenMeteoClient.MAX_FORECAST_DAYS)
 					: String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
-							OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
+							OpenMeteoClient.MAX_PAST_DAYS, OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
 			dateTime.setText(forecastTime[0] == null ? trans.get("simedtdlg.lbl.currentTime")
 					: formatForecastTime(forecastTime[0], timezone));
 		};
@@ -138,12 +137,13 @@ public final class WeatherConditionsController {
 			Runnable showPicker = () -> {
 				ZoneId timezone = selectedTimezone[0] == null ? ZoneId.systemDefault() : selectedTimezone[0];
 				Instant now = Instant.now();
-				Instant firstForecastHour = now.truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.HOURS);
+				Instant firstHistoricalHour = LocalDate.ofInstant(now, timezone)
+						.minusDays(OpenMeteoClient.MAX_PAST_DAYS).atStartOfDay(timezone).toInstant();
 				Instant lastForecastHour = LocalDate.ofInstant(now, timezone)
 						.plusDays(OpenMeteoClient.MAX_FORECAST_DAYS - 1L).atTime(23, 0).atZone(timezone).toInstant();
-				Instant initial = forecastTime[0] != null && !forecastTime[0].isBefore(firstForecastHour)
+				Instant initial = forecastTime[0] != null && !forecastTime[0].isBefore(firstHistoricalHour)
 						&& !forecastTime[0].isAfter(lastForecastHour) ? forecastTime[0] : null;
-				ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(owner, initial, firstForecastHour,
+				ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(owner, initial, firstHistoricalHour,
 						lastForecastHour, timezone);
 				if (chosen != null) {
 					forecastTime[0] = chosen.now() ? null : chosen.forecastAt();

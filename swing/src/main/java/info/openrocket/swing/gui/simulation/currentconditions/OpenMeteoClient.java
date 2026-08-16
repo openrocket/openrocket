@@ -35,6 +35,7 @@ public class OpenMeteoClient {
 	public static final String ATTRIBUTION_NAME = "Open-Meteo";
 	public static final String ATTRIBUTION_URL = "https://open-meteo.com/";
 	public static final int MAX_FORECAST_DAYS = 16;
+	public static final int MAX_PAST_DAYS = 14;
 
 	public static final String ATTRIBUTION_LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/";
 	public static final String TERMS_URL = "https://open-meteo.com/en/terms";
@@ -48,6 +49,7 @@ public class OpenMeteoClient {
 	private static final long CURRENT_INTERVAL_SECONDS = 15 * 60;
 	private static final long FORECAST_UPDATE_INTERVAL_SECONDS = 60 * 60;
 	private static final long FORECAST_PROPAGATION_SECONDS = 10 * 60;
+	private static final long PAST_CONDITIONS_CACHE_SECONDS = 24 * 60 * 60;
 	private static final long FORCE_REFRESH_INTERVAL_SECONDS = 60;
 	private static final double DEFAULT_UPPER_AIR_TURBULENCE_INTENSITY = 0.10;
 	private static final Map<WeatherCacheKey, CachedConditions> WEATHER_CACHE = new LinkedHashMap<>(16, 0.75f, true);
@@ -150,6 +152,7 @@ public class OpenMeteoClient {
 		}
 		String hour = API_HOUR_FORMAT.format(
 				LocalDateTime.ofInstant(forecastHour, ZoneOffset.UTC));
+		boolean pastConditions = requestedAt.isBefore(Instant.now());
 		return coalesced(cacheKey, forceRefresh, () -> {
 			URI uri = weatherUri("latitude=" + format(latitude)
 					+ "&longitude=" + format(longitude)
@@ -157,7 +160,8 @@ public class OpenMeteoClient {
 					+ "&start_hour=" + hour + "&end_hour=" + hour
 					+ "&wind_speed_unit=ms&timeformat=iso8601&timezone=GMT");
 			CurrentConditions conditions = fetch(uri, latitude, longitude, true);
-			Instant expiresAt = forecastExpiration(Instant.now());
+			Instant expiresAt = pastConditions ? Instant.now().plusSeconds(PAST_CONDITIONS_CACHE_SECONDS)
+					: forecastExpiration(Instant.now());
 			cache(cacheKey, conditions, expiresAt);
 			return new FetchResult(conditions, false, expiresAt, forceRefreshAvailableAt(cacheKey));
 		});

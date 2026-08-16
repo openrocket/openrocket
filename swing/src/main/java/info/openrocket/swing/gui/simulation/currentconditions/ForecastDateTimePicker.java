@@ -1,10 +1,11 @@
 package info.openrocket.swing.gui.simulation.currentconditions;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Window;
-import java.text.DateFormatSymbols;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -12,6 +13,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
@@ -34,9 +38,18 @@ public final class ForecastDateTimePicker {
 	}
 
 	public static Selection show(Window owner, Instant initial, Instant minimum, Instant maximum, ZoneId zone) {
-		ZonedDateTime initialLocal = (initial == null ? minimum : initial).atZone(zone);
+		Instant openedAt = Instant.now();
+		Instant initialInstant = initial == null ? openedAt : initial;
+		if (initialInstant.isBefore(minimum)) {
+			initialInstant = minimum;
+		} else if (initialInstant.isAfter(maximum)) {
+			initialInstant = maximum;
+		}
+		ZonedDateTime initialLocal = initialInstant.atZone(zone);
 		LocalDate minimumDate = minimum.atZone(zone).toLocalDate();
 		LocalDate maximumDate = maximum.atZone(zone).toLocalDate();
+		LocalDate today = openedAt.atZone(zone).toLocalDate();
+		Instant nextForecastHour = openedAt.truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.HOURS);
 		LocalDate[] selectedDate = { initialLocal.toLocalDate() };
 		YearMonth[] displayedMonth = { YearMonth.from(selectedDate[0]) };
 		Selection[] result = { null };
@@ -61,8 +74,14 @@ public final class ForecastDateTimePicker {
 					? option.instant() : initialLocal.toInstant();
 			time.removeAllItems();
 			HourOption preferred = null;
+			if (selectedDate[0].equals(today)) {
+				time.addItem(HourOption.current(TRANS.get("simedtdlg.but.useCurrentTime")));
+			}
 			for (Instant candidate : hourlyInstants(selectedDate[0], zone)) {
 				if (candidate.isBefore(minimum) || candidate.isAfter(maximum)) {
+					continue;
+				}
+				if (selectedDate[0].equals(today) && candidate.isBefore(nextForecastHour)) {
 					continue;
 				}
 				ZonedDateTime cursor = candidate.atZone(zone);
@@ -82,14 +101,13 @@ public final class ForecastDateTimePicker {
 		refreshCalendar[0] = () -> {
 			days.removeAll();
 			Locale locale = Locale.getDefault();
-			String[] weekdays = DateFormatSymbols.getInstance(locale).getShortWeekdays();
-			for (int day = 1; day <= 7; day++) {
-				int calendarDay = day == 7 ? 1 : day + 1;
-				days.add(new JLabel(weekdays[calendarDay], JLabel.CENTER));
+			DayOfWeek firstDayOfWeek = WeekFields.of(locale).getFirstDayOfWeek();
+			for (DayOfWeek weekday : orderedWeekdays(locale)) {
+				days.add(new JLabel(weekday.getDisplayName(TextStyle.SHORT, locale), JLabel.CENTER));
 			}
 
 			LocalDate first = displayedMonth[0].atDay(1);
-			int leadingBlanks = first.getDayOfWeek().getValue() - 1;
+			int leadingBlanks = Math.floorMod(first.getDayOfWeek().getValue() - firstDayOfWeek.getValue(), 7);
 			for (int i = 0; i < leadingBlanks; i++) {
 				days.add(new JLabel());
 			}
@@ -102,7 +120,13 @@ public final class ForecastDateTimePicker {
 				if (!dayButton.isEnabled()) {
 					dayButton.putClientProperty("FlatLaf.style", "disabledTextColor: #777777");
 				}
-				if (date.equals(selectedDate[0])) {
+				if (date.equals(today)) {
+					Color todayColor = UIManager.getColor("Actions.Red");
+					if (todayColor == null) {
+						todayColor = new Color(0xD32F2F);
+					}
+					dayButton.setBorder(BorderFactory.createLineBorder(todayColor, 2));
+				} else if (date.equals(selectedDate[0])) {
 					dayButton.setBorder(BorderFactory.createLineBorder(dayButton.getForeground(), 2));
 				}
 				dayButton.addActionListener(e -> {
@@ -149,7 +173,7 @@ public final class ForecastDateTimePicker {
 		use.addActionListener(e -> {
 			HourOption hour = (HourOption) time.getSelectedItem();
 			if (hour != null) {
-				result[0] = new Selection(false, hour.instant());
+				result[0] = hour.current() ? new Selection(true, null) : new Selection(false, hour.instant());
 				dialog.dispose();
 			}
 		});
@@ -187,10 +211,27 @@ public final class ForecastDateTimePicker {
 		return result;
 	}
 
+	static List<DayOfWeek> orderedWeekdays(Locale locale) {
+		DayOfWeek first = WeekFields.of(locale).getFirstDayOfWeek();
+		List<DayOfWeek> weekdays = new ArrayList<>(7);
+		for (int offset = 0; offset < 7; offset++) {
+			weekdays.add(DayOfWeek.of((first.getValue() - 1 + offset) % 7 + 1));
+		}
+		return weekdays;
+	}
+
 	public record Selection(boolean now, Instant forecastAt) {
 	}
 
 	private record HourOption(Instant instant, String label) {
+		private static HourOption current(String label) {
+			return new HourOption(null, label);
+		}
+
+		private boolean current() {
+			return instant == null;
+		}
+
 		@Override
 		public String toString() {
 			return label;
