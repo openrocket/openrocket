@@ -798,6 +798,41 @@ public class Simulation implements ChangeSource, Cloneable {
 			mutex.unlock("duplicateSimulation");
 		}
 	}
+
+	/**
+	 * Create a deep copy of this simulation that shares no mutable state with it. The copy
+	 * has its own rocket and options and is not attached to a document, so it may run on a
+	 * background thread without modifying the source simulation.
+	 * <p>
+	 * Ordinary {@link #clone()} keeps a reference to the same rocket, which means two
+	 * concurrent simulations can share mutable configuration and aerodynamic caches. Use
+	 * this method when simulations of one design must run concurrently. Copy construction
+	 * is synchronized; the returned copies may then be simulated in parallel.
+	 *
+	 * @return an independent, not-yet-simulated copy of this simulation
+	 */
+	public synchronized Simulation duplicateForIndependentSimulation() {
+		mutex.lock("duplicateForIndependentSimulation");
+		try {
+			final Simulation copy = new Simulation(null, this.rocket.copyWithOriginalID());
+			copy.name = this.name;
+			copy.configId = this.configId;
+			// A full options clone, not copyConditionsFrom: the latter copies only the
+			// launch conditions, leaving the rest of the copy on preference defaults.
+			copy.options = this.options.clone();
+			copy.options.addChangeListener(copy.new ConditionListener());
+			copy.listeners = new ArrayList<>();
+			for (SimulationExtension extension : this.simulationExtensions) {
+				copy.simulationExtensions.add(extension.clone());
+			}
+			copy.simulationStepperClass = this.simulationStepperClass;
+			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+
+			return copy;
+		} finally {
+			mutex.unlock("duplicateForIndependentSimulation");
+		}
+	}
 	
 	
 	
