@@ -79,6 +79,7 @@ import info.openrocket.core.util.AlphanumComparator;
 import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
+import info.openrocket.swing.gui.simulation.LandingDispersionDialog;
 import info.openrocket.swing.gui.simulation.SimulationConfigDialog;
 import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.FileHelper;
@@ -117,6 +118,7 @@ public class SimulationPanel extends JPanel {
 
 	private final JButton editButton;
 	private final JButton runButton;
+	private final JButton landingDispersionButton;
 	private final JButton deleteButton;
 	private final JButton plotButton;
 	private final JButton simTableExportButton;
@@ -129,6 +131,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction copySimulationAction;
 	private final SimulationAction pasteSimulationAction;
 	private final SimulationAction runSimulationAction;
+	private final SimulationAction landingDispersionAction;
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
@@ -189,7 +192,7 @@ public class SimulationPanel extends JPanel {
 	}
 
 	public SimulationPanel(Window parent, OpenRocketDocument doc) {
-		super(new MigLayout("fill", "[grow][][][][][][grow]"));
+		super(new MigLayout("fill", "[grow][][][][][][][grow]"));
 
 		this.document = doc;
 
@@ -201,6 +204,7 @@ public class SimulationPanel extends JPanel {
 		copySimulationAction = new CopySimulationAction();
 		pasteSimulationAction = new PasteSimulationAction();
 		runSimulationAction = new RunSimulationAction();
+		landingDispersionAction = new LandingDispersionAction();
 		plotSimulationAction = new PlotSimulationAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
@@ -226,6 +230,13 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
+
+		//// Landing-dispersion analysis
+		landingDispersionButton = new IconButton();
+		RocketActions.tieActionToButton(landingDispersionButton, landingDispersionAction,
+				trans.get("simpanel.but.landingDispersion"));
+		landingDispersionButton.setToolTipText(trans.get("simpanel.but.ttip.landingDispersion"));
+		this.add(landingDispersionButton, "gapright para");
 
 		//// Delete simulations button
 		deleteButton = new IconButton();
@@ -277,6 +288,7 @@ public class SimulationPanel extends JPanel {
 		pm.add(deleteSimulationAction);
 		pm.addSeparator();
 		pm.add(runSimulationAction);
+		pm.add(landingDispersionAction);
 		pm.add(plotSimulationAction);
 		pm.add(selectedSimsExportAction);
 
@@ -591,6 +603,21 @@ public class SimulationPanel extends JPanel {
 		takeTheSpotlight();
 	}
 
+	/**
+	 * Open a non-destructive landing-dispersion analysis for the single selected
+	 * simulation. The analysis clones the simulation for every trajectory.
+	 */
+	private void landingDispersion() {
+		Simulation[] simulations = getSelectedSimulations();
+		if (simulations == null || simulations.length != 1) {
+			return;
+		}
+
+		new LandingDispersionDialog(SwingUtilities.getWindowAncestor(SimulationPanel.this),
+				simulations[0]).setVisible(true);
+		takeTheSpotlight();
+	}
+
 	public void editSimulation() {
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
@@ -844,6 +871,7 @@ public class SimulationPanel extends JPanel {
 		duplicateSimulationAction.updateEnabledState();
 		deleteSimulationAction.updateEnabledState();
 		runSimulationAction.updateEnabledState();
+		landingDispersionAction.updateEnabledState();
 		plotSimulationAction.updateEnabledState();
 		simTableExportAction.updateEnabledState();
 		selectedSimsExportAction.updateEnabledState();
@@ -1178,6 +1206,30 @@ public class SimulationPanel extends JPanel {
 		@Override
 		public void updateEnabledState() {
 			this.setEnabled(simulationTable.getSelectedRowCount() > 0 && hasValidConfig);
+		}
+	}
+
+	/** Runs a Monte Carlo landing-dispersion analysis for one simulation. */
+	class LandingDispersionAction extends SimulationAction {
+		public LandingDispersionAction() {
+			this.putValue(NAME, trans.get("simpanel.pop.landingDispersion"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("simpanel.pop.landingDispersion.ttip"));
+			this.putValue(SMALL_ICON, Icons.SIM_PLOT);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			landingDispersion();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			if (simulationTable.getSelectedRowCount() != 1 || !hasValidConfig) {
+				this.setEnabled(false);
+				return;
+			}
+			int selected = simulationTable.convertRowIndexToModel(simulationTable.getSelectedRow());
+			this.setEnabled(document.getSimulation(selected).getStatus() != Status.EXTERNAL);
 		}
 	}
 
