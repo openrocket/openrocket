@@ -55,7 +55,7 @@ public class PinkNoiseWindModel implements WindModel {
 	private double time1;
 	private double value1, value2;
 
-	private final List<StateChangeListener> listeners = new ArrayList<>();
+	private List<StateChangeListener> listeners = new ArrayList<>();
 
 	/**
 	 * Construct a new wind simulation with a specific seed value.
@@ -244,6 +244,8 @@ public class PinkNoiseWindModel implements WindModel {
 		try {
 			PinkNoiseWindModel clone = (PinkNoiseWindModel) super.clone();
 			clone.loadFrom(this);
+			clone.listeners = new ArrayList<>();
+			clone.reset();
 			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError(); // This should never happen

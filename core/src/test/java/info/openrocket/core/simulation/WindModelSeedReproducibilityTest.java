@@ -119,6 +119,23 @@ public class WindModelSeedReproducibilityTest extends BaseTestCase {
 		}
 	}
 
+	@Test
+	public void testClonedWindModelsDoNotShareListeners() {
+		PinkNoiseWindModel average = averageModel();
+		int[] averageEvents = { 0 };
+		average.addChangeListener(event -> averageEvents[0]++);
+		PinkNoiseWindModel averageClone = average.clone();
+		averageClone.setDirection(1.25);
+		assertEquals(0, averageEvents[0], "editing a clone must not notify the original average model");
+
+		MultiLevelPinkNoiseWindModel multiLevel = multiLevelModel();
+		int[] multiLevelEvents = { 0 };
+		multiLevel.addChangeListener(event -> multiLevelEvents[0]++);
+		MultiLevelPinkNoiseWindModel multiLevelClone = multiLevel.clone();
+		multiLevelClone.getLevels().get(0).setDirection(1.25);
+		assertEquals(0, multiLevelEvents[0], "editing a clone must not notify the original multi-level model");
+	}
+
 	/** Wind speed sampled over the first seconds of a flight. */
 	private double[] sample(WindModel model) {
 		final double[] out = new double[40];
