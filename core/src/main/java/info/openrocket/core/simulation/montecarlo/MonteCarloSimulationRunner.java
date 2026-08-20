@@ -34,12 +34,13 @@ import info.openrocket.core.util.BugException;
  * master seed. Each trajectory runs on an independent copy of the rocket to prevent
  * concurrent simulations from sharing mutable configuration and aerodynamic caches.
  * <p>
- * Only bodies that deploy a recovery device before reaching the ground are included. A
- * ballistic nominal flight is rejected with a {@link BallisticTrajectoryException}.
+ * Bodies that deploy a recovery device and independently simulated bodies created by
+ * stage separation are included when they reach the ground. An unseparated ballistic
+ * nominal flight is rejected with a {@link BallisticTrajectoryException}.
  */
 public final class MonteCarloSimulationRunner {
 	static final String BALLISTIC_DESCENT =
-			"Ballistic descent: landing dispersion is only reported for bodies recovered under a deployed device";
+			"Ballistic descent: landing dispersion requires a recovery deployment or a separated landing body";
 
 	private static final MonteCarloProgressListener NO_PROGRESS = (completed, total) -> {
 	};
@@ -258,8 +259,9 @@ public final class MonteCarloSimulationRunner {
 			if (branch.getFirstEvent(FlightEvent.Type.GROUND_HIT) == null) {
 				continue;
 			}
-			// Ballistic bodies are outside the recovery-area analysis.
-			if (!descendsUnderRecoveryDevice(branch)) {
+			// A separated stage is an independent landing body even if it tumbles instead
+			// of deploying recovery. Keep the recovery requirement for the primary branch.
+			if (!descendsUnderRecoveryDevice(branch) && !isSeparatedBody(branch)) {
 				continue;
 			}
 
@@ -302,6 +304,25 @@ public final class MonteCarloSimulationRunner {
 		FlightEvent deployment = branch.getFirstEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT);
 		FlightEvent groundHit = branch.getFirstEvent(FlightEvent.Type.GROUND_HIT);
 		return deployment != null && groundHit != null && deployment.getTime() < groundHit.getTime();
+	}
+
+	/**
+	 * A separated branch contains the separation event for its own source component. The
+	 * primary branch also records separation events, so testing the event type alone would
+	 * incorrectly classify the sustainer as a separated body.
+	 */
+	private static boolean isSeparatedBody(FlightDataBranch branch) {
+		if (branch.getSourceComponentId() == null) {
+			return false;
+		}
+		for (FlightEvent event : branch.getEvents()) {
+			if (event.getType() == FlightEvent.Type.STAGE_SEPARATION
+					&& event.getSource() != null
+					&& branch.getSourceComponentId().equals(event.getSource().getID())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static boolean hasBallisticGroundHit(FlightData data) {

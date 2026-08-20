@@ -140,6 +140,35 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 		assertEquals(recoveredStage.getID(), recovered.clone().getSourceComponentId());
 	}
 
+	@Test
+	public void testSeparatedBoostersAreSelectableLandingBodies() {
+		Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
+		rocket.getSelectedConfiguration().setAllStages();
+
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(
+				rocket.getSelectedConfiguration().getFlightConfigurationID());
+		simulation.getOptions().setISAAtmosphere(true);
+		simulation.getOptions().setTimeStep(0.05);
+		simulation.getOptions().getAverageWindModel().setAverage(0.1);
+
+		MonteCarloSettings settings = MonteCarloSettings.builder()
+				.runCount(2)
+				.threadCount(1)
+				.seed(0)
+				.build();
+
+		List<String> bodyNames = new MonteCarloSimulationRunner().run(simulation, settings)
+				.getLandingBodies().stream()
+				.map(LandingBody::branchName)
+				.toList();
+
+		assertTrue(bodyNames.contains("Center Booster"),
+				"a separated booster must remain selectable when it lands ballistically: " + bodyNames);
+		assertTrue(bodyNames.contains("Side boosters"),
+				"a separated booster with recovery must remain selectable: " + bodyNames);
+	}
+
 	/**
 	 * Recovery drag is applied while the landing stepper is running, which is a different
 	 * code path from the flight steppers. Assert on the trajectory rather than on the

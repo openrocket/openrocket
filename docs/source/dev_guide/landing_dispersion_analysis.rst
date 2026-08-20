@@ -120,13 +120,15 @@ themselves safe for repeated, concurrent Monte Carlo use.  The default is unsafe
 extensions that can write files, print output, run arbitrary code, show UI, or have
 other external side effects are rejected before the nominal trajectory starts.
 
-Each ``FlightDataBranch`` that reaches the ground **under a deployed recovery
-device** becomes a landing body, so separated stages can be inspected independently.
-Bodies are correlated between trajectories by their stable source-component ID,
-not by the order in which branches happen to be created in a particular run.
-Bodies that impact ballistically are excluded, and a nominal flight that never
-deploys a recovery device is refused with a ``BallisticTrajectoryException``.  The
-analysis is limited to recovery-area planning rather than impact accuracy.
+Each ``FlightDataBranch`` that reaches the ground becomes a landing body when it
+either descends under a deployed recovery device or represents an independently
+simulated stage-separation branch.  This keeps separated boosters selectable even
+when they tumble or impact without deploying recovery.  Bodies are correlated
+between trajectories by their stable source-component ID, not by the order in
+which branches happen to be created in a particular run.  A ballistic primary
+body remains excluded; a nominal flight with neither a recovered body nor an
+independently landing separated body is refused with a
+``BallisticTrajectoryException``.
 Position X is reported as east and Y as north in metres.  A branch abort excludes
 only that body from the run's dispersion statistics; successful sibling bodies
 remain usable.  Trajectory-wide exceptions and missing ground hits are retained

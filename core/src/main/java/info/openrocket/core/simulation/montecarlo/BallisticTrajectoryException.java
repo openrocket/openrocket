@@ -1,8 +1,8 @@
 package info.openrocket.core.simulation.montecarlo;
 
 /**
- * Thrown when the nominal trajectory reaches the ground without first deploying a
- * recovery device.
+ * Thrown when the nominal trajectory has a ballistic ground hit and provides neither
+ * a recovered landing body nor an independently landing separated body.
  */
 public final class BallisticTrajectoryException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
