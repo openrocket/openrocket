@@ -624,6 +624,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	}
 
 	private void fireChangeEvent() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(this::fireChangeEvent);
+			return;
+		}
 		EventObject event = new EventObject(this);
 		for (StateChangeListener listener : changeListeners) {
 			listener.stateChanged(event);
