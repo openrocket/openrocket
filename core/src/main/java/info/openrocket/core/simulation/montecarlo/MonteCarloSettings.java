@@ -3,6 +3,7 @@ package info.openrocket.core.simulation.montecarlo;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Immutable configuration for a landing-dispersion analysis.
@@ -68,6 +69,25 @@ public final class MonteCarloSettings {
 
 	public Map<MonteCarloParameter, UncertaintySpec> getUncertainties() {
 		return uncertainties;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (!(object instanceof MonteCarloSettings other)) {
+			return false;
+		}
+		return runCount == other.runCount
+				&& seed == other.seed
+				&& threadCount == other.threadCount
+				&& uncertainties.equals(other.uncertainties);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(runCount, seed, threadCount, uncertainties);
 	}
 
 	public static Builder builder() {

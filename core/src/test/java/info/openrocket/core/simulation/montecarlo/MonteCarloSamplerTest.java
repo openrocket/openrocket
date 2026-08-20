@@ -9,6 +9,32 @@ import org.junit.jupiter.api.Test;
 
 public class MonteCarloSamplerTest {
 	@Test
+	public void testSettingsHaveValueEquality() {
+		MonteCarloSettings first = MonteCarloSettings.builder()
+				.runCount(20)
+				.seed(0x5EED)
+				.threadCount(3)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.NORMAL, 2.0)
+				.build();
+		MonteCarloSettings same = MonteCarloSettings.builder()
+				.runCount(20)
+				.seed(0x5EED)
+				.threadCount(3)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.NORMAL, 2.0)
+				.build();
+		MonteCarloSettings differentSeed = MonteCarloSettings.builder()
+				.runCount(20)
+				.seed(0x5EEE)
+				.threadCount(3)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.NORMAL, 2.0)
+				.build();
+
+		assertEquals(first, same);
+		assertEquals(first.hashCode(), same.hashCode());
+		assertNotEquals(first, differentSeed);
+	}
+
+	@Test
 	public void testSamplingIsReproducibleFromMasterSeed() {
 		MonteCarloSettings settings = MonteCarloSettings.builder()
 				.runCount(20)

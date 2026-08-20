@@ -33,6 +33,7 @@ import info.openrocket.core.simulation.SimulationStepper;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.listeners.SimulationListener;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
@@ -151,6 +152,9 @@ public class Simulation implements ChangeSource, Cloneable {
 	/** The conditions to use */
 	// TODO: HIGH: Change to use actual conditions class??
 	private SimulationOptions options = new SimulationOptions();
+
+	/** Optional user configuration for a landing-dispersion analysis. */
+	private MonteCarloSettings landingDispersionSettings;
 	
 	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<>();
 	
@@ -332,6 +336,36 @@ public class Simulation implements ChangeSource, Cloneable {
 	public SimulationOptions getOptions() {
 		mutex.verify();
 		return options;
+	}
+
+	/**
+	 * Return the landing-dispersion settings saved for this simulation.
+	 *
+	 * @return immutable settings, or {@code null} when the user has not configured
+	 *         landing dispersion for this simulation
+	 */
+	public MonteCarloSettings getLandingDispersionSettings() {
+		mutex.verify();
+		return landingDispersionSettings;
+	}
+
+	/**
+	 * Save landing-dispersion settings for this simulation. Passing {@code null}
+	 * removes the optional configuration.
+	 *
+	 * @param settings immutable settings to save, or {@code null}
+	 */
+	public void setLandingDispersionSettings(MonteCarloSettings settings) {
+		mutex.lock("setLandingDispersionSettings");
+		try {
+			if (Objects.equals(this.landingDispersionSettings, settings)) {
+				return;
+			}
+			this.landingDispersionSettings = settings;
+			fireChangeEvent();
+		} finally {
+			mutex.unlock("setLandingDispersionSettings");
+		}
 	}
 	
 	
@@ -743,6 +777,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			this.simulatedConfigurationDescription = simulation.simulatedConfigurationDescription;
 			this.simulatedConfigurationModID = simulation.simulatedConfigurationModID;
 			this.options.copyConditionsFrom(simulation.options);
+			this.landingDispersionSettings = simulation.landingDispersionSettings;
 			if (simulation.simulatedConditions == null) {
 				this.simulatedConditions = null;
 			} else if (this.simulatedConditions == null) {
@@ -782,6 +817,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			newSim.name = this.name;
 			newSim.configId = this.configId;
 			newSim.options.copyConditionsFrom(this.options);
+			newSim.landingDispersionSettings = this.landingDispersionSettings;
 			newSim.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
 				newSim.simulationExtensions.add(c.clone());
@@ -821,6 +857,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			// launch conditions, leaving the rest of the copy on preference defaults.
 			copy.options = this.options.clone();
 			copy.options.addChangeListener(copy.new ConditionListener());
+			copy.landingDispersionSettings = this.landingDispersionSettings;
 			copy.listeners = new ArrayList<>();
 			for (SimulationExtension extension : this.simulationExtensions) {
 				copy.simulationExtensions.add(extension.clone());
@@ -874,6 +911,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		return Objects.equals(this.name, other.name) &&
 				Objects.equals(this.configId, other.configId) &&
 				Objects.equals(this.options, other.options) &&
+				Objects.equals(this.landingDispersionSettings, other.landingDispersionSettings) &&
 				Objects.equals(this.simulationEngineClass, other.simulationEngineClass) &&
 				Objects.equals(this.simulationStepperClass, other.simulationStepperClass) &&
 				Objects.equals(this.aerodynamicCalculatorClass, other.aerodynamicCalculatorClass) &&
