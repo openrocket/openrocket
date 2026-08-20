@@ -36,8 +36,8 @@ launch-vehicle and parachute-dispersion guidance:
    * - Mass properties
      - Total/stage mass, center of gravity, moments of inertia, payload and
        assembly tolerances
-     - Total mass/inertia scaling plus axial and independent radial CG offsets
-       are implemented.
+     - Total mass/inertia scaling plus an axial CG offset are implemented.
+       Independent radial CG offsets are future work.
    * - Aerodynamics and construction
      - Axial drag, normal force, center of pressure, aerodynamic moments and
        damping, fin alignment/cant, and model-form error
@@ -97,10 +97,12 @@ values in the tails.  Its median is the nominal value, so its mean sits slightly
 above nominal.  Parameters are currently sampled independently.  Relative samples
 are converted to multipliers and clipped to a minimum of 0.01 so that mass,
 density, drag, or thrust cannot become zero or negative.  Wind speed is clipped
-at zero, launch-guide angle follows OpenRocket's existing physical limit, and an
-event shifted earlier than its triggering event is placed 1 ms after the trigger.
-These clips make extreme tails truncated and must be considered when using wide
-normal spreads.
+at zero.  A wind-speed sample shifts the mean speed at every selected wind level
+without changing its configured standard deviation; turbulence intensity therefore
+changes as the ratio of that fixed standard deviation to the varied mean.  Launch-guide
+angle follows OpenRocket's existing physical limit, and an event shifted earlier than
+its triggering event is placed 1 ms after the trigger.  These clips make extreme tails
+truncated and must be considered when using wide normal spreads.
 
 ``MonteCarloSimulationRunner`` performs one nominal run, then the requested number
 of dispersed runs on a thread pool.  Every sample is drawn before any trajectory
@@ -113,15 +115,22 @@ listener.  Post-calculation hooks alter
 atmosphere, rigid-body properties, aerodynamic forces, and thrust without editing
 rocket components.  The event hook reschedules ignition and recovery deployment.
 Launch-option and wind-profile deviations are applied to each clone before the
-flight starts.
+flight starts.  Simulation extensions run only when they explicitly declare
+themselves safe for repeated, concurrent Monte Carlo use.  The default is unsafe;
+extensions that can write files, print output, run arbitrary code, show UI, or have
+other external side effects are rejected before the nominal trajectory starts.
 
 Each ``FlightDataBranch`` that reaches the ground **under a deployed recovery
 device** becomes a landing body, so separated stages can be inspected independently.
+Bodies are correlated between trajectories by their stable source-component ID,
+not by the order in which branches happen to be created in a particular run.
 Bodies that impact ballistically are excluded, and a nominal flight that never
 deploys a recovery device is refused with a ``BallisticTrajectoryException``.  The
-analysis is limited to recovery-area planning rather than impact accuracy.  Position X is reported as east
-and Y as north in metres.  Runs that throw, abort, or fail to produce a ground hit
-are retained with their failure message but excluded from dispersion statistics.
+analysis is limited to recovery-area planning rather than impact accuracy.
+Position X is reported as east and Y as north in metres.  A branch abort excludes
+only that body from the run's dispersion statistics; successful sibling bodies
+remain usable.  Trajectory-wide exceptions and missing ground hits are retained
+as failures and excluded from the affected statistics.
 
 Output statistics and UI
 ------------------------
@@ -144,7 +153,8 @@ The results dialog switches among all landing bodies and provides:
 * every run's success/failure, landing, maximum altitude, and flight time;
 * a PNG export of the plot as displayed; and
 * a CSV export containing the master seed, settings, simulation seed, sampled
-  deviations in explicit SI units, and outputs for every run/body pair.
+  deviations in explicit SI units, stable body ID, per-run branch index, and
+  outputs for every run/body pair.
 
 The scatter plot uses equal east/north scale, a theme-aware colorblind-friendly
 palette, drag-to-pan, uniform mouse-wheel zoom, and explicit zoom-in, fit, and
@@ -171,9 +181,11 @@ The first implementation intentionally does not persist an analysis in an ORK
 file.  It supports independent inputs only; it has no
 correlation matrix, empirical distributions, historical weather ensembles,
 per-stage mass/propulsion errors, explicit thrust/fin misalignment, wind-shear
-variation, per-device parachute inflation, or discrete failure modes.  A single
-recovery-drag multiplier covers every deployed device, so a drogue and a main vary
-together.  It also lacks convergence confidence intervals, sensitivity attribution,
+variation, independent radial CG offsets, per-device parachute inflation, or
+discrete failure modes.  A single recovery-drag multiplier covers every deployed
+device, so a drogue and a main vary together.  Extensions that do not explicitly
+opt into side-effect-free concurrent execution cannot be used in the analysis.  It
+also lacks convergence confidence intervals, sensitivity attribution,
 latitude/longitude conversion, terrain, and range-boundary overlays.
 
 Two parameters are narrower than their names suggest.  Ignition timing shifts only
