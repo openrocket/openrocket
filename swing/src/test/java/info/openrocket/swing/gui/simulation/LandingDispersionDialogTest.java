@@ -3,15 +3,51 @@ package info.openrocket.swing.gui.simulation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
 import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
+import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.gui.simulation.LandingDispersionDialog.DistributionComboBox;
+import info.openrocket.swing.util.BaseTestCase;
 
-public class LandingDispersionDialogTest {
+public class LandingDispersionDialogTest extends BaseTestCase {
+	@Test
+	public void testSavedSettingsTakePrecedenceOverCachedSettings() {
+		MonteCarloSettings saved = settings(101, 1, 0.1);
+		MonteCarloSettings cached = settings(202, 1, 0.2);
+		MonteCarloResult cachedResult = new MonteCarloResult(cached, null, List.of(), 0);
+
+		assertSame(saved, LandingDispersionDialog.selectInitialSettings(saved, cachedResult));
+		assertSame(cached, LandingDispersionDialog.selectInitialSettings(null, cachedResult));
+		assertNull(LandingDispersionDialog.selectInitialSettings(null, null));
+	}
+
+	@Test
+	public void testPersistSettingsIgnoresExecutionOnlyWorkerCount() {
+		Simulation simulation = new Simulation(TestRockets.makeEstesAlphaIII());
+		MonteCarloSettings original = settings(303, 1, 0.1);
+		LandingDispersionDialog.persistSettings(simulation, original);
+		assertSame(original, simulation.getLandingDispersionSettings());
+
+		LandingDispersionDialog.persistSettings(simulation, settings(303, 8, 0.1));
+		assertSame(original, simulation.getLandingDispersionSettings(),
+				"Worker count is machine-specific and must not dirty persisted settings");
+
+		MonteCarloSettings changed = settings(303, 8, 0.2);
+		LandingDispersionDialog.persistSettings(simulation, changed);
+		assertSame(changed, simulation.getLandingDispersionSettings());
+	}
+
 	/**
 	 * The symmetric distributions apply to every parameter; a log-normal multiplier only
 	 * makes sense where the sampled value is a relative fraction. The dialog lists them
@@ -54,5 +90,15 @@ public class LandingDispersionDialogTest {
 		combo.setParameter(MonteCarloParameter.RECOVERY_DRAG);
 		combo.setSelectedItem(MonteCarloDistribution.LOG_NORMAL);
 		assertEquals(MonteCarloDistribution.LOG_NORMAL, combo.getSelectedItem());
+	}
+
+	private static MonteCarloSettings settings(int seed, int threadCount, double spread) {
+		return MonteCarloSettings.builder()
+				.runCount(20)
+				.seed(seed)
+				.threadCount(threadCount)
+				.uncertainty(MonteCarloParameter.AXIAL_DRAG,
+						MonteCarloDistribution.NORMAL, spread)
+				.build();
 	}
 }

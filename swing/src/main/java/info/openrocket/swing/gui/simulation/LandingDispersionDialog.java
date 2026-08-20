@@ -86,7 +86,8 @@ public final class LandingDispersionDialog extends JDialog {
 	private final JButton cancelButton;
 
 	private AnalysisWorker worker;
-	private boolean cachedSettingsNotice;
+	private boolean loadedSettingsNotice;
+	private MonteCarloSettings settingsAtLastSave;
 
 	public LandingDispersionDialog(Window owner, Simulation simulation) {
 		super(owner, String.format(trans.get("LandingDispersionDlg.title"), simulation.getName()),
@@ -94,20 +95,25 @@ public final class LandingDispersionDialog extends JDialog {
 		this.owner = owner;
 		this.simulation = simulation;
 		MonteCarloResult cachedResult = LandingDispersionAnalysisCache.get(simulation);
+		MonteCarloSettings savedSettings = simulation.getLandingDispersionSettings();
+		MonteCarloSettings initialSettings = selectInitialSettings(savedSettings, cachedResult);
 		this.parameterRows = createParameterRows();
 		this.parameterTableModel = new ParameterTableModel(parameterRows);
 		this.runCountSpinner = new JSpinner(new SpinnerNumberModel(MonteCarloSettings.DEFAULT_RUN_COUNT,
 				MonteCarloSettings.MIN_RUN_COUNT, MonteCarloSettings.MAX_RUN_COUNT, 50));
 		this.seedField = new JTextField(Integer.toString(ThreadLocalRandom.current().nextInt()), 11);
-		if (cachedResult != null) {
-			loadSettings(cachedResult.getSettings());
+		if (initialSettings != null) {
+			loadSettings(initialSettings);
 		}
 		this.parameterDescription = createDescriptionArea();
 		this.parameterTable = createParameterTable();
-		this.presetNotice = new JLabel(trans.get(cachedResult == null
-				? "LandingDispersionDlg.lbl.defaultValuesNotice"
-				: "LandingDispersionDlg.lbl.cachedValuesNotice"));
-		this.cachedSettingsNotice = cachedResult != null;
+		String noticeKey = savedSettings != null
+				? "LandingDispersionDlg.lbl.savedValuesNotice"
+				: cachedResult != null
+						? "LandingDispersionDlg.lbl.cachedValuesNotice"
+						: "LandingDispersionDlg.lbl.defaultValuesNotice";
+		this.presetNotice = new JLabel(trans.get(noticeKey));
+		this.loadedSettingsNotice = initialSettings != null;
 		this.cardLayout = new CardLayout();
 		this.cards = new JPanel(cardLayout);
 		this.progressBar = new JProgressBar(0, 100);
@@ -120,6 +126,7 @@ public final class LandingDispersionDialog extends JDialog {
 		this.cancelButton = new JButton(trans.get("dlg.but.cancel"));
 
 		buildDialog();
+		this.settingsAtLastSave = buildSettings(false);
 		installAnalysisSettingsListeners();
 		updateCachedAnalysisButton();
 	}
@@ -336,7 +343,7 @@ public final class LandingDispersionDialog extends JDialog {
 	}
 
 	private void startAnalysis() {
-		MonteCarloSettings settings = readSettings();
+		MonteCarloSettings settings = readSettings(true);
 		if (settings == null) {
 			return;
 		}
@@ -349,6 +356,7 @@ public final class LandingDispersionDialog extends JDialog {
 				return;
 			}
 		}
+		saveSettings(settings);
 
 		progressBar.setValue(0);
 		progressLabel.setText(String.format(trans.get("LandingDispersionDlg.lbl.progress"), 0,
@@ -365,17 +373,19 @@ public final class LandingDispersionDialog extends JDialog {
 		worker.execute();
 	}
 
-	private MonteCarloSettings readSettings() {
+	private MonteCarloSettings readSettings(boolean showErrors) {
 		if (parameterTable.isEditing() && !parameterTable.getCellEditor().stopCellEditing()) {
 			return null;
 		}
 		try {
 			runCountSpinner.commitEdit();
 		} catch (ParseException exception) {
-			showInputError(trans.get("LandingDispersionDlg.msg.invalidRuns"));
+			if (showErrors) {
+				showInputError(trans.get("LandingDispersionDlg.msg.invalidRuns"));
+			}
 			return null;
 		}
-		return buildSettings(true);
+		return buildSettings(showErrors);
 	}
 
 	private MonteCarloSettings buildSettings(boolean showErrors) {
@@ -438,9 +448,9 @@ public final class LandingDispersionDialog extends JDialog {
 	}
 
 	private void analysisSettingsChanged() {
-		if (cachedSettingsNotice) {
+		if (loadedSettingsNotice) {
 			presetNotice.setText(" ");
-			cachedSettingsNotice = false;
+			loadedSettingsNotice = false;
 		}
 		updateCachedAnalysisButton();
 	}
@@ -452,7 +462,7 @@ public final class LandingDispersionDialog extends JDialog {
 	}
 
 	private void plotCachedAnalysis() {
-		MonteCarloSettings settings = readSettings();
+		MonteCarloSettings settings = readSettings(true);
 		if (settings == null) {
 			updateCachedAnalysisButton();
 			return;
@@ -462,6 +472,7 @@ public final class LandingDispersionDialog extends JDialog {
 			updateCachedAnalysisButton();
 			return;
 		}
+		saveSettings(settings);
 		dispose();
 		new LandingDispersionResultsDialog(owner, simulation.getName(), result).setVisible(true);
 	}
@@ -485,7 +496,31 @@ public final class LandingDispersionDialog extends JDialog {
 			cancelAnalysis();
 			return;
 		}
+		MonteCarloSettings settings = readSettings(false);
+		if (settings != null
+				&& !LandingDispersionAnalysisCache.settingsMatch(settingsAtLastSave, settings)) {
+			saveSettings(settings);
+		}
 		dispose();
+	}
+
+	private void saveSettings(MonteCarloSettings settings) {
+		persistSettings(simulation, settings);
+		settingsAtLastSave = settings;
+	}
+
+	static MonteCarloSettings selectInitialSettings(MonteCarloSettings savedSettings,
+			MonteCarloResult cachedResult) {
+		return savedSettings != null
+				? savedSettings
+				: cachedResult != null ? cachedResult.getSettings() : null;
+	}
+
+	static void persistSettings(Simulation simulation, MonteCarloSettings settings) {
+		MonteCarloSettings current = simulation.getLandingDispersionSettings();
+		if (current == null || !LandingDispersionAnalysisCache.settingsMatch(current, settings)) {
+			simulation.setLandingDispersionSettings(settings);
+		}
 	}
 
 	private void restoreSetupAfterFailure() {

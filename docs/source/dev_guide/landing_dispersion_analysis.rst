@@ -147,13 +147,19 @@ data when available.  **All fixed** remains available for zeroing every explicit
 spread.  A ``SwingWorker`` runs the trajectories off the event-dispatch thread and
 supports cancellation.
 
-The most recent completed result is cached in memory for each simulation.  When
-the setup dialog is reopened, it restores that result's run count, seed,
-distributions, and spreads and offers **Plot cached analysis**.  The action is
+The run count, seed, distributions, and spreads are saved on each simulation when
+the setup dialog closes after a valid change, or when an analysis starts.  They are
+restored whenever the setup dialog is reopened and are persisted in the ``.ork``
+file.  A simulation that has never had its dispersion setup changed or run has no
+saved configuration.
+
+Separately, the most recent completed result is cached in memory for each simulation
+and enables **Plot cached analysis** while its settings still match.  The action is
 hidden as soon as those settings differ.  A cache entry is discarded when the
 rocket, active flight configuration, simulation options, or simulation-extension
 configuration no longer matches the inputs used for the analysis.  Weak simulation
-references allow cached results to expire with closed documents.
+references allow cached results to expire with closed documents; completed runs are
+not written to the ``.ork`` file.
 
 The results dialog switches among all landing bodies and provides:
 
