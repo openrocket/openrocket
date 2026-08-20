@@ -26,6 +26,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.awt.Color;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -52,16 +53,16 @@ public class CaretsPass implements RenderPass {
 	private final int colorUniform;
 	private final Renderable cgMesh;
 	private final Renderable cpMesh;
-	private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f);
-	private final Vector3f cpColor = new Vector3f(1.0f, 0.0f, 0.0f);
+	private volatile Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f);
+	private volatile Vector3f cpColor = new Vector3f(1.0f, 0.0f, 0.0f);
 	private final Vector3f transformedCgPosition = new Vector3f();
 	private final Vector3f transformedCpPosition = new Vector3f();
 	private final AerodynamicCalculator aerodynamicCalculator;
 	private final RenderingConfiguration config;
 
 	private final Rocket rocket;
-	private Vector3f cgPosition = new Vector3f();
-	private Vector3f cpPosition = new Vector3f();
+	private final AtomicReference<CaretPositions> positions =
+			new AtomicReference<>(new CaretPositions(null, null, false));
 	/**
 	 * Caret size in logical pixels, multiplied by the display scale before use.
 	 *
@@ -74,17 +75,11 @@ public class CaretsPass implements RenderPass {
 	private static final float FIXED_SCREEN_SCALE = 21.0f;
 	private int viewportHeight = 1;
 	private float displayScale = 1.0f;
-	private boolean cgValid = false;
-	private boolean cpValid = false;
-	/**
-	 * Set once a host supplies positions, after which this pass stops computing its own.
-	 * The design view's centre of pressure depends on flight conditions the pass cannot
-	 * see — the Component Analysis window can override Mach, angle of attack and roll —
-	 * so whoever owns those conditions has to be the one that decides where the caret goes.
-	 */
-	private volatile boolean positionsSuppliedByHost = false;
 	private final Runnable uiThemeListener;
 	private final StateChangeListener rocketChangeListener;
+
+	private record CaretPositions(Vector3f cg, Vector3f cp, boolean suppliedByHost) {
+	}
 
 	/**
 	 * Creates a new carets pass for the given scene and configuration.
@@ -132,17 +127,13 @@ public class CaretsPass implements RenderPass {
 	 * @param cp centre of pressure, or {@code null}/NaN when there is nothing to show
 	 */
 	public void setPositions(CoordinateIF cg, CoordinateIF cp) {
-		positionsSuppliedByHost = true;
-
-		cgValid = cg != null && !cg.isNaN() && cg.getWeight() > MassCalculator.MIN_MASS;
-		if (cgValid) {
-			this.cgPosition = VectorUtils.coordinateToVector3f(cg).mul(RenderingConstants.WORLD_SCALE);
-		}
-
-		cpValid = cp != null && !cp.isNaN() && cp.getWeight() > MathUtil.EPSILON;
-		if (cpValid) {
-			this.cpPosition = VectorUtils.coordinateToVector3f(cp).mul(RenderingConstants.WORLD_SCALE);
-		}
+		Vector3f cgPosition = cg != null && !cg.isNaN() && cg.getWeight() > MassCalculator.MIN_MASS
+				? VectorUtils.coordinateToVector3f(cg).mul(RenderingConstants.WORLD_SCALE)
+				: null;
+		Vector3f cpPosition = cp != null && !cp.isNaN() && cp.getWeight() > MathUtil.EPSILON
+				? VectorUtils.coordinateToVector3f(cp).mul(RenderingConstants.WORLD_SCALE)
+				: null;
+		positions.set(new CaretPositions(cgPosition, cpPosition, true));
 	}
 
 	/**
@@ -154,31 +145,32 @@ public class CaretsPass implements RenderPass {
 	 * the centre of pressure depends on live there.</p>
 	 */
 	private void updatePositions() {
-		if (positionsSuppliedByHost) {
+		CaretPositions previous = positions.get();
+		if (previous.suppliedByHost()) {
 			return;
 		}
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		if (config == null) {
-			cgValid = false;
-			cpValid = false;
+			positions.compareAndSet(previous, new CaretPositions(null, null, false));
 			return;
 		}
 
 		// Calculate and cache CG position
 		RigidBody cgBody = MassCalculator.calculateLaunch(config);
 		CoordinateIF cgCoord = cgBody.getCM();
-		cgValid = cgBody.getMass() > MassCalculator.MIN_MASS;
-		if (cgValid) {
-			this.cgPosition = VectorUtils.coordinateToVector3f(cgCoord).mul(RenderingConstants.WORLD_SCALE);
-		}
+		Vector3f cgPosition = cgBody.getMass() > MassCalculator.MIN_MASS
+				? VectorUtils.coordinateToVector3f(cgCoord).mul(RenderingConstants.WORLD_SCALE)
+				: null;
 
 		// Calculate and cache CP position
 		FlightConditions conditions = new FlightConditions(config);
 		CoordinateIF cpCoord = aerodynamicCalculator.getWorstCP(config, conditions, new WarningSet());
-		cpValid = cpCoord != null;
-		if (cpValid) {
-			this.cpPosition = VectorUtils.coordinateToVector3f(cpCoord).mul(RenderingConstants.WORLD_SCALE);
-		}
+		Vector3f cpPosition = cpCoord != null
+				? VectorUtils.coordinateToVector3f(cpCoord).mul(RenderingConstants.WORLD_SCALE)
+				: null;
+		// Do not let an in-flight fallback calculation overwrite positions supplied by
+		// the host while this calculation was running on another thread.
+		positions.compareAndSet(previous, new CaretPositions(cgPosition, cpPosition, false));
 	}
 
 	@Override
@@ -192,16 +184,19 @@ public class CaretsPass implements RenderPass {
 		shader.setUniformFloat(fixedScaleFactorUniform, FIXED_SCREEN_SCALE * displayScale);
 		shader.setUniformFloat(viewportHeightUniform, (float) viewportHeight);
 
-		if (cgValid) {
+		CaretPositions currentPositions = positions.get();
+		if (currentPositions.cg() != null) {
 			// Render CG
-			shader.setUniformVector3f(centerUniform, scene.transformRocketPoint(cgPosition, transformedCgPosition));
+			shader.setUniformVector3f(centerUniform,
+					scene.transformRocketPoint(currentPositions.cg(), transformedCgPosition));
 			shader.setUniformVector3f(colorUniform, cgColor);
 			cgMesh.render();
 		}
 
-		if (cpValid) {
+		if (currentPositions.cp() != null) {
 			// Render CP
-			shader.setUniformVector3f(centerUniform, scene.transformRocketPoint(cpPosition, transformedCpPosition));
+			shader.setUniformVector3f(centerUniform,
+					scene.transformRocketPoint(currentPositions.cp(), transformedCpPosition));
 			shader.setUniformVector3f(colorUniform, cpColor);
 			cpMesh.render();
 		}
@@ -237,16 +232,16 @@ public class CaretsPass implements RenderPass {
 		Color cgTheme = UITheme.getColor(UITheme.Keys.CG);
 		Color cpTheme = UITheme.getColor(UITheme.Keys.CP);
 		if (cgTheme != null) {
-			cgColor.set(ColorUtils.srgbToLinear(new Vector3f(
+			cgColor = ColorUtils.srgbToLinear(new Vector3f(
 					cgTheme.getRed() / 255.0f,
 					cgTheme.getGreen() / 255.0f,
-					cgTheme.getBlue() / 255.0f)));
+					cgTheme.getBlue() / 255.0f));
 		}
 		if (cpTheme != null) {
-			cpColor.set(ColorUtils.srgbToLinear(new Vector3f(
+			cpColor = ColorUtils.srgbToLinear(new Vector3f(
 					cpTheme.getRed() / 255.0f,
 					cpTheme.getGreen() / 255.0f,
-					cpTheme.getBlue() / 255.0f)));
+					cpTheme.getBlue() / 255.0f));
 		}
 	}
 }
