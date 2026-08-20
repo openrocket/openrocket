@@ -92,6 +92,29 @@ public final class GLDebug {
 		return envEnabled || Boolean.getBoolean("openrocket.gl.debug");
 	}
 
+	/** Releases the callback associated with the current context before it is destroyed. */
+	public static void disableCurrentContext() {
+		GLCapabilities caps;
+		try {
+			caps = GL.getCapabilities();
+		} catch (IllegalStateException e) {
+			return;
+		}
+
+		GLDebugMessageCallback callback;
+		synchronized (installedContexts) {
+			installedContexts.remove(caps);
+			callback = callbacks.remove(caps);
+		}
+		if (callback != null) {
+			try {
+				glDebugMessageCallback(null, 0L);
+			} finally {
+				callback.free();
+			}
+		}
+	}
+
 	private static String sourceToString(int source) {
 		return switch (source) {
 			case GL_DEBUG_SOURCE_API -> "API";

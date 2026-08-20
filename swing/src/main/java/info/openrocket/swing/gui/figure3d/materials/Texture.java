@@ -369,37 +369,46 @@ public class Texture {
 		int faceHeight = 0;
 		int detectedFormat = GL_RGB;
 		int detectedInternalFormat = GL_SRGB8;
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			IntBuffer w = stack.mallocInt(1);
-			IntBuffer h = stack.mallocInt(1);
-			IntBuffer channels = stack.mallocInt(1);
+		try {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				IntBuffer w = stack.mallocInt(1);
+				IntBuffer h = stack.mallocInt(1);
+				IntBuffer channels = stack.mallocInt(1);
 
-			for (int i = 0; i < cubemapFiles.length; i++) {
-				ByteBuffer image = loadImage(cubemapFiles[i], w, h, channels, 0);
-				int format = (channels.get(0) == 4) ? GL_RGBA : GL_RGB;
-				int internalFormat = (channels.get(0) == 4) ? GL_SRGB8_ALPHA8 : GL_SRGB8;
-				faceWidth = w.get(0);
-				faceHeight = h.get(0);
-				detectedFormat = format;
-				detectedInternalFormat = internalFormat;
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, w.get(0), h.get(0), 0, format, GL_UNSIGNED_BYTE, image);
-				STBImage.stbi_image_free(image);
+				for (int i = 0; i < cubemapFiles.length; i++) {
+					ByteBuffer image = null;
+					try {
+						image = loadImage(cubemapFiles[i], w, h, channels, 0);
+						int format = (channels.get(0) == 4) ? GL_RGBA : GL_RGB;
+						int internalFormat = (channels.get(0) == 4) ? GL_SRGB8_ALPHA8 : GL_SRGB8;
+						faceWidth = w.get(0);
+						faceHeight = h.get(0);
+						detectedFormat = format;
+						detectedInternalFormat = internalFormat;
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
+								w.get(0), h.get(0), 0, format, GL_UNSIGNED_BYTE, image);
+					} finally {
+						if (image != null) {
+							STBImage.stbi_image_free(image);
+						}
+					}
+				}
 			}
-		} catch (RuntimeException e) {
+
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			this.width = faceWidth;
+			this.height = faceHeight;
+			this.internalFormat = detectedInternalFormat;
+			this.format = detectedFormat;
+			completeCreation("cubemap");
+		} catch (RuntimeException | Error e) {
 			abandonTexture();
 			throw e;
 		}
-
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		this.width = faceWidth;
-		this.height = faceHeight;
-		this.internalFormat = detectedInternalFormat;
-		this.format = detectedFormat;
-		completeCreation("cubemap");
 	}
 
 	/**
@@ -416,12 +425,13 @@ public class Texture {
 		int faceSize = 0;
 		int detectedFormat = GL_RGB;
 		int detectedInternalFormat = GL_SRGB8;
+		ByteBuffer atlasBuffer = null;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
 			IntBuffer channels = stack.mallocInt(1);
 
-			ByteBuffer atlasBuffer = loadImage(atlasFilePath, w, h, channels, 0);
+			atlasBuffer = loadImage(atlasFilePath, w, h, channels, 0);
 
 			int atlasWidth = w.get(0);
 			int atlasHeight = h.get(0);
@@ -441,18 +451,22 @@ public class Texture {
 
 				for (int i = 0; i < 6; i++) {
 					ByteBuffer faceBuffer = MemoryUtil.memAlloc(faceSize * faceSize * numChannels);
-					int startX = i * faceSize;
+					try {
+						int startX = i * faceSize;
 
-					for (int y = 0; y < faceSize; y++) {
-						int srcPosition = y * atlasStrideBytes + startX * numChannels;
-						// memSlice is safer as it uses the original buffer's address
-						ByteBuffer rowSlice = MemoryUtil.memSlice(atlasBuffer, srcPosition, faceStrideBytes);
-						faceBuffer.put(rowSlice);
+						for (int y = 0; y < faceSize; y++) {
+							int srcPosition = y * atlasStrideBytes + startX * numChannels;
+							// memSlice is safer as it uses the original buffer's address
+							ByteBuffer rowSlice = MemoryUtil.memSlice(atlasBuffer, srcPosition, faceStrideBytes);
+							faceBuffer.put(rowSlice);
+						}
+						faceBuffer.flip();
+
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
+								faceSize, faceSize, 0, format, GL_UNSIGNED_BYTE, faceBuffer);
+					} finally {
+						MemoryUtil.memFree(faceBuffer);
 					}
-					faceBuffer.flip();
-
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, faceSize, faceSize, 0, format, GL_UNSIGNED_BYTE, faceBuffer);
-					MemoryUtil.memFree(faceBuffer);
 				}
 			} else if (layout == AtlasLayout.HORIZONTAL_CROSS) {
 				faceSize = atlasWidth / 4;
@@ -474,30 +488,35 @@ public class Texture {
 
 				for (int i = 0; i < 6; i++) {
 					ByteBuffer faceBuffer = MemoryUtil.memAlloc(faceSize * faceSize * numChannels);
+					try {
+						int col = faceCoords[i][0];
+						int row = faceCoords[i][1];
+						int startX = col * faceSize;
+						int startY = row * faceSize;
 
-					int col = faceCoords[i][0];
-					int row = faceCoords[i][1];
-					int startX = col * faceSize;
-					int startY = row * faceSize;
+						for (int y = 0; y < faceSize; y++) {
+							int srcPosition = (startY + y) * atlasStrideBytes + startX * numChannels;
+							ByteBuffer rowSlice = MemoryUtil.memSlice(atlasBuffer, srcPosition, faceStrideBytes);
+							faceBuffer.put(rowSlice);
+						}
+						faceBuffer.flip();
 
-					for (int y = 0; y < faceSize; y++) {
-						int srcPosition = (startY + y) * atlasStrideBytes + startX * numChannels;
-						ByteBuffer rowSlice = MemoryUtil.memSlice(atlasBuffer, srcPosition, faceStrideBytes);
-						faceBuffer.put(rowSlice);
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
+								faceSize, faceSize, 0, format, GL_UNSIGNED_BYTE, faceBuffer);
+					} finally {
+						MemoryUtil.memFree(faceBuffer);
 					}
-					faceBuffer.flip();
-
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, faceSize, faceSize, 0, format, GL_UNSIGNED_BYTE, faceBuffer);
-					MemoryUtil.memFree(faceBuffer);
 				}
 			} else {
 				throw new UnsupportedOperationException("Atlas layout not supported: " + layout);
 			}
-
-			STBImage.stbi_image_free(atlasBuffer);
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | Error e) {
 			abandonTexture();
 			throw e;
+		} finally {
+			if (atlasBuffer != null) {
+				STBImage.stbi_image_free(atlasBuffer);
+			}
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -527,12 +546,13 @@ public class Texture {
 		this.textureId = glGenTextures();
 		glBindTexture(this.textureType, textureId);
 
+		FloatBuffer image = null;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
 			IntBuffer channels = stack.mallocInt(1);
 
-			FloatBuffer image = loadHdrImage(filePath, w, h, channels);
+			image = loadHdrImage(filePath, w, h, channels);
 
 			// Upload the floating-point linear data to the GPU.
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, w.get(0), h.get(0), 0, GL_RGB, GL_FLOAT, image);
@@ -540,10 +560,13 @@ public class Texture {
 			this.height = h.get(0);
 			this.internalFormat = GL_RGB32F;
 			this.format = GL_RGB;
-			STBImage.stbi_image_free(image);
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | Error e) {
 			abandonTexture();
 			throw e;
+		} finally {
+			if (image != null) {
+				STBImage.stbi_image_free(image);
+			}
 		}
 
 		// Set these parameters to prevent seams.
@@ -569,13 +592,14 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		applyAnisotropicFilteringIfAvailable();
 
+		ByteBuffer image = null;
 		STBImage.stbi_set_flip_vertically_on_load(true);
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
 			IntBuffer channels = stack.mallocInt(1);
 
-			ByteBuffer image = STBImage.stbi_load_from_memory(compressedImageData, w, h, channels, 4);
+			image = STBImage.stbi_load_from_memory(compressedImageData, w, h, channels, 4);
 			if (image == null) {
 				throw new RuntimeException("Failed to load texture from memory: " + STBImage.stbi_failure_reason());
 			}
@@ -588,11 +612,13 @@ public class Texture {
 			this.internalFormat = GL_SRGB8_ALPHA8;
 			this.format = GL_RGBA;
 			glGenerateMipmap(GL_TEXTURE_2D);
-			STBImage.stbi_image_free(image);
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | Error e) {
 			abandonTexture();
 			throw e;
 		} finally {
+			if (image != null) {
+				STBImage.stbi_image_free(image);
+			}
 			STBImage.stbi_set_flip_vertically_on_load(false);
 		}
 		completeCreation("memory");

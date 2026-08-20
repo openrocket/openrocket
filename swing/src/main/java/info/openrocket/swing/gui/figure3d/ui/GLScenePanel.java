@@ -1359,23 +1359,27 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 * made this canvas's context current and serialized disposal with rendering.
 	 */
 	private void cleanupGLResources() {
-		if (scene3DOrchestrator != null) {
-			try {
-				Scene scene = scene3DOrchestrator.getScene();
-				GLRenderer renderer = scene3DOrchestrator.getRenderer();
-				if (scene != null) {
-					scene.cleanup();
+		try {
+			if (scene3DOrchestrator != null) {
+				try {
+					Scene scene = scene3DOrchestrator.getScene();
+					GLRenderer renderer = scene3DOrchestrator.getRenderer();
+					if (scene != null) {
+						scene.cleanup();
+					}
+					if (renderer != null) {
+						renderer.cleanup();
+					}
+					scene3DOrchestrator.getDecalTextureCache().cleanup();
+				} catch (Exception e) {
+					log.warn("Error cleaning 3D resources: {}", e.getMessage());
 				}
-				if (renderer != null) {
-					renderer.cleanup();
-				}
-				scene3DOrchestrator.getDecalTextureCache().cleanup();
-			} catch (Exception e) {
-				log.warn("Error cleaning 3D resources: {}", e.getMessage());
 			}
-		}
-		if (hudOverlay != null) {
-			hudOverlay.cleanupGlResources();
+			if (hudOverlay != null) {
+				hudOverlay.cleanupGlResources();
+			}
+		} finally {
+			GLDebug.disableCurrentContext();
 		}
 	}
 

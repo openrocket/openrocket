@@ -183,6 +183,8 @@ class HudOverlay {
 				// glBufferData(orphan) → glBufferSubData(host) → glTexSubImage2D(0L)
 				// can stream uploads without ever stalling on prior GPU usage.
 				pbo = glGenBuffers();
+				GpuResourceTracker.register(GpuResourceTracker.ResourceType.BUFFER, pbo,
+						"HUD pixel upload buffer");
 				pboCapacityBytes = paddedSize;
 				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
 				glBufferData(GL_PIXEL_UNPACK_BUFFER, pboCapacityBytes, GL_STREAM_DRAW);
@@ -207,12 +209,18 @@ class HudOverlay {
 			texture.cleanup();
 			texture = null;
 		}
-		if (pbo != 0) {
-			glDeleteBuffers(pbo);
-			pbo = 0;
-			pboCapacityBytes = 0;
-		}
+		deletePbo();
 		freeHostBuffers();
+	}
+
+	private void deletePbo() {
+		if (pbo == 0) {
+			return;
+		}
+		GpuResourceTracker.release(GpuResourceTracker.ResourceType.BUFFER, pbo);
+		glDeleteBuffers(pbo);
+		pbo = 0;
+		pboCapacityBytes = 0;
 	}
 
 	private void freeHostBuffers() {
@@ -426,6 +434,7 @@ class HudOverlay {
 
 	/** Releases the GL objects. Must run with the context current. */
 	void cleanupGlResources() {
+		deletePbo();
 		if (vao != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.VERTEX_ARRAY, vao);
 			glDeleteVertexArrays(vao);
