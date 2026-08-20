@@ -84,6 +84,10 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	private final int lightSensitivityLocation;
 	private final Vector3f scratchFlameLight = new Vector3f();
 	private final Vector3f scratchFlameLightColor = new Vector3f();
+	private final Vector3f cameraPosition = new Vector3f();
+	private final Vector3f billboardToCamera = new Vector3f();
+	private final Vector3f billboardRight = new Vector3f();
+	private final Vector3f billboardUp = new Vector3f();
 
 	public VolumetricSmokeRenderer() {
 		shader = new GLShader("/shaders/volumetric_smoke_vertex.glsl", "/shaders/volumetric_smoke_fragment.glsl");
@@ -153,7 +157,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		buffer.clear();
-		int vertexCount = appendParticleBillboards(scene, camera.getPosition());
+		int vertexCount = appendParticleBillboards(scene, camera.getPosition(cameraPosition));
 
 		buffer.flip();
 		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
@@ -266,68 +270,70 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 	 * @return Number of vertices added to the buffer (always 6)
 	 */
 	private int createParticleBillboard(Vector3f position, float size, float alpha, Vector3f color, Vector3f cameraPos) {
-		// Proper camera-facing billboard approach
-		Vector3f toCamera = new Vector3f(cameraPos).sub(position);
-
-		// Handle edge case where camera is at particle position
-		if (toCamera.lengthSquared() < 0.001f) {
-			toCamera.set(0, 0, 1);
+		billboardToCamera.set(cameraPos).sub(position);
+		if (billboardToCamera.lengthSquared() < 0.001f) {
+			billboardToCamera.set(0, 0, 1);
 		} else {
-			toCamera.normalize();
+			billboardToCamera.normalize();
 		}
 
-		// Use world up vector
-		Vector3f worldUp = new Vector3f(0, 1, 0);
-
-		// Calculate billboard right vector (perpendicular to both toCamera and worldUp)
-		Vector3f right = new Vector3f(worldUp).cross(toCamera);
-		if (right.lengthSquared() < 0.001f) {
-			// Handle case where toCamera is parallel to worldUp
-			right.set(1, 0, 0);
+		billboardRight.set(0, 1, 0).cross(billboardToCamera);
+		if (billboardRight.lengthSquared() < 0.001f) {
+			billboardRight.set(1, 0, 0);
 		} else {
-			right.normalize();
+			billboardRight.normalize();
 		}
 
-		// Calculate billboard up vector (perpendicular to both toCamera and right)
-		Vector3f up = new Vector3f(toCamera).cross(right).normalize();
-
-		// Scale by size
-		right.mul(size);
-		up.mul(size);
-
-		Vector3f[] vertices = new Vector3f[4];
-		vertices[0] = new Vector3f(position).sub(right).sub(up); // Bottom-left
-		vertices[1] = new Vector3f(position).add(right).sub(up); // Bottom-right
-		vertices[2] = new Vector3f(position).add(right).add(up); // Top-right
-		vertices[3] = new Vector3f(position).sub(right).add(up); // Top-left
-
-		float[][] texCoords = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+		billboardUp.set(billboardToCamera).cross(billboardRight).normalize();
+		billboardRight.mul(size);
+		billboardUp.mul(size);
 
 		// First triangle (0, 1, 2)
-		addVertex(vertices[0], texCoords[0], color, alpha);
-		addVertex(vertices[1], texCoords[1], color, alpha);
-		addVertex(vertices[2], texCoords[2], color, alpha);
+		addVertex(position.x - billboardRight.x - billboardUp.x,
+				position.y - billboardRight.y - billboardUp.y,
+				position.z - billboardRight.z - billboardUp.z,
+				0.0f, 0.0f, color, alpha);
+		addVertex(position.x + billboardRight.x - billboardUp.x,
+				position.y + billboardRight.y - billboardUp.y,
+				position.z + billboardRight.z - billboardUp.z,
+				1.0f, 0.0f, color, alpha);
+		addVertex(position.x + billboardRight.x + billboardUp.x,
+				position.y + billboardRight.y + billboardUp.y,
+				position.z + billboardRight.z + billboardUp.z,
+				1.0f, 1.0f, color, alpha);
 
 		// Second triangle (0, 2, 3)
-		addVertex(vertices[0], texCoords[0], color, alpha);
-		addVertex(vertices[2], texCoords[2], color, alpha);
-		addVertex(vertices[3], texCoords[3], color, alpha);
+		addVertex(position.x - billboardRight.x - billboardUp.x,
+				position.y - billboardRight.y - billboardUp.y,
+				position.z - billboardRight.z - billboardUp.z,
+				0.0f, 0.0f, color, alpha);
+		addVertex(position.x + billboardRight.x + billboardUp.x,
+				position.y + billboardRight.y + billboardUp.y,
+				position.z + billboardRight.z + billboardUp.z,
+				1.0f, 1.0f, color, alpha);
+		addVertex(position.x - billboardRight.x + billboardUp.x,
+				position.y - billboardRight.y + billboardUp.y,
+				position.z - billboardRight.z + billboardUp.z,
+				0.0f, 1.0f, color, alpha);
 
-		return 6; // 6 vertices added
+		return VERTICES_PER_QUAD;
 	}
 
 
 	/**
 	 * Adds a single vertex to the volumetric smoke rendering buffer.
 	 *
-	 * @param position 3D world position of the vertex
-	 * @param texCoord 2D texture coordinates [u, v]
+	 * @param x vertex x position
+	 * @param y vertex y position
+	 * @param z vertex z position
+	 * @param u horizontal texture coordinate
+	 * @param v vertical texture coordinate
 	 * @param color RGB color values for the smoke
 	 * @param alpha Alpha transparency value for volumetric blending
 	 */
-	private void addVertex(Vector3f position, float[] texCoord, Vector3f color, float alpha) {
-		buffer.put(position.x).put(position.y).put(position.z);
-		buffer.put(texCoord[0]).put(texCoord[1]);
+	private void addVertex(float x, float y, float z, float u, float v, Vector3f color, float alpha) {
+		buffer.put(x).put(y).put(z);
+		buffer.put(u).put(v);
 		buffer.put(color.x).put(color.y).put(color.z).put(alpha); // Store alpha separately
 	}
 
