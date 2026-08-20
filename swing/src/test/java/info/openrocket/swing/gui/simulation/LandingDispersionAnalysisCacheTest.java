@@ -9,10 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.simulation.SimulationConditions;
+import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
 import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
 import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
 import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
+import info.openrocket.core.util.Config;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.util.BaseTestCase;
 
@@ -30,6 +33,8 @@ public class LandingDispersionAnalysisCacheTest extends BaseTestCase {
 		LandingDispersionAnalysisCache.put(simulation, result);
 
 		assertSame(result, LandingDispersionAnalysisCache.get(simulation, settings));
+		assertNull(LandingDispersionAnalysisCache.get(new Simulation(simulation.getRocket()), settings),
+				"distinct simulation objects must not share a cached result");
 		assertSame(result, LandingDispersionAnalysisCache.get(simulation,
 				settings(12345, 4, 0.1)), "worker count is not a dispersion definition");
 		assertNull(LandingDispersionAnalysisCache.get(simulation, settings(54321, 1, 0.1)));
@@ -62,6 +67,20 @@ public class LandingDispersionAnalysisCacheTest extends BaseTestCase {
 		assertNull(LandingDispersionAnalysisCache.get(simulation));
 	}
 
+	@Test
+	public void testExtensionConfigurationChangeInvalidatesResult() {
+		Simulation simulation = new Simulation(TestRockets.makeEstesAlphaIII());
+		TestExtension extension = new TestExtension();
+		extension.setValue(1);
+		simulation.getSimulationExtensions().add(extension);
+		MonteCarloResult result = result(settings(12345, 1, 0.1));
+		LandingDispersionAnalysisCache.put(simulation, result);
+
+		extension.setValue(2);
+
+		assertNull(LandingDispersionAnalysisCache.get(simulation));
+	}
+
 	private static MonteCarloSettings settings(int seed, int threadCount, double axialDragSpread) {
 		return MonteCarloSettings.builder()
 				.runCount(2)
@@ -74,5 +93,22 @@ public class LandingDispersionAnalysisCacheTest extends BaseTestCase {
 
 	private static MonteCarloResult result(MonteCarloSettings settings) {
 		return new MonteCarloResult(settings, null, List.of(), 0);
+	}
+
+	private static final class TestExtension extends AbstractSimulationExtension {
+		@Override
+		public boolean isMonteCarloSafe() {
+			return true;
+		}
+
+		@Override
+		public void initialize(SimulationConditions conditions) {
+		}
+
+		private void setValue(int value) {
+			Config config = new Config();
+			config.put("Value", value);
+			setConfig(config);
+		}
 	}
 }

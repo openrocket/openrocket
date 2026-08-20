@@ -147,6 +147,14 @@ data when available.  **All fixed** remains available for zeroing every explicit
 spread.  A ``SwingWorker`` runs the trajectories off the event-dispatch thread and
 supports cancellation.
 
+The most recent completed result is cached in memory for each simulation.  When
+the setup dialog is reopened, it restores that result's run count, seed,
+distributions, and spreads and offers **Plot cached analysis**.  The action is
+hidden as soon as those settings differ.  A cache entry is discarded when the
+rocket, active flight configuration, simulation options, or simulation-extension
+configuration no longer matches the inputs used for the analysis.  Weak simulation
+references allow cached results to expire with closed documents.
+
 The results dialog switches among all landing bodies and provides:
 
 * a pad-relative east/north scatter plot with nominal and sample-mean markers;

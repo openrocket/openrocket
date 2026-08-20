@@ -36,6 +36,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -79,45 +81,60 @@ public final class LandingDispersionDialog extends JDialog {
 	private final JProgressBar progressBar;
 	private final JLabel progressLabel;
 	private final JButton runButton;
+	private final JButton plotCachedButton;
 	private final JButton closeButton;
 	private final JButton cancelButton;
 
 	private AnalysisWorker worker;
+	private boolean cachedSettingsNotice;
 
 	public LandingDispersionDialog(Window owner, Simulation simulation) {
 		super(owner, String.format(trans.get("LandingDispersionDlg.title"), simulation.getName()),
 				ModalityType.APPLICATION_MODAL);
 		this.owner = owner;
 		this.simulation = simulation;
+		MonteCarloResult cachedResult = LandingDispersionAnalysisCache.get(simulation);
 		this.parameterRows = createParameterRows();
 		this.parameterTableModel = new ParameterTableModel(parameterRows);
 		this.runCountSpinner = new JSpinner(new SpinnerNumberModel(MonteCarloSettings.DEFAULT_RUN_COUNT,
 				MonteCarloSettings.MIN_RUN_COUNT, MonteCarloSettings.MAX_RUN_COUNT, 50));
 		this.seedField = new JTextField(Integer.toString(ThreadLocalRandom.current().nextInt()), 11);
+		if (cachedResult != null) {
+			loadSettings(cachedResult.getSettings());
+		}
 		this.parameterDescription = createDescriptionArea();
 		this.parameterTable = createParameterTable();
-		this.presetNotice = new JLabel(trans.get("LandingDispersionDlg.lbl.defaultValuesNotice"));
+		this.presetNotice = new JLabel(trans.get(cachedResult == null
+				? "LandingDispersionDlg.lbl.defaultValuesNotice"
+				: "LandingDispersionDlg.lbl.cachedValuesNotice"));
+		this.cachedSettingsNotice = cachedResult != null;
 		this.cardLayout = new CardLayout();
 		this.cards = new JPanel(cardLayout);
 		this.progressBar = new JProgressBar(0, 100);
 		this.progressLabel = new JLabel(" ");
 		this.runButton = new JButton(trans.get("LandingDispersionDlg.but.run"));
+		this.plotCachedButton = new JButton(trans.get("LandingDispersionDlg.but.plotCached"));
+		this.plotCachedButton.setToolTipText(trans.get("LandingDispersionDlg.but.plotCached.ttip"));
+		this.plotCachedButton.setVisible(cachedResult != null);
 		this.closeButton = new JButton(trans.get("dlg.but.close"));
 		this.cancelButton = new JButton(trans.get("dlg.but.cancel"));
 
 		buildDialog();
+		installAnalysisSettingsListeners();
+		updateCachedAnalysisButton();
 	}
 
 	private void buildDialog() {
 		cards.add(createSetupPanel(), CARD_SETUP);
 		cards.add(createProgressPanel(), CARD_PROGRESS);
 
-		JPanel buttonPanel = new JPanel(new MigLayout("ins 0", "[grow][][button][button]"));
+		JPanel buttonPanel = new JPanel(new MigLayout("ins 0", "[grow][][button][button][button]"));
 		buttonPanel.setMinimumSize(new Dimension(0, 0));
 		presetNotice.setMinimumSize(new Dimension(0, presetNotice.getPreferredSize().height));
 		buttonPanel.add(presetNotice, "growx, wmin 0");
 		cancelButton.setVisible(false);
 		buttonPanel.add(cancelButton);
+		buttonPanel.add(plotCachedButton);
 		buttonPanel.add(closeButton, "tag close");
 		buttonPanel.add(runButton, "tag ok");
 
@@ -128,6 +145,7 @@ public final class LandingDispersionDialog extends JDialog {
 		setContentPane(content);
 
 		runButton.addActionListener(event -> startAnalysis());
+		plotCachedButton.addActionListener(event -> plotCachedAnalysis());
 		closeButton.addActionListener(event -> closeDialog());
 		cancelButton.addActionListener(event -> cancelAnalysis());
 		addWindowListener(new WindowAdapter() {
@@ -337,6 +355,7 @@ public final class LandingDispersionDialog extends JDialog {
 				settings.getRunCount() + 1));
 		cardLayout.show(cards, CARD_PROGRESS);
 		runButton.setVisible(false);
+		plotCachedButton.setVisible(false);
 		closeButton.setVisible(false);
 		cancelButton.setVisible(true);
 		cancelButton.setEnabled(true);
@@ -356,12 +375,17 @@ public final class LandingDispersionDialog extends JDialog {
 			showInputError(trans.get("LandingDispersionDlg.msg.invalidRuns"));
 			return null;
 		}
+		return buildSettings(true);
+	}
 
+	private MonteCarloSettings buildSettings(boolean showErrors) {
 		int seed;
 		try {
 			seed = Integer.parseInt(seedField.getText().trim());
 		} catch (NumberFormatException exception) {
-			showInputError(trans.get("LandingDispersionDlg.msg.invalidSeed"));
+			if (showErrors) {
+				showInputError(trans.get("LandingDispersionDlg.msg.invalidSeed"));
+			}
 			return null;
 		}
 
@@ -371,13 +395,75 @@ public final class LandingDispersionDialog extends JDialog {
 				.threadCount(Math.max(1, SwingPreferences.getMaxThreadCount()));
 		for (ParameterRow row : parameterRows) {
 			if (!Double.isFinite(row.spread) || row.spread < 0) {
-				showInputError(String.format(trans.get("LandingDispersionDlg.msg.invalidSpread"), row.name));
+				if (showErrors) {
+					showInputError(String.format(trans.get("LandingDispersionDlg.msg.invalidSpread"), row.name));
+				}
 				return null;
 			}
 			double internalSpread = row.spread * row.internalUnitsPerDisplayUnit;
 			builder.uncertainty(row.parameter, row.distribution, internalSpread);
 		}
 		return builder.build();
+	}
+
+	private void loadSettings(MonteCarloSettings settings) {
+		runCountSpinner.setValue(settings.getRunCount());
+		seedField.setText(Integer.toString(settings.getSeed()));
+		for (ParameterRow row : parameterRows) {
+			var uncertainty = settings.getUncertainty(row.parameter);
+			row.distribution = uncertainty.distribution();
+			row.spread = uncertainty.spread() / row.internalUnitsPerDisplayUnit;
+		}
+	}
+
+	private void installAnalysisSettingsListeners() {
+		runCountSpinner.addChangeListener(event -> analysisSettingsChanged());
+		parameterTableModel.addTableModelListener(event -> analysisSettingsChanged());
+		seedField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent event) {
+				analysisSettingsChanged();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent event) {
+				analysisSettingsChanged();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent event) {
+				analysisSettingsChanged();
+			}
+		});
+	}
+
+	private void analysisSettingsChanged() {
+		if (cachedSettingsNotice) {
+			presetNotice.setText(" ");
+			cachedSettingsNotice = false;
+		}
+		updateCachedAnalysisButton();
+	}
+
+	private void updateCachedAnalysisButton() {
+		MonteCarloSettings settings = buildSettings(false);
+		plotCachedButton.setVisible(settings != null
+				&& LandingDispersionAnalysisCache.get(simulation, settings) != null);
+	}
+
+	private void plotCachedAnalysis() {
+		MonteCarloSettings settings = readSettings();
+		if (settings == null) {
+			updateCachedAnalysisButton();
+			return;
+		}
+		MonteCarloResult result = LandingDispersionAnalysisCache.get(simulation, settings);
+		if (result == null) {
+			updateCachedAnalysisButton();
+			return;
+		}
+		dispose();
+		new LandingDispersionResultsDialog(owner, simulation.getName(), result).setVisible(true);
 	}
 
 	private void showInputError(String message) {
@@ -408,6 +494,7 @@ public final class LandingDispersionDialog extends JDialog {
 		runButton.setVisible(true);
 		closeButton.setVisible(true);
 		cancelButton.setVisible(false);
+		updateCachedAnalysisButton();
 		getRootPane().setDefaultButton(runButton);
 	}
 
@@ -512,6 +599,7 @@ public final class LandingDispersionDialog extends JDialog {
 			}
 			try {
 				MonteCarloResult result = get();
+				LandingDispersionAnalysisCache.put(simulation, result);
 				worker = null;
 				dispose();
 				new LandingDispersionResultsDialog(owner, simulation.getName(), result).setVisible(true);
