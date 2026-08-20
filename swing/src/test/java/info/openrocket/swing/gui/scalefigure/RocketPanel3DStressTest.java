@@ -22,6 +22,7 @@ import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("requires-live-opengl")
 class RocketPanel3DStressTest extends BaseTestCase {
 
 	private static final long STARTUP_TIMEOUT_MS = 12_000;
