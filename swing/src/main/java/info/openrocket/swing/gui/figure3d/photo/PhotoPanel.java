@@ -69,8 +69,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
 	private static final long RENDER_SHUTDOWN_TIMEOUT_MS = 2_000;
 	private final PhotoSettings settings;
-	private OpenRocketDocument document;
-	private GLScenePanel glPanel;
+	private volatile OpenRocketDocument document;
+	private volatile GLScenePanel glPanel;
 	private final List<ImageCallback> imageCallbacks = new ArrayList<>();
 	private final AtomicBoolean captureQueued = new AtomicBoolean(false);
 	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
