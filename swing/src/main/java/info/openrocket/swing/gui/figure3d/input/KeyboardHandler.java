@@ -4,14 +4,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-
 /**
  * Handles keyboard input with support for single-press and press-and-hold actions.
  * Distinguishes between one-time key press events and continuous key holding behavior.
  */
 public class KeyboardHandler {
+	private static final int PRESS = 1;
+	private static final int RELEASE = 0;
 
 	private final Set<Integer> pressedKeys = ConcurrentHashMap.newKeySet();
 	private final Map<Integer, Runnable> singlePressActions = new ConcurrentHashMap<>();
@@ -19,16 +18,18 @@ public class KeyboardHandler {
 	private final Set<Integer> singlePressHandled = ConcurrentHashMap.newKeySet();
 
 	/**
-	 * Processes raw GLFW key events and updates internal key state.
+	 * Processes key events and updates internal key state.
 	 * @param key the AWT {@code KeyEvent.VK_*}-style key code
-	 * @param action GLFW_PRESS or GLFW_RELEASE
+	 * @param action {@code 1} for press or {@code 0} for release
 	 */
 	public void handleKeyEvent(int key, int action) {
-		if (action == GLFW_PRESS) {
-			pressedKeys.add(key);
-			// Mark that this key press hasn't been handled for single-press actions yet
-			singlePressHandled.remove(key);
-		} else if (action == GLFW_RELEASE) {
+		if (action == PRESS) {
+			// AWT emits repeated keyPressed events while a key is held. Only a transition
+			// from released to pressed may re-arm a single-press action.
+			if (pressedKeys.add(key)) {
+				singlePressHandled.remove(key);
+			}
+		} else if (action == RELEASE) {
 			pressedKeys.remove(key);
 			// Reset the single-press handled state when the key is released
 			singlePressHandled.remove(key);

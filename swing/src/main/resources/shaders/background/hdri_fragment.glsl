@@ -39,9 +39,7 @@ void main()
     // Tone mapping
     color = ACESFilm(color);
 
-    // Gamma correction is still needed to get the correct brightness and contrast
-    const float gamma = 2.2;
-    color = pow(color, vec3(1.0/gamma));
-
+    // Keep the offscreen result linear. GL_FRAMEBUFFER_SRGB encodes this target,
+    // and the final presentation pass performs the display transfer explicitly.
     FragColor = vec4(color, 1.0);
 }

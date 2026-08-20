@@ -46,6 +46,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
  */
 public class FlameRenderer implements ParticleSystemRenderer {
 
+	private static final float NANOSECONDS_PER_SECOND = 1_000_000_000.0f;
 	/** Floats per vertex: pos(3) + uv(2) + rgba(4) + age(1). */
 	private static final int FLOATS_PER_VERTEX = 10;
 	/** Vertices per quad (two triangles). */
@@ -71,6 +72,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 	private final Vector3f billboardToCamera = new Vector3f();
 	private final Vector3f billboardRight = new Vector3f();
 	private final Vector3f billboardUp = new Vector3f();
+	private final long animationStartNanos = System.nanoTime();
 
 	public FlameRenderer() {
 		shader = new GLShader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
@@ -121,7 +123,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 		shader.use();
 		shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
 		shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
-		glUniform1f(timeLocation, System.currentTimeMillis() * 0.001f);
+		glUniform1f(timeLocation, animationTimeSeconds(animationStartNanos, System.nanoTime()));
 
 		glActiveTexture(GL_TEXTURE0);
 		flameTexture.bind();
@@ -228,6 +230,10 @@ public class FlameRenderer implements ParticleSystemRenderer {
 			alpha = 0.45f * (1.0f - t * t);
 		}
 		return Math.max(0.0f, alpha);
+	}
+
+	static float animationTimeSeconds(long startNanos, long nowNanos) {
+		return (nowNanos - startNanos) / NANOSECONDS_PER_SECOND;
 	}
 
 	private int createParticleBillboard(Vector3f position, float size, float alpha,

@@ -164,19 +164,16 @@ dependencies {
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
     implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-glfw"
     implementation "org.lwjgl:lwjgl-opengl"
     implementation "org.lwjgl:lwjgl-stb"
     implementation "org.lwjgl:lwjgl-jawt"
 
     // Natives for the current build platform (used for local development and testing)
     runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
     lwjglNativeArtifacts platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
     lwjglNativeArtifacts "org.lwjgl:lwjgl::$lwjglNatives"
-    lwjglNativeArtifacts "org.lwjgl:lwjgl-glfw::$lwjglNatives"
     lwjglNativeArtifacts "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     lwjglNativeArtifacts "org.lwjgl:lwjgl-stb::$lwjglNatives"
 

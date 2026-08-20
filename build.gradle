@@ -325,7 +325,6 @@ dependencies {
             "natives-windows", "natives-windows-arm64", "natives-windows-x86",
             "natives-freebsd"]) {
         allPlatformNatives "org.lwjgl:lwjgl::${platform}"
-        allPlatformNatives "org.lwjgl:lwjgl-glfw::${platform}"
         allPlatformNatives "org.lwjgl:lwjgl-opengl::${platform}"
         allPlatformNatives "org.lwjgl:lwjgl-stb::${platform}"
     }

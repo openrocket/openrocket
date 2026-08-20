@@ -28,7 +28,6 @@ open module info.openrocket.swing {
 	requires org.lwjgl;
 	requires org.lwjgl.stb;
 	requires org.lwjgl.opengl;
-	requires org.lwjgl.glfw;
 	requires org.lwjgl.jawt;
 	requires org.joml;
 	requires org.locationtech.jts;
