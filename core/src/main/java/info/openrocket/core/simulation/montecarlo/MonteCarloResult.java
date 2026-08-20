@@ -42,7 +42,7 @@ public final class MonteCarloResult {
 	 * Return all landing bodies observed in either the nominal or dispersed runs.
 	 */
 	public List<LandingBody> getLandingBodies() {
-		Map<Integer, LandingBody> bodies = new LinkedHashMap<>();
+		Map<String, LandingBody> bodies = new LinkedHashMap<>();
 		addBodies(bodies, nominalResult);
 		for (MonteCarloRunResult result : runResults) {
 			addBodies(bodies, result);
@@ -55,13 +55,13 @@ public final class MonteCarloResult {
 	 * simulation abort. Failed trajectories remain available in {@link #getRunResults()}
 	 * but are deliberately excluded from dispersion statistics.
 	 */
-	public List<LandingPoint> getLandingPoints(int branchIndex) {
+	public List<LandingPoint> getLandingPoints(String bodyId) {
 		List<LandingPoint> points = new ArrayList<>();
 		for (MonteCarloRunResult result : runResults) {
-			if (result.failureMessage() != null) {
+			if (result.getFailureMessage(bodyId) != null) {
 				continue;
 			}
-			LandingPoint point = result.getLandingPoint(branchIndex);
+			LandingPoint point = result.getLandingPoint(bodyId);
 			if (point != null) {
 				points.add(point);
 			}
@@ -69,19 +69,24 @@ public final class MonteCarloResult {
 		return points;
 	}
 
-	public int getFailureCount(int branchIndex) {
+	public int getFailureCount(String bodyId) {
 		int landed = 0;
 		for (MonteCarloRunResult result : runResults) {
-			if (result.failureMessage() == null && result.hasLandingPoint(branchIndex)) {
+			if (result.getFailureMessage(bodyId) == null && result.hasLandingPoint(bodyId)) {
 				landed++;
 			}
 		}
 		return runResults.size() - landed;
 	}
 
-	private static void addBodies(Map<Integer, LandingBody> bodies, MonteCarloRunResult result) {
+	private static void addBodies(Map<String, LandingBody> bodies, MonteCarloRunResult result) {
 		for (LandingPoint point : result.landingPoints()) {
-			bodies.putIfAbsent(point.branchIndex(), new LandingBody(point.branchIndex(), point.branchName()));
+			bodies.putIfAbsent(point.bodyId(),
+					new LandingBody(point.bodyId(), point.branchIndex(), point.branchName()));
+		}
+		for (LandingBodyFailure failure : result.bodyFailures()) {
+			bodies.putIfAbsent(failure.bodyId(),
+					new LandingBody(failure.bodyId(), failure.branchIndex(), failure.branchName()));
 		}
 	}
 }

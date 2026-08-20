@@ -455,9 +455,9 @@ public final class LandingDispersionResultsDialog extends JDialog {
 			return;
 		}
 
-		List<LandingPoint> points = result.getLandingPoints(body.branchIndex());
-		LandingPoint nominal = result.getNominalResult().failureMessage() == null
-				? result.getNominalResult().getLandingPoint(body.branchIndex()) : null;
+		List<LandingPoint> points = result.getLandingPoints(body.bodyId());
+		LandingPoint nominal = result.getNominalResult().getFailureMessage(body.bodyId()) == null
+				? result.getNominalResult().getLandingPoint(body.bodyId()) : null;
 		DispersionStatistics statistics = points.isEmpty() ? null : DispersionStatistics.from(points);
 		updateChart(body, points, nominal, statistics);
 		updateSummary(body, nominal, statistics);
@@ -737,7 +737,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		text.append(String.format(trans.get("LandingDispersionResultsDlg.summary.landings"),
 				statistics == null ? 0 : statistics.getSampleCount(), result.getSettings().getRunCount())).append('\n');
 		text.append(String.format(trans.get("LandingDispersionResultsDlg.summary.failures"),
-				result.getFailureCount(body.branchIndex()))).append("\n\n");
+				result.getFailureCount(body.bodyId()))).append("\n\n");
 
 		if (nominal == null) {
 			text.append(trans.get("LandingDispersionResultsDlg.summary.noNominal")).append("\n\n");
@@ -928,10 +928,10 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			MonteCarloRunResult run = runs.get(rowIndex);
-			LandingPoint point = body == null ? null : run.getLandingPoint(body.branchIndex());
+			LandingPoint point = body == null ? null : run.getLandingPoint(body.bodyId());
 			return switch (columnIndex) {
 				case 0 -> run.sample().getRunNumber();
-				case 1 -> status(run, point);
+				case 1 -> status(run, body, point);
 				case 2 -> point == null ? "" : format(distanceUnit.toUnit(point.east()));
 				case 3 -> point == null ? "" : format(distanceUnit.toUnit(point.north()));
 				case 4 -> point == null ? "" : format(distanceUnit.toUnit(point.rangeFromPad()));
@@ -942,9 +942,10 @@ public final class LandingDispersionResultsDialog extends JDialog {
 			};
 		}
 
-		private static String status(MonteCarloRunResult run, LandingPoint point) {
-			if (run.failureMessage() != null) {
-				return String.format(trans.get("LandingDispersionResultsDlg.status.failed"), run.failureMessage());
+		private static String status(MonteCarloRunResult run, LandingBody body, LandingPoint point) {
+			String failure = body == null ? run.failureMessage() : run.getFailureMessage(body.bodyId());
+			if (failure != null) {
+				return String.format(trans.get("LandingDispersionResultsDlg.status.failed"), failure);
 			}
 			if (point == null) {
 				return trans.get("LandingDispersionResultsDlg.status.noLanding");

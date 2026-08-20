@@ -90,7 +90,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			} else {
 				branchName = trans.get("BasicEventSimulationEngine.nullBranchName");
 			}
-			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
+			FlightDataBranch initialBranch = new FlightDataBranch(branchName, topStage, FlightDataType.TYPE_TIME);
 			currentStatus.setWarnings(flightData.getWarningSet());
 			currentStatus.setFlightDataBranch(initialBranch);
 			

@@ -180,22 +180,21 @@ public final class MonteCarloSimulationRunner {
 
 		FlightData data = simulation.getSimulatedData();
 		List<LandingPoint> landingPoints = extractLandingPoints(data);
-		if (failure == null && simulation.hasErrors()) {
-			failure = findAbortMessage(data);
-		}
+		List<LandingBodyFailure> bodyFailures = extractBodyFailures(data);
 		if (failure == null && landingPoints.isEmpty() && hasBallisticGroundHit(data)) {
 			if (refuseBallistic) {
 				throw new BallisticTrajectoryException(BALLISTIC_DESCENT);
 			}
 			failure = BALLISTIC_DESCENT;
 		}
-		if (failure == null && landingPoints.isEmpty()) {
+		if (failure == null && landingPoints.isEmpty() && bodyFailures.isEmpty()) {
 			failure = "Simulation produced no ground-hit event";
 		}
 
 		double maximumAltitude = data != null ? data.getMaxAltitude() : Double.NaN;
 		double flightTime = data != null ? data.getFlightTime() : Double.NaN;
-		return new MonteCarloRunResult(sample, landingPoints, maximumAltitude, flightTime, failure);
+		return new MonteCarloRunResult(sample, landingPoints, bodyFailures,
+				maximumAltitude, flightTime, failure);
 	}
 
 	private static void applySampledOptions(SimulationOptions options, MonteCarloSample sample) {
@@ -252,10 +251,36 @@ public final class MonteCarloSimulationRunner {
 			double east = branch.getLast(FlightDataType.TYPE_POSITION_X);
 			double north = branch.getLast(FlightDataType.TYPE_POSITION_Y);
 			if (Double.isFinite(east) && Double.isFinite(north)) {
-				points.add(new LandingPoint(branchIndex, branch.getName(), east, north));
+				points.add(new LandingPoint(bodyId(branch, branchIndex), branchIndex,
+						branch.getName(), east, north));
 			}
 		}
 		return points;
+	}
+
+	static List<LandingBodyFailure> extractBodyFailures(FlightData data) {
+		List<LandingBodyFailure> failures = new ArrayList<>();
+		if (data == null) {
+			return failures;
+		}
+
+		for (int branchIndex = 0; branchIndex < data.getBranchCount(); branchIndex++) {
+			FlightDataBranch branch = data.getBranch(branchIndex);
+			FlightEvent abort = branch.getFirstEvent(FlightEvent.Type.SIM_ABORT);
+			if (abort == null) {
+				continue;
+			}
+			String message = abort.getData() == null ? "Simulation aborted" : abort.getData().toString();
+			failures.add(new LandingBodyFailure(bodyId(branch, branchIndex), branchIndex,
+					branch.getName(), message));
+		}
+		return failures;
+	}
+
+	private static String bodyId(FlightDataBranch branch, int branchIndex) {
+		return branch.getSourceComponentId() == null
+				? LandingBody.legacyBodyId(branchIndex)
+				: branch.getSourceComponentId().toString();
 	}
 
 	private static boolean descendsUnderRecoveryDevice(FlightDataBranch branch) {
@@ -275,18 +300,6 @@ public final class MonteCarloSimulationRunner {
 			}
 		}
 		return false;
-	}
-
-	private static String findAbortMessage(FlightData data) {
-		if (data != null) {
-			for (FlightDataBranch branch : data.getBranches()) {
-				FlightEvent abort = branch.getFirstEvent(FlightEvent.Type.SIM_ABORT);
-				if (abort != null && abort.getData() != null) {
-					return abort.getData().toString();
-				}
-			}
-		}
-		return "Simulation aborted";
 	}
 
 	private static void checkCancellation() {

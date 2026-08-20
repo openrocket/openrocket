@@ -45,7 +45,7 @@ final class LandingDispersionCsvExporter {
 				continue;
 			}
 			for (LandingBody body : bodies) {
-				writeRow(writer, result, settings, run, body, run.getLandingPoint(body.branchIndex()));
+				writeRow(writer, result, settings, run, body, run.getLandingPoint(body.bodyId()));
 			}
 		}
 	}
@@ -59,6 +59,7 @@ final class LandingDispersionCsvExporter {
 		fields.add("simulation_seed");
 		fields.add("status");
 		fields.add("failure_message");
+		fields.add("body_id");
 		fields.add("body_index");
 		fields.add("body_name");
 		fields.add("east_m");
@@ -80,9 +81,12 @@ final class LandingDispersionCsvExporter {
 		fields.add(settings);
 		fields.add(Integer.toString(run.sample().getRunNumber()));
 		fields.add(Integer.toString(run.sample().getSimulationSeed()));
-		fields.add(status(run, point));
-		fields.add(valueOrEmpty(run.failureMessage()));
-		fields.add(body == null ? "" : Integer.toString(body.branchIndex()));
+		String failure = body == null ? run.failureMessage() : run.getFailureMessage(body.bodyId());
+		fields.add(status(run, point, failure));
+		fields.add(valueOrEmpty(failure));
+		fields.add(body == null ? "" : body.bodyId());
+		int branchIndex = body == null ? -1 : run.getBranchIndex(body.bodyId());
+		fields.add(branchIndex < 0 ? "" : Integer.toString(branchIndex));
 		fields.add(body == null ? "" : body.branchName());
 		fields.add(point == null ? "" : Double.toString(point.east()));
 		fields.add(point == null ? "" : Double.toString(point.north()));
@@ -121,8 +125,8 @@ final class LandingDispersionCsvExporter {
 		};
 	}
 
-	private static String status(MonteCarloRunResult run, LandingPoint point) {
-		if (run.failureMessage() != null) {
+	private static String status(MonteCarloRunResult run, LandingPoint point, String failure) {
+		if (failure != null) {
 			return "failed";
 		}
 		if (point == null) {

@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -56,7 +57,9 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 
 	@Test
 	public void testLandingPointsRequireDeploymentBeforeGroundHit() {
-		FlightDataBranch recovered = landingBranch("Recovered", 5.0, 10.0, 12.0, 34.0);
+		AxialStage recoveredStage = new AxialStage();
+		recoveredStage.setName("Recovered");
+		FlightDataBranch recovered = landingBranch(recoveredStage, 5.0, 10.0, 12.0, 34.0);
 		FlightDataBranch ballistic = landingBranch("Ballistic", null, 10.0, 56.0, 78.0);
 		FlightDataBranch lateDeployment = landingBranch("Late deployment", 11.0, 10.0, 90.0, 12.0);
 
@@ -67,6 +70,8 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 		assertEquals("Recovered", points.get(0).branchName());
 		assertEquals(12.0, points.get(0).east());
 		assertEquals(34.0, points.get(0).north());
+		assertEquals(recoveredStage.getID().toString(), points.get(0).bodyId());
+		assertEquals(recoveredStage.getID(), recovered.clone().getSourceComponentId());
 	}
 
 	/**
@@ -84,7 +89,7 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 
 		MonteCarloResult result = new MonteCarloSimulationRunner().run(source(0.0), settings);
 		LandingBody body = result.getLandingBodies().get(0);
-		List<LandingPoint> points = result.getLandingPoints(body.branchIndex());
+		List<LandingPoint> points = result.getLandingPoints(body.bodyId());
 		assertEquals(4, points.size());
 
 		double minimum = points.stream().mapToDouble(LandingPoint::rangeFromPad).min().orElseThrow();
@@ -105,8 +110,9 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 				.seed(24680)
 				.uncertainty(MonteCarloParameter.AXIAL_DRAG, MonteCarloDistribution.NORMAL, 0.1);
 
-		MonteCarloResult serial = new MonteCarloSimulationRunner().run(source(0.2), builder.threadCount(1).build());
-		MonteCarloResult parallel = new MonteCarloSimulationRunner().run(source(0.2), builder.threadCount(4).build());
+		Simulation source = source(0.2);
+		MonteCarloResult serial = new MonteCarloSimulationRunner().run(source, builder.threadCount(1).build());
+		MonteCarloResult parallel = new MonteCarloSimulationRunner().run(source, builder.threadCount(4).build());
 
 		LandingBody body = serial.getLandingBodies().get(0);
 		for (int run = 0; run < 4; run++) {
@@ -116,10 +122,11 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 			assertEquals(serialRun.sample().getSimulationSeed(), parallelRun.sample().getSimulationSeed());
 			assertEquals(serialRun.sample().getVariations(), parallelRun.sample().getVariations());
 
-			LandingPoint serialPoint = serialRun.getLandingPoint(body.branchIndex());
-			LandingPoint parallelPoint = parallelRun.getLandingPoint(body.branchIndex());
+			LandingPoint serialPoint = serialRun.getLandingPoint(body.bodyId());
+			LandingPoint parallelPoint = parallelRun.getLandingPoint(body.bodyId());
 			assertNotNull(serialPoint);
-			assertNotNull(parallelPoint);
+			assertNotNull(parallelPoint, () -> "Missing body " + body.bodyId()
+					+ " from " + parallelRun.landingPoints());
 			assertEquals(serialPoint.east(), parallelPoint.east(), 0.5);
 			assertEquals(serialPoint.north(), parallelPoint.north(), 0.5);
 		}
@@ -128,6 +135,8 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 	/** With the stochastic wind switched off, an analysis repeats exactly. */
 	@Test
 	public void testAnalysisRepeatsExactlyWithoutStochasticWind() {
+		Simulation source = source(0.0);
+		String expectedBodyId = source.getRocket().getStage(0).getID().toString();
 		MonteCarloSettings settings = MonteCarloSettings.builder()
 				.runCount(3)
 				.seed(1122334)
@@ -135,18 +144,22 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 				.build();
 
 		List<Integer> progress = new ArrayList<>();
-		MonteCarloResult first = new MonteCarloSimulationRunner().run(source(0.0), settings,
+		MonteCarloResult first = new MonteCarloSimulationRunner().run(source, settings,
 				(completed, total) -> {
 					assertEquals(4, total);
 					progress.add(completed);
 				});
-		MonteCarloResult repeat = new MonteCarloSimulationRunner().run(source(0.0), settings);
+		MonteCarloResult repeat = new MonteCarloSimulationRunner().run(source, settings);
 		assertEquals(List.of(1, 2, 3, 4), progress);
+		assertEquals(expectedBodyId, first.getLandingBodies().get(0).bodyId());
+		assertEquals(expectedBodyId, repeat.getLandingBodies().get(0).bodyId());
 
 		LandingBody body = first.getLandingBodies().get(0);
 		for (int run = 0; run < 3; run++) {
-			LandingPoint firstPoint = first.getRunResults().get(run).getLandingPoint(body.branchIndex());
-			LandingPoint repeatPoint = repeat.getRunResults().get(run).getLandingPoint(body.branchIndex());
+			LandingPoint firstPoint = first.getRunResults().get(run).getLandingPoint(body.bodyId());
+			LandingPoint repeatPoint = repeat.getRunResults().get(run).getLandingPoint(body.bodyId());
+			assertNotNull(repeatPoint, "Missing body " + body.bodyId()
+					+ " from " + repeat.getRunResults().get(run).landingPoints());
 			assertEquals(firstPoint.east(), repeatPoint.east(), 1.0e-9);
 			assertEquals(firstPoint.north(), repeatPoint.north(), 1.0e-9);
 		}
@@ -173,8 +186,8 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 
 		LandingBody body = first.getLandingBodies().get(0);
 		for (int run = 0; run < settings.getRunCount(); run++) {
-			LandingPoint firstPoint = first.getRunResults().get(run).getLandingPoint(body.branchIndex());
-			LandingPoint repeatPoint = repeat.getRunResults().get(run).getLandingPoint(body.branchIndex());
+			LandingPoint firstPoint = first.getRunResults().get(run).getLandingPoint(body.bodyId());
+			LandingPoint repeatPoint = repeat.getRunResults().get(run).getLandingPoint(body.bodyId());
 			assertNotNull(firstPoint);
 			assertNotNull(repeatPoint);
 			assertEquals(firstPoint.east(), repeatPoint.east(), 5.0e-4);
@@ -186,6 +199,20 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 			double groundHitTime, double east, double north) {
 		FlightDataBranch branch = new FlightDataBranch(name, FlightDataType.TYPE_TIME,
 				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y);
+		populateLandingBranch(branch, deploymentTime, groundHitTime, east, north);
+		return branch;
+	}
+
+	private static FlightDataBranch landingBranch(AxialStage stage, Double deploymentTime,
+			double groundHitTime, double east, double north) {
+		FlightDataBranch branch = new FlightDataBranch(stage.getName(), stage, FlightDataType.TYPE_TIME,
+				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y);
+		populateLandingBranch(branch, deploymentTime, groundHitTime, east, north);
+		return branch;
+	}
+
+	private static void populateLandingBranch(FlightDataBranch branch, Double deploymentTime,
+			double groundHitTime, double east, double north) {
 		branch.addPoint();
 		branch.setValue(FlightDataType.TYPE_TIME, groundHitTime);
 		branch.setValue(FlightDataType.TYPE_POSITION_X, east);
@@ -195,6 +222,5 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 					deploymentTime));
 		}
 		branch.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, groundHitTime));
-		return branch;
 	}
 }
