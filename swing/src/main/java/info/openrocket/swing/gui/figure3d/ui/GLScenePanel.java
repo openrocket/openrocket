@@ -160,6 +160,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
 	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
+	// Distinguishes a context that initialized and later failed from one that could
+	// never initialize. The host may retry the former with a fresh canvas when the
+	// user leaves and re-enters 3D, while the latter keeps the explanatory fallback.
+	private volatile boolean fatalRenderFailure = false;
 	private volatile Runnable graphicsResetCallback;
 	private volatile Runnable glInitFailureCallback;
 	private volatile Window ancestorWindow;
@@ -944,6 +948,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					failureCallback.run();
 				}
 			} else {
+				fatalRenderFailure = true;
 				log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
 				reportFatalRenderException(t);
 			}
@@ -1210,6 +1215,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	/** @return whether this canvas failed to initialize its OpenGL context */
 	public boolean hasGlInitFailed() {
 		return glInitFailed;
+	}
+
+	/**
+	 * @return whether this canvas initialized successfully and later suffered a fatal render failure
+	 */
+	public boolean hasFatalRenderFailure() {
+		return fatalRenderFailure;
 	}
 
 	@Override

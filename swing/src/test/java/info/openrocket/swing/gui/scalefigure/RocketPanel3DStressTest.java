@@ -3,10 +3,17 @@ package info.openrocket.swing.gui.scalefigure;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.util.BaseTestCase;
+import org.joml.Matrix4f;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -19,11 +26,14 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RocketPanel3DStressTest extends BaseTestCase {
@@ -124,6 +134,58 @@ class RocketPanel3DStressTest extends BaseTestCase {
 	}
 
 	@Test
+	@Timeout(value = 90, unit = TimeUnit.SECONDS)
+	void innerTubeRadialOffsetSurvivesSwitchBackToThreeD() throws Exception {
+		assumeMacUiEnvironment();
+
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		InnerTube innerTube = (InnerTube) rocket.getChild(0).getChild(1).getChild(2);
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		FrameHarness harness = createStandaloneHarness(document);
+		try {
+			waitForShowing(harness.panel, 2_000, "RocketPanel should become visible before radial-offset test");
+			onEdt(() -> harness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D));
+			awaitFresh3DFrame(harness.panel.getFigure3d(), 0, 0, STARTUP_TIMEOUT_MS,
+					"radial-offset regression startup");
+
+			for (int i = 0; i < 6; i++) {
+				double expectedY = 0.002 + i * 0.0007;
+				double expectedZ = -0.003 - i * 0.0005;
+				onEdt(() -> {
+					// Queue more than one scene rebuild, then hide the canvas before the
+					// deferred snapshot construction runs. The scene shown on return must
+					// contain the last offset, not the first queued state.
+					innerTube.setRadialShift(-expectedY, -expectedZ);
+					innerTube.setRadialShift(expectedY, expectedZ);
+					harness.panel.setViewType(RocketPanel.VIEW_TYPE.SideView);
+				});
+				waitForEdtDrain();
+
+				int beforeSwap = harness.panel.getFigure3d().getCanvasSwapCallCount();
+				int beforePaint = harness.panel.getFigure3d().getCanvasPaintCallCount();
+				onEdt(() -> harness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D));
+				awaitFresh3DFrame(harness.panel.getFigure3d(), beforeSwap, beforePaint,
+						SWITCH_TIMEOUT_MS, "radial-offset switch iteration " + i);
+
+				Matrix4f modelMatrix = findComponentModelMatrix(harness.panel.getFigure3d(), innerTube);
+				assertEquals(expectedY * RenderingConstants.WORLD_SCALE, modelMatrix.m31(), 1.0e-5,
+						"3D scene should use the latest inner-tube Y offset");
+				assertEquals(-expectedZ * RenderingConstants.WORLD_SCALE, modelMatrix.m32(), 1.0e-5,
+						"3D scene should use the latest inner-tube Z offset");
+			}
+
+			assertTrue(onEdt(harness.panel.getFigure3d()::isShowing),
+					"3D card should be visible after switching back from 2D");
+			BufferedImage image = harness.panel.getFigure3d().captureImage();
+			assertNotNull(image, "Visible 3D view should still support frame capture after offset rebuilds");
+			assertTrue(image.getWidth() > 0 && image.getHeight() > 0,
+					"Captured 3D frame should have usable dimensions");
+		} finally {
+			disposeHarness(harness);
+		}
+	}
+
+	@Test
 	@Timeout(value = 45, unit = TimeUnit.SECONDS)
 	void themeChangeDoesNotOverlayVisibleThreeDCanvas() throws Exception {
 		assumeMacUiEnvironment();
@@ -168,9 +230,12 @@ class RocketPanel3DStressTest extends BaseTestCase {
 	}
 
 	private static FrameHarness createStandaloneHarness() throws Exception {
+		return createStandaloneHarness(OpenRocketDocumentFactory.createNewRocket());
+	}
+
+	private static FrameHarness createStandaloneHarness(OpenRocketDocument document) throws Exception {
 		AtomicReference<FrameHarness> harnessRef = new AtomicReference<>();
 		onEdt(() -> {
-			OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
 			RocketPanel panel = new RocketPanel(document);
 			panel.setPreferredSize(new Dimension(900, 600));
 
@@ -184,6 +249,47 @@ class RocketPanel3DStressTest extends BaseTestCase {
 			harnessRef.set(new FrameHarness(frame, panel, null));
 		});
 		return harnessRef.get();
+	}
+
+	private static Matrix4f findComponentModelMatrix(RocketFigure3d figure3d, InnerTube component)
+			throws Exception {
+		long deadline = System.currentTimeMillis() + SWITCH_TIMEOUT_MS;
+		while (System.currentTimeMillis() < deadline) {
+			Scene3DOrchestrator orchestrator = onEdt(figure3d::getSceneController);
+			if (orchestrator == null) {
+				Thread.sleep(40);
+				continue;
+			}
+
+			CountDownLatch queryFinished = new CountDownLatch(1);
+			AtomicReference<Matrix4f> result = new AtomicReference<>();
+			orchestrator.enqueueGlTask(() -> {
+				try {
+					if (orchestrator.getScene() == null) {
+						return;
+					}
+					for (SceneObject object : orchestrator.getScene().getObjects()) {
+						if (object.getAppearanceSourceComponent() == component) {
+							result.set(new Matrix4f(object.getModelMatrix()));
+							return;
+						}
+					}
+				} finally {
+					queryFinished.countDown();
+				}
+			});
+
+			long remaining = Math.max(1, deadline - System.currentTimeMillis());
+			if (!queryFinished.await(remaining, TimeUnit.MILLISECONDS)) {
+				break;
+			}
+			Matrix4f matrix = result.get();
+			if (matrix != null) {
+				return matrix;
+			}
+			Thread.sleep(40);
+		}
+		throw new AssertionError("No 3D scene object found for inner tube. state=" + figure3d.getCanvasDebugState());
 	}
 
 	private static FrameHarness createSplitPaneHarness() throws Exception {

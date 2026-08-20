@@ -259,9 +259,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		return fallback;
 	}
 
-	private void rebuildCanvasAfterGraphicsReset(GLScenePanel failedPanel) {
+	private void rebuildCanvas(GLScenePanel failedPanel, String reason) {
 		if (!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(() -> rebuildCanvasAfterGraphicsReset(failedPanel));
+			SwingUtilities.invokeLater(() -> rebuildCanvas(failedPanel, reason));
 			return;
 		}
 		if (disposed || !renderingEnabled) {
@@ -270,14 +270,17 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		if (glScenePanel != failedPanel) {
 			return;
 		}
-		log.info("Rebuilding 3D canvas after a graphics context reset");
+		log.info("Rebuilding 3D canvas after {}", reason);
 		captureCameraForRestore(failedPanel);
 		failedPanel.setRenderActivityCallback(null);
 		failedPanel.setRenderRequestCallback(null);
 		failedPanel.setGraphicsResetCallback(null);
+		failedPanel.setGlInitFailureCallback(null);
+		pendingContextResetRebuild.compareAndSet(failedPanel, null);
 		remove(failedPanel);
 		glScenePanel = null;
 		selectionBridgeInstalled = false;
+		failedPanel.cleanup();
 		revalidate();
 		repaint();
 
@@ -399,10 +402,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			return false;
 		}
 		if (SwingUtilities.isEventDispatchThread()) {
-			rebuildCanvasAfterGraphicsReset(panel);
+			rebuildCanvas(panel, "a graphics context reset");
 		} else {
 			try {
-				SwingUtilities.invokeAndWait(() -> rebuildCanvasAfterGraphicsReset(panel));
+				SwingUtilities.invokeAndWait(() -> rebuildCanvas(panel, "a graphics context reset"));
 			} catch (Exception e) {
 				log.warn("Failed to rebuild the 3D canvas after a graphics reset", e);
 			}
@@ -456,6 +459,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		SwingUtilities.invokeLater(() -> {
 			if (!renderingEnabled || disposed) {
 				return;
+			}
+			GLScenePanel failedPanel = glScenePanel;
+			if (failedPanel != null && failedPanel.hasFatalRenderFailure()) {
+				rebuildCanvas(failedPanel, "a previous rendering failure");
 			}
 			ensureCanvasCreatedOnEdt();
 			if (glUnavailable) {
