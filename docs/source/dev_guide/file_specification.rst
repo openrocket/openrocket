@@ -142,6 +142,9 @@ of our repository).
        * Added simulation table column visibility preferences
        * Include file preview image (``preview.png``) in .ork zip file
        * Embedded thrust curve motor data as ``.rse`` (RockSim engine) files in a ``thrustcurves/`` directory within the .ork zip archive, keyed by motor digest
+   * - 1.12
+     - OpenRocket 26.xx
+     - Added optional per-simulation landing-dispersion settings
 
 ----
 
@@ -941,6 +944,10 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
             <timestep>0.05</timestep>
             <maxtime>1200.0</maxtime>
          </conditions>
+         <landingdispersion runs="500" seed="12345">
+            <uncertainty parameter="windspeed" distribution="normal" spread="1.0"/>
+            <uncertainty parameter="airdensity" distribution="lognormal" spread="0.02"/>
+         </landingdispersion>
          <flightdata maxaltitude="50.605" maxvelocity="29.249" maxacceleration="143.659"
                    maxmach="0.086" timetoapogee="3.443" flighttime="15.89"
                    groundhitvelocity="4.583" launchrodvelocity="15.366"
@@ -956,6 +963,12 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
 
 The optional ``<randomseed>`` element contains a signed 32-bit integer. When present, OpenRocket reuses that seed for
 each run of the simulation. When absent, OpenRocket generates a new seed for every run.
+
+The optional ``<landingdispersion>`` element stores the landing-dispersion configuration for one simulation. Its
+``runs`` attribute is the number of dispersed flights and ``seed`` is the signed 32-bit master seed. Each
+``<uncertainty>`` child identifies a parameter, its distribution (``normal``, ``uniform``, or ``lognormal``), and its
+spread in OpenRocket internal SI units. The element is omitted until the user changes or runs that simulation's
+dispersion configuration. Completed Monte Carlo trajectories are not stored in the ``.ork`` file.
 
 Wind Models
 ^^^^^^^^^^^

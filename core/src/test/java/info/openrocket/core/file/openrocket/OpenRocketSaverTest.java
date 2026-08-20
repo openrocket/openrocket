@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,6 +38,9 @@ import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationOptions;
+import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
+import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.GeneralRocketSaver;
@@ -411,6 +415,59 @@ public class OpenRocketSaverTest {
 	public void testFileVersion111_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
 		assertEquals(111, getCalculatedFileVersion(rocketDoc));
+	}
+
+	////////////////////////////////
+	// Tests for File Version 1.12 //
+	////////////////////////////////
+
+	@Test
+	public void testLandingDispersionSettingsRemainAbsentUntilConfigured() throws IOException {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		document.addSimulation(simulation);
+
+		assertNull(simulation.getLandingDispersionSettings());
+		assertEquals(111, getCalculatedFileVersion(document));
+
+		File file = saveRocket(document, new StorageOptions());
+		assertFalse(Files.readString(file.toPath()).contains("<landingdispersion"));
+		assertNull(loadRocket(file.getPath()).getSimulations().get(0).getLandingDispersionSettings());
+	}
+
+	@Test
+	public void testLandingDispersionSettingsSavedAndLoaded() throws IOException {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		MonteCarloSettings settings = MonteCarloSettings.builder()
+				.runCount(750)
+				.seed(-123456789)
+				.threadCount(3)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.UNIFORM, 1.25)
+				.uncertainty(MonteCarloParameter.AIR_DENSITY, MonteCarloDistribution.LOG_NORMAL, 0.015)
+				.uncertainty(MonteCarloParameter.LAUNCH_GUIDE_DIRECTION,
+						MonteCarloDistribution.NORMAL, Math.toRadians(4.5))
+				.build();
+		simulation.setLandingDispersionSettings(settings);
+		document.addSimulation(simulation);
+
+		assertEquals(112, getCalculatedFileVersion(document));
+		File file = saveRocket(document, new StorageOptions());
+		String xml = Files.readString(file.toPath());
+		assertTrue(xml.contains("<openrocket version=\"1.12\""));
+		assertTrue(xml.contains("<landingdispersion runs=\"750\" seed=\"-123456789\">"));
+		assertTrue(xml.contains("parameter=\"airdensity\" distribution=\"lognormal\""));
+
+		MonteCarloSettings loaded = loadRocket(file.getPath()).getSimulations().get(0)
+				.getLandingDispersionSettings();
+		assertNotNull(loaded);
+		assertEquals(settings.getRunCount(), loaded.getRunCount());
+		assertEquals(settings.getSeed(), loaded.getSeed());
+		assertEquals(settings.getUncertainties(), loaded.getUncertainties());
 	}
 
 	@Test

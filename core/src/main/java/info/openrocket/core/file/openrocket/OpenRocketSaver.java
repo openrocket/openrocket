@@ -41,6 +41,9 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.extension.SimulationExtension;
+import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
+import info.openrocket.core.simulation.montecarlo.UncertaintySpec;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Config;
@@ -233,6 +236,11 @@ public class OpenRocketSaver extends RocketSaver {
 		/*
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 */
+		for (Simulation simulation : document.getSimulations()) {
+			if (simulation.getLandingDispersionSettings() != null) {
+				return FILE_VERSION_DIVISOR + 12;
+			}
+		}
 		return FILE_VERSION_DIVISOR + 11;
 		
 	}
@@ -421,6 +429,8 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		indent--;
 		writeln("</conditions>");
+
+		saveLandingDispersionSettings(simulation.getLandingDispersionSettings());
 
 		Map<String, PlotAppearance> plotAppearances = simulation.getPlotAppearances();
 		if (!plotAppearances.isEmpty()) {
@@ -637,6 +647,27 @@ public class OpenRocketSaver extends RocketSaver {
 			// Unknown type
 			log.error("Unknown configuration value type {}  value={}", value.getClass(), value);
 		}
+	}
+
+	private void saveLandingDispersionSettings(MonteCarloSettings settings) throws IOException {
+		if (settings == null) {
+			return;
+		}
+
+		writeln("<landingdispersion runs=\"" + settings.getRunCount() + "\" seed=\""
+				+ settings.getSeed() + "\">");
+		indent++;
+		for (MonteCarloParameter parameter : MonteCarloParameter.values()) {
+			UncertaintySpec uncertainty = settings.getUncertainties().get(parameter);
+			if (uncertainty == null) {
+				continue;
+			}
+			writeln("<uncertainty parameter=\"" + enumToXMLName(parameter)
+					+ "\" distribution=\"" + enumToXMLName(uncertainty.distribution())
+					+ "\" spread=\"" + Double.toString(uncertainty.spread()) + "\"/>");
+		}
+		indent--;
+		writeln("</landingdispersion>");
 	}
 	
 	private void saveFlightDataBranch(FlightDataBranch branch)
