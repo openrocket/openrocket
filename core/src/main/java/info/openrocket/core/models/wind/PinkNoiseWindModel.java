@@ -106,6 +106,24 @@ public class PinkNoiseWindModel implements WindModel {
 		fireChangeEvent();
 	}
 
+	/**
+	 * Set the average wind speed without changing the configured standard deviation.
+	 * If the average wind speed is negative, the direction will be reversed.
+	 *
+	 * @param average the average wind speed to set
+	 */
+	public void setAveragePreservingStandardDeviation(double average) {
+		if (average < 0) {
+			average = -average;
+			setDirection(Math.PI + getDirection());
+		}
+		if (average == this.average) {
+			return;
+		}
+		this.average = average;
+		fireChangeEvent();
+	}
+
 	public void setDirection(double direction) {
 		if (direction == this.direction) {
 			return;

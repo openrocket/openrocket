@@ -9,11 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel.LevelWindModel;
+import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -23,6 +27,7 @@ import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationConditions;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
@@ -85,6 +90,35 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 
 		assertEquals("Extension implementation bug", exception.getMessage());
 		assertTrue(extension.getInitializationCount() > 1);
+	}
+
+	@Test
+	public void testWindSpeedVariationPreservesTurbulenceStandardDeviation() {
+		MonteCarloSample sample = new MonteCarloSample(1, 13579,
+				Map.of(MonteCarloParameter.WIND_SPEED, 2.0));
+
+		SimulationOptions averageOptions = new SimulationOptions();
+		averageOptions.setWindModelType(WindModelType.AVERAGE);
+		averageOptions.getAverageWindModel().setAverage(5.0);
+		averageOptions.getAverageWindModel().setStandardDeviation(1.25);
+		MonteCarloSimulationRunner.applyWindVariation(averageOptions, sample);
+
+		assertEquals(7.0, averageOptions.getAverageWindModel().getAverage());
+		assertEquals(1.25, averageOptions.getAverageWindModel().getStandardDeviation());
+
+		SimulationOptions multiLevelOptions = new SimulationOptions();
+		multiLevelOptions.setWindModelType(WindModelType.MULTI_LEVEL);
+		MultiLevelPinkNoiseWindModel multiLevel = multiLevelOptions.getMultiLevelWindModel();
+		multiLevel.clearLevels();
+		multiLevel.addWindLevel(0, 3.0, 0.25, 0.75);
+		multiLevel.addWindLevel(100, 6.0, 0.5, 1.5);
+		MonteCarloSimulationRunner.applyWindVariation(multiLevelOptions, sample);
+
+		List<LevelWindModel> levels = multiLevel.getLevels();
+		assertEquals(5.0, levels.get(0).getSpeed());
+		assertEquals(0.75, levels.get(0).getStandardDeviation());
+		assertEquals(8.0, levels.get(1).getSpeed());
+		assertEquals(1.5, levels.get(1).getStandardDeviation());
 	}
 
 	@Test

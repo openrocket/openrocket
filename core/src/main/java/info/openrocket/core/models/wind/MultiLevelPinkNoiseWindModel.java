@@ -499,6 +499,10 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 			model.setAverage(speed);
 		}
 
+		public void setSpeedPreservingStandardDeviation(double speed) {
+			model.setAveragePreservingStandardDeviation(speed);
+		}
+
 		public double getDirection() {
 			return model.getDirection();
 		}

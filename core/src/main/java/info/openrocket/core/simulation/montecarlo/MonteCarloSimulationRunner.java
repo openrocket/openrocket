@@ -228,12 +228,12 @@ public final class MonteCarloSimulationRunner {
 				+ sample.getVariation(MonteCarloParameter.LAUNCH_GUIDE_DIRECTION));
 	}
 
-	private static void applyWindVariation(SimulationOptions options, MonteCarloSample sample) {
+	static void applyWindVariation(SimulationOptions options, MonteCarloSample sample) {
 		double speedVariation = sample.getVariation(MonteCarloParameter.WIND_SPEED);
 		double directionVariation = sample.getVariation(MonteCarloParameter.WIND_DIRECTION);
 
 		if (options.getWindModelType() == WindModelType.AVERAGE) {
-			options.getAverageWindModel().setAverage(
+			options.getAverageWindModel().setAveragePreservingStandardDeviation(
 					Math.max(0, options.getAverageWindModel().getAverage() + speedVariation));
 			options.getAverageWindModel().setDirection(
 					options.getAverageWindModel().getDirection() + directionVariation);
@@ -242,7 +242,7 @@ public final class MonteCarloSimulationRunner {
 
 		MultiLevelPinkNoiseWindModel model = options.getMultiLevelWindModel();
 		for (LevelWindModel level : model.getLevels()) {
-			level.setSpeed(Math.max(0, level.getSpeed() + speedVariation));
+			level.setSpeedPreservingStandardDeviation(Math.max(0, level.getSpeed() + speedVariation));
 			level.setDirection(level.getDirection() + directionVariation);
 		}
 	}
