@@ -9,7 +9,7 @@
       <variable name="JAR_FILE_LOCATION" value="../../build/libs/${compiler:JAR_NAME}" />
       <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}.jar" />
     </variables>
-    <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="true" windowsPkcs12File="./code_signing/OpenRocket_Windows.pfx" macNotarize="true" macApiIssuer="${compiler:ISSUER_ID}" macApiKey="${compiler:KEY_ID}" macApiPrivateKey="${compiler:PRIVATE_API_KEY}">
+    <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="false" macNotarize="true" macApiIssuer="${compiler:ISSUER_ID}" macApiKey="${compiler:KEY_ID}" macApiPrivateKey="${compiler:PRIVATE_API_KEY}">
       <macSearchedJars>
         <entry>jna-*</entry>
         <entry>swt-*</entry>
@@ -17,7 +17,7 @@
         <entry>OpenRocket-26.xx.jar</entry>
       </macSearchedJars>
     </codeSigning>
-    <jreBundles jdkProviderId="Liberica" release="17/latest">
+    <jreBundles jdkProviderId="Liberica" release="17/17.0.20.1+1">
       <modules>
         <defaultModules set="jre" />
         <module name="java.scripting" />
@@ -69,7 +69,7 @@
 </infoPlist>
       <iconImageFiles>
         <file path="../../swing/build/resources/main/pix/icon/icon-016.png" />
-        <file path="../../swing/build/resources/main/pix/icon/icon-032.png" />
+        <file path="../../swing/resources-src/pix/icon/icon-032.png" />
         <file path="../../swing/build/resources/main/pix/icon/icon-048.png" />
         <file path="../../swing/build/resources/main/pix/icon/icon-064.png" />
         <file path="../../swing/build/resources/main/pix/icon/icon-128.png" />
@@ -93,7 +93,7 @@
             </add>
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../swing/build/resources/main/pix/icon/icon-032.png</string>
+                <string>../../swing/resources-src/pix/icon/icon-032.png</string>
               </object>
             </add>
             <add>
