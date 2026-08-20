@@ -24,6 +24,7 @@ import java.util.Queue;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_LINEAR_MIPMAP_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_MAX_TEXTURE_SIZE;
 import static org.lwjgl.opengl.GL11.GL_REPEAT;
 import static org.lwjgl.opengl.GL11.GL_RGB;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
@@ -49,12 +50,14 @@ import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL30.GL_RGB32F;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.opengl.GL11.glGetFloat;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 
 /** Owns an OpenGL texture loaded from image data or allocated for dynamic updates. */
 public class Texture {
 
 	private static final Logger log = LoggerFactory.getLogger(Texture.class);
 	private static final String RESOURCE_PREFIX = "swing/src/main/resources/";
+	static final long MAX_COMPRESSED_TEXTURE_PIXELS = 16L * 1024L * 1024L;
 
 	private int textureId;
 	private final int textureType;
@@ -179,17 +182,17 @@ public class Texture {
 		return image;
 	}
 
-	private static void bleedTransparentRgb(ByteBuffer image, int width, int height) {
-		int pixelCount = width * height;
-		byte[] source = new byte[pixelCount * 4];
-		ByteBuffer sourceBuffer = image.duplicate();
-		sourceBuffer.clear();
-		sourceBuffer.get(source);
+	static void bleedTransparentRgb(ByteBuffer image, int width, int height) {
+		long requiredBytes = (long) width * height * 4L;
+		if (width <= 0 || height <= 0 || requiredBytes > Integer.MAX_VALUE
+				|| requiredBytes > image.capacity()) {
+			throw new IllegalArgumentException("Invalid RGBA image dimensions: " + width + "x" + height);
+		}
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int pixelIndex = (y * width + x) * 4;
-				int alpha = Byte.toUnsignedInt(source[pixelIndex + 3]);
+				int alpha = Byte.toUnsignedInt(image.get(pixelIndex + 3));
 				if (alpha != 0) {
 					continue;
 				}
@@ -211,14 +214,14 @@ public class Texture {
 						}
 
 						int neighborIndex = (ny * width + nx) * 4;
-						int neighborAlpha = Byte.toUnsignedInt(source[neighborIndex + 3]);
+						int neighborAlpha = Byte.toUnsignedInt(image.get(neighborIndex + 3));
 						if (neighborAlpha == 0) {
 							continue;
 						}
 
-						red += Byte.toUnsignedInt(source[neighborIndex]);
-						green += Byte.toUnsignedInt(source[neighborIndex + 1]);
-						blue += Byte.toUnsignedInt(source[neighborIndex + 2]);
+						red += Byte.toUnsignedInt(image.get(neighborIndex));
+						green += Byte.toUnsignedInt(image.get(neighborIndex + 1));
+						blue += Byte.toUnsignedInt(image.get(neighborIndex + 2));
 						contributors++;
 					}
 				}
@@ -229,6 +232,16 @@ public class Texture {
 					image.put(pixelIndex + 2, (byte) (blue / contributors));
 				}
 			}
+		}
+	}
+
+	static void validateCompressedTextureDimensions(int width, int height, int maxTextureSize) {
+		long pixelCount = (long) width * height;
+		if (width <= 0 || height <= 0 || width > maxTextureSize || height > maxTextureSize
+				|| pixelCount > MAX_COMPRESSED_TEXTURE_PIXELS) {
+			throw new IllegalArgumentException("Compressed texture dimensions exceed the supported limit: "
+					+ width + "x" + height + " (maximum dimension " + maxTextureSize
+					+ ", maximum pixels " + MAX_COMPRESSED_TEXTURE_PIXELS + ")");
 		}
 	}
 
@@ -598,6 +611,12 @@ public class Texture {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
 			IntBuffer channels = stack.mallocInt(1);
+
+			if (!STBImage.stbi_info_from_memory(compressedImageData, w, h, channels)) {
+				throw new RuntimeException("Failed to inspect texture from memory: "
+						+ STBImage.stbi_failure_reason());
+			}
+			validateCompressedTextureDimensions(w.get(0), h.get(0), glGetInteger(GL_MAX_TEXTURE_SIZE));
 
 			image = STBImage.stbi_load_from_memory(compressedImageData, w, h, channels, 4);
 			if (image == null) {
