@@ -34,10 +34,12 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glPixelStorei;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glTexParameterf;
@@ -107,6 +109,22 @@ public class Texture {
 			normalized = normalized.substring(RESOURCE_PREFIX.length());
 		}
 		return "/" + normalized;
+	}
+
+	/** Uploads tightly packed byte rows without depending on the caller's pixel-store state. */
+	private static void uploadTightlyPackedByteTexture2D(int target, int internalFormat, int width, int height,
+			int format, ByteBuffer pixels) {
+		int previousUnpackAlignment = glGetInteger(GL_UNPACK_ALIGNMENT);
+		if (previousUnpackAlignment != 1) {
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		}
+		try {
+			glTexImage2D(target, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+		} finally {
+			if (previousUnpackAlignment != 1) {
+				glPixelStorei(GL_UNPACK_ALIGNMENT, previousUnpackAlignment);
+			}
+		}
 	}
 
 	private static InputStream openResourceStream(String path) {
@@ -398,8 +416,8 @@ public class Texture {
 						faceHeight = h.get(0);
 						detectedFormat = format;
 						detectedInternalFormat = internalFormat;
-						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
-								w.get(0), h.get(0), 0, format, GL_UNSIGNED_BYTE, image);
+						uploadTightlyPackedByteTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat,
+								w.get(0), h.get(0), format, image);
 					} finally {
 						if (image != null) {
 							STBImage.stbi_image_free(image);
@@ -475,8 +493,8 @@ public class Texture {
 						}
 						faceBuffer.flip();
 
-						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
-								faceSize, faceSize, 0, format, GL_UNSIGNED_BYTE, faceBuffer);
+						uploadTightlyPackedByteTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat,
+								faceSize, faceSize, format, faceBuffer);
 					} finally {
 						MemoryUtil.memFree(faceBuffer);
 					}
@@ -514,8 +532,8 @@ public class Texture {
 						}
 						faceBuffer.flip();
 
-						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
-								faceSize, faceSize, 0, format, GL_UNSIGNED_BYTE, faceBuffer);
+						uploadTightlyPackedByteTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat,
+								faceSize, faceSize, format, faceBuffer);
 					} finally {
 						MemoryUtil.memFree(faceBuffer);
 					}
