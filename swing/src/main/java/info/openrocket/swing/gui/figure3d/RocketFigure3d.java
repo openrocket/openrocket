@@ -106,6 +106,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	// Starts true so the first frame renders immediately without an explicit trigger.
 	private final AtomicBoolean dirty = new AtomicBoolean(true);
 	private final AtomicReference<GLScenePanel> pendingContextResetRebuild = new AtomicReference<>();
+	private final AtomicBoolean contextResetRebuildScheduled = new AtomicBoolean(false);
 	// Camera pose captured from a canvas that is about to be rebuilt, so the new
 	// canvas resumes at the same view instead of resetting to the default pose.
 	private final AtomicReference<CameraRestoreState> pendingCameraRestore = new AtomicReference<>();
@@ -393,22 +394,24 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		camera.update();
 	}
 
-	private void requestContextResetRebuild(GLScenePanel failedPanel) {
+	void requestContextResetRebuild(GLScenePanel failedPanel) {
 		pendingContextResetRebuild.compareAndSet(null, failedPanel);
 	}
 
-	private boolean processPendingContextResetRebuild(GLScenePanel panel) {
-		if (!pendingContextResetRebuild.compareAndSet(panel, null)) {
+	boolean processPendingContextResetRebuild(GLScenePanel panel) {
+		if (pendingContextResetRebuild.get() != panel) {
 			return false;
 		}
-		if (SwingUtilities.isEventDispatchThread()) {
-			rebuildCanvas(panel, "a graphics context reset");
-		} else {
-			try {
-				SwingUtilities.invokeAndWait(() -> rebuildCanvas(panel, "a graphics context reset"));
-			} catch (Exception e) {
-				log.warn("Failed to rebuild the 3D canvas after a graphics reset", e);
-			}
+		if (contextResetRebuildScheduled.compareAndSet(false, true)) {
+			SwingUtilities.invokeLater(() -> {
+				try {
+					if (pendingContextResetRebuild.compareAndSet(panel, null)) {
+						rebuildCanvas(panel, "a graphics context reset");
+					}
+				} finally {
+					contextResetRebuildScheduled.set(false);
+				}
+			});
 		}
 		return true;
 	}
@@ -425,6 +428,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	@Override
 	public boolean shouldRenderOnTick() {
+		if (contextResetRebuildScheduled.get()) {
+			return false;
+		}
 		// Atomically clear before rendering so activity arriving concurrently survives.
 		return dirty.getAndSet(false);
 	}
@@ -935,6 +941,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		selectionBridgeInstalled = false;
 		pendingSelection = null;
 		pendingContextResetRebuild.set(null);
+		contextResetRebuildScheduled.set(false);
 		pendingCameraRestore.set(null);
 		if (panel != null) {
 			panel.setGraphicsResetCallback(null);
