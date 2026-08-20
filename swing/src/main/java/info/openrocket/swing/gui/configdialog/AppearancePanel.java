@@ -54,7 +54,6 @@ import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.file.FileSystemAttachmentFactory;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
 import info.openrocket.core.rocketcomponent.InsideColorComponentHandler;
@@ -524,8 +523,6 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 					updateUI();
 				}
 
-				if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
-				c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 			}
 		});
 
@@ -542,9 +539,6 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				}
 				else {
 					return;
-				}
-				if (e != null) {	// When e == null, you just want an update of the UI components, not a component change
-					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			}
 		});

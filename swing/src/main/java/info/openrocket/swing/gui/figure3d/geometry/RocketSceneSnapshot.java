@@ -4,6 +4,7 @@ import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -23,13 +24,14 @@ import java.util.List;
 public final class RocketSceneSnapshot {
 
 	/**
-	 * One renderable instance of a rocket component. Holds the prebuilt mesh and
-	 * the fully-resolved model matrix; nothing the GL thread needs to compute
-	 * touches the live rocket model.
+	 * One material partition of a renderable rocket-component instance. Holds the
+	 * prebuilt mesh and fully-resolved model matrix; nothing the GL thread needs to
+	 * compute touches the live rocket model.
 	 */
 	public record ComponentInstance(
 			RocketComponent component,
 			AppearanceFactory.ComponentAppearanceSnapshot appearance,
+			ComponentAppearanceRole appearanceRole,
 			Mesh mesh,
 			Matrix4f modelMatrix
 	) {}

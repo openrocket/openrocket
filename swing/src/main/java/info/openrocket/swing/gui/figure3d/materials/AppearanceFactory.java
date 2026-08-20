@@ -7,6 +7,8 @@ import info.openrocket.core.appearance.defaults.DefaultAppearance;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.InsideColorComponentHandler;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
@@ -45,6 +47,26 @@ public abstract class AppearanceFactory {
 			Appearance appearance,
 			ExternalComponent.Finish finish,
 			boolean scaleTextureFromTop) {
+	}
+
+	/** Material role used when a component has independently styled surface groups. */
+	public enum ComponentAppearanceRole {
+		/** Tube outside or fin left side. */
+		PRIMARY,
+		/** Tube inside or fin right side. */
+		SECONDARY
+	}
+
+	/** Immutable primary/secondary appearance state captured with the component model. */
+	public record ComponentAppearancesSnapshot(
+			ComponentAppearanceSnapshot primary,
+			ComponentAppearanceSnapshot secondary,
+			boolean separateInsideOutside,
+			boolean edgesSameAsInside) {
+
+		public ComponentAppearanceSnapshot forRole(ComponentAppearanceRole role) {
+			return role == ComponentAppearanceRole.SECONDARY && separateInsideOutside ? secondary : primary;
+		}
 	}
 
 	@FunctionalInterface
@@ -112,7 +134,28 @@ public abstract class AppearanceFactory {
 	}
 
 	public static ComponentAppearanceSnapshot captureComponentAppearance(RocketComponent component) {
-		Appearance appearance = getAppearance(component);
+		return captureComponentAppearance(component, getAppearance(component));
+	}
+
+	/** Captures both material roles used by tubes and fins with separate surface appearances. */
+	public static ComponentAppearancesSnapshot captureComponentAppearances(RocketComponent component) {
+		ComponentAppearanceSnapshot primary = captureComponentAppearance(component);
+		if (!(component instanceof InsideColorComponent insideColorComponent)) {
+			return new ComponentAppearancesSnapshot(primary, primary, false, false);
+		}
+
+		InsideColorComponentHandler handler = insideColorComponent.getInsideColorComponentHandler();
+		Appearance insideAppearance = handler.getInsideAppearance();
+		if (insideAppearance == null) {
+			insideAppearance = DefaultAppearance.getDefaultAppearance(component);
+		}
+		ComponentAppearanceSnapshot secondary = captureComponentAppearance(component, insideAppearance);
+		return new ComponentAppearancesSnapshot(primary, secondary,
+				handler.isSeparateInsideOutside(), handler.isEdgesSameAsInside());
+	}
+
+	private static ComponentAppearanceSnapshot captureComponentAppearance(
+			RocketComponent component, Appearance appearance) {
 		ExternalComponent.Finish finish = null;
 		if (component instanceof ExternalComponent) {
 			finish = ((ExternalComponent) component).getFinish();

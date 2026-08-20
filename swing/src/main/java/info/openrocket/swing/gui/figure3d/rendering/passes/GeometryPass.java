@@ -7,6 +7,7 @@ import info.openrocket.swing.gui.figure3d.rendering.MainShaderUniforms;
 import info.openrocket.swing.gui.figure3d.rendering.OffscreenRenderTarget;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.TransparencyPolicy;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -186,7 +187,11 @@ public class GeometryPass implements RenderPass {
 			glDisable(GL_CULL_FACE);
 		}
 		try {
-			renderObject(object, true);
+			// A dedicated secondary partition intentionally contains tube interiors or a
+			// fin's right face. Respect that material instead of applying the legacy
+			// whole-body rule that suppresses inner-wall triangles during transparency.
+			boolean forceHideInnerSurfaces = object.getAppearanceRole() != ComponentAppearanceRole.SECONDARY;
+			renderObject(object, forceHideInnerSurfaces);
 		} finally {
 			if (cullWasEnabled) {
 				glEnable(GL_CULL_FACE);

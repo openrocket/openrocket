@@ -26,7 +26,7 @@ class FinSetGeneratorTest extends BaseTestCase {
 	private static final float EPSILON = 1.0e-5f;
 
 	@Test
-	void edgeFacesUseDedicatedSurfaceId() {
+	void finFacesAndEdgesUseDistinctSurfaceIds() {
 		BodyTube parent = new BodyTube();
 		parent.setOuterRadius(0.05);
 		parent.setLength(0.5);
@@ -44,18 +44,24 @@ class FinSetGeneratorTest extends BaseTestCase {
 		assertFalse(mesh.getVertices().isEmpty());
 
 		int edgeVertexCount = 0;
+		int leftFaceVertexCount = 0;
+		int rightFaceVertexCount = 0;
 		for (Vertex vertex : mesh.getVertices()) {
 			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_EDGE) {
 				edgeVertexCount++;
-				// The edge band runs along the fin perimeter, so its normals lie in the fin plane
-				assertEquals(0.0f, vertex.normal.z, EPSILON,
-						"Edge-band vertices should have in-plane normals");
-			} else if (Math.abs(vertex.normal.z) > 0.99f) {
+			} else if (vertex.normal.z < -0.99f) {
 				assertEquals(RenderingConstants.SURFACE_ID_OUTSIDE, vertex.surfaceID,
-						"Fin faces should use the outside surface ID");
+						"Fin left faces should use the primary surface ID");
+				leftFaceVertexCount++;
+			} else if (vertex.normal.z > 0.99f) {
+				assertEquals(RenderingConstants.SURFACE_ID_RIGHT, vertex.surfaceID,
+						"Fin right faces should use the secondary surface ID");
+				rightFaceVertexCount++;
 			}
 		}
 		assertTrue(edgeVertexCount > 0, "Fin mesh should mark its edge band with the edge surface ID");
+		assertTrue(leftFaceVertexCount > 0, "Fin mesh should contain left-face vertices");
+		assertTrue(rightFaceVertexCount > 0, "Fin mesh should contain right-face vertices");
 	}
 
 	@Test

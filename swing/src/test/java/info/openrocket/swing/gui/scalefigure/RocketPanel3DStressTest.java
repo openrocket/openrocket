@@ -1,19 +1,26 @@
 package info.openrocket.swing.gui.scalefigure;
 
+import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -41,6 +48,9 @@ class RocketPanel3DStressTest extends BaseTestCase {
 	private static final long STARTUP_TIMEOUT_MS = 12_000;
 	private static final long SWITCH_TIMEOUT_MS = 4_000;
 	private static final long CHURN_TIMEOUT_MS = 2_500;
+
+	private record RenderedSurfaceColors(Vector3f primary, Vector3f secondary) {
+	}
 
 	@Test
 	@Timeout(value = 90, unit = TimeUnit.SECONDS)
@@ -187,6 +197,60 @@ class RocketPanel3DStressTest extends BaseTestCase {
 
 	@Test
 	@Timeout(value = 45, unit = TimeUnit.SECONDS)
+	void separateTubeAndFinAppearancesReachTheRenderedScene() throws Exception {
+		assumeMacUiEnvironment();
+
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube tube = rocket.getAllChildren().stream()
+				.filter(BodyTube.class::isInstance)
+				.map(BodyTube.class::cast)
+				.findFirst()
+				.orElseThrow();
+		FinSet finSet = rocket.getAllChildren().stream()
+				.filter(FinSet.class::isInstance)
+				.map(FinSet.class::cast)
+				.findFirst()
+				.orElseThrow();
+		onEdt(() -> {
+			tube.setAppearance(new Appearance(new ORColor(255, 0, 0), 0.3));
+			tube.getInsideColorComponentHandler().setInsideAppearance(
+					new Appearance(new ORColor(0, 0, 255), 0.3));
+			tube.getInsideColorComponentHandler().setSeparateInsideOutside(true);
+			finSet.setAppearance(new Appearance(new ORColor(0, 255, 0), 0.3));
+			finSet.getInsideColorComponentHandler().setInsideAppearance(
+					new Appearance(new ORColor(255, 0, 255), 0.3));
+			finSet.getInsideColorComponentHandler().setSeparateInsideOutside(true);
+		});
+
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		FrameHarness harness = createStandaloneHarness(document);
+		try {
+			waitForShowing(harness.panel, 2_000, "RocketPanel should become visible before appearance test");
+			onEdt(() -> harness.panel.setViewType(RocketPanel.VIEW_TYPE.Figure3D));
+			awaitFresh3DFrame(harness.panel.getFigure3d(), 0, 0, STARTUP_TIMEOUT_MS,
+					"separate surface appearance startup");
+
+			RenderedSurfaceColors tubeColors = findRenderedSurfaceColors(harness.panel.getFigure3d(), tube);
+			assertEquals(new Vector3f(1, 0, 0), tubeColors.primary(),
+					"Tube outside should retain its primary appearance");
+			assertEquals(new Vector3f(0, 0, 1), tubeColors.secondary(),
+					"Tube inside should use its independent appearance");
+
+			RenderedSurfaceColors finColors = findRenderedSurfaceColors(harness.panel.getFigure3d(), finSet);
+			assertEquals(new Vector3f(0, 1, 0), finColors.primary(),
+					"Fin left side should retain its primary appearance");
+			assertEquals(new Vector3f(1, 0, 1), finColors.secondary(),
+					"Fin right side should use its independent appearance");
+
+			assertNotNull(harness.panel.getFigure3d().captureImage(),
+					"Separate surface materials should still produce a capturable frame");
+		} finally {
+			disposeHarness(harness);
+		}
+	}
+
+	@Test
+	@Timeout(value = 45, unit = TimeUnit.SECONDS)
 	void themeChangeDoesNotOverlayVisibleThreeDCanvas() throws Exception {
 		assumeMacUiEnvironment();
 
@@ -290,6 +354,53 @@ class RocketPanel3DStressTest extends BaseTestCase {
 			Thread.sleep(40);
 		}
 		throw new AssertionError("No 3D scene object found for inner tube. state=" + figure3d.getCanvasDebugState());
+	}
+
+	private static RenderedSurfaceColors findRenderedSurfaceColors(
+			RocketFigure3d figure3d, RocketComponent component) throws Exception {
+		long deadline = System.currentTimeMillis() + SWITCH_TIMEOUT_MS;
+		while (System.currentTimeMillis() < deadline) {
+			Scene3DOrchestrator orchestrator = onEdt(figure3d::getSceneController);
+			if (orchestrator == null) {
+				Thread.sleep(40);
+				continue;
+			}
+
+			CountDownLatch queryFinished = new CountDownLatch(1);
+			AtomicReference<RenderedSurfaceColors> result = new AtomicReference<>();
+			orchestrator.enqueueGlTask(() -> {
+				try {
+					Vector3f primary = null;
+					Vector3f secondary = null;
+					for (SceneObject object : orchestrator.getScene().getObjects()) {
+						if (object.getAppearanceSourceComponent() != component) {
+							continue;
+						}
+						if (object.getAppearanceRole() == ComponentAppearanceRole.SECONDARY) {
+							secondary = new Vector3f(object.getAppearance().getColor());
+						} else if (object.getAppearanceRole() == ComponentAppearanceRole.PRIMARY) {
+							primary = new Vector3f(object.getAppearance().getColor());
+						}
+					}
+					if (primary != null && secondary != null) {
+						result.set(new RenderedSurfaceColors(primary, secondary));
+					}
+				} finally {
+					queryFinished.countDown();
+				}
+			});
+
+			long remaining = Math.max(1, deadline - System.currentTimeMillis());
+			if (!queryFinished.await(remaining, TimeUnit.MILLISECONDS)) {
+				break;
+			}
+			if (result.get() != null) {
+				return result.get();
+			}
+			Thread.sleep(40);
+		}
+		throw new AssertionError("No primary/secondary scene objects found for " + component.getName()
+				+ ". state=" + figure3d.getCanvasDebugState());
 	}
 
 	private static FrameHarness createSplitPaneHarness() throws Exception {

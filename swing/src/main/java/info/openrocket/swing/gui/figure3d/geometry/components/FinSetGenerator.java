@@ -216,13 +216,15 @@ public class FinSetGenerator {
 				Vector3f pos_r = new Vector3f(ringX, y_ring, z_r);
 				Vector3f nrm_r = new Vector3f(0, y_center - y_ring, z_center_r - z_r).normalize();
 				grid[i][j] = vertices.size();
-				vertices.add(new Vertex(pos_r, nrm_r, new Vector2f(uv_u, uv_v), 0));
+				vertices.add(new Vertex(pos_r, nrm_r, new Vector2f(uv_u, uv_v),
+						RenderingConstants.SURFACE_ID_RIGHT));
 
 				// Left vertex
 				Vector3f pos_l = new Vector3f(ringX, y_ring, z_l);
 				Vector3f nrm_l = new Vector3f(0, y_center - y_ring, z_center_l - z_l).normalize();
 				grid[i][j + filletSegments + 1] = vertices.size();
-				vertices.add(new Vertex(pos_l, nrm_l, new Vector2f(uv_u, uv_v), 0));
+				vertices.add(new Vertex(pos_l, nrm_l, new Vector2f(uv_u, uv_v),
+						RenderingConstants.SURFACE_ID_OUTSIDE));
 			}
 		}
 
@@ -509,12 +511,16 @@ public class FinSetGenerator {
 		for (CoordinateIF c : shapePoints) {
 			float u = ((float) c.getX() - globalMinX) / globalSpanX;
 			float v = ((float) c.getY() - globalMinY) / globalSpanY;
-			meshData.vertices.add(new Vertex(new Vector3f((float) c.getX(), (float) c.getY(), (float) finSet.getThickness() / 2), new Vector3f(0, 0, 1), new Vector2f(u, v), 0));
+			meshData.vertices.add(new Vertex(
+					new Vector3f((float) c.getX(), (float) c.getY(), (float) finSet.getThickness() / 2),
+					new Vector3f(0, 0, 1), new Vector2f(u, v), RenderingConstants.SURFACE_ID_RIGHT));
 		}
 		for (CoordinateIF c : shapePoints) {
 			float u = ((float) c.getX() - globalMinX) / globalSpanX;
 			float v = ((float) c.getY() - globalMinY) / globalSpanY;
-			meshData.vertices.add(new Vertex(new Vector3f((float) c.getX(), (float) c.getY(), (float) -finSet.getThickness() / 2), new Vector3f(0, 0, -1), new Vector2f(u, v), 0));
+			meshData.vertices.add(new Vertex(
+					new Vector3f((float) c.getX(), (float) c.getY(), (float) -finSet.getThickness() / 2),
+					new Vector3f(0, 0, -1), new Vector2f(u, v), RenderingConstants.SURFACE_ID_OUTSIDE));
 		}
 
 		// Triangulate the main front and back faces
@@ -690,7 +696,7 @@ public class FinSetGenerator {
 				Vector2f uv = new Vector2f(u,v);
 
 				gridIndices[j][i] = meshData.vertices.size();
-				meshData.vertices.add(new Vertex(pos, normal, uv, 0));
+				meshData.vertices.add(new Vertex(pos, normal, uv, RenderingConstants.SURFACE_ID_EDGE));
 			}
 		}
 
@@ -759,12 +765,14 @@ public class FinSetGenerator {
 				int p1New = meshData.vertices.size();
 				float u1 = (p1FacePos.x - globalMinX) / globalSpanX;
 				float v1 = (p1FacePos.y - globalMinY) / globalSpanY;
-				meshData.vertices.add(new Vertex(p1FacePos, normal, new Vector2f(u1, v1), 0));
+				meshData.vertices.add(new Vertex(p1FacePos, normal, new Vector2f(u1, v1),
+						RenderingConstants.SURFACE_ID_RIGHT));
 
 				int p2New = meshData.vertices.size();
 				float u2 = (p2FacePos.x - globalMinX) / globalSpanX;
 				float v2 = (p2FacePos.y - globalMinY) / globalSpanY;
-				meshData.vertices.add(new Vertex(p2FacePos, normal, new Vector2f(u2, v2), 0));
+				meshData.vertices.add(new Vertex(p2FacePos, normal, new Vector2f(u2, v2),
+						RenderingConstants.SURFACE_ID_RIGHT));
 
 
 				List<Integer> curvedEdgeNew = new ArrayList<>();
@@ -773,7 +781,8 @@ public class FinSetGenerator {
 					Vector3f pos = meshData.vertices.get(idx).position;
 					float u = (pos.x - globalMinX) / globalSpanX;
 					float v = (pos.y - globalMinY) / globalSpanY;
-					meshData.vertices.add(new Vertex(pos, normal, new Vector2f(u, v), 0));
+					meshData.vertices.add(new Vertex(pos, normal, new Vector2f(u, v),
+							RenderingConstants.SURFACE_ID_RIGHT));
 				}
 
 				if (reverseEdgeWinding) { // CW
@@ -811,12 +820,14 @@ public class FinSetGenerator {
 				int p1New = meshData.vertices.size();
 				float u1 = (p1FacePos.x - globalMinX) / globalSpanX;
 				float v1 = (p1FacePos.y - globalMinY) / globalSpanY;
-				meshData.vertices.add(new Vertex(p1FacePos, normal, new Vector2f(u1, v1), 0));
+				meshData.vertices.add(new Vertex(p1FacePos, normal, new Vector2f(u1, v1),
+						RenderingConstants.SURFACE_ID_OUTSIDE));
 
 				int p2New = meshData.vertices.size();
 				float u2 = (p2FacePos.x - globalMinX) / globalSpanX;
 				float v2 = (p2FacePos.y - globalMinY) / globalSpanY;
-				meshData.vertices.add(new Vertex(p2FacePos, normal, new Vector2f(u2, v2), 0));
+				meshData.vertices.add(new Vertex(p2FacePos, normal, new Vector2f(u2, v2),
+						RenderingConstants.SURFACE_ID_OUTSIDE));
 
 				List<Integer> curvedEdgeNew = new ArrayList<>();
 				for (Integer idx : curvedEdge) {
@@ -824,7 +835,8 @@ public class FinSetGenerator {
 					Vector3f pos = meshData.vertices.get(idx).position;
 					float u = (pos.x - globalMinX) / globalSpanX;
 					float v = (pos.y - globalMinY) / globalSpanY;
-					meshData.vertices.add(new Vertex(pos, normal, new Vector2f(u, v), 0));
+					meshData.vertices.add(new Vertex(pos, normal, new Vector2f(u, v),
+							RenderingConstants.SURFACE_ID_OUTSIDE));
 				}
 
 				if (reverseEdgeWinding) { // CCW
@@ -904,10 +916,14 @@ public class FinSetGenerator {
 			float v_curr_i1 = (p_curr_i1.y - globalMinY) / globalSpanY;
 
 			int baseIdx = meshData.vertices.size();
-			meshData.vertices.add(new Vertex(p_curr_i,  normal, new Vector2f(u_curr_i, v_curr_i), 0));
-			meshData.vertices.add(new Vertex(p_prev_i,  normal, new Vector2f(u_prev_i, v_prev_i), 0));
-			meshData.vertices.add(new Vertex(p_prev_i1, normal, new Vector2f(u_prev_i1, v_prev_i1), 0));
-			meshData.vertices.add(new Vertex(p_curr_i1, normal, new Vector2f(u_curr_i1, v_curr_i1), 0));
+			meshData.vertices.add(new Vertex(p_curr_i, normal, new Vector2f(u_curr_i, v_curr_i),
+					RenderingConstants.SURFACE_ID_EDGE));
+			meshData.vertices.add(new Vertex(p_prev_i, normal, new Vector2f(u_prev_i, v_prev_i),
+					RenderingConstants.SURFACE_ID_EDGE));
+			meshData.vertices.add(new Vertex(p_prev_i1, normal, new Vector2f(u_prev_i1, v_prev_i1),
+					RenderingConstants.SURFACE_ID_EDGE));
+			meshData.vertices.add(new Vertex(p_curr_i1, normal, new Vector2f(u_curr_i1, v_curr_i1),
+					RenderingConstants.SURFACE_ID_EDGE));
 
 
 			// The winding needs to be consistent to properly connect the two patches
@@ -972,10 +988,14 @@ public class FinSetGenerator {
 
 
 			int baseIdx = meshData.vertices.size();
-			meshData.vertices.add(new Vertex(pRoot_i, normal, new Vector2f(u_root_i, v_root_i), 0));
-			meshData.vertices.add(new Vertex(pRoot_i1, normal, new Vector2f(u_root_i1, v_root_i1), 0));
-			meshData.vertices.add(new Vertex(pSide_i1, normal, new Vector2f(u_side_i1, v_side_i1), 0));
-			meshData.vertices.add(new Vertex(pSide_i, normal, new Vector2f(u_side_i, v_side_i), 0));
+			meshData.vertices.add(new Vertex(pRoot_i, normal, new Vector2f(u_root_i, v_root_i),
+					RenderingConstants.SURFACE_ID_EDGE));
+			meshData.vertices.add(new Vertex(pRoot_i1, normal, new Vector2f(u_root_i1, v_root_i1),
+					RenderingConstants.SURFACE_ID_EDGE));
+			meshData.vertices.add(new Vertex(pSide_i1, normal, new Vector2f(u_side_i1, v_side_i1),
+					RenderingConstants.SURFACE_ID_EDGE));
+			meshData.vertices.add(new Vertex(pSide_i, normal, new Vector2f(u_side_i, v_side_i),
+					RenderingConstants.SURFACE_ID_EDGE));
 
 			if (connectToStart ^ reverseEdgeWinding) {
 				meshData.addTriangle(baseIdx, baseIdx + 2, baseIdx + 1);

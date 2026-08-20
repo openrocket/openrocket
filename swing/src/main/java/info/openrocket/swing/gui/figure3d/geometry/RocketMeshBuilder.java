@@ -36,6 +36,8 @@ import info.openrocket.swing.gui.figure3d.particles.spark.SparkEmitter;
 import info.openrocket.swing.gui.figure3d.particles.spark.SparkSettings;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearancesSnapshot;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
@@ -46,6 +48,7 @@ import info.openrocket.swing.gui.figure3d.rendering.GLErrors;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.SharedRenderable;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -60,6 +63,12 @@ import java.util.function.Consumer;
  * then realizes those snapshots as context-owned renderables and particle emitters.
  */
 public final class RocketMeshBuilder {
+	private record ComponentMeshPart(
+			Mesh mesh,
+			AppearanceFactory.ComponentAppearanceSnapshot appearance,
+			ComponentAppearanceRole appearanceRole) {
+	}
+
 	private RocketMeshBuilder() {
 	}
 
@@ -131,14 +140,20 @@ public final class RocketMeshBuilder {
 
 	private static void prepareSnapshotObjects(List<SceneObject> objects, List<ParticleEmitter> particleEmitters,
 			RocketSceneSnapshot snapshot, RenderingConfiguration config) {
-		IdentityHashMap<RocketComponent, Appearance3D> componentAppearances = new IdentityHashMap<>();
+		IdentityHashMap<RocketComponent, Appearance3D[]> componentAppearances = new IdentityHashMap<>();
 		IdentityHashMap<Mesh, SharedRenderable> renderables = new IdentityHashMap<>();
 		for (RocketSceneSnapshot.ComponentInstance ci : snapshot.getComponentInstances()) {
-			Appearance3D appearance = componentAppearances.computeIfAbsent(ci.component(),
-					ignored -> AppearanceFactory.createFrom(ci.appearance()));
+			Appearance3D[] appearances = componentAppearances.computeIfAbsent(ci.component(),
+					ignored -> new Appearance3D[ComponentAppearanceRole.values().length]);
+			int roleIndex = ci.appearanceRole().ordinal();
+			Appearance3D appearance = appearances[roleIndex];
+			if (appearance == null) {
+				appearance = AppearanceFactory.createFrom(ci.appearance());
+				appearances[roleIndex] = appearance;
+			}
 			Renderable renderable = acquireRenderable(renderables, ci.mesh());
 			SceneObject obj = SceneObject.withRenderable(ci.component(), ci.mesh(), renderable,
-					new Vector3f(0, 0, 0), appearance);
+					new Vector3f(0, 0, 0), appearance, ci.appearanceRole());
 			obj.getModelMatrix().set(ci.modelMatrix());
 			objects.add(obj);
 		}
@@ -163,6 +178,71 @@ public final class RocketMeshBuilder {
 		SharedRenderable shared = renderables.computeIfAbsent(mesh,
 				ignored -> new SharedRenderable(new GLRenderableMesh(mesh)));
 		return shared.acquire();
+	}
+
+	private static List<ComponentMeshPart> partitionComponentMesh(
+			RocketComponent component, Mesh mesh, ComponentAppearancesSnapshot appearances) {
+		if (!appearances.separateInsideOutside()) {
+			return List.of(new ComponentMeshPart(mesh, appearances.primary(), ComponentAppearanceRole.PRIMARY));
+		}
+
+		IntList primaryIndices = new IntList(mesh.getIndices().size());
+		IntList secondaryIndices = new IntList(mesh.getIndices().size());
+		if (mesh.getIndices().size() % 3 != 0) {
+			throw new BugException("Component mesh index count is not divisible by three");
+		}
+		for (int i = 0; i < mesh.getIndices().size(); i += 3) {
+			int i0 = mesh.getIndices().get(i);
+			int i1 = mesh.getIndices().get(i + 1);
+			int i2 = mesh.getIndices().get(i + 2);
+			boolean secondary = usesSecondaryAppearance(
+					mesh.getVertices().get(i0).surfaceID, appearances.edgesSameAsInside());
+			if (secondary != usesSecondaryAppearance(
+					mesh.getVertices().get(i1).surfaceID, appearances.edgesSameAsInside())
+					|| secondary != usesSecondaryAppearance(
+					mesh.getVertices().get(i2).surfaceID, appearances.edgesSameAsInside())) {
+				throw new BugException("Mesh triangle crosses a component appearance boundary");
+			}
+			(secondary ? secondaryIndices : primaryIndices).addTriangle(i0, i1, i2);
+		}
+
+		List<ComponentMeshPart> parts = new ArrayList<>(2);
+		if (!primaryIndices.isEmpty()) {
+			parts.add(new ComponentMeshPart(new Mesh(mesh.getVertices(), primaryIndices),
+					appearances.primary(), ComponentAppearanceRole.PRIMARY));
+		}
+		if (!secondaryIndices.isEmpty()) {
+			List<Vertex> vertices = component instanceof FinSet
+					? mirrorFinRightTextureCoordinates(mesh.getVertices()) : mesh.getVertices();
+			parts.add(new ComponentMeshPart(new Mesh(vertices, secondaryIndices),
+					appearances.secondary(), ComponentAppearanceRole.SECONDARY));
+		}
+		return parts.isEmpty()
+				? List.of(new ComponentMeshPart(mesh, appearances.primary(), ComponentAppearanceRole.PRIMARY))
+				: parts;
+	}
+
+	private static boolean usesSecondaryAppearance(int surfaceID, boolean edgesSameAsInside) {
+		if (surfaceID == RenderingConstants.SURFACE_ID_INSIDE
+				|| surfaceID == RenderingConstants.SURFACE_ID_RIGHT) {
+			return true;
+		}
+		return edgesSameAsInside && (surfaceID == RenderingConstants.SURFACE_ID_FORE
+				|| surfaceID == RenderingConstants.SURFACE_ID_AFT
+				|| surfaceID == RenderingConstants.SURFACE_ID_EDGE);
+	}
+
+	private static List<Vertex> mirrorFinRightTextureCoordinates(List<Vertex> source) {
+		List<Vertex> mirrored = new ArrayList<>(source.size());
+		for (Vertex vertex : source) {
+			Vector2f textureCoordinates = new Vector2f(vertex.texCoords);
+			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_RIGHT) {
+				textureCoordinates.x = 1.0f - textureCoordinates.x;
+			}
+			mirrored.add(new Vertex(new Vector3f(vertex.position), new Vector3f(vertex.normal),
+					textureCoordinates, vertex.surfaceID));
+		}
+		return mirrored;
 	}
 
 	private static void collectInstances(List<RocketSceneSnapshot.ComponentInstance> componentInstances,
@@ -210,8 +290,10 @@ public final class RocketMeshBuilder {
 		}
 
 		double angleOffsetX = component instanceof RailButton ? component.getAngleOffset() : 0.0;
-		AppearanceFactory.ComponentAppearanceSnapshot appearance = mesh != null
-				? AppearanceFactory.captureComponentAppearance(component) : null;
+		ComponentAppearancesSnapshot appearances = mesh != null
+				? AppearanceFactory.captureComponentAppearances(component) : null;
+		List<ComponentMeshPart> meshParts = mesh != null
+				? partitionComponentMesh(component, mesh, appearances) : List.of();
 
 		for (InstanceContext context : instanceContexts) {
 			CoordinateIF instanceLocation = context.getLocation();
@@ -220,9 +302,12 @@ public final class RocketMeshBuilder {
 					context.transform.getYrotation(),
 					context.transform.getZrotation());
 
-			if (mesh != null) {
+			if (!meshParts.isEmpty()) {
 				Matrix4f modelMatrix = computeComponentModelMatrix(instanceLocation, instanceAngle, component, worldScale);
-				componentInstances.add(new RocketSceneSnapshot.ComponentInstance(component, appearance, mesh, modelMatrix));
+				for (ComponentMeshPart part : meshParts) {
+					componentInstances.add(new RocketSceneSnapshot.ComponentInstance(
+							component, part.appearance(), part.appearanceRole(), part.mesh(), modelMatrix));
+				}
 			}
 
 			if (isMotorMount) {

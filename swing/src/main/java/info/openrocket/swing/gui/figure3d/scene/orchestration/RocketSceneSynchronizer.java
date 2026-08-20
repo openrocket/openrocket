@@ -12,6 +12,8 @@ import info.openrocket.swing.gui.figure3d.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearancesSnapshot;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
@@ -52,7 +54,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	private record PendingAppearanceUpdate(
 			RocketComponent component,
-			AppearanceFactory.ComponentAppearanceSnapshot appearance) {
+			ComponentAppearancesSnapshot appearances) {
 	}
 
 	private enum CameraUpdateBehavior {
@@ -165,7 +167,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			return;
 		}
 		pendingAppearanceUpdates.add(new PendingAppearanceUpdate(
-				component, AppearanceFactory.captureComponentAppearance(component)));
+				component, AppearanceFactory.captureComponentAppearances(component)));
 		if (appearanceQueued.compareAndSet(false, true)) {
 			scene3DOrchestrator.enqueueGlTask(this::flushAppearanceUpdates);
 		}
@@ -284,31 +286,48 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	private void updateComponentAppearanceWithCache(PendingAppearanceUpdate update) {
 		RocketComponent component = update.component();
+		for (ComponentAppearanceRole role : ComponentAppearanceRole.values()) {
+			updateComponentAppearanceRole(component, update.appearances(), role);
+		}
+	}
 
-		// A component's instances share one appearance, so update that object in place when possible.
+	private void updateComponentAppearanceRole(RocketComponent component,
+			ComponentAppearancesSnapshot appearances, ComponentAppearanceRole role) {
+		// A component's instances share one appearance per material role, so update
+		// that object in place when possible.
 		Appearance3D oldAppearance = null;
+		boolean rolePresent = false;
 		for (SceneObject obj : scene.getObjects()) {
-			if (obj.getAppearanceSourceComponent() == component) {
+			if (obj.getAppearanceSourceComponent() == component && getAppearanceRole(obj) == role) {
+				rolePresent = true;
 				oldAppearance = obj.getAppearance();
 				break;
 			}
+		}
+		if (!rolePresent) {
+			return;
 		}
 
 		// Update the existing appearance in place when possible so slider-driven
 		// changes do not reload and upload the same texture every time.
 		Appearance3D newAppearance = oldAppearance;
 		if (newAppearance == null) {
-			newAppearance = AppearanceFactory.createFrom(update.appearance());
+			newAppearance = AppearanceFactory.createFrom(appearances.forRole(role));
 		} else {
-			AppearanceFactory.updateFrom(newAppearance, update.appearance());
+			AppearanceFactory.updateFrom(newAppearance, appearances.forRole(role));
 		}
 
-		// Apply a newly created appearance to every instance sourced from this component.
+		// Apply a newly created appearance to every instance of this material partition.
 		for (SceneObject obj : scene.getObjects()) {
-			if (obj.getAppearanceSourceComponent() == component) {
+			if (obj.getAppearanceSourceComponent() == component && getAppearanceRole(obj) == role) {
 				obj.setAppearance(newAppearance);
 			}
 		}
+	}
+
+	private static ComponentAppearanceRole getAppearanceRole(SceneObject object) {
+		ComponentAppearanceRole role = object.getAppearanceRole();
+		return role != null ? role : ComponentAppearanceRole.PRIMARY;
 	}
 
 	/**

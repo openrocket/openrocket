@@ -215,6 +215,7 @@ public class TubeGenerator {
 											 int segments, boolean isFore, boolean isTubeFilled) {
 		// --- Outer Connection Plate ---
 		Vector3f normalOuter = new Vector3f(isFore ? -1 : 1, 0, 0);
+		int edgeSurfaceID = isFore ? RenderingConstants.SURFACE_ID_FORE : RenderingConstants.SURFACE_ID_AFT;
 		for (int i = 0; i < segments; i++) {
 			int baseVtxIdx = vertexList.size();
 			double theta1 = 2.0 * Math.PI * i / segments;
@@ -222,10 +223,14 @@ public class TubeGenerator {
 			float cos1 = (float) Math.cos(theta1), sin1 = (float) Math.sin(theta1);
 			float cos2 = (float) Math.cos(theta2), sin2 = (float) Math.sin(theta2);
 
-			vertexList.add(new Vertex(new Vector3f(xOuter, tubeOuterR * cos1, tubeOuterR * sin1), normalOuter, new Vector2f(0, 0), 0));
-			vertexList.add(new Vertex(new Vector3f(xOuter, shoulderOuterR * cos1, shoulderOuterR * sin1), normalOuter, new Vector2f(0, 0), 0));
-			vertexList.add(new Vertex(new Vector3f(xOuter, shoulderOuterR * cos2, shoulderOuterR * sin2), normalOuter, new Vector2f(0, 0), 0));
-			vertexList.add(new Vertex(new Vector3f(xOuter, tubeOuterR * cos2, tubeOuterR * sin2), normalOuter, new Vector2f(0, 0), 0));
+			vertexList.add(new Vertex(new Vector3f(xOuter, tubeOuterR * cos1, tubeOuterR * sin1), normalOuter,
+					new Vector2f(0, 0), edgeSurfaceID));
+			vertexList.add(new Vertex(new Vector3f(xOuter, shoulderOuterR * cos1, shoulderOuterR * sin1), normalOuter,
+					new Vector2f(0, 0), edgeSurfaceID));
+			vertexList.add(new Vertex(new Vector3f(xOuter, shoulderOuterR * cos2, shoulderOuterR * sin2), normalOuter,
+					new Vector2f(0, 0), edgeSurfaceID));
+			vertexList.add(new Vertex(new Vector3f(xOuter, tubeOuterR * cos2, tubeOuterR * sin2), normalOuter,
+					new Vector2f(0, 0), edgeSurfaceID));
 			addQuad(indexList, baseVtxIdx, baseVtxIdx + 1, baseVtxIdx + 2, baseVtxIdx + 3, isFore);
 		}
 
@@ -239,10 +244,14 @@ public class TubeGenerator {
 				float cos1 = (float) Math.cos(theta1), sin1 = (float) Math.sin(theta1);
 				float cos2 = (float) Math.cos(theta2), sin2 = (float) Math.sin(theta2);
 
-				vertexList.add(new Vertex(new Vector3f(xInner, tubeInnerR * cos1, tubeInnerR * sin1), normalInner, new Vector2f(0, 0), 0));
-				vertexList.add(new Vertex(new Vector3f(xInner, shoulderInnerR * cos1, shoulderInnerR * sin1), normalInner, new Vector2f(0, 0), 0));
-				vertexList.add(new Vertex(new Vector3f(xInner, shoulderInnerR * cos2, shoulderInnerR * sin2), normalInner, new Vector2f(0, 0), 0));
-				vertexList.add(new Vertex(new Vector3f(xInner, tubeInnerR * cos2, tubeInnerR * sin2), normalInner, new Vector2f(0, 0), 0));
+				vertexList.add(new Vertex(new Vector3f(xInner, tubeInnerR * cos1, tubeInnerR * sin1), normalInner,
+						new Vector2f(0, 0), RenderingConstants.SURFACE_ID_INSIDE));
+				vertexList.add(new Vertex(new Vector3f(xInner, shoulderInnerR * cos1, shoulderInnerR * sin1), normalInner,
+						new Vector2f(0, 0), RenderingConstants.SURFACE_ID_INSIDE));
+				vertexList.add(new Vertex(new Vector3f(xInner, shoulderInnerR * cos2, shoulderInnerR * sin2), normalInner,
+						new Vector2f(0, 0), RenderingConstants.SURFACE_ID_INSIDE));
+				vertexList.add(new Vertex(new Vector3f(xInner, tubeInnerR * cos2, tubeInnerR * sin2), normalInner,
+						new Vector2f(0, 0), RenderingConstants.SURFACE_ID_INSIDE));
 				addQuad(indexList, baseVtxIdx, baseVtxIdx + 1, baseVtxIdx + 2, baseVtxIdx + 3, !isFore);
 			}
 		}

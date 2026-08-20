@@ -45,11 +45,13 @@ public abstract class RenderingConstants {
 	public static final float WORLD_SCALE = 20.0f;
 
 	// --- Surface IDs ---
-	// The fragment shader uses these to distinguish inner walls from visible surfaces.
+	// The renderer uses these to distinguish material groups and true internal walls.
 	public static final int SURFACE_ID_OUTSIDE = 0;
 	public static final int SURFACE_ID_INSIDE = 1;
 	public static final int SURFACE_ID_FORE = 2;
 	public static final int SURFACE_ID_AFT = 3;
+	/** Vertex surface ID for the independently styled right side of a fin. */
+	public static final int SURFACE_ID_RIGHT = 4;
 
 	/** Vertex surface ID for a fin's edge band and fillet caps. */
 	public static final int SURFACE_ID_EDGE = 5;

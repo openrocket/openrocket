@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.orchestration;
 
 import info.openrocket.core.appearance.Appearance;
+import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -8,6 +9,7 @@ import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.geometry.RocketSceneSnapshot;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraControls;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
@@ -72,6 +74,46 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 
 		verify(primaryObject).setAppearance(primaryAppearance);
 		verify(listenerObject).setAppearance(listenerAppearance);
+	}
+
+	@Test
+	void appearanceEditRefreshesPrimaryAndSecondarySurfaceMaterialsIndependently() {
+		BodyTube tube = new BodyTube();
+		tube.setAppearance(new Appearance(new ORColor(255, 0, 0), 0.3));
+		tube.getInsideColorComponentHandler().setInsideAppearance(
+				new Appearance(new ORColor(0, 0, 255), 0.7));
+		tube.getInsideColorComponentHandler().setSeparateInsideOutside(true);
+
+		SceneObject primaryObject = mock(SceneObject.class);
+		Appearance3D primaryAppearance = new Appearance3D();
+		when(primaryObject.getAppearanceSourceComponent()).thenReturn(tube);
+		when(primaryObject.getAppearanceRole()).thenReturn(ComponentAppearanceRole.PRIMARY);
+		when(primaryObject.getAppearance()).thenReturn(primaryAppearance);
+
+		SceneObject secondaryObject = mock(SceneObject.class);
+		Appearance3D secondaryAppearance = new Appearance3D();
+		when(secondaryObject.getAppearanceSourceComponent()).thenReturn(tube);
+		when(secondaryObject.getAppearanceRole()).thenReturn(ComponentAppearanceRole.SECONDARY);
+		when(secondaryObject.getAppearance()).thenReturn(secondaryAppearance);
+
+		SceneView scene = mock(SceneView.class);
+		when(scene.getObjects()).thenReturn(List.of(primaryObject, secondaryObject));
+		Scene3DOrchestrator orchestrator = mock(Scene3DOrchestrator.class);
+		doAnswer(invocation -> {
+			invocation.<Runnable>getArgument(0).run();
+			return null;
+		}).when(orchestrator).enqueueGlTask(any(Runnable.class));
+
+		RocketSceneSynchronizer synchronizer = new RocketSceneSynchronizer(orchestrator, scene, new Rocket());
+		synchronizer.componentChanged(new ComponentChangeEvent(tube, ComponentChangeEvent.NONFUNCTIONAL_CHANGE));
+
+		assertEquals(1.0f, primaryAppearance.getColor().x, 1.0e-6f);
+		assertEquals(0.0f, primaryAppearance.getColor().z, 1.0e-6f);
+		assertEquals(0.0f, secondaryAppearance.getColor().x, 1.0e-6f);
+		assertEquals(1.0f, secondaryAppearance.getColor().z, 1.0e-6f);
+		verify(primaryObject).setAppearance(primaryAppearance);
+		verify(secondaryObject).setAppearance(secondaryAppearance);
+		synchronizer.dispose();
 	}
 
 	@Test

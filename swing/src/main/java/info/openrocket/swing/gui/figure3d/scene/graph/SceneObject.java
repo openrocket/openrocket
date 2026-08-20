@@ -5,6 +5,7 @@ import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
 import info.openrocket.swing.gui.figure3d.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.input.DragListener;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import org.joml.Matrix4f;
@@ -23,6 +24,7 @@ public class SceneObject {
 	private final UUID id;
 	private final RocketComponent rocketComponent;		// Selection and rocket-wide behavior
 	private final RocketComponent appearanceSourceComponent;
+	private final ComponentAppearanceRole appearanceRole;
 
 	private final Mesh mesh; 							// The raw geometry data
 	private final Renderable renderableMesh; 		// The GPU-ready version of the mesh
@@ -53,19 +55,22 @@ public class SceneObject {
 	 * @param appearance the visual appearance including materials and textures
 	 */
 	public SceneObject(RocketComponent component, Mesh mesh, Vector3f position, Appearance3D appearance) {
-		this(component, component, mesh, position, appearance);
+		this(component, component, ComponentAppearanceRole.PRIMARY, mesh, position, appearance);
 	}
 
 	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
-			Mesh mesh, Vector3f position, Appearance3D appearance) {
-		this(component, appearanceSourceComponent, mesh, new GLRenderableMesh(mesh), position, appearance);
+			ComponentAppearanceRole appearanceRole, Mesh mesh, Vector3f position, Appearance3D appearance) {
+		this(component, appearanceSourceComponent, appearanceRole,
+				mesh, new GLRenderableMesh(mesh), position, appearance);
 	}
 
 	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
-			Mesh mesh, Renderable renderableMesh, Vector3f position, Appearance3D appearance) {
+			ComponentAppearanceRole appearanceRole, Mesh mesh, Renderable renderableMesh,
+			Vector3f position, Appearance3D appearance) {
 		this.id = UUID.randomUUID();
 		this.rocketComponent = component;
 		this.appearanceSourceComponent = appearanceSourceComponent;
+		this.appearanceRole = appearanceRole;
 		this.mesh = mesh;
 		this.renderableMesh = Objects.requireNonNull(renderableMesh, "renderableMesh");
 		this.modelMatrix.translate(position);
@@ -75,7 +80,14 @@ public class SceneObject {
 	/** Creates a component object using a caller-owned renderable lease. */
 	public static SceneObject withRenderable(RocketComponent component, Mesh mesh, Renderable renderableMesh,
 			Vector3f position, Appearance3D appearance) {
-		return new SceneObject(component, component, mesh, renderableMesh, position, appearance);
+		return withRenderable(component, mesh, renderableMesh, position, appearance,
+				ComponentAppearanceRole.PRIMARY);
+	}
+
+	/** Creates one material partition of a component using a caller-owned renderable lease. */
+	public static SceneObject withRenderable(RocketComponent component, Mesh mesh, Renderable renderableMesh,
+			Vector3f position, Appearance3D appearance, ComponentAppearanceRole appearanceRole) {
+		return new SceneObject(component, component, appearanceRole, mesh, renderableMesh, position, appearance);
 	}
 
 	/**
@@ -86,13 +98,13 @@ public class SceneObject {
 	 */
 	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
 			Mesh mesh, Vector3f position, Appearance3D appearance) {
-		return new SceneObject(selectionComponent, null, mesh, position, appearance);
+		return new SceneObject(selectionComponent, null, null, mesh, position, appearance);
 	}
 
 	/** Creates an independently styled object using a caller-owned renderable lease. */
 	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
 			Mesh mesh, Renderable renderableMesh, Vector3f position, Appearance3D appearance) {
-		return new SceneObject(selectionComponent, null, mesh, renderableMesh, position, appearance);
+		return new SceneObject(selectionComponent, null, null, mesh, renderableMesh, position, appearance);
 	}
 
 	/**
@@ -128,6 +140,11 @@ public class SceneObject {
 	 */
 	public RocketComponent getAppearanceSourceComponent() {
 		return appearanceSourceComponent;
+	}
+
+	/** @return the primary/secondary material partition, or {@code null} for independent objects */
+	public ComponentAppearanceRole getAppearanceRole() {
+		return appearanceRole;
 	}
 
 	public boolean isSelected() {
