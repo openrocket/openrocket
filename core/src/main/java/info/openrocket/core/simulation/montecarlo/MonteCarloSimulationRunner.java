@@ -22,6 +22,7 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.exception.SimulationCancelledException;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.listeners.system.InterruptListener;
 import info.openrocket.core.util.BugException;
 
@@ -60,6 +61,7 @@ public final class MonteCarloSimulationRunner {
 		Objects.requireNonNull(simulation, "simulation");
 		Objects.requireNonNull(settings, "settings");
 		Objects.requireNonNull(progressListener, "progressListener");
+		validateExtensions(simulation);
 
 		long start = System.currentTimeMillis();
 		int totalTrajectories = settings.getRunCount() + 1;
@@ -171,7 +173,7 @@ public final class MonteCarloSimulationRunner {
 			throw new CancellationException(exception.getMessage());
 		} catch (CancellationException exception) {
 			throw exception;
-		} catch (SimulationException | RuntimeException exception) {
+		} catch (SimulationException exception) {
 			failure = exception.getLocalizedMessage();
 			if (failure == null || failure.isBlank()) {
 				failure = exception.getClass().getSimpleName();
@@ -195,6 +197,19 @@ public final class MonteCarloSimulationRunner {
 		double flightTime = data != null ? data.getFlightTime() : Double.NaN;
 		return new MonteCarloRunResult(sample, landingPoints, bodyFailures,
 				maximumAltitude, flightTime, failure);
+	}
+
+	private static void validateExtensions(Simulation simulation) {
+		List<String> unsafeExtensionNames = new ArrayList<>();
+		for (SimulationExtension extension : simulation.getSimulationExtensions()) {
+			if (!extension.isMonteCarloSafe()) {
+				String name = extension.getName();
+				unsafeExtensionNames.add(name == null || name.isBlank() ? extension.getId() : name);
+			}
+		}
+		if (!unsafeExtensionNames.isEmpty()) {
+			throw new UnsafeSimulationExtensionException(unsafeExtensionNames);
+		}
 	}
 
 	private static void applySampledOptions(SimulationOptions options, MonteCarloSample sample) {

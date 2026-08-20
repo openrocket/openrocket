@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,8 @@ import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
+import info.openrocket.core.simulation.SimulationConditions;
+import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
 
@@ -53,6 +56,35 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 
 		assertThrows(BallisticTrajectoryException.class,
 				() -> new MonteCarloSimulationRunner().run(source, settings));
+	}
+
+	@Test
+	public void testUnsafeExtensionsAreRejectedBeforeTheyExecute() {
+		Simulation source = source(0.0);
+		CountingExtension extension = new CountingExtension(false, false);
+		source.getSimulationExtensions().add(extension);
+		MonteCarloSettings settings = MonteCarloSettings.builder().runCount(2).seed(13579).build();
+
+		UnsafeSimulationExtensionException exception = assertThrows(
+				UnsafeSimulationExtensionException.class,
+				() -> new MonteCarloSimulationRunner().run(source, settings));
+
+		assertEquals(List.of("CountingExtension"), exception.getExtensionNames());
+		assertEquals(0, extension.getInitializationCount());
+	}
+
+	@Test
+	public void testUnexpectedRuntimeFailurePropagatesFromWorker() {
+		Simulation source = source(0.0);
+		CountingExtension extension = new CountingExtension(true, true);
+		source.getSimulationExtensions().add(extension);
+		MonteCarloSettings settings = MonteCarloSettings.builder().runCount(2).seed(13579).build();
+
+		IllegalStateException exception = assertThrows(IllegalStateException.class,
+				() -> new MonteCarloSimulationRunner().run(source, settings));
+
+		assertEquals("Extension implementation bug", exception.getMessage());
+		assertTrue(extension.getInitializationCount() > 1);
 	}
 
 	@Test
@@ -222,5 +254,32 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 					deploymentTime));
 		}
 		branch.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, groundHitTime));
+	}
+
+	private static final class CountingExtension extends AbstractSimulationExtension {
+		private final AtomicInteger initializationCount = new AtomicInteger();
+		private final boolean monteCarloSafe;
+		private final boolean failAfterNominal;
+
+		private CountingExtension(boolean monteCarloSafe, boolean failAfterNominal) {
+			this.monteCarloSafe = monteCarloSafe;
+			this.failAfterNominal = failAfterNominal;
+		}
+
+		@Override
+		public boolean isMonteCarloSafe() {
+			return monteCarloSafe;
+		}
+
+		@Override
+		public void initialize(SimulationConditions conditions) {
+			if (initializationCount.incrementAndGet() > 1 && failAfterNominal) {
+				throw new IllegalStateException("Extension implementation bug");
+			}
+		}
+
+		private int getInitializationCount() {
+			return initializationCount.get();
+		}
 	}
 }
