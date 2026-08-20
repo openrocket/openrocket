@@ -136,6 +136,28 @@ public class WindModelSeedReproducibilityTest extends BaseTestCase {
 		assertEquals(0, multiLevelEvents[0], "editing a clone must not notify the original multi-level model");
 	}
 
+	@Test
+	public void testClonedSimulationOptionsForwardWindChangesToTheCopy() {
+		SimulationOptions original = new SimulationOptions();
+		int[] originalEvents = { 0 };
+		original.addChangeListener(event -> originalEvents[0]++);
+
+		SimulationOptions copy = original.clone();
+		int[] copyEvents = { 0 };
+		copy.addChangeListener(event -> copyEvents[0]++);
+
+		PinkNoiseWindModel averageCopy = copy.getAverageWindModel();
+		averageCopy.setDirection(averageCopy.getDirection() + 0.25);
+		assertEquals(1, copyEvents[0], "average-wind edits must notify cloned options");
+		assertEquals(0, originalEvents[0], "average-wind edits must not notify original options");
+
+		MultiLevelPinkNoiseWindModel multiLevelCopy = copy.getMultiLevelWindModel();
+		MultiLevelPinkNoiseWindModel.LevelWindModel level = multiLevelCopy.getLevels().get(0);
+		level.setDirection(level.getDirection() + 0.25);
+		assertEquals(2, copyEvents[0], "multi-level wind edits must notify cloned options");
+		assertEquals(0, originalEvents[0], "multi-level wind edits must not notify original options");
+	}
+
 	/** Wind speed sampled over the first seconds of a flight. */
 	private double[] sample(WindModel model) {
 		final double[] out = new double[40];
