@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
+import org.lwjgl.opengl.GL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class GpuResourceTracker {
 
 	private static final Logger log = LoggerFactory.getLogger(GpuResourceTracker.class);
+	private static final Object NO_CONTEXT = new Object();
 
 	public enum ResourceType {
 		TEXTURE,
@@ -32,7 +34,28 @@ public final class GpuResourceTracker {
 	private record ResourceRecord(int id, String label, long createdAtNanos) {
 	}
 
-	private static final Map<ResourceType, Map<Integer, ResourceRecord>> LIVE_RESOURCES = new EnumMap<>(ResourceType.class);
+	private static final class ResourceKey {
+		private final Object context;
+		private final int id;
+
+		private ResourceKey(Object context, int id) {
+			this.context = context;
+			this.id = id;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			return other instanceof ResourceKey key && context == key.context && id == key.id;
+		}
+
+		@Override
+		public int hashCode() {
+			return 31 * System.identityHashCode(context) + id;
+		}
+	}
+
+	private static final Map<ResourceType, Map<ResourceKey, ResourceRecord>> LIVE_RESOURCES =
+			new EnumMap<>(ResourceType.class);
 
 	static {
 		for (ResourceType type : ResourceType.values()) {
@@ -51,21 +74,39 @@ public final class GpuResourceTracker {
 	 * @param label optional label to identify the owner
 	 */
 	public static void register(ResourceType type, int id, String label) {
+		registerForContext(currentContext(), type, id, label);
+	}
+
+	static void registerForContext(Object context, ResourceType type, int id, String label) {
 		if (id <= 0 || type == null) {
 			return;
 		}
 		String safeLabel = label == null ? "" : label;
-		LIVE_RESOURCES.get(type).put(id, new ResourceRecord(id, safeLabel, System.nanoTime()));
+		ResourceKey key = new ResourceKey(normalizeContext(context), id);
+		ResourceRecord record = new ResourceRecord(id, safeLabel, System.nanoTime());
+		ResourceRecord previous = LIVE_RESOURCES.get(type).putIfAbsent(key, record);
+		if (previous != null) {
+			log.warn("GPU resource registered twice in {}: {}#{} (existing='{}', new='{}')",
+					contextLabel(key.context), type, id, previous.label, safeLabel);
+		}
 	}
 
 	/**
 	 * Marks a resource as released.
 	 */
 	public static void release(ResourceType type, int id) {
+		releaseForContext(currentContext(), type, id);
+	}
+
+	static void releaseForContext(Object context, ResourceType type, int id) {
 		if (id <= 0 || type == null) {
 			return;
 		}
-		LIVE_RESOURCES.get(type).remove(id);
+		ResourceKey key = new ResourceKey(normalizeContext(context), id);
+		if (LIVE_RESOURCES.get(type).remove(key) == null) {
+			log.warn("GPU resource released without a matching registration in {}: {}#{}",
+					contextLabel(key.context), type, id);
+		}
 	}
 
 	/**
@@ -85,9 +126,12 @@ public final class GpuResourceTracker {
 	 */
 	public static void logLiveResources(String reason, boolean warn) {
 		List<String> leaks = new ArrayList<>();
-		for (Map.Entry<ResourceType, Map<Integer, ResourceRecord>> entry : LIVE_RESOURCES.entrySet()) {
-			for (ResourceRecord record : entry.getValue().values()) {
-				leaks.add(entry.getKey() + "#" + record.id + " (" + record.label + ")");
+		for (Map.Entry<ResourceType, Map<ResourceKey, ResourceRecord>> entry : LIVE_RESOURCES.entrySet()) {
+			for (Map.Entry<ResourceKey, ResourceRecord> resourceEntry : entry.getValue().entrySet()) {
+				ResourceKey key = resourceEntry.getKey();
+				ResourceRecord record = resourceEntry.getValue();
+				leaks.add(entry.getKey() + "#" + record.id + "@" + contextLabel(key.context)
+						+ " (" + record.label + ")");
 			}
 		}
 		if (!leaks.isEmpty()) {
@@ -122,7 +166,7 @@ public final class GpuResourceTracker {
 	 */
 	public static int liveCount() {
 		int total = 0;
-		for (Map<Integer, ResourceRecord> map : LIVE_RESOURCES.values()) {
+		for (Map<ResourceKey, ResourceRecord> map : LIVE_RESOURCES.values()) {
 			total += map.size();
 		}
 		return total;
@@ -132,8 +176,26 @@ public final class GpuResourceTracker {
 	 * Clears all tracking data. Useful for tests.
 	 */
 	public static void reset() {
-		for (Map<Integer, ResourceRecord> map : LIVE_RESOURCES.values()) {
+		for (Map<ResourceKey, ResourceRecord> map : LIVE_RESOURCES.values()) {
 			map.clear();
 		}
+	}
+
+	private static Object currentContext() {
+		try {
+			return normalizeContext(GL.getCapabilities());
+		} catch (IllegalStateException e) {
+			return NO_CONTEXT;
+		}
+	}
+
+	private static Object normalizeContext(Object context) {
+		return context != null ? context : NO_CONTEXT;
+	}
+
+	private static String contextLabel(Object context) {
+		return context == NO_CONTEXT
+				? "no-context"
+				: "context-" + Integer.toHexString(System.identityHashCode(context));
 	}
 }
