@@ -1214,7 +1214,7 @@ public class SimulationPanel extends JPanel {
 		public LandingDispersionAction() {
 			this.putValue(NAME, trans.get("simpanel.pop.landingDispersion"));
 			this.putValue(SHORT_DESCRIPTION, trans.get("simpanel.pop.landingDispersion.ttip"));
-			this.putValue(SMALL_ICON, Icons.SIM_PLOT);
+			this.putValue(SMALL_ICON, Icons.SIM_DISPERSION);
 		}
 
 		@Override
