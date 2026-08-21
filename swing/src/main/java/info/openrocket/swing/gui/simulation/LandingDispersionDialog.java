@@ -75,7 +75,6 @@ public final class LandingDispersionDialog extends JDialog {
 	private final JSpinner runCountSpinner;
 	private final JTextField seedField;
 	private final JTextArea parameterDescription;
-	private final JLabel presetNotice;
 	private final JPanel cards;
 	private final CardLayout cardLayout;
 	private final JProgressBar progressBar;
@@ -86,7 +85,6 @@ public final class LandingDispersionDialog extends JDialog {
 	private final JButton cancelButton;
 
 	private AnalysisWorker worker;
-	private boolean loadedSettingsNotice;
 	private MonteCarloSettings settingsAtLastSave;
 
 	public LandingDispersionDialog(Window owner, Simulation simulation) {
@@ -107,13 +105,6 @@ public final class LandingDispersionDialog extends JDialog {
 		}
 		this.parameterDescription = createDescriptionArea();
 		this.parameterTable = createParameterTable();
-		String noticeKey = savedSettings != null
-				? "LandingDispersionDlg.lbl.savedValuesNotice"
-				: cachedResult != null
-						? "LandingDispersionDlg.lbl.cachedValuesNotice"
-						: "LandingDispersionDlg.lbl.defaultValuesNotice";
-		this.presetNotice = new JLabel(trans.get(noticeKey));
-		this.loadedSettingsNotice = initialSettings != null;
 		this.cardLayout = new CardLayout();
 		this.cards = new JPanel(cardLayout);
 		this.progressBar = new JProgressBar(0, 100);
@@ -137,8 +128,7 @@ public final class LandingDispersionDialog extends JDialog {
 
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0", "[grow][][button][button][button]"));
 		buttonPanel.setMinimumSize(new Dimension(0, 0));
-		presetNotice.setMinimumSize(new Dimension(0, presetNotice.getPreferredSize().height));
-		buttonPanel.add(presetNotice, "growx, wmin 0");
+		buttonPanel.add(new JPanel(), "growx, wmin 0");
 		cancelButton.setVisible(false);
 		buttonPanel.add(cancelButton);
 		buttonPanel.add(plotCachedButton);
@@ -198,7 +188,11 @@ public final class LandingDispersionDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("ins 0, fillx"));
 
 		// Dispersed runs
-		panel.add(new JLabel(trans.get("LandingDispersionDlg.lbl.runs")));
+		JLabel runsLabel = new JLabel(trans.get("LandingDispersionDlg.lbl.runs"));
+		String runsTooltip = trans.get("LandingDispersionDlg.lbl.runs.ttip");
+		runsLabel.setToolTipText(runsTooltip);
+		runCountSpinner.setToolTipText(runsTooltip);
+		panel.add(runsLabel);
 		panel.add(runCountSpinner, "w 90!, left");
 
 		// Master seed
@@ -224,7 +218,6 @@ public final class LandingDispersionDialog extends JDialog {
 		defaultsButton.setToolTipText(trans.get("LandingDispersionDlg.but.defaultValues.ttip"));
 		defaultsButton.addActionListener(event -> {
 			parameterTableModel.setDefaultValues();
-			presetNotice.setText(trans.get("LandingDispersionDlg.lbl.defaultValuesNotice"));
 		});
 		spreadActions.add(defaultsButton);
 
@@ -233,7 +226,6 @@ public final class LandingDispersionDialog extends JDialog {
 		allFixedButton.setToolTipText(trans.get("LandingDispersionDlg.but.allFixed.ttip"));
 		allFixedButton.addActionListener(event -> {
 			parameterTableModel.setAllFixed();
-			presetNotice.setText(trans.get("LandingDispersionDlg.lbl.allFixedNotice"));
 		});
 		spreadActions.add(allFixedButton);
 		panel.add(spreadActions, "growx");
@@ -246,7 +238,7 @@ public final class LandingDispersionDialog extends JDialog {
 	 */
 	private static JTextArea createIntroductionArea() {
 		JTextArea area = new JTextArea(trans.get("LandingDispersionDlg.lbl.introduction"));
-		area.setRows(3);
+		area.setRows(2);
 		area.setEditable(false);
 		area.setFocusable(false);
 		area.setLineWrap(true);
@@ -333,11 +325,6 @@ public final class LandingDispersionDialog extends JDialog {
 		ParameterRow row = parameterRows.get(selectedRow);
 		StringBuilder text = new StringBuilder(row.description).append("  ")
 				.append(distributionExplanation(row.distribution));
-		// Say why an option is greyed out here rather than in a popup tooltip, which the
-		// combo's list does not reliably show.
-		if (!row.parameter.isRelative()) {
-			text.append("  ").append(trans.get("LandingDispersionDlg.distribution.relativeOnly"));
-		}
 		parameterDescription.setText(text.toString());
 		parameterDescription.setCaretPosition(0);
 	}
@@ -448,10 +435,6 @@ public final class LandingDispersionDialog extends JDialog {
 	}
 
 	private void analysisSettingsChanged() {
-		if (loadedSettingsNotice) {
-			presetNotice.setText(" ");
-			loadedSettingsNotice = false;
-		}
 		updateCachedAnalysisButton();
 	}
 
