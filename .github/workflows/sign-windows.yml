@@ -107,10 +107,20 @@ jobs:
 
           "compiler=$($compiler.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Build unsigned Windows installers
+      - name: Register install4j license
         shell: pwsh
         env:
           INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
+          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
+        run: |
+          & $env:INSTALL4J_COMPILER -L $env:INSTALL4J_LICENSE_KEY
+          if ($LASTEXITCODE -ne 0) {
+            throw "install4j license registration failed with code $LASTEXITCODE."
+          }
+
+      - name: Build unsigned Windows installers
+        shell: pwsh
+        env:
           INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
           OPENROCKET_VERSION: ${{ steps.version.outputs.value }}
         run: |
