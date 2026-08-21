@@ -191,12 +191,34 @@ jobs:
             throw "Expected two signed Windows installers, found $($installers.Count)."
           }
 
+          $expectedSignerThumbprint = $null
+
           foreach ($installer in $installers) {
             $signature = Get-AuthenticodeSignature -FilePath $installer.FullName
-            if ($signature.Status -ne 'Valid') {
-              throw "Invalid Authenticode signature for $($installer.Name): $($signature.StatusMessage)"
+            $status = $signature.Status.ToString()
+
+            if ($null -eq $signature.SignerCertificate) {
+              throw "$($installer.Name) has no Authenticode signer certificate."
             }
-            Write-Host "$($installer.Name): $($signature.SignerCertificate.Subject)"
+
+            if ($env:SIGNPATH_SIGNING_POLICY_SLUG -eq 'test-signing') {
+              if ($status -notin @('Valid', 'NotTrusted')) {
+                throw "Invalid test signature for $($installer.Name): $($signature.StatusMessage)"
+              }
+            }
+            elseif ($status -ne 'Valid') {
+              throw "Invalid release signature for $($installer.Name): $($signature.StatusMessage)"
+            }
+
+            $thumbprint = $signature.SignerCertificate.Thumbprint
+            if ($null -eq $expectedSignerThumbprint) {
+              $expectedSignerThumbprint = $thumbprint
+            }
+            elseif ($thumbprint -ne $expectedSignerThumbprint) {
+              throw "The installers were signed by different certificates."
+            }
+
+            Write-Host "$($installer.Name): status=$status, signer=$($signature.SignerCertificate.Subject), thumbprint=$thumbprint"
           }
 
       - name: Upload signed Windows installers
