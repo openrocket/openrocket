@@ -4,7 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -12,17 +17,25 @@ import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.LegendTitle;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.componentanalysis.CADataBranch;
 import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CADomainDataType;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.simulation.FlightDataBranch;
+import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.swing.gui.dialogs.componentanalysis.CAPlot;
 import info.openrocket.swing.gui.dialogs.componentanalysis.CAPlotConfiguration;
+import info.openrocket.swing.gui.simulation.SimulationPlotPanel;
+import info.openrocket.swing.gui.simulation.SimulationPlotTypeSelector;
 import info.openrocket.swing.util.BaseTestCase;
 
 /**
@@ -100,6 +113,40 @@ public class SimulationChartTest extends BaseTestCase {
 				((BasicStroke) renderer.getSeriesStroke(1)).getLineWidth());
 	}
 
+	/**
+	 * Changing one auto-axis variable can alter the palette position of another variable.  Every automatic color shown
+	 * in the configuration panel must be refreshed to match the final rendered plot.
+	 */
+	@Test
+	public void automaticColorsRefreshWhenLaterVariableChangesAxisAssignment() {
+		FlightDataBranch branch = createPositionFlightDataBranch();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		Simulation simulation = new Simulation(document, document.getRocket(), Simulation.Status.UPTODATE, "Test",
+				new SimulationOptions(), Collections.emptyList(), new FlightData(branch));
+		SimulationPlotPanel panel = SimulationPlotPanel.create(simulation);
+
+		SimulationPlotConfiguration configuration = new SimulationPlotConfiguration("Test", FlightDataType.TYPE_TIME);
+		configuration.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 1);
+		configuration.addPlotDataType(FlightDataType.TYPE_VELOCITY_Z);
+		configuration.addPlotDataType(FlightDataType.TYPE_ACCELERATION_Z);
+		panel.setConfiguration(configuration);
+		((PlotPanel<?, ?, ?, ?, ?>) panel).updatePlots();
+
+		List<SimulationPlotTypeSelector> selectors = findComponents(panel, SimulationPlotTypeSelector.class);
+		selectors.sort(Comparator.comparingInt(SimulationPlotTypeSelector::getIndex));
+		selectors.get(1).typeSelector.setSelectedItem(FlightDataType.TYPE_POSITION_X);
+		Color colorBeforeThirdChange = selectors.get(1).getSelectedColor();
+		selectors.get(2).typeSelector.setSelectedItem(FlightDataType.TYPE_POSITION_Y);
+
+		Color displayedColor = selectors.get(1).getSelectedColor();
+		SimulationPlot plot = SimulationPlot.create(simulation, panel.getConfiguration(), false);
+		Color renderedColor = findRenderedColor(plot.getJFreeChart().getXYPlot(), 1);
+
+		assertNotEquals(colorBeforeThirdChange, displayedColor,
+				"The later variable must cause this auto-assigned palette position to change");
+		assertEquals(renderedColor, displayedColor);
+	}
+
 	private static void addAnalysisPoint(CADataBranch branch, BodyTube firstComponent,
 			BodyTube secondComponent, double mach, double firstValue, double secondValue) {
 		branch.addPoint();
@@ -118,6 +165,52 @@ public class SimulationChartTest extends BaseTestCase {
 		branch.setValue(FlightDataType.TYPE_TIME, 1);
 		branch.setValue(FlightDataType.TYPE_ALTITUDE, altitude + 10);
 		return branch;
+	}
+
+	private static FlightDataBranch createPositionFlightDataBranch() {
+		FlightDataBranch branch = new FlightDataBranch("Sustainer", FlightDataType.TYPE_TIME,
+				FlightDataType.TYPE_ALTITUDE, FlightDataType.TYPE_VELOCITY_Z, FlightDataType.TYPE_ACCELERATION_Z,
+				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y);
+		for (int i = 0; i < 3; i++) {
+			branch.addPoint();
+			branch.setValue(FlightDataType.TYPE_TIME, i);
+			branch.setValue(FlightDataType.TYPE_ALTITUDE, i * 100.0);
+			branch.setValue(FlightDataType.TYPE_VELOCITY_Z, i * 20.0);
+			branch.setValue(FlightDataType.TYPE_ACCELERATION_Z, i * 1000.0);
+			branch.setValue(FlightDataType.TYPE_POSITION_X, i * 10.0);
+			branch.setValue(FlightDataType.TYPE_POSITION_Y, i * 10.0);
+		}
+		return branch;
+	}
+
+	private static Color findRenderedColor(XYPlot plot, int dataIndex) {
+		for (int axis = 0; axis < plot.getDatasetCount(); axis++) {
+			XYDataset dataset = plot.getDataset(axis);
+			if (dataset == null) {
+				continue;
+			}
+			XYSeriesCollection seriesCollection = (XYSeriesCollection) dataset;
+			for (int series = 0; series < dataset.getSeriesCount(); series++) {
+				Plot.MetadataXYSeries metadata = (Plot.MetadataXYSeries) seriesCollection.getSeries(series);
+				if (metadata.getDataIdx() == dataIndex) {
+					return (Color) plot.getRenderer(axis).getSeriesPaint(series);
+				}
+			}
+		}
+		throw new AssertionError("No rendered series for data index " + dataIndex);
+	}
+
+	private static <T extends Component> List<T> findComponents(Container container, Class<T> type) {
+		List<T> matches = new ArrayList<>();
+		for (Component component : container.getComponents()) {
+			if (type.isInstance(component)) {
+				matches.add(type.cast(component));
+			}
+			if (component instanceof Container child) {
+				matches.addAll(findComponents(child, type));
+			}
+		}
+		return matches;
 	}
 
 	/**
