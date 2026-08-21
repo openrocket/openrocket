@@ -77,6 +77,8 @@ public final class LandingDispersionDialog extends JDialog {
 	private final JTextArea parameterDescription;
 	private final JPanel cards;
 	private final CardLayout cardLayout;
+	private final JPanel buttonCards;
+	private final CardLayout buttonCardLayout;
 	private final JProgressBar progressBar;
 	private final JLabel progressLabel;
 	private final JButton runButton;
@@ -107,6 +109,8 @@ public final class LandingDispersionDialog extends JDialog {
 		this.parameterTable = createParameterTable();
 		this.cardLayout = new CardLayout();
 		this.cards = new JPanel(cardLayout);
+		this.buttonCardLayout = new CardLayout();
+		this.buttonCards = new JPanel(buttonCardLayout);
 		this.progressBar = new JProgressBar(0, 100);
 		this.progressLabel = new JLabel(" ");
 		this.runButton = new JButton(trans.get("LandingDispersionDlg.but.run"));
@@ -126,19 +130,22 @@ public final class LandingDispersionDialog extends JDialog {
 		cards.add(createSetupPanel(), CARD_SETUP);
 		cards.add(createProgressPanel(), CARD_PROGRESS);
 
-		JPanel buttonPanel = new JPanel(new MigLayout("ins 0", "[grow][][button][button][button]"));
-		buttonPanel.setMinimumSize(new Dimension(0, 0));
-		buttonPanel.add(new JPanel(), "growx, wmin 0");
+		JPanel cancelPanel = new JPanel(new MigLayout("fillx, ins 0", "[grow][button][grow]"));
 		cancelButton.setVisible(false);
-		buttonPanel.add(cancelButton);
-		buttonPanel.add(plotCachedButton);
-		buttonPanel.add(closeButton, "tag close");
-		buttonPanel.add(runButton, "tag ok");
+		cancelPanel.add(cancelButton, "cell 1 0");
+		buttonCards.add(cancelPanel, CARD_PROGRESS);
+
+		JPanel setupButtonPanel = new JPanel(new MigLayout("fillx, ins 0", "[grow][button][button][button]"));
+		setupButtonPanel.add(plotCachedButton, "cell 1 0");
+		setupButtonPanel.add(closeButton, "tag close");
+		setupButtonPanel.add(runButton, "tag ok");
+		buttonCards.add(setupButtonPanel, CARD_SETUP);
+		buttonCardLayout.show(buttonCards, CARD_SETUP);
 
 		JPanel content = new JPanel(new BorderLayout(0, 10));
 		content.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 		content.add(cards, BorderLayout.CENTER);
-		content.add(buttonPanel, BorderLayout.SOUTH);
+		content.add(buttonCards, BorderLayout.SOUTH);
 		setContentPane(content);
 
 		runButton.addActionListener(event -> startAnalysis());
@@ -349,6 +356,7 @@ public final class LandingDispersionDialog extends JDialog {
 		progressLabel.setText(String.format(trans.get("LandingDispersionDlg.lbl.progress"), 0,
 				settings.getRunCount() + 1));
 		cardLayout.show(cards, CARD_PROGRESS);
+		buttonCardLayout.show(buttonCards, CARD_PROGRESS);
 		runButton.setVisible(false);
 		plotCachedButton.setVisible(false);
 		closeButton.setVisible(false);
@@ -509,6 +517,7 @@ public final class LandingDispersionDialog extends JDialog {
 	private void restoreSetupAfterFailure() {
 		worker = null;
 		cardLayout.show(cards, CARD_SETUP);
+		buttonCardLayout.show(buttonCards, CARD_SETUP);
 		runButton.setVisible(true);
 		closeButton.setVisible(true);
 		cancelButton.setVisible(false);
