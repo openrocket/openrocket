@@ -1,17 +1,17 @@
-# OpenRocket 🚀
-
-OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
+![OpenRocket banner](.github/banner.png)
 
 ![Build Status](https://github.com/openrocket/openrocket/actions/workflows/build.yml/badge.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
 [![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
 [![Read the Docs](https://readthedocs.org/projects/openrocket/badge/?version=latest)](https://openrocket.readthedocs.io/en/latest/)
-
 [![snap release](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
 ![Chocolatey release](https://img.shields.io/chocolatey/v/openrocket)
+[![Maven Central](https://maven-badges.sml.io/sonatype-central/info.openrocket/core/badge.svg)](https://maven-badges.sml.io/sonatype-central/info.openrocket/core/)
 [![Crowdin](https://badges.crowdin.net/openrocket/localized.svg)](https://crowdin.com/project/openrocket)
 [![Join our Discord server!](https://img.shields.io/discord/1073297014814691328?logo=discord)](https://discord.gg/qD2G5v2FAw)
+
+OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
 
 --------
 
@@ -33,7 +33,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 - **Realtime simulated altitude, velocity, and acceleration display**
 - **Staging and clustering support**
 - **Export to other simulation programs (RockSim, RASAero II)**
-- **Export component(s) to OBJ file for 3D printing**
+- **Export component(s) to OBJ file for 3D printing or SVG for laser cutting**
 - **Cross-platform (Java-based)**
 
 ... plus many more
@@ -45,6 +45,15 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 You can find the OpenRocket installers [here](https://openrocket.info/downloads.html).
 
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
+
+### Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+- Committers and reviewers: [OpenRocket organization members](https://github.com/orgs/openrocket/people)
+- Approvers: [OpenRocket organization owners](https://github.com/orgs/openrocket/people?query=role%3Aowner)
+
+OpenRocket does not collect telemetry or upload rocket designs. It makes network requests for user-facing functions such as checking for application and motor-database updates, opening online resources, and submitting a bug report when requested by the user. Update checks can be disabled in the application preferences.
 
 ## 📖 Documentation
 
@@ -58,7 +67,7 @@ The easiest way to get familiar with OpenRocket is to open one of our in-program
 
 ![Get started with the example designs](.github/getting-started.png)
 
-Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, ... Explore the impact of your changes and, most importantly, enjoy the process! 😊
+Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, and more. Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
 ---
 
@@ -137,6 +146,10 @@ You can view the full list of contributors [here](https://github.com/openrocket/
 - Sibo Van Gool
 - Mohamed Amin Elkebsi
 - Oleksandr Hladin
+- taotieren Simplified Chinese
+- Yüksel Dağhan Güven
+
+Want to help us translate OpenRocket into your language? Join our [Crowdin project](https://crowdin.com/project/openrocket) and contribute!
 
 ## 📜 License
 
@@ -146,4 +159,11 @@ OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licens
  
 ⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
 
-[![Star History Chart](https://api.star-history.com/svg?repos=openrocket/openrocket&type=Date)](https://star-history.com/#openrocket/openrocket&Date)
+
+<a href="https://www.star-history.com/?type=date&repos=openrocket%2Fopenrocket">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&theme=dark&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+ </picture>
+</a>

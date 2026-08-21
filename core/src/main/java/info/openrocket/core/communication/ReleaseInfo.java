@@ -1,14 +1,14 @@
 package info.openrocket.core.communication;
 
+import java.util.List;
+import java.util.Objects;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sun.istack.NotNull;
 import info.openrocket.core.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Class containing info about a GitHub release. All the info is stored in a
@@ -36,8 +36,7 @@ public class ReleaseInfo {
      * @return release name (e.g. "15.0.3")
      */
     public String getReleaseName() {
-        String name = this.obj.get("tag_name").toString(); // Release label is encapsulated in the 'tag_name'-tag
-        name = name.replaceAll("^\"+|\"+$", ""); // Remove double quotations in the beginning and end
+        String name = this.obj.get("tag_name").getAsString(); // Release label is encapsulated in the 'tag_name'-tag
 
         // Remove the 'release-' preamble of the name (example name: 'release-15.03')
         String preamble = "release-";
@@ -56,9 +55,7 @@ public class ReleaseInfo {
      *         release)
      */
     public String getReleaseNotes() {
-        String releaseNotes = this.obj.get("body").toString();
-        releaseNotes = releaseNotes.replaceAll("^\"+|\"+$", ""); // Remove double quotations in the beginning and end
-        return releaseNotes;
+        return this.obj.get("body").getAsString();
     }
 
     /**
@@ -68,9 +65,7 @@ public class ReleaseInfo {
      *         'https://github.com/openrocket/openrocket/releases/tag/release-15.03')
      */
     public String getReleaseURL() {
-        String releaseURL = this.obj.get("html_url").toString();
-        releaseURL = releaseURL.replaceAll("^\"+|\"+$", ""); // Remove double quotations in the beginning and end
-        return releaseURL;
+        return this.obj.get("html_url").getAsString();
     }
 
     /**
@@ -82,9 +77,9 @@ public class ReleaseInfo {
     public List<String> getAssetURLs() {
         List<String> assetURLs = new ArrayList<>();
 
-        JsonArray assets = this.obj.getJsonArray("assets");
+        JsonArray assets = this.obj.getAsJsonArray("assets");
         for (int i = 0; i < assets.size(); i++) {
-            String url = assets.getJsonObject(i).getString("browser_download_url");
+            String url = assets.get(i).getAsJsonObject().get("browser_download_url").getAsString();
             assetURLs.add(url);
         }
 

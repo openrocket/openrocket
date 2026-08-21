@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.WarningSet;
@@ -10,7 +11,6 @@ import info.openrocket.core.masscalc.CMAnalysisEntry;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
-import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -31,6 +31,7 @@ import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.components.StageSelector;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.main.ComponentIcons;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -83,15 +84,18 @@ import static info.openrocket.core.util.Chars.ALPHA;
 public class ComponentAnalysisGeneralPanel extends JPanel implements StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisDialog.class);
 	private static final Translator trans = Application.getTranslator();
+	private static final int COMPONENT_HIERARCHY_INDENT = 12;
 
 
 	private final FlightConditions conditions;
 	private final Rocket rocket;
 	private final DoubleModel theta, aoa, mach, roll;
 	private final JToggleButton worstToggle;
+	private final JTabbedPane analysisTabbedPane;
 	private boolean fakeChange = false;
 	private final AerodynamicCalculator aerodynamicCalculator;
 	private final CAParameters parameters;
+	private Settings closedSettings;
 
 	private final ColumnTableModel longitudeStabilityTableModel;
 	private final ColumnTableModel dragTableModel;
@@ -106,6 +110,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 	public ComponentAnalysisGeneralPanel(Window parent, final RocketPanel rocketPanel) {
+		this(parent, rocketPanel, null);
+	}
+
+	public ComponentAnalysisGeneralPanel(Window parent, final RocketPanel rocketPanel, Settings initialSettings) {
 		super(new MigLayout("fill", "[120lp][70lp][50lp][]"));
 
 		this.rocket = rocketPanel.getDocument().getRocket();
@@ -115,12 +123,24 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		// Create CAParameters
 		this.parameters = new CAParameters(rocket, rocketPanel.getFigure().getRotation());
-		this.parameters.addListener(rocketPanel);
+		if (initialSettings != null) {
+			parameters.setTheta(initialSettings.theta);
+			parameters.setAOA(initialSettings.aoa);
+			parameters.setMach(initialSettings.mach);
+			parameters.setRollRate(initialSettings.rollRate);
+		}
+		parameters.addListener(rocketPanel);
 
 		this.aoa = new DoubleModel(parameters, "AOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
-		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
+		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0, 6.0);
 		this.theta = new DoubleModel(parameters, "Theta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		this.roll = new DoubleModel(parameters, "RollRate", UnitGroup.UNITS_ROLL);
+		if (initialSettings != null) {
+			theta.setCurrentUnit(initialSettings.thetaUnit);
+			aoa.setCurrentUnit(initialSettings.aoaUnit);
+			mach.setCurrentUnit(initialSettings.machUnit);
+			roll.setCurrentUnit(initialSettings.rollRateUnit);
+		}
 
 		//// Wind direction:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.winddir")));
@@ -134,7 +154,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.add(slider, "growx, split 2");
 		//// Worst button
 		this.worstToggle = new JToggleButton(trans.get("ComponentAnalysisGeneralTab.ToggleBut.worst"));
-		this.worstToggle.setSelected(true);
+		this.worstToggle.setSelected(initialSettings == null || initialSettings.worstSelected);
 		this.worstToggle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -203,15 +223,16 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		// Tabbed pane
 
-		JTabbedPane tabbedPane = new JTabbedPane();
-		this.add(tabbedPane, "spanx, growx, growy, pushy");
+		this.analysisTabbedPane = new JTabbedPane();
+		this.add(analysisTabbedPane, "spanx, growx, growy, pushy");
 
 
 		// Create the Longitudinal Stability (CM vs CP) data table
 		this.longitudeStabilityTableModel = new CAColumnTableModel(
 
 				//// Component
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component")) {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component"),
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component.ttip")) {
 					@Override
 					public Object getValueAt(int row) {
 						Object c = stabData.get(row).name;
@@ -224,8 +245,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return 200;
 					}
 				},
-				// would be per-instance mass
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.EachMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
+				// Mass represented by one instance of this row.
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.EachMass") + " (" +
+						UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.EachMass.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
 
 					@Override
@@ -233,7 +256,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).eachMass);
 					}
 				},
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.AllMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.AllMass") + " (" +
+						UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.AllMass.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
 
 					@Override
@@ -241,7 +266,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).cm.getWeight());
 					}
 				},
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG") + " (" +
+						UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 
 					@Override
@@ -249,7 +276,9 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).cm.getX());
 					}
 				},
-				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
+				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP") + " (" +
+						UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP.ttip")) {
 					final private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 
 					@Override
@@ -257,7 +286,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return unit.toUnit(stabData.get(row).cpx);
 					}
 				},
-				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
+				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>",
+						trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CNa.ttip")) {
 					@Override
 					public Object getValueAt(int row) {
 						return NOUNIT.toUnit(stabData.get(row).cna);
@@ -284,6 +314,11 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				Object source = stabData.get(row).source;
 				return source instanceof RocketComponent ? (RocketComponent) source : null;
 			}
+
+			@Override
+			public int getHierarchyDepthForRow(int row) {
+				return stabData.get(row).hierarchyDepth;
+			}
 		};
 
 		final JTable stabilityTable = new ColumnTable(longitudeStabilityTableModel);
@@ -296,7 +331,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Stability and Stability information
-		tabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.TabStability"),
+		analysisTabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.TabStability"),
 				null, scrollpane, trans.get("ComponentAnalysisGeneralTab.TabStability.ttip"));
 
 
@@ -385,7 +420,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Drag characteristics and Drag characteristics tooltip
-		tabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.dragTabchar"), null, scrollpane,
+		analysisTabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.dragTabchar"), null, scrollpane,
 				trans.get("ComponentAnalysisGeneralTab.dragTabchar.ttip"));
 
 
@@ -454,8 +489,12 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Roll dynamics and Roll dynamics tooltip
-		tabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.rollTableModel"), null, scrollpane,
+		analysisTabbedPane.addTab(trans.get("ComponentAnalysisGeneralTab.rollTableModel"), null, scrollpane,
 				trans.get("ComponentAnalysisGeneralTab.rollTableModel.ttip"));
+		if (initialSettings != null && initialSettings.selectedTab >= 0 &&
+				initialSettings.selectedTab < analysisTabbedPane.getTabCount()) {
+			analysisTabbedPane.setSelectedIndex(initialSettings.selectedTab);
+		}
 
 
 		//// Reference length:
@@ -504,23 +543,18 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		dragTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, dragTable));
 		rollTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, rollTable));
 
-		// Remove listeners when closing window
+		// Remove listeners when closing the window, but keep the current analysis
+		// conditions in the design view so reopening starts from the same state.
 		parent.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				theta.setValue(parameters.getInitialTheta());
-
-				//System.out.println("Closing method called: " + this);
+				closedSettings = captureSettings();
+				parameters.removeListener(rocketPanel);
 				rocket.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				mach.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				theta.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				aoa.removeChangeListener(ComponentAnalysisGeneralPanel.this);
 				roll.removeChangeListener(ComponentAnalysisGeneralPanel.this);
-				//System.out.println("SETTING NAN VALUES");
-				rocketPanel.setCPAOA(Double.NaN);
-				rocketPanel.setCPTheta(Double.NaN);
-				rocketPanel.setCPMach(Double.NaN);
-				rocketPanel.setCPRoll(Double.NaN);
 			}
 		});
 	}
@@ -552,6 +586,46 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 	public Rocket getRocket() {
 		return rocket;
+	}
+
+	/**
+	 * Return the user-adjustable state which should be restored when the dialog is reopened.
+	 */
+	Settings getSettings() {
+		return closedSettings != null ? closedSettings : captureSettings();
+	}
+
+	private Settings captureSettings() {
+		return new Settings(parameters.getTheta(), parameters.getAOA(), parameters.getMach(),
+				parameters.getRollRate(), theta.getCurrentUnit(), aoa.getCurrentUnit(), mach.getCurrentUnit(),
+				roll.getCurrentUnit(), worstToggle.isSelected(), analysisTabbedPane.getSelectedIndex());
+	}
+
+	static final class Settings {
+		private final double theta;
+		private final double aoa;
+		private final double mach;
+		private final double rollRate;
+		private final Unit thetaUnit;
+		private final Unit aoaUnit;
+		private final Unit machUnit;
+		private final Unit rollRateUnit;
+		private final boolean worstSelected;
+		private final int selectedTab;
+
+		private Settings(double theta, double aoa, double mach, double rollRate, Unit thetaUnit,
+						 Unit aoaUnit, Unit machUnit, Unit rollRateUnit, boolean worstSelected, int selectedTab) {
+			this.theta = theta;
+			this.aoa = aoa;
+			this.mach = mach;
+			this.rollRate = rollRate;
+			this.thetaUnit = thetaUnit;
+			this.aoaUnit = aoaUnit;
+			this.machUnit = machUnit;
+			this.rollRateUnit = rollRateUnit;
+			this.worstSelected = worstSelected;
+			this.selectedTab = selectedTab;
+		}
 	}
 
 	/**
@@ -587,14 +661,31 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		dragData.clear();
 		rollData.clear();
 
-		for (final RocketComponent comp: configuration.getAllComponents()) {
+		for (Object source : getStabilityTableSources(configuration)) {
+			if (source instanceof MotorConfiguration motorConfig) {
+				CMAnalysisEntry cmEntry = cmMap.get(motorConfig.getMotor().getDesignation().hashCode());
+				if (cmEntry == null) {
+					continue;
+				}
+
+				RocketComponent mount = (RocketComponent) motorConfig.getMount();
+				LongitudinalStabilityRow motorRow = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source,
+						getComponentHierarchyDepth(mount) + 1);
+				motorRow.eachMass = cmEntry.eachMass;
+				motorRow.cm = cmEntry.totalCM;
+				motorRow.cpx = 0.0;
+				motorRow.cna = 0.0;
+				stabData.add(motorRow);
+				continue;
+			}
+
+			final RocketComponent comp = (RocketComponent) source;
 			CMAnalysisEntry cmEntry = cmMap.get(comp.hashCode());
 			if (null == cmEntry) {
 				log.warn("Could not find massData entry for component: " + comp.getName());
 				continue;
 			}
-
-			if ((comp instanceof ComponentAssembly) && !(comp instanceof Rocket)){
+			if (!isComponentSupportedInStabilityTable(comp)) {
 				continue;
 			}
 
@@ -602,7 +693,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			if (cmEntry.source instanceof Rocket) {
 				name = trans.get("ComponentAnalysisGeneralTab.TOTAL");
 			}
-			LongitudinalStabilityRow row = new LongitudinalStabilityRow(name, cmEntry.source);
+			LongitudinalStabilityRow row = new LongitudinalStabilityRow(name, cmEntry.source,
+					getComponentHierarchyDepth(comp));
 			stabData.add(row);
 
 			row.source = cmEntry.source;
@@ -617,7 +709,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			}
 
 			if (forces.getCP() != null) {
-				if ((comp instanceof Rocket) &&
+				if ((comp instanceof ComponentAssembly) &&
 						(forces.getCP().getWeight() < MathUtil.EPSILON)) {
 					row.cpx = Double.NaN;
 				} else {
@@ -626,11 +718,13 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				row.cna = forces.getCP().getWeight();
 			}
 
-			if (!Double.isNaN(forces.getCD())) {
+			// Include aerodynamic components and every aggregation level with calculated drag data.
+			if (!Double.isNaN(forces.getCD()) && isComponentSupportedInDragTable(comp)) {
 				dragData.add(forces);
 			}
 
-			if (comp instanceof FinSet) {
+			// Roll forces are available both per fin set and as assembly totals.
+			if (isComponentSupportedInRollTable(comp)) {
 				rollData.add(forces);
 			}
 			// // We _would_ check this, except TubeFinSet doesn't implement cant angles... so they can't impart any roll torque
@@ -638,22 +732,6 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			// else if(comp instanceof TubeFinSet){
 			// 	rollData.add(forces)
 			// }
-		}
-
-		for (final MotorConfiguration config: configuration.getActiveMotors()) {
-			CMAnalysisEntry cmEntry = cmMap.get(config.getMotor().getDesignation().hashCode());
-			if (null == cmEntry) {
-				continue;
-			}
-
-			LongitudinalStabilityRow row = new LongitudinalStabilityRow(cmEntry.name, cmEntry.source);
-			stabData.add(row);
-
-			row.source = cmEntry.source;
-			row.eachMass = cmEntry.eachMass;
-			row.cm = cmEntry.totalCM;
-			row.cpx = 0.0;
-			row.cna = 0.0;
 		}
 
 		// Set warnings
@@ -667,6 +745,65 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		longitudeStabilityTableModel.fireTableDataChanged();
 		dragTableModel.fireTableDataChanged();
 		rollTableModel.fireTableDataChanged();
+	}
+
+	/**
+	 * Returns whether a component has a meaningful row in the combined mass and stability table.
+	 * Physical components contribute mass data, while assemblies additionally require aggregate stability data.
+	 */
+	static boolean isComponentSupportedInStabilityTable(RocketComponent component) {
+		return !(component instanceof ComponentAssembly) ||
+				CADataType.isComponentRelevantForType(component, CADataType.CNa);
+	}
+
+	/**
+	 * Returns whether drag data is calculated at the component's aggregation level.
+	 */
+	static boolean isComponentSupportedInDragTable(RocketComponent component) {
+		return CADataType.isComponentRelevantForType(component, CADataType.TOTAL_CD);
+	}
+
+	/**
+	 * Returns whether roll data is calculated at the component's aggregation level.
+	 */
+	static boolean isComponentSupportedInRollTable(RocketComponent component) {
+		return CADataType.isComponentRelevantForType(component, CADataType.TOTAL_ROLL_COEFFICIENT);
+	}
+
+	/**
+	 * Returns components in tree order with each active motor directly after its mount.
+	 */
+	static List<Object> getStabilityTableSources(FlightConfiguration configuration) {
+		List<Object> sources = new ArrayList<>();
+		for (RocketComponent component : configuration.getAllComponents()) {
+			sources.add(component);
+			for (MotorConfiguration motorConfig : configuration.getActiveMotors()) {
+				if (motorConfig.getMount() == component) {
+					sources.add(motorConfig);
+				}
+			}
+		}
+		return sources;
+	}
+
+	/**
+	 * Returns the number of ancestors used to indent a component row.
+	 */
+	static int getComponentHierarchyDepth(RocketComponent component) {
+		int depth = 0;
+		RocketComponent ancestor = component.getParent();
+		while (ancestor != null) {
+			depth++;
+			ancestor = ancestor.getParent();
+		}
+		return depth;
+	}
+
+	/**
+	 * Returns the full, untruncated value for component-column tooltips.
+	 */
+	static String getComponentCellToolTip(Object value, int column) {
+		return column == 0 && value != null ? value.toString() : null;
 	}
 
 	/**
@@ -701,14 +838,16 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		}
 
 		public static void updateColors() {
-			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
-			foregroundColor = GUIUtil.getUITheme().getTextColor();
+			backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+			foregroundColor = UITheme.getColor(UITheme.Keys.TEXT);
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
-													   boolean isSelected, boolean hasFocus, int row, int column) {
+											   boolean isSelected, boolean hasFocus, int row, int column) {
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			label.setIcon(null);
+			label.setToolTipText(getComponentCellToolTip(value, column));
 
 			if (value instanceof Double) {
 				label.setText(formatDouble((Double) value));
@@ -723,6 +862,18 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 			if ((row < 0) || (row >= data.size()))
 				return label;
+
+			// Use the same component-type icons as the component tree in the name column.
+			if (column == 0 && table.getModel() instanceof CAColumnTableModel model) {
+				int modelRow = table.convertRowIndexToModel(row);
+				int hierarchyDepth = model.getHierarchyDepthForRow(modelRow);
+				label.setBorder(BorderFactory.createCompoundBorder(label.getBorder(),
+						BorderFactory.createEmptyBorder(0, hierarchyDepth * COMPONENT_HIERARCHY_INDENT, 0, 0)));
+				RocketComponent component = model.getComponentForRow(modelRow);
+				if (component != null) {
+					label.setIcon(ComponentIcons.getSmallIcon(component));
+				}
+			}
 
 			// Set selected color
 			if (isSelected) {
@@ -892,10 +1043,12 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		public CoordinateIF cm;
 		public double cpx;
 		public double cna;
+		public int hierarchyDepth;
 
-		public LongitudinalStabilityRow(final String _name, final Object _source){
+		public LongitudinalStabilityRow(final String _name, final Object _source, final int _hierarchyDepth){
 			name = _name;
 			source = _source;
+			hierarchyDepth = _hierarchyDepth;
 			eachMass = Double.NaN;
 			cm = Coordinate.NaN;
 			cpx = Double.NaN;
@@ -910,6 +1063,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		public RocketComponent getComponentForRow(int row) {
 			throw new RuntimeException("Not implemented");
+		}
+
+		public int getHierarchyDepthForRow(int row) {
+			return getComponentHierarchyDepth(getComponentForRow(row));
 		}
 	}
 

@@ -20,6 +20,7 @@ import java.util.EventObject;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -107,7 +108,7 @@ public class ScaleScrollPane extends JScrollPane
 		this.setRowHeaderView(verticalRuler);
 
 		unitSelector = new UnitSelector(rulerUnit);
-		unitSelector.setFont(new Font("SansSerif", Font.PLAIN, 8));
+		unitSelector.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 8.0f, 0.0f));
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, unitSelector);
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
@@ -141,7 +142,7 @@ public class ScaleScrollPane extends JScrollPane
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
 	}
 	
 	public AbstractScaleFigure getFigure() {
@@ -303,6 +304,10 @@ public class ScaleScrollPane extends JScrollPane
 		horizontalRuler.updateSize();
 		verticalRuler.updateSize();
 		figureRescaled = false;
+		
+		// Trigger a repaint after resize is complete to ensure getVisibleRect() returns correct values
+		// This fixes issues where paint() is called before the visible rectangle is properly updated
+		SwingUtilities.invokeLater(figure::repaint);
 	}
 
 	@Override
@@ -445,9 +450,9 @@ public class ScaleScrollPane extends JScrollPane
 			if (t.major) {
 				str = rulerUnit.getCurrentUnit().toString(t.value);
 				if (t.notable)
-					g.setFont(new Font("SansSerif", Font.BOLD, 9));
+					g.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 9.0f, 0.0f));
 				else
-					g.setFont(new Font("SansSerif", Font.PLAIN, 9));
+					g.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 9.0f, 0.0f));
 			}
 			
 			// Draw tick & text

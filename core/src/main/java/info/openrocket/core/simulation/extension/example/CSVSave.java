@@ -2,6 +2,7 @@ package info.openrocket.core.simulation.extension.example;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.lang.Exception;
 import java.util.Iterator;
 
@@ -268,7 +269,7 @@ public class CSVSave extends AbstractSimulationExtension {
 				} while (!file.createNewFile());
 				log.info("CSV file name is " + file.getName());
 					
-				output = new PrintStream(file);
+				output = new PrintStream(file, StandardCharsets.UTF_8);
 				
 				// Write column headers
 				final Types[] types = Types.values();

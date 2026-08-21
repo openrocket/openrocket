@@ -60,7 +60,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 
 		JPanel exportPanel = new JPanel(new MigLayout("ins 0, fill"));
 
-		boolean addExtras = createExtraComponent(types[0], 0) != null;
+		boolean addExtras = hasExtraComponent();
 		JPanel contentPanel = new JPanel(new GridBagLayout());
 		contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		GridBagConstraints c = new GridBagConstraints();
@@ -143,7 +143,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	}
 
 	public static void updateColors() {
-		ALTERNATE_ROW_COLOR = GUIUtil.getUITheme().getRowBackgroundLighterColor();
+		ALTERNATE_ROW_COLOR = UITheme.getColor(UITheme.Keys.ROW_LIGHTER);
 	}
 
 	private void addHeaderRowLabel(JPanel contentPanel, String lblKey, GridBagConstraints c, int x) {
@@ -171,8 +171,24 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		return "CSVExportPanel.lbl.Extra";
 	}
 
+	/**
+	 * Return whether every data row includes an extra component.
+	 * Subclasses with stateful extra-component creation should override this method.
+	 */
+	protected boolean hasExtraComponent() {
+		return createExtraComponent(types[0], 0) != null;
+	}
+
 	protected Component createExtraComponent(T type, int index) {
 		return null;
+	}
+
+	/**
+	 * Restore a unit selection in both the export model and its selector.
+	 */
+	protected void setSelectedUnit(int index, Unit unit) {
+		units[index] = unit;
+		dataTypeRows.get(index).unitSelector.setSelectedUnit(unit);
 	}
 
 	protected class DataTypeRow {

@@ -16,12 +16,16 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.core.util.LineStyle;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.MassObject;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.Icon;
 import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -29,19 +33,69 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.font.TextAttribute;
+import java.awt.Window;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
+import java.lang.ref.WeakReference;
 
 public class UITheme {
     private static final Translator trans = Application.getTranslator();
     private static final Logger log = LoggerFactory.getLogger(UITheme.class);
 
     private static final Map<String, Float> fontOffsets = new HashMap<>();
+
+    public static final class Keys {
+        public static final String BACKGROUND = "OR.colors.background";
+        public static final String BORDER = "OR.colors.border";
+        public static final String TEXT = "OR.colors.text";
+        public static final String TEXT_DIM = "OR.colors.text.dim";
+        public static final String TEXT_DISABLED = "OR.colors.text.disabled";
+        public static final String TEXT_SELECTION_FOREGROUND = "OR.colors.textSelection.foreground";
+        public static final String TEXT_SELECTION_BACKGROUND = "OR.colors.textSelection.background";
+        public static final String INFO = "OR.colors.info";
+        public static final String WARNING = "OR.colors.warning";
+        public static final String ERROR = "OR.colors.error";
+        public static final String DARK_ERROR = "OR.colors.darkError";
+        public static final String ROW_LIGHTER = "OR.colors.row.lighter";
+        public static final String ROW_DARKER = "OR.colors.row.darker";
+        public static final String TABLE_FLASH = "OR.colors.table.flash";
+        public static final String TABLE_SELECTION = "OR.colors.table.selection";
+        public static final String FLIGHTDATA_TEXT_ACTIVE = "OR.colors.flightData.textActive";
+        public static final String FLIGHTDATA_TEXT_INACTIVE = "OR.colors.flightData.textInactive";
+        public static final String MULTI_COMP_EDIT = "OR.colors.multiCompEdit";
+        public static final String MOTOR_BORDER = "OR.colors.motor.border";
+        public static final String MOTOR_FILL = "OR.colors.motor.fill";
+        public static final String CG = "OR.colors.cg";
+        public static final String CP = "OR.colors.cp";
+        public static final String URL = "OR.colors.url";
+        public static final String COMPONENT_TREE_BACKGROUND = "OR.colors.componentTree.background";
+        public static final String COMPONENT_TREE_FOREGROUND = "OR.colors.componentTree.foreground";
+        public static final String VISIBILITY_HIDDEN_FOREGROUND = "OR.colors.visibility.hidden.foreground";
+        public static final String FIN_GRID_MAJOR = "OR.colors.fin.gridMajor";
+        public static final String FIN_GRID_MINOR = "OR.colors.fin.gridMinor";
+        public static final String FIN_POINT = "OR.colors.fin.point";
+        public static final String FIN_SELECTED_POINT = "OR.colors.fin.selectedPoint";
+        public static final String FIN_BODY_LINE = "OR.colors.fin.bodyLine";
+        public static final String FIN_SNAP_HIGHLIGHT = "OR.colors.fin.snapHighlight";
+
+        public static final String DEFAULT_BODY_COMPONENT_COLOR = "OR.defaults.component.body";
+        public static final String DEFAULT_TUBE_FIN_SET_COLOR = "OR.defaults.component.tubeFinSet";
+        public static final String DEFAULT_FIN_SET_COLOR = "OR.defaults.component.finSet";
+        public static final String DEFAULT_LAUNCH_LUG_COLOR = "OR.defaults.component.launchLug";
+        public static final String DEFAULT_RAIL_BUTTON_COLOR = "OR.defaults.component.railButton";
+        public static final String DEFAULT_INTERNAL_COMPONENT_COLOR = "OR.defaults.component.internal";
+        public static final String DEFAULT_MASS_OBJECT_COLOR = "OR.defaults.component.massObject";
+        public static final String DEFAULT_RECOVERY_DEVICE_COLOR = "OR.defaults.component.recoveryDevice";
+        public static final String DEFAULT_POD_SET_COLOR = "OR.defaults.component.podSet";
+        public static final String DEFAULT_PARALLEL_STAGE_COLOR = "OR.defaults.component.parallelStage";
+        public static final String DEFAULT_LINE_STYLE_GENERIC = "OR.defaults.lineStyle.generic";
+        public static final String DEFAULT_LINE_STYLE_MASS_OBJECT = "OR.defaults.lineStyle.massObject";
+    }
 
     static {
         fontOffsets.put("MenuBar.font", 1.0f);
@@ -112,6 +166,24 @@ public class UITheme {
 
         Color getCGColor();
         Color getCPColor();
+        Color getCaliperColor();
+        Color getCaliperSnapHighlightColor();
+        Color getCaliperValueBackgroundColor();
+        Color getCaliperValueForegroundColor();
+
+        /**
+         * Label color for the small diamond icons in the ribbon (the "1" / "2" numerals).
+         * Defaults to black or white chosen by the fill's relative luminance, matching the
+         * logic used for the actual caliper handle labels in the figure.
+         */
+        default Color getCaliperDiamondLabelColor() {
+            Color c = getCaliperColor();
+            Color fill = new Color(Math.min(255, c.getRed() + 50),
+                    Math.min(255, c.getGreen() + 50),
+                    Math.min(255, c.getBlue() + 50));
+            double lum = 0.2126 * fill.getRed() + 0.7152 * fill.getGreen() + 0.0722 * fill.getBlue();
+            return lum >= 128 ? Color.BLACK : Color.WHITE;
+        }
 
         Color getURLColor();
 
@@ -127,18 +199,6 @@ public class UITheme {
         Color getFinPointSnapHighlightColor();
 
 		Color getStatusColor(Status status);
-
-        Icon getMassOverrideIcon();
-        Icon getMassOverrideSubcomponentIcon();
-        Icon getCGOverrideIcon();
-        Icon getCGOverrideSubcomponentIcon();
-        Icon getCDOverrideIcon();
-        Icon getCDOverrideSubcomponentIcon();
-
-        Icon getVisibilityHiddenIcon();
-        Icon getVisibilityShowingIcon();
-
-        Icon getDisabledIcon();
 
         Border getBorder();
         Border getMarginBorder();
@@ -177,23 +237,46 @@ public class UITheme {
         String getComponentIconMassRecoveryHardware();
         String getComponentIconMassTracker();
 
-        // Static list of listeners
-        static List<Runnable> themeChangeListeners = new ArrayList<>();
+        // Static list of listeners (weak to avoid leaks)
+        static List<WeakReference<Runnable>> themeChangeListeners = new ArrayList<>();
 
-        // Static method to add a listener
+        /**
+         * Add a weak theme-change listener.
+         *
+         * <p>Callers using a capturing lambda or instance method reference must keep a strong
+         * reference to the runnable for as long as they expect to receive notifications.</p>
+         *
+         * @param listener listener to invoke after a theme change
+         */
         static void addUIThemeChangeListener(Runnable listener) {
-            // TODO: implement this once you have implemented invalidation for each listener so that we don't get memory leaks
-            //themeChangeListeners.add(listener);
+            if (listener == null) {
+                return;
+            }
+            themeChangeListeners.add(new WeakReference<>(listener));
         }
 
         // Static method to remove a listener
         static void removeUIThemeChangeListener(Runnable listener) {
-            themeChangeListeners.remove(listener);
+            if (listener == null) {
+                return;
+            }
+            themeChangeListeners.removeIf(ref -> {
+                Runnable r = ref.get();
+                return r == null || r == listener;
+            });
         }
 
         // Static method to notify all listeners
         static void notifyUIThemeChangeListeners() {
-            for (Runnable listener : themeChangeListeners) {
+            ((SwingPreferences) Application.getPreferences()).updateColors();
+            Iterator<WeakReference<Runnable>> it = themeChangeListeners.iterator();
+            while (it.hasNext()) {
+                WeakReference<Runnable> ref = it.next();
+                Runnable listener = ref.get();
+                if (listener == null) {
+                    it.remove();
+                    continue;
+                }
                 listener.run();
             }
         }
@@ -256,248 +339,223 @@ public class UITheme {
 
             @Override
             public Color getBackgroundColor() {
-                return Color.WHITE;
+                return themedColor("OR.colors.background", Color.WHITE);
             }
 
             @Override
             public Color getBorderColor() {
-                return Color.BLACK;
+                return themedColor("OR.colors.border", Color.BLACK);
             }
 
             @Override
             public Color getTextColor() {
-                return Color.BLACK;
+                return themedColor("OR.colors.text", Color.BLACK);
             }
 
             @Override
             public Color getDimTextColor() {
-                return Color.GRAY;
+                return themedColor("OR.colors.text.dim", Color.GRAY);
             }
 
             @Override
             public Color getDisabledTextColor() {
-                return getDimTextColor();
+                return themedColor("OR.colors.text.disabled", getDimTextColor());
             }
 
             @Override
             public Color getTextSelectionForegroundColor() {
-                return UIManager.getColor("Tree.selectionForeground");
+                return themedColor("OR.colors.textSelection.foreground", UIManager.getColor("Tree.selectionForeground"));
             }
 
             @Override
             public Color getTextSelectionBackgroundColor() {
-                return UIManager.getColor("Tree.selectionBackground");
+                return themedColor("OR.colors.textSelection.background", UIManager.getColor("Tree.selectionBackground"));
             }
 
             @Override
             public Color getInformationColor() {
-                return new Color(45, 45, 189);
+                return themedColor("OR.colors.info", new Color(45, 45, 189));
             }
 
             @Override
             public Color getWarningColor() {
-                return new Color(217, 152, 0);
+                return themedColor("OR.colors.warning", new Color(217, 152, 0));
             }
 
             @Override
             public Color getErrorColor() {
-                return Color.RED;
+                return themedColor("OR.colors.error", Color.RED);
             }
 
             @Override
             public Color getDarkErrorColor() {
-            	return new Color(200,0,0);
+            	return themedColor("OR.colors.darkError", new Color(200,0,0));
             }
 
             @Override
             public Color getRowBackgroundLighterColor() {
-                return Color.WHITE;
+                return themedColor("OR.colors.row.lighter", Color.WHITE);
             }
 
             @Override
             public Color getRowBackgroundDarkerColor() {
-                return new Color(245, 245, 245);
+                return themedColor("OR.colors.row.darker", new Color(245, 245, 245));
             }
 
             @Override
             public Color getTableRowFlashColor() {
-                return new Color(255, 255, 204);
+                return themedColor("OR.colors.table.flash", new Color(255, 255, 204));
             }
 
             @Override
             public Color getTableRowSelectionColor() {
-                return new Color(217, 233, 255);
+                return themedColor("OR.colors.table.selection", new Color(217, 233, 255));
             }
 
             @Override
             public Color getFlightDataTextActiveColor() {
-            	return new Color(0,0,127);
+            	return themedColor("OR.colors.flightData.textActive", new Color(0,0,127));
             }
 
             @Override
             public Color getFlightDataTextInactiveColor() {
-            	return new Color(0,0,127,127);
+            	return themedColor("OR.colors.flightData.textInactive", new Color(0,0,127,127));
             }
 
             @Override
             public Color getMultiCompEditColor() {
-                return new Color(170, 0, 100);
+                return themedColor("OR.colors.multiCompEdit", new Color(170, 0, 100));
             }
 
             @Override
             public String getDefaultBodyComponentColor() {
-                return "0,0,240";
+                return themedString("OR.defaults.component.body", "0,0,240");
             }
             @Override
             public String getDefaultTubeFinSetColor() {
-                return "0,0,200";
+                return themedString("OR.defaults.component.tubeFinSet", "0,0,200");
             }
             @Override
             public String getDefaultFinSetColor() {
-                return "0,0,200";
+                return themedString("OR.defaults.component.finSet", "0,0,200");
             }
             @Override
             public String getDefaultLaunchLugColor() {
-                return "0,0,180";
+                return themedString("OR.defaults.component.launchLug", "0,0,180");
             }
             @Override
             public String getDefaultRailButtonColor() {
-                return "0,0,180";
+                return themedString("OR.defaults.component.railButton", "0,0,180");
             }
             @Override
             public String getDefaultInternalComponentColor() {
-                return "170,0,100";
+                return themedString("OR.defaults.component.internal", "170,0,100");
             }
             @Override
             public String getDefaultMassObjectColor() {
-                return "0,0,0";
+                return themedString("OR.defaults.component.massObject", "0,0,0");
             }
             @Override
             public String getDefaultRecoveryDeviceColor() {
-                return "255,0,0";
+                return themedString("OR.defaults.component.recoveryDevice", "255,0,0");
             }
             @Override
             public String getDefaultPodSetColor() {
-                return "160,160,215";
+                return themedString("OR.defaults.component.podSet", "160,160,215");
             }
             @Override
             public String getDefaultParallelStageColor() {
-                return "198,163,184";
+                return themedString("OR.defaults.component.parallelStage", "198,163,184");
             }
 
             @Override
             public Color getMotorBorderColor() {
-                return new Color(0, 0, 0, 200);
+                return themedColor("OR.colors.motor.border", new Color(0, 0, 0, 200));
             }
 
             @Override
             public Color getMotorFillColor() {
-                return new Color(0, 0, 0, 100);
+                return themedColor("OR.colors.motor.fill", new Color(0, 0, 0, 100));
             }
 
             @Override
             public Color getCGColor() {
-                return Color.BLUE;
+                return themedColor("OR.colors.cg", Color.BLUE);
             }
 
             @Override
             public Color getCPColor() {
-                return Color.RED;
+                return themedColor("OR.colors.cp", Color.RED);
+            }
+
+            @Override
+            public Color getCaliperColor() {
+                return new Color(210, 31, 0);
+            }
+
+            @Override
+            public Color getCaliperSnapHighlightColor() {
+                return new Color(255, 41, 98);
+            }
+
+            @Override
+            public Color getCaliperValueBackgroundColor() {
+                return new Color(255, 243, 225);
+            }
+
+            @Override
+            public Color getCaliperValueForegroundColor() {
+                return new Color(160, 20, 0);
             }
 
             @Override
             public Color getURLColor() {
-                return Color.BLUE;
+                return themedColor("OR.colors.url", Color.BLUE);
             }
 
             @Override
             public Color getComponentTreeBackgroundColor() {
-                return UIManager.getColor("Tree.textBackground");
+                return themedColor("OR.colors.componentTree.background", UIManager.getColor("Tree.textBackground"));
             }
 
             @Override
             public Color getComponentTreeForegroundColor() {
-                return UIManager.getColor("Tree.textForeground");
+                return themedColor("OR.colors.componentTree.foreground", UIManager.getColor("Tree.textForeground"));
             }
 
             @Override
             public Color getVisibilityHiddenForegroundColor() {
-                return UIManager.getColor("Tree.textForeground.hidden.light");
+                return themedColor("OR.colors.visibility.hidden.foreground", UIManager.getColor("Tree.textForeground.hidden.light"));
             }
 
             @Override
             public Color getFinPointGridMajorLineColor() {
-                return new Color( 0, 0, 255, 80);
+                return themedColor("OR.colors.fin.gridMajor", new Color( 0, 0, 255, 80));
             }
 
             @Override
             public Color getFinPointGridMinorLineColor() {
-                return new Color( 0, 0, 255, 30);
+                return themedColor("OR.colors.fin.gridMinor", new Color( 0, 0, 255, 30));
             }
 
             @Override
             public Color getFinPointPointColor() {
-                return new Color(200, 0, 0, 255);
+                return themedColor("OR.colors.fin.point", new Color(200, 0, 0, 255));
             }
 
             @Override
             public Color getFinPointSelectedPointColor() {
-                return new Color(200, 0, 0, 255);
+                return themedColor("OR.colors.fin.selectedPoint", new Color(200, 0, 0, 255));
             }
 
             @Override
             public Color getFinPointBodyLineColor() {
-                return Color.BLACK;
+                return themedColor("OR.colors.fin.bodyLine", Color.BLACK);
             }
 
             @Override
             public Color getFinPointSnapHighlightColor() {
-                return Color.RED;
-            }
-
-            @Override
-            public Icon getMassOverrideIcon() {
-                return Icons.MASS_OVERRIDE_LIGHT;
-            }
-
-            @Override
-            public Icon getMassOverrideSubcomponentIcon() {
-                return Icons.MASS_OVERRIDE_SUBCOMPONENT_LIGHT;
-            }
-
-            @Override
-            public Icon getCGOverrideIcon() {
-                return Icons.CG_OVERRIDE_LIGHT;
-            }
-
-            @Override
-            public Icon getCGOverrideSubcomponentIcon() {
-                return Icons.CG_OVERRIDE_SUBCOMPONENT_LIGHT;
-            }
-
-            @Override
-            public Icon getCDOverrideIcon() {
-                return Icons.CD_OVERRIDE_LIGHT;
-            }
-
-            @Override
-            public Icon getCDOverrideSubcomponentIcon() {
-                return Icons.CD_OVERRIDE_SUBCOMPONENT_LIGHT;
-            }
-
-            @Override
-            public Icon getVisibilityHiddenIcon() {
-                return Icons.COMPONENT_HIDDEN_LIGHT;
-            }
-
-            @Override
-            public Icon getVisibilityShowingIcon() {
-                return Icons.COMPONENT_SHOWING_LIGHT;
-            }
-
-            @Override
-            public Icon getDisabledIcon() {
-                return Icons.COMPONENT_DISABLED_LIGHT;
+                return themedColor("OR.colors.fin.snapHighlight", Color.RED);
             }
 
             @Override
@@ -677,248 +735,223 @@ public class UITheme {
 
             @Override
             public Color getBackgroundColor() {
-                return new Color(73, 76, 79);
+                return themedColor("OR.colors.background", new Color(73, 76, 79));
             }
 
             @Override
             public Color getBorderColor() {
-                return new Color(97, 99, 101);
+                return themedColor("OR.colors.border", new Color(97, 99, 101));
             }
 
             @Override
             public Color getTextColor() {
-                return new Color(173, 173, 173);
+                return themedColor("OR.colors.text", new Color(173, 173, 173));
             }
 
             @Override
             public Color getDimTextColor() {
-                return new Color(182, 182, 182);
+                return themedColor("OR.colors.text.dim", new Color(182, 182, 182));
             }
 
             @Override
             public Color getDisabledTextColor() {
-                return new Color(161, 161, 161);
+                return themedColor("OR.colors.text.disabled", new Color(161, 161, 161));
             }
 
             @Override
             public Color getTextSelectionForegroundColor() {
-                return Color.WHITE;
+                return themedColor("OR.colors.textSelection.foreground", Color.WHITE);
             }
 
             @Override
             public Color getTextSelectionBackgroundColor() {
-                return new Color(75, 110, 175);
+                return themedColor("OR.colors.textSelection.background", new Color(75, 110, 175));
             }
 
             @Override
             public Color getInformationColor() {
-                return new Color(208, 208, 255);
+                return themedColor("OR.colors.info", new Color(208, 208, 255));
             }
 
             @Override
             public Color getWarningColor() {
-                return new Color(255, 224, 166);
+                return themedColor("OR.colors.warning", new Color(255, 224, 166));
             }
 
             @Override
             public Color getErrorColor() {
-                return new Color(246, 143, 143);
+                return themedColor("OR.colors.error", new Color(246, 143, 143));
             }
 
             @Override
             public Color getDarkErrorColor() {
-            	return new Color(229, 103, 103);
+            	return themedColor("OR.colors.darkError", new Color(229, 103, 103));
             }
 
             @Override
             public Color getRowBackgroundLighterColor() {
-                return new Color(65, 69, 71);
+                return themedColor("OR.colors.row.lighter", new Color(65, 69, 71));
             }
 
             @Override
             public Color getRowBackgroundDarkerColor() {
-                return new Color(60, 63, 65);
+                return themedColor("OR.colors.row.darker", new Color(60, 63, 65));
             }
 
             @Override
             public Color getTableRowFlashColor() {
-                return new Color(255, 255, 102, 69);
+                return themedColor("OR.colors.table.flash", new Color(255, 255, 102, 69));
             }
 
             @Override
             public Color getTableRowSelectionColor() {
-                return new Color(73, 87, 133);
+                return themedColor("OR.colors.table.selection", new Color(73, 87, 133));
             }
 
             @Override
             public Color getFlightDataTextActiveColor() {
-                return new Color(145, 183, 231);
+                return themedColor("OR.colors.flightData.textActive", new Color(145, 183, 231));
             }
 
             @Override
             public Color getFlightDataTextInactiveColor() {
-                return new Color(128, 166, 230, 127);
+                return themedColor("OR.colors.flightData.textInactive", new Color(128, 166, 230, 127));
             }
 
             @Override
             public Color getMultiCompEditColor() {
-                return new Color(222, 146, 176);
+                return themedColor("OR.colors.multiCompEdit", new Color(222, 146, 176));
             }
 
             @Override
             public String getDefaultBodyComponentColor() {
-                return "150,162,255";
+                return themedString("OR.defaults.component.body", "150,162,255");
             }
             @Override
             public String getDefaultTubeFinSetColor() {
-                return "150,178,255";
+                return themedString("OR.defaults.component.tubeFinSet", "150,178,255");
             }
             @Override
             public String getDefaultFinSetColor() {
-                return "150,178,255";
+                return themedString("OR.defaults.component.finSet", "150,178,255");
             }
             @Override
             public String getDefaultLaunchLugColor() {
-                return "142,153,238";
+                return themedString("OR.defaults.component.launchLug", "142,153,238");
             }
             @Override
             public String getDefaultRailButtonColor() {
-                return "142,153,238";
+                return themedString("OR.defaults.component.railButton", "142,153,238");
             }
             @Override
             public String getDefaultInternalComponentColor() {
-                return "181,128,151";
+                return themedString("OR.defaults.component.internal", "181,128,151");
             }
             @Override
             public String getDefaultMassObjectColor() {
-                return "210,210,210";
+                return themedString("OR.defaults.component.massObject", "210,210,210");
             }
             @Override
             public String getDefaultRecoveryDeviceColor() {
-                return "220,90,90";
+                return themedString("OR.defaults.component.recoveryDevice", "220,90,90");
             }
             @Override
             public String getDefaultPodSetColor() {
-                return "190,190,235";
+                return themedString("OR.defaults.component.podSet", "190,190,235");
             }
             @Override
             public String getDefaultParallelStageColor() {
-                return "210,180,195";
+                return themedString("OR.defaults.component.parallelStage", "210,180,195");
             }
 
             @Override
             public Color getMotorBorderColor() {
-                return new Color(0, 0, 0, 100);
+                return themedColor("OR.colors.motor.border", new Color(0, 0, 0, 100));
             }
 
             @Override
             public Color getMotorFillColor() {
-                return new Color(0, 0, 0, 50);
+                return themedColor("OR.colors.motor.fill", new Color(0, 0, 0, 50));
             }
 
             @Override
             public Color getCGColor() {
-                return new Color(85, 133, 253);
+                return themedColor("OR.colors.cg", new Color(85, 133, 253));
             }
 
             @Override
             public Color getCPColor() {
-                return new Color(255, 72, 106);
+                return themedColor("OR.colors.cp", new Color(255, 72, 106));
+            }
+
+            @Override
+            public Color getCaliperColor() {
+                return new Color(255, 150, 30);
+            }
+
+            @Override
+            public Color getCaliperSnapHighlightColor() {
+                return new Color(255, 85, 232);
+            }
+
+            @Override
+            public Color getCaliperValueBackgroundColor() {
+                return new Color(80, 45, 10, 60);
+            }
+
+            @Override
+            public Color getCaliperValueForegroundColor() {
+                return new Color(255, 175, 80);
             }
 
             @Override
             public Color getURLColor() {
-                return new Color(150, 167, 255);
+                return themedColor("OR.colors.url", new Color(150, 167, 255));
             }
 
             @Override
             public Color getComponentTreeBackgroundColor() {
-                return getBackgroundColor();
+                return themedColor("OR.colors.componentTree.background", getBackgroundColor());
             }
 
             @Override
             public Color getComponentTreeForegroundColor() {
-                return getTextColor();
+                return themedColor("OR.colors.componentTree.foreground", getTextColor());
             }
 
             @Override
             public Color getVisibilityHiddenForegroundColor() {
-                return UIManager.getColor("Tree.textForeground.hidden.dark");
+                return themedColor("OR.colors.visibility.hidden.foreground", UIManager.getColor("Tree.textForeground.hidden.dark"));
             }
 
             @Override
             public Color getFinPointGridMajorLineColor() {
-                return new Color(135, 135, 199, 197);
+                return themedColor("OR.colors.fin.gridMajor", new Color(135, 135, 199, 197));
             }
 
             @Override
             public Color getFinPointGridMinorLineColor() {
-                return new Color(121, 121, 189, 69);
+                return themedColor("OR.colors.fin.gridMinor", new Color(121, 121, 189, 69));
             }
 
             @Override
             public Color getFinPointPointColor() {
-                return new Color(217, 108, 108, 255);
+                return themedColor("OR.colors.fin.point", new Color(217, 108, 108, 255));
             }
 
             @Override
             public Color getFinPointSelectedPointColor() {
-                return new Color(232, 78, 78, 255);
+                return themedColor("OR.colors.fin.selectedPoint", new Color(232, 78, 78, 255));
             }
 
             @Override
             public Color getFinPointBodyLineColor() {
-                return Color.WHITE;
+                return themedColor("OR.colors.fin.bodyLine", Color.WHITE);
             }
 
             @Override
             public Color getFinPointSnapHighlightColor() {
-                return new Color(255, 58, 58, 255);
-            }
-
-            @Override
-            public Icon getMassOverrideIcon() {
-                return Icons.MASS_OVERRIDE_DARK;
-            }
-
-            @Override
-            public Icon getMassOverrideSubcomponentIcon() {
-                return Icons.MASS_OVERRIDE_SUBCOMPONENT_DARK;
-            }
-
-            @Override
-            public Icon getCGOverrideIcon() {
-                return Icons.CG_OVERRIDE_DARK;
-            }
-
-            @Override
-            public Icon getCGOverrideSubcomponentIcon() {
-                return Icons.CG_OVERRIDE_SUBCOMPONENT_DARK;
-            }
-
-            @Override
-            public Icon getCDOverrideIcon() {
-                return Icons.CD_OVERRIDE_DARK;
-            }
-
-            @Override
-            public Icon getCDOverrideSubcomponentIcon() {
-                return Icons.CD_OVERRIDE_SUBCOMPONENT_DARK;
-            }
-
-            @Override
-            public Icon getVisibilityHiddenIcon() {
-                return Icons.COMPONENT_HIDDEN_DARK;
-            }
-
-            @Override
-            public Icon getVisibilityShowingIcon() {
-                return Icons.COMPONENT_SHOWING_DARK;
-            }
-
-            @Override
-            public Icon getDisabledIcon() {
-                return Icons.COMPONENT_DISABLED_DARK;
+                return themedColor("OR.colors.fin.snapHighlight", new Color(255, 58, 58, 255));
             }
 
             @Override
@@ -1097,249 +1130,224 @@ public class UITheme {
 
             @Override
             public Color getBackgroundColor() {
-                return new Color(43, 45, 51);
+                return themedColor("OR.colors.background", new Color(43, 45, 51));
             }
 
             @Override
             public Color getBorderColor() {
-                return new Color(163, 163, 163, 204);
+                return themedColor("OR.colors.border", new Color(163, 163, 163, 204));
             }
 
             @Override
             public Color getTextColor() {
-                return UIManager.getColor("Label.foreground");
+                return themedColor("OR.colors.text", UIManager.getColor("Label.foreground"));
             }
 
             @Override
             public Color getDimTextColor() {
-                return new Color(165, 171, 184);
+                return themedColor("OR.colors.text.dim", new Color(165, 171, 184));
             }
 
             @Override
             public Color getDisabledTextColor() {
-                return new Color(128, 128, 128, 223);
+                return themedColor("OR.colors.text.disabled", new Color(128, 128, 128, 223));
             }
 
 
             @Override
             public Color getTextSelectionForegroundColor() {
-                return Color.WHITE;
+                return themedColor("OR.colors.textSelection.foreground", Color.WHITE);
             }
 
             @Override
             public Color getTextSelectionBackgroundColor() {
-                return new Color(62, 108, 173);
+                return themedColor("OR.colors.textSelection.background", new Color(62, 108, 173));
             }
 
             @Override
             public Color getInformationColor() {
-                return new Color(197, 197, 252);
+                return themedColor("OR.colors.info", new Color(197, 197, 252));
             }
 
             @Override
             public Color getWarningColor() {
-                return new Color(255, 233, 187);
+                return themedColor("OR.colors.warning", new Color(255, 233, 187));
             }
 
             @Override
             public Color getErrorColor() {
-                return new Color(255, 173, 173);
+                return themedColor("OR.colors.error", new Color(255, 173, 173));
             }
 
             @Override
             public Color getDarkErrorColor() {
-                return new Color(255, 178, 178);
+                return themedColor("OR.colors.darkError", new Color(255, 178, 178));
             }
 
             @Override
             public Color getRowBackgroundLighterColor() {
-                return new Color(43, 49, 58);
+                return themedColor("OR.colors.row.lighter", new Color(43, 49, 58));
             }
 
             @Override
             public Color getRowBackgroundDarkerColor() {
-                return new Color(34, 37, 44);
+                return themedColor("OR.colors.row.darker", new Color(34, 37, 44));
             }
 
             @Override
             public Color getTableRowFlashColor() {
-                return new Color(255, 255, 128, 60);
+                return themedColor("OR.colors.table.flash", new Color(255, 255, 128, 60));
             }
 
             @Override
             public Color getTableRowSelectionColor() {
-                return new Color(51, 66, 102);
+                return themedColor("OR.colors.table.selection", new Color(51, 66, 102));
             }
 
             @Override
             public Color getFlightDataTextActiveColor() {
-                return new Color(212, 230, 255);
+                return themedColor("OR.colors.flightData.textActive", new Color(212, 230, 255));
             }
 
             @Override
             public Color getFlightDataTextInactiveColor() {
-                return new Color(170, 201, 255, 127);
+                return themedColor("OR.colors.flightData.textInactive", new Color(170, 201, 255, 127));
             }
 
             @Override
             public Color getMultiCompEditColor() {
-                return new Color(255, 165, 200);
+                return themedColor("OR.colors.multiCompEdit", new Color(255, 165, 200));
             }
 
             @Override
             public String getDefaultBodyComponentColor() {
-                return "150,175,255";
+                return themedString("OR.defaults.component.body", "150,175,255");
             }
             @Override
             public String getDefaultTubeFinSetColor() {
-                return "150,184,254";
+                return themedString("OR.defaults.component.tubeFinSet", "150,184,254");
             }
             @Override
             public String getDefaultFinSetColor() {
-                return "150,184,255";
+                return themedString("OR.defaults.component.finSet", "150,184,255");
             }
             @Override
             public String getDefaultLaunchLugColor() {
-                return "142,153,238";
+                return themedString("OR.defaults.component.launchLug", "142,153,238");
             }
             @Override
             public String getDefaultRailButtonColor() {
-                return "142,153,238";
+                return themedString("OR.defaults.component.railButton", "142,153,238");
             }
             @Override
             public String getDefaultInternalComponentColor() {
-                return "181,128,151";
+                return themedString("OR.defaults.component.internal", "181,128,151");
             }
             @Override
             public String getDefaultMassObjectColor() {
-                return "210,210,210";
+                return themedString("OR.defaults.component.massObject", "210,210,210");
             }
             @Override
             public String getDefaultRecoveryDeviceColor() {
-                return "220,90,90";
+                return themedString("OR.defaults.component.recoveryDevice", "220,90,90");
             }
             @Override
             public String getDefaultPodSetColor() {
-                return "190,190,235";
+                return themedString("OR.defaults.component.podSet", "190,190,235");
             }
             @Override
             public String getDefaultParallelStageColor() {
-                return "210,180,195";
+                return themedString("OR.defaults.component.parallelStage", "210,180,195");
             }
 
             @Override
             public Color getMotorBorderColor() {
-                return new Color(255, 255, 255, 200);
+                return themedColor("OR.colors.motor.border", new Color(255, 255, 255, 200));
             }
 
             @Override
             public Color getMotorFillColor() {
-                return new Color(0, 0, 0, 70);
+                return themedColor("OR.colors.motor.fill", new Color(0, 0, 0, 70));
             }
 
             @Override
             public Color getCGColor() {
-                return new Color(85, 133, 253);
+                return themedColor("OR.colors.cg", new Color(85, 133, 253));
             }
 
             @Override
             public Color getCPColor() {
-                return new Color(255, 72, 106);
+                return themedColor("OR.colors.cp", new Color(255, 72, 106));
+            }
+
+            @Override
+            public Color getCaliperColor() {
+                return new Color(255, 175, 50);
+            }
+
+            @Override
+            public Color getCaliperSnapHighlightColor() {
+                return new Color(255, 115, 237);
+            }
+
+            @Override
+            public Color getCaliperValueBackgroundColor() {
+                return new Color(90, 50, 5, 60);
+            }
+
+            @Override
+            public Color getCaliperValueForegroundColor() {
+                return new Color(255, 195, 100);
             }
 
             @Override
             public Color getURLColor() {
-                return new Color(171, 185, 255);
+                return themedColor("OR.colors.url", new Color(171, 185, 255));
             }
 
             @Override
             public Color getComponentTreeBackgroundColor() {
-                return getBackgroundColor();
+                return themedColor("OR.colors.componentTree.background", getBackgroundColor());
             }
 
             @Override
             public Color getComponentTreeForegroundColor() {
-                return getTextColor();
+                return themedColor("OR.colors.componentTree.foreground", getTextColor());
             }
 
             @Override
             public Color getVisibilityHiddenForegroundColor() {
-                return UIManager.getColor("Tree.textForeground.hidden.dark");
+                return themedColor("OR.colors.visibility.hidden.foreground", UIManager.getColor("Tree.textForeground.hidden.dark"));
             }
 
             @Override
             public Color getFinPointGridMajorLineColor() {
-                return new Color(164, 164, 224, 197);
+                return themedColor("OR.colors.fin.gridMajor", new Color(164, 164, 224, 197));
             }
 
             @Override
             public Color getFinPointGridMinorLineColor() {
-                return new Color(134, 134, 201, 69);
+                return themedColor("OR.colors.fin.gridMinor", new Color(134, 134, 201, 69));
             }
 
             @Override
             public Color getFinPointPointColor() {
-                return new Color(242, 121, 121, 255);
+                return themedColor("OR.colors.fin.point", new Color(242, 121, 121, 255));
             }
 
             @Override
             public Color getFinPointSelectedPointColor() {
-                return new Color(232, 78, 78, 255);
+                return themedColor("OR.colors.fin.selectedPoint", new Color(232, 78, 78, 255));
             }
 
             @Override
             public Color getFinPointBodyLineColor() {
-                return Color.WHITE;
+                return themedColor("OR.colors.fin.bodyLine", Color.WHITE);
             }
 
             @Override
             public Color getFinPointSnapHighlightColor() {
-                return new Color(241, 77, 77, 255);
-            }
-
-            @Override
-            public Icon getMassOverrideIcon() {
-                return Icons.MASS_OVERRIDE_DARK;
-            }
-
-            @Override
-            public Icon getMassOverrideSubcomponentIcon() {
-                return Icons.MASS_OVERRIDE_SUBCOMPONENT_DARK;
-            }
-
-            @Override
-            public Icon getCGOverrideIcon() {
-                return Icons.CG_OVERRIDE_DARK;
-            }
-
-            @Override
-            public Icon getCGOverrideSubcomponentIcon() {
-                return Icons.CG_OVERRIDE_SUBCOMPONENT_DARK;
-            }
-
-            @Override
-            public Icon getCDOverrideIcon() {
-                return Icons.CD_OVERRIDE_DARK;
-            }
-
-            @Override
-            public Icon getCDOverrideSubcomponentIcon() {
-                return Icons.CD_OVERRIDE_SUBCOMPONENT_DARK;
-            }
-
-            @Override
-            public Icon getVisibilityHiddenIcon() {
-                return Icons.COMPONENT_HIDDEN_DARK;
-            }
-
-            @Override
-            public Icon getVisibilityShowingIcon() {
-                return Icons.COMPONENT_SHOWING_DARK;
-            }
-
-            @Override
-            public Icon getDisabledIcon() {
-                return Icons.COMPONENT_DISABLED_DARK;
+                return themedColor("OR.colors.fin.snapHighlight", new Color(241, 77, 77, 255));
             }
 
             @Override
@@ -1688,6 +1696,26 @@ public class UITheme {
             }
 
             @Override
+            public Color getCaliperColor() {
+                return getCurrentTheme().getCaliperColor();
+            }
+
+            @Override
+            public Color getCaliperSnapHighlightColor() {
+                return getCurrentTheme().getCaliperSnapHighlightColor();
+            }
+
+            @Override
+            public Color getCaliperValueBackgroundColor() {
+                return getCurrentTheme().getCaliperValueBackgroundColor();
+            }
+
+            @Override
+            public Color getCaliperValueForegroundColor() {
+                return getCurrentTheme().getCaliperValueForegroundColor();
+            }
+
+            @Override
             public Color getURLColor() {
                 return getCurrentTheme().getURLColor();
             }
@@ -1735,51 +1763,6 @@ public class UITheme {
             @Override
             public Color getFinPointSnapHighlightColor() {
                 return getCurrentTheme().getFinPointBodyLineColor();
-            }
-
-            @Override
-            public Icon getMassOverrideIcon() {
-                return getCurrentTheme().getMassOverrideIcon();
-            }
-
-            @Override
-            public Icon getMassOverrideSubcomponentIcon() {
-                return getCurrentTheme().getMassOverrideSubcomponentIcon();
-            }
-
-            @Override
-            public Icon getCGOverrideIcon() {
-                return getCurrentTheme().getCGOverrideIcon();
-            }
-
-            @Override
-            public Icon getCGOverrideSubcomponentIcon() {
-                return getCurrentTheme().getCGOverrideSubcomponentIcon();
-            }
-
-            @Override
-            public Icon getCDOverrideIcon() {
-                return getCurrentTheme().getCDOverrideIcon();
-            }
-
-            @Override
-            public Icon getCDOverrideSubcomponentIcon() {
-                return getCurrentTheme().getCDOverrideSubcomponentIcon();
-            }
-
-            @Override
-            public Icon getVisibilityHiddenIcon() {
-                return getCurrentTheme().getVisibilityHiddenIcon();
-            }
-
-            @Override
-            public Icon getVisibilityShowingIcon() {
-                return getCurrentTheme().getVisibilityHiddenIcon();
-            }
-
-            @Override
-            public Icon getDisabledIcon() {
-                return getCurrentTheme().getVisibilityHiddenIcon();
             }
 
             @Override
@@ -1937,8 +1920,121 @@ public class UITheme {
 		}
     }
 
+    public static Color getColor(String key) {
+        return themedColor(key, defaultColorForKey(key));
+    }
+
+    public static Color getColor(String key, Color fallback) {
+        return themedColor(key, fallback != null ? fallback : defaultColorForKey(key));
+    }
+
+    public static String getString(String key) {
+        return themedString(key, defaultStringForKey(key));
+    }
+
+    public static String getString(String key, String fallback) {
+        return themedString(key, fallback != null ? fallback : defaultStringForKey(key));
+    }
+
+    public static LineStyle getDefaultLineStyle(Class<? extends RocketComponent> c) {
+        String key = Keys.DEFAULT_LINE_STYLE_GENERIC;
+        if (MassObject.class.isAssignableFrom(c)) {
+            key = Keys.DEFAULT_LINE_STYLE_MASS_OBJECT;
+        }
+
+        String uiValue = UIManager.getString(key);
+        if (uiValue != null) {
+            try {
+                return LineStyle.valueOf(uiValue);
+            } catch (IllegalArgumentException ignore) {
+                // fall back below
+            }
+        }
+        return Application.getPreferences().getDefaultLineStyle(c);
+    }
+
+    public static Color getStatusColor(Status status) {
+        switch (status) {
+            case ABORTED:
+            case CANT_RUN:
+                return getColor(Keys.ERROR);
+            case OUTDATED:
+                return getColor(Keys.WARNING);
+            default:
+                return getColor(Keys.TEXT);
+        }
+    }
+
+    private static Color themedColor(String key, Color fallback) {
+        Color color = UIManager.getColor(key);
+        return color != null ? color : fallback;
+    }
+
+    private static String themedString(String key, String fallback) {
+        String value = UIManager.getString(key);
+        return value != null ? value : fallback;
+    }
+
+    private static Color defaultColorForKey(String key) {
+        switch (key) {
+            case Keys.BACKGROUND: return Color.WHITE;
+            case Keys.BORDER: return Color.BLACK;
+            case Keys.TEXT: return Color.BLACK;
+            case Keys.TEXT_DIM: return Color.GRAY;
+            case Keys.TEXT_DISABLED: return Color.GRAY;
+            case Keys.TEXT_SELECTION_FOREGROUND: return UIManager.getColor("Tree.selectionForeground");
+            case Keys.TEXT_SELECTION_BACKGROUND: return UIManager.getColor("Tree.selectionBackground");
+            case Keys.INFO: return new Color(45, 45, 189);
+            case Keys.WARNING: return new Color(217, 152, 0);
+            case Keys.ERROR: return Color.RED;
+            case Keys.DARK_ERROR: return new Color(200, 0, 0);
+            case Keys.ROW_LIGHTER: return Color.WHITE;
+            case Keys.ROW_DARKER: return new Color(245, 245, 245);
+            case Keys.TABLE_FLASH: return new Color(255, 255, 204);
+            case Keys.TABLE_SELECTION: return new Color(217, 233, 255);
+            case Keys.FLIGHTDATA_TEXT_ACTIVE: return new Color(0, 0, 127);
+            case Keys.FLIGHTDATA_TEXT_INACTIVE: return new Color(0, 0, 127, 127);
+            case Keys.MULTI_COMP_EDIT: return new Color(170, 0, 100);
+            case Keys.MOTOR_BORDER: return new Color(0, 0, 0, 200);
+            case Keys.MOTOR_FILL: return new Color(0, 0, 0, 100);
+            case Keys.CG: return Color.BLUE;
+            case Keys.CP: return Color.RED;
+            case Keys.URL: return Color.BLUE;
+            case Keys.COMPONENT_TREE_BACKGROUND: return UIManager.getColor("Tree.textBackground");
+            case Keys.COMPONENT_TREE_FOREGROUND: return UIManager.getColor("Tree.textForeground");
+            case Keys.VISIBILITY_HIDDEN_FOREGROUND: return UIManager.getColor("Tree.textForeground.hidden.light");
+            case Keys.FIN_GRID_MAJOR: return new Color(0, 0, 255, 80);
+            case Keys.FIN_GRID_MINOR: return new Color(0, 0, 255, 30);
+            case Keys.FIN_POINT: return new Color(200, 0, 0, 255);
+            case Keys.FIN_SELECTED_POINT: return new Color(200, 0, 0, 255);
+            case Keys.FIN_BODY_LINE: return Color.BLACK;
+            case Keys.FIN_SNAP_HIGHLIGHT: return Color.RED;
+            default: return null;
+        }
+    }
+
+    private static String defaultStringForKey(String key) {
+        switch (key) {
+            case Keys.DEFAULT_BODY_COMPONENT_COLOR: return "0,0,240";
+            case Keys.DEFAULT_TUBE_FIN_SET_COLOR: return "0,0,200";
+            case Keys.DEFAULT_FIN_SET_COLOR: return "0,0,200";
+            case Keys.DEFAULT_LAUNCH_LUG_COLOR: return "0,0,180";
+            case Keys.DEFAULT_RAIL_BUTTON_COLOR: return "0,0,180";
+            case Keys.DEFAULT_INTERNAL_COMPONENT_COLOR: return "170,0,100";
+            case Keys.DEFAULT_MASS_OBJECT_COLOR: return "0,0,0";
+            case Keys.DEFAULT_RECOVERY_DEVICE_COLOR: return "255,0,0";
+            case Keys.DEFAULT_POD_SET_COLOR: return "160,160,215";
+            case Keys.DEFAULT_PARALLEL_STAGE_COLOR: return "198,163,184";
+            case Keys.DEFAULT_LINE_STYLE_GENERIC: return "SOLID";
+            case Keys.DEFAULT_LINE_STYLE_MASS_OBJECT: return "DASHED";
+            default: return null;
+        }
+    }
+
+    
     private static void preApplyTheme() {
         FlatAnimatedLafChange.showSnapshot();
+        GUIUtil.loadCustomFonts();
         FlatLaf.registerCustomDefaultsSource("themes");
     }
 
@@ -1955,10 +2051,6 @@ public class UITheme {
         log.info("Setting UI scale factor to {}", uiScale);
         System.setProperty("flatlaf.uiScale", uiScale);
 
-        // Load custom fonts
-        log.info("Loading custom fonts");
-        GUIUtil.loadCustomFonts();
-
         // Set the global font to
         int fontSize = prefs.getUIFontSize();
         String fontStyle = prefs.getUIFontStyle();
@@ -1970,8 +2062,36 @@ public class UITheme {
         Theme.notifyUIThemeChangeListeners();
 
         // Update all components
-        FlatLaf.updateUI();     // TODO: has no effect (UI doesn't change) --> Nevermind, you just have to call "Theme.applyTheme" after you change the theme in preferneces
+        FlatLaf.updateUI();
+
+        // Root-pane client properties are application overrides and survive FlatLaf.updateUI().
+        // Reapply them after the component trees have adopted their new theme colors.
+        applyThemeToOpenRootPanes(theme);
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
+    }
+
+    /**
+     * Refresh theme-specific root-pane properties on every existing Swing window.
+     *
+     * @param theme the newly applied UI theme
+     */
+    private static void applyThemeToOpenRootPanes(Theme theme) {
+        applyThemeToRootPanes(theme, Window.getWindows());
+    }
+
+    /**
+     * Apply the theme to the root pane of each supplied Swing window.
+     *
+     * @param theme the newly applied UI theme
+     * @param windows candidate windows to refresh
+     */
+    static void applyThemeToRootPanes(Theme theme, Window[] windows) {
+        for (Window window : windows) {
+            if (window instanceof RootPaneContainer) {
+                RootPaneContainer rootPaneContainer = (RootPaneContainer) window;
+                theme.applyThemeToRootPane(rootPaneContainer.getRootPane());
+            }
+        }
     }
 
     private static void commonApplyThemeToRootPane(JRootPane rootPane, Color TextColor) {
@@ -2000,22 +2120,11 @@ public class UITheme {
                     // Reuse the existing fontOffsets map logic here
                     offset = fontOffsets.getOrDefault(fontKey, 0.0f);
                 }
-                // Create a font with the letter spacing attribute
-                Map<TextAttribute, Object> attributes = new HashMap<>();
-                attributes.put(TextAttribute.FAMILY, fontStyle);
-                attributes.put(TextAttribute.SIZE, size + offset);
-                attributes.put(TextAttribute.TRACKING, letterSpacing);
-
-                Font newFont = Font.getFont(attributes);
-                UIManager.put(key, newFont);
+                UIManager.put(key, GUIUtil.createUIFont(fontStyle, size + offset, letterSpacing));
             }
         }
 
         // Set the default font
-        Map<TextAttribute, Object> attributes = new HashMap<>();
-        attributes.put(TextAttribute.FAMILY, fontStyle);
-        attributes.put(TextAttribute.SIZE, size);
-        attributes.put(TextAttribute.TRACKING, letterSpacing);
-        UIManager.put("defaultFont", Font.getFont(attributes));
+        UIManager.put("defaultFont", GUIUtil.createUIFont(fontStyle, size, letterSpacing));
     }
 }

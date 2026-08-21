@@ -67,26 +67,10 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 */
 	public void addPoint() {
 		mutable.check();
-		for (Map.Entry<T, ArrayList<Double>> entry : values.entrySet()) {
-			sanityCheckValues(entry.getKey(), Double.NaN);
-			entry.getValue().add(Double.NaN);
+		for (ArrayList<Double> list : values.values()) {
+			list.add(Double.NaN);
 		}
 		modID = new ModID();
-	}
-
-	private void sanityCheckValues(T type, Double value) {
-		ArrayList<Double> list = values.get(type);
-
-		if (list == null) {
-			list = new info.openrocket.core.util.ArrayList<>();
-			int n = getLength();
-			for (int i = 0; i < n; i++) {
-				list.add(Double.NaN);
-			}
-			values.put(type, list);
-			minValues.put(type, value);
-			maxValues.put(type, value);
-		}
 	}
 
 	/**
@@ -135,7 +119,7 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 * @return		a list of the variable values, or <code>null</code> if
 	 * 				the variable type hasn't been added to this branch.
 	 */
-	public List<Double> getClone(T type) {
+	public List<Double> get(T type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null)
 			return null;
@@ -149,7 +133,7 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 * @return		an unmodifiable list backed by the internal storage, or null if
 	 * 				the variable type hasn't been added to this branch.
 	 */
-	public List<Double> get(T type) {
+	public List<Double> getView(T type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null) {
 			return null;
@@ -233,7 +217,20 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	@SuppressWarnings("unchecked")
 	public T[] getTypes() {
 		Set<T> keySet = values.keySet();
-		T[] array = (T[]) Array.newInstance(keySet.iterator().next().getClass(), keySet.size());
+		if (keySet.isEmpty()) {
+			throw new IllegalStateException("No data types have been added to branch " + name);
+		}
+
+		// The types are not necessarily all of the same class, so walk up to one that
+		// can hold all of them
+		Class<?> componentType = keySet.iterator().next().getClass();
+		for (T type : keySet) {
+			while (!componentType.isInstance(type)) {
+				componentType = componentType.getSuperclass();
+			}
+		}
+
+		T[] array = (T[]) Array.newInstance(componentType, keySet.size());
 		keySet.toArray(array);
 		Arrays.sort(array);
 		return array;

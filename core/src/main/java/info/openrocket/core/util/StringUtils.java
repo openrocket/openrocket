@@ -109,4 +109,19 @@ public class StringUtils {
 		}
 		return input.replaceAll("<[^>]*>", "");
 	}
+
+	/**
+	 * Escape basic characters for safe HTML tooltip rendering.
+	 *
+	 * @param text plain text
+	 * @return HTML-escaped text
+	 */
+	public static String escapeHtml(String text) {
+		return text.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll("\"", "&quot;")
+				.replaceAll("'", "&#39;")
+				.replaceAll("\n", "<br>");
+	}
 }

@@ -81,6 +81,6 @@ public class URLLabel extends SelectableLabel {
 	}
 
 	public static void updateColors() {
-		URLColor = GUIUtil.getUITheme().getURLColor();
+		URLColor = UITheme.getColor(UITheme.Keys.URL);
 	}
 }

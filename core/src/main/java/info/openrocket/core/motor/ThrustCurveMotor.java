@@ -51,6 +51,14 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private String caseInfo = "";
 	private String propellantInfo = "";
 
+	// Optional metadata (primarily used when motors come from a database/API)
+	private String tcMotorId = "";
+	private String infoUrl = "";
+	private Integer dataFiles = null;
+	private String updatedOn = "";
+	private String dataSource = "";
+	private boolean sparky = false;
+
 	private double initialMass;
 	private double maxThrust;
 	private double burnTimeEstimate;
@@ -127,6 +135,36 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 
 		public Builder setPropellantInfo(String v) {
 			motor.propellantInfo = v;
+			return this;
+		}
+
+		public Builder setTcMotorId(String v) {
+			motor.tcMotorId = v;
+			return this;
+		}
+
+		public Builder setInfoUrl(String v) {
+			motor.infoUrl = v;
+			return this;
+		}
+
+		public Builder setDataFiles(Integer v) {
+			motor.dataFiles = v;
+			return this;
+		}
+
+		public Builder setUpdatedOn(String v) {
+			motor.updatedOn = v;
+			return this;
+		}
+
+		public Builder setDataSource(String v) {
+			motor.dataSource = v;
+			return this;
+		}
+
+		public Builder setSparky(boolean v) {
+			motor.sparky = v;
 			return this;
 		}
 
@@ -250,9 +288,15 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				motor.designation = motor.code;
 			}
 
-			// If I don't have a motor common name (will be the case if I read the
-			// thrustcurve from a flle)
-			// apply the motor code simplification heuristics to generate a common name
+			// Normalize common name: if it matches the standard motor-designation pattern
+			// (e.g. "B6-0", "B6W", "H128W"), reduce it to just the letter+digits part
+			// ("B6", "H128"). Non-standard names (e.g. "RCS 18/20") are left unchanged.
+			if (!motor.commonName.isEmpty()) {
+				Matcher cnMatcher = SIMPLIFY_PATTERN.matcher(motor.commonName);
+				if (cnMatcher.matches()) {
+					motor.commonName = cnMatcher.group(1);
+				}
+			}
 			if (motor.commonName.isEmpty()) {
 				motor.commonName = simplifyDesignation(motor.designation);
 			}
@@ -623,6 +667,30 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@Override
 	public String getDigest() {
 		return digest;
+	}
+
+	public String getTcMotorId() {
+		return tcMotorId;
+	}
+
+	public String getInfoUrl() {
+		return infoUrl;
+	}
+
+	public Integer getDataFiles() {
+		return dataFiles;
+	}
+
+	public String getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public String getDataSource() {
+		return dataSource;
+	}
+
+	public boolean isSparky() {
+		return sparky;
 	}
 
 	public double getCutOffTime() {

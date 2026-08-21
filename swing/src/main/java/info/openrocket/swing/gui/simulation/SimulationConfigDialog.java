@@ -35,6 +35,8 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,7 +63,6 @@ public class SimulationConfigDialog extends JDialog {
 
 
 	private final WindowListener windowCloseCancelListener;
-	private final Simulation initialSim;		// A copy of the first selected simulation before it was modified
 	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
 	private boolean isModified = false;			// Whether the simulation has been modified
 	private final boolean isNewSimulation;		// Whether you are editing a new simulation, or an existing one
@@ -72,8 +73,10 @@ public class SimulationConfigDialog extends JDialog {
 	private static final int PLOT_IDX = 3;
 	private static final int EXPORT_IDX = 4;
 
+	private final SimulationOptionsPanel simulationOptionsTab;
 	private final SimulationPlotPanel plotTab;
 	private final SimulationExportPanel exportTab;
+	private static final int DIALOG_SCREEN_MARGIN = 80;
 
 	private static Color multiCompEditColor;
 
@@ -87,22 +90,27 @@ public class SimulationConfigDialog extends JDialog {
 		this.document = document;
 		this.parentWindow = parent;
 		this.simulationList = sims;
-		this.initialSim = simulationList[0].clone();
 		this.initialIsSaved = document.isSaved();
 		this.isNewSimulation = isNewSimulation;
+
+		if (simulationList.length == 1) {
+			document.addUndoPosition("Edit " + simulationList[0].getName());
+		} else {
+			document.addUndoPosition("Edit simulations");
+		}
 
 		simulationList[0].addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				isModified = true;
 				setTitle("* " + getTitle());			// Add component changed indicator to the title
-				simulationList[0].removeChangeListener(this);
+				simulationList[0].removeChangeListener(this);	// Only do this once
 			}
 		});
 
 		this.setLayout(new BorderLayout());
 
-		final JPanel contentPanel = new JPanel(new MigLayout("fill"));
+		final JPanel contentPanel = new JPanel(new MigLayout("fill", "[grow]", "[][grow]"));
 
 		// ======== Top panel ========
 		addTopPanel(document, contentPanel);
@@ -112,10 +120,13 @@ public class SimulationConfigDialog extends JDialog {
 		this.tabbedPane = new JTabbedPane();
 
 		//// Launch conditions
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Launchcond"), new SimulationConditionsPanel(simulationList[0]));
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Launchcond"),
+				createTabScrollPane(new SimulationConditionsPanel(simulationList[0])));
 
 		//// Simulation options
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Simopt"), new SimulationOptionsPanel(document, simulationList[0]));
+		this.simulationOptionsTab = new SimulationOptionsPanel(document, simulationList[0]);
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Simopt"),
+				createTabScrollPane(simulationOptionsTab));
 
 		//// Simulation Warnings
 		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
@@ -160,12 +171,6 @@ public class SimulationConfigDialog extends JDialog {
 
 		contentPanel.add(tabbedPane, "grow, push, wrap");
 
-		// Create a scroll pane for the content
-		JScrollPane scrollPane = new JScrollPane(contentPanel);
-		scrollPane.setBorder(null);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
 		// ======== Bottom panel ========
 		JPanel bottomPanel = generateBottomPanel();
 
@@ -207,10 +212,11 @@ public class SimulationConfigDialog extends JDialog {
 
 		});
 
-		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(contentPanel, BorderLayout.CENTER);
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		this.validate();
 		this.pack();
+		capDialogToScreenBounds();
 
 		this.setLocationByPlatform(true);
 
@@ -225,6 +231,37 @@ public class SimulationConfigDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.rememberWindowSize(this);
+		capDialogToScreenBounds();
+	}
+
+	/**
+	 * Keep the dialog header and buttons fixed while tall tab contents scroll inside the tab body.
+	 */
+	private JScrollPane createTabScrollPane(JPanel panel) {
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.setBorder(null);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setMinimumSize(new Dimension(0, 0));
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		return scrollPane;
+	}
+
+	/**
+	 * Prevent the packed or restored dialog size from exceeding the usable screen area.
+	 */
+	private void capDialogToScreenBounds() {
+		Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int maxWidth = Math.max(0, screenBounds.width - DIALOG_SCREEN_MARGIN);
+		int maxHeight = Math.max(0, screenBounds.height - DIALOG_SCREEN_MARGIN);
+
+		if (maxWidth == 0 || maxHeight == 0) {
+			return;
+		}
+
+		int width = Math.min(getWidth(), maxWidth);
+		int height = Math.min(getHeight(), maxHeight);
+		setSize(new Dimension(width, height));
 	}
 
 	private static void initColors() {
@@ -233,7 +270,7 @@ public class SimulationConfigDialog extends JDialog {
 	}
 
 	public static void updateColors() {
-		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
+		multiCompEditColor = UITheme.getColor(UITheme.Keys.MULTI_COMP_EDIT);
 	}
 
 	public void switchToSettingsTab() {
@@ -282,14 +319,14 @@ public class SimulationConfigDialog extends JDialog {
 
 			}
 		});
-		topPanel.add(field, "growx, wrap");
+		topPanel.add(field, "growx, pushx");
 
 		//// Flight selector
 		//// Flight configuration:
 		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
 		//// Select the motor configuration to use.
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
-		topPanel.add(label, "growx 0, gapright para");
+		topPanel.add(label, "gapleft para, growx 0, gapright para");
 
 		final Rocket rkt = document.getRocket();
 		final FlightConfiguration config = rkt.getFlightConfiguration(simulationList[0].getFlightConfigurationId());
@@ -307,24 +344,20 @@ public class SimulationConfigDialog extends JDialog {
 				simulationList[0].setFlightConfigurationId( id );
 			}
 		});
-		topPanel.add(configComboBox, "span");
+		topPanel.add(configComboBox, "growx, pushx, wrap");
 
 		//// Display current simulation status
 		JLabel statusLabel = new JLabel(trans.get("simpanel.col.Status") + ":");
 		topPanel.add(statusLabel, "growx 0, gapright para");
 
-		StringBuilder statusBuilder = new StringBuilder("<html>");
-
 		String statusText = simulationList[0].getStatusDescription();
-		Color statusColor = GUIUtil.getUITheme().getStatusColor(simulationList[0].getStatus());
+		Color statusColor = UITheme.getStatusColor(simulationList[0].getStatus());
 
 		JLabel simStatus = new JLabel("<html>" +
 				ColorConversion.formatHTMLColor(statusColor, statusText) +
 				"</html>"
 		);
-		topPanel.add(simStatus);
-
-		topPanel.add(new JPanel(), "growx, wrap");
+		topPanel.add(simStatus, "span 3, wrap");
 
 		contentPanel.add(topPanel, "growx, height pref, wrap");
 	}
@@ -385,6 +418,7 @@ public class SimulationConfigDialog extends JDialog {
 		this.okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				simulationOptionsTab.prepareForSimulation();
 				copyChangesToAllSims();
 
 				// Run outdated simulations
@@ -515,21 +549,12 @@ public class SimulationConfigDialog extends JDialog {
 	}
 
 	private void discardChanges() {
-		if (isNewSimulation) {
-			document.removeSimulation(simulationList[0]);
-		} else {
-			undoSimulationChanges();
-		}
-		document.setSaved(this.initialIsSaved);			// Restore the saved state of the document
-		document.fireDocumentChangeEvent(new DocumentChangeEvent(this));
+			if (document.isUndoAvailable()) {
+				document.undo();
+			}
+			document.setSaved(this.initialIsSaved);			// Restore the saved state of the document
+			document.fireDocumentChangeEvent(new DocumentChangeEvent(this));
 
-		closeDialog();
-	}
-
-	private void undoSimulationChanges() {
-		if (simulationList == null || simulationList.length == 0) {
-			return;
+			closeDialog();
 		}
-		simulationList[0].loadFrom(initialSim);
 	}
-}

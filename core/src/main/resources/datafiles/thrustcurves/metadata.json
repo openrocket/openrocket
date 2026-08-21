@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "database_version": 20260418111610,
+  "generated_at": "2026-04-18T11:16:10.240065",
+  "motor_count": 1458,
+  "curve_count": 1591,
+  "sha256": "2efd45667efc9aae0e6bc9e397841c221199bde794fae94846b5dae10c017db6",
+  "last_checked": "2026-04-18T11:16:10.240065",
+  "download_url": "https://openrocket.github.io/motor-database/motors.db.gz"
+}

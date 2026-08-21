@@ -19,7 +19,6 @@ import info.openrocket.core.preset.ComponentPreset.Type;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
-import info.openrocket.core.simulation.DefaultSimulationOptionFactory;
 
 public class ServicesForTesting extends AbstractModule {
 	
@@ -97,11 +96,14 @@ public class ServicesForTesting extends AbstractModule {
 		
 		@Override
 		public double getDouble(String key, double defaultValue) {
-			if (key.equals(ApplicationPreferences.LAUNCH_TEMPERATURE) || key.equals(DefaultSimulationOptionFactory.SIMCONDITION_ATMOS_TEMP)) {
+			if (key.equals(ApplicationPreferences.LAUNCH_TEMPERATURE)) {
 				return ExtendedISAModel.STANDARD_TEMPERATURE;
 			}
-			if (key.equals(ApplicationPreferences.LAUNCH_PRESSURE) || key.equals(DefaultSimulationOptionFactory.SIMCONDITION_ATMOS_PRESSURE)) {
+			if (key.equals(ApplicationPreferences.LAUNCH_PRESSURE)) {
 				return ExtendedISAModel.STANDARD_PRESSURE;
+			}
+			if (key.equals(ApplicationPreferences.LAUNCH_RELATIVE_HUMIDITY)) {
+				return ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY;
 			}
 			if (key.equals(ApplicationPreferences.CONSTANT_GRAVITY_VALUE)) {
 				return 9.807;

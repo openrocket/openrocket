@@ -41,8 +41,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static info.openrocket.swing.gui.main.BasicFrame.SHORTCUT_KEY;
-
 /**
  * Construct the "Rocket design" tab.  This contains a horizontal split pane
  * with the left component the design tree and the right component buttons
@@ -62,13 +60,13 @@ public class DesignPanel extends JSplitPane {
 
         // Remove JTree key events that interfere with menu accelerators
         InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, GUIUtil.getMenuShortcutKeyMask()), "none");
 
         // Highlight all child components of a stage/rocket/podset when it is selected
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
@@ -109,7 +107,7 @@ public class DesignPanel extends JSplitPane {
                         component.clearConfigListeners();
 
                         // Multi-component edit if shift/meta key is pressed
-                        if ((e.isShiftDown() || e.isMetaDown()) && tree.getSelectionPaths() != null) {
+                        if ((e.isShiftDown() || GUIUtil.isMenuShortcutDown(e)) && tree.getSelectionPaths() != null) {
                             // Add the other selected components as listeners to the last selected component
                             for (TreePath p : tree.getSelectionPaths()) {
                                 if (p != null) {

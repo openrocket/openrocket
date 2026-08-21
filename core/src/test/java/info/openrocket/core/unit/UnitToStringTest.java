@@ -3,12 +3,38 @@ package info.openrocket.core.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class UnitToStringTest {
 	private boolean isPointDecimalSeparator() {
 		return ((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator() == '.';
+	}
+
+	@BeforeAll
+	public static void setUp() {
+		// Set locale to ensure consistent formatting
+		Locale.setDefault(Locale.US);
+	}
+
+	/**
+	 * Verify that Unit does not retain decimal symbols from the locale active when
+	 * its formatter was first used.
+	 */
+	@Test
+	public void testLocaleChangeAfterUnitInitialization() {
+		Locale originalLocale = Locale.getDefault();
+		try {
+			Locale.setDefault(Locale.US);
+			assertEquals("-0.001", Unit.NOUNIT.toString(-0.00051));
+
+			Locale.setDefault(Locale.GERMANY);
+			assertEquals("-0,001", Unit.NOUNIT.toString(-0.00051));
+		} finally {
+			Locale.setDefault(originalLocale);
+		}
 	}
 
 	@Test

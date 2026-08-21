@@ -1,12 +1,16 @@
 package info.openrocket.core.models.atmosphere;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import static org.junit.jupiter.api.Assertions.*;
-
 
 public class AtmosphericConditionsTest {
 	private AtmosphericConditions conditions;
@@ -49,5 +53,63 @@ public class AtmosphericConditionsTest {
 	void testMachSpeed(double tempK, double expectedSpeed) {
 		conditions.setTemperature(tempK);
 		assertEquals(expectedSpeed, conditions.getMachSpeed(), 1.0);
+	}
+
+	@Test
+	@DisplayName("Gas constant should equal dry-air R when RH is zero")
+	void testGasConstantDryAir() {
+		AtmosphericConditions conditions = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		assertEquals(AtmosphericConditions.R, conditions.getGasConstant(), 0.0);
+	}
+
+	@Test
+	@DisplayName("Gas constant should increase with relative humidity")
+	void testGasConstantIncreasesWithHumidity() {
+		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions mid = new AtmosphericConditions(288.15, 101325.0, 0.5);
+		AtmosphericConditions wet = new AtmosphericConditions(288.15, 101325.0, 1.0);
+
+		assertTrue(mid.getGasConstant() > dry.getGasConstant());
+		assertTrue(wet.getGasConstant() > mid.getGasConstant());
+	}
+
+	@Test
+	@DisplayName("Density should decrease with relative humidity at fixed pressure and temperature")
+	void testDensityDecreasesWithHumidity() {
+		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions wet = new AtmosphericConditions(288.15, 101325.0, 1.0);
+		assertTrue(wet.getDensity() < dry.getDensity());
+	}
+
+	@Test
+	@DisplayName("Humidity should be part of atmospheric equality and hashing")
+	void testHumidityAffectsEqualityAndHashCode() {
+		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions dryCopy = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions humid = new AtmosphericConditions(288.15, 101325.0, 1.0);
+
+		assertTrue(dry.equals(dryCopy));
+		assertEquals(dry.hashCode(), dryCopy.hashCode());
+		assertFalse(dry.equals(humid),
+				"Atmospheric conditions with different humidity should not compare equal");
+		assertNotEquals(dry.hashCode(), humid.hashCode(),
+				"Relative humidity should contribute to the atmospheric hash code");
+	}
+
+	@Test
+	@DisplayName("Saturation vapor pressure should increase with temperature")
+	void testVaporPressureSaturationMonotonicWithTemperature() {
+		AtmosphericConditions cold = new AtmosphericConditions(260.0, 101325.0, 0.5);
+		AtmosphericConditions warm = new AtmosphericConditions(300.0, 101325.0, 0.5);
+
+		assertTrue(cold.vaporPressureSaturation() > 0);
+		assertTrue(warm.vaporPressureSaturation() > cold.vaporPressureSaturation());
+	}
+
+	@Test
+	@DisplayName("Relative humidity should be restricted to [0,1]")
+	void testRelativeHumidityBounds() {
+		assertThrows(IllegalArgumentException.class, () -> new AtmosphericConditions(288.15, 101325.0, -0.01));
+		assertThrows(IllegalArgumentException.class, () -> new AtmosphericConditions(288.15, 101325.0, 1.01));
 	}
 }

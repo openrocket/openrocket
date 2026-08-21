@@ -16,11 +16,11 @@ public interface StabilityCalculator {
 	StabilityCalculator newInstance();
 
 	/**
-	 * Determine whether the current conditions are close to stall.
+	 * Return this calculator's stall angle
 	 *
-	 * @return positive value when not stalled, negative value when stalled
+	 * @return stall angle
 	 */
-	double getStallMargin();
+	double getStallAngle();
 
 	/**
 	 * Calculate the centre of pressure for the supplied configuration and conditions.

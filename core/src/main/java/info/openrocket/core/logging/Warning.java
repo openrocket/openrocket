@@ -50,7 +50,9 @@ public abstract class Warning extends Message {
 		 */
 		public LargeAOA(double aoa) {
 			this.aoa = aoa;
-			setPriority(MessagePriority.NORMAL);
+			// Informative: it reports that the aerodynamic model is out of its envelope,
+			// which is worth knowing on a windy day, not that the flight has gone wrong.
+			setPriority(MessagePriority.LOW);
 		}
 
 		public double getAOA() {
@@ -106,7 +108,7 @@ public abstract class Warning extends Message {
 	 * 
 	 * @author Craig Earls <enderw88@gmail.com>
 	 */
-	public static class HighSpeedDeployment extends Warning {
+	public static class RecoveryHighSpeedDeployment extends Warning {
 		private double recoverySpeed;
 		
 		/**
@@ -116,7 +118,7 @@ public abstract class Warning extends Message {
 		 * @param speed  the speed that caused this warning
 		 * @param chute  the chute(s) that were opening
 		 */
-		public HighSpeedDeployment(double speed, RocketComponent... chute) {
+		public RecoveryHighSpeedDeployment(double speed, RocketComponent... chute) {
 			this.recoverySpeed = speed;
 			this.setSources(chute);
 			setPriority(MessagePriority.NORMAL);
@@ -147,9 +149,146 @@ public abstract class Warning extends Message {
 
 		@Override
 		protected Object clone() throws CloneNotSupportedException {
-			HighSpeedDeployment clone = (HighSpeedDeployment) super.clone();
+			RecoveryHighSpeedDeployment clone = (RecoveryHighSpeedDeployment) super.clone();
 			clone.recoverySpeed = this.recoverySpeed;
 			return clone;
+		}
+	}
+
+	/**
+	 * A <code>Warning</code> indicating a main recovery device deployed at high speed
+	 * when a drogue is present.
+	 */
+	public static class HighSpeedMainDeployment extends Warning {
+		private double recoverySpeed;
+
+		public HighSpeedMainDeployment(double speed, RocketComponent... chute) {
+			this.recoverySpeed = speed;
+			this.setSources(chute);
+			setPriority(MessagePriority.NORMAL);
+		}
+
+		public double getSpeed() {
+			return recoverySpeed;
+		}
+
+		@Override
+		public String getMessageDescription() {
+			if (Double.isNaN(recoverySpeed)) {
+				return trans.get("Warning.RECOVERY_MAIN_HIGH_SPEED");
+			}
+			return trans.get("Warning.RECOVERY_MAIN_HIGH_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
+		}
+
+		@Override
+		public boolean replaceBy(Message other) {
+			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			HighSpeedMainDeployment clone = (HighSpeedMainDeployment) super.clone();
+			clone.recoverySpeed = this.recoverySpeed;
+			return clone;
+		}
+	}
+
+	/**
+	 * A <code>Warning</code> indicating a main recovery device deployed at low speed
+	 * when a drogue is present (rocket may already be near stopped).
+	 */
+	public static class LowSpeedMainDeployment extends Warning {
+		private double recoverySpeed;
+
+		public LowSpeedMainDeployment(double speed, RocketComponent... chute) {
+			this.recoverySpeed = speed;
+			this.setSources(chute);
+			setPriority(MessagePriority.NORMAL);
+		}
+
+		public double getSpeed() {
+			return recoverySpeed;
+		}
+
+		@Override
+		public String getMessageDescription() {
+			if (Double.isNaN(recoverySpeed)) {
+				return trans.get("Warning.RECOVERY_MAIN_LOW_SPEED");
+			}
+			return trans.get("Warning.RECOVERY_MAIN_LOW_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
+		}
+
+		@Override
+		public boolean replaceBy(Message other) {
+			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			LowSpeedMainDeployment clone = (LowSpeedMainDeployment) super.clone();
+			clone.recoverySpeed = this.recoverySpeed;
+			return clone;
+		}
+	}
+
+	/**
+	 * A <code>Warning</code> indicating a drogue deployed too slowly at apogee to inflate properly.
+	 */
+	public static class LowSpeedDrogueDeployment extends Warning {
+		private double recoverySpeed;
+
+		public LowSpeedDrogueDeployment(double speed, RocketComponent... chute) {
+			this.recoverySpeed = speed;
+			this.setSources(chute);
+			setPriority(MessagePriority.NORMAL);
+		}
+
+		public double getSpeed() {
+			return recoverySpeed;
+		}
+
+		@Override
+		public String getMessageDescription() {
+			if (Double.isNaN(recoverySpeed)) {
+				return trans.get("Warning.RECOVERY_DROGUE_LOW_SPEED");
+			}
+			return trans.get("Warning.RECOVERY_DROGUE_LOW_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
+		}
+
+		@Override
+		public boolean replaceBy(Message other) {
+			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			LowSpeedDrogueDeployment clone = (LowSpeedDrogueDeployment) super.clone();
+			clone.recoverySpeed = this.recoverySpeed;
+			return clone;
+		}
+	}
+
+	/**
+	 * A <code>Warning</code> indicating the rocket has a drogue but no main recovery device.
+	 */
+	public static class RecoveryDrogueWithoutMain extends Warning {
+		public RecoveryDrogueWithoutMain() {
+			setPriority(MessagePriority.HIGH);
+		}
+
+		@Override
+		public String getMessageDescription() {
+			return trans.get("Warning.RECOVERY_DROGUE_NO_MAIN");
+		}
+
+		@Override
+		public boolean replaceBy(Message other) {
+			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			return super.clone();
 		}
 	}
 

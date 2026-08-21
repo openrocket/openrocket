@@ -75,15 +75,15 @@ The following file format versions exist:
       Added <maxtime> attribute to simulation conditions.
       Added <designtype> and  <kitname> to <rocket> element.
 
-1.11: Introduced with OpenRocket 25.XX.
-      Added <simulationsteppermethod> to <simulation> element.
+1.11: Introduced with OpenRocket 26.XX.
+      Added <simulationsteppermethod> to <simulation >element.
       Added simulation.table.hiddenColumns document preference for simulation table column visibility.
       Include a file preview image of the 2D side view in the .ork zip file ('preview.png').
       Added gravity model settings (<gravity model="{wgs or constant}">) to simulation conditions.
       Added drag and stability lookup CSV tables (<draglookup> and <stabilitylookup>)
       to simulation conditions. These elements support both:
-      - A "file" attribute containing the path to the CSV file
-      - Embedded <row> elements containing the actual CSV data row by row
+        - A "file" attribute containing the path to the CSV file
+        - Embedded <row> elements containing the actual CSV data row by row
       Format: <draglookupcsv file="path/to/file.csv">
                <row>Mach,AoA,Cd</row>
                <row>0.30,0,0.35</row>
@@ -91,3 +91,18 @@ The following file format versions exist:
               </draglookupcsv>
       When loading, embedded row data is preferred over the file path. If no rows
       are embedded, the file path is used to load from disk (backward compatible).
+      Embedded thrust curve motor data as .rse (RockSim engine) files in a
+      thrustcurves/ directory within the .ork zip archive, keyed by motor digest.
+      This allows designs to be self-contained when sharing custom motors.
+      Added <baserelativehumidity> to the atmosphere model in simulation conditions.
+      Support 'auto' line length for parachute and shock cord.
+      Added 2D and 3D background and text color preferences to <docprefs>.
+      Added per-simulation plot appearance overrides (<plotappearance>) to the
+      <simulation> element. Contains <series> elements keyed by FlightDataType
+      symbol, with optional color (red, green, blue, alpha attributes) and
+      linestyle attributes.
+      Format: <plotappearance>
+                <series symbol="h" linestyle="dashed" red="255" green="0" blue="128" alpha="200"/>
+                <series symbol="Vz" red="0" green="100" blue="200" alpha="255"/>
+              </plotappearance>
+      Increased decimal precision of simulation <flightdata>, <event>, and <datapoint> values to 6 digits after the decimal point.

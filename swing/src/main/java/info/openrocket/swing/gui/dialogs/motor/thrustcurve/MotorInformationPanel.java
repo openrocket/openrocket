@@ -6,6 +6,10 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -57,6 +61,7 @@ class MotorInformationPanel extends JPanel {
 	// Selected motor
 	private ThrustCurveMotor selectedMotor;
 
+	private final JLabel manufacturerLabel;
 	private final JLabel designationLabel;
 	private final JLabel commonNameLabel;
 	private final JLabel totalImpulseLabel;
@@ -72,6 +77,8 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel dataPointsLabel;
 	private final JLabel compatibleCasesLabel;
 	private final JLabel digestLabel;
+	private final JLabel lastUpdatedOnLabel;
+	private final JLabel sourceLabel;
 
 	private final JTextArea comment;
 	private final Font noCommentFont;
@@ -90,6 +97,11 @@ class MotorInformationPanel extends JPanel {
 		
 		// Thrust curve info
 		{
+			//// Manufacturer
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Manufacturer")));
+			manufacturerLabel = new JLabel();
+			this.add(manufacturerLabel, "wrap");
+
 			//// Designation
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Designation")));
 			designationLabel = new JLabel();
@@ -167,6 +179,16 @@ class MotorInformationPanel extends JPanel {
 			} else {
 				digestLabel = null;
 			}
+
+			//// Last updated on:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.LastUpdatedOn")));
+			lastUpdatedOnLabel = new JLabel();
+			this.add(lastUpdatedOnLabel, "wrap");
+
+			//// Source:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Source")));
+			sourceLabel = new JLabel();
+			this.add(sourceLabel, "wrap");
 
 
 			comment = new JTextArea(5, 5);
@@ -256,18 +278,19 @@ class MotorInformationPanel extends JPanel {
 	}
 
 	public static void updateColors() {
-		NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
-		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
-		textColor = GUIUtil.getUITheme().getTextColor();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
-		gridColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
-		infoColor = GUIUtil.getUITheme().getCGColor();
+		NO_COMMENT_COLOR = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		WITH_COMMENT_COLOR = UITheme.getColor(UITheme.Keys.TEXT);
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		gridColor = UITheme.getColor(UITheme.Keys.FIN_GRID_MAJOR);
+		infoColor = UITheme.getColor(UITheme.Keys.CG);
 	}
 	
 	public void clearData() {
 		selectedMotor = null;
 		selectedMotorSet = null;
+		manufacturerLabel.setText("");
 		designationLabel.setText("");
 		commonNameLabel.setText("");
 		totalImpulseLabel.setText("");
@@ -287,6 +310,8 @@ class MotorInformationPanel extends JPanel {
 		if (digestLabel != null) {
 			digestLabel.setText("");
 		}
+		lastUpdatedOnLabel.setText("");
+		sourceLabel.setText("");
 		setComment("");
 		chart.getXYPlot().setDataset(new XYSeriesCollection());
 	}
@@ -302,6 +327,7 @@ class MotorInformationPanel extends JPanel {
 		this.selectedMotor = selectedMotor;
 
 		// Update thrust curve data
+		manufacturerLabel.setText(selectedMotor.getManufacturer().getDisplayName());
 		designationLabel.setText(selectedMotor.getDesignation());
 		commonNameLabel.setText(selectedMotor.getCommonName());
 		double impulse = selectedMotor.getTotalImpulseEstimate();
@@ -330,6 +356,9 @@ class MotorInformationPanel extends JPanel {
 		if (digestLabel != null) {
 			digestLabel.setText(selectedMotor.getDigest());
 		}
+
+		lastUpdatedOnLabel.setText(formatUpdatedOn(selectedMotor.getUpdatedOn()));
+		sourceLabel.setText(formatSource(selectedMotor.getDataSource()));
 
 		setComment(selectedMotor.getDescription());
 
@@ -360,6 +389,36 @@ class MotorInformationPanel extends JPanel {
 		plot.setDataset(dataset);
 
 		invalidate();
+	}
+
+	private static String formatUpdatedOn(String updatedOn) {
+		if (updatedOn == null) {
+			return "";
+		}
+		String v = updatedOn.trim();
+		if (v.isEmpty()) {
+			return "";
+		}
+		try {
+			LocalDate date = Instant.parse(v).atZone(ZoneId.systemDefault()).toLocalDate();
+			return date.toString();
+		} catch (DateTimeParseException ignored) {
+		}
+		return v;
+	}
+
+	private static String formatSource(String source) {
+		if (source == null) {
+			return "";
+		}
+		String v = source.trim();
+		if (v.isEmpty()) {
+			return "";
+		}
+		if ("thrustcurve.org".equalsIgnoreCase(v)) {
+			return "ThrustCurve.org";
+		}
+		return v;
 	}
 	
 	private void setComment(String s) {

@@ -3,7 +3,10 @@ package info.openrocket.core.document;
 import java.lang.reflect.InvocationTargetException;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import info.openrocket.core.simulation.FlightEvent;
 import org.slf4j.Logger;
@@ -21,6 +24,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.BasicEventSimulationEngine;
 import info.openrocket.core.simulation.DefaultSimulationOptionFactory;
 import info.openrocket.core.simulation.FlightData;
+import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.RK4SimulationStepper;
 import info.openrocket.core.simulation.SimulationConditions;
 import info.openrocket.core.simulation.SimulationEngine;
@@ -33,9 +37,11 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.Config;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.SafetyMutex;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.util.StringUtils;
 
 /**
  * A class defining a simulation, its conditions and simulated data.
@@ -164,6 +170,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private String simulatedConfigurationDescription = null;
 	private FlightData simulatedData = null;
 	private ModID simulatedConfigurationModID = ModID.INVALID;
+	private final Map<String, PlotAppearance> plotAppearances = new HashMap<>();	// Optional per-series plot overrides (stored by FlightDataType symbol for stable persistence).
 
 	/**
 	 * Create a new simulation for the rocket. Parent document should also be provided.
@@ -198,6 +205,11 @@ public class Simulation implements ChangeSource, Cloneable {
 
 	public Simulation(OpenRocketDocument document, Rocket rocket, Status status, String name, SimulationOptions options,
 			List<SimulationExtension> extensions, FlightData data) {
+		this(document, rocket, status, name, options, extensions, data, null);
+	}
+
+	public Simulation(OpenRocketDocument document, Rocket rocket, Status status, String name, SimulationOptions options,
+			List<SimulationExtension> extensions, FlightData data, Map<String, PlotAppearance> plotAppearances) {
 
 		if (rocket == null)
 			throw new IllegalArgumentException("rocket cannot be null");
@@ -224,6 +236,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.simulatedConfigurationModID = config.getModID();
 
 		this.simulationExtensions.addAll(extensions);
+		setPlotAppearancesInternal(plotAppearances, false);
 	}
 
 	public FlightConfiguration getActiveConfiguration() {
@@ -636,7 +649,56 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 
 	public Simulation clone() {
+		return clone(true);
+	}
+
+	public Simulation clone(boolean includeSimulatedDate) {
 		mutex.lock("clone");
+		try {
+			Simulation clone = (Simulation) super.clone();
+
+			clone.mutex = SafetyMutex.newInstance();
+			clone.name = this.name;
+			clone.configId = this.configId;
+			clone.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
+			clone.simulatedConfigurationModID = this.simulatedConfigurationModID;
+			clone.options = this.options.clone();
+			clone.listeners = new ArrayList<>();
+			clone.options.addChangeListener(clone.new ConditionListener());
+			if (this.simulatedConditions != null) {
+				clone.simulatedConditions = this.simulatedConditions.clone();
+			} else {
+				clone.simulatedConditions = null;
+			}
+			clone.simulationExtensions = new ArrayList<>();
+			for (SimulationExtension c : this.simulationExtensions) {
+				clone.simulationExtensions.add(c.clone());
+			}
+			clone.status = this.status;
+			if (includeSimulatedDate) {
+				clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			} else {
+				clone.simulatedData = null;
+			}
+			clone.simulationStepperClass = this.simulationStepperClass;
+			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new BugException("Clone not supported, BUG", e);
+		} finally {
+			mutex.unlock("clone");
+		}
+	}
+
+	/**
+	 * Create a duplicate of this simulation suitable for use in document undo history.
+	 * <p>
+	 * The returned simulation has deep-copied settings but the simulated flight data is
+	 * copied by reference (i.e. it is not cloned).
+	 */
+	Simulation cloneForUndo() {
+		mutex.lock("cloneForUndo");
 		try {
 			Simulation clone = (Simulation) super.clone();
 
@@ -657,7 +719,7 @@ public class Simulation implements ChangeSource, Cloneable {
 				clone.simulationExtensions.add(c.clone());
 			}
 			clone.status = this.status;
-			clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			clone.simulatedData = this.simulatedData;
 			clone.simulationStepperClass = this.simulationStepperClass;
 			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 
@@ -665,7 +727,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("Clone not supported, BUG", e);
 		} finally {
-			mutex.unlock("clone");
+			mutex.unlock("cloneForUndo");
 		}
 	}
 
@@ -683,12 +745,17 @@ public class Simulation implements ChangeSource, Cloneable {
 			this.options.copyConditionsFrom(simulation.options);
 			if (simulation.simulatedConditions == null) {
 				this.simulatedConditions = null;
+			} else if (this.simulatedConditions == null) {
+				this.simulatedConditions = simulation.simulatedConditions.clone();
 			} else {
 				this.simulatedConditions.copyConditionsFrom(simulation.simulatedConditions);
 			}
 			copyExtensionsFrom(simulation.getSimulationExtensions());
 			this.status = simulation.status;
 			this.simulatedData = simulation.simulatedData;
+			if (isStatusUpToDate(this.status) && !this.configId.hasError()) {
+				this.simulatedConfigurationModID = getActiveConfiguration().getModID();
+			}
 			this.simulationStepperClass = simulation.simulationStepperClass;
 			this.aerodynamicCalculatorClass = simulation.aerodynamicCalculatorClass;
 		} finally {
@@ -718,6 +785,10 @@ public class Simulation implements ChangeSource, Cloneable {
 			newSim.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
 				newSim.simulationExtensions.add(c.clone());
+			}
+			newSim.plotAppearances.clear();
+			for (Map.Entry<String, PlotAppearance> entry : this.plotAppearances.entrySet()) {
+				newSim.plotAppearances.put(entry.getKey(), entry.getValue().clone());
 			}
 			newSim.simulationStepperClass = this.simulationStepperClass;
 			newSim.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
@@ -751,6 +822,136 @@ public class Simulation implements ChangeSource, Cloneable {
 				((StateChangeListener) l).stateChanged(e);
 			}
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Simulation other)) {
+			return false;
+		}
+
+		mutex.verify();
+		other.mutex.verify();
+
+		return Objects.equals(this.name, other.name) &&
+				Objects.equals(this.configId, other.configId) &&
+				Objects.equals(this.options, other.options) &&
+				Objects.equals(this.simulationEngineClass, other.simulationEngineClass) &&
+				Objects.equals(this.simulationStepperClass, other.simulationStepperClass) &&
+				Objects.equals(this.aerodynamicCalculatorClass, other.aerodynamicCalculatorClass) &&
+				Objects.equals(this.plotAppearances, other.plotAppearances) &&
+				simulationExtensionsEqual(this.simulationExtensions, other.simulationExtensions);
+	}
+
+	@Override
+	public int hashCode() {
+		return 0;
+	}
+
+	private static boolean simulationExtensionsEqual(List<SimulationExtension> a, List<SimulationExtension> b) {
+		if (a == b) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		if (a.size() != b.size()) {
+			return false;
+		}
+
+		for (int i = 0; i < a.size(); i++) {
+			SimulationExtension extA = a.get(i);
+			SimulationExtension extB = b.get(i);
+			if (extA == extB) {
+				continue;
+			}
+			if (extA == null || extB == null) {
+				return false;
+			}
+			if (!Objects.equals(extA.getId(), extB.getId())) {
+				return false;
+			}
+			if (!configEqual(extA.getConfig(), extB.getConfig())) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public PlotAppearance getPlotAppearance(FlightDataType type) {
+		mutex.verify();
+		if (type == null) {
+			return null;
+		}
+		String symbol = type.getSymbol();
+		if (StringUtils.isEmpty(symbol)) {
+			return null;
+		}
+		PlotAppearance appearance = plotAppearances.get(symbol);
+		return appearance != null ? appearance.clone() : null;
+	}
+
+	public void setPlotAppearance(FlightDataType type, PlotAppearance appearance) {
+		mutex.verify();
+		if (type == null) {
+			return;
+		}
+		String symbol = type.getSymbol();
+		if (StringUtils.isEmpty(symbol)) {
+			return;
+		}
+		if (appearance == null || appearance.isEmpty()) {
+			plotAppearances.remove(symbol);
+		} else {
+			plotAppearances.put(symbol, appearance.clone());
+		}
+		fireChangeEvent();
+	}
+
+	public Map<String, PlotAppearance> getPlotAppearances() {
+		mutex.verify();
+		Map<String, PlotAppearance> copy = new HashMap<>(plotAppearances.size());
+		for (Map.Entry<String, PlotAppearance> entry : plotAppearances.entrySet()) {
+			copy.put(entry.getKey(), entry.getValue().clone());
+		}
+		return copy;
+	}
+
+	private void setPlotAppearancesInternal(Map<String, PlotAppearance> appearances, boolean notify) {
+		plotAppearances.clear();
+		if (appearances != null) {
+			for (Map.Entry<String, PlotAppearance> entry : appearances.entrySet()) {
+				PlotAppearance appearance = entry.getValue();
+				if (appearance != null && !appearance.isEmpty()) {
+					plotAppearances.put(entry.getKey(), appearance.clone());
+				}
+			}
+		}
+		if (notify) {
+			fireChangeEvent();
+		}
+	}
+
+	private static boolean configEqual(Config a, Config b) {
+		if (a == b) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		if (!a.keySet().equals(b.keySet())) {
+			return false;
+		}
+		for (String key : a.keySet()) {
+			if (!Objects.equals(a.get(key, null), b.get(key, null))) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	

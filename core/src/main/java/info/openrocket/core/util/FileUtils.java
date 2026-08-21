@@ -3,10 +3,13 @@ package info.openrocket.core.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public abstract class FileUtils {
 	private static final char[] ILLEGAL_CHARS = new char[] { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
@@ -78,4 +81,35 @@ public abstract class FileUtils {
 		return null;
 	}
 
+	public static File makeDirectoryIfNotExists(File dir) throws IOException {
+		if (!dir.exists()) {
+			if (!dir.mkdirs()) {
+				throw new IOException("Could not create directory: " + dir.getAbsolutePath());
+			}
+		} else if (!dir.isDirectory()) {
+			throw new IOException("File exists and is not a directory: " + dir.getAbsolutePath());
+		} else if (!dir.canRead()) {
+			throw new IOException("Directory is not readable: " + dir.getAbsolutePath());
+		}
+		return dir;
+	}
+
+	/**
+	 * Replace targetFile with sourceFile atomically if possible.
+	 * @param sourceFile the file to move
+	 * @param targetFile the target file to replace
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static void replaceFile(File sourceFile, File targetFile) throws IOException {
+		if (sourceFile == null || !sourceFile.isFile()) {
+			throw new IOException("Temporary file missing: " + sourceFile);
+		}
+		try {
+			Files.move(sourceFile.toPath(), targetFile.toPath(),
+					StandardCopyOption.REPLACE_EXISTING,
+					StandardCopyOption.ATOMIC_MOVE);
+		} catch (IOException ignored) {
+			Files.move(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+	}
 }

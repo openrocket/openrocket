@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.Motor.Type;
 import info.openrocket.core.startup.Application;
 
@@ -71,30 +72,25 @@ public class DatabaseMotorFinder implements MotorFinder {
 
 			log.debug("motor is " + m.getDesignation());
 
-			if (digest != null && !digest.equals(m.getDigest())) {
-				String str = "Motor with designation '" + designation + "'";
-				if (manufacturer != null)
-					str += " for manufacturer '" + manufacturer + "'";
-				str += " has differing thrust curve than the original.";
-				warnings.add(str);
-			}
 			return m;
 		}
 
 		// Multiple motors, check digest for which one to use
 		if (digest != null) {
 
-			// Check for motor with correct digest
+			// Prefer a motor with a compatible digest (historical digests included).
 			for (Motor m : motors) {
-				if (digest.equals(m.getDigest())) {
+				if (MotorDigest.isDigestCompatible(m, digest)) {
 					return m;
 				}
 			}
-			String str = "Motor with designation '" + designation + "'";
-			if (manufacturer != null)
-				str += " for manufacturer '" + manufacturer + "'";
-			str += " has differing thrust curve than the original.";
-			warnings.add(str);
+
+			// Fall back to an exact designation match if possible (e.g. prefer "B6" over "B6-0").
+			for (Motor m : motors) {
+				if (m.getDesignation() != null && m.getDesignation().equalsIgnoreCase(designation)) {
+					return m;
+				}
+			}
 
 		} else {
 

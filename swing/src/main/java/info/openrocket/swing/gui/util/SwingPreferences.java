@@ -7,7 +7,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +40,8 @@ import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
+import info.openrocket.core.document.PlotAppearance;
+import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.Simulation;
@@ -65,12 +66,21 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
+	private static final String NODE_PLOT_DEFAULT_APPEARANCES = "PlotDefaultAppearances";
 	public static final String UI_SCALE = "UIScaling";
 	private static final String UI_FONT_SIZE = "UIFontSize";
 	public static final String UI_FONT_STYLE = "UIFontStyle";
 	public static final String UI_FONT_TRACKING = "UIFontTracking";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	public static final String LOCK_CLICK_DRAG_ROTATION = "LockClickDragRotation";
+	public static final String AUTO_OPEN_PARTS_LIBRARY = "AutoOpenPartsLibrary";
+	public static final String UPDATE_ROCKET_WHILE_DRAGGING_POINT = "UpdateRocketWhileDraggingPoint";
+	
+	// Default design view display colors
+	public static final String DEFAULT_2D_BACKGROUND_COLOR = "DesignView.default2DBackgroundColor";
+	public static final String DEFAULT_3D_BACKGROUND_COLOR = "DesignView.default3DBackgroundColor";
+	public static final String DEFAULT_2D_TEXT_COLOR = "DesignView.default2DTextColor";
+	public static final String DEFAULT_3D_TEXT_COLOR = "DesignView.default3DTextColor";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -82,8 +92,6 @@ public class SwingPreferences extends ApplicationPreferences {
 		list.add(new Locale("uk", "UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
-
-	private final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<>();
 	
 	
 	/**
@@ -106,8 +114,10 @@ public class SwingPreferences extends ApplicationPreferences {
 	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
 	private Preferences PREFNODE;
-	
-	
+
+	private final Map<String, Set<String>> cachedNodeKeys = new HashMap<>();
+
+
 	public SwingPreferences() {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
@@ -121,19 +131,20 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		PREFNODE = root.node(NODENAME);
 		fillDefaultComponentColors();
+		UITheme.Theme.addUIThemeChangeListener(this::updateColors);
 	}
 
 	private void fillDefaultComponentColors() {
-		DEFAULT_COLORS.put(BodyComponent.class, getUIThemeAsTheme().getDefaultBodyComponentColor());
-		DEFAULT_COLORS.put(TubeFinSet.class, getUIThemeAsTheme().getDefaultTubeFinSetColor());
-		DEFAULT_COLORS.put(FinSet.class, getUIThemeAsTheme().getDefaultFinSetColor());
-		DEFAULT_COLORS.put(LaunchLug.class, getUIThemeAsTheme().getDefaultLaunchLugColor());
-		DEFAULT_COLORS.put(RailButton.class, getUIThemeAsTheme().getDefaultRailButtonColor());
-		DEFAULT_COLORS.put(InternalComponent.class, getUIThemeAsTheme().getDefaultInternalComponentColor());
-		DEFAULT_COLORS.put(MassObject.class, getUIThemeAsTheme().getDefaultMassObjectColor());
-		DEFAULT_COLORS.put(RecoveryDevice.class, getUIThemeAsTheme().getDefaultRecoveryDeviceColor());
-		DEFAULT_COLORS.put(PodSet.class, getUIThemeAsTheme().getDefaultPodSetColor());
-		DEFAULT_COLORS.put(ParallelStage.class, getUIThemeAsTheme().getDefaultParallelStageColor());
+		DEFAULT_COLORS.put(BodyComponent.class, UITheme.getString(UITheme.Keys.DEFAULT_BODY_COMPONENT_COLOR, UITheme.Themes.LIGHT.getDefaultBodyComponentColor()));
+		DEFAULT_COLORS.put(TubeFinSet.class, UITheme.getString(UITheme.Keys.DEFAULT_TUBE_FIN_SET_COLOR, UITheme.Themes.LIGHT.getDefaultTubeFinSetColor()));
+		DEFAULT_COLORS.put(FinSet.class, UITheme.getString(UITheme.Keys.DEFAULT_FIN_SET_COLOR, UITheme.Themes.LIGHT.getDefaultFinSetColor()));
+		DEFAULT_COLORS.put(LaunchLug.class, UITheme.getString(UITheme.Keys.DEFAULT_LAUNCH_LUG_COLOR, UITheme.Themes.LIGHT.getDefaultLaunchLugColor()));
+		DEFAULT_COLORS.put(RailButton.class, UITheme.getString(UITheme.Keys.DEFAULT_RAIL_BUTTON_COLOR, UITheme.Themes.LIGHT.getDefaultRailButtonColor()));
+		DEFAULT_COLORS.put(InternalComponent.class, UITheme.getString(UITheme.Keys.DEFAULT_INTERNAL_COMPONENT_COLOR, UITheme.Themes.LIGHT.getDefaultInternalComponentColor()));
+		DEFAULT_COLORS.put(MassObject.class, UITheme.getString(UITheme.Keys.DEFAULT_MASS_OBJECT_COLOR, UITheme.Themes.LIGHT.getDefaultMassObjectColor()));
+		DEFAULT_COLORS.put(RecoveryDevice.class, UITheme.getString(UITheme.Keys.DEFAULT_RECOVERY_DEVICE_COLOR, UITheme.Themes.LIGHT.getDefaultRecoveryDeviceColor()));
+		DEFAULT_COLORS.put(PodSet.class, UITheme.getString(UITheme.Keys.DEFAULT_POD_SET_COLOR, UITheme.Themes.LIGHT.getDefaultPodSetColor()));
+		DEFAULT_COLORS.put(ParallelStage.class, UITheme.getString(UITheme.Keys.DEFAULT_PARALLEL_STAGE_COLOR, UITheme.Themes.LIGHT.getDefaultParallelStageColor()));
 	}
 
 	public void updateColors() {
@@ -175,6 +186,7 @@ public class SwingPreferences extends ApplicationPreferences {
 				root.node(NODENAME).removeNode();
 			}
 			PREFNODE = root.node(NODENAME);
+			cachedNodeKeys.clear();
 			UnitGroup.resetDefaultUnits();
 			storeDefaultUnits();
 			log.info("Cleared preferences");
@@ -188,20 +200,43 @@ public class SwingPreferences extends ApplicationPreferences {
 	 */
 	private void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
+		cacheKeyAdded(PREFNODE, "OpenRocketVersion");
 	}
 
 	/**
 	 * Checks if a certain key exists in the node
+	 * Results are cached per node path and updated incrementally on writes to avoid
+	 * repeated native disk I/O from AbstractPreferences.keys().
 	 * @param node node to check the keys of.
 	 * @param key key to check
 	 * @return true if the key is stored in the preferences, false otherwise
 	 */
 	private boolean keyExists(Preferences node, String key) {
-		try {
-			return Arrays.asList(node.keys()).contains(key);
-		} catch (BackingStoreException e) {
-			e.printStackTrace();
-			return false;
+		String path = node.absolutePath();
+		Set<String> keys = cachedNodeKeys.get(path);
+		if (keys == null) {
+			try {
+				keys = new HashSet<>(Arrays.asList(node.keys()));
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+				return false;
+			}
+			cachedNodeKeys.put(path, keys);
+		}
+		return keys.contains(key);
+	}
+
+	private void cacheKeyAdded(Preferences node, String key) {
+		Set<String> keys = cachedNodeKeys.get(node.absolutePath());
+		if (keys != null) {
+			keys.add(key);
+		}
+	}
+
+	private void cacheKeyRemoved(Preferences node, String key) {
+		Set<String> keys = cachedNodeKeys.get(node.absolutePath());
+		if (keys != null) {
+			keys.remove(key);
 		}
 	}
 
@@ -216,6 +251,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public String getString(String key, String def) {
 		if (!keyExists(PREFNODE, key) && key != null && def != null) {
 			PREFNODE.put(key, def);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -224,12 +260,13 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		return PREFNODE.get(key, def);
 	}
-	
+
 	@Override
 	public String getString(String directory, String key, String defaultValue) {
 		Preferences p = PREFNODE.node(directory);
 		if (!keyExists(p, key) && key != null && defaultValue != null) {
 			p.put(key, defaultValue);
+			cacheKeyAdded(p, key);
 			try {
 				p.flush();
 			} catch (BackingStoreException e) {
@@ -249,19 +286,23 @@ public class SwingPreferences extends ApplicationPreferences {
 	public void putString(String key, String value) {
 		if (value == null) {
 			PREFNODE.remove(key);
+			cacheKeyRemoved(PREFNODE, key);
 		} else {
 			PREFNODE.put(key, value);
+			cacheKeyAdded(PREFNODE, key);
 		}
 		storeVersion();
 	}
-	
+
 	@Override
 	public void putString(String directory, String key, String value) {
 		Preferences p = PREFNODE.node(directory);
 		if (value == null) {
 			p.remove(key);
+			cacheKeyRemoved(p, key);
 		} else {
 			p.put(key, value);
+			cacheKeyAdded(p, key);
 		}
 		storeVersion();
 	}
@@ -279,6 +320,7 @@ public class SwingPreferences extends ApplicationPreferences {
 		if (!keyExists(PREFNODE, key) && key != null) {
 			// Save the default value
 			PREFNODE.putBoolean(key, def);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -297,6 +339,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	@Override
 	public void putBoolean(String key, boolean value) {
 		PREFNODE.putBoolean(key, value);
+		cacheKeyAdded(PREFNODE, key);
 		storeVersion();
 	}
 
@@ -304,6 +347,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public int getInt(String key, int defaultValue) {
 		if (!keyExists(PREFNODE, key) && key != null) {
 			PREFNODE.putInt(key, defaultValue);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -312,10 +356,11 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		return PREFNODE.getInt(key, defaultValue);
 	}
-	
+
 	@Override
 	public void putInt(String key, int value) {
 		PREFNODE.putInt(key, value);
+		cacheKeyAdded(PREFNODE, key);
 		storeVersion();
 	}
 
@@ -323,6 +368,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public double getDouble(String key, double defaultValue) {
 		if (!keyExists(PREFNODE, key) && key != null) {
 			PREFNODE.putDouble(key, defaultValue);
+			cacheKeyAdded(PREFNODE, key);
 			try {
 				PREFNODE.flush();
 			} catch (BackingStoreException e) {
@@ -331,10 +377,11 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		return PREFNODE.getDouble(key, defaultValue);
 	}
-	
+
 	@Override
 	public void putDouble(String key, double value) {
 		PREFNODE.putDouble(key, value);
+		cacheKeyAdded(PREFNODE, key);
 		storeVersion();
 	}
 	
@@ -494,18 +541,23 @@ public class SwingPreferences extends ApplicationPreferences {
 		putBoolean(LOCK_CLICK_DRAG_ROTATION, lock);
 	}
 
-	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, DEFAULT_COLORS);
-		if (color == null)
-			return ORColor.fromAWTColor(getUIThemeAsTheme().getTextColor());
-
-		ORColor clr = parseColor(color);
-		if (clr != null) {
-			return clr;
-		} else {
-			return ORColor.fromAWTColor(getUIThemeAsTheme().getTextColor());
-		}
+	/**
+	 * Get whether to update the rocket figure while dragging fin points.
+	 * @return true if the rocket should be updated during dragging, false if it should be frozen
+	 */
+	public boolean isUpdateRocketWhileDraggingPoint() {
+		return getBoolean(UPDATE_ROCKET_WHILE_DRAGGING_POINT, false);
 	}
+
+	/**
+	 * Set whether to update the rocket figure while dragging fin points.
+	 * @param update true to update the rocket during dragging, false to freeze it (better performance)
+	 */
+	public void setUpdateRocketWhileDraggingPoint(boolean update) {
+		putBoolean(UPDATE_ROCKET_WHILE_DRAGGING_POINT, update);
+	}
+
+	// getDefaultColor is in ApplicationPreferences
 
 	public final void setDefaultColor(Class<? extends RocketComponent> c, ORColor color) {
 		if (color == null)
@@ -654,6 +706,14 @@ public class SwingPreferences extends ApplicationPreferences {
 	public void setTableColumnWidth(Class<?> c, int columnIdx, Integer width) {
 		setTableColumnWidth(c.getCanonicalName(), columnIdx, width);
 	}
+
+	public void setAutoOpenPartsLibrary(boolean check) {
+		putBoolean(AUTO_OPEN_PARTS_LIBRARY, check);
+	}
+
+	public boolean isAutoOpenPartsLibrary() {
+		return getBoolean(AUTO_OPEN_PARTS_LIBRARY, true);
+	}
 	
 	/**
 	 * this class returns a java.awt.ORColor object for the specified key.
@@ -661,7 +721,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	 * disambiguate
 	 */
 	public Color getColor(String key, Color defaultValue) {
-		ORColor c = super.getColor(key, (ORColor) null);
+		ORColor c = super.getORColor(key, (ORColor) null);
 		if (c == null) {
 			return defaultValue;
 		}
@@ -674,6 +734,88 @@ public class SwingPreferences extends ApplicationPreferences {
 	public void putColor(String key, Color value) {
 		ORColor c = ColorConversion.fromAwtColor(value);
 		super.putColor(key, c);
+	}
+	
+	////  Design View Display Defaults
+	
+	/**
+	 * Get the default 2D view background color.
+	 * @return the default color, or null if not set (will use theme default)
+	 */
+	public Color getDefault2DBackgroundColor() {
+		return getColor(DEFAULT_2D_BACKGROUND_COLOR, null);
+	}
+	
+	/**
+	 * Set the default 2D view background color.
+	 * @param color the default color, or null to remove
+	 */
+	public void setDefault2DBackgroundColor(Color color) {
+		if (color == null) {
+			putString(DEFAULT_2D_BACKGROUND_COLOR, null);
+		} else {
+			putColor(DEFAULT_2D_BACKGROUND_COLOR, color);
+		}
+	}
+	
+	/**
+	 * Get the default 3D view background color.
+	 * @return the default color, or null if not set (will use theme default)
+	 */
+	public Color getDefault3DBackgroundColor() {
+		return getColor(DEFAULT_3D_BACKGROUND_COLOR, null);
+	}
+	
+	/**
+	 * Set the default 3D view background color.
+	 * @param color the default color, or null to remove
+	 */
+	public void setDefault3DBackgroundColor(Color color) {
+		if (color == null) {
+			putString(DEFAULT_3D_BACKGROUND_COLOR, null);
+		} else {
+			putColor(DEFAULT_3D_BACKGROUND_COLOR, color);
+		}
+	}
+	
+	/**
+	 * Get the default 2D view text color.
+	 * @return the default color, or null if not set (will use theme default)
+	 */
+	public Color getDefault2DTextColor() {
+		return getColor(DEFAULT_2D_TEXT_COLOR, null);
+	}
+	
+	/**
+	 * Set the default 2D view text color.
+	 * @param color the default color, or null to remove
+	 */
+	public void setDefault2DTextColor(Color color) {
+		if (color == null) {
+			putString(DEFAULT_2D_TEXT_COLOR, null);
+		} else {
+			putColor(DEFAULT_2D_TEXT_COLOR, color);
+		}
+	}
+	
+	/**
+	 * Get the default 3D view text color.
+	 * @return the default color, or null if not set (will use theme default)
+	 */
+	public Color getDefault3DTextColor() {
+		return getColor(DEFAULT_3D_TEXT_COLOR, null);
+	}
+	
+	/**
+	 * Set the default 3D view text color.
+	 * @param color the default color, or null to remove
+	 */
+	public void setDefault3DTextColor(Color color) {
+		if (color == null) {
+			putString(DEFAULT_3D_TEXT_COLOR, null);
+		} else {
+			putColor(DEFAULT_3D_TEXT_COLOR, color);
+		}
 	}
 	
 	////  Printing
@@ -951,5 +1093,77 @@ public class SwingPreferences extends ApplicationPreferences {
 		for (Manufacturer m : manus) {
 			prefs.putBoolean(m.getSimpleName(), true);
 		}
+	}
+
+	/**
+	 * Return the user-defined application-level default plot appearance for the given flight data type,
+	 * or {@code null} if no default has been set.
+	 * <p>
+	 * Keyed by {@link FlightDataType#getName()}.
+	 * Color is stored as {@code "r,g,b"} (via {@link #parseColor}) and line style as its enum name.
+	 */
+	public PlotAppearance getDefaultPlotAppearance(FlightDataType type) {
+		if (type == null) {
+			return null;
+		}
+
+		String key = type.getName();
+		if (key == null || key.isEmpty()) {
+			return null;
+		}
+
+		String colorStr = getString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".color", null);
+		String lineStyleStr = getString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".lineStyle", null);
+		// No entry stored yet for this type.
+		if (colorStr == null && lineStyleStr == null) {
+			return null;
+		}
+
+		ORColor color = parseColor(colorStr);
+		LineStyle lineStyle = null;
+		if (lineStyleStr != null) {
+			try {
+				lineStyle = LineStyle.valueOf(lineStyleStr);
+			} catch (IllegalArgumentException ignored) {
+				// Unknown value in prefs: treat as absent.
+			}
+		}
+		PlotAppearance result = new PlotAppearance(color, lineStyle);
+
+		return result.isEmpty() ? null : result;
+	}
+
+	/**
+	 * Store a user-defined application-level default plot appearance for the given flight data type.
+	 * <p>
+	 * Keyed by {@link FlightDataType#getName()}.
+	 * Pass {@code null} (or an empty appearance) to clear the stored default.
+	 * Color is stored as {@code "r,g,b"} (via {@link #stringifyColor}); {@code null} color removes the color entry.
+	 * Line style is stored as its enum name; {@code null} line style removes the entry.
+	 */
+	public void setDefaultPlotAppearance(FlightDataType type, PlotAppearance appearance) {
+		if (type == null) {
+			return;
+		}
+
+		String key = type.getName();
+		if (key == null || key.isEmpty()) {
+			return;
+		}
+
+		// Null or empty appearance clears any previously stored default.
+		if (appearance == null || appearance.isEmpty()) {
+			putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".color", null);
+			putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".lineStyle", null);
+			return;
+		}
+		// Store color as "r,g,b", or remove the key if no color override is set.
+		ORColor color = appearance.getColor();
+		putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".color",
+				color != null ? stringifyColor(color) : null);
+		// Store line style by name, or remove the key if not set.
+		LineStyle lineStyle = appearance.getLineStyle();
+		putString(NODE_PLOT_DEFAULT_APPEARANCES, key + ".lineStyle",
+				lineStyle != null ? lineStyle.name() : null);
 	}
 }

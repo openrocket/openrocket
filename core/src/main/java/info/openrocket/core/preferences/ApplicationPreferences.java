@@ -27,6 +27,7 @@ import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.DegreeUnit;
@@ -35,14 +36,19 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.FileUtils;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.simulation.SimulationStepperMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
+	private static final Logger log = LoggerFactory.getLogger(ApplicationPreferences.class);
+
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
@@ -80,6 +86,9 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
+	private static final String CHECK_MOTOR_DATABASE_UPDATES = "CheckMotorDatabaseUpdates";
+	private static final String AUTO_INSTALL_MOTOR_DATABASE_UPDATES = "AutoInstallMotorDatabaseUpdates";
+	private static final String IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS = "IgnoreMotorDatabaseUpdateVersions";
 
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
@@ -145,6 +154,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String LAUNCH_LONGITUDE = "LaunchLongitude";
 	public static final String LAUNCH_TEMPERATURE = "LaunchTemperature";
 	public static final String LAUNCH_PRESSURE = "LaunchPressure";
+	public static final String LAUNCH_RELATIVE_HUMIDITY = "LaunchRelativeHumidity";
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
@@ -152,6 +162,12 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String GRAVITY_MODEL = "GravityModel";
 	public static final String CONSTANT_GRAVITY_VALUE = "ConstantGravityValue";
 	public static final String SIMULATION_STEPPER_METHOD = "SimulationStepperMethod";
+	public static final String RECOVERY_SPEED_WARNING = "RecoverySpeedWarning";
+	public static final String DROGUE_LOW_SPEED_WARNING = "DrogueLowSpeedWarning";
+	public static final String RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING = "RecoveryDrogueMainHighSpeedWarning";
+	public static final String RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING = "RecoveryDrogueMainLowSpeedWarning";
+	public static final String SIMULATION_RANDOM_SEED = "SimulationRandomSeed";
+	public static final String SIMULATION_RANDOM_SEED_FIXED = "SimulationRandomSeedFixed";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -180,7 +196,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// SVG export options
 	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
-  public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
+    public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
 	public static final String SVG_CROSSHAIR_COLOR = "SVGCrosshairColor";
 	public static final String SVG_CROSSHAIR_SIZE = "SVGCrosshairSize";
 	public static final String SVG_SHOW_LABELS = "SVGShowLabels";
@@ -197,6 +213,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 
 	private PinkNoiseWindModel averageWindModel = null;
+
+	// Default component colors. This is filled by SwingPreferences, but defined here so it can be used by code
+	// in the core module.
+	protected final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<>();
 
 
 	/*
@@ -302,6 +322,38 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putBoolean(CHECK_BETA_UPDATES, check);
 	}
 
+	public final boolean getCheckMotorDatabaseUpdates() {
+		return this.getBoolean(CHECK_MOTOR_DATABASE_UPDATES, true);
+	}
+
+	public final void setCheckMotorDatabaseUpdates(boolean check) {
+		this.putBoolean(CHECK_MOTOR_DATABASE_UPDATES, check);
+	}
+
+	/**
+	 * Returns whether motor database updates should be installed without asking the user for confirmation.
+	 * @return true if available motor database updates are installed automatically
+	 */
+	public final boolean getAutoInstallMotorDatabaseUpdates() {
+		return this.getBoolean(AUTO_INSTALL_MOTOR_DATABASE_UPDATES, false);
+	}
+
+	/**
+	 * Sets whether motor database updates should be installed without asking the user for confirmation.
+	 * @param autoInstall true to install available motor database updates automatically
+	 */
+	public final void setAutoInstallMotorDatabaseUpdates(boolean autoInstall) {
+		this.putBoolean(AUTO_INSTALL_MOTOR_DATABASE_UPDATES, autoInstall);
+	}
+
+	public final List<String> getIgnoreMotorDatabaseUpdateVersions() {
+		return List.of(this.getString(IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS, "").split("\n"));
+	}
+
+	public final void setIgnoreMotorDatabaseUpdateVersions(List<String> versions) {
+		this.putString(IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS, String.join("\n", versions));
+	}
+
 
 	/*
 	 * *********************** Unit Preferences *******************************************
@@ -357,7 +409,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public final boolean getLaunchIntoWind() {
-		return this.getBoolean(LAUNCH_INTO_WIND, false);
+		return this.getBoolean(LAUNCH_INTO_WIND, true);
 	}
 	
 	public final void setLaunchIntoWind(boolean check) {
@@ -426,7 +478,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 	
 	public void setLaunchRodAngle(double launchRodAngle) {
-		launchRodAngle = MathUtil.clamp(launchRodAngle, -Math.PI / 6.0, Math.PI / 6.0);
+		// Use the same limit as SimulationOptions, since the launch preferences and a
+		// simulation's launch conditions are edited with the same panel.
+		launchRodAngle = MathUtil.clamp(launchRodAngle, -SimulationOptions.MAX_LAUNCH_ROD_ANGLE,
+				SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_ANGLE, 0), launchRodAngle))
 			return;
 		this.putDouble(LAUNCH_ROD_ANGLE, launchRodAngle);
@@ -435,7 +490,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	
 	public double getLaunchRodDirection() {
-		if (this.getBoolean(LAUNCH_INTO_WIND, false)) {
+		if (getLaunchIntoWind()) {
 			// When launching into wind, sync the launch rod direction with wind direction
 			double windDirection = this.getDouble(WIND_DIRECTION, Math.PI / 2);
 			this.setLaunchRodDirection(windDirection);
@@ -493,6 +548,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isISAAtmosphere()) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
@@ -578,8 +634,27 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putDouble(LAUNCH_PRESSURE, launchPressure);
 		fireChangeEvent();
 	}
-	
-	
+
+	/**
+	 * Returns the relative humidity at the launch site.
+	 * @return the launch site relative humidity (0 to 1)
+	 */
+	public double getLaunchRelativeHumidity() {
+		return this.getDouble(LAUNCH_RELATIVE_HUMIDITY, ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY);
+	}
+
+	/**
+	 * Sets the relative humidity at the launch site.
+	 * @param launchHumidity the launch site relative humidity (0 to 1)
+	 */
+	public void setLaunchRelativeHumidity(double launchHumidity) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_RELATIVE_HUMIDITY, ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY), launchHumidity))
+			return;
+		this.putDouble(LAUNCH_RELATIVE_HUMIDITY, launchHumidity);
+		fireChangeEvent();
+	}
+
+
 	public boolean isISAAtmosphere() {
 		return this.getBoolean(LAUNCH_USE_ISA, true);
 	}
@@ -594,6 +669,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isa) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
@@ -611,7 +687,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		}
 		return new ExtendedISAModel(getLaunchAltitude(),
 				this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE),
-				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE));
+				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE),
+				this.getDouble(LAUNCH_RELATIVE_HUMIDITY, ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY));
 	}
 
 	public GeodeticComputationStrategy getGeodeticComputation() {
@@ -648,6 +725,50 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putEnum(SIMULATION_STEPPER_METHOD, choice);
 	}
 
+	/**
+	 * Returns the default random seed for newly created simulations.
+	 *
+	 * @return the configured signed 32-bit seed
+	 */
+	public int getRandomSeed() {
+		return this.getInt(SIMULATION_RANDOM_SEED, 0);
+	}
+
+	/**
+	 * Sets the default random seed for newly created simulations.
+	 *
+	 * @param randomSeed the signed 32-bit seed
+	 */
+	public void setRandomSeed(int randomSeed) {
+		if (this.getInt(SIMULATION_RANDOM_SEED, 0) == randomSeed) {
+			return;
+		}
+		this.putInt(SIMULATION_RANDOM_SEED, randomSeed);
+		fireChangeEvent();
+	}
+
+	/**
+	 * Returns whether newly created simulations should reuse the configured random seed.
+	 *
+	 * @return {@code true} to create simulations with a fixed seed
+	 */
+	public boolean isRandomSeedFixed() {
+		return this.getBoolean(SIMULATION_RANDOM_SEED_FIXED, false);
+	}
+
+	/**
+	 * Sets whether newly created simulations should reuse the configured random seed.
+	 *
+	 * @param randomSeedFixed {@code true} to create simulations with a fixed seed
+	 */
+	public void setRandomSeedFixed(boolean randomSeedFixed) {
+		if (this.getBoolean(SIMULATION_RANDOM_SEED_FIXED, false) == randomSeedFixed) {
+			return;
+		}
+		this.putBoolean(SIMULATION_RANDOM_SEED_FIXED, randomSeedFixed);
+		fireChangeEvent();
+	}
+
 
 	public double getTimeStep() {
 		return this.getDouble(ApplicationPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
@@ -669,6 +790,50 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (MathUtil.equals(this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME), maxTime))
 			return;
 		this.putDouble(SIMULATION_MAX_TIME, maxTime);
+		fireChangeEvent();
+	}
+
+	public double getRecoverySpeedWarning() {
+		return this.getDouble(RECOVERY_SPEED_WARNING, 20.0);
+	}
+
+	public void setRecoverySpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_SPEED_WARNING, 20.0), value))
+			return;
+		this.putDouble(RECOVERY_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getDrogueLowSpeedWarning() {
+		return this.getDouble(DROGUE_LOW_SPEED_WARNING, 3.048);
+	}
+
+	public void setDrogueLowSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(DROGUE_LOW_SPEED_WARNING, 3.048), value))
+			return;
+		this.putDouble(DROGUE_LOW_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainHighSpeedWarning() {
+		return this.getDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, 30.48);
+	}
+
+	public void setRecoveryDrogueMainHighSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, 30.48), value))
+			return;
+		this.putDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainLowSpeedWarning() {
+		return this.getDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, 15.24);
+	}
+
+	public void setRecoveryDrogueMainLowSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, 15.24), value))
+			return;
+		this.putDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, value);
 		fireChangeEvent();
 	}
 
@@ -1001,7 +1166,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @param defaultValue
 	 * @return
 	 */
-	public final ORColor getColor(String key, ORColor defaultValue) {
+	public final ORColor getORColor(String key, ORColor defaultValue) {
 		ORColor c = parseColor(getString(key, null));
 		if (c == null) {
 			return defaultValue;
@@ -1052,8 +1217,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return
 	 */
 	protected static String stringifyColor(ORColor color) {
-		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
-		return string;
+		return color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 	}
 
 	/**
@@ -1147,18 +1311,12 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public File getDefaultUserComponentFile() {
 		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
-
-		if (!compdir.isDirectory()) {
-			compdir.mkdirs();
-		}
-
-		if (!compdir.isDirectory()) {
+		try {
+			return FileUtils.makeDirectoryIfNotExists(compdir);
+		} catch (Exception e) {
+			log.warn("Could not create library directory: {}", compdir.getAbsolutePath(), e);
 			return null;
 		}
-		if (!compdir.canRead()) {
-			return null;
-		}
-		return compdir;
 	}
 
 	/**
@@ -1370,7 +1528,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the stroke color for the SVG
 	 */
 	public Color getSVGStrokeColor() {
-		return getColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+		return getORColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
 	}
 
 	/**
@@ -1424,7 +1582,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the crosshair color
 	 */
 	public Color getSVGCrosshairColor() {
-		return getColor(SVG_CROSSHAIR_COLOR, ORColor.fromAWTColor(Color.GRAY)).toAWTColor();
+		return getORColor(SVG_CROSSHAIR_COLOR, ORColor.fromAWTColor(Color.GRAY)).toAWTColor();
 	}
 
 	/**
@@ -1480,7 +1638,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the label color
 	 */
 	public Color getSVGLabelColor() {
-		return getColor(SVG_LABEL_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+		return getORColor(SVG_LABEL_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
 	}
 
 	/**
@@ -1571,7 +1729,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 
 	public Color getTextureGenerationOutlineColor() {
-		return getColor(TEXTURE_GENERATION_OUTLINE_COLOR, new ORColor(0, 0, 0)).toAWTColor();
+		return getORColor(TEXTURE_GENERATION_OUTLINE_COLOR, new ORColor(0, 0, 0)).toAWTColor();
 	}
 
 	public void setTextureGenerationOutlineColor(Color color) {
@@ -1822,6 +1980,19 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
+		}
+	}
+
+	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
+		String color = get("componentColors", c, DEFAULT_COLORS);
+		if (color == null)
+			return ORColor.fromAWTColor(Color.BLACK);
+
+		ORColor clr = parseColor(color);
+		if (clr != null) {
+			return clr;
+		} else {
+			return ORColor.fromAWTColor(Color.BLACK);
 		}
 	}
 	

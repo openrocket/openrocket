@@ -23,7 +23,7 @@ public class MassColumnParser extends DoubleUnitColumnParser {
 		if (StringUtils.isEmpty(columnData) || "?".equals(columnData.trim())) {
 			return;
 		}
-		double d = Double.valueOf(columnData);
+		double d = Double.parseDouble(columnData);
 		if (d == 0.0) {
 			return;
 		}

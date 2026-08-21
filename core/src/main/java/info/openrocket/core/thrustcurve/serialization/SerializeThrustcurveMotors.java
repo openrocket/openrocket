@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Objects;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -16,8 +17,10 @@ import java.util.concurrent.Executors;
 
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
+import info.openrocket.core.file.motor.AbstractMotorLoader;
 import info.openrocket.core.file.motor.GeneralMotorLoader;
 import info.openrocket.core.gui.util.SimpleFileFilter;
+import info.openrocket.core.database.motor.ThrustCurveMotorSQLiteDatabase;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.util.Pair;
@@ -35,7 +38,7 @@ public class SerializeThrustcurveMotors {
         double threadUtilFraction = 0.5;
 
         if (args.length != 3) {
-            System.err.println("Usage: <inputDir> <outputDir> <threadUtilFraction>");
+            System.err.println("Usage: <inputDir> <outputDb> <threadUtilFraction>");
             System.exit(1);
         }
         if (Objects.equals(args[2], "Default")) {
@@ -57,8 +60,7 @@ public class SerializeThrustcurveMotors {
         String inputDir = args[0];
         String outputFile = args[1];
 
-
-        final List<Motor> allMotors = new ArrayList<>();
+        final List<ThrustCurveMotor> allMotors = new ArrayList<>();
 
         loadFromLocalMotorFiles(allMotors, inputDir);
 
@@ -66,15 +68,7 @@ public class SerializeThrustcurveMotors {
 
         File outFile = new File(outputFile);
 
-        FileOutputStream ofs = new FileOutputStream(outFile);
-        final ObjectOutputStream oos = new ObjectOutputStream(ofs);
-
-        oos.writeObject(allMotors);
-
-        oos.flush();
-        ofs.flush();
-        ofs.close();
-
+        ThrustCurveMotorSQLiteDatabase.writeDatabase(outFile, allMotors);
     }
 
     private static String[] getManufacturers(){
@@ -97,7 +91,8 @@ public class SerializeThrustcurveMotors {
      *
      * @see <a href="https://www.thrustcurve.org/info/api.html">ThrustCurve API Documentation</a>
      */
-    public static void loadFromThrustCurves(List<Motor> allMotors, int threads) throws SAXException, IOException, IllegalStateException {
+    public static void loadFromThrustCurves(List<ThrustCurveMotor> allMotors, int threads)
+            throws SAXException, IOException, IllegalStateException {
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         String[] manufacturers = getManufacturers();
 
@@ -106,7 +101,7 @@ public class SerializeThrustcurveMotors {
         }
 
         try {
-            List<CompletableFuture<List<Motor>>> futureMotorLists = new ArrayList<>();
+            List<CompletableFuture<List<ThrustCurveMotor>>> futureMotorLists = new ArrayList<>();
 
             for (String manufacturer : getManufacturers()) {
                 System.out.println("Motors for : " + manufacturer);
@@ -114,17 +109,34 @@ public class SerializeThrustcurveMotors {
                 SearchRequest searchRequest = new SearchRequest();
                 searchRequest.setManufacturer(manufacturer);
                 SearchResponse res = ThrustCurveAPI.doSearch(searchRequest);
+                if (res.getError() != null) {
+                    System.out.println("\tSearch error for " + manufacturer + ": " + res.getError());
+                    continue;
+                }
+                if (res.getResults().isEmpty()) {
+                    System.out.println("\tNo motors returned for " + manufacturer + " (matches=" + res.getMatches() + ")");
+                    continue;
+                }
+                if (res.getMatches() > res.getResults().size()) {
+                    System.out.println("\tSearch returned " + res.getResults().size() + " of " + res.getMatches() +
+                            " motors; consider increasing maxResults via -Dthrustcurve.search.maxResults");
+                }
 
+                int withData = 0;
+                int withoutData = 0;
                 for (TCMotor tcMotor : res.getResults()) {
                     if (tcMotor.getData_files() == null || tcMotor.getData_files() == 0) {
+                        withoutData++;
                         continue;
                     }
-                    CompletableFuture<List<Motor>> future = fetchMotorsCompletables(tcMotor, executor);
+                    withData++;
+                    CompletableFuture<List<ThrustCurveMotor>> future = fetchMotorsCompletables(tcMotor, executor);
                     futureMotorLists.add(future);
                 }
+                System.out.println("\tMotors with data: " + withData + ", without data: " + withoutData);
             }
 
-            for (CompletableFuture<List<Motor>> futureList : futureMotorLists) {
+            for (CompletableFuture<List<ThrustCurveMotor>> futureList : futureMotorLists) {
                 try {
                     allMotors.addAll(futureList.get());
                 } catch (InterruptedException | ExecutionException e) {
@@ -159,7 +171,7 @@ public class SerializeThrustcurveMotors {
      * @param executor The executor service used to run the task asynchronously.
      * @return A CompletableFuture that will complete with a list of {@linkplain Motor motors}.
      */
-    private static CompletableFuture<List<Motor>> fetchMotorsCompletables(TCMotor tcMotor, ExecutorService executor) {
+    private static CompletableFuture<List<ThrustCurveMotor>> fetchMotorsCompletables(TCMotor tcMotor, ExecutorService executor) {
         System.out.println(formatMotorMessage(tcMotor));
         Motor.Type type = getType(tcMotor);
 
@@ -179,10 +191,14 @@ public class SerializeThrustcurveMotors {
      * @return A list of valid {@linkplain Motor motors} built from the fetched burn files
      */
 
-    private static List<Motor> fetchMotors(TCMotor tcMotor, Motor.Type type) {
-        List<Motor> motors = new ArrayList<>();
+    private static List<ThrustCurveMotor> fetchMotors(TCMotor tcMotor, Motor.Type type) {
+        List<ThrustCurveMotor> motors = new ArrayList<>();
         try {
             List<MotorBurnFile> motorBurnFiles = getThrustCurvesForMotorId(tcMotor.getMotor_id());
+            if (motorBurnFiles.isEmpty()) {
+                System.out.println("\tNo burn files returned for motorID=" + tcMotor.getMotor_id() +
+                        " (dataFiles=" + tcMotor.getData_files() + ")");
+            }
             for (MotorBurnFile burnFile : motorBurnFiles) {
                 try {
                     ThrustCurveMotor.Builder builder = initThrustCurveMotorBuilder(tcMotor, burnFile, type);
@@ -203,7 +219,7 @@ public class SerializeThrustcurveMotors {
 
     private static void writeBadFile(MotorBurnFile burnFile) {
         try (FileOutputStream out = new FileOutputStream("simfile-" + burnFile.getSimfileId())) {
-            out.write(burnFile.getContents().getBytes());
+            out.write(burnFile.getContents().getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             System.out.println("Unable to write bad file: " + e.getMessage());
         }
@@ -269,7 +285,16 @@ public class SerializeThrustcurveMotors {
         builder.setMotorType(type);
 
         builder.setCommonName(tcMotor.getCommon_name());
-        builder.setDesignation(tcMotor.getDesignation());
+        // Strip trailing delay suffix from the API designation (e.g. "B6-0" -> "B6") so
+        // motors from this source can be grouped with motors from other sources.
+        builder.setDesignation(AbstractMotorLoader.removeDelay(tcMotor.getDesignation()));
+        builder.setTcMotorId(tcMotor.getMotor_id());
+        builder.setInfoUrl(tcMotor.getInfo_url());
+        builder.setDataFiles(tcMotor.getData_files());
+        if (tcMotor.getUpdated_on() != null) {
+            builder.setUpdatedOn(Instant.ofEpochMilli(tcMotor.getUpdated_on().getTime()).toString());
+        }
+        builder.setDataSource("thrustcurve.org");
 
         if ("OOP".equals(tcMotor.getAvailability())) {
             builder.setAvailability(false);
@@ -283,7 +308,7 @@ public class SerializeThrustcurveMotors {
      * @param motorId The ThrustCurveAPI motor id to fetch Thrust-Curves for.
      * @return The list of Thrust Curves for the specified motor id.
      */
-    private static List<MotorBurnFile> getThrustCurvesForMotorId(int motorId) {
+    private static List<MotorBurnFile> getThrustCurvesForMotorId(String motorId) {
         String[] formats = new String[]{"RASP", "RockSim"};
         List<MotorBurnFile> b = new ArrayList<>();
         for (String format : formats) {
@@ -300,7 +325,7 @@ public class SerializeThrustcurveMotors {
         return b;
     }
 
-    private static void loadFromLocalMotorFiles(List<Motor> allMotors, String inputDir) throws IOException {
+    private static void loadFromLocalMotorFiles(List<ThrustCurveMotor> allMotors, String inputDir) throws IOException {
         GeneralMotorLoader loader = new GeneralMotorLoader();
         FileIterator iterator = DirectoryIterator.findDirectory(inputDir,
                 new SimpleFileFilter("", false, loader.getSupportedExtensions()));
@@ -316,6 +341,7 @@ public class SerializeThrustcurveMotors {
                 List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);
 
                 for (ThrustCurveMotor.Builder builder : motors) {
+                    builder.setDataSource("manual");
                     allMotors.add(builder.build());
                 }
             }

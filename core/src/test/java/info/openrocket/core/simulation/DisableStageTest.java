@@ -466,6 +466,8 @@ public class DisableStageTest extends BaseTestCase {
      */
     private void compareSims(Simulation simExpected, Simulation simActual) {
         try {
+            // Compare the rocket configurations under the same wind realization.
+            simActual.getOptions().setRandomSeed(simExpected.getOptions().getRandomSeed());
             simExpected.simulate();
             double maxAltitudeOriginal = simExpected.getSimulatedData().getMaxAltitude();
             double maxVelocityOriginal = simExpected.getSimulatedData().getMaxVelocity();

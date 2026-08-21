@@ -42,6 +42,19 @@ public class StageDTO {
      *                    only one)
      */
     public StageDTO(AxialStage theORStage, RocketDesignDTO design, int stageNumber) {
+        this(theORStage, design, stageNumber, null);
+    }
+
+    /**
+     * Copy constructor used while exporting a complete document.
+     *
+     * @param theORStage  the OR stage
+     * @param design      the encompassing container DTO
+     * @param stageNumber the RockSim stage number
+     * @param context     per-export motor-mount mapping state
+     */
+    public StageDTO(AxialStage theORStage, RocketDesignDTO design, int stageNumber,
+            RockSimExportContext context) {
 
         if (stageNumber == 3) {
             if (theORStage.isMassOverridden()) {
@@ -78,11 +91,11 @@ public class StageDTO {
         List<RocketComponent> children = theORStage.getChildren();
 		for (RocketComponent rocketComponents : children) {
 			if (rocketComponents instanceof NoseCone) {
-				addExternalPart(toNoseConeDTO((NoseCone) rocketComponents));
+				addExternalPart(toNoseConeDTO((NoseCone) rocketComponents, context));
 			} else if (rocketComponents instanceof BodyTube) {
-				addExternalPart(toBodyTubeDTO((BodyTube) rocketComponents));
+				addExternalPart(toBodyTubeDTO((BodyTube) rocketComponents, context));
 			} else if (rocketComponents instanceof Transition) {
-				addExternalPart(toTransitionDTO((Transition) rocketComponents));
+				addExternalPart(toTransitionDTO((Transition) rocketComponents, context));
 			}
 		}
     }
@@ -95,19 +108,19 @@ public class StageDTO {
         externalPart.add(theExternalPartDTO);
     }
 
-    private AbstractTransitionDTO toNoseConeDTO(NoseCone nc) {
+    private AbstractTransitionDTO toNoseConeDTO(NoseCone nc, RockSimExportContext context) {
         if (nc.isFlipped()) {
-            return new TransitionDTO(nc);
+            return new TransitionDTO(nc, context);
         } else {
-            return new NoseConeDTO(nc);
+            return new NoseConeDTO(nc, context);
         }
     }
 
-    private BodyTubeDTO toBodyTubeDTO(BodyTube bt) {
-        return new BodyTubeDTO(bt);
+    private BodyTubeDTO toBodyTubeDTO(BodyTube bt, RockSimExportContext context) {
+        return new BodyTubeDTO(bt, context);
     }
 
-    private TransitionDTO toTransitionDTO(Transition tran) {
-        return new TransitionDTO(tran);
+    private TransitionDTO toTransitionDTO(Transition tran, RockSimExportContext context) {
+        return new TransitionDTO(tran, context);
     }
 }

@@ -80,7 +80,8 @@ public class TubeFinSetCalc extends TubeCalc {
 
 		// aspect ratio.
 		ar = 2 * innerRadius / chord;
-
+		// The transonic CP polynomial depends on the tube-fin aspect ratio.
+		calculatePoly();
 
 		// Some trigonometry...
 		// We need a triangle with the following three sides:

@@ -82,8 +82,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
 	}
 
 	/**
@@ -259,10 +259,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	}
 
 	protected List<T> getSelectedComponents() {
-		int[] cols = Arrays.stream(table.getSelectedColumns()).map(table::convertRowIndexToModel).toArray();
+		int[] cols = Arrays.stream(table.getSelectedColumns()).map(table::convertColumnIndexToModel).toArray();
 		int[] rows = Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).toArray();
 		if (Arrays.stream(cols).min().isEmpty() || Arrays.stream(rows).min().isEmpty() ||
-				Arrays.stream(cols).min().getAsInt() < 0 || Arrays.stream(rows).min().getAsInt() < 0) {
+				Arrays.stream(cols).min().getAsInt() < 0 || Arrays.stream(rows).min().getAsInt() < 0 ||
+				Arrays.stream(cols).max().getAsInt() >= table.getColumnCount() || Arrays.stream(rows).max().getAsInt() >= table.getRowCount()) {
 			return null;
 		}
 		List<T> components = new ArrayList<>();
@@ -361,12 +362,9 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, newValue, isSelected, hasFocus, row, column);
 			Object oldValue = table.getModel().getValueAt(row, column);
 			
-			// this block is more for the benefit of the reader than the computer -- 
-			// this assignment is technically redundant, but useful to point out that the new value here is often null, 
-			// while the old value seems to always be valid.
+			// newValue is often null here; oldValue is used for rendering in all cases below.
 			if( null == newValue ){
 				log.warn("Detected null newValue to render... (oldValue: "+oldValue+")");
-				newValue = oldValue;
 			}
 
 		    column = table.convertColumnIndexToModel(column);

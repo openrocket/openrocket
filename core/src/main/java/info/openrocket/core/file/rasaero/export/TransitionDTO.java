@@ -41,7 +41,7 @@ public class TransitionDTO extends BasePartDTO {
     @XmlTransient
     private static final Translator trans = Application.getTranslator();
     @XmlTransient
-    private static Transition component = null;
+    private Transition component = null;
 
     /**
      * We need a default no-args constructor.

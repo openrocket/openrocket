@@ -237,8 +237,8 @@ public class UpdateInfoDialog extends JDialog {
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
-		warningTextColor = GUIUtil.getUITheme().getWarningColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		warningTextColor = UITheme.getColor(UITheme.Keys.WARNING);
 	}
 
 	/**

@@ -1,3 +1,10 @@
+import info.openrocket.swing.gui.scalefigure.caliper.snap.CoaxialSnapProvider;
+import info.openrocket.swing.gui.scalefigure.caliper.snap.FinSetSnapProvider;
+import info.openrocket.swing.gui.scalefigure.caliper.snap.MassObjectSnapProvider;
+import info.openrocket.swing.gui.scalefigure.caliper.snap.RailButtonSnapProvider;
+import info.openrocket.swing.gui.scalefigure.caliper.snap.TransitionSnapProvider;
+import info.openrocket.swing.gui.scalefigure.caliper.snap.TubeFinSetSnapProvider;
+
 open module info.openrocket.swing {
 	requires transitive info.openrocket.core;
 
@@ -6,6 +13,7 @@ open module info.openrocket.swing {
 	uses javax.script.Bindings;
 	uses javax.script.ScriptContext;
 	uses info.openrocket.swing.gui.rocketfigure.RocketComponentShapeService;
+	uses info.openrocket.swing.gui.scalefigure.caliper.snap.ComponentSnapProvider;
 
 	// Libraries
 	requires org.slf4j;
@@ -30,6 +38,7 @@ open module info.openrocket.swing {
 	requires com.formdev.flatlaf;
 	requires com.formdev.flatlaf.extras;
 	requires com.formdev.flatlaf.intellijthemes;
+	requires com.github.weisj.jsvg;
 	requires org.checkerframework.checker.qual;
 	requires org.apache.commons.lang3;
 	requires java.management;
@@ -55,4 +64,11 @@ open module info.openrocket.swing {
 			info.openrocket.swing.gui.rocketfigure.TransitionShapes,
 			info.openrocket.swing.gui.rocketfigure.TubeFinSetShapes,
 			info.openrocket.swing.gui.rocketfigure.TubeShapes;
+	provides info.openrocket.swing.gui.scalefigure.caliper.snap.ComponentSnapProvider with
+			CoaxialSnapProvider,
+			TransitionSnapProvider,
+			TubeFinSetSnapProvider,
+			FinSetSnapProvider,
+			MassObjectSnapProvider,
+			RailButtonSnapProvider;
 }

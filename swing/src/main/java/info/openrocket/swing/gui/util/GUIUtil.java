@@ -11,9 +11,11 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.font.TextAttribute;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
+import java.awt.event.InputEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusListener;
@@ -28,8 +30,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -90,12 +94,27 @@ import org.slf4j.LoggerFactory;
 
 public class GUIUtil {
 	private static final Logger log = LoggerFactory.getLogger(GUIUtil.class);
+	public static final String UI_FONT_FAMILY = "Inter";
+	public static final String UI_FONT_STYLE_LIGHT = "inter-light";
+	public static final String UI_FONT_STYLE_REGULAR = "inter-regular";
+	public static final String UI_FONT_STYLE_MEDIUM = "inter-medium";
+	public static final String UI_FONT_STYLE_BOLD = "inter-bold";
+	private static final String UI_REGULAR_FONT_PATH = "/fonts/Inter/Inter-Regular.ttf";
+	private static final String UI_ITALIC_FONT_PATH = "/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf";
+	private static final Map<String, String> UI_FONT_PATHS = new HashMap<>();
+	private static final Map<String, Font> UI_FONT_CACHE = new HashMap<>();
+	private static boolean customFontsLoaded;
 	
 	private static final KeyStroke ESCAPE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 	private static final String CLOSE_ACTION_KEY = "escape:WINDOW_CLOSING";
 	
 	private static final List<Image> images = new ArrayList<>();
 	static {
+		UI_FONT_PATHS.put(UI_FONT_STYLE_LIGHT, "/fonts/Inter/Inter-Light.ttf");
+		UI_FONT_PATHS.put(UI_FONT_STYLE_REGULAR, UI_REGULAR_FONT_PATH);
+		UI_FONT_PATHS.put(UI_FONT_STYLE_MEDIUM, "/fonts/Inter/Inter-Medium.ttf");
+		UI_FONT_PATHS.put(UI_FONT_STYLE_BOLD, "/fonts/Inter/Inter-Bold.ttf");
+
 		loadImage("pix/icon/icon-256.png");
 		loadImage("pix/icon/icon-064.png");
 		loadImage("pix/icon/icon-048.png");
@@ -118,25 +137,94 @@ public class GUIUtil {
 		}
 	}
 
-	public static void loadCustomFonts() {
-		// Load custom fonts
-		try {
-			String[] fontPaths = {
-					"/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf",
-					"/fonts/Inter/Inter-VariableFont_opsz,wght.ttf",
-			};
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	/**
+	 * Returns the modifier mask for the platform's menu shortcut key:
+	 * {@link InputEvent#META_DOWN_MASK} on macOS, {@link InputEvent#CTRL_DOWN_MASK} on Windows and Linux.
+	 */
+	public static int getMenuShortcutKeyMask() {
+		return Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+	}
 
-			for (String fontPath : fontPaths) {
-				Font font = Font.createFont(Font.TRUETYPE_FONT,
-						Objects.requireNonNull(GUIUtil.class.getResourceAsStream(fontPath)));
+	/**
+	 * Returns true if the platform's menu shortcut key (Cmd on macOS, Ctrl on Windows/Linux) is held down.
+	 */
+	public static boolean isMenuShortcutDown(InputEvent e) {
+		return (e.getModifiersEx() & getMenuShortcutKeyMask()) != 0;
+	}
 
-				// Register font with the graphics environment
-				ge.registerFont(font);
-				log.debug("Loaded custom font: " + font.getName());
-			}
+	/**
+	 * Loads the bundled UI fonts once so the theme can resolve the Inter family before
+	 * component defaults are created.
+	 */
+	public static synchronized void loadCustomFonts() {
+		if (customFontsLoaded) {
+			return;
+		}
+
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		registerFont(ge, UI_FONT_STYLE_REGULAR);
+		registerFont(ge, UI_ITALIC_FONT_PATH);
+		customFontsLoaded = true;
+	}
+
+	/**
+	 * Creates an OpenRocket UI font from the stored style identifier.
+	 * Each preference value maps to a specific bundled Inter face so light, regular,
+	 * medium, and bold remain visually distinct on every platform.
+	 */
+	public static Font createUIFont(String fontStyle, float fontSize, float letterSpacing) {
+		Font baseFont = getBaseUIFont(fontStyle);
+		Map<TextAttribute, Object> attributes = new HashMap<>();
+		attributes.put(TextAttribute.SIZE, fontSize);
+		attributes.put(TextAttribute.TRACKING, letterSpacing);
+		return baseFont.deriveFont(attributes);
+	}
+
+	private static synchronized Font getBaseUIFont(String fontStyle) {
+		String normalizedStyle = normalizeUIFontStyle(fontStyle);
+		Font cachedFont = UI_FONT_CACHE.get(normalizedStyle);
+		if (cachedFont != null) {
+			return cachedFont;
+		}
+
+		Font loadedFont = loadBundledFont(UI_FONT_PATHS.get(normalizedStyle));
+		if (loadedFont == null) {
+			loadedFont = new Font(UI_FONT_FAMILY, Font.PLAIN, 1);
+		}
+		UI_FONT_CACHE.put(normalizedStyle, loadedFont);
+		return loadedFont;
+	}
+
+	private static String normalizeUIFontStyle(String fontStyle) {
+		if (UI_FONT_PATHS.containsKey(fontStyle)) {
+			return fontStyle;
+		}
+		return UI_FONT_STYLE_REGULAR;
+	}
+
+	private static void registerFont(GraphicsEnvironment graphicsEnvironment, String fontPathOrStyle) {
+		Font font = loadBundledFont(resolveUIFontPath(fontPathOrStyle));
+		if (font == null) {
+			return;
+		}
+		graphicsEnvironment.registerFont(font);
+		log.debug("Loaded custom font: {}", font.getName());
+	}
+
+	private static String resolveUIFontPath(String fontPathOrStyle) {
+		return UI_FONT_PATHS.getOrDefault(fontPathOrStyle, fontPathOrStyle);
+	}
+
+	private static Font loadBundledFont(String fontPath) {
+		if (fontPath == null) {
+			return null;
+		}
+
+		try (InputStream inputStream = Objects.requireNonNull(GUIUtil.class.getResourceAsStream(fontPath))) {
+			return Font.createFont(Font.TRUETYPE_FONT, inputStream);
 		} catch (IOException | FontFormatException e) {
-			log.error("Error loading custom fonts", e);
+			log.error("Error loading custom font from {}", fontPath, e);
+			return null;
 		}
 	}
 
@@ -158,7 +246,9 @@ public class GUIUtil {
 	public static double getDPI() {
 		int dpi = Application.getPreferences().getInt("DPI", 0); // Tenths of a dpi
 		
-		if (dpi < 10) {
+		// Headless environments cannot query the display toolkit, so retain the
+		// standard 96-DPI fallback used below when no preference is configured.
+		if (dpi < 10 && !GraphicsEnvironment.isHeadless()) {
 			dpi = Toolkit.getDefaultToolkit().getScreenResolution() * 10;
 		}
 		if (dpi < 10)
@@ -551,15 +641,6 @@ public class GUIUtil {
 		for (MouseListener l : c.getMouseListeners()) {
 			c.removeMouseListener(l);
 		}
-		for (PropertyChangeListener l : c.getPropertyChangeListeners()) {
-			c.removePropertyChangeListener(l);
-		}
-		for (PropertyChangeListener l : c.getPropertyChangeListeners("model")) {
-			c.removePropertyChangeListener("model", l);
-		}
-		for (PropertyChangeListener l : c.getPropertyChangeListeners("action")) {
-			c.removePropertyChangeListener("action", l);
-		}
 		
 		// Remove models for known components
 		//  Why the FSCK must this be so hard?!?!?
@@ -658,6 +739,16 @@ public class GUIUtil {
 			
 			((Resettable) c).resetModel();
 			
+		}
+
+		for (PropertyChangeListener l : c.getPropertyChangeListeners()) {
+			c.removePropertyChangeListener(l);
+		}
+		for (PropertyChangeListener l : c.getPropertyChangeListeners("model")) {
+			c.removePropertyChangeListener("model", l);
+		}
+		for (PropertyChangeListener l : c.getPropertyChangeListeners("action")) {
+			c.removePropertyChangeListener("action", l);
 		}
 		
 		// Recurse the component

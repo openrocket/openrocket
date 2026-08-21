@@ -1,6 +1,9 @@
 package info.openrocket.core.aerodynamics;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -192,6 +195,23 @@ class FlightConditionsTest {
 
 		assertEquals(280, conditions.getAtmosphericConditions().getTemperature(), EPSILON);
 		assertEquals(90000, conditions.getAtmosphericConditions().getPressure(), EPSILON);
+	}
+
+	@Test
+	void testHumidityOnlyAtmosphericChangeIsApplied() {
+		double dryDensity = conditions.getAtmosphericConditions().getDensity();
+		AtmosphericConditions humid = new AtmosphericConditions(
+				AtmosphericConditions.STANDARD_TEMPERATURE,
+				AtmosphericConditions.STANDARD_PRESSURE, 1.0);
+		int[] changeCount = { 0 };
+		conditions.addChangeListener(event -> changeCount[0]++);
+
+		conditions.setAtmosphericConditions(humid);
+
+		assertEquals(1.0, conditions.getAtmosphericConditions().getRelativeHumidity(), EPSILON);
+		assertTrue(conditions.getAtmosphericConditions().getDensity() < dryDensity,
+				"Applying humid conditions should reduce density at fixed pressure and temperature");
+		assertEquals(1, changeCount[0], "A humidity-only atmospheric change should fire a change event");
 	}
 
 	@Test

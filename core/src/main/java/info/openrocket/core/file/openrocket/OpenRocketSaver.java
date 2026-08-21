@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
+import java.util.TreeMap;
 
 import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.PlotAppearance;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.RocketSaver;
@@ -378,6 +379,9 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchlongitude", cond.getLaunchLongitude());
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
 		writeElement("simulationsteppermethod", cond.getSimulationStepperMethodChoice().name().toLowerCase(Locale.ENGLISH));
+		if (cond.isRandomSeedFixed()) {
+			writeElement("randomseed", cond.getRandomSeed());
+		}
 
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");
@@ -386,6 +390,7 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			writeElement("basetemperature", cond.getLaunchTemperature());
 			writeElement("basepressure", cond.getLaunchPressure());
+			writeElement("baserelativehumidity", cond.getLaunchRelativeHumidity());
 			indent--;
 			writeln("</atmosphere>");
 		}
@@ -403,6 +408,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
+		writeElement("recoveryspeedwarning", cond.getRecoverySpeedWarning());
+		writeElement("drogueLowspeedwarning", cond.getDrogueLowSpeedWarning());
+		writeElement("recoverydroguemainhighspeedwarning", cond.getRecoveryDrogueMainHighSpeedWarning());
+		writeElement("recoverydroguemainlowspeedwarning", cond.getRecoveryDrogueMainLowSpeedWarning());
 		if (cond.getDragLookupCsvPath() != null || cond.getDragLookupTable() != null) {
 			writeCsvLookup("draglookup", cond.getDragLookupCsvPath(), cond.getDragLookupCsvRows());
 		}
@@ -412,6 +421,32 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		indent--;
 		writeln("</conditions>");
+
+		Map<String, PlotAppearance> plotAppearances = simulation.getPlotAppearances();
+		if (!plotAppearances.isEmpty()) {
+			// Persist per-series appearance tweaks (color and/or line style).
+			writeln("<plotappearance>");
+			indent++;
+			for (Map.Entry<String, PlotAppearance> entry : new TreeMap<>(plotAppearances).entrySet()) {
+				String symbol = entry.getKey();
+				PlotAppearance appearance = entry.getValue();
+				if (appearance == null || appearance.isEmpty() || symbol == null || symbol.isEmpty()) {
+					continue;
+				}
+				StringBuilder series = new StringBuilder();
+				series.append("<series symbol=\"").append(TextUtil.escapeXML(symbol)).append("\"");
+				if (appearance.getLineStyle() != null) {
+					series.append(" linestyle=\"").append(enumToXMLName(appearance.getLineStyle())).append("\"");
+				}
+				if (appearance.getColor() != null) {
+					series.append(" ").append(appearance.getColor().toXMLAttributes());
+				}
+				series.append("/>");
+				writeln(series.toString());
+			}
+			indent--;
+			writeln("</plotappearance>");
+		}
 		
 		for (SimulationExtension extension : simulation.getSimulationExtensions()) {
 			Config config = extension.getConfig();
@@ -433,25 +468,25 @@ public class OpenRocketSaver extends RocketSaver {
 		if (data != null) {
 			String str = "<flightdata";
 			if (!Double.isNaN(data.getMaxAltitude()))
-				str += " maxaltitude=\"" + TextUtil.doubleToString(data.getMaxAltitude()) + "\"";
+				str += " maxaltitude=\"" + TextUtil.doubleToString(data.getMaxAltitude(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getMaxVelocity()))
-				str += " maxvelocity=\"" + TextUtil.doubleToString(data.getMaxVelocity()) + "\"";
+				str += " maxvelocity=\"" + TextUtil.doubleToString(data.getMaxVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getMaxAcceleration()))
-				str += " maxacceleration=\"" + TextUtil.doubleToString(data.getMaxAcceleration()) + "\"";
+				str += " maxacceleration=\"" + TextUtil.doubleToString(data.getMaxAcceleration(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getMaxMachNumber()))
-				str += " maxmach=\"" + TextUtil.doubleToString(data.getMaxMachNumber()) + "\"";
+				str += " maxmach=\"" + TextUtil.doubleToString(data.getMaxMachNumber(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getTimeToApogee()))
-				str += " timetoapogee=\"" + TextUtil.doubleToString(data.getTimeToApogee()) + "\"";
+				str += " timetoapogee=\"" + TextUtil.doubleToString(data.getTimeToApogee(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getFlightTime()))
-				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime()) + "\"";
+				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getGroundHitVelocity()))
-				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity()) + "\"";
+				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getLaunchRodVelocity()))
-				str += " launchrodvelocity=\"" + TextUtil.doubleToString(data.getLaunchRodVelocity()) + "\"";
+				str += " launchrodvelocity=\"" + TextUtil.doubleToString(data.getLaunchRodVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getDeploymentVelocity()))
-				str += " deploymentvelocity=\"" + TextUtil.doubleToString(data.getDeploymentVelocity()) + "\"";
+				str += " deploymentvelocity=\"" + TextUtil.doubleToString(data.getDeploymentVelocity(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			if (!Double.isNaN(data.getOptimumDelay()))
-				str += " optimumdelay=\"" + TextUtil.doubleToString(data.getOptimumDelay()) + "\"";
+				str += " optimumdelay=\"" + TextUtil.doubleToString(data.getOptimumDelay(), TextUtil.STORAGE_DECIMAL_PLACES) + "\"";
 			str += ">";
 			writeln(str);
 			indent++;
@@ -464,10 +499,13 @@ public class OpenRocketSaver extends RocketSaver {
 				writeElement("description", w.getMessageDescription());
 				writeElement("priority", w.getPriority());
 
-				if (null != w.getSources()) {
-					for (RocketComponent c : w.getSources()) {
-						// Save component ID if it's still in the tree, else nil UUID
-						writeElement("source", null != simulation.getRocket().findComponent(c.getID()) ? c.getID() : new UUID(0, 0));
+				RocketComponent[] sources = w.getSources();
+				if (null != sources) {
+					for (RocketComponent c : sources) {
+						if (c != null) {
+							// Save component ID if it's still in the tree, else RemovedComponent UUID
+							writeElement("source", simulation.getRocket().findComponent(c.getID()).getID());
+						}
 					}
 				}
 
@@ -476,8 +514,8 @@ public class OpenRocketSaver extends RocketSaver {
 					writeElement("parameter", ((Warning.LargeAOA) w).getAOA());
 				}
 
-				if (w instanceof Warning.HighSpeedDeployment) {
-					writeElement("parameter", ((Warning.HighSpeedDeployment) w).getSpeed());
+				if (w instanceof Warning.RecoveryHighSpeedDeployment) {
+					writeElement("parameter", ((Warning.RecoveryHighSpeedDeployment) w).getSpeed());
 				}
 
 				// We write the whole string content for backwards compatibility with old versions
@@ -616,7 +654,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Retrieve the data from the branch
 		List<List<Double>> data = new ArrayList<>(types.length);
 		for (FlightDataType type : types) {
-			data.add(branch.getClone(type));
+			data.add(branch.get(type));
 		}
 		
 		// Build the <databranch> tag
@@ -651,7 +689,7 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)
 				sb.append(",");
-			sb.append(TextUtil.escapeXML(types[i].getName()));
+			sb.append(TextUtil.escapeXML(types[i].getSaveKey()));
 		}
 		sb.append("\">");
 		writeln(sb.toString());
@@ -659,7 +697,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime()) + "\" "
+			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime(), TextUtil.STORAGE_DECIMAL_PLACES) + "\" "
 				+ "type=\"" + enumToXMLName(event.getType()) + "\" "
 				+ "id=\"" + event.getID().toString() + "\"";
 			
@@ -708,7 +746,7 @@ public class OpenRocketSaver extends RocketSaver {
 		if (types.length == 0)
 			return 0;
 		
-		final List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> timeData = branch.getView(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
 			// If time data not available, store all points
 			return branch.getLength();
@@ -729,7 +767,7 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int j = 0; j < data.size(); j++) {
 			if (j > 0)
 				sb.append(",");
-			sb.append(TextUtil.doubleToString(data.get(j).get(index)));
+			sb.append(TextUtil.doubleToString(data.get(j).get(index), TextUtil.STORAGE_DECIMAL_PLACES));
 		}
 		sb.append("</datapoint>");
 		writeln(sb.toString());

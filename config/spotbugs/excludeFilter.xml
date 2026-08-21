@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs exclude filter for OpenRocket.
+  Add entries here to suppress known false positives or accepted trade-offs.
+  See: https://spotbugs.readthedocs.io/en/stable/filter.html
+-->
+<FindBugsFilter>
+
+    <!-- Serialization: OpenRocket uses many Swing components and data-model classes
+         that implement Serializable transitively. Suppress serial-version UID warnings
+         since OpenRocket does not rely on Java serialization for persistence. -->
+    <Match>
+        <Bug category="BAD_PRACTICE" pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+    <Match>
+        <Bug category="BAD_PRACTICE" pattern="SE_NO_SUITABLE_CONSTRUCTOR"/>
+    </Match>
+
+    <!-- Swing UI code intentionally runs on the Event Dispatch Thread and accesses
+         component state in ways that may look like threading issues to SpotBugs. -->
+    <Match>
+        <Package name="~info\.openrocket\.swing\..*"/>
+        <Bug category="MT_CORRECTNESS"/>
+    </Match>
+
+    <!-- MemoryManagement explicitly calls System.gc() as a debugging/diagnostic aid
+         (to force collection of tracked weak references). This is intentional. -->
+    <Match>
+        <Class name="info.openrocket.core.util.MemoryManagement"/>
+        <Bug pattern="DM_GC"/>
+    </Match>
+
+    <!-- Public API arrays (ALL_TYPES, CONFIGURATIONS) are exposed intentionally for
+         read-only enumeration across the codebase. Wrapping in an unmodifiable list
+         would be a larger API change deferred to a future refactor. -->
+    <Match>
+        <Class name="info.openrocket.core.simulation.FlightDataType"/>
+        <Bug pattern="MS_MUTABLE_ARRAY"/>
+    </Match>
+    <Match>
+        <Class name="info.openrocket.core.rocketcomponent.ClusterConfiguration"/>
+        <Bug pattern="MS_MUTABLE_ARRAY"/>
+    </Match>
+
+    <!-- Dead stores flagged by SpotBugs that are compiler/tool artifacts or
+         where the assigned variable is used indirectly through method calls. -->
+    <Match>
+        <Class name="info.openrocket.core.optimization.general.multidim.MultidirectionalSearchOptimizer"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+    <Match>
+        <Class name="info.openrocket.core.util.PinkNoise"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+
+    <!-- SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS is a public API array intentionally
+         exposed for read-only enumeration. Wrapping in unmodifiable list is a future refactor. -->
+    <Match>
+        <Class name="info.openrocket.swing.gui.plot.SimulationPlotConfiguration"/>
+        <Bug pattern="MS_MUTABLE_ARRAY"/>
+    </Match>
+
+    <!-- These panels persist the last-used plot configuration via a static field so re-opening
+         the dialog restores the user's previous selection. The write from an instance method is
+         intentional (singleton-like state per panel type). -->
+    <Match>
+        <Class name="info.openrocket.swing.gui.dialogs.componentanalysis.CAPlotPanel"/>
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+    </Match>
+    <Match>
+        <Class name="info.openrocket.swing.gui.simulation.SimulationPlotPanel"/>
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+    </Match>
+
+    <!-- MultiSlider.setModelAt: the null check on newModel is defensive public API; SpotBugs
+         sees it as redundant due to call-site analysis, but null is a valid input. -->
+    <Match>
+        <Class name="info.openrocket.swing.gui.widgets.MultiSlider"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+
+</FindBugsFilter>

@@ -70,10 +70,10 @@ public class DummyFrameMenuOSX extends JFrame {
 
         ////	Quit
         item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, BasicFrame.SHORTCUT_KEY));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, GUIUtil.getMenuShortcutKeyMask()));
         //// Quit the program
         item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.quit.desc"));
-        item.setIcon(Icons.FILE_QUIT);
+        item.setIcon(Icons.deriveMenuIcon(Icons.FILE_QUIT));
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

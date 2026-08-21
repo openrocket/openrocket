@@ -70,7 +70,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private ComponentPresetRowFilter legacyFilter;
 	private ComponentPresetRowFilter foreDiameterFilter;
 	private ComponentPresetRowFilter aftDiameterFilter;
-	
+
 	
 	/*
 	 * outerDiamtereColumnIndex is the index of the column associated with the OUTER_DIAMETER
@@ -83,7 +83,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private List<ComponentPreset> presets;
 	private ComponentPreset.Type presetType;
 	private PresetModel presetModel;
-	
+
 	
 	public ComponentPresetChooserDialog(Window owner, RocketComponent component, PresetModel presetModel) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
@@ -197,7 +197,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		// Always open this window when creating a new component
 		JCheckBox alwaysOpenPreset = new JCheckBox(String.format(trans.get("ComponentPresetChooserDialog.checkbox.alwaysOpenPreset"),
 				component.getComponentName()));
-		alwaysOpenPreset.setSelected(preferences.getBoolean(component.getComponentName() +  "AlwaysOpenPreset", true));
+		alwaysOpenPreset.setSelected(preferences.getBoolean(component.getComponentName() + "AlwaysOpenPreset", true));
 		alwaysOpenPreset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

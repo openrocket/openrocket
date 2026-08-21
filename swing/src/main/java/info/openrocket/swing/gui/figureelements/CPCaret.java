@@ -38,7 +38,7 @@ public class CPCaret extends Caret {
 	}
 
 	public static void updateColors() {
-		CPColor = GUIUtil.getUITheme().getCPColor();
+		CPColor = UITheme.getColor(UITheme.Keys.CP);
 	}
 
 	/**

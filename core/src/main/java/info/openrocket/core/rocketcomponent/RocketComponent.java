@@ -11,10 +11,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
@@ -25,8 +29,6 @@ import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Transformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.appearance.Decal;
@@ -53,6 +55,8 @@ import info.openrocket.core.util.StateChangeListener;
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
+
+	public static final RemovedComponent REMOVED = new RemovedComponent();
 	
 	// Because of changes to Java 1.7.0-45's mechanism to construct DataFlavor objects (used in Drag and Drop)
 	// We cannot access static members of the Application object in this class.  Instead of holding
@@ -159,6 +163,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
 	 */
 	private final Invalidator invalidator = new Invalidator(this);
+
+	/**
+	 * Cached absolute component locations. These are invalidated whenever the component tree changes.
+	 */
+	private transient CoordinateIF[] cachedComponentLocations = null;
+
+	/**
+	 * Cached absolute component angles. These follow the same invalidation lifecycle as locations.
+	 */
+	private transient CoordinateIF[] cachedComponentAngles = null;
 
 	/**
 	 * List of components that will set their properties to the same as the current component
@@ -335,7 +349,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected void componentChanged(ComponentChangeEvent e) {
 		// No-op
 		checkState();
+		clearCoordinateCaches();
 		update();
+	}
+
+	/**
+	 * Clears cached absolute coordinate data after a component change.
+	 */
+	protected final void clearCoordinateCaches() {
+		cachedComponentLocations = null;
+		cachedComponentAngles = null;
 	}
 	
 	
@@ -460,6 +483,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	@Override
 	public RocketComponent clone() throws CloneNotSupportedException {
 		RocketComponent clone = (RocketComponent) super.clone();
+		clone.clearCoordinateCaches();
 		// Make sure the InsideColorComponentHandler is cloned
 		if (clone instanceof InsideColorComponent && this instanceof InsideColorComponent) {
 			InsideColorComponentHandler icch = new InsideColorComponentHandler(clone);
@@ -470,20 +494,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		clone.configListeners = new LinkedList<>();
 		clone.bypassComponentChangeEvent = false;
 		return clone;
-	}
-	
-	/**
-	 * Return true if any of this component's children are a RecoveryDevice
-	 */
-	public boolean hasRecoveryDevice() {
-		Iterator<RocketComponent> iterator = this.iterator();
-		while (iterator.hasNext()) {
-			RocketComponent child = iterator.next();
-			if (child instanceof RecoveryDevice) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	//////////////  Methods that may not be overridden  ////////////
@@ -1594,9 +1604,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return Coordinates of all instance locations in the rocket, relative to the rocket's origin
 	 */
 	public CoordinateIF[] getComponentLocations() {
+		if (cachedComponentLocations != null) {
+			return cachedComponentLocations.clone();
+		}
+
+		CoordinateIF[] computedLocations;
 		if (this.parent == null) {
 			// == improperly initialized components OR the root Rocket instance 
-			return getInstanceOffsets();
+			computedLocations = getInstanceOffsets();
 		} else {
 			CoordinateIF[] parentPositions = this.parent.getComponentLocations();
 			int parentCount = parentPositions.length;
@@ -1611,19 +1626,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// usual case optimization
 			if ((parentCount == 1) && (instanceCount == 1)) {
 				Transformation rotation = Transformation.getRotationTransform(parentRotations[0], this.position);
-				return new CoordinateIF[]{parentPositions[0].add(rotation.transform(instanceLocations[0]))};
-			}
-			
-			int thisCount = instanceCount * parentCount;
-			CoordinateIF[] thesePositions = new CoordinateIF[thisCount];
-			for (int pi = 0; pi < parentCount; pi++) {
-				Transformation rotation = Transformation.getRotationTransform(parentRotations[pi], this.position);
-				for (int ii = 0; ii < instanceCount; ii++) {
-					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(rotation.transform(instanceLocations[ii]));
+				computedLocations = new CoordinateIF[] { parentPositions[0].add(rotation.transform(instanceLocations[0])) };
+			} else {
+				int thisCount = instanceCount * parentCount;
+				CoordinateIF[] thesePositions = new CoordinateIF[thisCount];
+				for (int pi = 0; pi < parentCount; pi++) {
+					Transformation rotation = Transformation.getRotationTransform(parentRotations[pi], this.position);
+					for (int ii = 0; ii < instanceCount; ii++) {
+						thesePositions[pi + parentCount * ii] = parentPositions[pi].add(rotation.transform(instanceLocations[ii]));
+					}
 				}
+				computedLocations = thesePositions;
 			}
-			return thesePositions;
 		}
+
+		cachedComponentLocations = computedLocations;
+		return computedLocations.clone();
 	}
 
 	public double[] getInstanceAngles() {
@@ -1644,9 +1662,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * 	  			!!! OpenRocket rotations follow left-hand rule of rotation !!!
 	 */
 	public CoordinateIF[] getComponentAngles() {
+		if (cachedComponentAngles != null) {
+			return cachedComponentAngles.clone();
+		}
+
+		CoordinateIF[] computedAngles;
 		if (this.parent == null) {
 			// == improperly initialized components OR the root Rocket instance
-			return axialRotToCoord(getInstanceAngles());
+			computedAngles = axialRotToCoord(getInstanceAngles());
 		} else {
 			CoordinateIF[] parentAngles = this.parent.getComponentAngles();
 			int parentCount = parentAngles.length;
@@ -1657,18 +1680,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 			// usual case optimization
 			if ((parentCount == 1) && (instanceCount == 1)) {
-				return new CoordinateIF[] {parentAngles[0].add(instanceAngles[0])};
-			}
-
-			int thisCount = instanceCount * parentCount;
-			CoordinateIF[] theseAngles = new CoordinateIF[thisCount];
-			for (int pi = 0; pi < parentCount; pi++) {
-				for (int ii = 0; ii < instanceCount; ii++) {
-					theseAngles[pi + parentCount*ii] = parentAngles[pi].add(instanceAngles[ii]);
+				computedAngles = new CoordinateIF[] { parentAngles[0].add(instanceAngles[0]) };
+			} else {
+				int thisCount = instanceCount * parentCount;
+				CoordinateIF[] theseAngles = new CoordinateIF[thisCount];
+				for (int pi = 0; pi < parentCount; pi++) {
+					for (int ii = 0; ii < instanceCount; ii++) {
+						theseAngles[pi + parentCount * ii] = parentAngles[pi].add(instanceAngles[ii]);
+					}
 				}
+				computedAngles = theseAngles;
 			}
-			return theseAngles;
 		}
+
+		cachedComponentAngles = computedAngles;
+		return computedAngles.clone();
 	}
 
 	/**
@@ -1740,9 +1766,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// not sure if this will give us an answer, or THE answer... 
 		//final Coordinate sourceLoc = this.getLocation()[0];
 		final CoordinateIF[] destLocs = dest.getComponentLocations();
+		final CoordinateIF sourceLoc = this.getComponentLocations()[0];
 		CoordinateIF[] toReturn = new CoordinateIF[destLocs.length];
 		for (int coordIndex = 0; coordIndex < destLocs.length; coordIndex++) {
-			toReturn[coordIndex] = this.getComponentLocations()[0].add(c).sub(destLocs[coordIndex]);
+			toReturn[coordIndex] = sourceLoc.add(c).sub(destLocs[coordIndex]);
 		}
 		
 		mutex.unlock("toRelative");
@@ -2309,18 +2336,20 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	/**
-	 * Return the first component assembly component that this component belongs to.
+	 * Return the innermost component assembly (pod set, stage, ...) that this component belongs to.
+	 * If this component is itself a component assembly, it is returned.
 	 *
-	 * @return	The Stage component this component belongs to.
-	 * @throws	IllegalStateException   if we cannot find an AxialStage above <code>this</code> 
+	 * @return	The ComponentAssembly this component belongs to.
+	 * @throws	IllegalStateException   if we cannot find a ComponentAssembly above <code>this</code>
 	 */
 	public final ComponentAssembly getAssembly() {
 		checkState();
 
 		RocketComponent curComponent = this;
 		while (null != curComponent) {
-			if (ComponentAssembly.class.isAssignableFrom(curComponent.getClass()))
+			if (curComponent instanceof ComponentAssembly)
 				return (ComponentAssembly) curComponent;
+			curComponent = curComponent.parent;
 		}
 		throw new IllegalStateException("getAssembly() called on hierarchy without a ComponentAssembly.");
 	}
@@ -2448,7 +2477,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Find a component with the given ID.  The component tree is searched from this component
 	 * down (including this component) for the ID and the corresponding component is returned,
-	 * or null if not found.
+	 * or the RemovedCompoment if not found.
 	 *
 	 * @param idToFind  ID to search for.
 	 * @return    The component with the ID, or null if not found.
@@ -2465,7 +2494,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			}
 		}
 		mutex.unlock("findComponent");
-		return null;
+		return REMOVED;
 	}
 
 	public final RocketComponent getNextComponent() {
@@ -2989,6 +3018,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.displayOrder_back = src.displayOrder_back;
 		this.configListeners = new LinkedList<>();
 		this.bypassComponentChangeEvent = false;
+		clearCoordinateCaches();
 		if (this instanceof InsideColorComponent && src instanceof InsideColorComponent) {
 			InsideColorComponentHandler icch = new InsideColorComponentHandler(this);
 			icch.copyFrom(((InsideColorComponent) src).getInsideColorComponentHandler());
@@ -3229,4 +3259,55 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public void setDisplayOrder_back(int displayOrder_back) {
 		this.displayOrder_back = displayOrder_back;
 	}
+
+	// A null component. Attempting to get a component from a null UUID returns this component
+	private static class RemovedComponent extends RocketComponent {
+		
+		private static final Translator trans = Application.getTranslator();
+		
+		private RemovedComponent() {
+			super(AxialMethod.TOP);
+		}
+		
+		public String getComponentName() {
+			return trans.get("RemovedComponent.COMPONENT_REMOVED");
+		}
+		
+		public double getComponentMass() {
+			return 0;
+		}
+		
+		public CoordinateIF getComponentCG() {
+			return Coordinate.ZERO;
+		}
+		
+		public double getLongitudinalUnitInertia() {
+			return 0;
+		}
+		
+		public double getRotationalUnitInertia() {
+			return 0;
+		}
+		
+		public boolean allowsChildren() {
+			return false;
+		}
+		
+		public boolean isCompatible(Class<? extends RocketComponent> type) {
+			return false;
+		}
+		
+		public ArrayList<CoordinateIF> getComponentBounds() {
+			return new ArrayList<CoordinateIF>();
+		}
+		
+		public boolean isAerodynamic() {
+			return false;
+		}
+		
+		public boolean isMassive() {
+			return false;
+		}
+	}
+
 }

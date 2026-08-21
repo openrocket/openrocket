@@ -2,7 +2,7 @@ package info.openrocket.swing.gui.dialogs.preferences;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
-import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -15,9 +15,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import java.awt.Font;
-import java.awt.font.TextAttribute;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -35,8 +32,6 @@ public class UIPreviewPanel extends JPanel {
 	private final JComboBox<String> comboBox;
 	private final JSpinner spinner;
 	private final JCheckBox checkBox;
-	private final JLabel warning;
-	private final JLabel error;
 
 	public UIPreviewPanel() {
 		super(new MigLayout("fill, wrap 2", "[grow][grow]"));
@@ -59,9 +54,6 @@ public class UIPreviewPanel extends JPanel {
 		spinner = new JSpinner(new SpinnerNumberModel(42, 0, 100, 1));
 		checkBox = new JCheckBox(trans.get("UIPreviewPanel.check"), true);
 
-		warning = new JLabel(trans.get("UIPreviewPanel.Warning"));
-		error = new JLabel(trans.get("UIPreviewPanel.Error"));
-
 		// Layout components
 		add(heading, "span 2, wrap");
 		add(normalText, "span 2, wrap 15");
@@ -73,21 +65,10 @@ public class UIPreviewPanel extends JPanel {
 		add(spinner, "growx, wrap");
 
 		add(checkBox, "span 2, wrap 15");
-
-		// TODO: add once theme preview is implemented
-		//  add(warning, "span 2, wrap");
-		//  add(error, "span 2");
 	}
 
 	public void updatePreview(String fontStyle, int fontSize, float letterSpacing) {
-		// Create font attributes
-		Map<TextAttribute, Object> attributes = new HashMap<>();
-		attributes.put(TextAttribute.FAMILY, fontStyle);
-		attributes.put(TextAttribute.SIZE, fontSize);
-		attributes.put(TextAttribute.TRACKING, letterSpacing);
-
-		// Create the new font
-		Font newFont = Font.getFont(attributes);
+		Font newFont = GUIUtil.createUIFont(fontStyle, fontSize, letterSpacing);
 
 		// Update all components with new font
 		heading.setFont(newFont.deriveFont(Font.BOLD, newFont.getSize() + 2f));
@@ -100,16 +81,9 @@ public class UIPreviewPanel extends JPanel {
 		JSpinner.DefaultEditor spinnerEditor = (JSpinner.DefaultEditor) spinner.getEditor();
 		spinnerEditor.getTextField().setFont(newFont);
 		checkBox.setFont(newFont);
-		warning.setFont(newFont);
-		error.setFont(newFont);
 
 		// Force a repaint
 		revalidate();
 		repaint();
-	}
-
-	public void updateTheme(UITheme.Theme theme) {
-		warning.setForeground(theme.getWarningColor());
-		error.setForeground(theme.getErrorColor());
 	}
 }

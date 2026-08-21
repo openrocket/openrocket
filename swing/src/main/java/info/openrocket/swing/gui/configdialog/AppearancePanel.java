@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JColorChooser;
@@ -35,6 +36,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.TitledBorder;
 
 import info.openrocket.core.document.Attachment;
 import info.openrocket.core.util.Invalidatable;
@@ -62,6 +64,7 @@ import info.openrocket.core.unit.GeneralUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.LineStyle;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -233,7 +236,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	 * @param order component traversal order object of the component config dialog
 	 */
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent, List<Component> order) {
-		super(new MigLayout("fillx", "[150][grow][150][grow]"));
+		super(new MigLayout("fillx", "[grow]"));
 
 		this.order = order;
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
@@ -324,8 +327,25 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 		register(fDefault);
 
+		// 2D Figure Style Section
+		add2DFigureWidgets(c, order, fDefault, figureColorHexField);
+
+		// 3D Figure Style Section
+		add3DFigureWidgets(document, c, parent, order, allInsideColor);
+	}
+
+	private void add2DFigureWidgets(RocketComponent c, List<Component> order, BooleanModel fDefault,
+									PlaceholderTextField figureColorHexField) {
 		final JButton saveAsDefault;
+
+		// 2D Figure Style Section
+		final JPanel panel = new JPanel(new MigLayout("fillx, ins unrel unrel rel unrel", "[150][grow][150][grow]"));
+		final TitledBorder border = BorderFactory.createTitledBorder(trans.get("AppearanceCfg.TitledBorder.2DFigureStyle"));
+		panel.setBorder(border);
+		add(panel, "growx, pushx, wrap");
+
 		{// Style Header Row
+			//// Use default style
 			final JCheckBox colorDefault = new JCheckBox(fDefault);
 			colorDefault.addActionListener(new ActionListener() {
 				@Override
@@ -336,19 +356,16 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 					} else {
 						c.setColor(((SwingPreferences) Application
 								.getPreferences()).getDefaultColor(c.getClass()));
-						c.setLineStyle(((SwingPreferences) Application
-								.getPreferences()).getDefaultLineStyle(c
-								.getClass()));
+						c.setLineStyle(UITheme.getDefaultLineStyle(c.getClass()));
 					}
 				}
 			});
 			colorDefault.setText(trans
 					.get("RocketCompCfg.checkbox.Usedefaultcolor"));
-			add(new StyledLabel(trans.get("RocketCompCfg.lbl.Figurestyle"),
-					Style.BOLD));
-			add(colorDefault);
+			panel.add(colorDefault, "spanx 2");
 			order.add(colorDefault);
 
+			//// Save as default style
 			saveAsDefault = new JButton(
 					trans.get("RocketCompCfg.but.Saveasdefstyle"));
 			saveAsDefault.addActionListener(new ActionListener() {
@@ -367,18 +384,18 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				}
 			});
 			fDefault.addEnableComponent(saveAsDefault, false);
-			add(saveAsDefault, "span 2, align right, wrap");
+			panel.add(saveAsDefault, "spanx, wrap");
 		}
 
 		{// Figure Color
-			add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")));
+			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")));
 			JPanel colorPanel = new JPanel(new MigLayout("ins 0"));
 			colorPanel.add(figureColorButton);
 			figureColorHexField.setColumns(7);
 			colorPanel.add(figureColorHexField);
 			fDefault.addEnableComponent(figureColorButton, false);
 			fDefault.addEnableComponent(figureColorHexField, false);
-			add(colorPanel, "growx");
+			panel.add(colorPanel, "growx");
 			order.add(figureColorButton);
 			order.add(figureColorHexField);
 		}
@@ -386,7 +403,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		order.add(saveAsDefault);
 
 		{// Line Style
-			add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")));
+			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")));
 
 			LineStyle[] list = new LineStyle[LineStyle.values().length + 1];
 			System.arraycopy(LineStyle.values(), 0, list, 1,
@@ -399,129 +416,141 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 
 			fDefault.addEnableComponent(combo, false);
 
-			add(combo, "growx, wrap");
+			panel.add(combo, "growx, wrap");
 			order.add(combo);
 		}
+	}
 
-		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+	private void add3DFigureWidgets(OpenRocketDocument document, RocketComponent c, JDialog parent,
+									List<Component> order, boolean allInsideColor) {
+		// 3D Figure Style Section
+		final JPanel panel = new JPanel(new MigLayout("fillx, ins unrel unrel rel unrel", "[150][grow][150][grow]"));
+		final TitledBorder border = BorderFactory.createTitledBorder(trans.get("AppearanceCfg.TitledBorder.3DAppearance"));
+		panel.setBorder(border);
+		add(panel, "growx, pushx, wrap");
 
 		// Display a tabbed panel for choosing the outside and inside appearance, if the object is of type InsideColorComponent
 		if (allInsideColor) {
-			InsideColorComponentHandler handler = ((InsideColorComponent)c).getInsideColorComponentHandler();
+			add3DFigureStyleWidgetsInsideColorComponent(document, c, parent, panel, order);
+		} else {
+			appearanceSection(document, c, false, panel);
+		}
+	}
 
-			// Get translator keys
-			String tr_outside, tr_inside, tr_insideOutside, tr_insideOutside_ttip;
-			if (c instanceof FinSet) {
-				tr_outside = "RocketCompCfg.tab.LeftSide";
-				tr_inside = "RocketCompCfg.tab.RightSide";
-				tr_insideOutside = "AppearanceCfg.lbl.separateLeftSideRightSide";
-				tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.separateLeftSideRightSide";
+	private void add3DFigureStyleWidgetsInsideColorComponent(OpenRocketDocument document, RocketComponent c,
+															 JDialog parent, JPanel panel, List<Component> order) {
+		InsideColorComponentHandler handler = ((InsideColorComponent) c).getInsideColorComponentHandler();
+
+		// Get translator keys
+		String tr_outside, tr_inside, tr_insideOutside, tr_insideOutside_ttip;
+		if (c instanceof FinSet) {
+			tr_outside = "RocketCompCfg.tab.LeftSide";
+			tr_inside = "RocketCompCfg.tab.RightSide";
+			tr_insideOutside = "AppearanceCfg.lbl.separateLeftSideRightSide";
+			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.separateLeftSideRightSide";
+		}
+		else {
+			tr_outside = "RocketCompCfg.tab.Outside";
+			tr_inside = "RocketCompCfg.tab.Inside";
+			tr_insideOutside = "AppearanceCfg.lbl.separateInsideOutside";
+			tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.separateInsideOutside";
+		}
+
+		// Use separate appearance for outside and inside (or left/right)
+		BooleanModel b_customInside = new BooleanModel(handler.isSeparateInsideOutside());
+		register(b_customInside);
+		this.customInside = new JCheckBox(b_customInside);
+		customInside.setText(trans.get(tr_insideOutside));
+		customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
+		panel.add(customInside, "span 2");
+		order.add(customInside);
+
+		// Appearance for edges
+		JLabel edgesText = new JLabel(trans.get("AppearanceCfg.lbl.AppearanceEdges"));
+		panel.add(edgesText);
+		String[] options = new String[] {trans.get(tr_outside), trans.get(tr_inside)};
+		JComboBox<String> edgesComboBox = new JComboBox<>(options);
+		if (handler.isEdgesSameAsInside()) {
+			edgesComboBox.setSelectedItem(trans.get(tr_inside));
+		}
+		else {
+			edgesComboBox.setSelectedItem(trans.get(tr_outside));
+		}
+		panel.add(edgesComboBox, "growx, left, wrap");
+		order.add(edgesComboBox);
+		edgesText.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
+		edgesComboBox.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
+
+		outsideInsidePane = new JTabbedPane();
+		JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
+		JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
+
+		appearanceSection(document, c, false, outsidePanel);
+		appearanceSection(document, c, true, insidePanel);
+
+		outsideInsidePane.addTab(trans.get(tr_outside), null, outsidePanel,
+				"Outside Tool Tip");
+		outsideInsidePane.addTab(trans.get(tr_inside), null, insidePanel,
+				"Inside Tool Tip");
+		panel.add(outsideInsidePane, "span 4, growx, wrap");
+
+		// Show the outside/inside tabbed display when customInside is selected
+		customInside.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				handler.setSeparateInsideOutside(customInside.isSelected());
+				edgesText.setEnabled(customInside.isSelected());
+				edgesComboBox.setEnabled(customInside.isSelected());
+				if (customInside.isSelected()) {
+					panel.remove(outsidePanel);
+					MigLayout layout = (MigLayout) outsidePanel.getLayout();
+					layout.setLayoutConstraints("fill");
+					outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
+							"Outside Tool Tip", 0);
+					outsideInsidePane.setSelectedIndex(0);
+					panel.add(outsideInsidePane, "span 4, growx, wrap");
+				}
+				else {
+					panel.remove(outsideInsidePane);
+					MigLayout layout = (MigLayout) outsidePanel.getLayout();
+					layout.setLayoutConstraints("fill, ins 0");
+					panel.add(outsidePanel, "span 4, growx, wrap");
+				}
+
+				// Repaint to fit to the new size
+				if (parent != null) {
+					parent.pack();
+				} else {
+					updateUI();
+				}
+
+				if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
+				c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 			}
-			else {
-				tr_outside = "RocketCompCfg.tab.Outside";
-				tr_inside = "RocketCompCfg.tab.Inside";
-				tr_insideOutside = "AppearanceCfg.lbl.separateInsideOutside";
-				tr_insideOutside_ttip = "AppearanceCfg.lbl.ttip.separateInsideOutside";
-			}
+		});
 
-			// Checkbox for using separate outside/inside appearance
-			BooleanModel b_customInside = new BooleanModel(handler.isSeparateInsideOutside());
-			register(b_customInside);
-			this.customInside = new JCheckBox(b_customInside);
-			customInside.setText(trans.get(tr_insideOutside));
-			customInside.setToolTipText(trans.get(tr_insideOutside_ttip));
-			add(customInside, "span 2");
-			order.add(customInside);
-
-			// Combobox for setting the edge appearance from inside/outside appearance
-			JLabel edgesText = new JLabel(trans.get("AppearanceCfg.lbl.AppearanceEdges"));
-			add(edgesText);
-			String[] options = new String[] {trans.get(tr_outside), trans.get(tr_inside)};
-			JComboBox<String> edgesComboBox = new JComboBox<>(options);
-			if (handler.isEdgesSameAsInside()) {
-				edgesComboBox.setSelectedItem(trans.get(tr_inside));
-			}
-			else {
-				edgesComboBox.setSelectedItem(trans.get(tr_outside));
-			}
-			add(edgesComboBox, "growx, left, wrap");
-			order.add(edgesComboBox);
-			edgesText.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
-			edgesComboBox.setToolTipText(trans.get("AppearanceCfg.lbl.ttip.AppearanceEdges"));
-
-			outsideInsidePane = new JTabbedPane();
-			JPanel outsidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
-			JPanel insidePanel = new JPanel(new MigLayout("fill", "[150][grow][150][grow]"));
-
-			appearanceSection(document, c, false, outsidePanel);
-			appearanceSection(document, c, true, insidePanel);
-
-			outsideInsidePane.addTab(trans.get(tr_outside), null, outsidePanel,
-					"Outside Tool Tip");
-			outsideInsidePane.addTab(trans.get(tr_inside), null, insidePanel,
-					"Inside Tool Tip");
-			add(outsideInsidePane, "span 4, growx, wrap");
-
-			// Show the outside/inside tabbed display when customInside is selected
-			customInside.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					handler.setSeparateInsideOutside(customInside.isSelected());
-					edgesText.setEnabled(customInside.isSelected());
-					edgesComboBox.setEnabled(customInside.isSelected());
-					if (customInside.isSelected()) {
-						remove(outsidePanel);
-						MigLayout layout = (MigLayout) outsidePanel.getLayout();
-						layout.setLayoutConstraints("fill");
-						outsideInsidePane.insertTab(trans.get(tr_outside), null, outsidePanel,
-								"Outside Tool Tip", 0);
-						outsideInsidePane.setSelectedIndex(0);
-						add(outsideInsidePane, "span 4, growx, wrap");
-					}
-					else {
-						remove(outsideInsidePane);
-						MigLayout layout = (MigLayout) outsidePanel.getLayout();
-						layout.setLayoutConstraints("fill, ins 0");
-						add(outsidePanel, "span 4, growx, wrap");
-					}
-
-					// Repaint to fit to the new size
-					if (parent != null) {
-						parent.pack();
-					} else {
-						updateUI();
-					}
-
-					if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
+		// Change the edge appearance upon item selection
+		edgesComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (edgesComboBox.getSelectedItem() == null) return;
+				if (edgesComboBox.getSelectedItem().equals(trans.get(tr_outside))) {
+					handler.setEdgesSameAsInside(false);
+				}
+				else if (edgesComboBox.getSelectedItem().equals(trans.get(tr_inside))) {
+					handler.setEdgesSameAsInside(true);
+				}
+				else {
+					return;
+				}
+				if (e != null) {	// When e == null, you just want an update of the UI components, not a component change
 					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
-			});
+			}
+		});
 
-			// Change the edge appearance upon item selection
-			edgesComboBox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (edgesComboBox.getSelectedItem() == null) return;
-					if (edgesComboBox.getSelectedItem().equals(trans.get(tr_outside))) {
-						handler.setEdgesSameAsInside(false);
-					}
-					else if (edgesComboBox.getSelectedItem().equals(trans.get(tr_inside))) {
-						handler.setEdgesSameAsInside(true);
-					}
-					else {
-						return;
-					}
-					if (e != null) {	// When e == null, you just want an update of the UI components, not a component change
-						c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-					}
-				}
-			});
-
-			customInside.getActionListeners()[0].actionPerformed(null);
-			edgesComboBox.getActionListeners()[0].actionPerformed(null);
-		}
-		else
-			appearanceSection(document, c, false, this);
+		customInside.getActionListeners()[0].actionPerformed(null);
+		edgesComboBox.getActionListeners()[0].actionPerformed(null);
 	}
 
 	/**
@@ -572,19 +601,19 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		colorHexField.addFocusListener(colorHexListener);
 
 		// Texture Header Row
-		panel.add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"),
-				Style.BOLD));
+		//// Use default appearance
 		JCheckBox materialDefault = new JCheckBox(mDefault);
 		materialDefault.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (builder == null) {
+					return;
+				}
 				if (materialDefault.isSelected()) {
 					if (!insideBuilder) {
-						previousUserSelectedAppearance = (builder == null) ? null
-								: builder.getAppearance();
+						previousUserSelectedAppearance = builder.getAppearance();
 					} else {
-						previousUserSelectedInsideAppearance = (builder == null) ? null
-								: builder.getAppearance();
+						previousUserSelectedInsideAppearance = builder.getAppearance();
 					}
 
 					// Set the listeners' appearance to the default appearance
@@ -614,7 +643,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			}
 		});
 		materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
-		panel.add(materialDefault, "wrap");
+		panel.add(materialDefault, "spanx, wrap");
 		order.add(materialDefault);
 
 		// Texture File
@@ -629,7 +658,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 
 		//// Select file button
 		JButton chooseTextureBtn = new JButton(trans.get("DecalModel.lbl.choose"));
-		chooseTextureBtn.setIcon(Icons.FILE_OPEN);
+		chooseTextureBtn.setIcon(Icons.IMAGE_OPEN);
 		chooseTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		chooseTextureBtn.addActionListener(e -> decalModel.promptForFileSelection());
 		mDefault.addEnableComponent(chooseTextureBtn, false);
@@ -640,7 +669,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 
 		//// Edit button
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
-			JButton editBtn = new JButton(Icons.EDIT_EDIT);
+			JButton editBtn = new JButton(Icons.IMAGE_EDIT);
 			editBtn.setToolTipText(trans.get("AppearanceCfg.but.edit"));
 			editBtn.setHorizontalAlignment(SwingConstants.LEFT);
 			// Enable the editBtn only when the appearance builder has an Image
@@ -670,12 +699,17 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		}
 
 		//// Create texture button
-		JButton createTextureBtn = new JButton(Icons.FILE_NEW);
-		createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
+		JButton createTextureBtn = new JButton(Icons.IMAGE_NEW);
 		createTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		createTextureBtn.addActionListener(e -> handleCreateTexture(panel, document, c, decalModel,
 				insideBuilder, builder));
-		mDefault.addEnableComponent(createTextureBtn, false);
+		if (TextureCreationService.isComponentSupported(c)) {
+			createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
+			mDefault.addEnableComponent(createTextureBtn, false);
+		} else {
+			createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture.ttip.unsupported"));
+			createTextureBtn.setEnabled(false);
+		}
 		textureButtonsPanel.add(createTextureBtn);
 		order.add(createTextureBtn);
 

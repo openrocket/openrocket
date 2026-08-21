@@ -60,7 +60,7 @@ public class SlideSetManager {
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
 	}
 	
 	

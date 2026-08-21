@@ -429,7 +429,9 @@ class DocumentConfig {
 
 		// ShockCord
 		setters.put("ShockCord:cordlength", new DoubleSetter(
-				Reflection.findMethod(ShockCord.class, "setCordLength", double.class)));
+				Reflection.findMethod(ShockCord.class, "setCordLength", double.class),
+				"auto",
+				Reflection.findMethod(ShockCord.class, "setCordLengthAutomatic", boolean.class)));
 		setters.put("ShockCord:material", new MaterialSetter(
 				Reflection.findMethod(ShockCord.class, "setMaterial", Material.class),
 				Material.Type.LINE));
@@ -452,6 +454,8 @@ class DocumentConfig {
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
+		setters.put("RecoveryDevice:isdrogue", new BooleanSetter(
+				Reflection.findMethod(RecoveryDevice.class, "setDrogue", boolean.class)));
 		
 		// Parachute
 		setters.put("Parachute:diameter", new DoubleSetter(
@@ -459,7 +463,9 @@ class DocumentConfig {
 		setters.put("Parachute:linecount", new IntSetter(
 				Reflection.findMethod(Parachute.class, "setLineCount", int.class)));
 		setters.put("Parachute:linelength", new DoubleSetter(
-				Reflection.findMethod(Parachute.class, "setLineLength", double.class)));
+				Reflection.findMethod(Parachute.class, "setLineLength", double.class),
+				"auto",
+				Reflection.findMethod(Parachute.class, "setLineLengthAutomatic", boolean.class)));
 		setters.put("Parachute:linematerial", new MaterialSetter(
 				Reflection.findMethod(Parachute.class, "setLineMaterial", Material.class),
 				Material.Type.LINE));

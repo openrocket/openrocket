@@ -91,10 +91,10 @@ public class SimulationWarningsPanel extends JPanel {
 
 	public static void updateColors() {
 		border = GUIUtil.getUITheme().getBorder();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
-		warningColor = GUIUtil.getUITheme().getWarningColor();
-		informationColor = GUIUtil.getUITheme().getInformationColor();
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		darkErrorColor = UITheme.getColor(UITheme.Keys.DARK_ERROR);
+		warningColor = UITheme.getColor(UITheme.Keys.WARNING);
+		informationColor = UITheme.getColor(UITheme.Keys.INFO);
 	}
 
 	private static JPanel createWarningsPanel(final List<Warning> warnings, final Icon icon,

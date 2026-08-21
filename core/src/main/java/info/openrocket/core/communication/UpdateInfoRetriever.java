@@ -1,6 +1,5 @@
 package info.openrocket.core.communication;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,12 +15,10 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
-import jakarta.json.stream.JsonParsingException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Class that initiates fetching software update information.
@@ -197,17 +194,15 @@ public class UpdateInfoRetriever {
 				return null;
 
 			// Combine both arrays
-			JsonArrayBuilder builder = Json.createArrayBuilder();
-			for (int i = 0; i < arr1.size(); i++) {
-				JsonObject obj = arr1.getJsonObject(i);
-				builder.add(obj);
+			JsonArray combined = new JsonArray();
+			for (JsonElement element : arr1) {
+				combined.add(element);
 			}
-			for (int i = 0; i < arr2.size(); i++) {
-				JsonObject obj = arr2.getJsonObject(i);
-				builder.add(obj);
+			for (JsonElement element : arr2) {
+				combined.add(element);
 			}
 
-			return builder.build();
+			return combined;
 		}
 
 		/**
@@ -221,18 +216,18 @@ public class UpdateInfoRetriever {
 				String pageInfo = GitHubAPIUtil.fetchPageInfo(urlLink);
 
 				// Read the release page as a JSON object
-				JsonReader reader = Json.createReader(new StringReader(pageInfo));
+				JsonElement root = JsonParser.parseString(pageInfo);
 
-				// The reader-content can be a JSON array or just a JSON object
-				try { // Case: JSON array
-					return reader.readArray();
-				} catch (JsonParsingException e) { // Case: JSON object
-					JsonArrayBuilder builder = Json.createArrayBuilder();
-					reader = Json.createReader(new StringReader(pageInfo));
-					JsonObject obj = reader.readObject();
-					builder.add(obj);
-					return builder.build();
+				// The content can be a JSON array or just a JSON object
+				if (root.isJsonArray()) {
+					return root.getAsJsonArray();
 				}
+				if (root.isJsonObject()) {
+					JsonArray arr = new JsonArray();
+					arr.add(root.getAsJsonObject());
+					return arr;
+				}
+				return null;
 			} catch (Exception e) {
 				throw new UpdateCheckerException(e);
 			}
@@ -332,7 +327,7 @@ public class UpdateInfoRetriever {
 
 			// Find the tag with the latest version out of the filtered tags
 			for (int i = 0; i < jsonArr.size(); i++) {
-				JsonObject obj = jsonArr.getJsonObject(i);
+				JsonObject obj = jsonArr.get(i).getAsJsonObject();
 				ReleaseInfo release = new ReleaseInfo(obj);
 				String releaseName = release.getReleaseName();
 
@@ -376,6 +371,9 @@ public class UpdateInfoRetriever {
 				log.debug("tag2 is null");
 				throw new UpdateCheckerException("Malformed release tag");
 			}
+
+			tag1 = normalizeReleaseTag(tag1);
+			tag2 = normalizeReleaseTag(tag2);
 
 			// Each tag should have the format 'XX.XX...' where 'XX' is a number or a text
 			// (e.g. 'alpha'). Separator '.'
@@ -476,6 +474,27 @@ public class UpdateInfoRetriever {
 			}
 
 			return ReleaseStatus.LATEST;
+		}
+
+		/**
+		 * Normalize local development versions so the update checker accepts both legacy
+		 * ".SNAPSHOT" tags and Maven-style "-SNAPSHOT" tags. Development builds may also
+		 * embed a trailing Git hash after the snapshot marker for display purposes; that
+		 * hash is ignored for version comparisons.
+		 *
+		 * @param tag release tag to normalize
+		 * @return normalized release tag
+		 */
+		private static String normalizeReleaseTag(String tag) {
+			String normalized = tag.trim();
+			normalized = normalized.replace("-" + snapshotTag + "-", "." + snapshotTag + ".");
+			normalized = normalized.replace("-" + snapshotTag, "." + snapshotTag);
+
+			if (normalized.matches(".*\\." + snapshotTag + "[.-][0-9a-fA-F]{7,40}$")) {
+				normalized = normalized.replaceFirst("(\\." + snapshotTag + ")[.-][0-9a-fA-F]{7,40}$", "$1");
+			}
+
+			return normalized;
 		}
 
 		/**

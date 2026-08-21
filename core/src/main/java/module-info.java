@@ -21,13 +21,14 @@ open module info.openrocket.core {
 	requires java.prefs;
 	requires jakarta.xml.bind;
 	requires io.github.classgraph;
-	requires org.glassfish.jakarta.json;
+	requires com.google.gson;
 	requires org.slf4j;
 	requires com.opencsv;
 	requires org.commonmark;
 	requires org.locationtech.jts;
 	requires org.objectweb.asm.commons;
 	requires java.management;
+	requires java.sql;
 
 	// TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;

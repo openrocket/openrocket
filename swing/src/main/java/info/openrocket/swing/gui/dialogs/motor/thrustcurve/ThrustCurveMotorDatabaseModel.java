@@ -7,10 +7,18 @@ import javax.swing.table.AbstractTableModel;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;
 
 public class ThrustCurveMotorDatabaseModel extends AbstractTableModel {
-	private final List<ThrustCurveMotorSet> database;
-	
+	private List<ThrustCurveMotorSet> database;
+
 	public ThrustCurveMotorDatabaseModel(List<ThrustCurveMotorSet> database) {
 		this.database = database;
+	}
+
+	/**
+	 * Replace the backing database list and notify listeners.
+	 */
+	public void setDatabase(List<ThrustCurveMotorSet> database) {
+		this.database = database;
+		fireTableDataChanged();
 	}
 	
 	@Override

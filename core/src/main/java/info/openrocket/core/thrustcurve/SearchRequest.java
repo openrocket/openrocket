@@ -1,6 +1,12 @@
 package info.openrocket.core.thrustcurve;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 public class SearchRequest {
+
+	private static final int MAX_RESULTS = 1000;	// Maximum motor results to return for one manufacturer search
+	private static final Gson GSON = new Gson();
 
 	private String manufacturer;
 	private String designation;
@@ -80,39 +86,29 @@ public class SearchRequest {
 
 	@Override
 	public String toString() {
-		StringBuilder w = new StringBuilder();
-
-		w.append("<?xml version=\"1.0\" encoding=\"ascii\"?>\n");
-		w.append("<search-request\n");
-		w.append(" xmlns=\"http://www.thrustcurve.org/2014/SearchRequest\"\n");
-		w.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
-		w.append(
-				" xsi:schemaLocation=\"http://www.thrustcurve.org/2014/SearchRequest http://www.thrustcurve.org/2014/search-request.xsd\">\n");
-
-		if (manufacturer != null) {
-			w.append("  <manufacturer>").append(manufacturer).append("</manufacturer>\n");
+		JsonObject json = new JsonObject();
+		if (manufacturer != null){
+			json.addProperty("manufacturer", manufacturer);
 		}
-		if (designation != null) {
-			w.append("  <designation>").append(designation).append("</designation>\n");
+		if (designation != null){
+			json.addProperty("designation", designation);
 		}
-		if (brand_name != null) {
-			w.append("  <brand-name>").append(brand_name).append("</brand-name>\n");
+		if (brand_name != null){
+			json.addProperty("brandName", brand_name); // Note: camelCase in V1
 		}
-		if (common_name != null) {
-			w.append("  <common-name>").append(common_name).append("</common-name>\n");
+		if (common_name != null){
+			json.addProperty("commonName", common_name);
 		}
 		if (impulse_class != null) {
-			w.append("  <impulse-class>").append(impulse_class).append("</impulse-class>\n");
+			json.addProperty("impulseClass", impulse_class);
 		}
 		if (diameter != null) {
-			w.append("  <diameter>").append(diameter).append("</diameter>\n");
+			json.addProperty("diameter", diameter);
 		}
 		if (type != null) {
-			w.append("  <type>").append(type).append("</type>\n");
+			json.addProperty("type", type);
 		}
-		w.append("<data-fields>*</data-fields>");
-		w.append("<max-results>0</max-results>");
-		w.append("</search-request>\n");
-		return w.toString();
+		json.addProperty("maxResults", MAX_RESULTS);
+		return GSON.toJson(json);
 	}
 }

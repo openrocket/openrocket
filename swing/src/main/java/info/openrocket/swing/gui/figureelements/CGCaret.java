@@ -39,7 +39,7 @@ public class CGCaret extends Caret {
 	}
 
 	public static void updateColors() {
-		CGColor = GUIUtil.getUITheme().getCGColor();
+		CGColor = UITheme.getColor(UITheme.Keys.CG);
 	}
 
 	/**

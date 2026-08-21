@@ -16,8 +16,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import com.google.inject.Injector;
+import info.openrocket.core.database.Databases;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.CoordinateIF;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -28,11 +32,32 @@ import info.openrocket.core.util.ModID;
 
 public class FlightConfigurationTest {
 	private final static double EPSILON = MathUtil.EPSILON * 1.0E3;
+	private static Locale previousLocale;
+	private static Injector previousInjector;
 
 	@BeforeAll
 	public static void setup() throws Exception {
+		previousLocale = Locale.getDefault();
+		previousInjector = Application.getInjector();
+
+		// Initialize shared localized databases with the normal testing translator.
+		// The debug translator below is intentionally scoped to this test class and
+		// must not permanently populate those static databases with bracketed names.
+		Locale.setDefault(Locale.US);
+		BaseTestCase.setUp();
+		Databases.fakeMethod();
+
 		Locale.setDefault(new Locale("xx"));
 		BaseTestCase.setUp();
+	}
+
+	/**
+	 * Restore the process-wide test state changed by {@link #setup()}.
+	 */
+	@AfterAll
+	public static void tearDown() {
+		Locale.setDefault(previousLocale);
+		Application.setInjector(previousInjector);
 	}
 
 	/**

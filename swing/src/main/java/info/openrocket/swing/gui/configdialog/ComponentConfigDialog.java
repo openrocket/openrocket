@@ -274,7 +274,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 
 		// Only add a modify undo action if the component is not a new component (because a "Create new component" undo action is already added)
 		if (!isNewComponent) {
-			if (component.getConfigListeners().size() == 0) {
+			if (component.getConfigListeners().isEmpty()) {
 				document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
 			} else {
 				document.addUndoPosition(trans.get("ComponentCfgDlg.ModifyComponents"));
@@ -284,7 +284,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		// Open preset dialog if set in preferences
 		if (isNewComponent && component.getPresetType() != null &&
 				preferences.getBoolean(component.getComponentName() + "AlwaysOpenPreset", true) &&
-				component.getConfigListeners().size() == 0) {
+				preferences.isAutoOpenPartsLibrary() &&
+				component.getConfigListeners().isEmpty()) {
 			dialog.configurator.selectPreset();
 		}
 	}

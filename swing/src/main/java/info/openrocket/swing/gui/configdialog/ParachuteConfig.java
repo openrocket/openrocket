@@ -34,6 +34,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.Parachute;
+import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
@@ -151,15 +152,21 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Line length:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Linelength")));
 		
-		m = new DoubleModel(component, "LineLength", UnitGroup.UNITS_LENGTH, 0);
-		register(m);
+		final DoubleModel lineLengthModel = new DoubleModel(component, "LineLength", UnitGroup.UNITS_LENGTH, 0);
+		register(lineLengthModel);
 		
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(lineLengthModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		shroudPanel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		shroudPanel.add(new UnitSelector(m), "growx");
-		shroudPanel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 150lp, wrap");
+		shroudPanel.add(new UnitSelector(lineLengthModel), "growx");
+		shroudPanel.add(new BasicSlider(lineLengthModel.getSliderModel(0, 0.4, 1.5)), "w 150lp, wrap");
+
+		final JCheckBox checkAutoLineLength = new JCheckBox(lineLengthModel.getAutomaticAction());
+		checkAutoLineLength.setText(trans.get("ParachuteCfg.checkbox.AutomaticLineLength"));
+		checkAutoLineLength.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticLineLength.ttip"));
+		shroudPanel.add(checkAutoLineLength, "skip, span, wrap");
+		order.add(checkAutoLineLength);
 		
 		//// Material:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "spanx, wrap rel");
@@ -285,6 +292,15 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			deploymentPanel.add(slider, "w 100lp, wrap");
 
 			deploymentPanel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap");
+
+			//// Is Drogue checkbox — read-only; managed from the stage Recovery tab
+			JCheckBox drogueCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue"));
+			drogueCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue.managedByStage.ttip"));
+			drogueCheck.setSelected(parachute.isDrogue());
+			drogueCheck.setEnabled(false);
+			deploymentPanel.add(drogueCheck, "spanx");
+			deploymentPanel.add(new StyledLabel(trans.get("RecoveryDeviceCfg.lbl.IsDrogue.managedByStage"), -1, StyledLabel.Style.ITALIC), "spanx, wrap");
+			order.add(drogueCheck);
 
 			panel.add(deploymentPanel, "spanx, growx, wrap para");
 		}

@@ -393,13 +393,12 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			return value;
 
 		// 3. Diameter
-		value = (int) ((this.diameter - other.diameter) * 1000000);
+		value = Double.compare(this.diameter, other.diameter);
 		if (value != 0)
 			return value;
 
 		// 4. Length
-		value = (int) ((this.length - other.length) * 1000000);
-		return value;
+		return Double.compare(this.length, other.length);
 
 	}
 

@@ -57,6 +57,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 	protected final List<EventListener> listeners = new LinkedList<>();
 
 	private static Color backgroundColor;
+	private Color customBackgroundColor = null;
 
 	static {
 		initColors();
@@ -77,7 +78,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 		this.setPreferredSize(new Dimension(100,100));
 		setSize(100,100);
 
-		setBackground(backgroundColor);
+		updateBackgroundColor();
 		setOpaque(true);
 	}
 
@@ -87,7 +88,33 @@ public abstract class AbstractScaleFigure extends JPanel {
 	}
 
 	public static void updateColors() {
-		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+	}
+
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		// Refresh the background when the LaF changes so theme switches are reflected.
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		updateBackgroundColor();
+	}
+
+	/**
+	 * Set a custom background color for this figure. If null, uses the theme default.
+	 * @param color the custom background color, or null to use theme default
+	 */
+	public void setCustomBackgroundColor(Color color) {
+		this.customBackgroundColor = color;
+		updateBackgroundColor();
+	}
+
+	/**
+	 * Get the current background color (custom or theme default).
+	 * @return the background color
+	 */
+	private void updateBackgroundColor() {
+		Color bgColor = customBackgroundColor != null ? customBackgroundColor : backgroundColor;
+		setBackground(bgColor);
 	}
 
 	public int getBorderHeight(){ return borderThickness_px.height; }

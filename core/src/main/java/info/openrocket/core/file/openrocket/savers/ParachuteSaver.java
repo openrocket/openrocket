@@ -26,7 +26,11 @@ public class ParachuteSaver extends RecoveryDeviceSaver {
 
 		elements.add("<diameter>" + para.getDiameter() + "</diameter>");
 		elements.add("<linecount>" + para.getLineCount() + "</linecount>");
-		elements.add("<linelength>" + para.getLineLength() + "</linelength>");
+		if (para.isLineLengthAutomatic()) {
+			elements.add("<linelength>auto</linelength>");
+		} else {
+			elements.add("<linelength>" + para.getLineLength() + "</linelength>");
+		}
 		elements.add(materialParam("linematerial", para.getLineMaterial()));
 	}
 

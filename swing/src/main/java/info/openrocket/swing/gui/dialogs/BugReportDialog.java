@@ -124,7 +124,7 @@ public class BugReportDialog extends JDialog {
 	}
 
 	public static void updateColors() {
-		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
+		darkErrorColor = UITheme.getColor(UITheme.Keys.DARK_ERROR);
 	}
 
 	/**

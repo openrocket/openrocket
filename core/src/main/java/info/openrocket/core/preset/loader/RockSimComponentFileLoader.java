@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import com.opencsv.CSVParser;
@@ -128,7 +129,7 @@ public abstract class RockSimComponentFileLoader {
 		if (is == null) {
 			return;
 		}
-		try (InputStreamReader r = new InputStreamReader(is)) {
+		try (InputStreamReader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
 
 			// Create the CSV reader. Use comma separator.
 			CSVParser parser = new CSVParserBuilder()

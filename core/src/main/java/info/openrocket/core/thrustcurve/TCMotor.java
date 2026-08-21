@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class TCMotor implements Cloneable {
 
-	private Integer motor_id;
+	private String motor_id;
 	private String manufacturer;
 	private String manufacturer_abbr;
 	private String designation;
@@ -86,11 +86,18 @@ public class TCMotor implements Cloneable {
 		return clone;
 	}
 
-	public Integer getMotor_id() {
+	/**
+	 * @return the motor id as a MongoDB Hex String
+	 */
+	public String getMotor_id() {
 		return motor_id;
 	}
 
-	public void setMotor_id(Integer motor_id) {
+	/**
+	 * Sets the motor id as a MongoDB Hex String
+	 * @param motor_id the motor id to set
+	 */
+	public void setMotor_id(String motor_id) {
 		this.motor_id = motor_id;
 	}
 

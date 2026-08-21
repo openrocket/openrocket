@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.plot;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,6 +32,7 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.xy.XYSeriesCollection;
+import info.openrocket.swing.gui.theme.UITheme;
 
 @SuppressWarnings("serial")
 public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, SimulationPlotConfiguration> {
@@ -241,7 +241,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			m.setPaint(color);
 			m.setLabelPaint(color);
 			m.setAlpha(0.7f);
-			m.setLabelFont(new Font("Dialog", Font.PLAIN, 13));
+			m.setLabelFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 13.0f, 0.0f));
 			plot.addDomainMarker(m);
 
 			if (t > plot.getDomainAxis().getUpperBound() - markerWidth) {
@@ -254,9 +254,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(branch);
 
-		final List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		final List<Double> time = dataBranch.getView(FlightDataType.TYPE_TIME);
 		String tName = FlightDataType.TYPE_TIME.getName();
-		final List<Double> domain = dataBranch.get(config.getDomainAxisType());
+		final List<Double> domain = dataBranch.getView(config.getDomainAxisType());
 		LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
 		String xName = config.getDomainAxisType().getName();
 
@@ -286,7 +286,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				int dataTypeIdx = series.getDataIdx();
 				FlightDataType type = config.getType(dataTypeIdx);
 				String yName = type.toString();
-				final List<Double> range = dataBranch.get(type);
+				final List<Double> range = dataBranch.getView(type);
 				LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
 				
 				for (int i = 0; i < eventSets.size(); i++) {
@@ -434,13 +434,13 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 			if (!abortString.toString().isEmpty()) {
 				TextTitle abortsTitle = new TextTitle(abortString.toString(),
-													  new Font(Font.SANS_SERIF, Font.BOLD, 14),
-													  GUIUtil.getUITheme().getErrorColor(),
+													  GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 14.0f, 0.0f),
+													  UITheme.getColor(UITheme.Keys.ERROR),
 													  RectangleEdge.TOP,
 													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
 													  new RectangleInsets(5, 5, 5, 5));
 				abortsTitle.setBackgroundPaint(Color.WHITE);
-				BlockBorder abortsBorder = new BlockBorder(GUIUtil.getUITheme().getErrorColor());
+				BlockBorder abortsBorder = new BlockBorder(UITheme.getColor(UITheme.Keys.ERROR));
 				abortsTitle.setFrame(abortsBorder);
 
 				return new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
@@ -491,4 +491,3 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		}
 	}
 }
-

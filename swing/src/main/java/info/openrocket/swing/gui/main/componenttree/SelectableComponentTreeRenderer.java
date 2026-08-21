@@ -42,7 +42,7 @@ public class SelectableComponentTreeRenderer extends ComponentTreeRenderer {
 	}
 
 	public static void updateColors() {
-		disabledTextColor = GUIUtil.getUITheme().getDisabledTextColor();
+		disabledTextColor = UITheme.getColor(UITheme.Keys.TEXT_DISABLED);
 	}
 
 	@Override

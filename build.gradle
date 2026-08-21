@@ -1,4 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.ApacheNoticeResourceTransformer
+import org.gradle.api.tasks.compile.JavaCompile
 
 plugins {
     id 'com.gradleup.shadow' version '9.2.2'
@@ -7,6 +9,7 @@ plugins {
     id 'org.javamodularity.moduleplugin' version '2.0.0'
     id 'application'
     id 'jacoco'
+    id 'com.github.spotbugs' version '6.1.12' apply false
 }
 
 // Java settings
@@ -70,8 +73,71 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+
+    // Java source files are UTF-8; otherwise javac uses the platform's default encoding.
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    // Workaround for Windows "CreateProcess error=206" (command line too long).
+    //
+    // Windows limits CreateProcess to 32,767 chars. A JPMS build produces two sources of
+    // length: (a) -classpath with every JAR/directory, and (b) --module-path (added by the
+    // module plugin as a JVM arg) with every module JAR. Both must be shortened.
+    //
+    // Strategy:
+    //   (a) Classpath → manifest JAR: a tiny JAR whose Class-Path manifest attribute lists
+    //       every real entry. Directory entries need a trailing '/' or the JVM treats them as
+    //       ZIPs. Use setFrom() to mutate the FileCollection in-place (Gradle's worker
+    //       infrastructure holds a reference to the same object).
+    //   (b) JVM args → @argfile: Java 9+ supports "@/path/to/file" as a command-line
+    //       argument; the launcher expands it before parsing. Writing all JVM args to a temp
+    //       file and replacing jvmArgs with a single "@<path>" entry keeps that part short.
+    //
+    // The block MUST be registered before the module plugin is applied so that Gradle's
+    // LIFO doFirst ordering puts our action AFTER the module plugin's doFirst. The plugin
+    // then runs first (populating --module-path in jvmArgs), and our action runs second
+    // (moving everything to files).
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+
+        Closure windowsLongCpFix = { task ->
+            doFirst {
+                // (a) Wrap classpath in a manifest JAR
+                def cpFiles = task.classpath.files
+                if (cpFiles) {
+                    def mf = new java.util.jar.Manifest()
+                    mf.mainAttributes.put(java.util.jar.Attributes.Name.MANIFEST_VERSION, '1.0')
+                    mf.mainAttributes.put(java.util.jar.Attributes.Name.CLASS_PATH,
+                        cpFiles.collect { f ->
+                            def url = f.toURI().toURL().toString()
+                            (f.isDirectory() && !url.endsWith('/')) ? url + '/' : url
+                        }.join(' '))
+                    def cpJar = new File(task.temporaryDir, 'classpath-manifest.jar')
+                    cpJar.parentFile.mkdirs()
+                    new java.util.jar.JarOutputStream(new java.io.FileOutputStream(cpJar), mf).close()
+                    task.classpath.setFrom(cpJar)
+                }
+
+                // (b) Move all JVM args into a @argfile so --module-path doesn't blow the limit.
+                //     One arg per line; quote entries that contain spaces.
+                def currentArgs = task.jvmArgs as List<String>
+                if (currentArgs) {
+                    def argFile = new File(task.temporaryDir, 'jvm.argfile')
+                    argFile.text = currentArgs.collect { arg ->
+                        arg.contains(' ') ? '"' + arg.replace('\\', '\\\\').replace('"', '\\"') + '"' : arg
+                    }.join('\n')
+                    task.jvmArgs = ['@' + argFile.absolutePath.replace('\\', '/')]
+                }
+            }
+        }
+
+        tasks.withType(Test).configureEach(windowsLongCpFix)
+        tasks.withType(JavaExec).configureEach(windowsLongCpFix)
+    }
+
     apply plugin: "org.javamodularity.moduleplugin"
     apply plugin: 'jacoco'
+    apply plugin: 'com.github.spotbugs'
 
     // Configure the gradle-modules-plugin
     modularity {
@@ -82,6 +148,19 @@ subprojects {
     test {
         useJUnitPlatform()
         finalizedBy jacocoTestReport
+
+        // Give the forked test JVM a reliable heap instead of relying on JVM ergonomics,
+        // which can size the default heap too small under host memory pressure. Guice-backed
+        // tests (e.g. ScaleDialogBaseTest) trigger a ClassGraph classpath scan for @Plugin
+        // discovery, which is memory-hungry and was observed to OOM with the JVM default.
+        maxHeapSize = '1536m'
+
+        // Keep verification output independent of the host operating-system locale.
+        // These properties are applied when the test JVM starts, before locale-sensitive
+        // classes can cache formatting state.
+        systemProperty 'user.language', 'en'
+        systemProperty 'user.country', 'US'
+        systemProperty 'user.variant', ''
 
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
@@ -100,9 +179,25 @@ subprojects {
         }
     }
 
+    spotbugs {
+        effort = com.github.spotbugs.snom.Effort.valueOf('MAX')
+        reportLevel = com.github.spotbugs.snom.Confidence.valueOf('HIGH')
+        excludeFilter = rootProject.file('config/spotbugs/excludeFilter.xml')
+    }
+
+    spotbugsMain {
+        reports {
+            html.required = true
+            xml.required = false
+        }
+    }
+
+    spotbugsTest.enabled = false
+
     // Always evaluate coverage as part of the verification lifecycle
     tasks.named('check') {
         dependsOn jacocoTestCoverageVerification
+        dependsOn spotbugsMain
     }
 
     // Common dependencies
@@ -132,8 +227,52 @@ tasks.named('check') {
 jar {
     archiveBaseName = 'OpenRocket'
 
+    // The license dialog links to this file inside the JAR
+    from(rootProject.file('LICENSE.TXT'))
+
     manifest {
         attributes(baseManifestAttributes)
+    }
+}
+
+// Collects the license and notice file of every bundled dependency into a directory of
+// its own. Dependencies that use the standard META-INF names all end up at the same path
+// in the shaded JAR, where the last file copied silently wins: 29 of the bundled JARs
+// ship a META-INF/LICENSE* and 18 a META-INF/NOTICE*, but only one file per name survives.
+def thirdPartyLicenseDir = layout.buildDirectory.dir('third-party-licenses')
+
+def collectThirdPartyLicenses = tasks.register('collectThirdPartyLicenses') {
+    group = 'build'
+    description = 'Collects the license and notice file of every bundled dependency.'
+
+    def runtimeClasspath = configurations.runtimeClasspath
+    inputs.files(runtimeClasspath).withPropertyName('runtimeClasspath')
+    outputs.dir(thirdPartyLicenseDir).withPropertyName('thirdPartyLicenseDir')
+
+    doLast {
+        def target = thirdPartyLicenseDir.get().asFile
+        delete(target)
+
+        runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+            def module = artifact.moduleVersion.id
+            copy {
+                from(zipTree(artifact.file)) {
+                    include 'META-INF/LICENSE*'
+                    include 'META-INF/NOTICE*'
+                    // Flatten, so the files do not land in a nested META-INF directory
+                    eachFile { details -> details.path = details.name }
+                    includeEmptyDirs = false
+                }
+                into new File(target, "${module.group}.${module.name}")
+            }
+        }
+
+        // Drop the directories of the dependencies that ship no license file at all
+        target.listFiles()?.each { file ->
+            if (file.directory && file.list().length == 0) {
+                file.delete()
+            }
+        }
     }
 }
 
@@ -144,11 +283,39 @@ dependencies {
 }
 
 tasks.named('shadowJar', ShadowJar) {
-    dependsOn(':core:processResources')
+    dependsOn(':core:processResources', collectThirdPartyLicenses)
     archiveBaseName = 'OpenRocket'
     archiveVersion = '' + version
     archiveClassifier = ''
     dependsOn(distTar, distZip)
+
+    // The license dialog links to this file inside the JAR
+    from(rootProject.file('LICENSE.TXT'))
+
+    // Keep the license text of every dependency, not just the last one copied
+    from(thirdPartyLicenseDir) {
+        into 'META-INF/third-party-licenses'
+    }
+
+    // Concatenate the NOTICE files, as section 4d of the Apache License 2.0 requires,
+    // instead of letting one dependency's notice overwrite all of the others
+    transform(ApacheNoticeResourceTransformer) {
+        projectName = 'OpenRocket'
+    }
+
+    // Concatenate the service files as well, so no service provider is lost: both
+    // graal-js and its regex language register a Truffle language provider.
+    mergeServiceFiles()
+
+    // The task drops duplicate paths before the transformers above ever see them, which
+    // would leave only one of the ~18 notices and one of the two Truffle providers. Let
+    // the files that get merged through in full, while classes keep the default strategy:
+    // both a modular and a non-modular JNA are on the class path, and copying duplicate
+    // class entries into the JAR is exactly what the default strategy is there to avoid.
+    filesMatching(['META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/NOTICE.md',
+                   'META-INF/services/*']) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 
     manifest {
         attributes(baseManifestAttributes)

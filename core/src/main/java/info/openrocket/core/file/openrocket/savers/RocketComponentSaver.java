@@ -214,11 +214,30 @@ public class RocketComponentSaver {
 		
 		String baseName = trans.getBaseText("material", mat.getName());
 		
-		return str + " density=\"" + mat.getDensity() + "\" group=\"" + mat.getGroup().getDatabaseString() + "\">" +
+		String result = str + " density=\"" + mat.getDensity() + "\"";
+		
+		// Add shear modulus when defined or explicitly set for a user-defined material.
+		double shearModulus = mat.getInPlaneShearModulus();
+		if (shearModulus != 0.0 || mat.isUserDefined()) {
+			result += " shearModulus=\"" + shearModulus + "\"";
+		}
+		
+		result += " group=\"" + mat.getGroup().getDatabaseString() + "\">" +
 				TextUtil.escapeXML(baseName) + "</" + tag + ">";
+		return result;
 	}
 	
 	
+	/**
+	 * Serialize motor mount configuration for a component acting as a motor mount.
+	 * <p>
+	 * For {@link info.openrocket.core.motor.ThrustCurveMotor} instances the motor metadata (manufacturer, digest,
+	 * designation, dimensions) is written to the XML. The actual thrust curve data is stored separately as .rse files
+	 * in the {@code thrustcurves/} directory of the .ork zip archive (see {@link GeneralRocketSaver}).
+	 *
+	 * @param mount motor mount component
+	 * @return XML element lines (empty if not a motor mount)
+	 */
 	protected final List<String> motorMountParams(MotorMount mount) {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
@@ -253,8 +272,7 @@ public class RocketComponentSaver {
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
 			}
-			if (motor instanceof ThrustCurveMotor) {
-				ThrustCurveMotor m = (ThrustCurveMotor) motor;
+			if (motor instanceof ThrustCurveMotor m) {
 				elements.add("    <manufacturer>" + TextUtil.escapeXML(m.getManufacturer().getSimpleName()) +
 						"</manufacturer>");
 				elements.add("    <digest>" + m.getDigest() + "</digest>");
@@ -289,8 +307,7 @@ public class RocketComponentSaver {
 	
 	private final static void emitColor(String elementName, List<String> elements, ORColor color, int indents) {
 		if (color != null) {
-			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " " + color.toXMLAttributes() + "/>");
 		}
 	}
 

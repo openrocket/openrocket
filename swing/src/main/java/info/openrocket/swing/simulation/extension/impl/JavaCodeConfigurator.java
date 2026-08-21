@@ -43,7 +43,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 	}
 
 	public static void updateColors() {
-		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
+		darkErrorColor = UITheme.getColor(UITheme.Keys.DARK_ERROR);
 	}
 
 	@Override

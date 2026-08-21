@@ -136,10 +136,12 @@ of our repository).
        * Added warning flight events
        * Added maximum time attribute for simulation conditions
    * - 1.11
-     - OpenRocket 25.xx
+     - OpenRocket 26.xx
      - * Added ``<simulationsteppermethod>`` to simulation conditions
+       * Added optional ``<randomseed>`` to simulation conditions for reproducible runs
        * Added simulation table column visibility preferences
        * Include file preview image (``preview.png``) in .ork zip file
+       * Embedded thrust curve motor data as ``.rse`` (RockSim engine) files in a ``thrustcurves/`` directory within the .ork zip archive, keyed by motor digest
 
 ----
 
@@ -151,7 +153,7 @@ The following shows the root XML structure of an OpenRocket design file:
 .. code-block:: xml
 
    <?xml version='1.0' encoding='utf-8'?>
-   <openrocket version="1.11" creator="OpenRocket 25.xx">
+   <openrocket version="1.12" creator="OpenRocket 26.xx">
       <rocket>
          <!-- Rocket definition -->
       </rocket>
@@ -256,6 +258,7 @@ Most components share these common attributes:
    * ``type``: (bulk, surface, line)
    * ``density``: Material density
    * ``group``: Material category
+   * ``shearModulus``: In-plane shear modulus in Pa (optional)
 
 Position and Offset Attributes:
 
@@ -548,6 +551,39 @@ be present in the XML component block:
          </ignitionconfiguration>
       </motormount>
    </bodytube>
+
+Embedded Thrust Curve Data
+""""""""""""""""""""""""""
+
+As of file format version ``1.11``, OpenRocket embeds the full thrust curve motor data as ``.rse`` (RockSim engine)
+files in the ``thrustcurves/`` directory of the .ork zip archive. Each motor is stored as
+``thrustcurves/<digest>.rse``, where ``<digest>`` matches the ``<digest>`` element in the XML. This makes designs
+self-contained when sharing custom or experimental motors.
+
+The .ork zip structure looks like:
+
+.. code-block:: text
+
+   mymodel.ork (zip)
+   ├── rocket.ork          (XML)
+   ├── preview.png          (optional)
+   ├── thrustcurves/
+   │   ├── <digest1>.rse
+   │   └── <digest2>.rse
+   └── textures/            (optional decal images)
+
+Motor Loading Precedence
+""""""""""""""""""""""""
+
+When loading a motor from an .ork file, OpenRocket uses the following precedence order:
+
+1. **Motor database lookup** — the motor's manufacturer, designation, and digest are used to find a match in the
+   local motor database. If found, the database version is used (it may have more accurate or updated data).
+2. **Embedded .rse file** — if the motor is not in the database, OpenRocket looks for a
+   ``thrustcurves/<digest>.rse`` entry in the .ork zip archive and parses it.
+
+This precedence is implemented in ``MotorHandler.getMotor()``
+(see :file:`core/src/main/java/.../file/openrocket/importt/MotorHandler.java`).
 
 ----
 
@@ -900,6 +936,7 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
             <launchlongitude>0.0</launchlongitude>
             <geodeticmethod>flat</geodeticmethod>
             <simulationsteppermethod>rk4</simulationsteppermethod>
+            <randomseed>12345</randomseed>
             <atmosphere model="isa"/>
             <timestep>0.05</timestep>
             <maxtime>1200.0</maxtime>
@@ -916,6 +953,9 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
          <!-- Simulation 2 content -->
       </simulation>
    <simulations>
+
+The optional ``<randomseed>`` element contains a signed 32-bit integer. When present, OpenRocket reuses that seed for
+each run of the simulation. When absent, OpenRocket generates a new seed for every run.
 
 Wind Models
 ^^^^^^^^^^^
@@ -1021,10 +1061,15 @@ The ``<docprefs>`` section contains document-wide settings, including material d
 
     <docprefs>
         <docmaterials>
-            <material>BULK|My Custom Material 1|680.0|Custom</material>
-            <material>BULK|My Custom Metal|0.0018|Metals</material>
+            <material>BULK|My Custom Material 1|680.0|1.2E9|Custom</material>
+            <material>BULK|My Custom Metal|0.0018|7.5E10|Metals</material>
         </docmaterials>
     </docprefs>
+
+Material string format:
+
+- ``{type}|{name}|{density}|{inPlaneShearModulus}|{group}``
+- Older files may omit ``inPlaneShearModulus`` and store ``{type}|{name}|{density}|{group}``
 
 ----
 
@@ -1093,6 +1138,7 @@ The ``<Materials>`` section defines materials used within the component database
        <Material UnitsOfMeasure="g/cm3">
            <Name>Material Name</Name>
            <Density>0.0</Density>
+           <ShearModulus>0.0</ShearModulus>
            <Type>BULK</Type>
            <Group>MaterialGroup</Group>
        </Material>
@@ -1107,6 +1153,7 @@ Material properties:
 
 - ``Type``: Material type (`BULK`, `SURFACE`, or `LINE`)
 - ``Group``: Material group for categorization (optional)
+- ``ShearModulus``: In-plane shear modulus in Pa (optional, defaults to 0.0 when omitted)
 
 Components
 ----------
@@ -1320,4 +1367,3 @@ Important Notes
 2. When a component is first created in a .ork file, the material definition is copied from the .orc file. Subsequent changes to the material definition in the .orc file will not automatically update existing components in .ork files.
 3. To update a component's material properties, you must manually reselect the component preset from the database.
 4. The XML schema for .orc files is not formally defined in an XSD file.
-
