@@ -201,13 +201,19 @@ jobs:
               throw "$($installer.Name) has no Authenticode signer certificate."
             }
 
+            Write-Host "$($installer.Name): status=$status, message=$($signature.StatusMessage)"
+
+            $hasExpectedTestTrustError =
+              $status -in @('NotTrusted', 'UnknownError') -and
+              $signature.StatusMessage -match 'root certificate.*not trusted'
+
             if ($env:SIGNPATH_SIGNING_POLICY_SLUG -eq 'test-signing') {
-              if ($status -notin @('Valid', 'NotTrusted')) {
-                throw "Invalid test signature for $($installer.Name): $($signature.StatusMessage)"
+              if ($status -ne 'Valid' -and -not $hasExpectedTestTrustError) {
+                throw "Invalid test signature for $($installer.Name): status=$status; $($signature.StatusMessage)"
               }
             }
             elseif ($status -ne 'Valid') {
-              throw "Invalid release signature for $($installer.Name): $($signature.StatusMessage)"
+              throw "Invalid release signature for $($installer.Name): status=$status; $($signature.StatusMessage)"
             }
 
             $thumbprint = $signature.SignerCertificate.Thumbprint
@@ -218,7 +224,7 @@ jobs:
               throw "The installers were signed by different certificates."
             }
 
-            Write-Host "$($installer.Name): status=$status, signer=$($signature.SignerCertificate.Subject), thumbprint=$thumbprint"
+            Write-Host "$($installer.Name): signer=$($signature.SignerCertificate.Subject), thumbprint=$thumbprint"
           }
 
       - name: Upload signed Windows installers
