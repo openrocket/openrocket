@@ -323,9 +323,9 @@ public final class LandingDispersionDialog extends JDialog {
 			return;
 		}
 		ParameterRow row = parameterRows.get(selectedRow);
-		StringBuilder text = new StringBuilder(row.description).append("  ")
-				.append(distributionExplanation(row.distribution));
-		parameterDescription.setText(text.toString());
+		String text = row.description + "  " +
+				distributionExplanation(row.distribution);
+		parameterDescription.setText(text);
 		parameterDescription.setCaretPosition(0);
 	}
 
