@@ -396,10 +396,127 @@ Once the OpenRocket installer has been code signed, users will receive no more (
 their operating system that the installer is from an unknown source and may contain malware.
 More information on how to do code signing in install4j can be found `here <https://www.ej-technologies.com/resources/install4j/help/doc/concepts/codeSigning.html>`__.
 
-Only the OpenRocket administrators have access to the code signing certificates.
+Only the OpenRocket administrators have access to the macOS code signing certificate. The Windows private key is held by
+SignPath and is not stored in the repository or in GitHub Actions.
 
-Code signing for Windows is done using a digital certificate from Sectigo. More information on the code signing procedure,
-including whitelisting OpenRocket by Microsoft, see the `README file on GitHub <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
+Windows code signing with SignPath
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Windows installers are built and signed by the ``Sign Windows installers`` GitHub Actions workflow in
+:file:`.github/workflows/sign-windows.yml`. The workflow:
+
+1. builds the OpenRocket distribution JAR from the selected commit;
+2. downloads the pinned install4j 12.0.3 archive and verifies its SHA-256 checksum;
+3. builds the x86-64 and Arm64 installers with install4j code signing disabled;
+4. uploads both unsigned installers as one GitHub workflow artifact;
+5. submits that artifact to SignPath and waits for approval and signing;
+6. verifies both returned Authenticode signatures and uploads the signed installers as a separate workflow artifact.
+
+This arrangement lets SignPath verify the GitHub repository, commit, workflow, and GitHub-hosted runner that produced the
+artifact. Never publish the ``openrocket-windows-unsigned-*`` workflow artifact. It is retained only long enough for SignPath
+to retrieve it. The install4j project also pins the bundled Liberica JRE; update that version deliberately and validate both
+Windows installers whenever the runtime is upgraded.
+
+One-time SignPath website configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Configure the following at ``https://app.signpath.io``. The exact organization ID and slugs are shown on the SignPath
+signing-policy details page. SignPath's `GitHub integration documentation <https://docs.signpath.io/trusted-build-systems/github>`__
+describes the corresponding connector and GitHub App settings.
+
+The ``release-signing`` and ``test-signing`` pages are signing policies; they control the certificate, submitters,
+approvals, and origin restrictions. Artifact configurations and trusted build systems are separate sections on the
+OpenRocket project's overview page. Return to the project overview before performing steps 2 and 3 below.
+
+1. Add the predefined ``GitHub.com`` trusted build system to the SignPath organization. Install the SignPath GitHub App and
+   grant it access to ``openrocket/openrocket``.
+2. Create or open the OpenRocket project, set its repository URL to ``https://github.com/openrocket/openrocket``, and link the
+   ``GitHub.com`` trusted build system to the project.
+3. In the project's :guilabel:`Artifact Configurations` section, select :guilabel:`Add`, then :guilabel:`Custom`. Create a
+   configuration with a stable slug such as ``windows-installers`` and paste the XML below. The GitHub upload is a ZIP
+   containing exactly two PE files. The configuration matches the install4j filenames and enforces the metadata required
+   by the SignPath Foundation:
+
+   .. code-block:: xml
+
+      <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+        <parameters>
+          <parameter name="version" required="true" />
+        </parameters>
+        <zip-file>
+          <pe-file-set company-name="OpenRocket"
+                       copyright="OpenRocket"
+                       file-version="${version}"
+                       original-filename="${file.name}"
+                       product-name="OpenRocket"
+                       product-version="${version}">
+            <include path="OpenRocket-${version}-installer-Windows-*.exe"
+                     min-matches="2" max-matches="2" />
+            <for-each>
+              <authenticode-sign />
+            </for-each>
+          </pe-file-set>
+        </zip-file>
+      </artifact-configuration>
+
+   SignPath recommends generating a configuration by uploading an unsigned sample first. If you do that, compare the
+   generated configuration with the restrictions above and make sure it signs only the two OpenRocket installer files.
+4. Open the ``release-signing`` signing policy. Select the OpenRocket release certificate, require a manual approval, allow
+   only the dedicated CI user to submit, assign the OpenRocket approvers, enable trusted-build-system and origin
+   verification, and restrict the origin to the protected release branch. The repository URL comes from the project
+   settings. The artifact configuration is not selected on this page; the GitHub workflow supplies its slug with each
+   signing request.
+5. Create an API token for the dedicated CI user. The user needs submitter permission for the project and release signing
+   policy; it does not need approval permission.
+
+One-time GitHub configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In :menuselection:`GitHub repository --> Settings --> Secrets and variables --> Actions`, add:
+
+.. list-table:: GitHub Actions configuration
+   :widths: 35 65
+   :header-rows: 1
+
+   *  - Name
+      - Value
+   *  - Secret ``SIGNPATH_API_TOKEN``
+      - API token for the dedicated SignPath CI user.
+   *  - Secret ``INSTALL4J_LICENSE_KEY``
+      - The install4j license key supplied to OpenRocket by ej-technologies.
+   *  - Variable ``SIGNPATH_ORGANIZATION_ID``
+      - SignPath organization ID.
+   *  - Variable ``SIGNPATH_PROJECT_SLUG``
+      - OpenRocket project slug.
+   *  - Variable ``SIGNPATH_SIGNING_POLICY_SLUG``
+      - Release signing policy slug.
+   *  - Variable ``SIGNPATH_ARTIFACT_CONFIGURATION_SLUG``
+      - Windows installer artifact configuration slug.
+
+The SignPath API token and install4j license are secrets. IDs and slugs are identifiers and should be repository variables,
+which makes configuration errors easier to diagnose without exposing credentials.
+
+Running and validating a Windows signing build
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Set ``build.version`` in :file:`core/src/main/resources/build.properties` to the release version and merge the release
+   commit into the branch allowed by the SignPath signing policy.
+2. Open :menuselection:`GitHub --> Actions --> Sign Windows installers`, select :guilabel:`Run workflow`, and select that
+   branch. Do not approve a request built from an unexpected repository, branch, commit, or workflow run.
+3. An approver reviews the verified origin and artifact details in SignPath, then approves the signing request.
+4. After the workflow succeeds, download ``openrocket-windows-signed-<run number>`` from the workflow run. Those are the
+   Windows release installers. The workflow rejects missing or invalid Authenticode signatures before uploading them.
+5. Test both architectures as appropriate and regenerate any release checksums from the signed files. Checksums produced by
+   install4j before signing are no longer valid after SignPath adds the signatures.
+
+.. note::
+   SignPath signs the two outer install4j installer executables. SignPath treats PE files as non-composite artifacts, so this
+   workflow does not deep-sign the install4j launcher embedded inside each installer. Signing the installed launcher as well
+   would require an install4j-compatible SignPath crypto provider or a package format that SignPath supports for deep signing.
+   The outer signature is the one Windows evaluates when a downloaded installer is launched.
+
+For Microsoft Defender SmartScreen submission instructions, see the
+`install4j README <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
 
 For macOS, the code signing is done using an Apple Developer ID. Besides code signing, the OpenRocket app also needs to
 be notarized. Luckily, install4j takes care of this. More information on the code signing procedure for macOS can be found in the
@@ -423,8 +540,9 @@ the *openrocket/install4j/<build-version>/media/* directory.
 
    Building the installers in install4j.
 
-If you do not have access to the code signing certificates, you can create the installers without code signing by
-enabling the checkboxes ``Disable code signing`` and ``Disable notarization`` in the ``Build`` tab.
+The current install4j project deliberately has Windows code signing disabled because SignPath signs Windows installers after
+the GitHub build. For local development builds, enable ``Disable code signing`` and ``Disable notarization`` in the
+install4j :menuselection:`Build` tab when the macOS credentials are unavailable.
 
 macOS QuickLook Extension
 -------------------------
@@ -499,10 +617,13 @@ with the new results) to ensure that they are up-to-date with the latest changes
    - run ``./gradlew :core:publish``
    - call the Sonatype manual upload endpoint to make the staged deployment appear in the Central Portal
 
-8. **Create the packaged installers** using install4j (see above).
+8. **Create the packaged installers** (see above).
 
    .. warning::
-      Make sure to **enable code signing** for the installers.
+      Build and sign the Windows installers with the ``Sign Windows installers`` GitHub Actions workflow. Download only its
+      ``openrocket-windows-signed-*`` artifact; never release the unsigned SignPath input artifact.
+
+      When building the macOS installers in install4j, make sure macOS code signing and notarization are enabled.
 
       Make sure that `DS_Store <https://github.com/openrocket/openrocket/blob/unstable/install4j/23.09/macOS_resources/DS_Store>`__ for the macOS
       installer is updated. Instructions can be found `here <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
@@ -520,6 +641,9 @@ with the new results) to ensure that they are up-to-date with the latest changes
     Follow these steps:
 
     - Add the release to `downloads_config.json <https://github.com/openrocket/openrocket.github.io/blob/development/assets/downloads_config.json>`__.
+
+    - Keep a visible **Code signing policy** link on the downloads page. It may link to the policy in the main OpenRocket
+      repository README. This is required while using a SignPath Foundation certificate.
     - Update the ``current_version`` in `_config <https://github.com/openrocket/openrocket.github.io/blob/development/_config.yml>`__.
     - Add a new entry to `_whats_new <https://github.com/openrocket/openrocket.github.io/tree/development/_whats-new>`__ for the new release.
       Create a ``wn-<version number>.md`` file with the changes that are part of the new release. Please take a close look to the previous entries to see how it should be formatted.
@@ -541,8 +665,9 @@ with the new results) to ensure that they are up-to-date with the latest changes
     If you want to credit the developers who contributed to the release, you can tag them anywhere in the release text using the `@username` syntax.
     They will then be automatically displayed in the contributors list on the release page.
 
-    Finally, upload all the packaged installers and the JAR file to the release. The source code (zip and tar.gz) is
-    automatically appended to each release, you do not need to upload it manually.
+    Finally, upload all the packaged installers and the JAR file to the release. For Windows, use only the installers from the
+    successful ``openrocket-windows-signed-*`` workflow artifact. The source code (zip and tar.gz) is automatically appended
+    to each release, you do not need to upload it manually.
 
     If this is an alpha, beta, or release candidate release, tick the *Set as a pre-release* checkbox.
 

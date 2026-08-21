@@ -168,7 +168,7 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.2, null),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.31, null),
 						new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)

@@ -2340,8 +2340,8 @@ private static final Translator trans = Application.getTranslator();
 
 		frames.remove(BasicFrame.this);
 		if (frames.isEmpty()) {
-			// Don't quit the application on macOS, but keep the application open
-			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			// Closing the last window keeps the macOS application available, but an explicit quit must exit directly.
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && !quitCalled) {
 				DummyFrameMenuOSX.createDummyDialog();
 			} else {
 				log.info("Last frame closed, exiting");

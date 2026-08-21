@@ -81,6 +81,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	private final Simulation simulation;
 	private FlightEventTableModel eventTableModel;
 	private Map<Integer, java.awt.Color> defaultPlotColors = Collections.emptyMap();
+	private final Map<Integer, SimulationPlotTypeSelector> plotTypeSelectors = new HashMap<>();
 	private static java.awt.Color darkErrorColor;
 
 	static {
@@ -292,6 +293,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	@Override
 	protected void updatePlots() {
 		defaultPlotColors = computeDefaultPlotColors();
+		plotTypeSelectors.clear();
 		super.updatePlots();
 		eventTableModel.fireTableDataChanged();
 	}
@@ -308,7 +310,10 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			color = defaultPlotColors.getOrDefault(i, Util.getPlotColor(i));
 		}
 		LineStyle lineStyle = configuration.getPlotDataLineStyle(i);
-		return new SimulationPlotTypeSelector(i, type, unit, axis, Arrays.asList(typesY), color, lineStyle);
+		SimulationPlotTypeSelector selector = new SimulationPlotTypeSelector(
+				i, type, unit, axis, Arrays.asList(typesY), color, lineStyle);
+		plotTypeSelectors.put(i, selector);
+		return selector;
 	}
 
 	@Override
@@ -336,26 +341,22 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		});
 
 		selector.addAxisSelectionListener(e -> {
-			if (modifying > 0) {
+			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) {
 				return;
 			}
 			defaultPlotColors = computeDefaultPlotColors();
-			if (configuration.getPlotDataColor(idx) == null) {
-				java.awt.Color color = defaultPlotColors.getOrDefault(idx, Util.getPlotColor(idx));
-				modifying++;
-				selector.setSelectedColor(color);
-				modifying--;
-			}
+			refreshDefaultPlotColors();
 		});
 
 		selector.addTypeSelectionListener(e -> {
-			if (modifying > 0) {
+			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) {
 				return;
 			}
 			FlightDataType selectedType = selector.getSelectedType();
 			modifying++;
 			defaultPlotColors = computeDefaultPlotColors();
 			applyTypeAppearance(idx, selectedType, selector);
+			refreshDefaultPlotColors();
 			modifying--;
 			syncButtonStates(selector, idx);
 		});
@@ -441,6 +442,25 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 				: defaultPlotColors.getOrDefault(index, Util.getPlotColor(index));
 		selector.setSelectedColor(selectorColor);
 		selector.setSelectedLineStyle(lineStyle);
+	}
+
+	/**
+	 * Refresh every selector whose color comes from the automatic palette.  Auto-axis assignment is global: changing
+	 * one row can move other rows to a different axis and therefore change their rendered palette position.
+	 */
+	private void refreshDefaultPlotColors() {
+		modifying++;
+		try {
+			for (Map.Entry<Integer, SimulationPlotTypeSelector> entry : plotTypeSelectors.entrySet()) {
+				int index = entry.getKey();
+				if (configuration.getPlotDataColor(index) == null) {
+					java.awt.Color color = defaultPlotColors.getOrDefault(index, Util.getPlotColor(index));
+					entry.getValue().setSelectedColor(color);
+				}
+			}
+		} finally {
+			modifying--;
+		}
 	}
 
 	/**
