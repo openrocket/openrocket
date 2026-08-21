@@ -185,8 +185,13 @@ public final class LandingDispersionDialog extends JDialog {
 		// Parameter help
 		JPanel helpPanel = new JPanel(new BorderLayout());
 		helpPanel.setBorder(BorderFactory.createTitledBorder(trans.get("LandingDispersionDlg.border.parameterHelp")));
-		helpPanel.add(parameterDescription, BorderLayout.CENTER);
-		helpPanel.setPreferredSize(new Dimension(0, 72));
+		JScrollPane helpScrollPane = new JScrollPane(parameterDescription,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		helpScrollPane.setBorder(null);
+		helpScrollPane.setOpaque(false);
+		helpScrollPane.getViewport().setOpaque(false);
+		helpPanel.add(helpScrollPane, BorderLayout.CENTER);
+		helpPanel.setPreferredSize(new Dimension(0, 90));
 		panel.add(helpPanel, BorderLayout.SOUTH);
 		return panel;
 	}
