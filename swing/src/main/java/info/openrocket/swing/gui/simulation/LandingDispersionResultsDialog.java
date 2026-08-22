@@ -123,6 +123,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	private final RunTableModel runTableModel;
 	private final JTabbedPane resultTabs;
 	private final MonteCarloMetricsPanel metricsPanel;
+	private final Runnable themeChangeListener;
 	private Point panAnchor;
 	private int highlightedSeries = -1;
 	private boolean chartFitPending = true;
@@ -142,9 +143,17 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		this.runTableModel = new RunTableModel(result, distanceUnit);
 		this.resultTabs = new JTabbedPane();
 		this.metricsPanel = new MonteCarloMetricsPanel(simulationName, result);
+		this.themeChangeListener = this::refreshChartThemes;
 
 		buildDialog();
 		updateSelectedBody();
+		UITheme.Theme.addUIThemeChangeListener(themeChangeListener);
+	}
+
+	@Override
+	public void dispose() {
+		UITheme.Theme.removeUIThemeChangeListener(themeChangeListener);
+		super.dispose();
 	}
 
 	private void buildDialog() {
@@ -438,6 +447,24 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		plot.setRangeZeroBaselinePaint(text);
 		configureAxisTheme(plot.getDomainAxis(), text, border);
 		configureAxisTheme(plot.getRangeAxis(), text, border);
+	}
+
+	private void refreshChartThemes() {
+		SwingUtilities.invokeLater(() -> {
+			if (!isDisplayable()) {
+				return;
+			}
+			applyChartTheme(chart);
+			if (chart.getXYPlot().getDataset() instanceof XYSeriesCollection dataset) {
+				boolean hasNominal = dataset.getSeriesCount() > 1 && dataset.getItemCount(1) > 0;
+				boolean hasStatistics = dataset.getSeriesCount() > 2 && dataset.getItemCount(2) > 0;
+				highlightedSeries = -1;
+				chart.getXYPlot().setRenderer(createRenderer(hasNominal, hasStatistics));
+			}
+			chartPanel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
+			chartPanel.repaint();
+			metricsPanel.refreshTheme();
+		});
 	}
 
 	private static void configureAxisTheme(ValueAxis axis, Color text, Color border) {

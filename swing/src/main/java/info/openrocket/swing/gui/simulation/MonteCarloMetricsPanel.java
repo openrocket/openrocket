@@ -277,6 +277,12 @@ final class MonteCarloMetricsPanel extends JPanel {
 		return chartPanel;
 	}
 
+	void refreshTheme() {
+		updateChart();
+		chartPanel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
+		chartPanel.repaint();
+	}
+
 	String getExportName() {
 		MonteCarloFlightBranch branch = (MonteCarloFlightBranch) branchCombo.getSelectedItem();
 		MetricRow row = tableModel.getRow(metricTable.getSelectedRow());
