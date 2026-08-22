@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,18 @@ public class MonteCarloMetricsPanelTest {
 		assertEquals(0.8, renderer.getWhiskerWidth());
 		assertTrue(renderer.getUseOutlinePaintForWhiskers());
 		assertTrue(renderer.getFillBox());
+		assertFalse(renderer.isMeanVisible());
+	}
+
+	@Test
+	public void testBoxPlotIsHorizontal() {
+		var dataset = MonteCarloMetricsPanel.createBoxDataset(List.of(100.0, 110.0, 120.0),
+				UnitGroup.UNITS_DISTANCE.getSIUnit(), "Apogee", "Rocket");
+		var chart = ChartFactory.createBoxAndWhiskerChart("Apogee", "", "m", dataset, false);
+
+		MonteCarloMetricsPanel.configureBoxPlot(chart.getCategoryPlot());
+
+		assertEquals(PlotOrientation.HORIZONTAL, chart.getCategoryPlot().getOrientation());
 	}
 
 	@Test
@@ -95,5 +108,7 @@ public class MonteCarloMetricsPanelTest {
 		assertFalse(panel.isRangeZoomable());
 		assertFalse(panel.isMouseWheelEnabled());
 		assertNull(panel.getPopupMenu());
+		assertEquals(0, panel.getInitialDelay());
+		assertEquals(0, panel.getReshowDelay());
 	}
 }

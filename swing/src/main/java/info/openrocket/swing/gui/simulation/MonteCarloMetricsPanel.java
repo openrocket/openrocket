@@ -145,6 +145,8 @@ final class MonteCarloMetricsPanel extends JPanel {
 		panel.setMouseZoomable(false);
 		panel.setMouseWheelEnabled(false);
 		panel.setPopupMenu(null);
+		panel.setInitialDelay(0);
+		panel.setReshowDelay(0);
 	}
 
 	private void updateBranch() {
@@ -217,8 +219,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
 		configureBoxRenderer(renderer, lightTheme);
 		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
-		plot.getDomainAxis().setLowerMargin(0.4);
-		plot.getDomainAxis().setUpperMargin(0.4);
+		configureBoxPlot(plot);
 		if (Double.isFinite(row.nominal)) {
 			ValueMarker nominal = new ValueMarker(row.unit.toUnit(row.nominal),
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
@@ -239,11 +240,17 @@ final class MonteCarloMetricsPanel extends JPanel {
 		renderer.setSeriesOutlineStroke(0, new BasicStroke(1.8f));
 		renderer.setArtifactPaint(artifactColor);
 		renderer.setFillBox(true);
-		renderer.setMeanVisible(true);
+		renderer.setMeanVisible(false);
 		renderer.setMedianVisible(true);
 		renderer.setMaximumBarWidth(0.14);
 		renderer.setWhiskerWidth(0.8);
 		renderer.setUseOutlinePaintForWhiskers(true);
+	}
+
+	static void configureBoxPlot(CategoryPlot plot) {
+		plot.setOrientation(PlotOrientation.HORIZONTAL);
+		plot.getDomainAxis().setLowerMargin(0.4);
+		plot.getDomainAxis().setUpperMargin(0.4);
 	}
 
 	private void finishChart(JFreeChart metricChart, MetricRow row) {
