@@ -16,9 +16,16 @@ import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Test;
 
+import info.openrocket.core.simulation.montecarlo.MonteCarloMetric;
 import info.openrocket.core.unit.UnitGroup;
 
 public class MonteCarloMetricsPanelTest {
+	@Test
+	public void testApogeeUsesTheExistingSimulationMetricLabel() {
+		assertEquals("simpanel.col.Apogee",
+				MonteCarloMetricsPanel.metricLabelKey(MonteCarloMetric.APOGEE_ALTITUDE));
+	}
+
 	@Test
 	public void testHistogramBinCountIsUsefulAndBounded() {
 		assertEquals(5, MonteCarloMetricsPanel.binsForSampleCount(2));
