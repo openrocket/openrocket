@@ -89,14 +89,18 @@ public class MassObjectGenerator {
 				int p3 = row2 + i + 1;
 				int p4 = row1 + i + 1;
 
-				// Reversed winding order to be counter-clockwise (CCW)
-				indices.add(p1);
-				indices.add(p4);
-				indices.add(p2);
-
-				indices.add(p4);
-				indices.add(p3);
-				indices.add(p2);
+				// The first and last rings collapse to a point. Emit only the non-degenerate
+				// half of those endpoint quads; middle bands still need both triangles.
+				if (j > 0) {
+					indices.add(p1);
+					indices.add(p4);
+					indices.add(p2);
+				}
+				if (j < stacks - 1) {
+					indices.add(p4);
+					indices.add(p3);
+					indices.add(p2);
+				}
 			}
 		}
 
