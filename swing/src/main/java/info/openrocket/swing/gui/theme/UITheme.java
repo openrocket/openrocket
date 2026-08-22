@@ -93,6 +93,16 @@ public class UITheme {
         public static final String MONTE_CARLO_MEDIAN = "OR.colors.monteCarlo.median";
         public static final String MONTE_CARLO_LAUNCH_PAD = "OR.colors.monteCarlo.launchPad";
         public static final String MONTE_CARLO_ELLIPSE = "OR.colors.monteCarlo.ellipse";
+        public static final String MONTE_CARLO_REPORT_BACKGROUND = "OR.colors.monteCarlo.report.background";
+        public static final String MONTE_CARLO_REPORT_TEXT = "OR.colors.monteCarlo.report.text";
+        public static final String MONTE_CARLO_REPORT_GRID = "OR.colors.monteCarlo.report.grid";
+        public static final String MONTE_CARLO_REPORT_LANDING = "OR.colors.monteCarlo.report.landing";
+        public static final String MONTE_CARLO_REPORT_HISTOGRAM = "OR.colors.monteCarlo.report.histogram";
+        public static final String MONTE_CARLO_REPORT_INTERVAL = "OR.colors.monteCarlo.report.interval";
+        public static final String MONTE_CARLO_REPORT_NOMINAL = "OR.colors.monteCarlo.report.nominal";
+        public static final String MONTE_CARLO_REPORT_MEAN = "OR.colors.monteCarlo.report.mean";
+        public static final String MONTE_CARLO_REPORT_LAUNCH_PAD = "OR.colors.monteCarlo.report.launchPad";
+        public static final String MONTE_CARLO_REPORT_ELLIPSE = "OR.colors.monteCarlo.report.ellipse";
 
         public static final String DEFAULT_BODY_COMPONENT_COLOR = "OR.defaults.component.body";
         public static final String DEFAULT_TUBE_FIN_SET_COLOR = "OR.defaults.component.tubeFinSet";

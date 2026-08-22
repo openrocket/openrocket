@@ -455,7 +455,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 	}
 
 	static String metricLabel(MonteCarloMetric metric) {
-		return trans.get(metricLabelKey(metric));
+		return MonteCarloLabels.metric(metric);
 	}
 
 	static String formatMetricChartTitle(String template, String metricName) {
@@ -468,15 +468,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 	}
 
 	static String metricLabelKey(MonteCarloMetric metric) {
-		return switch (metric) {
-			case APOGEE_ALTITUDE -> "simpanel.col.Apogee";
-			case MAXIMUM_VELOCITY -> "MaximumVelocityParameter.name";
-			case MAXIMUM_ACCELERATION -> "MaximumAccelerationParameter.name";
-			case TIME_TO_APOGEE -> "simpanel.col.Timetoapogee";
-			case FLIGHT_TIME -> "simpanel.col.Flighttime";
-			case MAXIMUM_MACH, LANDING_VELOCITY -> "LandingDispersionResultsDlg.metric."
-					+ metric.name().toLowerCase(java.util.Locale.ROOT);
-		};
+		return MonteCarloLabels.metricKey(metric);
 	}
 
 	private static void applyChartTheme(JFreeChart metricChart) {
