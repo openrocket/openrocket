@@ -44,6 +44,7 @@ import org.jfree.chart.annotations.AbstractAnnotation;
 import org.jfree.chart.annotations.CategoryAnnotation;
 import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
@@ -280,6 +281,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	static void configureBoxPlot(CategoryPlot plot) {
 		plot.setOrientation(PlotOrientation.HORIZONTAL);
+		plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
 		plot.getDomainAxis().setLowerMargin(0.4);
 		plot.getDomainAxis().setUpperMargin(0.4);
 	}

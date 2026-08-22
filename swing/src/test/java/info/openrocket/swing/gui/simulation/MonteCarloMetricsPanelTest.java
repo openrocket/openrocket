@@ -17,6 +17,7 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Test;
 
@@ -151,6 +152,7 @@ public class MonteCarloMetricsPanelTest {
 		MonteCarloMetricsPanel.configureBoxPlot(chart.getCategoryPlot());
 
 		assertEquals(PlotOrientation.HORIZONTAL, chart.getCategoryPlot().getOrientation());
+		assertEquals(RectangleEdge.BOTTOM, chart.getCategoryPlot().getRangeAxisEdge());
 	}
 
 	@Test
