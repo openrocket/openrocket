@@ -211,7 +211,15 @@ final class MonteCarloMetricsPanel extends JPanel {
 	static HistogramDataset createHistogramDataset(String label, List<Double> values, Unit unit) {
 		double[] displayValues = values.stream().mapToDouble(unit::toUnit).toArray();
 		HistogramDataset dataset = new HistogramDataset();
-		dataset.addSeries(label, displayValues, binsForSampleCount(displayValues.length));
+		double minimum = java.util.Arrays.stream(displayValues).min().orElseThrow();
+		double maximum = java.util.Arrays.stream(displayValues).max().orElseThrow();
+		int bins = binsForSampleCount(displayValues.length);
+		if (minimum == maximum) {
+			double padding = Math.max(1.0e-9, Math.abs(minimum) * 0.01);
+			dataset.addSeries(label, displayValues, bins, minimum - padding, maximum + padding);
+		} else {
+			dataset.addSeries(label, displayValues, bins);
+		}
 		return dataset;
 	}
 

@@ -27,4 +27,16 @@ public class MonteCarloMetricsPanelTest {
 		assertTrue(dataset.getXValue(0, 0) >= 100.0);
 		assertTrue(dataset.getXValue(0, dataset.getItemCount(0) - 1) <= 200.0);
 	}
+
+	@Test
+	public void testHistogramAcceptsAZeroSpreadMetric() {
+		HistogramDataset dataset = MonteCarloMetricsPanel.createHistogramDataset("Flight time",
+				List.of(10.0, 10.0, 10.0), UnitGroup.UNITS_LONG_TIME.getSIUnit());
+
+		double total = 0;
+		for (int item = 0; item < dataset.getItemCount(0); item++) {
+			total += dataset.getYValue(0, item);
+		}
+		assertEquals(3.0, total);
+	}
 }
