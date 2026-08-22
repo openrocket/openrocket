@@ -31,7 +31,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.theme.UITheme;
-import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.widgets.HeaderToolTipTable;
 
 import net.miginfocom.swing.MigLayout;
@@ -71,19 +70,24 @@ import org.jfree.data.Range;
 /** Displays scalar Monte Carlo output distributions one metric at a time. */
 final class MonteCarloMetricsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
-	private static final Color HISTOGRAM_LIGHT_COLOR = new Color(0, 114, 178);
-	private static final Color HISTOGRAM_DARK_COLOR = new Color(86, 180, 233);
-	private static final Color INTERVAL_LIGHT_COLOR = new Color(0, 125, 90, 55);
-	private static final Color INTERVAL_DARK_COLOR = new Color(100, 215, 165, 65);
-	private static final Color NOMINAL_LIGHT_COLOR = new Color(230, 159, 0);
-	private static final Color NOMINAL_DARK_COLOR = new Color(240, 228, 66);
-	private static final Color MEAN_LIGHT_COLOR = new Color(213, 94, 0);
-	private static final Color MEAN_DARK_COLOR = new Color(255, 112, 91);
-	private static final Color MEDIAN_LIGHT_COLOR = new Color(60, 60, 60);
-	private static final Color MEDIAN_DARK_COLOR = new Color(225, 225, 225);
+	private static Color chartBackgroundColor;
+	private static Color plotBackgroundColor;
+	private static Color textColor;
+	private static Color dimTextColor;
+	private static Color borderColor;
+	private static Color histogramColor;
+	private static Color intervalColor;
+	private static Color boxFillColor;
+	private static Color nominalColor;
+	private static Color meanColor;
+	private static Color medianColor;
 	private static final BasicStroke MARKER_STROKE = new BasicStroke(2.0f);
 	private static final Line2D MARKER_LEGEND_LINE = new Line2D.Double(-8.0, 0.0, 8.0, 0.0);
 	private static final double LEGEND_RELATIVE_POSITION = 0.985;
+
+	static {
+		initColors();
+	}
 
 	private final String simulationName;
 	private final MonteCarloResult result;
@@ -93,6 +97,30 @@ final class MonteCarloMetricsPanel extends JPanel {
 	private final JTable metricTable;
 	private JFreeChart chart;
 	private final ChartPanel chartPanel;
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(MonteCarloMetricsPanel::updateColors);
+	}
+
+	public static void updateColors() {
+		chartBackgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		plotBackgroundColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_PLOT_BACKGROUND,
+				chartBackgroundColor);
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM, textColor);
+		borderColor = UITheme.getColor(UITheme.Keys.BORDER);
+		histogramColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_HISTOGRAM,
+				UITheme.getColor(UITheme.Keys.INFO));
+		intervalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_INTERVAL,
+				UITheme.getColor(UITheme.Keys.INFO));
+		boxFillColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_BOX_FILL, histogramColor);
+		nominalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_NOMINAL,
+				UITheme.getColor(UITheme.Keys.WARNING));
+		meanColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_MEAN,
+				UITheme.getColor(UITheme.Keys.ERROR));
+		medianColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_MEDIAN, textColor);
+	}
 
 	MonteCarloMetricsPanel(String simulationName, MonteCarloResult result) {
 		super(new BorderLayout(0, 8));
@@ -162,7 +190,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		panel.setMaximumDrawWidth(Integer.MAX_VALUE);
 		panel.setMinimumDrawHeight(0);
 		panel.setMaximumDrawHeight(Integer.MAX_VALUE);
-		panel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
+		panel.setBorder(BorderFactory.createLineBorder(borderColor));
 		return panel;
 	}
 
@@ -203,9 +231,8 @@ final class MonteCarloMetricsPanel extends JPanel {
 				dataset, PlotOrientation.VERTICAL, false, true, false);
 		XYPlot plot = histogram.getXYPlot();
 
-		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
 		XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
-		renderer.setSeriesPaint(0, lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR);
+		renderer.setSeriesPaint(0, histogramColor);
 		renderer.setShadowVisible(false);
 		renderer.setBarPainter(new org.jfree.chart.renderer.xy.StandardXYBarPainter());
 		renderer.setDefaultToolTipGenerator((tooltipDataset, series, item) ->
@@ -214,17 +241,13 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 		double p5 = row.unit.toUnit(row.statistics.getQuantile(0.05));
 		double p95 = row.unit.toUnit(row.statistics.getQuantile(0.95));
-		plot.addDomainMarker(new IntervalMarker(p5, p95,
-				lightTheme ? INTERVAL_LIGHT_COLOR : INTERVAL_DARK_COLOR));
+		plot.addDomainMarker(new IntervalMarker(p5, p95, intervalColor));
 		ValueMarker nominal = null;
 		if (Double.isFinite(row.nominal)) {
-			nominal = new ValueMarker(row.unit.toUnit(row.nominal),
-					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
-					MARKER_STROKE);
+			nominal = new ValueMarker(row.unit.toUnit(row.nominal), nominalColor, MARKER_STROKE);
 			plot.addDomainMarker(nominal);
 		}
-		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()),
-				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, MARKER_STROKE);
+		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()), meanColor, MARKER_STROKE);
 		plot.addDomainMarker(mean);
 		addInsetMarkerLegend(plot, createMarkerLegendItems(nominal,
 				trans.get("LandingDispersionResultsDlg.metrics.nominal"), mean,
@@ -240,22 +263,18 @@ final class MonteCarloMetricsPanel extends JPanel {
 		JFreeChart boxPlot = ChartFactory.createBoxAndWhiskerChart(metricChartTitle(row.metric, "boxPlot"), "",
 				metricAxisLabel(row), dataset, false);
 		CategoryPlot plot = boxPlot.getCategoryPlot();
-		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
 		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
-		configureBoxRenderer(renderer, lightTheme);
+		configureBoxRenderer(renderer);
 		renderer.setDefaultToolTipGenerator((tooltipDataset, series, item) ->
 				formatBoxTooltip((BoxAndWhiskerCategoryDataset) tooltipDataset, series, item,
 						metricLabel(row.metric), branch.branchName(), row.unit));
 		configureBoxPlot(plot);
 		ValueMarker nominal = null;
 		if (Double.isFinite(row.nominal)) {
-			nominal = new ValueMarker(row.unit.toUnit(row.nominal),
-					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
-					MARKER_STROKE);
+			nominal = new ValueMarker(row.unit.toUnit(row.nominal), nominalColor, MARKER_STROKE);
 			plot.addRangeMarker(nominal);
 		}
-		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()),
-				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, MARKER_STROKE);
+		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()), meanColor, MARKER_STROKE);
 		plot.addRangeMarker(mean);
 		addInsetMarkerLegend(plot, createMarkerLegendItems(nominal,
 				trans.get("LandingDispersionResultsDlg.metrics.nominal"), mean,
@@ -264,13 +283,11 @@ final class MonteCarloMetricsPanel extends JPanel {
 		return boxPlot;
 	}
 
-	static void configureBoxRenderer(BoxAndWhiskerRenderer renderer, boolean lightTheme) {
-		Color boxColor = lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR;
-		Color artifactColor = lightTheme ? MEDIAN_LIGHT_COLOR : MEDIAN_DARK_COLOR;
-		renderer.setSeriesPaint(0, withAlpha(boxColor, lightTheme ? 85 : 110));
-		renderer.setSeriesOutlinePaint(0, boxColor);
+	static void configureBoxRenderer(BoxAndWhiskerRenderer renderer) {
+		renderer.setSeriesPaint(0, boxFillColor);
+		renderer.setSeriesOutlinePaint(0, histogramColor);
 		renderer.setSeriesOutlineStroke(0, new BasicStroke(1.8f));
-		renderer.setArtifactPaint(artifactColor);
+		renderer.setArtifactPaint(medianColor);
 		renderer.setFillBox(true);
 		renderer.setMeanVisible(false);
 		renderer.setMedianVisible(true);
@@ -322,10 +339,9 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	private static LegendTitle createInsetLegend(org.jfree.chart.LegendItemSource source) {
 		LegendTitle legend = new LegendTitle(source, new ColumnArrangement(), new ColumnArrangement());
-		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
-		legend.setBackgroundPaint(plotBackground(lightTheme));
-		legend.setItemPaint(UITheme.getColor(UITheme.Keys.TEXT, lightTheme ? Color.BLACK : Color.WHITE));
-		legend.setFrame(new BlockBorder(UITheme.getColor(UITheme.Keys.BORDER, Color.GRAY)));
+		legend.setBackgroundPaint(plotBackgroundColor);
+		legend.setItemPaint(textColor);
+		legend.setFrame(new BlockBorder(borderColor));
 		legend.setPadding(new RectangleInsets(3, 5, 3, 5));
 		return legend;
 	}
@@ -353,7 +369,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	void refreshTheme() {
 		updateChart();
-		chartPanel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
+		chartPanel.setBorder(BorderFactory.createLineBorder(borderColor));
 		chartPanel.repaint();
 	}
 
@@ -462,43 +478,33 @@ final class MonteCarloMetricsPanel extends JPanel {
 	}
 
 	private static void applyChartTheme(JFreeChart metricChart) {
-		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
-		Color background = UITheme.getColor(UITheme.Keys.BACKGROUND, Color.WHITE);
-		Color text = UITheme.getColor(UITheme.Keys.TEXT, Color.BLACK);
-		Color border = UITheme.getColor(UITheme.Keys.BORDER, Color.GRAY);
-		Color plotBackground = plotBackground(lightTheme);
-		metricChart.setBackgroundPaint(background);
-		metricChart.getTitle().setPaint(text);
+		metricChart.setBackgroundPaint(chartBackgroundColor);
+		metricChart.getTitle().setPaint(textColor);
 		for (org.jfree.chart.title.Title subtitle : metricChart.getSubtitles()) {
 			if (subtitle instanceof TextTitle textTitle) {
-				textTitle.setPaint(blend(text, background, 0.25));
+				textTitle.setPaint(dimTextColor);
 			}
 		}
 		if (metricChart.getLegend() != null) {
-			metricChart.getLegend().setBackgroundPaint(background);
-			metricChart.getLegend().setItemPaint(text);
-			metricChart.getLegend().setFrame(new BlockBorder(border));
+			metricChart.getLegend().setBackgroundPaint(chartBackgroundColor);
+			metricChart.getLegend().setItemPaint(textColor);
+			metricChart.getLegend().setFrame(new BlockBorder(borderColor));
 		}
 		if (metricChart.getPlot() instanceof XYPlot plot) {
-			plot.setBackgroundPaint(plotBackground);
-			plot.setDomainGridlinePaint(border);
-			plot.setRangeGridlinePaint(border);
-			plot.setOutlinePaint(border);
-			configureAxis(plot.getDomainAxis(), text, border);
-			configureAxis(plot.getRangeAxis(), text, border);
+			plot.setBackgroundPaint(plotBackgroundColor);
+			plot.setDomainGridlinePaint(borderColor);
+			plot.setRangeGridlinePaint(borderColor);
+			plot.setOutlinePaint(borderColor);
+			configureAxis(plot.getDomainAxis(), textColor, borderColor);
+			configureAxis(plot.getRangeAxis(), textColor, borderColor);
 		} else if (metricChart.getPlot() instanceof CategoryPlot plot) {
-			plot.setBackgroundPaint(plotBackground);
-			plot.setDomainGridlinePaint(border);
-			plot.setRangeGridlinePaint(border);
-			plot.setOutlinePaint(border);
-			configureAxis(plot.getDomainAxis(), text, border);
-			configureAxis(plot.getRangeAxis(), text, border);
+			plot.setBackgroundPaint(plotBackgroundColor);
+			plot.setDomainGridlinePaint(borderColor);
+			plot.setRangeGridlinePaint(borderColor);
+			plot.setOutlinePaint(borderColor);
+			configureAxis(plot.getDomainAxis(), textColor, borderColor);
+			configureAxis(plot.getRangeAxis(), textColor, borderColor);
 		}
-	}
-
-	private static Color plotBackground(boolean lightTheme) {
-		Color background = UITheme.getColor(UITheme.Keys.BACKGROUND, Color.WHITE);
-		return lightTheme ? Color.WHITE : blend(background, Color.WHITE, 0.06);
 	}
 
 	private static void configureAxis(Axis axis, Color text, Color border) {
@@ -508,16 +514,6 @@ final class MonteCarloMetricsPanel extends JPanel {
 		axis.setTickMarkPaint(border);
 	}
 
-	private static Color blend(Color first, Color second, double secondWeight) {
-		double firstWeight = 1 - secondWeight;
-		return new Color((int) Math.round(first.getRed() * firstWeight + second.getRed() * secondWeight),
-				(int) Math.round(first.getGreen() * firstWeight + second.getGreen() * secondWeight),
-				(int) Math.round(first.getBlue() * firstWeight + second.getBlue() * secondWeight));
-	}
-
-	private static Color withAlpha(Color color, int alpha) {
-		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-	}
 
 	private static final class InsetLegendCategoryAnnotation extends AbstractAnnotation
 			implements CategoryAnnotation {

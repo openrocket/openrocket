@@ -109,7 +109,7 @@ public class MonteCarloMetricsPanelTest {
 	public void testBoxPlotRendererIsNarrowAndThemeAware() {
 		BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
 
-		MonteCarloMetricsPanel.configureBoxRenderer(renderer, false);
+		MonteCarloMetricsPanel.configureBoxRenderer(renderer);
 
 		assertEquals(0.14, renderer.getMaximumBarWidth());
 		assertEquals(0.8, renderer.getWhiskerWidth());

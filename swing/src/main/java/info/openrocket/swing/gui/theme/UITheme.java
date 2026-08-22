@@ -82,6 +82,16 @@ public class UITheme {
         public static final String FIN_SELECTED_POINT = "OR.colors.fin.selectedPoint";
         public static final String FIN_BODY_LINE = "OR.colors.fin.bodyLine";
         public static final String FIN_SNAP_HIGHLIGHT = "OR.colors.fin.snapHighlight";
+        public static final String MONTE_CARLO_PLOT_BACKGROUND = "OR.colors.monteCarlo.plotBackground";
+        public static final String MONTE_CARLO_LANDING = "OR.colors.monteCarlo.landing";
+        public static final String MONTE_CARLO_HISTOGRAM = "OR.colors.monteCarlo.histogram";
+        public static final String MONTE_CARLO_INTERVAL = "OR.colors.monteCarlo.interval";
+        public static final String MONTE_CARLO_BOX_FILL = "OR.colors.monteCarlo.boxFill";
+        public static final String MONTE_CARLO_NOMINAL = "OR.colors.monteCarlo.nominal";
+        public static final String MONTE_CARLO_MEAN = "OR.colors.monteCarlo.mean";
+        public static final String MONTE_CARLO_MEDIAN = "OR.colors.monteCarlo.median";
+        public static final String MONTE_CARLO_LAUNCH_PAD = "OR.colors.monteCarlo.launchPad";
+        public static final String MONTE_CARLO_ELLIPSE = "OR.colors.monteCarlo.ellipse";
 
         public static final String DEFAULT_BODY_COMPONENT_COLOR = "OR.defaults.component.body";
         public static final String DEFAULT_TUBE_FIN_SET_COLOR = "OR.defaults.component.tubeFinSet";

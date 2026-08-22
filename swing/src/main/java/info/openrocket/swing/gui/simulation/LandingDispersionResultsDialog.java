@@ -93,18 +93,22 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 public final class LandingDispersionResultsDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
-	private static final Color LANDING_LIGHT_COLOR = new Color(0, 114, 178, 155);
-	private static final Color LANDING_DARK_COLOR = new Color(86, 180, 233, 185);
-	private static final Color NOMINAL_LIGHT_COLOR = new Color(230, 159, 0);
-	private static final Color NOMINAL_DARK_COLOR = new Color(240, 228, 66);
-	private static final Color MEAN_LIGHT_COLOR = new Color(213, 94, 0);
-	private static final Color MEAN_DARK_COLOR = new Color(255, 112, 91);
-	private static final Color PAD_LIGHT_COLOR = new Color(170, 40, 145);
-	private static final Color PAD_DARK_COLOR = new Color(240, 130, 210);
-	private static final Color ELLIPSE_LIGHT_COLOR = new Color(0, 125, 90);
-	private static final Color ELLIPSE_DARK_COLOR = new Color(100, 215, 165);
+	private static Color chartBackgroundColor;
+	private static Color plotBackgroundColor;
+	private static Color textColor;
+	private static Color dimTextColor;
+	private static Color borderColor;
+	private static Color landingColor;
+	private static Color nominalColor;
+	private static Color meanColor;
+	private static Color launchPadColor;
+	private static Color ellipseColor;
 	private static final float ELLIPSE_WIDTH = 1.8f;
 	private static final double ELLIPSE_LEGEND_LINE_LENGTH = 24.0;
+
+	static {
+		initColors();
+	}
 
 	/** Target width for a plot exported for use in reports. */
 	private static final int EXPORT_TARGET_WIDTH = 2400;
@@ -112,6 +116,30 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	private static final int MAX_EXPORT_SCALE = 6;
 	private static final int FALLBACK_EXPORT_WIDTH = 800;
 	private static final int FALLBACK_EXPORT_HEIGHT = 600;
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(LandingDispersionResultsDialog::updateColors);
+	}
+
+	public static void updateColors() {
+		chartBackgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		plotBackgroundColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_PLOT_BACKGROUND,
+				chartBackgroundColor);
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM, textColor);
+		borderColor = UITheme.getColor(UITheme.Keys.BORDER);
+		landingColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_LANDING,
+				UITheme.getColor(UITheme.Keys.INFO));
+		nominalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_NOMINAL,
+				UITheme.getColor(UITheme.Keys.WARNING));
+		meanColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_MEAN,
+				UITheme.getColor(UITheme.Keys.ERROR));
+		launchPadColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_LAUNCH_PAD,
+				UITheme.getColor(UITheme.Keys.INFO));
+		ellipseColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_ELLIPSE,
+				UITheme.getColor(UITheme.Keys.INFO));
+	}
 
 	private final String simulationName;
 	private final MonteCarloResult result;
@@ -296,7 +324,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		panel.setMaximumDrawWidth(Integer.MAX_VALUE);
 		panel.setMinimumDrawHeight(0);
 		panel.setMaximumDrawHeight(Integer.MAX_VALUE);
-		panel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
+		panel.setBorder(BorderFactory.createLineBorder(borderColor));
 		panel.setPreferredSize(new Dimension(540, 420));
 		panel.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -412,42 +440,36 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	}
 
 	private static void applyChartTheme(JFreeChart dispersionChart) {
-		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
-		Color chartBackground = UITheme.getColor(UITheme.Keys.BACKGROUND, Color.WHITE);
-		Color text = UITheme.getColor(UITheme.Keys.TEXT, Color.BLACK);
-		Color border = UITheme.getColor(UITheme.Keys.BORDER, Color.GRAY);
-		Color plotBackground = lightTheme ? Color.WHITE : blend(chartBackground, Color.WHITE, 0.06);
-
-		dispersionChart.setBackgroundPaint(chartBackground);
-		dispersionChart.getTitle().setPaint(text);
+		dispersionChart.setBackgroundPaint(chartBackgroundColor);
+		dispersionChart.getTitle().setPaint(textColor);
 		// Subtitles include the legend, which is themed separately below.
 		for (Title subtitle : dispersionChart.getSubtitles()) {
 			if (subtitle instanceof TextTitle textTitle) {
-				textTitle.setPaint(blend(text, chartBackground, 0.25));
+				textTitle.setPaint(dimTextColor);
 			}
 		}
 		if (dispersionChart.getLegend() != null) {
-			dispersionChart.getLegend().setBackgroundPaint(chartBackground);
-			dispersionChart.getLegend().setItemPaint(text);
-			dispersionChart.getLegend().setFrame(new BlockBorder(border));
+			dispersionChart.getLegend().setBackgroundPaint(chartBackgroundColor);
+			dispersionChart.getLegend().setItemPaint(textColor);
+			dispersionChart.getLegend().setFrame(new BlockBorder(borderColor));
 		}
 
 		XYPlot plot = dispersionChart.getXYPlot();
 		// Paint the landing cloud first and progressively more descriptive overlays
 		// afterward, leaving covariance ellipses visible on top of every marker.
 		plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
-		plot.setBackgroundPaint(plotBackground);
-		plot.setDomainGridlinePaint(border);
-		plot.setRangeGridlinePaint(border);
-		plot.setOutlinePaint(border);
+		plot.setBackgroundPaint(plotBackgroundColor);
+		plot.setDomainGridlinePaint(borderColor);
+		plot.setRangeGridlinePaint(borderColor);
+		plot.setOutlinePaint(borderColor);
 		plot.setDomainCrosshairVisible(false);
 		plot.setRangeCrosshairVisible(false);
 		plot.setDomainZeroBaselineVisible(true);
 		plot.setRangeZeroBaselineVisible(true);
-		plot.setDomainZeroBaselinePaint(text);
-		plot.setRangeZeroBaselinePaint(text);
-		configureAxisTheme(plot.getDomainAxis(), text, border);
-		configureAxisTheme(plot.getRangeAxis(), text, border);
+		plot.setDomainZeroBaselinePaint(textColor);
+		plot.setRangeZeroBaselinePaint(textColor);
+		configureAxisTheme(plot.getDomainAxis(), textColor, borderColor);
+		configureAxisTheme(plot.getRangeAxis(), textColor, borderColor);
 	}
 
 	private void refreshChartThemes() {
@@ -462,7 +484,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 				highlightedSeries = -1;
 				chart.getXYPlot().setRenderer(createRenderer(hasNominal, hasStatistics));
 			}
-			chartPanel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
+			chartPanel.setBorder(BorderFactory.createLineBorder(borderColor));
 			chartPanel.repaint();
 			metricsPanel.refreshTheme();
 		});
@@ -473,14 +495,6 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		axis.setTickLabelPaint(text);
 		axis.setAxisLinePaint(border);
 		axis.setTickMarkPaint(border);
-	}
-
-	private static Color blend(Color first, Color second, double secondWeight) {
-		double firstWeight = 1 - secondWeight;
-		return new Color(
-				(int) Math.round(first.getRed() * firstWeight + second.getRed() * secondWeight),
-				(int) Math.round(first.getGreen() * firstWeight + second.getGreen() * secondWeight),
-				(int) Math.round(first.getBlue() * firstWeight + second.getBlue() * secondWeight));
 	}
 
 	private void updateSelectedBody() {
@@ -565,19 +579,13 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	}
 
 	private static XYLineAndShapeRenderer createRenderer(boolean hasNominal, boolean hasStatistics) {
-		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
-		Color ellipseColor = themeColor(lightTheme, ELLIPSE_LIGHT_COLOR, ELLIPSE_DARK_COLOR);
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
 		configureLineRendering(renderer);
-		configurePointSeries(renderer, 0, themeColor(lightTheme, LANDING_LIGHT_COLOR, LANDING_DARK_COLOR),
-				createPointShape(0, false), true);
-		configurePointSeries(renderer, 1, themeColor(lightTheme, NOMINAL_LIGHT_COLOR, NOMINAL_DARK_COLOR),
-				createPointShape(1, false), hasNominal);
-		configurePointSeries(renderer, 2, themeColor(lightTheme, MEAN_LIGHT_COLOR, MEAN_DARK_COLOR),
-				createPointShape(2, false), hasStatistics);
-		configurePointSeries(renderer, 3, themeColor(lightTheme, PAD_LIGHT_COLOR, PAD_DARK_COLOR),
-				createPointShape(3, false), true);
+		configurePointSeries(renderer, 0, landingColor, createPointShape(0, false), true);
+		configurePointSeries(renderer, 1, nominalColor, createPointShape(1, false), hasNominal);
+		configurePointSeries(renderer, 2, meanColor, createPointShape(2, false), hasStatistics);
+		configurePointSeries(renderer, 3, launchPadColor, createPointShape(3, false), true);
 		configureEllipseSeries(renderer, 4, ellipseColor, hasStatistics);
 		configureEllipseSeries(renderer, 5, ellipseColor, hasStatistics);
 		configureEllipseSeries(renderer, 6, ellipseColor, hasStatistics);
@@ -642,10 +650,6 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		};
 		return new BasicStroke(width, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
 				1.0f, dashes, 0.0f);
-	}
-
-	private static Color themeColor(boolean lightTheme, Color lightColor, Color darkColor) {
-		return lightTheme ? lightColor : darkColor;
 	}
 
 	private static void configurePointSeries(XYLineAndShapeRenderer renderer, int series, Color color,
