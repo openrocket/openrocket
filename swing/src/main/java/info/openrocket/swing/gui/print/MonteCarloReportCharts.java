@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.print;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -13,18 +14,23 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
-import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -51,12 +57,19 @@ final class MonteCarloReportCharts {
 	private static final Translator trans = Application.getTranslator();
 	private static final BasicStroke MARKER_STROKE = new BasicStroke(2.0f);
 	private static final Line2D LEGEND_LINE = new Line2D.Double(-7, 0, 7, 0);
+	private static final Font TITLE_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 32);
+	private static final Font SUBTITLE_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 24);
+	private static final Font AXIS_LABEL_FONT = new Font(Font.SANS_SERIF, Font.BOLD, 26);
+	private static final Font TICK_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 22);
+	private static final Font LEGEND_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 22);
 
 	private static Color backgroundColor;
 	private static Color textColor;
 	private static Color gridColor;
 	private static Color landingColor;
 	private static Color histogramColor;
+	private static Color boxFillColor;
+	private static Color medianColor;
 	private static Color intervalColor;
 	private static Color nominalColor;
 	private static Color meanColor;
@@ -86,6 +99,10 @@ final class MonteCarloReportCharts {
 				UITheme.getColor(UITheme.Keys.INFO));
 		histogramColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_REPORT_HISTOGRAM,
 				UITheme.getColor(UITheme.Keys.INFO));
+		boxFillColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_REPORT_BOX_FILL,
+				UITheme.getColor(UITheme.Keys.INFO));
+		medianColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_REPORT_MEDIAN,
+				UITheme.getColor(UITheme.Keys.TEXT));
 		intervalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_REPORT_INTERVAL,
 				UITheme.getColor(UITheme.Keys.INFO));
 		nominalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_REPORT_NOMINAL,
@@ -184,6 +201,42 @@ final class MonteCarloReportCharts {
 		return chart;
 	}
 
+	static JFreeChart boxPlotChart(MonteCarloResult result, MonteCarloFlightBranch branch,
+			MonteCarloMetric metric) {
+		Unit unit = metric.getUnitGroup().getDefaultUnit();
+		List<Double> values = result.getMetricValues(branch.branchId(), metric);
+		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		dataset.add(values.stream().map(unit::toUnit).toList(), MonteCarloLabels.metric(metric),
+				branch.branchName());
+
+		String title = String.format(trans.get("monteCarloReport.metrics.boxPlotTitle"),
+				MonteCarloLabels.metric(metric));
+		JFreeChart chart = ChartFactory.createBoxAndWhiskerChart(title, "",
+				MonteCarloLabels.metric(metric) + " (" + unit.getUnit() + ")", dataset, false);
+		chart.addSubtitle(new TextTitle(String.format(trans.get("LandingDispersionResultsDlg.metrics.subtitle"),
+				branch.branchName(), values.size(), result.getSettings().getRunCount(), result.getSettings().getSeed())));
+
+		CategoryPlot plot = chart.getCategoryPlot();
+		plot.setOrientation(PlotOrientation.HORIZONTAL);
+		plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
+		plot.getDomainAxis().setLowerMargin(0.4);
+		plot.getDomainAxis().setUpperMargin(0.4);
+		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
+		renderer.setSeriesPaint(0, boxFillColor);
+		renderer.setSeriesOutlinePaint(0, histogramColor);
+		renderer.setSeriesOutlineStroke(0, new BasicStroke(2.4f));
+		renderer.setArtifactPaint(medianColor);
+		renderer.setFillBox(true);
+		renderer.setMeanVisible(false);
+		renderer.setMedianVisible(true);
+		renderer.setMaximumBarWidth(0.14);
+		renderer.setWhiskerWidth(0.8);
+		renderer.setUseOutlinePaintForWhiskers(true);
+		addBoxMetricMarkers(plot, result, branch, metric, unit, values);
+		applyTheme(chart);
+		return chart;
+	}
+
 	private static void addMetricMarkers(XYPlot plot, MonteCarloResult result, MonteCarloFlightBranch branch,
 			MonteCarloMetric metric, Unit unit, List<Double> values) {
 		MetricStatistics statistics = MetricStatistics.from(values);
@@ -199,6 +252,29 @@ final class MonteCarloReportCharts {
 		}
 		ValueMarker mean = new ValueMarker(unit.toUnit(statistics.getMean()), meanColor, MARKER_STROKE);
 		plot.addDomainMarker(mean);
+		legendItems.add(markerLegend(trans.get("LandingDispersionResultsDlg.metrics.mean"), mean));
+		plot.setFixedLegendItems(legendItems);
+		LegendTitle legend = new LegendTitle(plot);
+		legend.setPosition(RectangleEdge.BOTTOM);
+		legend.setBackgroundPaint(backgroundColor);
+		legend.setItemPaint(textColor);
+		legend.setFrame(BlockBorder.NONE);
+		plot.getChart().addLegend(legend);
+	}
+
+	private static void addBoxMetricMarkers(CategoryPlot plot, MonteCarloResult result,
+			MonteCarloFlightBranch branch, MonteCarloMetric metric, Unit unit, List<Double> values) {
+		MetricStatistics statistics = MetricStatistics.from(values);
+		LegendItemCollection legendItems = new LegendItemCollection();
+		MonteCarloBranchResult nominalBranch = result.getNominalResult().getBranchResult(branch.branchId());
+		double nominal = nominalBranch == null ? Double.NaN : nominalBranch.getMetric(metric);
+		if (Double.isFinite(nominal)) {
+			ValueMarker marker = new ValueMarker(unit.toUnit(nominal), nominalColor, MARKER_STROKE);
+			plot.addRangeMarker(marker);
+			legendItems.add(markerLegend(trans.get("LandingDispersionResultsDlg.metrics.nominal"), marker));
+		}
+		ValueMarker mean = new ValueMarker(unit.toUnit(statistics.getMean()), meanColor, MARKER_STROKE);
+		plot.addRangeMarker(mean);
 		legendItems.add(markerLegend(trans.get("LandingDispersionResultsDlg.metrics.mean"), mean));
 		plot.setFixedLegendItems(legendItems);
 		LegendTitle legend = new LegendTitle(plot);
@@ -283,29 +359,43 @@ final class MonteCarloReportCharts {
 
 	private static void applyTheme(JFreeChart chart) {
 		chart.setBackgroundPaint(backgroundColor);
+		chart.setPadding(new RectangleInsets(24, 16, 16, 16));
 		chart.getTitle().setPaint(textColor);
+		chart.getTitle().setFont(TITLE_FONT);
 		for (org.jfree.chart.title.Title subtitle : chart.getSubtitles()) {
 			if (subtitle instanceof TextTitle textTitle) {
 				textTitle.setPaint(textColor);
+				textTitle.setFont(SUBTITLE_FONT);
 			}
 		}
 		if (chart.getLegend() != null) {
 			chart.getLegend().setBackgroundPaint(backgroundColor);
 			chart.getLegend().setItemPaint(textColor);
+			chart.getLegend().setItemFont(LEGEND_FONT);
 			chart.getLegend().setFrame(BlockBorder.NONE);
 		}
-		XYPlot plot = chart.getXYPlot();
-		plot.setBackgroundPaint(backgroundColor);
-		plot.setDomainGridlinePaint(gridColor);
-		plot.setRangeGridlinePaint(gridColor);
-		plot.setOutlinePaint(gridColor);
-		configureAxis(plot.getDomainAxis());
-		configureAxis(plot.getRangeAxis());
+		if (chart.getPlot() instanceof XYPlot plot) {
+			plot.setBackgroundPaint(backgroundColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
+			plot.setOutlinePaint(gridColor);
+			configureAxis(plot.getDomainAxis());
+			configureAxis(plot.getRangeAxis());
+		} else if (chart.getPlot() instanceof CategoryPlot plot) {
+			plot.setBackgroundPaint(backgroundColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
+			plot.setOutlinePaint(gridColor);
+			configureAxis(plot.getDomainAxis());
+			configureAxis(plot.getRangeAxis());
+		}
 	}
 
-	private static void configureAxis(ValueAxis axis) {
+	private static void configureAxis(Axis axis) {
 		axis.setLabelPaint(textColor);
+		axis.setLabelFont(AXIS_LABEL_FONT);
 		axis.setTickLabelPaint(textColor);
+		axis.setTickLabelFont(TICK_FONT);
 		axis.setAxisLinePaint(textColor);
 		axis.setTickMarkPaint(textColor);
 	}

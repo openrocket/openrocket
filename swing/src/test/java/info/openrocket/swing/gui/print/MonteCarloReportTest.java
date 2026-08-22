@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.print;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -8,6 +10,10 @@ import java.nio.file.Path;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
@@ -25,6 +31,7 @@ import info.openrocket.core.l10n.ResourceBundleTranslator;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
+import info.openrocket.core.simulation.montecarlo.MonteCarloMetric;
 import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
 import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
@@ -58,6 +65,11 @@ class MonteCarloReportTest extends BaseTestCase {
 				.build();
 		simulation.setLandingDispersionSettings(settings);
 		MonteCarloResult result = new MonteCarloSimulationRunner().run(simulation, settings);
+		JFreeChart boxPlot = MonteCarloReportCharts.boxPlotChart(result, result.getFlightBranches().get(0),
+				MonteCarloMetric.APOGEE_ALTITUDE);
+		CategoryPlot boxPlotArea = assertInstanceOf(CategoryPlot.class, boxPlot.getPlot());
+		assertEquals(PlotOrientation.HORIZONTAL, boxPlotArea.getOrientation());
+		assertInstanceOf(BoxAndWhiskerRenderer.class, boxPlotArea.getRenderer());
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		Document document = new Document(PageSize.A4);
@@ -75,6 +87,8 @@ class MonteCarloReportTest extends BaseTestCase {
 		}
 
 		PdfReader reader = new PdfReader(output.toByteArray());
+		assertTrue(reader.getNumberOfPages() >= 15,
+				"the report should include paired histogram and box-plot pages");
 		StringBuilder text = new StringBuilder();
 		for (int page = 1; page <= reader.getNumberOfPages(); page++) {
 			text.append(PdfTextExtractor.getTextFromPage(reader, page));

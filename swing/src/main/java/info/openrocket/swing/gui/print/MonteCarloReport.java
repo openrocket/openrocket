@@ -1,10 +1,13 @@
 package info.openrocket.swing.gui.print;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.jfree.chart.JFreeChart;
 
@@ -65,12 +68,12 @@ public final class MonteCarloReport {
 
 		for (int index = 0; index < data.entries().size(); index++) {
 			if (index > 0) {
-				document.newPage();
+				startNewPage();
 			}
 			Entry entry = data.entries().get(index);
 			writeSimulationOverview(entry.simulation(), entry.result());
 			writeLandingSections(entry.simulation(), entry.result());
-			writeMetricSections(entry.simulation(), entry.result());
+			writeMetricSections(entry.result());
 		}
 	}
 
@@ -137,7 +140,7 @@ public final class MonteCarloReport {
 	private void writeLandingSections(Simulation simulation, MonteCarloResult result)
 			throws DocumentException {
 		for (LandingBody body : result.getLandingBodies()) {
-			document.newPage();
+			startNewPage();
 			addHeading(String.format(trans.get("monteCarloReport.landing.title"), body.branchName()));
 			List<LandingPoint> points = result.getLandingPoints(body.bodyId());
 			if (points.isEmpty()) {
@@ -180,26 +183,17 @@ public final class MonteCarloReport {
 		document.add(table);
 	}
 
-	private void writeMetricSections(Simulation simulation, MonteCarloResult result)
+	private void writeMetricSections(MonteCarloResult result)
 			throws DocumentException {
 		for (MonteCarloFlightBranch branch : result.getFlightBranches()) {
-			document.newPage();
+			startNewPage();
 			addHeading(String.format(trans.get("monteCarloReport.metrics.title"), branch.branchName()));
 			List<MonteCarloMetric> availableMetrics = addMetricSummary(result, branch);
-			for (int index = 0; index < availableMetrics.size(); index += 4) {
-				document.newPage();
-				addSubheading(String.format(trans.get("monteCarloReport.metrics.charts"),
-						simulation.getName(), branch.branchName()));
-				PdfPTable charts = table(2, new float[] { 1, 1 });
-				for (int chartIndex = index; chartIndex < Math.min(index + 4, availableMetrics.size()); chartIndex++) {
-					JFreeChart chart = MonteCarloReportCharts.histogramChart(result, branch,
-							availableMetrics.get(chartIndex));
-					charts.addCell(chartCell(chart));
-				}
-				if (Math.min(4, availableMetrics.size() - index) % 2 != 0) {
-					charts.addCell(emptyCell());
-				}
-				document.add(charts);
+			for (MonteCarloMetric metric : availableMetrics) {
+				startNewPage();
+				addChart(MonteCarloReportCharts.histogramChart(result, branch, metric), 520);
+				startNewPage();
+				addChart(MonteCarloReportCharts.boxPlotChart(result, branch, metric), 520);
 			}
 		}
 	}
@@ -246,23 +240,22 @@ public final class MonteCarloReport {
 		document.add(image);
 	}
 
-	private PdfPCell chartCell(JFreeChart chart) throws DocumentException {
-		Image image = chartImage(chart);
-		image.scaleToFit(255, 165);
-		PdfPCell cell = new PdfPCell(image, true);
-		cell.setBorder(Rectangle.NO_BORDER);
-		cell.setPadding(4);
-		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		return cell;
+	private Image chartImage(JFreeChart chart) throws DocumentException {
+		return imageFromBufferedImage(chart.createBufferedImage(CHART_WIDTH, CHART_HEIGHT));
 	}
 
-	private Image chartImage(JFreeChart chart) throws DocumentException {
-		BufferedImage bufferedImage = chart.createBufferedImage(CHART_WIDTH, CHART_HEIGHT);
-		try {
-			return Image.getInstance(writer, bufferedImage, 1.0f);
+	private Image imageFromBufferedImage(BufferedImage bufferedImage) throws DocumentException {
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			ImageIO.write(bufferedImage, "png", output);
+			return Image.getInstance(output.toByteArray());
 		} catch (java.io.IOException exception) {
 			throw new DocumentException(exception);
 		}
+	}
+
+	private void startNewPage() throws DocumentException {
+		writer.setPageEmpty(false);
+		document.newPage();
 	}
 
 	private static String formatSpread(MonteCarloParameter parameter, double spread) {
@@ -344,12 +337,6 @@ public final class MonteCarloReport {
 		PdfPCell cell = new PdfPCell(new Phrase(value, PrintUtilities.SMALL));
 		cell.setBorder(Rectangle.NO_BORDER);
 		cell.setPadding(3);
-		return cell;
-	}
-
-	private static PdfPCell emptyCell() {
-		PdfPCell cell = new PdfPCell();
-		cell.setBorder(Rectangle.NO_BORDER);
 		return cell;
 	}
 

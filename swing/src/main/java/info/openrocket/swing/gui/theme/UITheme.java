@@ -98,6 +98,8 @@ public class UITheme {
         public static final String MONTE_CARLO_REPORT_GRID = "OR.colors.monteCarlo.report.grid";
         public static final String MONTE_CARLO_REPORT_LANDING = "OR.colors.monteCarlo.report.landing";
         public static final String MONTE_CARLO_REPORT_HISTOGRAM = "OR.colors.monteCarlo.report.histogram";
+        public static final String MONTE_CARLO_REPORT_BOX_FILL = "OR.colors.monteCarlo.report.boxFill";
+        public static final String MONTE_CARLO_REPORT_MEDIAN = "OR.colors.monteCarlo.report.median";
         public static final String MONTE_CARLO_REPORT_INTERVAL = "OR.colors.monteCarlo.report.interval";
         public static final String MONTE_CARLO_REPORT_NOMINAL = "OR.colors.monteCarlo.report.nominal";
         public static final String MONTE_CARLO_REPORT_MEAN = "OR.colors.monteCarlo.report.mean";
