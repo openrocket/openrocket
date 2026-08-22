@@ -183,6 +183,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		JButton exportPlotButton = new JButton(trans.get("LandingDispersionResultsDlg.but.exportPlot"));
 		exportPlotButton.addActionListener(event -> exportPlot());
 		JButton exportRunsButton = new JButton(trans.get("LandingDispersionResultsDlg.but.export"));
+		exportRunsButton.setToolTipText(trans.get("LandingDispersionResultsDlg.but.export.ttip"));
 		exportRunsButton.addActionListener(event -> exportCsv());
 		JButton closeButton = new JButton(trans.get("dlg.but.close"));
 		closeButton.addActionListener(event -> dispose());
