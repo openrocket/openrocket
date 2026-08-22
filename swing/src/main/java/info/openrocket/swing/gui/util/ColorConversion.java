@@ -52,6 +52,30 @@ public class ColorConversion {
 				Math.min(255, color.getBlue() + amount));
 	}
 
+	/**
+	 * Composite a possibly translucent foreground color over an opaque background color.
+	 * The returned color is opaque, making it safe to use as the background of an opaque Swing component.
+	 *
+	 * @param foreground the color drawn over the background
+	 * @param background the opaque color below the foreground
+	 * @return the opaque composite color
+	 */
+	public static Color compositeColor(Color foreground, Color background) {
+		int foregroundAlpha = foreground.getAlpha();
+		int backgroundAlpha = 255 - foregroundAlpha;
+		return new Color(
+				compositeChannel(foreground.getRed(), background.getRed(), foregroundAlpha, backgroundAlpha),
+				compositeChannel(foreground.getGreen(), background.getGreen(), foregroundAlpha, backgroundAlpha),
+				compositeChannel(foreground.getBlue(), background.getBlue(), foregroundAlpha, backgroundAlpha));
+	}
+
+	/**
+	 * Composite one foreground color channel over its background channel with integer rounding.
+	 */
+	private static int compositeChannel(int foreground, int background, int foregroundAlpha, int backgroundAlpha) {
+		return (foreground * foregroundAlpha + background * backgroundAlpha + 127) / 255;
+	}
+
 	public static ORColor fromHexColor(String hexColor) {
 		if (hexColor == null || hexColor.isBlank()) {
 			return null;
