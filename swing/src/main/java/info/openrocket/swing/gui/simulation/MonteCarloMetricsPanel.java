@@ -130,8 +130,8 @@ final class MonteCarloMetricsPanel extends JPanel {
 	}
 
 	private ChartPanel createChartPanel() {
-		ChartPanel panel = new ChartPanel(chart, false, false, false, true, true);
-		panel.setMouseWheelEnabled(true);
+		ChartPanel panel = new ChartPanel(chart, false, false, false, false, true);
+		configureChartInteraction(panel);
 		panel.setEnforceFileExtensions(true);
 		panel.setMinimumDrawWidth(0);
 		panel.setMaximumDrawWidth(Integer.MAX_VALUE);
@@ -139,6 +139,12 @@ final class MonteCarloMetricsPanel extends JPanel {
 		panel.setMaximumDrawHeight(Integer.MAX_VALUE);
 		panel.setBorder(BorderFactory.createLineBorder(UITheme.getColor(UITheme.Keys.BORDER)));
 		return panel;
+	}
+
+	static void configureChartInteraction(ChartPanel panel) {
+		panel.setMouseZoomable(false);
+		panel.setMouseWheelEnabled(false);
+		panel.setPopupMenu(null);
 	}
 
 	private void updateBranch() {
@@ -209,16 +215,10 @@ final class MonteCarloMetricsPanel extends JPanel {
 		CategoryPlot plot = boxPlot.getCategoryPlot();
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
 		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
-		renderer.setSeriesPaint(0, lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR);
-		renderer.setFillBox(true);
-		renderer.setMeanVisible(true);
-		renderer.setMedianVisible(true);
+		configureBoxRenderer(renderer, lightTheme);
 		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
-
-		double p5 = row.unit.toUnit(row.statistics.getQuantile(0.05));
-		double p95 = row.unit.toUnit(row.statistics.getQuantile(0.95));
-		plot.addRangeMarker(new IntervalMarker(p5, p95,
-				lightTheme ? INTERVAL_LIGHT_COLOR : INTERVAL_DARK_COLOR));
+		plot.getDomainAxis().setLowerMargin(0.4);
+		plot.getDomainAxis().setUpperMargin(0.4);
 		if (Double.isFinite(row.nominal)) {
 			ValueMarker nominal = new ValueMarker(row.unit.toUnit(row.nominal),
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
@@ -229,6 +229,21 @@ final class MonteCarloMetricsPanel extends JPanel {
 		}
 		finishChart(boxPlot, row);
 		return boxPlot;
+	}
+
+	static void configureBoxRenderer(BoxAndWhiskerRenderer renderer, boolean lightTheme) {
+		Color boxColor = lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR;
+		Color artifactColor = lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR;
+		renderer.setSeriesPaint(0, withAlpha(boxColor, lightTheme ? 85 : 110));
+		renderer.setSeriesOutlinePaint(0, boxColor);
+		renderer.setSeriesOutlineStroke(0, new BasicStroke(1.8f));
+		renderer.setArtifactPaint(artifactColor);
+		renderer.setFillBox(true);
+		renderer.setMeanVisible(true);
+		renderer.setMedianVisible(true);
+		renderer.setMaximumBarWidth(0.14);
+		renderer.setWhiskerWidth(0.8);
+		renderer.setUseOutlinePaintForWhiskers(true);
 	}
 
 	private void finishChart(JFreeChart metricChart, MetricRow row) {
@@ -348,6 +363,10 @@ final class MonteCarloMetricsPanel extends JPanel {
 		return new Color((int) Math.round(first.getRed() * firstWeight + second.getRed() * secondWeight),
 				(int) Math.round(first.getGreen() * firstWeight + second.getGreen() * secondWeight),
 				(int) Math.round(first.getBlue() * firstWeight + second.getBlue() * secondWeight));
+	}
+
+	private static Color withAlpha(Color color, int alpha) {
+		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 	}
 
 	private record MetricRow(MonteCarloMetric metric, Unit unit, double nominal,

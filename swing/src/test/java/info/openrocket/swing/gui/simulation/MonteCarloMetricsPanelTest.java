@@ -1,12 +1,17 @@
 package info.openrocket.swing.gui.simulation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Test;
 
@@ -65,5 +70,30 @@ public class MonteCarloMetricsPanelTest {
 		assertEquals(110.0, dataset.getMedianValue("Apogee", "Rocket"));
 		assertEquals(100.0, dataset.getMinRegularValue("Apogee", "Rocket"));
 		assertEquals(120.0, dataset.getMaxRegularValue("Apogee", "Rocket"));
+	}
+
+	@Test
+	public void testBoxPlotRendererIsNarrowAndThemeAware() {
+		BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
+
+		MonteCarloMetricsPanel.configureBoxRenderer(renderer, false);
+
+		assertEquals(0.14, renderer.getMaximumBarWidth());
+		assertEquals(0.8, renderer.getWhiskerWidth());
+		assertTrue(renderer.getUseOutlinePaintForWhiskers());
+		assertTrue(renderer.getFillBox());
+	}
+
+	@Test
+	public void testMetricChartsDoNotRetainInteractiveZoomState() {
+		ChartPanel panel = new ChartPanel(ChartFactory.createHistogram("Test", "Value", "Runs",
+				new HistogramDataset()));
+
+		MonteCarloMetricsPanel.configureChartInteraction(panel);
+
+		assertFalse(panel.isDomainZoomable());
+		assertFalse(panel.isRangeZoomable());
+		assertFalse(panel.isMouseWheelEnabled());
+		assertNull(panel.getPopupMenu());
 	}
 }

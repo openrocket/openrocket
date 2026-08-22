@@ -183,9 +183,12 @@ deviation, empirical P5 and P95, and the valid-run count.  Selecting a row shows
 either a histogram or a box plot in that metric's normal OpenRocket display unit.
 Histogram bins are chosen automatically from the sample count using a bounded
 square-root rule, and tooltips report each bin's numeric range and run count.  The
-P5--P95 range is shaded and nominal/sample-mean values are identified.  Keeping
-one metric per plot avoids combining incompatible units or hiding engineering
-values behind normalization.  Plot export follows the active results tab.
+histogram shades the P5--P95 range and identifies nominal/sample-mean values.  The
+box plot uses its conventional quartile, whisker, mean, median, and outlier marks
+without binning.  Metric plots always auto-fit the complete distribution rather
+than offering interactive zoom.  Keeping one metric per plot avoids combining
+incompatible units or hiding engineering values behind normalization.  Plot
+export follows the active results tab.
 
 CSV export contains the master seed, settings, simulation seed, sampled deviations
 in explicit SI units, stable branch ID, per-run branch index, landing coordinates
