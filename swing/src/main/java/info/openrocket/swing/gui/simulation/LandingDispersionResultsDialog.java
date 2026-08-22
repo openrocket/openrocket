@@ -865,7 +865,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		String safeName = safeFileName(simulationName);
-		chooser.setSelectedFile(new File(safeName + "-landing-dispersion.csv"));
+		chooser.setSelectedFile(new File(safeName + "-monte-carlo.csv"));
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
 			return;
 		}

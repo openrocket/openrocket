@@ -43,9 +43,9 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 		return source;
 	}
 
-	/** A ballistic nominal trajectory is outside the recovery-area analysis. */
+	/** Flight metrics remain useful even when there is no eligible landing body. */
 	@Test
-	public void testBallisticFlightIsRefused() {
+	public void testBallisticFlightStillProvidesMetrics() {
 		Simulation source = source(0.0);
 		for (RocketComponent component : source.getRocket().getAllChildren()) {
 			if (component instanceof RecoveryDevice) {
@@ -59,8 +59,12 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 				.uncertainty(MonteCarloParameter.AXIAL_DRAG, MonteCarloDistribution.NORMAL, 0.1)
 				.build();
 
-		assertThrows(BallisticTrajectoryException.class,
-				() -> new MonteCarloSimulationRunner().run(source, settings));
+		MonteCarloResult result = new MonteCarloSimulationRunner().run(source, settings);
+
+		assertTrue(result.getLandingBodies().isEmpty());
+		assertFalse(result.getFlightBranches().isEmpty());
+		String branchId = result.getFlightBranches().get(0).branchId();
+		assertEquals(2, result.getMetricValues(branchId, MonteCarloMetric.APOGEE_ALTITUDE).size());
 	}
 
 	@Test

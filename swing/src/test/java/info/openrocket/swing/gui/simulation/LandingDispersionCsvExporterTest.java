@@ -20,7 +20,7 @@ import info.openrocket.swing.util.BaseTestCase;
 
 public class LandingDispersionCsvExporterTest extends BaseTestCase {
 	@Test
-	public void testExportIncludesConfigurationSamplesAndEveryRunBodyPair() throws IOException {
+	public void testExportIncludesConfigurationSamplesMetricsAndEveryRunBranchPair() throws IOException {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		Simulation simulation = new Simulation(rocket);
 		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
@@ -39,8 +39,10 @@ public class LandingDispersionCsvExporterTest extends BaseTestCase {
 
 		assertTrue(csv.contains("\"analysis_seed\""));
 		assertTrue(csv.contains("\"wind_direction_delta_rad\""));
+		assertTrue(csv.contains("\"apogee_altitude_m\""));
+		assertTrue(csv.contains("\"landing_velocity_m_per_s\""));
 		assertTrue(csv.contains("WIND_DIRECTION:UNIFORM:"));
 		assertTrue(csv.contains("\"nominal\""));
-		assertEquals(1L + 3L * result.getLandingBodies().size(), csv.lines().count());
+		assertEquals(1L + 3L * result.getFlightBranches().size(), csv.lines().count());
 	}
 }

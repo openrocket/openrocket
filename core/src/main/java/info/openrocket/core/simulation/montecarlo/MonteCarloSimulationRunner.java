@@ -35,13 +35,10 @@ import info.openrocket.core.util.BugException;
  * concurrent simulations from sharing mutable configuration and aerodynamic caches.
  * <p>
  * Bodies that deploy a recovery device and independently simulated bodies created by
- * stage separation are included when they reach the ground. An unseparated ballistic
- * nominal flight is rejected with a {@link BallisticTrajectoryException}.
+ * stage separation are included in the landing view when they reach the ground. Scalar
+ * flight metrics remain available for every flight-data branch.
  */
 public final class MonteCarloSimulationRunner {
-	static final String BALLISTIC_DESCENT =
-			"Ballistic descent: landing dispersion requires a recovery deployment or a separated landing body";
-
 	private static final MonteCarloProgressListener NO_PROGRESS = (completed, total) -> {
 	};
 
@@ -67,8 +64,7 @@ public final class MonteCarloSimulationRunner {
 		long start = System.currentTimeMillis();
 		int totalTrajectories = settings.getRunCount() + 1;
 
-		// Reject an unsupported nominal flight before computing the ensemble.
-		MonteCarloRunResult nominal = runTrajectory(simulation, MonteCarloSample.nominal(settings.getSeed()), true);
+		MonteCarloRunResult nominal = runTrajectory(simulation, MonteCarloSample.nominal(settings.getSeed()));
 		progressListener.onProgress(1, totalTrajectories);
 
 		// Sampling before submission makes it independent of worker scheduling.
@@ -91,7 +87,7 @@ public final class MonteCarloSimulationRunner {
 				new ExecutorCompletionService<>(executor);
 		try {
 			for (MonteCarloSample sample : samples) {
-				completionService.submit(() -> runTrajectory(source, sample, false));
+				completionService.submit(() -> runTrajectory(source, sample));
 			}
 
 			// Collect in completion order for accurate progress, then restore run order.
@@ -155,12 +151,9 @@ public final class MonteCarloSimulationRunner {
 	 *
 	 * @param source simulation to disperse
 	 * @param sample sampled deviations to apply
-	 * @param refuseBallistic if {@code true}, a flight that reaches the ground with no
-	 *        recovery device deployed aborts the whole analysis instead of being recorded
 	 * @return the trajectory outcome
 	 */
-	private MonteCarloRunResult runTrajectory(Simulation source, MonteCarloSample sample,
-			boolean refuseBallistic) {
+	private MonteCarloRunResult runTrajectory(Simulation source, MonteCarloSample sample) {
 		checkCancellation();
 
 		Simulation simulation = source.duplicateForIndependentSimulation();
@@ -185,16 +178,6 @@ public final class MonteCarloSimulationRunner {
 		List<LandingPoint> landingPoints = extractLandingPoints(data);
 		List<LandingBodyFailure> bodyFailures = extractBodyFailures(data);
 		List<MonteCarloBranchResult> branchResults = extractBranchResults(data);
-		if (failure == null && landingPoints.isEmpty() && hasBallisticGroundHit(data)) {
-			if (refuseBallistic) {
-				throw new BallisticTrajectoryException(BALLISTIC_DESCENT);
-			}
-			failure = BALLISTIC_DESCENT;
-		}
-		if (failure == null && landingPoints.isEmpty() && bodyFailures.isEmpty()) {
-			failure = "Simulation produced no ground-hit event";
-		}
-
 		double maximumAltitude = data != null ? data.getMaxAltitude() : Double.NaN;
 		double flightTime = data != null ? data.getFlightTime() : Double.NaN;
 		return new MonteCarloRunResult(sample, landingPoints, bodyFailures, branchResults,
@@ -366,19 +349,6 @@ public final class MonteCarloSimulationRunner {
 			if (event.getType() == FlightEvent.Type.STAGE_SEPARATION
 					&& event.getSource() != null
 					&& branch.getSourceComponentId().equals(event.getSource().getID())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static boolean hasBallisticGroundHit(FlightData data) {
-		if (data == null) {
-			return false;
-		}
-		for (FlightDataBranch branch : data.getBranches()) {
-			if (branch.getFirstEvent(FlightEvent.Type.GROUND_HIT) != null
-					&& !descendsUnderRecoveryDevice(branch)) {
 				return true;
 			}
 		}

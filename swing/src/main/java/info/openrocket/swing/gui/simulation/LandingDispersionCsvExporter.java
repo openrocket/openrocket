@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import info.openrocket.core.simulation.montecarlo.LandingBody;
 import info.openrocket.core.simulation.montecarlo.LandingPoint;
+import info.openrocket.core.simulation.montecarlo.MonteCarloBranchResult;
+import info.openrocket.core.simulation.montecarlo.MonteCarloFlightBranch;
+import info.openrocket.core.simulation.montecarlo.MonteCarloMetric;
 import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
 import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloRunResult;
@@ -16,8 +18,8 @@ import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
 import info.openrocket.core.simulation.montecarlo.UncertaintySpec;
 
 /**
- * Writes landing-dispersion runs in a reproducible, machine-readable CSV format.
- * Each row represents one run/body pair and includes both the sampled input
+ * Writes Monte Carlo runs in a reproducible, machine-readable CSV format.
+ * Each row represents one run/flight-branch pair and includes both the sampled input
  * deviations and the analysis configuration needed to interpret them.
  */
 final class LandingDispersionCsvExporter {
@@ -34,18 +36,18 @@ final class LandingDispersionCsvExporter {
 	static void write(Writer writer, MonteCarloResult result) throws IOException {
 		writeHeader(writer);
 		String settings = encodeSettings(result.getSettings());
-		List<LandingBody> bodies = result.getLandingBodies();
+		List<MonteCarloFlightBranch> branches = result.getFlightBranches();
 		List<MonteCarloRunResult> runs = new ArrayList<>(result.getRunResults().size() + 1);
 		runs.add(result.getNominalResult());
 		runs.addAll(result.getRunResults());
 
 		for (MonteCarloRunResult run : runs) {
-			if (bodies.isEmpty()) {
+			if (branches.isEmpty()) {
 				writeRow(writer, result, settings, run, null, null);
 				continue;
 			}
-			for (LandingBody body : bodies) {
-				writeRow(writer, result, settings, run, body, run.getLandingPoint(body.bodyId()));
+			for (MonteCarloFlightBranch branch : branches) {
+				writeRow(writer, result, settings, run, branch, run.getLandingPoint(branch.branchId()));
 			}
 		}
 	}
@@ -59,14 +61,15 @@ final class LandingDispersionCsvExporter {
 		fields.add("simulation_seed");
 		fields.add("status");
 		fields.add("failure_message");
-		fields.add("body_id");
-		fields.add("body_index");
-		fields.add("body_name");
+		fields.add("branch_id");
+		fields.add("branch_index");
+		fields.add("branch_name");
 		fields.add("east_m");
 		fields.add("north_m");
 		fields.add("range_from_pad_m");
-		fields.add("maximum_altitude_m");
-		fields.add("flight_time_s");
+		for (MonteCarloMetric metric : MonteCarloMetric.values()) {
+			fields.add(metric.name().toLowerCase(Locale.ROOT) + "_" + metricUnit(metric));
+		}
 		for (MonteCarloParameter parameter : MonteCarloParameter.values()) {
 			fields.add(parameter.name().toLowerCase(Locale.ROOT) + "_delta_" + parameterUnit(parameter));
 		}
@@ -74,25 +77,28 @@ final class LandingDispersionCsvExporter {
 	}
 
 	private static void writeRow(Writer writer, MonteCarloResult result, String settings,
-			MonteCarloRunResult run, LandingBody body, LandingPoint point) throws IOException {
+			MonteCarloRunResult run, MonteCarloFlightBranch branch, LandingPoint point) throws IOException {
 		List<String> fields = new ArrayList<>();
 		fields.add(Integer.toString(result.getSettings().getSeed()));
 		fields.add(Integer.toString(result.getSettings().getRunCount()));
 		fields.add(settings);
 		fields.add(Integer.toString(run.sample().getRunNumber()));
 		fields.add(Integer.toString(run.sample().getSimulationSeed()));
-		String failure = body == null ? run.failureMessage() : run.getFailureMessage(body.bodyId());
-		fields.add(status(run, point, failure));
+		MonteCarloBranchResult branchResult = branch == null ? null : run.getBranchResult(branch.branchId());
+		String failure = run.failureMessage() != null ? run.failureMessage()
+				: branchResult == null ? null : branchResult.failureMessage();
+		fields.add(status(run, branchResult, failure));
 		fields.add(valueOrEmpty(failure));
-		fields.add(body == null ? "" : body.bodyId());
-		int branchIndex = body == null ? -1 : run.getBranchIndex(body.bodyId());
+		fields.add(branch == null ? "" : branch.branchId());
+		int branchIndex = branchResult == null ? -1 : branchResult.branchIndex();
 		fields.add(branchIndex < 0 ? "" : Integer.toString(branchIndex));
-		fields.add(body == null ? "" : body.branchName());
+		fields.add(branch == null ? "" : branch.branchName());
 		fields.add(point == null ? "" : Double.toString(point.east()));
 		fields.add(point == null ? "" : Double.toString(point.north()));
 		fields.add(point == null ? "" : Double.toString(point.rangeFromPad()));
-		fields.add(finiteOrEmpty(run.maximumAltitude()));
-		fields.add(finiteOrEmpty(run.flightTime()));
+		for (MonteCarloMetric metric : MonteCarloMetric.values()) {
+			fields.add(branchResult == null ? "" : finiteOrEmpty(branchResult.getMetric(metric)));
+		}
 		for (MonteCarloParameter parameter : MonteCarloParameter.values()) {
 			fields.add(Double.toString(run.sample().getVariation(parameter)));
 		}
@@ -125,12 +131,22 @@ final class LandingDispersionCsvExporter {
 		};
 	}
 
-	private static String status(MonteCarloRunResult run, LandingPoint point, String failure) {
+	private static String metricUnit(MonteCarloMetric metric) {
+		return switch (metric) {
+			case APOGEE_ALTITUDE -> "m";
+			case MAXIMUM_VELOCITY, LANDING_VELOCITY -> "m_per_s";
+			case MAXIMUM_MACH -> "coefficient";
+			case MAXIMUM_ACCELERATION -> "m_per_s2";
+			case TIME_TO_APOGEE, FLIGHT_TIME -> "s";
+		};
+	}
+
+	private static String status(MonteCarloRunResult run, MonteCarloBranchResult branch, String failure) {
 		if (failure != null) {
 			return "failed";
 		}
-		if (point == null) {
-			return "missing_landing";
+		if (branch == null) {
+			return "missing_branch";
 		}
 		return run.sample().getRunNumber() == 0 ? "nominal" : "success";
 	}

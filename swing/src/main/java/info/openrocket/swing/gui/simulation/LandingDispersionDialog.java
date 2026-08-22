@@ -44,7 +44,6 @@ import javax.swing.table.TableCellEditor;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.simulation.montecarlo.BallisticTrajectoryException;
 import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
 import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
 import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
@@ -643,14 +642,6 @@ public final class LandingDispersionDialog extends JDialog {
 				restoreSetupAfterFailure();
 			} catch (ExecutionException exception) {
 				Throwable cause = exception.getCause();
-				if (cause instanceof BallisticTrajectoryException) {
-					restoreSetupAfterFailure();
-					JOptionPane.showMessageDialog(LandingDispersionDialog.this,
-							trans.get("LandingDispersionDlg.msg.ballistic"),
-							trans.get("LandingDispersionDlg.msg.ballistic.title"),
-							JOptionPane.WARNING_MESSAGE);
-					return;
-				}
 				String message = cause == null ? exception.getLocalizedMessage() : cause.getLocalizedMessage();
 				if (message == null || message.isBlank()) {
 					message = cause == null ? exception.getClass().getSimpleName()

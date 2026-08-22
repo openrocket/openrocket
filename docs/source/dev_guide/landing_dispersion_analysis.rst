@@ -1,15 +1,16 @@
-Monte Carlo landing-dispersion analysis
-=======================================
+Monte Carlo flight and landing-dispersion analysis
+===================================================
 
 Purpose
 -------
 
-The landing-dispersion analysis estimates the horizontal landing cloud produced
-by uncertain weather, launcher, vehicle, propulsion, and recovery inputs.  It is
-an ensemble analysis, not a replacement for validating the nominal rocket model.
-Every run clones the selected simulation, samples deviations around its nominal
-values, and records the east/north position of each body at its ground-hit event.
-The source simulation and document are not changed.
+The Monte Carlo analysis estimates the spread in flight metrics and the horizontal
+landing cloud produced by uncertain weather, launcher, vehicle, propulsion, and
+recovery inputs.  It is an ensemble analysis, not a replacement for validating
+the nominal rocket model.  Every run clones the selected simulation, samples
+deviations around its nominal values, records scalar outputs for every flight-data
+branch, and records the east/north position of eligible bodies at their ground-hit
+events.  The source simulation and document are not changed.
 
 Research basis
 --------------
@@ -126,9 +127,8 @@ simulated stage-separation branch.  This keeps separated boosters selectable eve
 when they tumble or impact without deploying recovery.  Bodies are correlated
 between trajectories by their stable source-component ID, not by the order in
 which branches happen to be created in a particular run.  A ballistic primary
-body remains excluded; a nominal flight with neither a recovered body nor an
-independently landing separated body is refused with a
-``BallisticTrajectoryException``.
+body remains excluded from the landing-dispersion view, but its scalar flight
+metrics remain available.
 Position X is reported as east and Y as north in metres.  A branch abort excludes
 only that body from the run's dispersion statistics; successful sibling bodies
 remain usable.  Trajectory-wide exceptions and missing ground hits are retained
@@ -137,7 +137,7 @@ as failures and excluded from the affected statistics.
 Output statistics and UI
 ------------------------
 
-The simulations panel enables **Landing dispersion** for exactly one non-imported
+The simulations panel enables **Monte Carlo analysis** for exactly one non-imported
 simulation.  The setup dialog exposes all implemented inputs, the distribution,
 and a display-unit spread.  It starts with practical, normally distributed starter
 spreads so a new analysis produces a useful cloud immediately.  These values are
@@ -161,16 +161,33 @@ configuration no longer matches the inputs used for the analysis.  Weak simulati
 references allow cached results to expire with closed documents; completed runs are
 not written to the ``.ork`` file.
 
-The results dialog switches among all landing bodies and provides:
+The results dialog contains two complementary views.  **Landing dispersion**
+switches among all eligible landing bodies and provides:
 
 * a pad-relative east/north scatter plot with nominal and sample-mean markers;
 * empirical nearest-rank R50, R90, and R95 radii measured about the sample mean;
 * one-, two-, and three-sigma sample-covariance ellipses;
-* every run's success/failure, landing, maximum altitude, and flight time;
 * a PNG export of the plot as displayed; and
-* a CSV export containing the master seed, settings, simulation seed, sampled
-  deviations in explicit SI units, stable body ID, per-run branch index, and
-  outputs for every run/body pair.
+* every run's success/failure, landing, maximum altitude, and flight time.
+
+**Flight metrics** switches among every flight-data branch and summarizes:
+
+* apogee altitude;
+* maximum velocity and Mach number;
+* maximum acceleration;
+* time to apogee and total flight time; and
+* landing velocity when the branch reaches the ground.
+
+The metric table reports the nominal value, mean, median, sample standard
+deviation, empirical P5 and P95, and the valid-run count.  Selecting a row shows
+a histogram in that metric's normal OpenRocket display unit.  Its P5--P95 range
+is shaded and the nominal and sample-mean values are marked.  Keeping one metric
+per plot avoids combining incompatible units or hiding engineering values behind
+normalization.  Plot export follows the active results tab.
+
+CSV export contains the master seed, settings, simulation seed, sampled deviations
+in explicit SI units, stable branch ID, per-run branch index, landing coordinates
+when available, and all scalar metrics for every run/branch pair.
 
 The scatter plot uses equal east/north scale, a theme-aware colorblind-friendly
 palette, drag-to-pan, uniform mouse-wheel zoom, and explicit zoom-in, fit, and
