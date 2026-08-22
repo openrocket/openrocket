@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +23,16 @@ import info.openrocket.swing.gui.simulation.LandingDispersionDialog.Distribution
 import info.openrocket.swing.util.BaseTestCase;
 
 public class LandingDispersionDialogTest extends BaseTestCase {
+	@Test
+	public void testSimulationPanelEntryPointDescribesTheWholeAnalysis() {
+		ResourceBundle bundle = ResourceBundle.getBundle("l10n.messages", Locale.ROOT);
+
+		assertEquals("Monte Carlo", bundle.getString("simpanel.but.landingDispersion"));
+		String tooltip = bundle.getString("simpanel.but.ttip.landingDispersion");
+		assertTrue(tooltip.contains("landing dispersion"), tooltip);
+		assertTrue(tooltip.contains("flight-metric"), tooltip);
+	}
+
 	@Test
 	public void testSavedSettingsTakePrecedenceOverCachedSettings() {
 		MonteCarloSettings saved = settings(101, 1, 0.1);
