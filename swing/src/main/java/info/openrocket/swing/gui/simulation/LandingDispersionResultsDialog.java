@@ -63,6 +63,7 @@ import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.widgets.HeaderToolTipTable;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 
 import net.miginfocom.swing.MigLayout;
@@ -179,7 +180,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		splitPane.setResizeWeight(0.7);
 		splitPane.setContinuousLayout(true);
 
-		JTable runTable = new JTable(runTableModel);
+		JTable runTable = new HeaderToolTipTable(runTableModel, runTableModel::getColumnToolTip);
 		runTable.setAutoCreateRowSorter(true);
 		runTable.setFillsViewportHeight(true);
 		runTable.getColumnModel().getColumn(0).setCellRenderer(new RunNumberRenderer());
@@ -919,6 +920,9 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	}
 
 	private static final class RunTableModel extends AbstractTableModel {
+		private static final String[] COLUMN_KEYS = {
+				"run", "status", "east", "north", "range", "maxAltitude", "flightTime"
+		};
 		private final List<MonteCarloRunResult> runs;
 		private final Unit distanceUnit;
 		private final String[] columns;
@@ -958,6 +962,10 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		@Override
 		public String getColumnName(int column) {
 			return columns[column];
+		}
+
+		private String getColumnToolTip(int column) {
+			return trans.get("LandingDispersionResultsDlg.col." + COLUMN_KEYS[column] + ".ttip");
 		}
 
 		@Override

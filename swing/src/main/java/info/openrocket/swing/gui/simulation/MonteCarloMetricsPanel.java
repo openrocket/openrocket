@@ -29,6 +29,7 @@ import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.widgets.HeaderToolTipTable;
 
 import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.ChartFactory;
@@ -77,7 +78,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		this.branchCombo = new JComboBox<>(result.getFlightBranches().toArray(new MonteCarloFlightBranch[0]));
 		this.plotTypeCombo = new JComboBox<>(MetricPlotType.values());
 		this.tableModel = new MetricTableModel(result);
-		this.metricTable = new JTable(tableModel);
+		this.metricTable = new HeaderToolTipTable(tableModel, tableModel::getColumnToolTip);
 		this.chart = createChart();
 		this.chartPanel = createChartPanel();
 		setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -499,6 +500,10 @@ final class MonteCarloMetricsPanel extends JPanel {
 		@Override
 		public String getColumnName(int column) {
 			return trans.get("LandingDispersionResultsDlg.metrics.col." + COLUMN_KEYS[column]);
+		}
+
+		private String getColumnToolTip(int column) {
+			return trans.get("LandingDispersionResultsDlg.metrics.col." + COLUMN_KEYS[column] + ".ttip");
 		}
 
 		@Override
