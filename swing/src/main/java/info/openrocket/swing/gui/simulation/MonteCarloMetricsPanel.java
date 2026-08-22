@@ -75,6 +75,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 	private static Color textColor;
 	private static Color dimTextColor;
 	private static Color borderColor;
+	private static Color gridColor;
 	private static Color histogramColor;
 	private static Color intervalColor;
 	private static Color boxFillColor;
@@ -110,6 +111,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		textColor = UITheme.getColor(UITheme.Keys.TEXT);
 		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM, textColor);
 		borderColor = UITheme.getColor(UITheme.Keys.BORDER);
+		gridColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_GRID, borderColor);
 		histogramColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_HISTOGRAM,
 				UITheme.getColor(UITheme.Keys.INFO));
 		intervalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_INTERVAL,
@@ -492,15 +494,15 @@ final class MonteCarloMetricsPanel extends JPanel {
 		}
 		if (metricChart.getPlot() instanceof XYPlot plot) {
 			plot.setBackgroundPaint(plotBackgroundColor);
-			plot.setDomainGridlinePaint(borderColor);
-			plot.setRangeGridlinePaint(borderColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
 			plot.setOutlinePaint(borderColor);
 			configureAxis(plot.getDomainAxis(), textColor, borderColor);
 			configureAxis(plot.getRangeAxis(), textColor, borderColor);
 		} else if (metricChart.getPlot() instanceof CategoryPlot plot) {
 			plot.setBackgroundPaint(plotBackgroundColor);
-			plot.setDomainGridlinePaint(borderColor);
-			plot.setRangeGridlinePaint(borderColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
 			plot.setOutlinePaint(borderColor);
 			configureAxis(plot.getDomainAxis(), textColor, borderColor);
 			configureAxis(plot.getRangeAxis(), textColor, borderColor);

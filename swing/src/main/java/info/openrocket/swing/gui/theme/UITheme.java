@@ -83,6 +83,7 @@ public class UITheme {
         public static final String FIN_BODY_LINE = "OR.colors.fin.bodyLine";
         public static final String FIN_SNAP_HIGHLIGHT = "OR.colors.fin.snapHighlight";
         public static final String MONTE_CARLO_PLOT_BACKGROUND = "OR.colors.monteCarlo.plotBackground";
+        public static final String MONTE_CARLO_GRID = "OR.colors.monteCarlo.grid";
         public static final String MONTE_CARLO_LANDING = "OR.colors.monteCarlo.landing";
         public static final String MONTE_CARLO_HISTOGRAM = "OR.colors.monteCarlo.histogram";
         public static final String MONTE_CARLO_INTERVAL = "OR.colors.monteCarlo.interval";

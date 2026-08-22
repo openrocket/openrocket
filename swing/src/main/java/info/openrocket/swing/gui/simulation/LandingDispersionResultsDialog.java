@@ -98,6 +98,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	private static Color textColor;
 	private static Color dimTextColor;
 	private static Color borderColor;
+	private static Color gridColor;
 	private static Color landingColor;
 	private static Color nominalColor;
 	private static Color meanColor;
@@ -129,6 +130,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		textColor = UITheme.getColor(UITheme.Keys.TEXT);
 		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM, textColor);
 		borderColor = UITheme.getColor(UITheme.Keys.BORDER);
+		gridColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_GRID, borderColor);
 		landingColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_LANDING,
 				UITheme.getColor(UITheme.Keys.INFO));
 		nominalColor = UITheme.getColor(UITheme.Keys.MONTE_CARLO_NOMINAL,
@@ -459,8 +461,8 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		// afterward, leaving covariance ellipses visible on top of every marker.
 		plot.setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
 		plot.setBackgroundPaint(plotBackgroundColor);
-		plot.setDomainGridlinePaint(borderColor);
-		plot.setRangeGridlinePaint(borderColor);
+		plot.setDomainGridlinePaint(gridColor);
+		plot.setRangeGridlinePaint(gridColor);
 		plot.setOutlinePaint(borderColor);
 		plot.setDomainCrosshairVisible(false);
 		plot.setRangeCrosshairVisible(false);
