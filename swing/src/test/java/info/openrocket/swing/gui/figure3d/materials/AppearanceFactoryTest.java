@@ -17,8 +17,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventObject;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,6 +85,35 @@ class AppearanceFactoryTest {
 
 		AppearanceFactory.clearCachedDecalTexturesForTesting(true);
 		verify(firstTexture).cleanup();
+		verify(secondTexture).cleanup();
+	}
+
+	@Test
+	void reclaimsSupersededTextureAfterSceneStopsReferencingIt() {
+		TestDecalImage image = new TestDecalImage("decal.png");
+		Texture firstTexture = mock(Texture.class);
+		Texture secondTexture = mock(Texture.class);
+		AtomicInteger loads = new AtomicInteger();
+		AppearanceFactory.DecalTextureCache cache = AppearanceFactory.createDecalTextureCache();
+		cache.setTextureLoaderForTesting(decalImage ->
+				loads.incrementAndGet() == 1 ? firstTexture : secondTexture);
+
+		Appearance3D appearance = AppearanceFactory.withDecalTextureCache(cache,
+				() -> AppearanceFactory.createFrom(componentWithDecal(image)));
+		image.fireChangeEvent(this);
+		AppearanceFactory.withDecalTextureCache(cache,
+				() -> AppearanceFactory.updateFrom(appearance, componentWithDecal(image)));
+
+		Set<Texture> stillLive = Collections.newSetFromMap(new IdentityHashMap<>());
+		stillLive.add(firstTexture);
+		cache.reclaimStaleTextures(stillLive);
+		verify(firstTexture, never()).cleanup();
+
+		cache.reclaimStaleTextures(Collections.emptySet());
+		verify(firstTexture).cleanup();
+		verify(secondTexture, never()).cleanup();
+
+		cache.cleanup();
 		verify(secondTexture).cleanup();
 	}
 

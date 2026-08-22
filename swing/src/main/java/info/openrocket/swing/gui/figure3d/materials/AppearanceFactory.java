@@ -13,6 +13,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.util.FileUtils;
 import info.openrocket.swing.gui.figure3d.rendering.GLException;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
@@ -24,8 +25,10 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -39,6 +42,7 @@ public abstract class AppearanceFactory {
 	/** Range of surface roughness the finishes span, in metres. */
 	private static final double ROUGHNESS_SIZE_MIN = 0.5e-6;
 	private static final double ROUGHNESS_SIZE_MAX = 500e-6;
+	private static final int MAX_DECAL_IMAGE_BYTES = 32 * 1024 * 1024;
 	private static final DecalTextureCache DEFAULT_DECAL_TEXTURE_CACHE = new DecalTextureCache();
 	private static final ThreadLocal<DecalTextureCache> ACTIVE_DECAL_TEXTURE_CACHE = new ThreadLocal<>();
 
@@ -338,7 +342,32 @@ public abstract class AppearanceFactory {
 			clear(true);
 		}
 
-		private void setTextureLoaderForTesting(TextureLoader loader) {
+		/**
+		 * Releases superseded textures that are no longer referenced by the committed scene.
+		 * This must run on the GL thread after an appearance update or scene replacement.
+		 *
+		 * @param liveTextures texture objects still reachable from scene appearances
+		 */
+		public void reclaimStaleTextures(Set<Texture> liveTextures) {
+			List<Texture> reclaimable = new ArrayList<>();
+			synchronized (lock) {
+				Iterator<Texture> iterator = staleTextures.iterator();
+				while (iterator.hasNext()) {
+					Texture texture = iterator.next();
+					if (texture == null || !liveTextures.contains(texture)) {
+						iterator.remove();
+						if (texture != null) {
+							reclaimable.add(texture);
+						}
+					}
+				}
+			}
+			for (Texture texture : reclaimable) {
+				texture.cleanup();
+			}
+		}
+
+		void setTextureLoaderForTesting(TextureLoader loader) {
 			synchronized (lock) {
 				textureLoader = loader != null ? loader : AppearanceFactory::loadTextureUncached;
 			}
@@ -402,7 +431,7 @@ public abstract class AppearanceFactory {
 					log.warn("Decal image stream missing for {}", decalImage.getName());
 					return null;
 				}
-				byte[] bytes = stream.readAllBytes();
+				byte[] bytes = FileUtils.readBytes(stream, MAX_DECAL_IMAGE_BYTES);
 				buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
 				return new Texture(buffer);
 			}
