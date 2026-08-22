@@ -45,6 +45,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
@@ -181,6 +183,8 @@ final class MonteCarloMetricsPanel extends JPanel {
 		XYPlot plot = histogram.getXYPlot();
 
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
+		Color labelPaint = UITheme.getColor(UITheme.Keys.TEXT, lightTheme ? Color.BLACK : Color.WHITE);
+		Color labelBackground = plotBackground(lightTheme);
 		XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
 		renderer.setSeriesPaint(0, lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR);
 		renderer.setShadowVisible(false);
@@ -193,18 +197,18 @@ final class MonteCarloMetricsPanel extends JPanel {
 		double p95 = row.unit.toUnit(row.statistics.getQuantile(0.95));
 		plot.addDomainMarker(new IntervalMarker(p5, p95,
 				lightTheme ? INTERVAL_LIGHT_COLOR : INTERVAL_DARK_COLOR));
+		ValueMarker nominal = null;
 		if (Double.isFinite(row.nominal)) {
-			ValueMarker nominal = new ValueMarker(row.unit.toUnit(row.nominal),
+			nominal = new ValueMarker(row.unit.toUnit(row.nominal),
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
 					new BasicStroke(2.0f));
 			nominal.setLabel(trans.get("LandingDispersionResultsDlg.metrics.nominal"));
-			nominal.setLabelPaint(lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR);
 			plot.addDomainMarker(nominal);
 		}
 		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()),
 				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, new BasicStroke(2.0f));
 		mean.setLabel(trans.get("LandingDispersionResultsDlg.metrics.mean"));
-		mean.setLabelPaint(lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR);
+		configureHistogramMarkerLabels(nominal, mean, labelPaint, labelBackground);
 		plot.addDomainMarker(mean);
 		finishChart(histogram, row);
 		return histogram;
@@ -218,6 +222,8 @@ final class MonteCarloMetricsPanel extends JPanel {
 				metricAxisLabel(row), dataset, false);
 		CategoryPlot plot = boxPlot.getCategoryPlot();
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
+		Color labelPaint = UITheme.getColor(UITheme.Keys.TEXT, lightTheme ? Color.BLACK : Color.WHITE);
+		Color labelBackground = plotBackground(lightTheme);
 		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
 		configureBoxRenderer(renderer, lightTheme);
 		renderer.setDefaultToolTipGenerator((tooltipDataset, series, item) ->
@@ -229,7 +235,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
 					new BasicStroke(2.0f));
 			nominal.setLabel(trans.get("LandingDispersionResultsDlg.metrics.nominal"));
-			nominal.setLabelPaint(lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR);
+			configureMarkerLabel(nominal, false, labelPaint, labelBackground);
 			plot.addRangeMarker(nominal);
 		}
 		finishChart(boxPlot, row);
@@ -255,6 +261,25 @@ final class MonteCarloMetricsPanel extends JPanel {
 		plot.setOrientation(PlotOrientation.HORIZONTAL);
 		plot.getDomainAxis().setLowerMargin(0.4);
 		plot.getDomainAxis().setUpperMargin(0.4);
+	}
+
+	static void configureHistogramMarkerLabels(ValueMarker nominal, ValueMarker mean,
+			Color labelPaint, Color labelBackground) {
+		if (nominal == null) {
+			configureMarkerLabel(mean, false, labelPaint, labelBackground);
+			return;
+		}
+		boolean nominalOnLeft = nominal.getValue() <= mean.getValue();
+		configureMarkerLabel(nominal, nominalOnLeft, labelPaint, labelBackground);
+		configureMarkerLabel(mean, !nominalOnLeft, labelPaint, labelBackground);
+	}
+
+	private static void configureMarkerLabel(ValueMarker marker, boolean placeOnLeft,
+			Color labelPaint, Color labelBackground) {
+		marker.setLabelPaint(labelPaint);
+		marker.setLabelBackgroundColor(labelBackground);
+		marker.setLabelAnchor(placeOnLeft ? RectangleAnchor.TOP_LEFT : RectangleAnchor.TOP_RIGHT);
+		marker.setLabelTextAnchor(placeOnLeft ? TextAnchor.TOP_RIGHT : TextAnchor.TOP_LEFT);
 	}
 
 	private void finishChart(JFreeChart metricChart, MetricRow row) {
@@ -384,7 +409,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		Color background = UITheme.getColor(UITheme.Keys.BACKGROUND, Color.WHITE);
 		Color text = UITheme.getColor(UITheme.Keys.TEXT, Color.BLACK);
 		Color border = UITheme.getColor(UITheme.Keys.BORDER, Color.GRAY);
-		Color plotBackground = lightTheme ? Color.WHITE : blend(background, Color.WHITE, 0.06);
+		Color plotBackground = plotBackground(lightTheme);
 		metricChart.setBackgroundPaint(background);
 		metricChart.getTitle().setPaint(text);
 		for (org.jfree.chart.title.Title subtitle : metricChart.getSubtitles()) {
@@ -412,6 +437,11 @@ final class MonteCarloMetricsPanel extends JPanel {
 			configureAxis(plot.getDomainAxis(), text, border);
 			configureAxis(plot.getRangeAxis(), text, border);
 		}
+	}
+
+	private static Color plotBackground(boolean lightTheme) {
+		Color background = UITheme.getColor(UITheme.Keys.BACKGROUND, Color.WHITE);
+		return lightTheme ? Color.WHITE : blend(background, Color.WHITE, 0.06);
 	}
 
 	private static void configureAxis(Axis axis, Color text, Color border) {
