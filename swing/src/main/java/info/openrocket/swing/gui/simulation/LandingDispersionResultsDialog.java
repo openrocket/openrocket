@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -120,6 +121,8 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	private final ChartPanel chartPanel;
 	private final JTextArea summaryArea;
 	private final RunTableModel runTableModel;
+	private final JTabbedPane resultTabs;
+	private final MonteCarloMetricsPanel metricsPanel;
 	private Point panAnchor;
 	private int highlightedSeries = -1;
 	private boolean chartFitPending = true;
@@ -137,6 +140,8 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		this.chartPanel = createChartPanel();
 		this.summaryArea = createSummaryArea();
 		this.runTableModel = new RunTableModel(result, distanceUnit);
+		this.resultTabs = new JTabbedPane();
+		this.metricsPanel = new MonteCarloMetricsPanel(simulationName, result);
 
 		buildDialog();
 		updateSelectedBody();
@@ -192,14 +197,17 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		buttons.add(exportRunsButton);
 		buttons.add(closeButton, "tag close");
 
-		JPanel content = new JPanel(new BorderLayout(0, 8));
-		content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		content.add(header, BorderLayout.NORTH);
-		content.add(splitPane, BorderLayout.CENTER);
-		content.add(runScrollPane, BorderLayout.SOUTH);
+		JPanel landingPanel = new JPanel(new BorderLayout(0, 8));
+		landingPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		landingPanel.add(header, BorderLayout.NORTH);
+		landingPanel.add(splitPane, BorderLayout.CENTER);
+		landingPanel.add(runScrollPane, BorderLayout.SOUTH);
+
+		resultTabs.addTab(trans.get("LandingDispersionResultsDlg.tab.landing"), landingPanel);
+		resultTabs.addTab(trans.get("LandingDispersionResultsDlg.tab.metrics"), metricsPanel);
 
 		JPanel outer = new JPanel(new BorderLayout(0, 8));
-		outer.add(content, BorderLayout.CENTER);
+		outer.add(resultTabs, BorderLayout.CENTER);
 		outer.add(buttons, BorderLayout.SOUTH);
 		outer.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 		setContentPane(outer);
@@ -805,9 +813,13 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		chooser.setFileFilter(FileHelper.PNG_FILTER);
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
+		boolean exportMetrics = resultTabs.getSelectedIndex() == 1;
+		JFreeChart exportChart = exportMetrics ? metricsPanel.getChart() : chart;
+		ChartPanel exportPanel = exportMetrics ? metricsPanel.getChartPanel() : chartPanel;
 		LandingBody body = (LandingBody) bodyCombo.getSelectedItem();
-		String plotName = body == null ? simulationName + "-landing-dispersion"
-				: simulationName + "-" + body.branchName() + "-landing-dispersion";
+		String plotName = exportMetrics ? metricsPanel.getExportName()
+				: body == null ? simulationName + "-landing-dispersion"
+						: simulationName + "-" + body.branchName() + "-landing-dispersion";
 		chooser.setSelectedFile(new File(safeFileName(plotName) + ".png"));
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
 			return;
@@ -818,12 +830,12 @@ public final class LandingDispersionResultsDialog extends JDialog {
 			return;
 		}
 
-		int width = chartPanel.getWidth() > 0 ? chartPanel.getWidth() : FALLBACK_EXPORT_WIDTH;
-		int height = chartPanel.getHeight() > 0 ? chartPanel.getHeight() : FALLBACK_EXPORT_HEIGHT;
+		int width = exportPanel.getWidth() > 0 ? exportPanel.getWidth() : FALLBACK_EXPORT_WIDTH;
+		int height = exportPanel.getHeight() > 0 ? exportPanel.getHeight() : FALLBACK_EXPORT_HEIGHT;
 		int scale = exportScale(width);
 		try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(file))) {
 			// Scale the displayed layout to preserve its equal east/north axis scale.
-			ChartUtils.writeScaledChartAsPNG(stream, chart, width, height, scale, scale);
+			ChartUtils.writeScaledChartAsPNG(stream, exportChart, width, height, scale, scale);
 		} catch (IOException exception) {
 			JOptionPane.showMessageDialog(this,
 					String.format(trans.get("LandingDispersionResultsDlg.exportPlot.error"),
