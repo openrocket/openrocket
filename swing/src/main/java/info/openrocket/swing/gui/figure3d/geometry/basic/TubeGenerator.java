@@ -24,6 +24,12 @@ public class TubeGenerator {
 
 	public record Shoulder(double length, double radius, double thickness, boolean isCapped) {}
 
+	private record IndexRange(int start, int end) {}
+
+	private record ProfileSections(IndexRange walls, IndexRange foreCap, IndexRange aftCap) {}
+
+	private record SectionedMesh(Mesh mesh, ProfileSections sections) {}
+
 	/**
 	 * Creates a tube mesh from an outer profile, wall thickness, length, and number of segments.
 	 * @param outerProfile the outer profile of the tube, defined as a list of RadiusPoint objects.
@@ -64,13 +70,13 @@ public class TubeGenerator {
 					numSegments, true, isFilled);
 
 			int shoulderVertexOffset = vertexList.size();
-			Mesh shoulderMesh = create((float) foreShoulder.radius(), (float) foreShoulder.thickness(),
-					(float) foreShoulder.length(), numSegments, false);
+			SectionedMesh generatedShoulder = createSectionedTube((float) foreShoulder.radius(),
+					(float) foreShoulder.thickness(), (float) foreShoulder.length(), numSegments);
+			Mesh shoulderMesh = generatedShoulder.mesh();
 
 			List<Vertex> shoulderVertices = new ArrayList<>(shoulderMesh.getVertices());
 			IntList newShoulderIndices = new IntList();
 			int verticesPerRing = 2 * (numSegments + 1);
-			int wallIndexCount = 12 * numSegments;
 
 			if (foreShoulder.isCapped()) {
 				// CAPPED FORE SHOULDER
@@ -90,7 +96,7 @@ public class TubeGenerator {
 				}
 
 				// 2. Rebuild index list with walls and two new filled caps.
-				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
+				copyIndexRange(newShoulderIndices, shoulderMesh.getIndices(), generatedShoulder.sections().walls());
 
 				// 3. Generate new vertices and indices for the caps.
 				int capVertexOffset = shoulderVertices.size();
@@ -113,9 +119,8 @@ public class TubeGenerator {
 						v.position.x += (float) foreShoulder.thickness();
 					}
 				}
-				int capIndexCount = 6 * numSegments;
-				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
-				newShoulderIndices.addAll(shoulderMesh.getIndices(), wallIndexCount, wallIndexCount + capIndexCount); // Fore ring cap
+				copyIndexRange(newShoulderIndices, shoulderMesh.getIndices(), generatedShoulder.sections().walls());
+				copyIndexRange(newShoulderIndices, shoulderMesh.getIndices(), generatedShoulder.sections().foreCap());
 			}
 
 			// Translate the modified shoulder into position.
@@ -138,14 +143,13 @@ public class TubeGenerator {
 					numSegments, false, isFilled);
 
 			int shoulderVertexOffset = vertexList.size();
-			Mesh shoulderMesh = create((float) aftShoulder.radius(), (float) aftShoulder.thickness(),
-					(float) aftShoulder.length(), numSegments, false);
+			SectionedMesh generatedShoulder = createSectionedTube((float) aftShoulder.radius(),
+					(float) aftShoulder.thickness(), (float) aftShoulder.length(), numSegments);
+			Mesh shoulderMesh = generatedShoulder.mesh();
 
 			List<Vertex> shoulderVertices = new ArrayList<>(shoulderMesh.getVertices());
 			IntList newShoulderIndices = new IntList();
 			int verticesPerRing = 2 * (numSegments + 1);
-			int wallIndexCount = 12 * numSegments;
-			int capIndexCount = 6 * numSegments;
 
 			if (aftShoulder.isCapped()) {
 				// CAPPED AFT SHOULDER
@@ -165,7 +169,7 @@ public class TubeGenerator {
 				}
 
 				// 2. Rebuild index list with walls and two new filled caps.
-				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
+				copyIndexRange(newShoulderIndices, shoulderMesh.getIndices(), generatedShoulder.sections().walls());
 
 				// 3. Generate new vertices and indices for the caps.
 				int capVertexOffset = shoulderVertices.size();
@@ -188,9 +192,8 @@ public class TubeGenerator {
 						v.position.x -= (float) aftShoulder.thickness();
 					}
 				}
-				newShoulderIndices.addAll(shoulderMesh.getIndices(), 0, wallIndexCount); // Walls
-				newShoulderIndices.addAll(shoulderMesh.getIndices(), wallIndexCount + capIndexCount,
-						wallIndexCount + 2 * capIndexCount); // Aft ring cap
+				copyIndexRange(newShoulderIndices, shoulderMesh.getIndices(), generatedShoulder.sections().walls());
+				copyIndexRange(newShoulderIndices, shoulderMesh.getIndices(), generatedShoulder.sections().aftCap());
 			}
 
 
@@ -284,10 +287,28 @@ public class TubeGenerator {
 		return new Mesh(vertexList, indexList);
 	}
 
-	private static void createFromProfile(List<Vertex> vertexList, IntList indexList, List<RadiusPoint> outerProfile,
-										  float wallThickness, float length, int numSegments, boolean isFilled,
-										  int vertexStartIndex, boolean capFore, boolean capAft,
-										  Shoulder foreShoulder, Shoulder aftShoulder) {
+	private static SectionedMesh createSectionedTube(float outerRadius, float wallThickness, float length,
+			int numSegments) {
+		List<Vertex> vertices = new ArrayList<>();
+		IntList indices = new IntList();
+		List<RadiusPoint> profile = List.of(
+				new RadiusPoint(0.0f, outerRadius),
+				new RadiusPoint(1.0f, outerRadius)
+		);
+		ProfileSections sections = createFromProfile(vertices, indices, profile, wallThickness, length,
+				numSegments, false, 0, true, true, null, null);
+		return new SectionedMesh(new Mesh(vertices, indices), sections);
+	}
+
+	private static void copyIndexRange(IntList destination, IntList source, IndexRange range) {
+		destination.addAll(source, range.start(), range.end());
+	}
+
+	private static ProfileSections createFromProfile(
+			List<Vertex> vertexList, IntList indexList, List<RadiusPoint> outerProfile,
+			float wallThickness, float length, int numSegments, boolean isFilled,
+			int vertexStartIndex, boolean capFore, boolean capAft,
+			Shoulder foreShoulder, Shoulder aftShoulder) {
 
 		if (outerProfile == null || outerProfile.size() < 2) {
 			throw new IllegalArgumentException("Outer profile must contain at least two points.");
@@ -381,6 +402,7 @@ public class TubeGenerator {
 		}
 
 		// === PASS 3: Index the vertices to create faces ===
+		int wallsStart = indexList.size();
 		int verticesPerRing = (isFilled ? 1 : 2) * (numSegments + 1);
 		for (int i = 0; i < sortedOuterProfile.size() - 1; i++) {
 			for (int j = 0; j < numSegments; j++) {
@@ -398,8 +420,10 @@ public class TubeGenerator {
 				}
 			}
 		}
+		int wallsEnd = indexList.size();
 
 		// === PASS 4: Generate End Caps (only for ends without shoulders) ===
+		int foreCapStart = indexList.size();
 		if (capFore) {
 			RadiusPoint firstPoint = sortedOuterProfile.get(0);
 			if (firstPoint.radius > 0) {
@@ -413,7 +437,9 @@ public class TubeGenerator {
 				}
 			}
 		}
+		int foreCapEnd = indexList.size();
 
+		int aftCapStart = indexList.size();
 		if (capAft) {
 			RadiusPoint lastPoint = sortedOuterProfile.get(sortedOuterProfile.size() - 1);
 			if (lastPoint.radius > 0) {
@@ -427,6 +453,12 @@ public class TubeGenerator {
 				}
 			}
 		}
+		int aftCapEnd = indexList.size();
+
+		return new ProfileSections(
+				new IndexRange(wallsStart, wallsEnd),
+				new IndexRange(foreCapStart, foreCapEnd),
+				new IndexRange(aftCapStart, aftCapEnd));
 	}
 
 	private static float getAvgOuterSlope(List<RadiusPoint> sortedOuterProfile, List<Float> outerSlopes, int i) {
