@@ -22,14 +22,14 @@ import info.openrocket.core.util.ModID;
  * each simulation. Simulation keys are weak and compared by identity, so cached
  * results neither merge distinct simulations nor retain closed documents.
  */
-final class LandingDispersionAnalysisCache {
+public final class LandingDispersionAnalysisCache {
 	private static final List<Entry> ENTRIES = new ArrayList<>();
 
 	private LandingDispersionAnalysisCache() {
 	}
 
 	/** Return a result only while every simulation input still matches. */
-	static synchronized MonteCarloResult get(Simulation simulation) {
+	public static synchronized MonteCarloResult get(Simulation simulation) {
 		Objects.requireNonNull(simulation, "simulation");
 		Iterator<Entry> iterator = ENTRIES.iterator();
 		while (iterator.hasNext()) {
@@ -52,13 +52,13 @@ final class LandingDispersionAnalysisCache {
 	}
 
 	/** Return a valid result only when the visible analysis definition also matches. */
-	static synchronized MonteCarloResult get(Simulation simulation, MonteCarloSettings settings) {
+	public static synchronized MonteCarloResult get(Simulation simulation, MonteCarloSettings settings) {
 		MonteCarloResult result = get(simulation);
 		return result != null && settingsMatch(result.getSettings(), settings) ? result : null;
 	}
 
 	/** Replace the cached result for this exact simulation. */
-	static synchronized void put(Simulation simulation, MonteCarloResult result) {
+	public static synchronized void put(Simulation simulation, MonteCarloResult result) {
 		Objects.requireNonNull(simulation, "simulation");
 		Objects.requireNonNull(result, "result");
 		Iterator<Entry> iterator = ENTRIES.iterator();

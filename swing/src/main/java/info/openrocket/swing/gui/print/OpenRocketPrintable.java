@@ -16,18 +16,20 @@ import info.openrocket.core.startup.Application;
 public enum OpenRocketPrintable {
 	// Design Report
 	DESIGN_REPORT("OpenRocketPrintable.DesignReport", false, 1),
+	// Monte Carlo analysis report
+	MONTE_CARLO_REPORT("OpenRocketPrintable.MonteCarloReport", false, 2),
 	// Parts detail
-	PARTS_DETAIL("OpenRocketPrintable.Partsdetail", true, 2),
+	PARTS_DETAIL("OpenRocketPrintable.Partsdetail", true, 3),
 	// Nose Cone Templates
-	NOSE_CONE_TEMPLATE("OpenRocketPrintable.Noseconetemplates", false, 3),
+	NOSE_CONE_TEMPLATE("OpenRocketPrintable.Noseconetemplates", false, 4),
 	// Transition Templates
-	TRANSITION_TEMPLATE("OpenRocketPrintable.Transitiontemplates", false, 4),
+	TRANSITION_TEMPLATE("OpenRocketPrintable.Transitiontemplates", false, 5),
 	// Centering Ring Templates
-	CENTERING_RING_TEMPLATE("OpenRocketPrintable.Centeringringtemplates", false, 5),
+	CENTERING_RING_TEMPLATE("OpenRocketPrintable.Centeringringtemplates", false, 6),
 	// Finset shape
-	FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 6),
+	FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 7),
 	// Fin marking guide.
-	FIN_MARKING_GUIDE("OpenRocketPrintable.Finmarkingguide", false, 7);
+	FIN_MARKING_GUIDE("OpenRocketPrintable.Finmarkingguide", false, 8);
 
 
 	private static final Translator trans = Application.getTranslator();
