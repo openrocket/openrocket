@@ -84,7 +84,12 @@ class WeightedBlendedTransparencyGoldenTest extends BaseTestCase {
 					GoldenImageTestSupport.capture(harness, "reordered weighted transparency frame"));
 
 			ImageDifference orderDifference = GoldenImageTestSupport.compare(firstOrder, reversedOrder, 2);
-			assertTrue(orderDifference.meanAbsoluteError() <= 0.10,
+			// Revealage is accumulated into an 8-bit target by repeatedly multiplying
+			// (1 - alpha). Fixed-point rounding is not associative, so reversing draw
+			// order can produce driver-dependent differences of a few least-significant
+			// bits. The outlier check below remains the order-independence guard: a real
+			// depth or blending error changes channels by more than two levels.
+			assertTrue(orderDifference.meanAbsoluteError() <= 1.0,
 					() -> "Transparency changed with scene order: " + orderDifference);
 			assertTrue(orderDifference.outlierFraction() <= 0.001,
 					() -> "Too many transparency pixels changed with scene order: " + orderDifference);
