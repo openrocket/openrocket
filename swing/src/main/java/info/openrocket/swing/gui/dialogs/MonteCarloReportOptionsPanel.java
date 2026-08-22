@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -43,7 +46,8 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 	}
 
 	private void buildPanel() {
-		setBorder(BorderFactory.createTitledBorder(trans.get("printdlg.monteCarlo.title")));
+		setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		setPreferredSize(new Dimension(700, 240));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setFillsViewportHeight(true);
 		table.getColumnModel().getColumn(0).setMaxWidth(55);
@@ -65,23 +69,22 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 		return model.getSelectedSimulations();
 	}
 
+	boolean showDialog(Component parent) {
+		refreshStatuses();
+		int result = JOptionPane.showConfirmDialog(parent, this,
+				trans.get("printdlg.monteCarlo.title"), JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+		return result == JOptionPane.OK_OPTION;
+	}
+
 	void refreshStatuses() {
 		model.refresh();
 		updateConfigureButton();
 	}
 
-	@Override
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		if (table != null) {
-			table.setEnabled(enabled);
-			updateConfigureButton();
-		}
-	}
-
 	private void updateConfigureButton() {
 		if (configureButton != null) {
-			configureButton.setEnabled(isEnabled() && table.getSelectedRow() >= 0);
+			configureButton.setEnabled(table.getSelectedRow() >= 0);
 		}
 	}
 

@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -70,7 +69,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	
 	private final RocketPrintTree stagedTree;
 	private final RocketPrintTree noStagedTree;
-	private final MonteCarloReportOptionsPanel monteCarloOptionsPanel;
 	private OpenRocketDocument document;
 	private RocketPrintTree currentTree;
 	
@@ -136,11 +134,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		final JScrollPane scrollPane = new JScrollPane(stagedTree);
 		panel.add(scrollPane, "width 400lp, height 200lp, grow, wrap para");
 
-		monteCarloOptionsPanel = new MonteCarloReportOptionsPanel(parent, orDocument);
-		monteCarloOptionsPanel.setEnabled(false);
-		panel.add(monteCarloOptionsPanel, "width 600lp, height 180lp, growx, wrap para");
-		
-
 		// Checkboxes and buttons
 		final JPanel optionsPanel = new JPanel(new MigLayout());
 		
@@ -172,7 +165,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 						noStagedTree.setExpandsSelectedPaths(true);
 						currentTree = noStagedTree;
 					}
-					updateMonteCarloOptions();
 				}
 			}
 		});
@@ -234,7 +226,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		if (currentTree != noStagedTree) {
 			expandAll(noStagedTree, true);
 		}
-		updateMonteCarloOptions();
 		
 
 		GUIUtil.setDisposableDialogOptions(this, previewButton);
@@ -244,7 +235,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	
 	@Override
 	public void valueChanged(final TreeSelectionEvent e) {
-		updateMonteCarloOptions();
 		final TreePath path = e.getNewLeadSelectionPath();
 		if (path != null) {
 			previewButton.setEnabled(true);
@@ -255,24 +245,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		}
 	}
 
-	private void updateMonteCarloOptions() {
-		if (monteCarloOptionsPanel == null) {
-			return;
-		}
-		boolean selected = false;
-		Iterator<PrintableContext> printables = currentTree.getToBePrinted();
-		while (printables.hasNext()) {
-			if (printables.next().getPrintable() == info.openrocket.swing.gui.print.OpenRocketPrintable.MONTE_CARLO_REPORT) {
-				selected = true;
-				break;
-			}
-		}
-		monteCarloOptionsPanel.setEnabled(selected);
-		if (selected) {
-			monteCarloOptionsPanel.refreshStatuses();
-		}
-	}
-	
 	/**
 	 * If expand is true, expands all nodes in the tree. Otherwise, collapses all nodes in the theTree.
 	 *
@@ -294,7 +266,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 * @param expand expand if true, contract if not
 	 */
 	private void expandAll(RocketPrintTree theTree, TreePath parent, boolean expand) {
-		theTree.addSelectionPath(parent);
 		// Traverse children
 		TreeNode node = (TreeNode) parent.getLastPathComponent();
 		if (node.getChildCount() >= 0) {
@@ -323,10 +294,10 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 *
 	 * @throws IOException thrown if the file could not be generated
 	 */
-	private File generateReport(PrintSettings settings) throws IOException {
+	private File generateReport(PrintSettings settings, PreparedReport report) throws IOException {
 		final File f = File.createTempFile("openrocket-", ".pdf");
 		f.deleteOnExit();
-		return generateReport(f, settings);
+		return generateReport(f, settings, report);
 	}
 	
 	/**
@@ -339,19 +310,23 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 *
 	 * @throws IOException thrown if the file could not be generated
 	 */
-	private File generateReport(File f, PrintSettings settings) throws IOException {
+	private File generateReport(File f, PrintSettings settings, PreparedReport report) throws IOException {
+		PrintController controller = new PrintController();
+		controller.setWindow(this.getOwner());
+		controller.setMonteCarloReportData(report.monteCarloData());
+		controller.print(document, report.printables().iterator(), new FileOutputStream(f),
+		                 settings, rotation, updateSimulations);
+		return f;
+	}
+
+	private PreparedReport prepareReport() {
 		List<PrintableContext> toBePrinted = new ArrayList<>();
 		currentTree.getToBePrinted().forEachRemaining(toBePrinted::add);
 		MonteCarloReportData monteCarloData = prepareMonteCarloReport(toBePrinted);
 		if (monteCarloData == null) {
 			return null;
 		}
-		PrintController controller = new PrintController();
-		controller.setWindow(this.getOwner());
-		controller.setMonteCarloReportData(monteCarloData);
-		controller.print(document, toBePrinted.iterator(), new FileOutputStream(f),
-		                 settings, rotation, updateSimulations);
-		return f;
+		return new PreparedReport(toBePrinted, monteCarloData);
 	}
 
 	private MonteCarloReportData prepareMonteCarloReport(List<PrintableContext> printables) {
@@ -361,7 +336,11 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			return MonteCarloReportData.EMPTY;
 		}
 
-		List<Simulation> selected = monteCarloOptionsPanel.getSelectedSimulations();
+		MonteCarloReportOptionsPanel optionsPanel = new MonteCarloReportOptionsPanel(getOwner(), document);
+		if (!optionsPanel.showDialog(this)) {
+			return null;
+		}
+		List<Simulation> selected = optionsPanel.getSelectedSimulations();
 		if (selected.isEmpty()) {
 			JOptionPane.showMessageDialog(this, trans.get("printdlg.monteCarlo.noneSelected"),
 					trans.get("printdlg.monteCarlo.noneSelected.title"), JOptionPane.WARNING_MESSAGE);
@@ -380,10 +359,8 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			}
 			skipMissing = decision == 1;
 			if (!skipMissing && !MonteCarloReportRunDialog.run(this, missing)) {
-				monteCarloOptionsPanel.refreshStatuses();
 				return null;
 			}
-			monteCarloOptionsPanel.refreshStatuses();
 		}
 
 		List<Entry> entries = new ArrayList<>();
@@ -426,13 +403,14 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private boolean onPreview() {
 		if (desktop != null) {
 			try {
+				PreparedReport report = prepareReport();
+				if (report == null) {
+					return false;
+				}
 				PrintSettings settings = getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
-				File f = generateReport(settings);
-				if (f == null) {
-					return false;
-				}
+				File f = generateReport(settings, report);
 				openPreviewHelper(f);
 				return true;
 			} catch (IOException e) {
@@ -474,6 +452,10 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 * @return	true if the PDF was saved
 	 */
 	private boolean onSavePDF() {
+		PreparedReport report = prepareReport();
+		if (report == null) {
+			return false;
+		}
 		
 		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.PDF_FILTER);
@@ -502,9 +484,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 				PrintSettings settings = getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
-				if (generateReport(file, settings) == null) {
-					return false;
-				}
+				generateReport(file, settings, report);
 				
 			} catch (IOException e) {
 				FileHelper.errorWriting(e, this);
@@ -514,6 +494,9 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		} else {
 			return false;
 		}
+	}
+
+	private record PreparedReport(List<PrintableContext> printables, MonteCarloReportData monteCarloData) {
 	}
 	
 	public PrintSettings getPrintSettings() {
