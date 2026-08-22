@@ -114,6 +114,23 @@ public class ApplicationPreferencesTest {
         assertTrue(prefs.isRandomSeedFixed());
     }
 
+    @Test
+    @DisplayName("update check permission is unset until answered and controls both automatic checks")
+    public void testUpdateCheckPermission() {
+        assertFalse(prefs.isUpdateCheckPermissionSet());
+
+        prefs.setUpdateCheckPermission(false);
+
+        assertTrue(prefs.isUpdateCheckPermissionSet());
+        assertFalse(prefs.getCheckUpdates());
+        assertFalse(prefs.getCheckMotorDatabaseUpdates());
+
+        prefs.setUpdateCheckPermission(true);
+
+        assertTrue(prefs.getCheckUpdates());
+        assertTrue(prefs.getCheckMotorDatabaseUpdates());
+    }
+
     private static class PreferencesModule extends AbstractModule {
         @Override
         protected void configure() {

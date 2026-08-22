@@ -214,6 +214,9 @@ public class SwingStartup {
 			prefs.setUITheme(UITheme.Themes.valueOf(cmdLAF));
 		}
 		GUIUtil.applyLAF();
+
+		// Ask before either startup update checker is allowed to access the internet.
+		requestUpdateCheckPermission();
 		
 		guiModule.startLoader();
 		
@@ -268,6 +271,36 @@ public class SwingStartup {
 		String message = String.format(trans.get("SwingStartup.pluginMigrated"),
 				f.getName().replace(JarMigrationHelper.MIGRATION_SUFFIX, ""), f);
 		JOptionPane.showMessageDialog(null, message, "Plugin migrated", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Displays the one-time permission prompt for automatic software and motor-database update checks.
+	 * Closing the dialog is treated as declining permission, and the answer can later be changed in Preferences.
+	 */
+	private static void requestUpdateCheckPermission() {
+		ApplicationPreferences preferences = Application.getPreferences();
+		if (preferences.isUpdateCheckPermissionSet()) {
+			return;
+		}
+
+		Translator translator = Application.getTranslator();
+		Object[] options = {
+				translator.get("UpdateCheckConsent.btn.allow"),
+				translator.get("UpdateCheckConsent.btn.decline")
+		};
+		int choice = JOptionPane.showOptionDialog(
+				null,
+				translator.get("UpdateCheckConsent.message"),
+				translator.get("UpdateCheckConsent.title"),
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[0]);
+
+		boolean allowed = choice == JOptionPane.YES_OPTION;
+		preferences.setUpdateCheckPermission(allowed);
+		log.info("Automatic internet update checks {} by user", allowed ? "allowed" : "declined");
 	}
 
 	/**
