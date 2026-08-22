@@ -4,6 +4,9 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +38,17 @@ import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.LegendItemCollection;
+import org.jfree.chart.annotations.AbstractAnnotation;
+import org.jfree.chart.annotations.CategoryAnnotation;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.block.ColumnArrangement;
+import org.jfree.chart.block.RectangleConstraint;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.PlotOrientation;
@@ -44,13 +56,16 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.ui.RectangleAnchor;
-import org.jfree.chart.ui.TextAnchor;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.Size2D;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.Range;
 
 /** Displays scalar Monte Carlo output distributions one metric at a time. */
 final class MonteCarloMetricsPanel extends JPanel {
@@ -63,6 +78,11 @@ final class MonteCarloMetricsPanel extends JPanel {
 	private static final Color NOMINAL_DARK_COLOR = new Color(240, 228, 66);
 	private static final Color MEAN_LIGHT_COLOR = new Color(213, 94, 0);
 	private static final Color MEAN_DARK_COLOR = new Color(255, 112, 91);
+	private static final Color MEDIAN_LIGHT_COLOR = new Color(60, 60, 60);
+	private static final Color MEDIAN_DARK_COLOR = new Color(225, 225, 225);
+	private static final BasicStroke MARKER_STROKE = new BasicStroke(2.0f);
+	private static final Line2D MARKER_LEGEND_LINE = new Line2D.Double(-8.0, 0.0, 8.0, 0.0);
+	private static final double LEGEND_RELATIVE_POSITION = 0.985;
 
 	private final String simulationName;
 	private final MonteCarloResult result;
@@ -183,8 +203,6 @@ final class MonteCarloMetricsPanel extends JPanel {
 		XYPlot plot = histogram.getXYPlot();
 
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
-		Color labelPaint = UITheme.getColor(UITheme.Keys.TEXT, lightTheme ? Color.BLACK : Color.WHITE);
-		Color labelBackground = plotBackground(lightTheme);
 		XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
 		renderer.setSeriesPaint(0, lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR);
 		renderer.setShadowVisible(false);
@@ -201,15 +219,15 @@ final class MonteCarloMetricsPanel extends JPanel {
 		if (Double.isFinite(row.nominal)) {
 			nominal = new ValueMarker(row.unit.toUnit(row.nominal),
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
-					new BasicStroke(2.0f));
-			nominal.setLabel(trans.get("LandingDispersionResultsDlg.metrics.nominal"));
+					MARKER_STROKE);
 			plot.addDomainMarker(nominal);
 		}
 		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()),
-				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, new BasicStroke(2.0f));
-		mean.setLabel(trans.get("LandingDispersionResultsDlg.metrics.mean"));
-		configureHistogramMarkerLabels(nominal, mean, labelPaint, labelBackground);
+				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, MARKER_STROKE);
 		plot.addDomainMarker(mean);
+		addInsetMarkerLegend(plot, createMarkerLegendItems(nominal,
+				trans.get("LandingDispersionResultsDlg.metrics.nominal"), mean,
+				trans.get("LandingDispersionResultsDlg.metrics.mean")));
 		finishChart(histogram, row);
 		return histogram;
 	}
@@ -222,29 +240,32 @@ final class MonteCarloMetricsPanel extends JPanel {
 				metricAxisLabel(row), dataset, false);
 		CategoryPlot plot = boxPlot.getCategoryPlot();
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
-		Color labelPaint = UITheme.getColor(UITheme.Keys.TEXT, lightTheme ? Color.BLACK : Color.WHITE);
-		Color labelBackground = plotBackground(lightTheme);
 		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
 		configureBoxRenderer(renderer, lightTheme);
 		renderer.setDefaultToolTipGenerator((tooltipDataset, series, item) ->
 				formatBoxTooltip((BoxAndWhiskerCategoryDataset) tooltipDataset, series, item,
 						metricLabel(row.metric), branch.branchName(), row.unit));
 		configureBoxPlot(plot);
+		ValueMarker nominal = null;
 		if (Double.isFinite(row.nominal)) {
-			ValueMarker nominal = new ValueMarker(row.unit.toUnit(row.nominal),
+			nominal = new ValueMarker(row.unit.toUnit(row.nominal),
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
-					new BasicStroke(2.0f));
-			nominal.setLabel(trans.get("LandingDispersionResultsDlg.metrics.nominal"));
-			configureMarkerLabel(nominal, false, labelPaint, labelBackground);
+					MARKER_STROKE);
 			plot.addRangeMarker(nominal);
 		}
+		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()),
+				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, MARKER_STROKE);
+		plot.addRangeMarker(mean);
+		addInsetMarkerLegend(plot, createMarkerLegendItems(nominal,
+				trans.get("LandingDispersionResultsDlg.metrics.nominal"), mean,
+				trans.get("LandingDispersionResultsDlg.metrics.mean")));
 		finishChart(boxPlot, row);
 		return boxPlot;
 	}
 
 	static void configureBoxRenderer(BoxAndWhiskerRenderer renderer, boolean lightTheme) {
 		Color boxColor = lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR;
-		Color artifactColor = lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR;
+		Color artifactColor = lightTheme ? MEDIAN_LIGHT_COLOR : MEDIAN_DARK_COLOR;
 		renderer.setSeriesPaint(0, withAlpha(boxColor, lightTheme ? 85 : 110));
 		renderer.setSeriesOutlinePaint(0, boxColor);
 		renderer.setSeriesOutlineStroke(0, new BasicStroke(1.8f));
@@ -263,23 +284,48 @@ final class MonteCarloMetricsPanel extends JPanel {
 		plot.getDomainAxis().setUpperMargin(0.4);
 	}
 
-	static void configureHistogramMarkerLabels(ValueMarker nominal, ValueMarker mean,
-			Color labelPaint, Color labelBackground) {
-		if (nominal == null) {
-			configureMarkerLabel(mean, false, labelPaint, labelBackground);
-			return;
+	static LegendItemCollection createMarkerLegendItems(ValueMarker nominal, String nominalLabel,
+			ValueMarker mean, String meanLabel) {
+		LegendItemCollection items = new LegendItemCollection();
+		if (nominal != null) {
+			items.add(createMarkerLegendItem(nominalLabel, nominal));
 		}
-		boolean nominalOnLeft = nominal.getValue() <= mean.getValue();
-		configureMarkerLabel(nominal, nominalOnLeft, labelPaint, labelBackground);
-		configureMarkerLabel(mean, !nominalOnLeft, labelPaint, labelBackground);
+		items.add(createMarkerLegendItem(meanLabel, mean));
+		return items;
 	}
 
-	private static void configureMarkerLabel(ValueMarker marker, boolean placeOnLeft,
-			Color labelPaint, Color labelBackground) {
-		marker.setLabelPaint(labelPaint);
-		marker.setLabelBackgroundColor(labelBackground);
-		marker.setLabelAnchor(placeOnLeft ? RectangleAnchor.TOP_LEFT : RectangleAnchor.TOP_RIGHT);
-		marker.setLabelTextAnchor(placeOnLeft ? TextAnchor.TOP_RIGHT : TextAnchor.TOP_LEFT);
+	private static LegendItem createMarkerLegendItem(String label, ValueMarker marker) {
+		return new LegendItem(label, null, null, null,
+				MARKER_LEGEND_LINE, marker.getStroke(), marker.getPaint());
+	}
+
+	static void addInsetMarkerLegend(XYPlot plot, LegendItemCollection items) {
+		plot.setFixedLegendItems(items);
+		LegendTitle legend = createInsetLegend(plot);
+		plot.addAnnotation(createTopRightLegendAnnotation(legend));
+	}
+
+	static XYTitleAnnotation createTopRightLegendAnnotation(LegendTitle legend) {
+		XYTitleAnnotation annotation = new XYTitleAnnotation(LEGEND_RELATIVE_POSITION,
+				LEGEND_RELATIVE_POSITION, legend, RectangleAnchor.TOP_RIGHT);
+		annotation.setMaxWidth(0.45);
+		annotation.setMaxHeight(0.35);
+		return annotation;
+	}
+
+	static void addInsetMarkerLegend(CategoryPlot plot, LegendItemCollection items) {
+		plot.setFixedLegendItems(items);
+		plot.addAnnotation(new InsetLegendCategoryAnnotation(createInsetLegend(plot)));
+	}
+
+	private static LegendTitle createInsetLegend(org.jfree.chart.LegendItemSource source) {
+		LegendTitle legend = new LegendTitle(source, new ColumnArrangement(), new ColumnArrangement());
+		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
+		legend.setBackgroundPaint(plotBackground(lightTheme));
+		legend.setItemPaint(UITheme.getColor(UITheme.Keys.TEXT, lightTheme ? Color.BLACK : Color.WHITE));
+		legend.setFrame(new BlockBorder(UITheme.getColor(UITheme.Keys.BORDER, Color.GRAY)));
+		legend.setPadding(new RectangleInsets(3, 5, 3, 5));
+		return legend;
 	}
 
 	private void finishChart(JFreeChart metricChart, MetricRow row) {
@@ -469,6 +515,31 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	private static Color withAlpha(Color color, int alpha) {
 		return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+	}
+
+	private static final class InsetLegendCategoryAnnotation extends AbstractAnnotation
+			implements CategoryAnnotation {
+		private static final long serialVersionUID = 1L;
+		private final LegendTitle legend;
+
+		private InsetLegendCategoryAnnotation(LegendTitle legend) {
+			this.legend = legend;
+		}
+
+		@Override
+		public void draw(Graphics2D graphics, CategoryPlot plot, Rectangle2D dataArea,
+				CategoryAxis domainAxis, ValueAxis rangeAxis) {
+			double maxWidth = dataArea.getWidth() * 0.45;
+			double maxHeight = dataArea.getHeight() * 0.35;
+			Size2D size = legend.arrange(graphics, new RectangleConstraint(
+					new Range(0, maxWidth), new Range(0, maxHeight)));
+			double horizontalInset = dataArea.getWidth() * (1 - LEGEND_RELATIVE_POSITION);
+			double verticalInset = dataArea.getHeight() * (1 - LEGEND_RELATIVE_POSITION);
+			Rectangle2D legendArea = new Rectangle2D.Double(
+					dataArea.getMaxX() - horizontalInset - size.getWidth(),
+					dataArea.getMinY() + verticalInset, size.getWidth(), size.getHeight());
+			legend.draw(graphics, legendArea);
+		}
 	}
 
 	private record MetricRow(MonteCarloMetric metric, Unit unit, double nominal,

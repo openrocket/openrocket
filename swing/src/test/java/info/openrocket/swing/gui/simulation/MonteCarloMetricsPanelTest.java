@@ -5,18 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.ui.RectangleAnchor;
-import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Test;
 
@@ -118,18 +118,28 @@ public class MonteCarloMetricsPanelTest {
 	}
 
 	@Test
-	public void testHistogramMarkerLabelsUseContrastingBackgroundsAndOppositeSides() {
+	public void testMetricMarkerLegendIdentifiesBothLines() {
 		ValueMarker nominal = new ValueMarker(10.0);
 		ValueMarker mean = new ValueMarker(11.0);
 
-		MonteCarloMetricsPanel.configureHistogramMarkerLabels(nominal, mean, Color.BLACK, Color.WHITE);
+		LegendItemCollection legendItems = MonteCarloMetricsPanel.createMarkerLegendItems(
+				nominal, "Nominal", mean, "Mean");
+		assertEquals(2, legendItems.getItemCount());
+		assertEquals("Nominal", legendItems.get(0).getLabel());
+		assertEquals("Mean", legendItems.get(1).getLabel());
+	}
 
-		assertEquals(Color.BLACK, nominal.getLabelPaint());
-		assertEquals(Color.WHITE, nominal.getLabelBackgroundColor());
-		assertEquals(RectangleAnchor.TOP_LEFT, nominal.getLabelAnchor());
-		assertEquals(TextAnchor.TOP_RIGHT, nominal.getLabelTextAnchor());
-		assertEquals(RectangleAnchor.TOP_RIGHT, mean.getLabelAnchor());
-		assertEquals(TextAnchor.TOP_LEFT, mean.getLabelTextAnchor());
+	@Test
+	public void testMetricLegendIsInsetAtThePlotTopRight() {
+		var chart = ChartFactory.createHistogram("Test", "Value", "Runs", new HistogramDataset(),
+				PlotOrientation.VERTICAL, false, true, false);
+		XYTitleAnnotation annotation = MonteCarloMetricsPanel.createTopRightLegendAnnotation(
+				new org.jfree.chart.title.LegendTitle(chart.getXYPlot()));
+
+		assertNull(chart.getLegend());
+		assertEquals(RectangleAnchor.TOP_RIGHT, annotation.getTitleAnchor());
+		assertTrue(annotation.getX() > 0.95);
+		assertTrue(annotation.getY() > 0.95);
 	}
 
 	@Test
