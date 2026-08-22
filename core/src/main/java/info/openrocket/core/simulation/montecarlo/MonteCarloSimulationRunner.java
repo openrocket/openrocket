@@ -184,6 +184,7 @@ public final class MonteCarloSimulationRunner {
 		FlightData data = simulation.getSimulatedData();
 		List<LandingPoint> landingPoints = extractLandingPoints(data);
 		List<LandingBodyFailure> bodyFailures = extractBodyFailures(data);
+		List<MonteCarloBranchResult> branchResults = extractBranchResults(data);
 		if (failure == null && landingPoints.isEmpty() && hasBallisticGroundHit(data)) {
 			if (refuseBallistic) {
 				throw new BallisticTrajectoryException(BALLISTIC_DESCENT);
@@ -196,7 +197,7 @@ public final class MonteCarloSimulationRunner {
 
 		double maximumAltitude = data != null ? data.getMaxAltitude() : Double.NaN;
 		double flightTime = data != null ? data.getFlightTime() : Double.NaN;
-		return new MonteCarloRunResult(sample, landingPoints, bodyFailures,
+		return new MonteCarloRunResult(sample, landingPoints, bodyFailures, branchResults,
 				maximumAltitude, flightTime, failure);
 	}
 
@@ -292,6 +293,52 @@ public final class MonteCarloSimulationRunner {
 					branch.getName(), message));
 		}
 		return failures;
+	}
+
+	static List<MonteCarloBranchResult> extractBranchResults(FlightData data) {
+		List<MonteCarloBranchResult> results = new ArrayList<>();
+		if (data == null) {
+			return results;
+		}
+
+		for (int branchIndex = 0; branchIndex < data.getBranchCount(); branchIndex++) {
+			FlightDataBranch branch = data.getBranch(branchIndex);
+			java.util.EnumMap<MonteCarloMetric, Double> metrics =
+					new java.util.EnumMap<>(MonteCarloMetric.class);
+			putFinite(metrics, MonteCarloMetric.APOGEE_ALTITUDE,
+					branch.getMaximum(FlightDataType.TYPE_ALTITUDE));
+			putFinite(metrics, MonteCarloMetric.MAXIMUM_VELOCITY,
+					branch.getMaximum(FlightDataType.TYPE_VELOCITY_TOTAL));
+			putFinite(metrics, MonteCarloMetric.MAXIMUM_MACH,
+					branch.getMaximum(FlightDataType.TYPE_MACH_NUMBER));
+			putFinite(metrics, MonteCarloMetric.MAXIMUM_ACCELERATION,
+					branch.getMaximum(FlightDataType.TYPE_ACCELERATION_TOTAL));
+
+			FlightEvent apogee = branch.getFirstEvent(FlightEvent.Type.APOGEE);
+			if (apogee != null) {
+				putFinite(metrics, MonteCarloMetric.TIME_TO_APOGEE, apogee.getTime());
+			}
+			putFinite(metrics, MonteCarloMetric.FLIGHT_TIME,
+					branch.getLast(FlightDataType.TYPE_TIME));
+			if (branch.getFirstEvent(FlightEvent.Type.GROUND_HIT) != null) {
+				putFinite(metrics, MonteCarloMetric.LANDING_VELOCITY,
+						branch.getLast(FlightDataType.TYPE_VELOCITY_TOTAL));
+			}
+
+			FlightEvent abort = branch.getFirstEvent(FlightEvent.Type.SIM_ABORT);
+			String branchFailure = abort == null ? null
+					: abort.getData() == null ? "Simulation aborted" : abort.getData().toString();
+			results.add(new MonteCarloBranchResult(bodyId(branch, branchIndex), branchIndex,
+					branch.getName(), metrics, branchFailure));
+		}
+		return results;
+	}
+
+	private static void putFinite(java.util.Map<MonteCarloMetric, Double> metrics,
+			MonteCarloMetric metric, double value) {
+		if (Double.isFinite(value)) {
+			metrics.put(metric, value);
+		}
 	}
 
 	private static String bodyId(FlightDataBranch branch, int branchIndex) {

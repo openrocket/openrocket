@@ -5,10 +5,41 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 public class MonteCarloResultTest {
+	@Test
+	public void testMetricValuesFollowStableBranchIdentityAndExcludeFailures() {
+		String branchId = "sustainer";
+		MonteCarloSettings settings = MonteCarloSettings.builder().runCount(3).seed(17).build();
+		MonteCarloRunResult nominal = metricRun(0, branchId, 0, 100, null, null);
+		MonteCarloRunResult successful = metricRun(1, branchId, 1, 110, null, null);
+		MonteCarloRunResult branchFailure = metricRun(2, branchId, 0, 120, "Branch aborted", null);
+		MonteCarloRunResult trajectoryFailure = metricRun(3, branchId, 0, 130, null, "Trajectory failed");
+		MonteCarloResult result = new MonteCarloResult(settings, nominal,
+				List.of(successful, branchFailure, trajectoryFailure), 1);
+
+		assertEquals(List.of(110.0),
+				result.getMetricValues(branchId, MonteCarloMetric.APOGEE_ALTITUDE));
+		assertEquals(2, result.getMetricMissingCount(branchId, MonteCarloMetric.APOGEE_ALTITUDE));
+		assertEquals(1, result.getFlightBranches().size());
+		assertEquals(branchId, result.getFlightBranches().get(0).branchId());
+		assertEquals(0, result.getFlightBranches().get(0).branchIndex(),
+				"the nominal branch supplies the stable display order");
+	}
+
+	private static MonteCarloRunResult metricRun(int runNumber, String branchId, int branchIndex,
+			double apogee, String branchFailure, String trajectoryFailure) {
+		MonteCarloSample sample = runNumber == 0 ? MonteCarloSample.nominal(17)
+				: new MonteCarloSample(runNumber, 17 + runNumber, Collections.emptyMap());
+		MonteCarloBranchResult branch = new MonteCarloBranchResult(branchId, branchIndex,
+				"Sustainer", Map.of(MonteCarloMetric.APOGEE_ALTITUDE, apogee), branchFailure);
+		return new MonteCarloRunResult(sample, List.of(), List.of(), List.of(branch),
+				apogee, 10, trajectoryFailure);
+	}
+
 	@Test
 	public void testFailedTrajectoriesAreExcludedFromLandingStatistics() {
 		MonteCarloSettings settings = MonteCarloSettings.builder().runCount(2).seed(17).build();

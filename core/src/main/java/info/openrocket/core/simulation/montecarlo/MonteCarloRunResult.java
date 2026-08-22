@@ -6,15 +6,32 @@ import java.util.List;
  * Inputs and terminal outputs for one dispersed trajectory.
  */
 public record MonteCarloRunResult(MonteCarloSample sample, List<LandingPoint> landingPoints,
-		List<LandingBodyFailure> bodyFailures, double maximumAltitude, double flightTime, String failureMessage) {
+		List<LandingBodyFailure> bodyFailures, List<MonteCarloBranchResult> branchResults,
+		double maximumAltitude, double flightTime, String failureMessage) {
 	public MonteCarloRunResult {
 		landingPoints = List.copyOf(landingPoints);
 		bodyFailures = List.copyOf(bodyFailures);
+		branchResults = List.copyOf(branchResults);
+	}
+
+	public MonteCarloRunResult(MonteCarloSample sample, List<LandingPoint> landingPoints,
+			List<LandingBodyFailure> bodyFailures, double maximumAltitude, double flightTime,
+			String failureMessage) {
+		this(sample, landingPoints, bodyFailures, List.of(), maximumAltitude, flightTime, failureMessage);
 	}
 
 	public MonteCarloRunResult(MonteCarloSample sample, List<LandingPoint> landingPoints,
 			double maximumAltitude, double flightTime, String failureMessage) {
 		this(sample, landingPoints, List.of(), maximumAltitude, flightTime, failureMessage);
+	}
+
+	public MonteCarloBranchResult getBranchResult(String branchId) {
+		for (MonteCarloBranchResult result : branchResults) {
+			if (result.branchId().equals(branchId)) {
+				return result;
+			}
+		}
+		return null;
 	}
 
 	public LandingPoint getLandingPoint(String bodyId) {

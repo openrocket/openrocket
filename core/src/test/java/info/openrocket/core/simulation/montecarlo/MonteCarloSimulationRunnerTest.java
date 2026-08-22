@@ -141,6 +141,42 @@ public class MonteCarloSimulationRunnerTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testScalarMetricsAreExtractedPerFlightBranch() {
+		AxialStage stage = new AxialStage();
+		stage.setName("Sustainer");
+		FlightDataBranch branch = new FlightDataBranch(stage.getName(), stage,
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE,
+				FlightDataType.TYPE_VELOCITY_TOTAL, FlightDataType.TYPE_MACH_NUMBER,
+				FlightDataType.TYPE_ACCELERATION_TOTAL);
+		branch.addPoint();
+		branch.setValue(FlightDataType.TYPE_TIME, 0);
+		branch.setValue(FlightDataType.TYPE_ALTITUDE, 0);
+		branch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, 20);
+		branch.setValue(FlightDataType.TYPE_MACH_NUMBER, 0.1);
+		branch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, 30);
+		branch.addPoint();
+		branch.setValue(FlightDataType.TYPE_TIME, 12);
+		branch.setValue(FlightDataType.TYPE_ALTITUDE, 500);
+		branch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, 8);
+		branch.setValue(FlightDataType.TYPE_MACH_NUMBER, 0.7);
+		branch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, 45);
+		branch.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, 9));
+		branch.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, 12));
+
+		MonteCarloBranchResult result = MonteCarloSimulationRunner.extractBranchResults(
+				new FlightData(branch)).get(0);
+
+		assertEquals(stage.getID().toString(), result.branchId());
+		assertEquals(500, result.getMetric(MonteCarloMetric.APOGEE_ALTITUDE));
+		assertEquals(20, result.getMetric(MonteCarloMetric.MAXIMUM_VELOCITY));
+		assertEquals(0.7, result.getMetric(MonteCarloMetric.MAXIMUM_MACH));
+		assertEquals(45, result.getMetric(MonteCarloMetric.MAXIMUM_ACCELERATION));
+		assertEquals(9, result.getMetric(MonteCarloMetric.TIME_TO_APOGEE));
+		assertEquals(12, result.getMetric(MonteCarloMetric.FLIGHT_TIME));
+		assertEquals(8, result.getMetric(MonteCarloMetric.LANDING_VELOCITY));
+	}
+
+	@Test
 	public void testSeparatedBoostersAreSelectableLandingBodies() {
 		Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
 		rocket.getSelectedConfiguration().setAllStages();

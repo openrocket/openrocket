@@ -79,6 +79,47 @@ public final class MonteCarloResult {
 		return runResults.size() - landed;
 	}
 
+	/** Return all flight-data branches observed in the nominal or dispersed runs. */
+	public List<MonteCarloFlightBranch> getFlightBranches() {
+		Map<String, MonteCarloFlightBranch> branches = new LinkedHashMap<>();
+		addFlightBranches(branches, nominalResult);
+		for (MonteCarloRunResult result : runResults) {
+			addFlightBranches(branches, result);
+		}
+		return List.copyOf(branches.values());
+	}
+
+	/** Return valid dispersed values for one branch and scalar output metric. */
+	public List<Double> getMetricValues(String branchId, MonteCarloMetric metric) {
+		List<Double> values = new ArrayList<>();
+		for (MonteCarloRunResult result : runResults) {
+			if (result.failureMessage() != null) {
+				continue;
+			}
+			MonteCarloBranchResult branch = result.getBranchResult(branchId);
+			if (branch == null || branch.failureMessage() != null) {
+				continue;
+			}
+			double value = branch.getMetric(metric);
+			if (Double.isFinite(value)) {
+				values.add(value);
+			}
+		}
+		return values;
+	}
+
+	public int getMetricMissingCount(String branchId, MonteCarloMetric metric) {
+		return runResults.size() - getMetricValues(branchId, metric).size();
+	}
+
+	private static void addFlightBranches(Map<String, MonteCarloFlightBranch> branches,
+			MonteCarloRunResult result) {
+		for (MonteCarloBranchResult branch : result.branchResults()) {
+			branches.putIfAbsent(branch.branchId(), new MonteCarloFlightBranch(branch.branchId(),
+					branch.branchIndex(), branch.branchName()));
+		}
+	}
+
 	private static void addBodies(Map<String, LandingBody> bodies, MonteCarloRunResult result) {
 		for (LandingPoint point : result.landingPoints()) {
 			bodies.putIfAbsent(point.bodyId(),
