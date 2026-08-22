@@ -74,9 +74,6 @@ public final class DefaultMaterialBinder implements GpuResource {
 		Vector3f linearColor = unfinishedMode
 				? getAppearanceColor(unfinishedAppearance, appearance.getColor())
 				: isFigureMode ? getFigureXrayBaseColor(figureSourceColor) : appearance.getColor();
-		if (isXray) {
-			linearColor = toFigureXrayColor(linearColor);
-		}
 		glUniform3f(uniforms.objectColor, linearColor.x, linearColor.y, linearColor.z);
 
 		Vector3f specularColor = unfinishedMode
@@ -152,10 +149,6 @@ public final class DefaultMaterialBinder implements GpuResource {
 		float srgbG = figureColor.getGreen() / 255.0f;
 		float srgbB = figureColor.getBlue() / 255.0f;
 		return ColorUtils.srgbToLinear(new Vector3f(srgbR, srgbG, srgbB));
-	}
-
-	private static Vector3f toFigureXrayColor(Vector3f baseLinearColor) {
-		return new Vector3f(baseLinearColor);
 	}
 
 	private static Vector3f toFigureXraySpecular(Vector3f figureColor, float shine) {

@@ -16,10 +16,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
@@ -43,7 +39,6 @@ import static org.lwjgl.opengl.GL11.glPixelStorei;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glTexParameterf;
-import static org.lwjgl.opengl.GL11.glTexSubImage2D;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
@@ -67,10 +62,6 @@ public class Texture {
 	// Stored locally so callers do not need GL queries.
 	private int width;
 	private int height;
-
-	// Pixel formats used by dynamic updates.
-	private int internalFormat;
-	private int format;
 
 	private void completeCreation(String label) {
 		try {
@@ -323,9 +314,6 @@ public class Texture {
 
 			this.width = width;
 			this.height = height;
-			this.internalFormat = GL_SRGB8_ALPHA8;
-			this.format = GL_RGBA;
-
 			// Use a sized format so every driver preserves the same eight-bit alpha precision.
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0,
 					GL_RGBA, GL_UNSIGNED_BYTE, image);
@@ -377,8 +365,6 @@ public class Texture {
 
 		this.width = width;
 		this.height = height;
-		this.internalFormat = GL_RGBA;
-		this.format = GL_RGBA;
 		completeCreation("procedural:" + width + "x" + height);
 	}
 
@@ -398,8 +384,6 @@ public class Texture {
 
 		int faceWidth = 0;
 		int faceHeight = 0;
-		int detectedFormat = GL_RGB;
-		int detectedInternalFormat = GL_SRGB8;
 		try {
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				IntBuffer w = stack.mallocInt(1);
@@ -414,8 +398,6 @@ public class Texture {
 						int internalFormat = (channels.get(0) == 4) ? GL_SRGB8_ALPHA8 : GL_SRGB8;
 						faceWidth = w.get(0);
 						faceHeight = h.get(0);
-						detectedFormat = format;
-						detectedInternalFormat = internalFormat;
 						uploadTightlyPackedByteTexture2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, internalFormat,
 								w.get(0), h.get(0), format, image);
 					} finally {
@@ -433,8 +415,6 @@ public class Texture {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 			this.width = faceWidth;
 			this.height = faceHeight;
-			this.internalFormat = detectedInternalFormat;
-			this.format = detectedFormat;
 			completeCreation("cubemap");
 		} catch (RuntimeException | Error e) {
 			abandonTexture();
@@ -454,8 +434,6 @@ public class Texture {
 		glBindTexture(textureType, textureId);
 
 		int faceSize = 0;
-		int detectedFormat = GL_RGB;
-		int detectedInternalFormat = GL_SRGB8;
 		ByteBuffer atlasBuffer = null;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
@@ -469,9 +447,6 @@ public class Texture {
 			int numChannels = channels.get(0);
 			int format = (numChannels == 4) ? GL_RGBA : GL_RGB;
 			int internalFormat = (numChannels == 4) ? GL_SRGB8_ALPHA8 : GL_SRGB8;
-			detectedFormat = format;
-			detectedInternalFormat = internalFormat;
-
 			if (layout == AtlasLayout.HORIZONTAL_STRIP) {
 				if (atlasWidth != atlasHeight * 6) {
 					throw new IllegalArgumentException("For HORIZONTAL_STRIP_6x1 layout, atlas width must be 6 times its height.");
@@ -557,8 +532,6 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		this.width = faceSize;
 		this.height = faceSize;
-		this.internalFormat = detectedInternalFormat;
-		this.format = detectedFormat;
 		completeCreation("cubemap-atlas");
 	}
 
@@ -589,8 +562,6 @@ public class Texture {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, w.get(0), h.get(0), 0, GL_RGB, GL_FLOAT, image);
 			this.width = w.get(0);
 			this.height = h.get(0);
-			this.internalFormat = GL_RGB32F;
-			this.format = GL_RGB;
 		} catch (RuntimeException | Error e) {
 			abandonTexture();
 			throw e;
@@ -646,8 +617,6 @@ public class Texture {
 					GL_RGBA, GL_UNSIGNED_BYTE, image);
 			this.width = w.get(0);
 			this.height = h.get(0);
-			this.internalFormat = GL_SRGB8_ALPHA8;
-			this.format = GL_RGBA;
 			glGenerateMipmap(GL_TEXTURE_2D);
 		} catch (RuntimeException | Error e) {
 			abandonTexture();
@@ -665,9 +634,9 @@ public class Texture {
 	 * Creates an empty mutable RGBA8 texture for Java2D content. It deliberately
 	 * avoids sRGB storage so the sampler does not decode already encoded UI pixels.
 	 *
-	 * @param width      The width of the texture.
-	 * @param height     The height of the texture.
-	 * @param isMutable  A flag to distinguish this from the procedural constructor.
+	 * @param width      texture width
+	 * @param height     texture height
+	 * @param isMutable  disambiguates this constructor; must be {@code true}
 	 */
 	public Texture(int width, int height, boolean isMutable) {
 		if (!isMutable) {
@@ -677,14 +646,10 @@ public class Texture {
 		this.textureType = GL_TEXTURE_2D;
 		this.width = width;
 		this.height = height;
-		this.internalFormat = GL_RGBA8;
-		this.format = GL_RGBA;
 
 		glBindTexture(textureType, textureId);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, (ByteBuffer) null);
-
-		// Use nearest filtering for UI textures if pixel-perfect rendering is needed
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+				(ByteBuffer) null);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -712,19 +677,6 @@ public class Texture {
 	}
 
 	/**
-	 * Updates a region of the texture without recreating it.
-	 * More efficient than updating the entire texture.
-	 */
-	public void updateRegion(int x, int y, int width, int height, ByteBuffer data) {
-		if (textureId == 0) {
-			throw new IllegalStateException("Cannot update destroyed texture");
-		}
-
-		glBindTexture(textureType, textureId);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, format, GL_UNSIGNED_BYTE, data);
-	}
-
-	/**
 	 * Gets texture width in pixels.
 	 * @return texture width
 	 */
@@ -745,40 +697,6 @@ public class Texture {
 			TextureStateManager.evictDeletedTexture(textureId);
 			glDeleteTextures(textureId);
 			textureId = 0;
-		}
-	}
-
-	// Static texture pool for frequently created/destroyed textures
-	public static class TexturePool {
-		private static final Map<String, Queue<Texture>> pool = new HashMap<>();
-		private static final int MAX_POOL_SIZE = 10;
-
-		public static Texture acquire(int width, int height) {
-			String key = width + "x" + height;
-			synchronized (pool) {
-				Queue<Texture> queue = pool.get(key);
-
-				if (queue != null && !queue.isEmpty()) {
-					return queue.poll();
-				}
-			}
-
-			return new Texture(width, height, true);
-		}
-
-		public static void release(Texture texture) {
-			if (texture.width <= 0 || texture.height <= 0) return;
-
-			String key = texture.width + "x" + texture.height;
-			synchronized (pool) {
-				Queue<Texture> queue = pool.computeIfAbsent(key, k -> new LinkedList<>());
-
-				if (queue.size() < MAX_POOL_SIZE) {
-					queue.offer(texture);
-					return;
-				}
-			}
-			texture.cleanup();
 		}
 	}
 }

@@ -144,12 +144,6 @@ public class TextureStateManager implements TextureBinder {
 		}
 	}
 
-	/** Unbinds the specified texture target from a unit. */
-	@Override
-	public void unbindTexture(int unit, int textureType) {
-		bindTexture(unit, textureType, 0);
-	}
-
 	/** Invalidates all cached state after external GL changes or context recreation. */
 	@Override
 	public void reset() {

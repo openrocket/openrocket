@@ -64,10 +64,6 @@ public class OffscreenRenderTarget implements GpuResource {
 	private int requestedSamples;
 	private int activeSamples;
 
-	public OffscreenRenderTarget(int width, int height) {
-		this(width, height, 0);
-	}
-
 	public OffscreenRenderTarget(int width, int height, int samples) {
 		requestedSamples = Math.max(0, samples);
 		resize(width, height);

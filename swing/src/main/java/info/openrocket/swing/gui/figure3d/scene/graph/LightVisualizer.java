@@ -27,9 +27,8 @@ public class LightVisualizer {
 	private static final float RAY_RADIUS = 0.012f;
 	private static final float RAY_OUTLINE_RADIUS = 0.021f;
 	/**
-	 * How far from the rocket the directional light's "sun" marker sits. Dragging it
-	 * only changes the direction, so this stays fixed; the create and update paths
-	 * have to agree on it or the marker jumps the first time the light changes.
+	 * How far from the rocket the directional light's "sun" marker sits. The create
+	 * and update paths have to agree on it or the marker jumps when the light changes.
 	 */
 	private static final float SUN_DISTANCE = 10.0f;
 
@@ -53,7 +52,7 @@ public class LightVisualizer {
 		return visuals;
 	}
 
-	/** A small draggable sphere at the light's position, over an outline sphere. */
+	/** A small sphere at the light's position, over an outline sphere. */
 	private void addPointLightVisuals(List<SceneObject> visuals, Light light,
 			Appearance3D visualAppearance, Appearance3D outlineAppearance) {
 		Mesh outlineMesh = SphereGenerator.create(POINT_OUTLINE_RADIUS,
@@ -67,16 +66,11 @@ public class LightVisualizer {
 		SceneObject pointVisual = new SceneObject(sphereMesh, light.getPosition(), visualAppearance);
 		configureVisualizerObject(pointVisual, true);
 
-		pointVisual.setOnDragListener((newPosition) -> {
-			light.setPosition(newPosition.x, newPosition.y, newPosition.z);
-			pointOutline.setPosition(newPosition);
-			pointVisual.setPosition(newPosition);
-		});
 		visuals.add(pointVisual);
 	}
 
 	/**
-	 * A draggable "sun" sphere with a spoke glyph, held a fixed distance from the
+	 * A "sun" sphere with a spoke glyph, held a fixed distance from the
 	 * rocket, and a ray drawn back to it showing which way the light points.
 	 */
 	private void addDirectionalLightVisuals(List<SceneObject> visuals, Light light, Scene scene,
@@ -114,26 +108,6 @@ public class LightVisualizer {
 
 		List<SceneObject> sunSpokes = addSunSpokes(visuals, outlineAppearance);
 		updateSunSpokes(sunSpokes, sunPosition, camera);
-
-		sunVisual.setOnDragListener((newPosition) -> {
-			// The sun stays a fixed distance from the rocket; dragging only turns it.
-			Vector3f dragAnchor = getLightAnchor(scene);
-			Vector3f newSunPos = new Vector3f(newPosition).sub(dragAnchor);
-			if (newSunPos.lengthSquared() < 1.0e-6f) {
-				newSunPos.set(lightDir).negate();
-			}
-			newSunPos.normalize().mul(sunDistance).add(dragAnchor);
-
-			Vector3f newDirection = new Vector3f(dragAnchor).sub(newSunPos).normalize();
-			light.setDirection(newDirection.x, newDirection.y, newDirection.z);
-			sunOutline.setPosition(newSunPos);
-			sunVisual.setPosition(newSunPos);
-			glyphCore.setPosition(newSunPos);
-
-			updateSunSpokes(sunSpokes, newSunPos, camera);
-			updateRayTransform(rayOutline, dragAnchor, newSunPos);
-			updateRayTransform(rayVisual, dragAnchor, newSunPos);
-		});
 	}
 
 	/** Adds one of the two concentric tubes making up the ray back to the sun. */
