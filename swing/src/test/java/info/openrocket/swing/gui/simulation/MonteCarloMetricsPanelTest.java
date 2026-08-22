@@ -74,6 +74,20 @@ public class MonteCarloMetricsPanelTest {
 	}
 
 	@Test
+	public void testBoxPlotTooltipIsMultiLineAndHasNoAxisPrefix() {
+		var dataset = MonteCarloMetricsPanel.createBoxDataset(List.of(100.0, 110.0, 120.0),
+				UnitGroup.UNITS_DISTANCE.getSIUnit(), "Apogee", "Rocket");
+
+		String tooltip = MonteCarloMetricsPanel.formatBoxTooltip(dataset, 0, 0,
+				"Apogee altitude", "Rocket", UnitGroup.UNITS_DISTANCE.getSIUnit());
+
+		assertTrue(tooltip.startsWith("<html><b>Apogee altitude — Rocket</b><br>"), tooltip);
+		assertTrue(tooltip.contains("110 m"), tooltip);
+		assertTrue(tooltip.endsWith("</html>"), tooltip);
+		assertFalse(tooltip.contains("X:"), tooltip);
+	}
+
+	@Test
 	public void testBoxPlotRendererIsNarrowAndThemeAware() {
 		BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
 

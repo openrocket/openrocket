@@ -62,7 +62,13 @@ public final class MetricStatistics {
 	}
 
 	public double getMedian() {
-		return getQuantile(0.5);
+		int upperMiddle = sortedValues.size() / 2;
+		if (sortedValues.size() % 2 != 0) {
+			return sortedValues.get(upperMiddle);
+		}
+		double lowerValue = sortedValues.get(upperMiddle - 1);
+		double upperValue = sortedValues.get(upperMiddle);
+		return lowerValue + (upperValue - lowerValue) / 2.0;
 	}
 
 	public double getStandardDeviation() {

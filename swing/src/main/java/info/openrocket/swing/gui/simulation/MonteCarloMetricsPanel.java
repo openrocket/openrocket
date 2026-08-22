@@ -26,6 +26,7 @@ import info.openrocket.core.simulation.montecarlo.MonteCarloMetric;
 import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 
@@ -35,7 +36,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.block.BlockBorder;
-import org.jfree.chart.labels.BoxAndWhiskerToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.PlotOrientation;
@@ -44,6 +44,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.IntervalXYDataset;
@@ -218,7 +219,9 @@ final class MonteCarloMetricsPanel extends JPanel {
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
 		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
 		configureBoxRenderer(renderer, lightTheme);
-		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		renderer.setDefaultToolTipGenerator((tooltipDataset, series, item) ->
+				formatBoxTooltip((BoxAndWhiskerCategoryDataset) tooltipDataset, series, item,
+						metricLabel(row.metric), branch.branchName(), row.unit));
 		configureBoxPlot(plot);
 		if (Double.isFinite(row.nominal)) {
 			ValueMarker nominal = new ValueMarker(row.unit.toUnit(row.nominal),
@@ -316,6 +319,41 @@ final class MonteCarloMetricsPanel extends JPanel {
 				valueFormat.format(dataset.getStartXValue(0, item)),
 				valueFormat.format(dataset.getEndXValue(0, item)), unit.getUnit(),
 				countFormat.format(dataset.getYValue(0, item)));
+	}
+
+	static String formatBoxTooltip(BoxAndWhiskerCategoryDataset dataset, int series, int item,
+			String metricName, String branchName, Unit unit) {
+		DecimalFormat format = new DecimalFormat("0.###");
+		String suffix = unit.getUnit().isBlank() ? "" : " " + StringUtils.escapeHtml(unit.getUnit());
+		StringBuilder tooltip = new StringBuilder("<html><b>")
+				.append(StringUtils.escapeHtml(metricName))
+				.append(" — ")
+				.append(StringUtils.escapeHtml(branchName))
+				.append("</b>");
+		appendBoxTooltipLine(tooltip, trans.get("LandingDispersionResultsDlg.metrics.mean"),
+				dataset.getMeanValue(series, item), format, suffix);
+		appendBoxTooltipLine(tooltip, trans.get("LandingDispersionResultsDlg.metrics.col.median"),
+				dataset.getMedianValue(series, item), format, suffix);
+		appendBoxTooltipLine(tooltip, trans.get("LandingDispersionResultsDlg.metrics.q1"),
+				dataset.getQ1Value(series, item), format, suffix);
+		appendBoxTooltipLine(tooltip, trans.get("LandingDispersionResultsDlg.metrics.q3"),
+				dataset.getQ3Value(series, item), format, suffix);
+		appendBoxTooltipLine(tooltip, trans.get("LandingDispersionResultsDlg.metrics.lowerWhisker"),
+				dataset.getMinRegularValue(series, item), format, suffix);
+		appendBoxTooltipLine(tooltip, trans.get("LandingDispersionResultsDlg.metrics.upperWhisker"),
+				dataset.getMaxRegularValue(series, item), format, suffix);
+		return tooltip.append("</html>").toString();
+	}
+
+	private static void appendBoxTooltipLine(StringBuilder tooltip, String label, Number value,
+			DecimalFormat format, String suffix) {
+		if (value != null) {
+			tooltip.append("<br>")
+					.append(StringUtils.escapeHtml(label))
+					.append(": ")
+					.append(format.format(value))
+					.append(suffix);
+		}
 	}
 
 	static String metricLabel(MonteCarloMetric metric) {

@@ -32,4 +32,12 @@ public class MetricStatisticsTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> MetricStatistics.from(List.of(Double.NaN)));
 	}
+
+	@Test
+	public void testEvenSampleMedianAveragesTheMiddleValues() {
+		MetricStatistics statistics = MetricStatistics.from(List.of(1.0, 2.0, 4.0, 8.0));
+
+		assertEquals(3.0, statistics.getMedian());
+		assertEquals(2.0, statistics.getQuantile(0.5));
+	}
 }
