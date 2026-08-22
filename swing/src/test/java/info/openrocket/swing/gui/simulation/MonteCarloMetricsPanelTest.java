@@ -25,6 +25,12 @@ import info.openrocket.core.unit.UnitGroup;
 
 public class MonteCarloMetricsPanelTest {
 	@Test
+	public void testMetricChartTitleIdentifiesThePlotAndMetric() {
+		assertEquals("Monte Carlo histogram — Apogee",
+				MonteCarloMetricsPanel.formatMetricChartTitle("Monte Carlo histogram — %s", "Apogee"));
+	}
+
+	@Test
 	public void testApogeeUsesTheExistingSimulationMetricLabel() {
 		assertEquals("simpanel.col.Apogee",
 				MonteCarloMetricsPanel.metricLabelKey(MonteCarloMetric.APOGEE_ALTITUDE));

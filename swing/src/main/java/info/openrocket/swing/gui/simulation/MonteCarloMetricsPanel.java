@@ -177,7 +177,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	private JFreeChart createHistogram(MetricRow row) {
 		HistogramDataset dataset = createHistogramDataset(metricLabel(row.metric), row.values, row.unit);
-		JFreeChart histogram = ChartFactory.createHistogram(metricLabel(row.metric),
+		JFreeChart histogram = ChartFactory.createHistogram(metricChartTitle(row.metric, "histogram"),
 				metricAxisLabel(row), trans.get("LandingDispersionResultsDlg.metrics.frequency"),
 				dataset, PlotOrientation.VERTICAL, false, true, false);
 		XYPlot plot = histogram.getXYPlot();
@@ -218,7 +218,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		MonteCarloFlightBranch branch = (MonteCarloFlightBranch) branchCombo.getSelectedItem();
 		DefaultBoxAndWhiskerCategoryDataset dataset = createBoxDataset(row.values, row.unit,
 				metricLabel(row.metric), branch.branchName());
-		JFreeChart boxPlot = ChartFactory.createBoxAndWhiskerChart(metricLabel(row.metric), "",
+		JFreeChart boxPlot = ChartFactory.createBoxAndWhiskerChart(metricChartTitle(row.metric, "boxPlot"), "",
 				metricAxisLabel(row), dataset, false);
 		CategoryPlot plot = boxPlot.getCategoryPlot();
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
@@ -390,6 +390,15 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	static String metricLabel(MonteCarloMetric metric) {
 		return trans.get(metricLabelKey(metric));
+	}
+
+	static String formatMetricChartTitle(String template, String metricName) {
+		return String.format(template, metricName);
+	}
+
+	private static String metricChartTitle(MonteCarloMetric metric, String plotType) {
+		return formatMetricChartTitle(
+				trans.get("LandingDispersionResultsDlg.metrics.chartTitle." + plotType), metricLabel(metric));
 	}
 
 	static String metricLabelKey(MonteCarloMetric metric) {
