@@ -15,9 +15,23 @@ import java.util.List;
  * Default implementation of the Raycaster using Möller-Trumbore triangle tests.
  */
 public class DefaultRaycaster implements Raycaster {
+	private static final float INTERSECTION_EPSILON = 0.0000001f;
 
 	private final Vector3f rayOrigin = new Vector3f();
 	private final Vector3f rayDirection = new Vector3f();
+	private final Matrix4f invertedProjection = new Matrix4f();
+	private final Matrix4f invertedView = new Matrix4f();
+	private final Vector4f clipCoords = new Vector4f();
+	private final Vector4f eyeCoords = new Vector4f();
+	private final Vector4f worldCoords = new Vector4f();
+	private final Vector3f vertex0 = new Vector3f();
+	private final Vector3f vertex1 = new Vector3f();
+	private final Vector3f vertex2 = new Vector3f();
+	private final Vector3f edge1 = new Vector3f();
+	private final Vector3f edge2 = new Vector3f();
+	private final Vector3f cross = new Vector3f();
+	private final Vector3f originOffset = new Vector3f();
+	private final Vector3f barycentricCross = new Vector3f();
 
 	@Override
 	public void update(float mouseX, float mouseY, int viewportWidth, int viewportHeight, Camera camera) {
@@ -27,22 +41,22 @@ public class DefaultRaycaster implements Raycaster {
 		float ndcZ = -1.0f; // The near plane
 
 		// 2. Homogeneous Clip Coordinates
-		Vector4f clipCoords = new Vector4f(ndcX, ndcY, ndcZ, 1.0f);
+		clipCoords.set(ndcX, ndcY, ndcZ, 1.0f);
 
 		// 3. Eye (Camera) Coordinates
-		Matrix4f invertedProjection = new Matrix4f();
 		camera.getProjectionMatrix().invert(invertedProjection);
-		Vector4f eyeCoords = invertedProjection.transform(clipCoords);
+		eyeCoords.set(clipCoords);
+		invertedProjection.transform(eyeCoords);
 		eyeCoords.z = -1.0f;
 		eyeCoords.w = 0.0f;
 
 		// 4. World Coordinates
-		Matrix4f invertedView = new Matrix4f();
 		camera.getViewMatrix().invert(invertedView);
-		Vector4f worldCoords = invertedView.transform(eyeCoords);
+		worldCoords.set(eyeCoords);
+		invertedView.transform(worldCoords);
 
 		rayDirection.set(worldCoords.x, worldCoords.y, worldCoords.z).normalize();
-		rayOrigin.set(camera.getPosition());
+		camera.getPosition(rayOrigin);
 	}
 
 	@Override
@@ -72,33 +86,32 @@ public class DefaultRaycaster implements Raycaster {
 		IntList indices = mesh.getIndices();
 
 		for (int i = 0; i < indices.size(); i += 3) {
-			Vector3f v0 = new Vector3f(vertices.get(indices.get(i)).position);
-			Vector3f v1 = new Vector3f(vertices.get(indices.get(i + 1)).position);
-			Vector3f v2 = new Vector3f(vertices.get(indices.get(i + 2)).position);
+			vertex0.set(vertices.get(indices.get(i)).position);
+			vertex1.set(vertices.get(indices.get(i + 1)).position);
+			vertex2.set(vertices.get(indices.get(i + 2)).position);
 
-			modelMatrix.transformPosition(v0);
-			modelMatrix.transformPosition(v1);
-			modelMatrix.transformPosition(v2);
+			modelMatrix.transformPosition(vertex0);
+			modelMatrix.transformPosition(vertex1);
+			modelMatrix.transformPosition(vertex2);
 
-			final float EPSILON = 0.0000001f;
-			Vector3f edge1 = new Vector3f(v1).sub(v0);
-			Vector3f edge2 = new Vector3f(v2).sub(v0);
-			Vector3f h = new Vector3f(rayDirection).cross(edge2);
-			float a = edge1.dot(h);
+			edge1.set(vertex1).sub(vertex0);
+			edge2.set(vertex2).sub(vertex0);
+			cross.set(rayDirection).cross(edge2);
+			float a = edge1.dot(cross);
 
-			if (a > -EPSILON && a < EPSILON) continue;
+			if (a > -INTERSECTION_EPSILON && a < INTERSECTION_EPSILON) continue;
 
 			float f = 1.0f / a;
-			Vector3f s = new Vector3f(rayOrigin).sub(v0);
-			float u = f * s.dot(h);
+			originOffset.set(rayOrigin).sub(vertex0);
+			float u = f * originOffset.dot(cross);
 			if (u < 0.0f || u > 1.0f) continue;
 
-			Vector3f q = s.cross(edge1);
-			float v = f * rayDirection.dot(q);
+			barycentricCross.set(originOffset).cross(edge1);
+			float v = f * rayDirection.dot(barycentricCross);
 			if (v < 0.0f || u + v > 1.0f) continue;
 
-			float t = f * edge2.dot(q);
-			if (t > EPSILON) {
+			float t = f * edge2.dot(barycentricCross);
+			if (t > INTERSECTION_EPSILON) {
 				if (closestDistance < 0 || t < closestDistance) {
 					closestDistance = t;
 				}
