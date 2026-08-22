@@ -930,6 +930,11 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			presetFilled = preset.get(ComponentPreset.FILLED);
 		}
 
+		if (preset.has(ComponentPreset.THICKNESS)) {
+			this.foreShoulderThickness = this.thickness;
+			this.aftShoulderThickness = this.thickness;
+		}
+
 		if (preset.has(ComponentPreset.SHAPE)) {
 			Shape s = preset.get(ComponentPreset.SHAPE);
 			this.setShapeType(s);
