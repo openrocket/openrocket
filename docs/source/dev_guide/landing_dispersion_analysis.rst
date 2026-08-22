@@ -180,10 +180,12 @@ switches among all eligible landing bodies and provides:
 
 The metric table reports the nominal value, mean, median, sample standard
 deviation, empirical P5 and P95, and the valid-run count.  Selecting a row shows
-a histogram in that metric's normal OpenRocket display unit.  Its P5--P95 range
-is shaded and the nominal and sample-mean values are marked.  Keeping one metric
-per plot avoids combining incompatible units or hiding engineering values behind
-normalization.  Plot export follows the active results tab.
+either a histogram or a box plot in that metric's normal OpenRocket display unit.
+Histogram bins are chosen automatically from the sample count using a bounded
+square-root rule, and tooltips report each bin's numeric range and run count.  The
+P5--P95 range is shaded and nominal/sample-mean values are identified.  Keeping
+one metric per plot avoids combining incompatible units or hiding engineering
+values behind normalization.  Plot export follows the active results tab.
 
 CSV export contains the master seed, settings, simulation seed, sampled deviations
 in explicit SI units, stable branch ID, per-run branch index, landing coordinates

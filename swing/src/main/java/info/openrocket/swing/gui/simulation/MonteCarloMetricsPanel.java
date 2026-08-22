@@ -33,15 +33,20 @@ import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.axis.Axis;
 import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.labels.BoxAndWhiskerToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.xy.IntervalXYDataset;
 
 /** Displays scalar Monte Carlo output distributions one metric at a time. */
 final class MonteCarloMetricsPanel extends JPanel {
@@ -58,9 +63,10 @@ final class MonteCarloMetricsPanel extends JPanel {
 	private final String simulationName;
 	private final MonteCarloResult result;
 	private final JComboBox<MonteCarloFlightBranch> branchCombo;
+	private final JComboBox<MetricPlotType> plotTypeCombo;
 	private final MetricTableModel tableModel;
 	private final JTable metricTable;
-	private final JFreeChart chart;
+	private JFreeChart chart;
 	private final ChartPanel chartPanel;
 
 	MonteCarloMetricsPanel(String simulationName, MonteCarloResult result) {
@@ -68,19 +74,23 @@ final class MonteCarloMetricsPanel extends JPanel {
 		this.simulationName = simulationName;
 		this.result = result;
 		this.branchCombo = new JComboBox<>(result.getFlightBranches().toArray(new MonteCarloFlightBranch[0]));
+		this.plotTypeCombo = new JComboBox<>(MetricPlotType.values());
 		this.tableModel = new MetricTableModel(result);
 		this.metricTable = new JTable(tableModel);
 		this.chart = createChart();
 		this.chartPanel = createChartPanel();
+		setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		buildPanel();
 		updateBranch();
 	}
 
 	private void buildPanel() {
-		JPanel header = new JPanel(new MigLayout("ins 0", "[][grow][]"));
+		JPanel header = new JPanel(new MigLayout("ins 0", "[][grow][][][]"));
 		header.add(new JLabel(trans.get("LandingDispersionResultsDlg.metrics.branch")));
 		branchCombo.setEnabled(branchCombo.getItemCount() > 0);
 		header.add(branchCombo, "growx, w 220::");
+		header.add(new JLabel(trans.get("LandingDispersionResultsDlg.metrics.plotType")));
+		header.add(plotTypeCombo);
 		header.add(new JLabel(String.format(trans.get("LandingDispersionResultsDlg.lbl.seed"),
 				result.getSettings().getSeed())));
 		add(header, BorderLayout.NORTH);
@@ -107,6 +117,7 @@ final class MonteCarloMetricsPanel extends JPanel {
 		add(splitPane, BorderLayout.CENTER);
 
 		branchCombo.addActionListener(event -> updateBranch());
+		plotTypeCombo.addActionListener(event -> updateChart());
 	}
 
 	private JFreeChart createChart() {
@@ -142,25 +153,31 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	private void updateChart() {
 		MetricRow row = tableModel.getRow(metricTable.getSelectedRow());
-		XYPlot plot = chart.getXYPlot();
-		plot.clearDomainMarkers();
 		if (row == null || row.statistics == null) {
-			plot.setDataset(new HistogramDataset());
-			chart.setTitle(trans.get("LandingDispersionResultsDlg.metrics.noMetric"));
-			chart.clearSubtitles();
-			return;
+			chart = createChart();
+		} else if (plotTypeCombo.getSelectedItem() == MetricPlotType.BOX_PLOT) {
+			chart = createBoxPlot(row);
+		} else {
+			chart = createHistogram(row);
 		}
+		chartPanel.setChart(chart);
+	}
 
+	private JFreeChart createHistogram(MetricRow row) {
 		HistogramDataset dataset = createHistogramDataset(metricLabel(row.metric), row.values, row.unit);
-		plot.setDataset(dataset);
-		plot.getDomainAxis().setLabel(metricLabel(row.metric) + " (" + row.unit.getUnit() + ")");
-		plot.getRangeAxis().setLabel(trans.get("LandingDispersionResultsDlg.metrics.frequency"));
+		JFreeChart histogram = ChartFactory.createHistogram(metricLabel(row.metric),
+				metricAxisLabel(row), trans.get("LandingDispersionResultsDlg.metrics.frequency"),
+				dataset, PlotOrientation.VERTICAL, false, true, false);
+		XYPlot plot = histogram.getXYPlot();
 
 		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
 		XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
 		renderer.setSeriesPaint(0, lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR);
 		renderer.setShadowVisible(false);
 		renderer.setBarPainter(new org.jfree.chart.renderer.xy.StandardXYBarPainter());
+		renderer.setDefaultToolTipGenerator((tooltipDataset, series, item) ->
+				formatHistogramTooltip(trans.get("LandingDispersionResultsDlg.metrics.histogram.ttip"),
+						(IntervalXYDataset) tooltipDataset, item, row.unit));
 
 		double p5 = row.unit.toUnit(row.statistics.getQuantile(0.05));
 		double p95 = row.unit.toUnit(row.statistics.getQuantile(0.95));
@@ -171,21 +188,60 @@ final class MonteCarloMetricsPanel extends JPanel {
 					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
 					new BasicStroke(2.0f));
 			nominal.setLabel(trans.get("LandingDispersionResultsDlg.metrics.nominal"));
+			nominal.setLabelPaint(lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR);
 			plot.addDomainMarker(nominal);
 		}
 		ValueMarker mean = new ValueMarker(row.unit.toUnit(row.statistics.getMean()),
 				lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR, new BasicStroke(2.0f));
 		mean.setLabel(trans.get("LandingDispersionResultsDlg.metrics.mean"));
+		mean.setLabelPaint(lightTheme ? MEAN_LIGHT_COLOR : MEAN_DARK_COLOR);
 		plot.addDomainMarker(mean);
+		finishChart(histogram, row);
+		return histogram;
+	}
 
-		chart.setTitle(metricLabel(row.metric));
-		chart.clearSubtitles();
+	private JFreeChart createBoxPlot(MetricRow row) {
 		MonteCarloFlightBranch branch = (MonteCarloFlightBranch) branchCombo.getSelectedItem();
-		chart.addSubtitle(new TextTitle(String.format(
+		DefaultBoxAndWhiskerCategoryDataset dataset = createBoxDataset(row.values, row.unit,
+				metricLabel(row.metric), branch.branchName());
+		JFreeChart boxPlot = ChartFactory.createBoxAndWhiskerChart(metricLabel(row.metric), "",
+				metricAxisLabel(row), dataset, false);
+		CategoryPlot plot = boxPlot.getCategoryPlot();
+		boolean lightTheme = UITheme.isLightTheme(GUIUtil.getUITheme());
+		BoxAndWhiskerRenderer renderer = (BoxAndWhiskerRenderer) plot.getRenderer();
+		renderer.setSeriesPaint(0, lightTheme ? HISTOGRAM_LIGHT_COLOR : HISTOGRAM_DARK_COLOR);
+		renderer.setFillBox(true);
+		renderer.setMeanVisible(true);
+		renderer.setMedianVisible(true);
+		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+
+		double p5 = row.unit.toUnit(row.statistics.getQuantile(0.05));
+		double p95 = row.unit.toUnit(row.statistics.getQuantile(0.95));
+		plot.addRangeMarker(new IntervalMarker(p5, p95,
+				lightTheme ? INTERVAL_LIGHT_COLOR : INTERVAL_DARK_COLOR));
+		if (Double.isFinite(row.nominal)) {
+			ValueMarker nominal = new ValueMarker(row.unit.toUnit(row.nominal),
+					lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR,
+					new BasicStroke(2.0f));
+			nominal.setLabel(trans.get("LandingDispersionResultsDlg.metrics.nominal"));
+			nominal.setLabelPaint(lightTheme ? NOMINAL_LIGHT_COLOR : NOMINAL_DARK_COLOR);
+			plot.addRangeMarker(nominal);
+		}
+		finishChart(boxPlot, row);
+		return boxPlot;
+	}
+
+	private void finishChart(JFreeChart metricChart, MetricRow row) {
+		MonteCarloFlightBranch branch = (MonteCarloFlightBranch) branchCombo.getSelectedItem();
+		metricChart.addSubtitle(new TextTitle(String.format(
 				trans.get("LandingDispersionResultsDlg.metrics.subtitle"), branch.branchName(),
 				row.statistics.getSampleCount(), result.getSettings().getRunCount(),
 				result.getSettings().getSeed())));
-		applyChartTheme(chart);
+		applyChartTheme(metricChart);
+	}
+
+	private static String metricAxisLabel(MetricRow row) {
+		return metricLabel(row.metric) + " (" + row.unit.getUnit() + ")";
 	}
 
 	JFreeChart getChart() {
@@ -223,6 +279,23 @@ final class MonteCarloMetricsPanel extends JPanel {
 		return dataset;
 	}
 
+	static DefaultBoxAndWhiskerCategoryDataset createBoxDataset(List<Double> values, Unit unit,
+			String rowKey, String columnKey) {
+		List<Double> displayValues = values.stream().map(unit::toUnit).toList();
+		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		dataset.add(displayValues, rowKey, columnKey);
+		return dataset;
+	}
+
+	static String formatHistogramTooltip(String template, IntervalXYDataset dataset, int item, Unit unit) {
+		DecimalFormat valueFormat = new DecimalFormat("0.###");
+		DecimalFormat countFormat = new DecimalFormat("0");
+		return String.format(template,
+				valueFormat.format(dataset.getStartXValue(0, item)),
+				valueFormat.format(dataset.getEndXValue(0, item)), unit.getUnit(),
+				countFormat.format(dataset.getYValue(0, item)));
+	}
+
 	static String metricLabel(MonteCarloMetric metric) {
 		return trans.get("LandingDispersionResultsDlg.metric."
 				+ metric.name().toLowerCase(java.util.Locale.ROOT));
@@ -246,16 +319,24 @@ final class MonteCarloMetricsPanel extends JPanel {
 			metricChart.getLegend().setItemPaint(text);
 			metricChart.getLegend().setFrame(new BlockBorder(border));
 		}
-		XYPlot plot = metricChart.getXYPlot();
-		plot.setBackgroundPaint(plotBackground);
-		plot.setDomainGridlinePaint(border);
-		plot.setRangeGridlinePaint(border);
-		plot.setOutlinePaint(border);
-		configureAxis(plot.getDomainAxis(), text, border);
-		configureAxis(plot.getRangeAxis(), text, border);
+		if (metricChart.getPlot() instanceof XYPlot plot) {
+			plot.setBackgroundPaint(plotBackground);
+			plot.setDomainGridlinePaint(border);
+			plot.setRangeGridlinePaint(border);
+			plot.setOutlinePaint(border);
+			configureAxis(plot.getDomainAxis(), text, border);
+			configureAxis(plot.getRangeAxis(), text, border);
+		} else if (metricChart.getPlot() instanceof CategoryPlot plot) {
+			plot.setBackgroundPaint(plotBackground);
+			plot.setDomainGridlinePaint(border);
+			plot.setRangeGridlinePaint(border);
+			plot.setOutlinePaint(border);
+			configureAxis(plot.getDomainAxis(), text, border);
+			configureAxis(plot.getRangeAxis(), text, border);
+		}
 	}
 
-	private static void configureAxis(ValueAxis axis, Color text, Color border) {
+	private static void configureAxis(Axis axis, Color text, Color border) {
 		axis.setLabelPaint(text);
 		axis.setTickLabelPaint(text);
 		axis.setAxisLinePaint(border);
@@ -271,6 +352,22 @@ final class MonteCarloMetricsPanel extends JPanel {
 
 	private record MetricRow(MonteCarloMetric metric, Unit unit, double nominal,
 			List<Double> values, MetricStatistics statistics, int missingCount) {
+	}
+
+	private enum MetricPlotType {
+		HISTOGRAM("histogram"),
+		BOX_PLOT("boxPlot");
+
+		private final String key;
+
+		MetricPlotType(String key) {
+			this.key = key;
+		}
+
+		@Override
+		public String toString() {
+			return trans.get("LandingDispersionResultsDlg.metrics.plotType." + key);
+		}
 	}
 
 	private static final class MetricTableModel extends AbstractTableModel {

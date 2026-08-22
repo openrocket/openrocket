@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.jfree.data.statistics.HistogramDataset;
 import org.junit.jupiter.api.Test;
@@ -38,5 +40,30 @@ public class MonteCarloMetricsPanelTest {
 			total += dataset.getYValue(0, item);
 		}
 		assertEquals(3.0, total);
+	}
+
+	@Test
+	public void testHistogramTooltipDescribesTheBinRangeAndCount() {
+		HistogramDataset dataset = MonteCarloMetricsPanel.createHistogramDataset("Apogee",
+				List.of(100.0, 101.0, 102.0), UnitGroup.UNITS_DISTANCE.getSIUnit());
+
+		String template = ResourceBundle.getBundle("l10n.messages", Locale.ROOT)
+				.getString("LandingDispersionResultsDlg.metrics.histogram.ttip");
+		String tooltip = MonteCarloMetricsPanel.formatHistogramTooltip(template, dataset, 0,
+				UnitGroup.UNITS_DISTANCE.getSIUnit());
+
+		assertTrue(tooltip.contains("–"), tooltip);
+		assertTrue(tooltip.contains("m"), tooltip);
+		assertTrue(tooltip.endsWith("runs"), tooltip);
+	}
+
+	@Test
+	public void testBoxPlotUsesDisplayValues() {
+		var dataset = MonteCarloMetricsPanel.createBoxDataset(List.of(100.0, 110.0, 120.0),
+				UnitGroup.UNITS_DISTANCE.getSIUnit(), "Apogee", "Rocket");
+
+		assertEquals(110.0, dataset.getMedianValue("Apogee", "Rocket"));
+		assertEquals(100.0, dataset.getMinRegularValue("Apogee", "Rocket"));
+		assertEquals(120.0, dataset.getMaxRegularValue("Apogee", "Rocket"));
 	}
 }
