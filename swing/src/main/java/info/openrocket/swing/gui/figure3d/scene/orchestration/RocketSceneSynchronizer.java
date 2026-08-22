@@ -418,6 +418,11 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private void reclaimStaleDecalTextures() {
+		AppearanceFactory.DecalTextureCache decalTextureCache = scene3DOrchestrator.getDecalTextureCache();
+		if (decalTextureCache == null) {
+			return;
+		}
+
 		Set<Texture> liveTextures = Collections.newSetFromMap(new IdentityHashMap<>());
 		for (SceneObject object : scene.getObjects()) {
 			Appearance3D appearance = object.getAppearance();
@@ -425,7 +430,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 				liveTextures.add(appearance.getTexture());
 			}
 		}
-		scene3DOrchestrator.getDecalTextureCache().reclaimStaleTextures(liveTextures);
+		decalTextureCache.reclaimStaleTextures(liveTextures);
 	}
 
 	private Set<RocketComponent> captureSelectedRocketComponents() {
