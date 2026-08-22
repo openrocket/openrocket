@@ -102,6 +102,7 @@ public class InnerTube extends ThicknessRingComponent
 	
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
 			this.outerRadius = outerDiameter / 2.0;
@@ -110,9 +111,7 @@ public class InnerTube extends ThicknessRingComponent
 				this.thickness = (outerDiameter - innerDiameter) / 2.0;
 			}
 		}
-		
-		super.loadFromPreset(preset);
-		
+			
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	

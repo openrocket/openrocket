@@ -923,6 +923,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
 
 		boolean presetFilled = false;
 		if (preset.has(ComponentPreset.FILLED)) {
@@ -968,10 +969,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 		}
 
-		super.loadFromPreset(preset);
-
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 	}
 
 	@Override

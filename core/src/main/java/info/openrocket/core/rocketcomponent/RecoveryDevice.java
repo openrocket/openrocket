@@ -157,6 +157,8 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset, Object...params) {
+		super.loadFromPreset(preset, params);
+
 		//	//	Set preset parachute line material
 		//	NEED a better way to set preset if field is empty ----
 		if (preset.has(ComponentPreset.MATERIAL)) {
@@ -174,7 +176,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		} else {
 			this.material = defaultMaterial;
 		}
-		super.loadFromPreset(preset, params);
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 

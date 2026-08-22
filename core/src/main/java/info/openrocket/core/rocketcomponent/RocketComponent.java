@@ -1276,10 +1276,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * to be of the correct type.
 	 * <p>
 	 * This method should fire the appropriate events related to the changes.  The rocket
-	 * is frozen by the caller, so the events will be automatically combined.
-	 * <p>
-	 * This method must FIRST perform the preset loading and THEN call super.loadFromPreset().
-	 * This is because mass setting requires the dimensions to be set beforehand.
 	 *
 	 * @param preset	the preset to load from
 	 * @param params    extra parameters to be used in the preset loading
