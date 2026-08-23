@@ -87,8 +87,8 @@ class MonteCarloReportTest extends BaseTestCase {
 		}
 
 		PdfReader reader = new PdfReader(output.toByteArray());
-		assertTrue(reader.getNumberOfPages() >= 15,
-				"the report should include paired histogram and box-plot pages");
+		assertTrue(reader.getNumberOfPages() >= 8,
+				"the report should include a combined histogram and box-plot page for each metric");
 		StringBuilder text = new StringBuilder();
 		for (int page = 1; page <= reader.getNumberOfPages(); page++) {
 			text.append(PdfTextExtractor.getTextFromPage(reader, page));

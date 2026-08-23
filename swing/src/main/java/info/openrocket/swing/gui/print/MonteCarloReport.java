@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.print;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
@@ -47,6 +49,7 @@ public final class MonteCarloReport {
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.###");
 	private static final int CHART_WIDTH = 1400;
 	private static final int CHART_HEIGHT = 820;
+	private static final int CHART_PAIR_GAP = 24;
 
 	private final Document document;
 	private final PdfWriter writer;
@@ -191,9 +194,8 @@ public final class MonteCarloReport {
 			List<MonteCarloMetric> availableMetrics = addMetricSummary(result, branch);
 			for (MonteCarloMetric metric : availableMetrics) {
 				startNewPage();
-				addChart(MonteCarloReportCharts.histogramChart(result, branch, metric), 520);
-				startNewPage();
-				addChart(MonteCarloReportCharts.boxPlotChart(result, branch, metric), 520);
+				addMetricChartPair(MonteCarloReportCharts.histogramChart(result, branch, metric),
+						MonteCarloReportCharts.boxPlotChart(result, branch, metric));
 			}
 		}
 	}
@@ -236,6 +238,26 @@ public final class MonteCarloReport {
 	private void addChart(JFreeChart chart, float maximumWidth) throws DocumentException {
 		Image image = chartImage(chart);
 		image.scaleToFit(maximumWidth, 430);
+		image.setAlignment(Element.ALIGN_CENTER);
+		document.add(image);
+	}
+
+	private void addMetricChartPair(JFreeChart histogram, JFreeChart boxPlot) throws DocumentException {
+		BufferedImage histogramImage = histogram.createBufferedImage(CHART_WIDTH, CHART_HEIGHT);
+		BufferedImage boxPlotImage = boxPlot.createBufferedImage(CHART_WIDTH, CHART_HEIGHT);
+		BufferedImage combined = new BufferedImage(CHART_WIDTH, 2 * CHART_HEIGHT + CHART_PAIR_GAP,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = combined.createGraphics();
+		try {
+			graphics.setColor(new Color(histogramImage.getRGB(0, 0)));
+			graphics.fillRect(0, 0, combined.getWidth(), combined.getHeight());
+			graphics.drawImage(histogramImage, 0, 0, null);
+			graphics.drawImage(boxPlotImage, 0, CHART_HEIGHT + CHART_PAIR_GAP, null);
+		} finally {
+			graphics.dispose();
+		}
+		Image image = imageFromBufferedImage(combined);
+		image.scaleToFit(520, 680);
 		image.setAlignment(Element.ALIGN_CENTER);
 		document.add(image);
 	}
