@@ -137,6 +137,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
 			this.radius = outerDiameter / 2.0;
@@ -145,9 +147,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 				this.thickness = (outerDiameter - innerDiameter) / 2.0;
 			}
 		}
-		
-		super.loadFromPreset(preset);
-		
+			
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
