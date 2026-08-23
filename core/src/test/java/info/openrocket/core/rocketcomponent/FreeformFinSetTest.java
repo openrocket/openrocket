@@ -567,7 +567,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		//  +=====+
 		Point2D.Double toAdd = new Point2D.Double(1.01, 0.8);
 		try {
-			fin.addPoint(3, toAdd);
+			fin.addPoint(3, toAdd.getX(), toAdd.getY());
 		} catch (IllegalFinPointException e) {
 			fail("IllegalFinPointException thrown");
 		}
