@@ -187,6 +187,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		
 		if (preset.has(ComponentPreset.THICKNESS)) {
 			this.thickness = preset.get(ComponentPreset.THICKNESS);
 			this.filled = false;
@@ -194,8 +196,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		if (preset.has(ComponentPreset.FILLED)) {
 			this.filled = preset.get(ComponentPreset.FILLED);
 		}
-
-		super.loadFromPreset(preset);
 	}
 
 	/**

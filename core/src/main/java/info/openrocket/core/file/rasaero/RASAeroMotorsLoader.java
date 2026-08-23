@@ -6,10 +6,19 @@ import info.openrocket.core.file.motor.AbstractMotorLoader;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.startup.Application;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class RASAeroMotorsLoader {
+    private static final String RASAERO_MOTOR_FILE = "rasp.eng";
+    private static final String RASAERO_MOTOR_RESOURCE =
+            "datafiles/thrustcurves/RASAero/" + RASAERO_MOTOR_FILE;
+
     private static List<ThrustCurveMotor> allMotors = null;
 
     /**
@@ -63,22 +72,85 @@ public abstract class RASAeroMotorsLoader {
         }
     }
 
-    // Not currently used for importing, because it causes some compatibility issues
-    // when e.g. wanting to open the RASAero motor
-    // in the motor selection table (because it is not present there).
-    // It's probably also better to load OR-native motors.
-    // But I'll leave this in, in case it's needed in the future.
     /**
-     * Loads all motors available for RASAero export.
+     * Loads the motor catalog distributed with RASAero II for export validation.
      * <p>
-     * Historically this loaded motors from a bundled {@code RASAero_Motors.eng} file. That file is no longer shipped;
-     * these motors are now part of the normal OpenRocket motor database.
+     * The RASAero designation is retained exactly, including delays such as
+     * {@code -P}, because that is the spelling RASAero expects in a CDX1 file.
      * 
-     * @param warnings The warning set to add import warnings to.
-     * @return the loaded motors
+     * @param warnings the warning set to add loading warnings to
+     * @return the motors available in RASAero's {@code rasp.eng}
      */
-    public static List<ThrustCurveMotor> loadAllRASAeroMotors(WarningSet warnings) {
-        return loadMotorsFromOpenRocketDatabase(warnings);
+    public static List<RASAeroMotor> loadAllRASAeroMotors(WarningSet warnings) {
+        List<RASAeroMotor> motors = new ArrayList<>();
+
+        try (InputStream stream = openRASAeroMotorResource()) {
+            if (stream == null) {
+                addWarning(warnings, "Unable to load RASAero motor catalog '" + RASAERO_MOTOR_FILE + "'.");
+                return motors;
+            }
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(stream, StandardCharsets.ISO_8859_1))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    RASAeroMotor motor = parseMotorHeader(line);
+                    if (motor != null) {
+                        motors.add(motor);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            addWarning(warnings, "Unable to load RASAero motor catalog '" + RASAERO_MOTOR_FILE
+                    + "': " + e.getMessage());
+            return motors;
+        }
+
+        if (motors.isEmpty()) {
+            addWarning(warnings, "RASAero motor catalog '" + RASAERO_MOTOR_FILE + "' contains no motors.");
+        }
+
+        return motors;
+    }
+
+    private static InputStream openRASAeroMotorResource() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = contextClassLoader != null
+                ? contextClassLoader.getResourceAsStream(RASAERO_MOTOR_RESOURCE)
+                : null;
+        if (stream == null) {
+            stream = RASAeroMotorsLoader.class.getResourceAsStream("/" + RASAERO_MOTOR_RESOURCE);
+        }
+        return stream;
+    }
+
+    /**
+     * Parses only RASP motor header records. Export validation needs the exact
+     * name, manufacturer, and case dimensions, not the thrust-curve samples.
+     */
+    private static RASAeroMotor parseMotorHeader(String line) {
+        String trimmedLine = line.trim();
+        if (trimmedLine.isEmpty() || trimmedLine.startsWith(";")) {
+            return null;
+        }
+
+        String[] fields = trimmedLine.split("\\s+");
+        if (fields.length != 7) {
+            return null;
+        }
+
+        try {
+            double diameter = Double.parseDouble(fields[1]) / 1000.0;
+            double length = Double.parseDouble(fields[2]) / 1000.0;
+            double propellantMass = Double.parseDouble(fields[4]);
+            double totalMass = Double.parseDouble(fields[5]);
+            if (diameter <= 0 || length <= 0 || propellantMass < 0 || totalMass < propellantMass) {
+                return null;
+            }
+            return new RASAeroMotor(fields[0], fields[6], diameter, length);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
@@ -101,6 +173,45 @@ public abstract class RASAeroMotorsLoader {
             }
         }
         return motors;
+    }
+
+    private static void addWarning(WarningSet warnings, String message) {
+        if (warnings != null) {
+            warnings.add(message);
+        }
+    }
+
+    /**
+     * A motor entry from RASAero's bundled {@code rasp.eng} catalog.
+     */
+    public static final class RASAeroMotor {
+        private final String designation;
+        private final String manufacturer;
+        private final double diameter;
+        private final double length;
+
+        private RASAeroMotor(String designation, String manufacturer, double diameter, double length) {
+            this.designation = designation;
+            this.manufacturer = manufacturer;
+            this.diameter = diameter;
+            this.length = length;
+        }
+
+        public String getDesignation() {
+            return designation;
+        }
+
+        public String getManufacturer() {
+            return manufacturer;
+        }
+
+        public double getDiameter() {
+            return diameter;
+        }
+
+        public double getLength() {
+            return length;
+        }
     }
 
 }

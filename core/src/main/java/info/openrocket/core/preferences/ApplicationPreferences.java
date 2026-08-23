@@ -83,6 +83,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
 
 	private static final String CHECK_UPDATES = "CheckUpdates";
+	private static final String UPDATE_CHECK_PERMISSION = "UpdateCheckPermission";
 
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
@@ -304,6 +305,28 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+
+	/**
+	 * Returns whether the user has answered the one-time question about update checks that access the internet.
+	 *
+	 * @return {@code true} if the user has allowed or declined automatic update checks
+	 */
+	public final boolean isUpdateCheckPermissionSet() {
+		return this.getPreferences().get(UPDATE_CHECK_PERMISSION, null) != null;
+	}
+
+	/**
+	 * Stores the user's update-check permission and applies it to both automatic update checkers.
+	 * The permission is stored after the individual settings so an interrupted write causes the question to be
+	 * shown again instead of allowing either checker to access the internet without a recorded answer.
+	 *
+	 * @param allowed {@code true} to enable automatic software and motor-database update checks
+	 */
+	public final void setUpdateCheckPermission(boolean allowed) {
+		this.setCheckUpdates(allowed);
+		this.setCheckMotorDatabaseUpdates(allowed);
+		this.putBoolean(UPDATE_CHECK_PERMISSION, allowed);
 	}
 
 	public final List<String> getIgnoreUpdateVersions() {

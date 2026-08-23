@@ -91,6 +91,7 @@ import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -2283,20 +2284,20 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		unitsDistPanel.add(new JLabel(trans.get("RocketPanel.lbl.CaliperUnits")));
 		unitsDistPanel.add(caliperManager.getUnitSelector());
 
-		// Distance display
+		JPanel distancePanel = new JPanel(new MigLayout("ins 0", "[]2[]2[]2[]2[]", ""));
+		distancePanel.setOpaque(false);
+
+		// An opaque Swing component must have an opaque background or old glyph pixels can survive repaints.
 		JTextField distanceField = new JTextField("–", 6);
 		distanceField.setEditable(false);
 		distanceField.setOpaque(true);
-		distanceField.setBackground(valueBg);
+		distanceField.setBackground(ColorConversion.compositeColor(valueBg, UIManager.getColor("Panel.background")));
 		distanceField.setForeground(valueFg);
 		distanceField.setBorder(new CompoundBorder(
 				new LineBorder(caliperColor, 1, true),
 				new EmptyBorder(1, 4, 1, 4)));
 		distanceField.setFont(distanceField.getFont().deriveFont(Font.BOLD));
 		distanceField.setHorizontalAlignment(JTextField.CENTER);
-
-		JPanel distancePanel = new JPanel(new MigLayout("ins 0", "[]2[]2[]2[]2[]", ""));
-		distancePanel.setOpaque(false);
 
 		JButton diamond1Btn = new JButton(createCaliperDiamondIcon("1", caliperColor, diamondLabelColor));
 		diamond1Btn.setRolloverIcon(createCaliperDiamondIcon("1", caliperHoverColor, diamondLabelColor));
@@ -2383,7 +2384,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			leftArrow.setIcon(createCaliperSingleArrowIcon(true, newCaliperColor));
 			rightArrow.setIcon(createCaliperSingleArrowIcon(false, newCaliperColor));
 
-			distanceField.setBackground(newValueBg);
+			distanceField.setBackground(ColorConversion.compositeColor(
+					newValueBg, UIManager.getColor("Panel.background")));
 			distanceField.setForeground(newValueFg);
 			distanceField.setBorder(new CompoundBorder(
 					new LineBorder(newCaliperColor, 1, true),

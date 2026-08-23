@@ -45,7 +45,20 @@ public class ParachuteDTO extends BasePartDTO {
      * @param theORParachute the OR Parachute instance
      */
     public ParachuteDTO(Parachute theORParachute) {
+		this(theORParachute, null);
+	}
+
+	/**
+	 * Copy constructor used while exporting simulations with deployment events.
+	 *
+	 * @param theORParachute the OR Parachute instance
+	 * @param context        per-export component serial mapping
+	 */
+	public ParachuteDTO(Parachute theORParachute, RockSimExportContext context) {
         super(theORParachute);
+		if (context != null) {
+			context.registerRecoveryDevice(theORParachute, getSerialNumber());
+		}
 
         setChuteCount(1);
         setDia(theORParachute.getDiameter() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
