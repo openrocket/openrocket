@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -39,7 +40,7 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 	MonteCarloReportOptionsPanel(Window owner, OpenRocketDocument document) {
 		super(new BorderLayout(0, 4));
 		this.owner = owner;
-		this.model = new SimulationTableModel(document.getSimulations());
+		this.model = new SimulationTableModel(document.getSimulations(), this::configureSimulation);
 		this.table = new JTable(model);
 		this.configureButton = new JButton(trans.get("printdlg.monteCarlo.configure"));
 		buildPanel();
@@ -94,6 +95,10 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 			return;
 		}
 		Simulation simulation = model.getSimulation(table.convertRowIndexToModel(selectedRow));
+		configureSimulation(simulation);
+	}
+
+	private void configureSimulation(Simulation simulation) {
 		new LandingDispersionDialog(owner, simulation).setVisible(true);
 		model.configurationChanged(simulation);
 	}
@@ -101,9 +106,11 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 	private static final class SimulationTableModel extends AbstractTableModel {
 		private static final String[] COLUMN_KEYS = { "include", "simulation", "configuration", "runs", "status" };
 		private final List<Row> rows;
+		private final Consumer<Simulation> configurationHandler;
 
-		private SimulationTableModel(List<Simulation> simulations) {
+		private SimulationTableModel(List<Simulation> simulations, Consumer<Simulation> configurationHandler) {
 			rows = new ArrayList<>(simulations.size());
+			this.configurationHandler = configurationHandler;
 			for (Simulation simulation : simulations) {
 				rows.add(new Row(simulation, simulation.getLandingDispersionSettings() != null));
 			}
@@ -131,7 +138,7 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return column == 0 && rows.get(row).simulation.getLandingDispersionSettings() != null;
+			return column == 0;
 		}
 
 		@Override
@@ -151,7 +158,13 @@ final class MonteCarloReportOptionsPanel extends JPanel {
 		@Override
 		public void setValueAt(Object value, int rowIndex, int columnIndex) {
 			if (columnIndex == 0) {
-				rows.get(rowIndex).selected = Boolean.TRUE.equals(value);
+				Row row = rows.get(rowIndex);
+				boolean selected = Boolean.TRUE.equals(value);
+				if (selected && row.simulation.getLandingDispersionSettings() == null) {
+					configurationHandler.accept(row.simulation);
+					return;
+				}
+				row.selected = selected;
 				fireTableCellUpdated(rowIndex, columnIndex);
 			}
 		}
