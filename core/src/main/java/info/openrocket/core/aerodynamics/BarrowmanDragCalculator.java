@@ -359,15 +359,15 @@ public class BarrowmanDragCalculator implements DragCalculator {
 
 				if (area > 0) {
 					// A component assembly represents one independent core, booster, or pod
-					// wake.  Clamp motor area against that wake only, so excess motor area
+					// wake. Clamp nozzle area against that wake only, so excess nozzle area
 					// cannot reduce base drag on another body.  Internal diameter steps are
 					// outside the terminal wake and remain unchanged.
 					double areaScale = 1;
 					if (isTerminalSymmetricComponent(configuration, s)) {
 						double totalComponentArea = instanceCount * area;
-						double motorArea = conditions.getThrustingMotorBaseArea(s.getAssembly());
-						double excludedMotorArea = Math.min(motorArea, totalComponentArea);
-						areaScale = (totalComponentArea - excludedMotorArea) / totalComponentArea;
+						double nozzleExitArea = conditions.getThrustingNozzleExitArea(s.getAssembly());
+						double excludedNozzleArea = Math.min(nozzleExitArea, totalComponentArea);
+						areaScale = (totalComponentArea - excludedNozzleArea) / totalComponentArea;
 					}
 					double cd = base * area * areaScale / conditions.getRefArea();
 					total += instanceCount * cd;

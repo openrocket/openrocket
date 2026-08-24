@@ -61,7 +61,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.flightConditions = SimulationListenerHelper.firePreFlightConditions(
 				status);
 		if (store.flightConditions != null) {
-			setThrustingMotorBaseAreas(status, store.flightConditions);
+			setThrustingNozzleExitAreas(status, store.flightConditions);
 			// Compute the store values
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
@@ -120,7 +120,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 		// Make the instantaneous propulsion state available to post-flight-condition
 		// listeners and, subsequently, to the aerodynamic drag calculator.
-		setThrustingMotorBaseAreas(status, store.flightConditions);
+		setThrustingNozzleExitAreas(status, store.flightConditions);
 
 		// Call post listeners
 		FlightConditions c = SimulationListenerHelper.firePostFlightConditions(
@@ -131,27 +131,28 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
 		}
-		setThrustingMotorBaseAreas(status, store.flightConditions);
+		setThrustingNozzleExitAreas(status, store.flightConditions);
 	}
 
 	/**
 	 * Populate the first-order powered base-drag correction described in the
-	 * technical documentation.  Motor files do not contain nozzle-exit geometry, so
-	 * the available motor-case diameter is used as the projected motor area.
+	 * technical documentation. A zero nozzle exit diameter means that the geometry
+	 * is unknown and leaves the legacy base-drag calculation unchanged.
 	 */
-	private static void setThrustingMotorBaseAreas(SimulationStatus status, FlightConditions conditions) {
+	private static void setThrustingNozzleExitAreas(SimulationStatus status, FlightConditions conditions) {
 		Map<ComponentAssembly, Double> areasByAssembly = new HashMap<>();
 		for (MotorClusterState motorState : status.getActiveMotors()) {
-			if (!motorState.isThrusting()) {
+			double nozzleExitDiameter = motorState.getNozzleExitDiameter();
+			if (!motorState.isThrusting() || nozzleExitDiameter <= 0) {
 				continue;
 			}
 
-			double motorRadius = motorState.getMotor().getDiameter() / 2;
-			double area = motorState.getMotorCount() * Math.PI * MathUtil.pow2(motorRadius);
+			double nozzleExitRadius = nozzleExitDiameter / 2;
+			double area = motorState.getMotorCount() * Math.PI * MathUtil.pow2(nozzleExitRadius);
 			ComponentAssembly assembly = motorState.getMount().getAssembly();
 			areasByAssembly.merge(assembly, area, Double::sum);
 		}
-		conditions.setThrustingMotorBaseAreas(areasByAssembly);
+		conditions.setThrustingNozzleExitAreas(areasByAssembly);
 	}
 
 	/**

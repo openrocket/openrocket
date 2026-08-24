@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.motor.IgnitionEvent;
+import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -14,7 +15,7 @@ import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
 
 public class MotorClusterPodsTest extends BaseTestCase {
-	private static final double C6_MOTOR_RADIUS = 0.018 / 2;
+	private static final double C6_NOZZLE_EXIT_DIAMETER = 0.010;
 
 	@Test
 	public void testMotorClusterPods() throws SimulationException {
@@ -48,11 +49,11 @@ public class MotorClusterPodsTest extends BaseTestCase {
 	}
 
 	/**
-	 * Verify that flight conditions include only the projected area of motor
+	 * Verify that flight conditions include only the nozzle exit area of motor
 	 * clusters that are both on active stages and currently thrusting.
 	 */
 	@Test
-	public void testThrustingMotorBaseAreaTracksMotorAndStageState() throws SimulationException {
+	public void testThrustingNozzleExitAreaTracksMotorAndStageState() throws SimulationException {
 		Rocket rocket = TestRockets.makeClusterPods();
 		FlightConfiguration selectedConfiguration = rocket.getFlightConfigurationByIndex(0);
 		Simulation simulation = new Simulation(rocket);
@@ -68,7 +69,7 @@ public class MotorClusterPodsTest extends BaseTestCase {
 				(ComponentAssembly) rocket.getChild(0).getChild(0).getChild(1);
 
 		stepper.calculateFlightConditions(status, store);
-		assertEquals(0, store.flightConditions.getThrustingMotorBaseArea(), MathUtil.EPSILON,
+		assertEquals(0, store.flightConditions.getThrustingNozzleExitArea(), MathUtil.EPSILON,
 				"Armed motors must not reduce base drag before ignition");
 
 		for (MotorClusterState clusterState : status.getMotors()) {
@@ -76,29 +77,36 @@ public class MotorClusterPodsTest extends BaseTestCase {
 		}
 		status.setSimulationTime(0.4);
 		stepper.calculateFlightConditions(status, store);
-		double singleMotorArea = Math.PI * MathUtil.pow2(C6_MOTOR_RADIUS);
-		assertEquals(14 * singleMotorArea, store.flightConditions.getThrustingMotorBaseArea(), MathUtil.EPSILON,
-				"All fourteen thrusting motors should contribute their projected area");
-		assertEquals(2 * singleMotorArea,
-				store.flightConditions.getThrustingMotorBaseArea(sustainerAssembly), MathUtil.EPSILON,
+		assertEquals(0, store.flightConditions.getThrustingNozzleExitArea(), MathUtil.EPSILON,
+				"Unknown nozzle geometry must preserve the legacy base-drag calculation");
+
+		for (MotorConfiguration motorConfiguration : configuration.getActiveMotors()) {
+			motorConfiguration.setNozzleExitDiameter(C6_NOZZLE_EXIT_DIAMETER);
+		}
+		stepper.calculateFlightConditions(status, store);
+		double singleNozzleExitArea = Math.PI * MathUtil.pow2(C6_NOZZLE_EXIT_DIAMETER / 2);
+		assertEquals(14 * singleNozzleExitArea, store.flightConditions.getThrustingNozzleExitArea(),
+				MathUtil.EPSILON, "All fourteen thrusting motors should contribute their nozzle exit area");
+		assertEquals(2 * singleNozzleExitArea,
+				store.flightConditions.getThrustingNozzleExitArea(sustainerAssembly), MathUtil.EPSILON,
 				"The two sustainer motors should belong only to the sustainer wake");
-		assertEquals(12 * singleMotorArea,
-				store.flightConditions.getThrustingMotorBaseArea(sideBoosterAssembly), MathUtil.EPSILON,
+		assertEquals(12 * singleNozzleExitArea,
+				store.flightConditions.getThrustingNozzleExitArea(sideBoosterAssembly), MathUtil.EPSILON,
 				"The twelve side-booster motors should belong only to the booster wakes");
 
 		configuration.setOnlyStage(0);
 		stepper.calculateFlightConditions(status, store);
-		assertEquals(2 * singleMotorArea, store.flightConditions.getThrustingMotorBaseArea(), MathUtil.EPSILON,
+		assertEquals(2 * singleNozzleExitArea, store.flightConditions.getThrustingNozzleExitArea(), MathUtil.EPSILON,
 				"Motors on inactive booster stages must not affect the active rocket base");
-		assertEquals(0, store.flightConditions.getThrustingMotorBaseArea(sideBoosterAssembly), MathUtil.EPSILON,
-				"An inactive booster assembly must not retain stale motor area");
+		assertEquals(0, store.flightConditions.getThrustingNozzleExitArea(sideBoosterAssembly), MathUtil.EPSILON,
+				"An inactive booster assembly must not retain stale nozzle area");
 
 		for (MotorClusterState clusterState : status.getMotors()) {
 			clusterState.burnOut(1);
 		}
 		stepper.calculateFlightConditions(status, store);
-		assertEquals(0, store.flightConditions.getThrustingMotorBaseArea(), MathUtil.EPSILON,
-				"Motor area correction must end at burnout");
+		assertEquals(0, store.flightConditions.getThrustingNozzleExitArea(), MathUtil.EPSILON,
+				"Nozzle area correction must end at burnout");
 	}
 
 	/**
@@ -109,6 +117,10 @@ public class MotorClusterPodsTest extends BaseTestCase {
 	public void testDifferentMotorSizesRemainInTheirOwnWakes() throws SimulationException {
 		Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
 		FlightConfiguration selectedConfiguration = rocket.getSelectedConfiguration();
+		for (MotorConfiguration motorConfiguration : selectedConfiguration.getActiveMotors()) {
+			double motorDiameter = motorConfiguration.getMotor().getDiameter();
+			motorConfiguration.setNozzleExitDiameter(motorDiameter > 0.015 ? 0.010 : 0.008);
+		}
 		Simulation simulation = new Simulation(rocket);
 		simulation.setFlightConfigurationId(selectedConfiguration.getFlightConfigurationID());
 		SimulationConditions simulationConditions = simulation.getOptions().toSimulationConditions();
@@ -130,18 +142,19 @@ public class MotorClusterPodsTest extends BaseTestCase {
 		ComponentAssembly coreBoosterAssembly = (ComponentAssembly) rocket.getChild(1);
 		ComponentAssembly sideBoosterAssembly =
 				(ComponentAssembly) rocket.getChild(1).getChild(0).getChild(1);
-		double coreMotorArea = Math.PI * MathUtil.pow2(0.018 / 2);
-		double sideMotorArea = 2 * Math.PI * MathUtil.pow2(0.013 / 2);
+		double coreNozzleExitArea = Math.PI * MathUtil.pow2(0.010 / 2);
+		double sideNozzleExitArea = 2 * Math.PI * MathUtil.pow2(0.008 / 2);
 
-		assertEquals(0, store.flightConditions.getThrustingMotorBaseArea(sustainerAssembly), MathUtil.EPSILON,
+		assertEquals(0, store.flightConditions.getThrustingNozzleExitArea(sustainerAssembly), MathUtil.EPSILON,
 				"The unignited sustainer motor must not affect any powered base area");
-		assertEquals(coreMotorArea,
-				store.flightConditions.getThrustingMotorBaseArea(coreBoosterAssembly), MathUtil.EPSILON,
+		assertEquals(coreNozzleExitArea,
+				store.flightConditions.getThrustingNozzleExitArea(coreBoosterAssembly), MathUtil.EPSILON,
 				"The 18 mm center motor should belong to the core-booster wake");
-		assertEquals(sideMotorArea,
-				store.flightConditions.getThrustingMotorBaseArea(sideBoosterAssembly), MathUtil.EPSILON,
+		assertEquals(sideNozzleExitArea,
+				store.flightConditions.getThrustingNozzleExitArea(sideBoosterAssembly), MathUtil.EPSILON,
 				"Both 13 mm side motors should belong to the side-booster wakes");
-		assertEquals(coreMotorArea + sideMotorArea, store.flightConditions.getThrustingMotorBaseArea(),
+		assertEquals(coreNozzleExitArea + sideNozzleExitArea,
+				store.flightConditions.getThrustingNozzleExitArea(),
 				MathUtil.EPSILON, "The reported total should remain the sum of all independent wakes");
 	}
 }

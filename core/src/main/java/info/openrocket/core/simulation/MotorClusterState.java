@@ -124,6 +124,15 @@ public class MotorClusterState {
 		return motorCount;
 	}
 
+	/**
+	 * Return the nozzle exit diameter configured for this motor cluster.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when unknown
+	 */
+	public double getNozzleExitDiameter() {
+		return config.getNozzleExitDiameter();
+	}
+
 	double getCutOffTime() {
 		return this.cutoffTime;
 	}

@@ -602,11 +602,11 @@ public class BarrowmanCalculatorTest {
 	}
 
 	/**
-	 * Verify that motor exhaust excludes only its projected area from body-base drag.
+	 * Verify that motor exhaust excludes only its nozzle exit area from body-base drag.
 	 * Fin trailing-edge base drag is a separate contribution and must remain unchanged.
 	 */
 	@Test
-	public void testPoweredBaseDragSubtractsThrustingMotorArea() {
+	public void testPoweredBaseDragSubtractsThrustingNozzleExitArea() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		BodyTube bodyTube = (BodyTube) rocket.getChild(0).getChild(1);
 		FinSet finSet = (FinSet) bodyTube.getChild(0);
@@ -620,12 +620,12 @@ public class BarrowmanCalculatorTest {
 				calculator.getForceAnalysis(configuration, conditions, warnings);
 
 		double bodyBaseArea = Math.PI * MathUtil.pow2(bodyTube.getAftRadius());
-		double motorArea = Math.PI * MathUtil.pow2(0.018 / 2);
-		double exposedAreaFraction = (bodyBaseArea - motorArea) / bodyBaseArea;
+		double nozzleExitArea = Math.PI * MathUtil.pow2(0.010 / 2);
+		double exposedAreaFraction = (bodyBaseArea - nozzleExitArea) / bodyBaseArea;
 		double coastingBodyBaseCD = coastingForces.get(bodyTube).getBaseCD();
 		double coastingFinBaseCD = coastingForces.get(finSet).getBaseCD();
 
-		conditions.setThrustingMotorBaseAreas(Map.of(bodyTube.getAssembly(), motorArea));
+		conditions.setThrustingNozzleExitAreas(Map.of(bodyTube.getAssembly(), nozzleExitArea));
 		Map<RocketComponent, AerodynamicForces> poweredForces =
 				calculator.getForceAnalysis(configuration, conditions, warnings);
 
@@ -640,7 +640,7 @@ public class BarrowmanCalculatorTest {
 	}
 
 	/**
-	 * An invalid or unusually large projected motor area must never create negative
+	 * An invalid or unusually large nozzle exit area must never create negative
 	 * body-base drag.
 	 */
 	@Test
@@ -650,7 +650,7 @@ public class BarrowmanCalculatorTest {
 		FinSet finSet = (FinSet) bodyTube.getChild(0);
 		FlightConfiguration configuration = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
-		conditions.setThrustingMotorBaseAreas(Map.of(bodyTube.getAssembly(),
+		conditions.setThrustingNozzleExitAreas(Map.of(bodyTube.getAssembly(),
 				2 * Math.PI * MathUtil.pow2(bodyTube.getAftRadius())));
 
 		BarrowmanCalculator calculator = new BarrowmanCalculator();
@@ -683,7 +683,7 @@ public class BarrowmanCalculatorTest {
 		Map<RocketComponent, AerodynamicForces> coastingForces =
 				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
 
-		conditions.setThrustingMotorBaseAreas(Map.of(aftTube.getAssembly(),
+		conditions.setThrustingNozzleExitAreas(Map.of(aftTube.getAssembly(),
 				Math.PI * MathUtil.pow2(aftTube.getAftRadius())));
 		Map<RocketComponent, AerodynamicForces> poweredForces =
 				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
@@ -723,14 +723,14 @@ public class BarrowmanCalculatorTest {
 
 		double coreBaseArea = Math.PI * MathUtil.pow2(coreBody.getAftRadius());
 		double sideBaseArea = sideBodyCount * Math.PI * MathUtil.pow2(sideBody.getAftRadius());
-		double coreMotorArea = Math.PI * MathUtil.pow2(0.018 / 2);
-		double sideMotorArea = sideBodyCount * Math.PI * MathUtil.pow2(0.013 / 2);
-		double coreAreaScale = (coreBaseArea - coreMotorArea) / coreBaseArea;
-		double sideAreaScale = (sideBaseArea - sideMotorArea) / sideBaseArea;
+		double coreNozzleExitArea = Math.PI * MathUtil.pow2(0.010 / 2);
+		double sideNozzleExitArea = sideBodyCount * Math.PI * MathUtil.pow2(0.008 / 2);
+		double coreAreaScale = (coreBaseArea - coreNozzleExitArea) / coreBaseArea;
+		double sideAreaScale = (sideBaseArea - sideNozzleExitArea) / sideBaseArea;
 
-		conditions.setThrustingMotorBaseAreas(Map.of(
-				coreAssembly, coreMotorArea,
-				sideAssembly, sideMotorArea));
+		conditions.setThrustingNozzleExitAreas(Map.of(
+				coreAssembly, coreNozzleExitArea,
+				sideAssembly, sideNozzleExitArea));
 		Map<RocketComponent, AerodynamicForces> poweredForces =
 				calculator.getForceAnalysis(configuration, conditions, warnings);
 
@@ -767,13 +767,13 @@ public class BarrowmanCalculatorTest {
 		Map<RocketComponent, AerodynamicForces> coastingForces =
 				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
 
-		double oversizedSideMotorArea = 2 * sideBodyCount * Math.PI * MathUtil.pow2(sideBody.getAftRadius());
-		conditions.setThrustingMotorBaseAreas(Map.of(sideBody.getAssembly(), oversizedSideMotorArea));
+		double oversizedSideNozzleExitArea = 2 * sideBodyCount * Math.PI * MathUtil.pow2(sideBody.getAftRadius());
+		conditions.setThrustingNozzleExitAreas(Map.of(sideBody.getAssembly(), oversizedSideNozzleExitArea));
 		Map<RocketComponent, AerodynamicForces> poweredForces =
 				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
 
 		assertEquals(coastingForces.get(coreBody).getBaseCD(), poweredForces.get(coreBody).getBaseCD(), EPSILON,
-				"Excess side-motor area must not reduce the core base drag");
+				"Excess side-nozzle area must not reduce the core base drag");
 		assertEquals(0, poweredForces.get(sideBody).getBaseCD(), EPSILON,
 				"The side wake should clamp at zero exposed area");
 		assertEquals(coastingForces.get(rocket).getBaseCD()

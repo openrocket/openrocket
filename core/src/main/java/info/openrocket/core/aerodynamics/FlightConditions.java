@@ -39,10 +39,10 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	private double refArea = Math.PI * 0.25;
 
 	/**
-	 * Projected area of motors that are currently thrusting, grouped by the
+	 * Nozzle exit area of motors that are currently thrusting, grouped by the
 	 * component assembly whose terminal base wake they affect.
 	 */
-	private Map<ComponentAssembly, Double> thrustingMotorBaseAreas = new HashMap<>();
+	private Map<ComponentAssembly, Double> thrustingNozzleExitAreas = new HashMap<>();
 
 	/** Angle of attack. */
 	private double aoa = 0;
@@ -148,77 +148,77 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	}
 
 	/**
-	 * Set the projected areas of currently thrusting motors, grouped by independent
+	 * Set the nozzle exit areas of currently thrusting motors, grouped by independent
 	 * body wake.  Component assemblies distinguish the core, parallel boosters, and
-	 * pods so that a motor plume cannot reduce an unrelated terminal base.
+	 * pods so that a motor cannot reduce an unrelated terminal base.
 	 *
-	 * @param areas projected motor area in square metres for each component assembly
+	 * @param areas nozzle exit area in square metres for each component assembly
 	 * @throws IllegalArgumentException if the map contains a null assembly or an
 	 *                                  area that is null, negative, or not finite
 	 */
-	public void setThrustingMotorBaseAreas(Map<ComponentAssembly, Double> areas) {
+	public void setThrustingNozzleExitAreas(Map<ComponentAssembly, Double> areas) {
 		if (areas == null) {
-			throw new IllegalArgumentException("Thrusting motor base areas must not be null");
+			throw new IllegalArgumentException("Thrusting nozzle exit areas must not be null");
 		}
 
 		Map<ComponentAssembly, Double> validatedAreas = new HashMap<>();
 		for (Map.Entry<ComponentAssembly, Double> entry : areas.entrySet()) {
 			if (entry.getKey() == null || entry.getValue() == null) {
-				throw new IllegalArgumentException("Thrusting motor base areas must not contain null entries");
+				throw new IllegalArgumentException("Thrusting nozzle exit areas must not contain null entries");
 			}
 			double area = entry.getValue();
-			validateThrustingMotorBaseArea(area);
+			validateThrustingNozzleExitArea(area);
 			if (area > 0) {
 				validatedAreas.put(entry.getKey(), area);
 			}
 		}
 
-		if (thrustingMotorBaseAreas.equals(validatedAreas)) {
+		if (thrustingNozzleExitAreas.equals(validatedAreas)) {
 			return;
 		}
 
-		thrustingMotorBaseAreas = validatedAreas;
+		thrustingNozzleExitAreas = validatedAreas;
 		fireChangeEvent();
 	}
 
 	/**
-	 * Return the projected area of motors currently exhausting into one component
+	 * Return the nozzle exit area of motors currently exhausting into one component
 	 * assembly's terminal base wake.
 	 *
 	 * @param assembly component assembly that owns the terminal base wake
-	 * @return projected thrusting-motor area in square metres, or zero if the wake
+	 * @return thrusting nozzle exit area in square metres, or zero if the wake
 	 *         has no thrusting motors
 	 */
-	public double getThrustingMotorBaseArea(ComponentAssembly assembly) {
-		return thrustingMotorBaseAreas.getOrDefault(assembly, 0.0);
+	public double getThrustingNozzleExitArea(ComponentAssembly assembly) {
+		return thrustingNozzleExitAreas.getOrDefault(assembly, 0.0);
 	}
 
 	/**
-	 * Return a read-only view of the projected thrusting-motor areas by wake.
+	 * Return a read-only view of the thrusting nozzle exit areas by wake.
 	 *
-	 * @return projected motor areas keyed by their component assembly
+	 * @return nozzle exit areas keyed by their component assembly
 	 */
-	public Map<ComponentAssembly, Double> getThrustingMotorBaseAreas() {
-		return Collections.unmodifiableMap(thrustingMotorBaseAreas);
+	public Map<ComponentAssembly, Double> getThrustingNozzleExitAreas() {
+		return Collections.unmodifiableMap(thrustingNozzleExitAreas);
 	}
 
 	/**
-	 * Return the total projected area of all currently thrusting motors.  This is
+	 * Return the total nozzle exit area of all currently thrusting motors.  This is
 	 * useful for reporting; aerodynamic calculations use the per-assembly values.
 	 *
-	 * @return total projected thrusting-motor area in square metres
+	 * @return total thrusting nozzle exit area in square metres
 	 */
-	public double getThrustingMotorBaseArea() {
+	public double getThrustingNozzleExitArea() {
 		double totalArea = 0;
-		for (double area : thrustingMotorBaseAreas.values()) {
+		for (double area : thrustingNozzleExitAreas.values()) {
 			totalArea += area;
 		}
 		return totalArea;
 	}
 
-	private static void validateThrustingMotorBaseArea(double area) {
+	private static void validateThrustingNozzleExitArea(double area) {
 		if (area < 0 || !Double.isFinite(area)) {
-			throw new IllegalArgumentException("Thrusting motor base area must be finite and non-negative");
+			throw new IllegalArgumentException("Thrusting nozzle exit area must be finite and non-negative");
 		}
 	}
 
@@ -498,7 +498,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 				"aoa=%.2f\u00b0," +
 				"theta=%.2f\u00b0," +
 				"mach=%.3f," +
-				"thrustingMotorBaseArea=%.6f," +
+				"thrustingNozzleExitArea=%.6f," +
 				"rollRate=%.2f," +
 				"pitchRate=%.2f," +
 				"yawRate=%.2f," +
@@ -506,7 +506,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 				"pitchCenter=" + pitchCenter.toString() + "," +
 				"atmosphericConditions=" + atmosphericConditions.toString() +
 				"]",
-				aoa * 180 / Math.PI, theta * 180 / Math.PI, mach, getThrustingMotorBaseArea(),
+				aoa * 180 / Math.PI, theta * 180 / Math.PI, mach, getThrustingNozzleExitArea(),
 				rollRate, pitchRate, yawRate, refLength);
 	}
 
@@ -520,7 +520,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			FlightConditions cond = (FlightConditions) super.clone();
 			cond.listenerList = new ArrayList<>();
 			cond.event = new EventObject(cond);
-			cond.thrustingMotorBaseAreas = new HashMap<>(thrustingMotorBaseAreas);
+			cond.thrustingNozzleExitAreas = new HashMap<>(thrustingNozzleExitAreas);
 			cond.atmosphericConditions = atmosphericConditions.clone();
 			return cond;
 		} catch (CloneNotSupportedException e) {
@@ -538,7 +538,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		FlightConditions other = (FlightConditions) obj;
 
 		return (MathUtil.equals(this.refLength, other.refLength) &&
-				this.thrustingMotorBaseAreas.equals(other.thrustingMotorBaseAreas) &&
+				this.thrustingNozzleExitAreas.equals(other.thrustingNozzleExitAreas) &&
 				MathUtil.equals(this.aoa, other.aoa) &&
 				MathUtil.equals(this.theta, other.theta) &&
 				MathUtil.equals(this.mach, other.mach) &&
@@ -552,7 +552,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	@Override
 	public int hashCode() {
 		int hash = (int) (1000 * (refLength + aoa + theta + mach + rollRate + pitchRate + yawRate));
-		return 31 * hash + thrustingMotorBaseAreas.hashCode();
+		return 31 * hash + thrustingNozzleExitAreas.hashCode();
 	}
 
 	@Override
