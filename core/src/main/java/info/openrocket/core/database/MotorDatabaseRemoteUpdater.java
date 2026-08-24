@@ -276,9 +276,11 @@ public class MotorDatabaseRemoteUpdater {
 							", sha256_db=" + actualDbSha256 + ")");
 				}
 
+				// Validate the full database before replacing the local one.
 				validateDownloadedDatabase(tmpDbFile);
 			}
 
+			// Cancellation and the total deadline also apply to validation time, not just network reads.
 			deadline.throwIfExpired();
 			MotorDatabaseMetadataIO.writeRawJson(tmpMetadataFile, remoteMetadata.getRawJson());
 			rejectStaleInstall(targetMetadataFile, remoteMetadata.getDatabaseVersion());
@@ -463,7 +465,8 @@ public class MotorDatabaseRemoteUpdater {
 
 	private static void validateDownloadedDatabase(File dbFile) throws IOException {
 		try {
-			ThrustCurveMotorSQLiteDatabase.validateDatabase(dbFile);
+			// Reading every motor exercises the full schema and data conversion path used after installation.
+			ThrustCurveMotorSQLiteDatabase.readDatabase(dbFile);
 		} catch (SQLException e) {
 			throw new IOException("Downloaded motor database failed validation: " + e.getMessage(), e);
 		}
