@@ -10,25 +10,37 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
-import java.sql.SQLException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.util.Objects;
 import java.security.DigestInputStream;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -68,6 +80,8 @@ public class MotorDatabaseRemoteUpdater {
 
 	private static final int CONNECT_TIMEOUT_MS = 10_000;
 	private static final int READ_TIMEOUT_MS = 30_000;
+	private static final long METADATA_OPERATION_TIMEOUT_MS = 60_000;
+	private static final long DATABASE_OPERATION_TIMEOUT_MS = 5 * 60_000;
 
 	// Safety limits against unexpectedly large downloads/decompression bombs.
 	private static final long MAX_METADATA_BYTES = 128 * 1024;
@@ -76,9 +90,13 @@ public class MotorDatabaseRemoteUpdater {
 
 	private static final String MOTORS_DB_FILENAME = "motors.db";
 	private static final String METADATA_FILENAME = "metadata.json";
+	private static final String INSTALL_LOCK_FILENAME = ".motor-database-update.lock";
 
 	private final ConnectionSource connectionSource;
 	private final PublicKey trustedSigningKey;
+	private final long metadataOperationTimeoutMs;
+	private final long databaseOperationTimeoutMs;
+	private final AtomicReference<HttpURLConnection> activeConnection = new AtomicReference<>();
 
 	public MotorDatabaseRemoteUpdater() {
 		this(new DefaultConnectionSource(), defaultSigningKey());
@@ -89,8 +107,31 @@ public class MotorDatabaseRemoteUpdater {
 	}
 
 	public MotorDatabaseRemoteUpdater(ConnectionSource connectionSource, PublicKey trustedSigningKey) {
+		this(connectionSource, trustedSigningKey, METADATA_OPERATION_TIMEOUT_MS, DATABASE_OPERATION_TIMEOUT_MS);
+	}
+
+	MotorDatabaseRemoteUpdater(ConnectionSource connectionSource, PublicKey trustedSigningKey,
+			long metadataOperationTimeoutMs, long databaseOperationTimeoutMs) {
 		this.connectionSource = Objects.requireNonNull(connectionSource, "connectionSource");
 		this.trustedSigningKey = Objects.requireNonNull(trustedSigningKey, "trustedSigningKey");
+		if (metadataOperationTimeoutMs <= 0 || databaseOperationTimeoutMs <= 0) {
+			throw new IllegalArgumentException("Motor database operation timeouts must be positive");
+		}
+		this.metadataOperationTimeoutMs = metadataOperationTimeoutMs;
+		this.databaseOperationTimeoutMs = databaseOperationTimeoutMs;
+	}
+
+	/**
+	 * Cancel the current network operation, if any.
+	 * <p>
+	 * Disconnecting the active HTTP connection unblocks a pending read so callers do not need to wait for the socket
+	 * timeout before cancellation takes effect.
+	 */
+	public void cancelCurrentOperation() {
+		HttpURLConnection connection = activeConnection.getAndSet(null);
+		if (connection != null) {
+			connection.disconnect();
+		}
 	}
 
 	/**
@@ -109,7 +150,8 @@ public class MotorDatabaseRemoteUpdater {
 	 * @throws IOException if an I/O error occurs
 	 */
 	public MotorDatabaseMetadata fetchRemoteMetadata(String metadataUrl) throws IOException {
-		try (InputStream in = openStream(metadataUrl);
+		OperationDeadline deadline = new OperationDeadline(metadataOperationTimeoutMs);
+		try (InputStream in = openStream(metadataUrl, deadline);
 			 InputStream limited = new ThrowingLimitedInputStream(in, MAX_METADATA_BYTES)) {
 			MotorDatabaseMetadata metadata = MotorDatabaseMetadata.parse(limited);
 			verifySignedMetadata(metadata);
@@ -177,6 +219,7 @@ public class MotorDatabaseRemoteUpdater {
 		}
 		verifySignedMetadata(remoteMetadata);
 		validateDatabaseDownloadUrl(databaseGzUrl);
+		OperationDeadline deadline = new OperationDeadline(databaseOperationTimeoutMs);
 
 		File targetDbFile = new File(motorLibraryDir, MOTORS_DB_FILENAME);
 		File targetMetadataFile = new File(motorLibraryDir, METADATA_FILENAME);
@@ -191,7 +234,7 @@ public class MotorDatabaseRemoteUpdater {
 			throw new IOException("Remote metadata missing or invalid sha256_gz");
 		}
 
-		try (InputStream rawIn0 = openStream(databaseGzUrl);
+		try (InputStream rawIn0 = openStream(databaseGzUrl, deadline);
 			 InputStream rawIn = new ThrowingLimitedInputStream(rawIn0, MAX_DB_GZ_BYTES);
 			 FileOutputStream out = new FileOutputStream(tmpDbFile)) {
 
@@ -218,8 +261,8 @@ public class MotorDatabaseRemoteUpdater {
 						", sha256_db=" + actualDbSha256 + ")");
 			}
 
-			// Always validate the downloaded DB before replacing the local one (even if SHA is missing).
 			validateDownloadedDatabase(tmpDbFile);
+			deadline.throwIfExpired();
 		} catch (IOException e) {
 			if (tmpDbFile.isFile() && !tmpDbFile.delete()) {
 				log.debug("Unable to delete partial download {}", tmpDbFile.getAbsolutePath());
@@ -241,35 +284,50 @@ public class MotorDatabaseRemoteUpdater {
 	 * @throws IOException if an I/O error occurs
 	 */
 	private InputStream openStream(String url) throws IOException {
+		return openStream(url, new OperationDeadline(databaseOperationTimeoutMs));
+	}
+
+	private InputStream openStream(String url, OperationDeadline deadline) throws IOException {
 		validateHttpsUrl(url);
 		final int maxRedirects = 3;
 		String current = url;
 
 		for (int redirects = 0; redirects <= maxRedirects; redirects++) {
+			deadline.throwIfExpired();
 			HttpURLConnection connection = connectionSource.getConnection(current);
+			boolean streamReturned = false;
+			activeConnection.set(connection);
 			connection.setInstanceFollowRedirects(false);
-			connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
-			connection.setReadTimeout(READ_TIMEOUT_MS);
+			connection.setConnectTimeout(deadline.boundedTimeout(CONNECT_TIMEOUT_MS));
+			connection.setReadTimeout(deadline.boundedTimeout(READ_TIMEOUT_MS));
 			connection.setRequestProperty("User-Agent", "OpenRocket");
 			connection.setRequestProperty("Accept", "application/json, */*");
 			connection.setRequestProperty("Accept-Encoding", "identity");
-			connection.connect();
-
-			int code = connection.getResponseCode();
-			if (code >= 200 && code < 300) {
-				return connection.getInputStream();
-			}
-			if (code == 301 || code == 302 || code == 303 || code == 307 || code == 308) {
-				String location = connection.getHeaderField("Location");
-				if (location == null || location.trim().isEmpty()) {
-					throw new IOException("HTTP " + code + " without Location header when fetching " + current);
+			try {
+				connection.connect();
+				int code = connection.getResponseCode();
+				deadline.throwIfExpired();
+				if (code >= 200 && code < 300) {
+					InputStream input = connection.getInputStream();
+					streamReturned = true;
+					return new DeadlineInputStream(input, connection, deadline, activeConnection);
 				}
-				String next = resolveRedirect(current, location);
-				validateRedirect(url, next);
-				current = next;
-				continue;
+				if (code == 301 || code == 302 || code == 303 || code == 307 || code == 308) {
+					String location = connection.getHeaderField("Location");
+					if (location == null || location.trim().isEmpty()) {
+						throw new IOException("HTTP " + code + " without Location header when fetching " + current);
+					}
+					String next = resolveRedirect(current, location);
+					validateRedirect(url, next);
+					current = next;
+					continue;
+				}
+				throw new IOException("HTTP " + code + " when fetching " + current);
+			} finally {
+				if (!streamReturned && activeConnection.compareAndSet(connection, null)) {
+					connection.disconnect();
+				}
 			}
-			throw new IOException("HTTP " + code + " when fetching " + current);
 		}
 
 		throw new IOException("Too many redirects when fetching " + url);
@@ -407,7 +465,7 @@ public class MotorDatabaseRemoteUpdater {
 	}
 
 	private static InputStream nonClosing(InputStream in) {
-		return new java.io.FilterInputStream(in) {
+		return new FilterInputStream(in) {
 			@Override
 			public void close() {
 				// Do not close the underlying stream; the caller owns it.
@@ -444,6 +502,78 @@ public class MotorDatabaseRemoteUpdater {
 			throw e;
 		} catch (Exception e) {
 			throw new IOException("Invalid redirect URL: " + redirectedUrl, e);
+		}
+	}
+
+	/**
+	 * Monotonic deadline shared by redirects and response-body reads for one network operation.
+	 */
+	private static final class OperationDeadline {
+		private final long deadlineNanos;
+
+		private OperationDeadline(long timeoutMs) {
+			long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+			this.deadlineNanos = System.nanoTime() + timeoutNanos;
+		}
+
+		private void throwIfExpired() throws IOException {
+			if (Thread.currentThread().isInterrupted()) {
+				throw new InterruptedIOException("Motor database update was cancelled");
+			}
+			if (System.nanoTime() >= deadlineNanos) {
+				throw new SocketTimeoutException("Motor database update exceeded its total time limit");
+			}
+		}
+
+		private int boundedTimeout(int maximumTimeoutMs) throws IOException {
+			throwIfExpired();
+			long remainingNanos = deadlineNanos - System.nanoTime();
+			long remainingMs = Math.max(1, TimeUnit.NANOSECONDS.toMillis(remainingNanos));
+			return (int) Math.min(maximumTimeoutMs, remainingMs);
+		}
+	}
+
+	/**
+	 * Response stream that enforces the operation deadline and owns the HTTP connection lifecycle.
+	 */
+	private static final class DeadlineInputStream extends InputStream {
+		private final InputStream delegate;
+		private final HttpURLConnection connection;
+		private final OperationDeadline deadline;
+		private final AtomicReference<HttpURLConnection> activeConnection;
+
+		private DeadlineInputStream(InputStream delegate, HttpURLConnection connection, OperationDeadline deadline,
+				AtomicReference<HttpURLConnection> activeConnection) {
+			this.delegate = delegate;
+			this.connection = connection;
+			this.deadline = deadline;
+			this.activeConnection = activeConnection;
+		}
+
+		@Override
+		public int read() throws IOException {
+			deadline.throwIfExpired();
+			int value = delegate.read();
+			deadline.throwIfExpired();
+			return value;
+		}
+
+		@Override
+		public int read(byte[] buffer, int offset, int length) throws IOException {
+			deadline.throwIfExpired();
+			int count = delegate.read(buffer, offset, length);
+			deadline.throwIfExpired();
+			return count;
+		}
+
+		@Override
+		public void close() throws IOException {
+			try {
+				delegate.close();
+			} finally {
+				activeConnection.compareAndSet(connection, null);
+				connection.disconnect();
+			}
 		}
 	}
 
