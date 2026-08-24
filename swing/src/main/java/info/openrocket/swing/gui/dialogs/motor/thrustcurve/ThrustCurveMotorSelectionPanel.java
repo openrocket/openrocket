@@ -51,6 +51,7 @@ import javax.swing.table.TableRowSorter;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.MotorDatabaseMetadataIO;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.jfree.chart.ChartColor;
@@ -238,25 +239,24 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					setDelays(false);
 				}
 			});
-			panel.add(delayBox, "growx,wrap");
+			panel.add(delayBox, "growx, wrap");
 			//// (or type in desired delay in seconds)
-			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "skip, wrap");
+			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "spanx, skip, wrap");
 			setDelays(false);
 		}
 
-		// Optional nozzle exit diameter used by the powered base-drag model.
+		// Nozzle exit diameter
 		{
 			nozzleExitDiameterLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Nozzleexitdiameter"));
 			panel.add(nozzleExitDiameterLabel);
 
-			nozzleExitDiameterSpinner = new JSpinner(nozzleExitDiameterModel.getSpinnerModel());
-			nozzleExitDiameterSpinner.setEditor(new SpinnerEditor(nozzleExitDiameterSpinner));
+			nozzleExitDiameterSpinner = new EditableSpinner(nozzleExitDiameterModel.getSpinnerModel());
 			panel.add(nozzleExitDiameterSpinner, "split 2, growx");
 
 			nozzleExitDiameterUnitSelector = new UnitSelector(nozzleExitDiameterModel);
 			panel.add(nozzleExitDiameterUnitSelector, "wrap");
 			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Nozzleexitdiameter.desc"), -3),
-					"skip, span, growx, wrap");
+					"skip, spanx, growx, wrap");
 		}
 
 		//// Hide very similar thrust curves
