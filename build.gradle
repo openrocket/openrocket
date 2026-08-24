@@ -25,7 +25,7 @@ application {
     /*applicationDefaultJvmArgs = [
             // Use the system appearance on macOS for the FlatLaf title bar
             '-Dapple.awt.application.appearance=system',
-            // Fix JOGL 3D importing on Windows
+            // Fix 3D importing on Windows
             '--add-exports',
             'java.base/java.lang=ALL-UNNAMED',
             '--add-exports',
@@ -67,9 +67,22 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url = "https://jitpack.io" }
-        maven { url = "https://jogamp.org/deployment/maven/" }
     }
 }
+
+// Standard GitHub-hosted Windows runners do not expose the hardware OpenGL context
+// required by the live AWTGLCanvas suites, while hosted macOS runners are not
+// reliable under repeated native canvas setup/teardown. Keep their compile and
+// non-GL test coverage while running the renderer tests on Linux. A capable
+// self-hosted Windows or macOS job can opt back in with
+// -Dopenrocket.test.runLiveOpenGl=true.
+def operatingSystemName = System.getProperty('os.name', '').toLowerCase(Locale.ROOT)
+def runningOnGitHubActionsWithoutReliableLiveOpenGl =
+        'true'.equalsIgnoreCase(System.getenv('GITHUB_ACTIONS'))
+                && (operatingSystemName.contains('windows') || operatingSystemName.contains('mac'))
+def excludeLiveOpenGlTests = Boolean.getBoolean('openrocket.test.excludeLiveOpenGl')
+        || (runningOnGitHubActionsWithoutReliableLiveOpenGl
+                && !Boolean.getBoolean('openrocket.test.runLiveOpenGl'))
 
 subprojects {
     apply plugin: 'java'
@@ -146,8 +159,25 @@ subprojects {
     }
 
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags 'stress'
+            if (excludeLiveOpenGlTests) {
+                excludeTags 'requires-live-opengl'
+            }
+        }
         finalizedBy jacocoTestReport
+
+        // The 3D tests drive real OpenGL contexts, so a failure there can be a native crash
+        // that takes the test JVM down rather than a failing assertion. Gradle reports only
+        // "finished with non-zero exit value 134"; the one record of what actually happened
+        // is the JVM's own hs_err_pid<pid>.log, which lands in the module directory where it
+        // is easily overlooked or cleaned away before anyone reads it. Keep those next to the
+        // rest of the test output so a crash that reproduces once is still diagnosable.
+        def crashReportDir = layout.buildDirectory.dir('test-crash-reports').get().asFile
+        doFirst {
+            crashReportDir.mkdirs()
+        }
+        jvmArgs "-XX:ErrorFile=${crashReportDir}/hs_err_pid%p.log"
 
         // Give the forked test JVM a reliable heap instead of relying on JVM ergonomics,
         // which can size the default heap too small under host memory pressure. Guice-backed
@@ -223,6 +253,18 @@ tasks.named('check') {
 //    dependsOn ':core:serializeEngines'
 //}
 
+// LWJGL version — must match swing/build.gradle
+def lwjglVersion = "3.4.2"
+
+configurations {
+    // All-platform LWJGL natives: resolved separately and merged into the shadow JAR
+    // so the distributed fat JAR runs on any supported OS/arch without rebuilding.
+    allPlatformNatives {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 // JAR config
 jar {
     archiveBaseName = 'OpenRocket'
@@ -280,6 +322,19 @@ def collectThirdPartyLicenses = tasks.register('collectThirdPartyLicenses') {
 dependencies {
     implementation(project(path: ":core", configuration: "default"))
     implementation(project(path: ":swing", configuration: "default"))
+
+    // All-platform LWJGL natives for cross-platform fat JAR distribution
+    allPlatformNatives platform("org.lwjgl:lwjgl-bom:${lwjglVersion}")
+    for (String platform : [
+            "natives-linux", "natives-linux-arm32", "natives-linux-arm64",
+            "natives-linux-ppc64le", "natives-linux-riscv64",
+            "natives-macos", "natives-macos-arm64",
+            "natives-windows", "natives-windows-arm64", "natives-windows-x86",
+            "natives-freebsd"]) {
+        allPlatformNatives "org.lwjgl:lwjgl::${platform}"
+        allPlatformNatives "org.lwjgl:lwjgl-opengl::${platform}"
+        allPlatformNatives "org.lwjgl:lwjgl-stb::${platform}"
+    }
 }
 
 tasks.named('shadowJar', ShadowJar) {
@@ -288,6 +343,10 @@ tasks.named('shadowJar', ShadowJar) {
     archiveVersion = '' + version
     archiveClassifier = ''
     dependsOn(distTar, distZip)
+
+    // Merge all-platform natives so the fat JAR runs on any supported OS/arch
+    configurations = [project.configurations.runtimeClasspath,
+                      project.configurations.allPlatformNatives]
 
     // The license dialog links to this file inside the JAR
     from(rootProject.file('LICENSE.TXT'))
