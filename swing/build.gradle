@@ -134,6 +134,19 @@ tasks.withType(Test).configureEach {
     }
 }
 
+tasks.register('stressTest', Test) {
+    group = 'verification'
+    description = 'Runs the Swing stress test suite.'
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'stress'
+    }
+
+    shouldRunAfter tasks.named('test')
+}
+
 dependencies {
     implementation(project(path: ':core', configuration: 'default'))
 

@@ -93,6 +93,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("requires-live-opengl")
+@Tag("stress")
 class PhotoStudio3DStressTest extends BaseTestCase {
 
 	// Generous timeouts: these are awaits that return early on success, so large

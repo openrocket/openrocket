@@ -160,6 +160,7 @@ subprojects {
 
     test {
         useJUnitPlatform {
+            excludeTags 'stress'
             if (excludeLiveOpenGlTests) {
                 excludeTags 'requires-live-opengl'
             }

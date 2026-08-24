@@ -45,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("requires-live-opengl")
+@Tag("stress")
 class RocketPanel3DStressTest extends BaseTestCase {
 
 	private static final long STARTUP_TIMEOUT_MS = 12_000;
