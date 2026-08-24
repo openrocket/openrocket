@@ -1123,78 +1123,195 @@ presence of the fins.  Define
 \end{equation}
 %
 where $s$ is the exposed fin span from root to tip and $r_t$ is the
-body radius at the fin position.  The classical Barrowman correction
-for the fins in the presence of the body is~\cite{barrowman-rd}
-%
-\begin{equation}
-K_{T(B)} = 1 + \tau.
-\end{equation}
-%
-The slender-body expressions for the two interference effects in
-NACA Report 1307, equations 14 and 21, combine to~\cite{naca-1307}
-%
-\begin{equation}
-K_T = K_{T(B)} + K_{B(T)} = (1+\tau)^2.
-\end{equation}
-%
-This combined factor is used through Mach 0.9.  OpenRocket does not
-yet model the fin-tip Mach-cone geometry needed for the body term at
-supersonic speeds, so $K_{B(T)}=\tau(1+\tau)$ is linearly blended to
-zero between Mach 0.9 and Mach 1.5.  Above Mach 1.5 only the established
-$K_{T(B)}$ correction is retained.  The body contribution is lumped at
-the fin-set center of pressure; calculating its separate center of
-pressure would require the full NACA method.  Since the additional
-normal force acts on the body, it is not included in the fin-cant roll
-forcing term.
+body radius at the fin position.  Thus, $\tau$ is the $r/s$ ratio of
+NACA Report 1307, whose semispan is measured from the body axis rather
+than from the fin root~\cite{naca-1307}.  Here ``complete NACA method''
+refers to the fin--body part of that report; the separate wing--tail
+vortex-interference model is not included.
 
-\pagebreak[4]
-\paragraph{Future complete NACA implementation.}
-Here ``complete'' refers to the fin--body portions of Report 1307, not
-to its separate wing--tail vortex-interference model.  The scalar
-correction above is intentionally an interim model.  A future
-implementation should perform the following work, mapping the report's
-wing notation to the rocket fins:
-
-\begin{enumerate}
-\item Keep the fin-in-body and body-in-fin loads separate,
+\paragraph{Separate normal-force components.}
+The normal forces on the fin and body are retained as separate terms,
 \begin{align}
 \del{\CNa}_{F(B)} &= K_{F(B)}\;\del{\CNa}_F, \\
 \del{\CNa}_{B(F)} &= K_{B(F)}\;\del{\CNa}_F.
 \end{align}
-Determine both factors from equations 13--34 and charts 1--5 of
-Report 1307.  The calculation needs the body-radius/total-semispan
-ratio $r/s$ (the report measures $s$ from the axis to the fin tip),
-$\beta A$ with $\beta=\sqrt{|M_\infty^2-1|}$, taper ratio, and edge
-sweep.  It must apply the report's slender-body/planar-model selection
-rule derived from the restriction in equation 22.  The planar model of
-equations 23--31 distinguishes subsonic and supersonic fin edges and
-configurations with and without an afterbody.  All terms must use a
-consistent OpenRocket reference area when they are combined.
+For a changing body angle of attack and zero fin incidence, equation 14
+of Report 1307 gives
+%
+\begin{align}
+K_{F(B)}=\frac{2}{\pi(1-\tau)^2}\bigg\{&(1+\tau^4)
+ \left[\frac{1}{2}\tan^{-1}\!\left(\frac{1}{2}
+ \left(\frac{1}{\tau}-\tau\right)\right)+\frac{\pi}{4}\right] \notag\\
+ &-\tau^2\left[\left(\frac{1}{\tau}-\tau\right)
+ +2\tan^{-1}\tau\right]\bigg\}.
+\end{align}
+%
+The limiting value at $\tau=0$ is one.  The corresponding slender-body
+load carried by the body follows from equation 21.  The long terms in
+the two equations cancel exactly, so it is evaluated in the numerically
+stable form
+%
+\begin{equation}
+K_{B(F),\mathrm{slender}}=(1+\tau)^2-K_{F(B)}.
+\end{equation}
+%
+This cancellation is why the total slender-body correction is the much
+simpler $(1+\tau)^2$; it is an algebraic identity of the two NACA
+expressions, not a separately fitted formula.  The classical Barrowman
+factor $1+\tau$~\cite{barrowman-rd} is retained only by the fallback
+described below.
+The selection guide on printed page 47 of Report 1307 points rectangular
+supersonic wings with $\beta A>2$ to the linear-theory chart 2 for this
+uppercase factor.  The report's physical discussion on printed page 5,
+however, says that linear theory omits the measured loss of wing lift near
+the body and explicitly recommends the slender-body $K_{F(B)}$ for all
+combinations.  OpenRocket follows that recommendation and uses equation 14;
+the report states that the two estimates differ by less than five percent in
+the affected range.
 
-\item Calculate the two centers of pressure independently.  Use
-equations 58--65 and charts 10--13 for the fins in the presence of the
-body.  Use equations 66--71 and charts 14--16 for the force transferred
-to the body: the image-vortex lifting-line model of figure 15 and
-Appendix D for subsonic flow, and the Mach-line planar model of figure 4
-for supersonic flow.  Combine the two normal forces and their moments,
-following the force-weighted procedure of equation 82.  Only the force
-on the fin surface should contribute to cant-driven roll.
+At subsonic speeds equation 21 supplies $K_{B(F)}$.  At supersonic
+speeds OpenRocket applies the planar delayed-reaction model of figure 4
+when the equation-22 condition
+%
+\begin{equation}
+\beta A(1+\lambda)\left(\frac{1}{\beta m}+1\right)>4
+\end{equation}
+%
+is satisfied.  Here $\beta=\sqrt{M_\infty^2-1}$, $A$ is the effective
+aspect ratio of the two joined exposed fin panels,
+$\lambda=c_t/c_r$, and $m$ is the cotangent of leading-edge sweep.
+Above this boundary OpenRocket numerically integrates the source pressure
+distributions in equations 23 and 25 instead of evaluating the poorly
+conditioned closed forms in equations 24 and 26.  The same quadrature,
+with streamwise position included in the integrand, evaluates the moments
+in equations 66 and 69.  The finite common limit of the two pressure
+solutions is used when $m\beta=1$.  The integration boundary is clipped
+at the actual end of the constant-radius cylinder.  Flush following body
+tubes of the same radius are included even when they are separate design
+components; a gap, transition, radius change, or stage boundary ends the
+cylinder.  This covers both the with-afterbody and no-afterbody cases
+discussed after equation 70 without extending the theory across a
+boattail.
 
-\item Generalize and validate the report's unbanked two-panel wing
-model before using it for radial fin sets.  The implementation must
-define how the loads from each fin orientation are projected and
-superposed without counting the shared body response more than once.
-It must also define an explicit fallback to the present approximation
-for geometries outside the method's assumptions, including large
-angles of attack, strongly varying body radius, forward-swept leading
-edges, and swept-back trailing edges.
+Below the equation-22 boundary the body normal-force factor remains the
+slender-body value, but its center of pressure follows the low-aspect-ratio
+fairing in chart 15.  The published chart is for an afterbody.  OpenRocket
+stores its normalized progress from the slender-body ordinate to the
+planar ordinate at the equation-22 boundary, so the same fairing can be
+anchored to a pressure integration clipped at a finite body end.  Force
+and moment are faired over a narrow interval immediately above the
+selection boundary to remove the small numerical step between the two
+approximations.
+The four radius curves in rectangular panel 15(c) are stored independently;
+using scaled copies of one guide curve understates their published spread and
+can place the body-load CP about $0.14c_r$ too far aft.  The report explicitly
+does not provide the low-aspect-ratio extrapolation for triangular panel
+15(a).  A planform whose interpolation would require that missing panel uses
+the fallback rather than invented chart data.
 
-\item Implement closed-form equations directly and store any digitized
-chart data with source and interpolation metadata.  Regression tests
-should reproduce the fin/body entries of the computing example in
-table I, exercise the chart boundaries and afterbody alternatives, and
-verify finite, continuous behavior through the transonic range.
-\end{enumerate}
+\paragraph{Centers of pressure.}
+Report 1307 concludes in the discussion preceding equation 64 that the
+wing-alone center of pressure is the best estimate for the fin load
+over the full aspect-ratio range.  OpenRocket therefore retains the
+existing fin CP calculation.  At subsonic speeds the CP of the load
+transferred to the body follows chart 16.  The chart fairs between the
+slender-body endpoint
+%
+\begin{equation}
+\bar{x}_{B(F),\mathrm{slender}}=\frac{1}{2}x_{LE,t}
+\end{equation}
+%
+at $\beta A=0$ and the Appendix-D lifting-line result at large
+$\beta A$,
+%
+\begin{equation}
+\bar{x}_{B(F),LL}=\frac{c_r}{4}+\tan\Lambda_{1/4}
+ \frac{\displaystyle\int_{r_t}^{r_t+s}
+ \Gamma(y)\frac{y-r_t}{y^2}\,\dif y}
+ {\displaystyle\int_{r_t}^{r_t+s}\frac{\Gamma(y)}{y^2}\,\dif y},
+\qquad
+\Gamma(y)=\sqrt{1-\left(\frac{y-r_t}{s}\right)^2}.
+\end{equation}
+%
+The normalized fairing ordinates digitized from all nine dotted
+chart-16 families are stored with the implementation at
+$\beta A=0,0.5,\ldots,8$.  The families cover taper ratios 0, 1/2,
+and 1 with no leading-edge, midchord, or trailing-edge sweep.  The
+four published $r/s=0,0.2,0.4,0.6$ curve families are retained through
+radius-dependent abscissa corrections rather than collapsing them onto
+the $r/s=0$ curve.  OpenRocket first interpolates in $\beta A$ and
+$r/s$, then in taper ratio and between adjacent sweep families.  Each
+stored ordinate is the fraction from the slender-body CP to the
+Appendix-D CP, so both analytic endpoints remain fixed for intermediate
+planforms and radius ratios.
+This distinction is significant for a triangular fin with no
+trailing-edge sweep: chart 16(g) approaches the lifting-line result
+only near $\beta A=7$, much more slowly than the no-leading-edge-sweep
+families.
+The source panels, normalization, digitized anchors, interpolation rules,
+and acceptance tolerances are recorded in
+\texttt{doc/techdoc/naca1307-chart-digitization.md}.  The source-point
+tolerances are $0.02c_r$ for chart 15 and $0.015c_r$ for chart 16,
+reflecting the scan grid and plotted line thickness.
+%
+At supersonic speeds the high-aspect-ratio body CP is the pressure moment
+divided by the pressure lift, corresponding to equations 68 and 70; the
+low-aspect-ratio value follows chart 15 as described above.  Through the
+transonic interval, Mach 0.9 to 1.5, the body normal force and its moment
+are linearly interpolated together; interpolating the moment rather than
+CP itself keeps the result finite and continuous.
+
+Finally the two loads are recombined by their moments,
+%
+\begin{equation}
+\bar{x}_{F+B}=
+ \frac{\del{\CNa}_{F(B)}\bar{x}_{F(B)}
+  +\del{\CNa}_{B(F)}\bar{x}_{B(F)}}
+ {\del{\CNa}_{F(B)}+\del{\CNa}_{B(F)}}.
+\end{equation}
+%
+Because both loads are induced by the fin set, Component Analysis reports
+their combined \CNa\ and CP on that fin-set row.  The value is therefore
+the correct contribution to the whole-rocket moment balance, but it is not
+the pressure center of the physical fin surface alone.
+
+Cant is a fin-incidence case rather than a body-angle-of-attack case.
+Consequently cant-driven roll uses the lowercase $k_{F(B)}$ from
+equation 19, not the uppercase $K_{F(B)}$ from equation 14.  The body
+load does not act through the canted fin surface.  For a rectangular wing
+at supersonic speed with $\beta A>2$, the report's selection guide instead
+directs this lowercase factor to the linear-theory curves in chart 3.
+OpenRocket stores the $\beta A=2,3,4$ curves and interpolates toward the
+published $\beta A=\infty$ limit.  Since chart 3 and equation 19 do not meet
+exactly at the selection boundary, their factors are faired from
+$\beta A=2$ to 2.25 to avoid a step in roll forcing.  Equation 19 remains
+the common slender-body approximation outside that selection region, including
+trapezoidal, elliptical, and free-form fins.  The selected factor is held
+through the pre-stall range; only the existing post-stall roll reduction is
+then applied.  For a radial fin set the existing $\sin^2\Lambda_k$ projection
+is applied to each physical fin before the angle-of-attack interference
+factors are applied.
+Opposite fins therefore reconstruct the report's two-panel wing, while
+orthogonal fin pairs superpose in their own planes.
+
+\paragraph{Applicability and fallback.}
+The complete calculation is used for trapezoidal fins on a
+constant-radius body tube, for $r/s\leq0.6$, with no forward-swept
+leading edge or aft-swept trailing edge, and while the fin root remains
+on the body.  Planforms below half taper and below the no-midchord-sweep
+boundary are also excluded because they would require the unpublished
+low-aspect-ratio portion of chart 15(a).  These bounds correspond to the
+published planform families and radius ratios.  For the normal force and CP,
+free-form and elliptical fins, taper ratios outside zero to one,
+varying-radius parents, and post-stall angles retain the previous scalar
+approximation: the classical $1+\tau$ fin term plus a body residual which
+is blended to zero between Mach 0.9 and 1.5.  Because the report is a
+small-angle, forward-flow theory, its normal-force and CP result is used
+fully through 10 degrees and smoothly faired into the fallback by the
+20-degree stall angle.  It is not reused for reverse flow.  Keeping this
+explicit fallback avoids extrapolating the NACA charts outside their
+published range.  The equation-19 roll correction described above does
+not require those planform charts.
 
 
 
