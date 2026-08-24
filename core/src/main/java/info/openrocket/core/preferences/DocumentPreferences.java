@@ -4,6 +4,7 @@ import info.openrocket.core.database.Database;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.StateChangeListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,10 +99,10 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 * @param defaultValue the default color if not set (can be null)
 	 * @return the color, or defaultValue if not set
 	 */
-	public java.awt.Color getColor(String key, java.awt.Color defaultValue) {
+	public ORColor getColor(String key, ORColor defaultValue) {
 		DocumentPreference pref = preferencesMap.get(key);
 		if (pref != null && pref.getValue() instanceof String) {
-			java.awt.Color color = parseColor((String) pref.getValue());
+			ORColor color = parseColor((String) pref.getValue());
 			if (color != null) {
 				return color;
 			}
@@ -114,7 +115,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 * @param key the preference key
 	 * @param value the color to store (null to remove the preference)
 	 */
-	public void putColor(String key, java.awt.Color value) {
+	public void putColor(String key, ORColor value) {
 		if (value == null) {
 			preferencesMap.remove(key);
 		} else {
@@ -124,13 +125,13 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	}
 	
 	/**
-	 * Helper function to convert a string representation into a java.awt.Color object.
+	 * Helper function to convert a string representation into an ORColor object.
 	 * Expects format "R,G,B" where R, G, B are integers between 0 and 255.
-	 * 
+	 *
 	 * @param color the color string (e.g., "255,128,64")
-	 * @return the Color object, or null if parsing fails
+	 * @return the ORColor object, or null if parsing fails
 	 */
-	private static java.awt.Color parseColor(String color) {
+	private static ORColor parseColor(String color) {
 		if (color == null) {
 			return null;
 		}
@@ -141,7 +142,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 				int red = MathUtil.clamp(Integer.parseInt(rgb[0].trim()), 0, 255);
 				int green = MathUtil.clamp(Integer.parseInt(rgb[1].trim()), 0, 255);
 				int blue = MathUtil.clamp(Integer.parseInt(rgb[2].trim()), 0, 255);
-				return new java.awt.Color(red, green, blue);
+				return new ORColor(red, green, blue);
 			} catch (NumberFormatException ignore) {
 			}
 		}
@@ -149,13 +150,13 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	}
 	
 	/**
-	 * Helper function to convert a java.awt.Color object into a string before storing in a preference.
+	 * Helper function to convert an ORColor object into a string before storing in a preference.
 	 * Returns format "R,G,B" where R, G, B are integers between 0 and 255.
 	 * 
 	 * @param color the Color object
 	 * @return the string representation (e.g., "255,128,64")
 	 */
-	private static String stringifyColor(java.awt.Color color) {
+	private static String stringifyColor(ORColor color) {
 		return color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 	}
 

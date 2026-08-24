@@ -9,6 +9,7 @@ import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.components.SVGOptionPanel;
+import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
 
@@ -54,12 +55,12 @@ public final class SvgExportHelper {
 
 		// Save preferences
 		prefs.setDefaultDirectory(chooser.getCurrentDirectory());
-		prefs.setSVGStrokeColor(optionsDialog.getStrokeColor());
+		prefs.setSVGStrokeColor(ColorConversion.fromAwtColor(optionsDialog.getStrokeColor()));
 		prefs.setSVGStrokeWidth(optionsDialog.getStrokeWidth());
 		prefs.setSVGDrawCrosshair(optionsDialog.isDrawCrosshair());
-		prefs.setSVGCrosshairColor(optionsDialog.getCrosshairColor());
+		prefs.setSVGCrosshairColor(ColorConversion.fromAwtColor(optionsDialog.getCrosshairColor()));
 		prefs.setSVGShowLabels(optionsDialog.isShowLabels());
-		prefs.setSVGLabelColor(optionsDialog.getLabelColor());
+		prefs.setSVGLabelColor(ColorConversion.fromAwtColor(optionsDialog.getLabelColor()));
 
 		SVGExportOptions options = optionsDialog.getExportOptions();
 

@@ -14,6 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import java.awt.Color;
 
+import info.openrocket.swing.gui.util.ColorConversion;
+
 public class SVGOptionPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 	private static final ApplicationPreferences prefs = Application.getPreferences();
@@ -58,7 +60,7 @@ public class SVGOptionPanel extends JPanel {
 		JLabel label = new JLabel(trans.get("SVGOptionPanel.lbl.strokeColor"));
 		label.setToolTipText(trans.get("SVGOptionPanel.lbl.strokeColor.ttip"));
 		add(label);
-		colorChooser = new ColorChooserButton(prefs.getSVGStrokeColor());
+		colorChooser = new ColorChooserButton(ColorConversion.toAwtColor(prefs.getSVGStrokeColor()));
 		colorChooser.setToolTipText(trans.get("SVGOptionPanel.lbl.strokeColor.ttip"));
 		add(colorChooser, "wrap");
 
@@ -84,7 +86,7 @@ public class SVGOptionPanel extends JPanel {
 			crosshairColorLabel = new JLabel(trans.get("SVGOptionPanel.lbl.crosshairColor"));
 			crosshairColorLabel.setToolTipText(trans.get("SVGOptionPanel.lbl.crosshairColor.ttip"));
 			add(crosshairColorLabel);
-			crosshairColorChooser = new ColorChooserButton(prefs.getSVGCrosshairColor());
+			crosshairColorChooser = new ColorChooserButton(ColorConversion.toAwtColor(prefs.getSVGCrosshairColor()));
 			crosshairColorChooser.setToolTipText(trans.get("SVGOptionPanel.lbl.crosshairColor.ttip"));
 			add(crosshairColorChooser, "wrap");
 
@@ -119,7 +121,7 @@ public class SVGOptionPanel extends JPanel {
 		labelColorLabel = new JLabel(trans.get("SVGOptionPanel.lbl.labelColor"));
 		labelColorLabel.setToolTipText(trans.get("SVGOptionPanel.lbl.labelColor.ttip"));
 		add(labelColorLabel);
-		labelColorChooser = new ColorChooserButton(prefs.getSVGLabelColor());
+		labelColorChooser = new ColorChooserButton(ColorConversion.toAwtColor(prefs.getSVGLabelColor()));
 		labelColorChooser.setToolTipText(trans.get("SVGOptionPanel.lbl.labelColor.ttip"));
 		add(labelColorChooser, "wrap para");
 

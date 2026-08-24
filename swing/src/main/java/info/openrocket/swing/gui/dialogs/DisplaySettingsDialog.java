@@ -20,6 +20,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
+
+import info.openrocket.swing.gui.util.ColorConversion;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Window;
@@ -60,10 +62,10 @@ public class DisplaySettingsDialog extends JDialog {
 		this.docPreferences = document.getDocumentPreferences();
 		
 		// Get current colors from document preferences (null if not explicitly set)
-		original2DBgColor = docPreferences.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
-		original3DBgColor = docPreferences.getColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, null);
-		original2DTextColor = docPreferences.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
-		original3DTextColor = docPreferences.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
+		original2DBgColor = ColorConversion.toAwtColor(docPreferences.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null));
+		original3DBgColor = ColorConversion.toAwtColor(docPreferences.getColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, null));
+		original2DTextColor = ColorConversion.toAwtColor(docPreferences.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null));
+		original3DTextColor = ColorConversion.toAwtColor(docPreferences.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null));
 		
 		init();
 	}
@@ -180,10 +182,10 @@ public class DisplaySettingsDialog extends JDialog {
 		JButton cancelButton = new JButton(trans.get("button.cancel"));
 		cancelButton.addActionListener(e -> {
 			// Revert to original colors (null means not set, will use theme/default)
-			docPreferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, original2DBgColor);
-			docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, original3DBgColor);
-			docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, original2DTextColor);
-			docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, original3DTextColor);
+			docPreferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, ColorConversion.fromAwtColor(original2DBgColor));
+			docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, ColorConversion.fromAwtColor(original3DBgColor));
+			docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, ColorConversion.fromAwtColor(original2DTextColor));
+			docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, ColorConversion.fromAwtColor(original3DTextColor));
 			update2DView();
 			update3DView();
 			updateTextColors();
@@ -226,7 +228,7 @@ public class DisplaySettingsDialog extends JDialog {
 	 */
 	private void saveColorIfDifferent(String prefKey, Color newColor, Color themeDefault) {
 		if (newColor != null && !newColor.equals(themeDefault)) {
-			docPreferences.putColor(prefKey, newColor);
+			docPreferences.putColor(prefKey, ColorConversion.fromAwtColor(newColor));
 		} else {
 			docPreferences.putColor(prefKey, null);
 		}
@@ -435,14 +437,14 @@ public class DisplaySettingsDialog extends JDialog {
 					
 					if (prefKey.equals(DocumentPreferences.PREF_2D_TEXT_COLOR)) {
 						// Resetting 2D text color - get current 3D color to preserve it
-						Color doc3DTextColor = docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
+						Color doc3DTextColor = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null));
 						Color default3DTextColor = swingPrefs.getDefault3DTextColor();
 						textColor3D = doc3DTextColor != null ? doc3DTextColor : 
 							(default3DTextColor != null ? default3DTextColor : null);
 						textColor2D = null; // Force factory default for 2D
 					} else {
 						// Resetting 3D text color - get current 2D color to preserve it
-						Color doc2DTextColor = docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
+						Color doc2DTextColor = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null));
 						Color default2DTextColor = swingPrefs.getDefault2DTextColor();
 						textColor2D = doc2DTextColor != null ? doc2DTextColor : 
 							(default2DTextColor != null ? default2DTextColor : null);

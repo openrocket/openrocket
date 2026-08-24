@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.lang.Exception;
 import java.util.Iterator;
 
-import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,10 +282,7 @@ public class CSVSave extends AbstractSimulationExtension {
 				
 			} catch (Exception e) {
 				log.error("ERROR OPENING FILE: " + e);
-				JOptionPane.showMessageDialog(null,
-											  "Error Opening File:\n" + e.getMessage(),
-											  "Error Opening File: " + file,
-											  JOptionPane.ERROR_MESSAGE);
+				throw new SimulationException("Error opening file " + file + ": " + e.getMessage(), e);
 			}
 			
 		}

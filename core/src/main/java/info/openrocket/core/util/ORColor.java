@@ -65,14 +65,6 @@ public class ORColor {
 		return "ORColor [r=" + red + ", g=" + green + ", b=" + blue + ", a=" + alpha + "]";
 	}
 
-	public java.awt.Color toAWTColor() {
-		return new java.awt.Color(red, green, blue, alpha);
-	}
-
-	public static ORColor fromAWTColor(java.awt.Color AWTColor) {
-		return new ORColor(AWTColor.getRed(), AWTColor.getGreen(), AWTColor.getBlue(), AWTColor.getAlpha());
-	}
-
 	/**
 	 * Parse an ORColor from XML attributes containing "red", "green", "blue", and optionally "alpha" keys.
 	 * Returns {@code null} if any required attribute is missing or if any value is not a valid integer in [0, 255].

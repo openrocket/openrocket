@@ -15,6 +15,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import java.awt.Color;
+
+import info.openrocket.swing.gui.util.ColorConversion;
 import java.awt.Component;
 import java.text.Normalizer;
 import java.util.Locale;
@@ -84,7 +86,7 @@ public class TextureCreationDialog {
 			outlineColorLabel = new JLabel(trans.get("AppearanceCfg.createTexture.lbl.outlineColor"));
 			outlineColorLabel.setToolTipText(trans.get("AppearanceCfg.createTexture.lbl.ttip.outlineColor"));
 			dialogPanel.add(outlineColorLabel);
-			outlineColorButton = new ColorChooserButton(prefs.getTextureGenerationOutlineColor());
+			outlineColorButton = new ColorChooserButton(ColorConversion.toAwtColor(prefs.getTextureGenerationOutlineColor()));
 			outlineColorButton.setToolTipText(trans.get("AppearanceCfg.createTexture.lbl.ttip.outlineColor"));
 			outlineColorButton.setEnabled(outlineCheckbox.isSelected());
 			dialogPanel.add(outlineColorButton, "wrap");
@@ -132,13 +134,13 @@ public class TextureCreationDialog {
 		if (outlineCheckbox != null) {
 			prefs.setTextureGenerationDrawOutline(outlineCheckbox.isSelected());
 			prefs.setTextureGenerationOutlinePx(((Number) outlineWidthSpinner.getValue()).intValue());
-			prefs.setTextureGenerationOutlineColor(outlineColorButton.getSelectedColor());
+			prefs.setTextureGenerationOutlineColor(ColorConversion.fromAwtColor(outlineColorButton.getSelectedColor()));
 		}
 		prefs.setTextureGenerationResetTransforms(resetTransformsCheckbox.isSelected());
 
 		boolean drawOutline = outlineCheckbox != null && outlineCheckbox.isSelected();
 		int outlineWidth = outlineWidthSpinner != null ? ((Number) outlineWidthSpinner.getValue()).intValue() : 0;
-		Color outlineColor = outlineColorButton != null ? outlineColorButton.getSelectedColor() : prefs.getTextureGenerationOutlineColor();
+		Color outlineColor = outlineColorButton != null ? outlineColorButton.getSelectedColor() : ColorConversion.toAwtColor(prefs.getTextureGenerationOutlineColor());
 		return new TextureCreationParameters(((Number) dpiSpinner.getValue()).doubleValue(),
 				requestedFileName, drawOutline, outlineWidth, resetTransformsCheckbox.isSelected(), outlineColor);
 	}
