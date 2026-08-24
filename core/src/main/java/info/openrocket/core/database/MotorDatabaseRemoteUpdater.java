@@ -221,60 +221,77 @@ public class MotorDatabaseRemoteUpdater {
 		validateDatabaseDownloadUrl(databaseGzUrl);
 		OperationDeadline deadline = new OperationDeadline(databaseOperationTimeoutMs);
 
+		Path lockPath = new File(motorLibraryDir, INSTALL_LOCK_FILENAME).toPath();
+		try (FileChannel lockChannel = FileChannel.open(lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+			FileLock installationLock = tryAcquireInstallationLock(lockChannel);
+			try (installationLock) {
+				installRemoteDatabaseLocked(motorLibraryDir, remoteMetadata, databaseGzUrl, deadline);
+			}
+		}
+	}
+
+	private void installRemoteDatabaseLocked(File motorLibraryDir, MotorDatabaseMetadata remoteMetadata,
+			String databaseGzUrl, OperationDeadline deadline) throws IOException {
+
 		File targetDbFile = new File(motorLibraryDir, MOTORS_DB_FILENAME);
 		File targetMetadataFile = new File(motorLibraryDir, METADATA_FILENAME);
 
-		File tmpDbFile = new File(motorLibraryDir, MOTORS_DB_FILENAME + ".download");
-		File tmpMetadataFile = new File(motorLibraryDir, METADATA_FILENAME + ".download");
+		File tmpDbFile = Files.createTempFile(motorLibraryDir.toPath(), MOTORS_DB_FILENAME + ".", ".download").toFile();
+		File tmpMetadataFile = null;
 
-		log.info("Downloading motor database from {}", databaseGzUrl);
-		String rawSha256Gz = remoteMetadata.getSha256Gz();
-		String expectedGzipSha256 = normalizeSha256(rawSha256Gz);
-		if (expectedGzipSha256 == null) {
-			throw new IOException("Remote metadata missing or invalid sha256_gz");
-		}
-
-		try (InputStream rawIn0 = openStream(databaseGzUrl, deadline);
-			 InputStream rawIn = new ThrowingLimitedInputStream(rawIn0, MAX_DB_GZ_BYTES);
-			 FileOutputStream out = new FileOutputStream(tmpDbFile)) {
-
-			MessageDigest gzipDigest = sha256Digest();
-			MessageDigest dbDigest = sha256Digest();
-			String actualGzipSha256;
-			String actualDbSha256;
-
-			try (DigestInputStream gzipDigestStream = new DigestInputStream(rawIn, gzipDigest);
-				 GZIPInputStream gzIn = new GZIPInputStream(nonClosing(gzipDigestStream));
-				 DigestInputStream dbDigestStream = new DigestInputStream(gzIn, dbDigest);
-				 InputStream dbLimited = new ThrowingLimitedInputStream(dbDigestStream, MAX_DB_BYTES)) {
-				FileUtils.copy(dbLimited, out);
-				// Ensure we hash the full response body for the gzip digest (not only what the decompressor consumed).
-				drain(gzipDigestStream);
+		try {
+			tmpMetadataFile = Files.createTempFile(
+					motorLibraryDir.toPath(), METADATA_FILENAME + ".", ".download").toFile();
+			log.info("Downloading motor database from {}", databaseGzUrl);
+			String rawSha256Gz = remoteMetadata.getSha256Gz();
+			String expectedGzipSha256 = normalizeSha256(rawSha256Gz);
+			if (expectedGzipSha256 == null) {
+				throw new IOException("Remote metadata missing or invalid sha256_gz");
 			}
 
-			actualGzipSha256 = TextUtil.bytesToHex(gzipDigest.digest());
-			actualDbSha256 = TextUtil.bytesToHex(dbDigest.digest());
+			try (InputStream rawIn0 = openStream(databaseGzUrl, deadline);
+				 InputStream rawIn = new ThrowingLimitedInputStream(rawIn0, MAX_DB_GZ_BYTES);
+				 FileOutputStream out = new FileOutputStream(tmpDbFile)) {
 
-			if (!expectedGzipSha256.equals(actualGzipSha256)) {
-				throw new IOException("Downloaded motor database SHA-256 mismatch (expected sha256_gz=" +
-						expectedGzipSha256 + ", got sha256_gz=" + actualGzipSha256 +
-						", sha256_db=" + actualDbSha256 + ")");
+				MessageDigest gzipDigest = sha256Digest();
+				MessageDigest dbDigest = sha256Digest();
+				String actualGzipSha256;
+				String actualDbSha256;
+
+				try (DigestInputStream gzipDigestStream = new DigestInputStream(rawIn, gzipDigest);
+					 GZIPInputStream gzIn = new GZIPInputStream(nonClosing(gzipDigestStream));
+					 DigestInputStream dbDigestStream = new DigestInputStream(gzIn, dbDigest);
+					 InputStream dbLimited = new ThrowingLimitedInputStream(dbDigestStream, MAX_DB_BYTES)) {
+					FileUtils.copy(dbLimited, out);
+					// Ensure we hash the full response body for the gzip digest (not only what the decompressor consumed).
+					drain(gzipDigestStream);
+				}
+
+				actualGzipSha256 = TextUtil.bytesToHex(gzipDigest.digest());
+				actualDbSha256 = TextUtil.bytesToHex(dbDigest.digest());
+
+				if (!expectedGzipSha256.equals(actualGzipSha256)) {
+					throw new IOException("Downloaded motor database SHA-256 mismatch (expected sha256_gz=" +
+							expectedGzipSha256 + ", got sha256_gz=" + actualGzipSha256 +
+							", sha256_db=" + actualDbSha256 + ")");
+				}
+
+				validateDownloadedDatabase(tmpDbFile);
 			}
 
-			validateDownloadedDatabase(tmpDbFile);
 			deadline.throwIfExpired();
-		} catch (IOException e) {
-			if (tmpDbFile.isFile() && !tmpDbFile.delete()) {
-				log.debug("Unable to delete partial download {}", tmpDbFile.getAbsolutePath());
+			MotorDatabaseMetadataIO.writeRawJson(tmpMetadataFile, remoteMetadata.getRawJson());
+			rejectStaleInstall(targetMetadataFile, remoteMetadata.getDatabaseVersion());
+
+			FileUtils.replaceFile(tmpDbFile, targetDbFile);
+			FileUtils.replaceFile(tmpMetadataFile, targetMetadataFile);
+			log.info("Installed updated motor database (database_version={})", remoteMetadata.getDatabaseVersion());
+		} finally {
+			deleteTemporaryFile(tmpDbFile);
+			if (tmpMetadataFile != null) {
+				deleteTemporaryFile(tmpMetadataFile);
 			}
-			throw e;
 		}
-
-		MotorDatabaseMetadataIO.writeRawJson(tmpMetadataFile, remoteMetadata.getRawJson());
-
-		FileUtils.replaceFile(tmpDbFile, targetDbFile);
-		FileUtils.replaceFile(tmpMetadataFile, targetMetadataFile);
-		log.info("Installed updated motor database (database_version={})", remoteMetadata.getDatabaseVersion());
 	}
 
 	/**
@@ -283,10 +300,6 @@ public class MotorDatabaseRemoteUpdater {
 	 * @return the InputStream
 	 * @throws IOException if an I/O error occurs
 	 */
-	private InputStream openStream(String url) throws IOException {
-		return openStream(url, new OperationDeadline(databaseOperationTimeoutMs));
-	}
-
 	private InputStream openStream(String url, OperationDeadline deadline) throws IOException {
 		validateHttpsUrl(url);
 		final int maxRedirects = 3;
@@ -454,6 +467,41 @@ public class MotorDatabaseRemoteUpdater {
 			ThrustCurveMotorSQLiteDatabase.validateDatabase(dbFile);
 		} catch (SQLException e) {
 			throw new IOException("Downloaded motor database failed validation: " + e.getMessage(), e);
+		}
+	}
+
+	private static FileLock tryAcquireInstallationLock(FileChannel lockChannel) throws IOException {
+		try {
+			FileLock lock = lockChannel.tryLock();
+			if (lock == null) {
+				throw new IOException("Another OpenRocket process is installing a motor database update");
+			}
+			return lock;
+		} catch (OverlappingFileLockException e) {
+			throw new IOException("Another motor database update is already running", e);
+		}
+	}
+
+	private static void rejectStaleInstall(File localMetadataFile, long remoteVersion) throws IOException {
+		if (!localMetadataFile.isFile()) {
+			return;
+		}
+		long installedVersion;
+		try {
+			installedVersion = MotorDatabaseMetadataIO.readDatabaseVersion(localMetadataFile);
+		} catch (IOException e) {
+			log.debug("Unable to read installed motor database version before commit: {}", e.getMessage());
+			return;
+		}
+		if (installedVersion >= remoteVersion) {
+			throw new IOException("Refusing stale motor database update " + remoteVersion +
+					" because version " + installedVersion + " is already installed");
+		}
+	}
+
+	private static void deleteTemporaryFile(File temporaryFile) {
+		if (temporaryFile.isFile() && !temporaryFile.delete()) {
+			log.debug("Unable to delete temporary update file {}", temporaryFile.getAbsolutePath());
 		}
 	}
 
