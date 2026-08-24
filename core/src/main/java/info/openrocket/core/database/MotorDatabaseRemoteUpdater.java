@@ -283,8 +283,7 @@ public class MotorDatabaseRemoteUpdater {
 			MotorDatabaseMetadataIO.writeRawJson(tmpMetadataFile, remoteMetadata.getRawJson());
 			rejectStaleInstall(targetMetadataFile, remoteMetadata.getDatabaseVersion());
 
-			FileUtils.replaceFile(tmpDbFile, targetDbFile);
-			FileUtils.replaceFile(tmpMetadataFile, targetMetadataFile);
+			commitDatabasePair(tmpDbFile, targetDbFile, tmpMetadataFile, targetMetadataFile);
 			log.info("Installed updated motor database (database_version={})", remoteMetadata.getDatabaseVersion());
 		} finally {
 			deleteTemporaryFile(tmpDbFile);
@@ -502,6 +501,47 @@ public class MotorDatabaseRemoteUpdater {
 	private static void deleteTemporaryFile(File temporaryFile) {
 		if (temporaryFile.isFile() && !temporaryFile.delete()) {
 			log.debug("Unable to delete temporary update file {}", temporaryFile.getAbsolutePath());
+		}
+	}
+
+	/**
+	 * Commit the database first and roll it back if committing the matching metadata fails.
+	 * <p>
+	 * Each individual replacement is atomic where supported by the filesystem. The backup closes the remaining
+	 * failure window between the two replacements for ordinary I/O errors.
+	 */
+	private static void commitDatabasePair(File temporaryDbFile, File targetDbFile, File temporaryMetadataFile,
+			File targetMetadataFile) throws IOException {
+		boolean targetDbExisted = targetDbFile.exists();
+		File backupDbFile = null;
+		if (targetDbFile.isFile()) {
+			backupDbFile = Files.createTempFile(targetDbFile.getParentFile().toPath(),
+					MOTORS_DB_FILENAME + ".", ".backup").toFile();
+			Files.copy(targetDbFile.toPath(), backupDbFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+
+		boolean databaseCommitted = false;
+		try {
+			FileUtils.replaceFile(temporaryDbFile, targetDbFile);
+			databaseCommitted = true;
+			FileUtils.replaceFile(temporaryMetadataFile, targetMetadataFile);
+		} catch (IOException commitError) {
+			if (databaseCommitted) {
+				try {
+					if (backupDbFile != null) {
+						FileUtils.replaceFile(backupDbFile, targetDbFile);
+					} else if (!targetDbExisted) {
+						Files.deleteIfExists(targetDbFile.toPath());
+					}
+				} catch (IOException rollbackError) {
+					commitError.addSuppressed(rollbackError);
+				}
+			}
+			throw commitError;
+		} finally {
+			if (backupDbFile != null) {
+				deleteTemporaryFile(backupDbFile);
+			}
 		}
 	}
 
