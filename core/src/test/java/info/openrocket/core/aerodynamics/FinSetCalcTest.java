@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,11 @@ public class FinSetCalcTest {
 		double calculateFinCNa(FlightConditions conditions) {
 			return calculateFinCNa1(conditions);
 		}
+
+		double calculateUncorrectedRollForcing(FlightConditions conditions, FinSet fins) {
+			return (macSpan + fins.getBodyRadius()) * calculateFinCNa1(conditions)
+					* fins.getCantAngle() / conditions.getRefLength();
+		}
 	}
 
 	@BeforeAll
@@ -61,9 +67,11 @@ public class FinSetCalcTest {
 		// }
 	}
 
-	private AerodynamicForces sumFins(TrapezoidFinSet fins, Rocket rocket) {
-		FlightConfiguration config = rocket.getSelectedConfiguration();
-		FlightConditions conditions = new FlightConditions(config);
+	private AerodynamicForces sumFins(FinSet fins, Rocket rocket) {
+		return sumFins(fins, new FlightConditions(rocket.getSelectedConfiguration()));
+	}
+
+	private AerodynamicForces sumFins(FinSet fins, FlightConditions conditions) {
 		WarningSet warnings = new WarningSet();
 		AerodynamicForces assemblyForces = new AerodynamicForces().zero();
 		AerodynamicForces componentForces = new AerodynamicForces();
@@ -79,6 +87,98 @@ public class FinSetCalcTest {
 		}
 
 		return assemblyForces;
+	}
+
+	/**
+	 * Cant is a wing-incidence case and must use equation 19's lowercase
+	 * interference factor rather than equation 14's angle-of-attack factor.
+	 */
+	@Test
+	public void testCantDrivenRollUsesWingIncidenceFactor() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCantAngle(0.05);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(2.0);
+		conditions.setAOA(0.0);
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.94, forces.getCrollForce() / uncorrectedRollForcing, 0.01);
+	}
+
+	/**
+	 * A constant-chord fin above the report's beta*A=2 selection boundary must
+	 * use chart 3 in the actual force calculation, not only in the chart helper.
+	 */
+	@Test
+	public void testRectangularSupersonicCantDrivenRollUsesChartThree() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setTipChord(fins.getRootChord());
+		fins.setSweep(0.0);
+		fins.setHeight(4.0 * fins.getBodyRadius());
+		fins.setCantAngle(0.05);
+		double aspectRatio = 2.0 * Math.pow(fins.getSpan(), 2) / fins.getPlanformArea();
+		double beta = 2.25 / aspectRatio;
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(Math.sqrt(1.0 + beta * beta));
+		conditions.setAOA(0.0);
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.884, forces.getCrollForce() / uncorrectedRollForcing, 0.006);
+	}
+
+	/**
+	 * Equation 19 depends only on radius/semispan, so unsupported planforms must
+	 * not jump back to the historical {@code 1 + tau} roll multiplier.
+	 */
+	@Test
+	public void testFreeformCantDrivenRollUsesWingIncidenceFactor() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet trapezoidFins =
+				(TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		FreeformFinSet fins = FreeformFinSet.convertFinSet(trapezoidFins);
+		fins.setCantAngle(0.05);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(2.0);
+		conditions.setAOA(0.0);
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.94, forces.getCrollForce() / uncorrectedRollForcing, 0.01);
+	}
+
+	/**
+	 * The small-angle body-load model is faired out with angle of attack, but
+	 * fin incidence is still governed by equation 19 until the existing
+	 * post-stall roll reduction begins.
+	 */
+	@Test
+	public void testCantDrivenRollDoesNotIncreaseBeforeStall() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCantAngle(0.05);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(2.0);
+		conditions.setAOA(Math.toRadians(15.0));
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.94, forces.getCrollForce() / uncorrectedRollForcing, 0.01);
 	}
 
 	/**
@@ -139,7 +239,7 @@ public class FinSetCalcTest {
 		AerodynamicForces forces = sumFins(fins, rocket);
 
 		double exp_cna_fins = 28.82053382;
-		double exp_cpx_fins = 0.0193484;
+		double exp_cpx_fins = 0.018588118711734096;
 
 		assertEquals(exp_cna_fins, forces.getCP().getWeight(), EPSILON, " FinSetCalc produces bad CNa: ");
 		assertEquals(exp_cpx_fins, forces.getCP().getX(), EPSILON, " FinSetCalc produces bad C_p.x: ");
@@ -164,7 +264,7 @@ public class FinSetCalcTest {
 		AerodynamicForces forces = sumFins(fins, rocket);
 
 		double exp_cna_fins = 38.42737843;
-		double exp_cpx_fins = 0.0193484;
+		double exp_cpx_fins = 0.0185881187117341;
 
 		assertEquals(exp_cna_fins, forces.getCP().getWeight(), EPSILON, " FinSetCalc produces bad CNa: ");
 		assertEquals(exp_cpx_fins, forces.getCP().getX(), EPSILON, " FinSetCalc produces bad C_p.x: ");
