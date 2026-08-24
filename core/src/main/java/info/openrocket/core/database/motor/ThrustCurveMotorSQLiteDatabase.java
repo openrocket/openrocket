@@ -76,6 +76,7 @@ public final class ThrustCurveMotorSQLiteDatabase {
 
 		try (Connection connection = openConnection(dbFile)) {
 			int schemaVersion = validateSchema(connection);
+			validateIntegrity(connection);
 			// Only include optional columns in queries if they actually exist.
 			boolean hasMotorDescriptionSource =
 					columnExists(connection, "motors", "description") && columnExists(connection, "motors", "source");
@@ -89,6 +90,30 @@ public final class ThrustCurveMotorSQLiteDatabase {
 		}
 		try (Connection connection = openConnection(dbFile)) {
 			validateSchema(connection);
+			validateIntegrity(connection);
+		}
+	}
+
+	/**
+	 * Validate the SQLite page structure and all declared foreign-key relationships.
+	 *
+	 * @param connection open read connection
+	 * @throws SQLException if SQLite reports corruption or broken relationships
+	 */
+	private static void validateIntegrity(Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement();
+			 ResultSet result = statement.executeQuery("PRAGMA integrity_check")) {
+			if (!result.next() || !"ok".equalsIgnoreCase(result.getString(1)) || result.next()) {
+				throw new SQLException("SQLite motor database failed integrity_check");
+			}
+		}
+
+		try (Statement statement = connection.createStatement();
+			 ResultSet result = statement.executeQuery("PRAGMA foreign_key_check")) {
+			if (result.next()) {
+				throw new SQLException("SQLite motor database failed foreign_key_check for table " +
+						result.getString(1));
+			}
 		}
 	}
 
