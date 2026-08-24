@@ -6,6 +6,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,6 +23,64 @@ import org.junit.jupiter.api.Test;
 public class DisableStageTest extends BaseTestCase {
     public static final double DELTA = 0.05; // 3 % error margin (simulations are not exact)
     public static final double DELTA_COURSE = 0.1; // 10 % course error margin (simulations are not exact)
+	private static final double POSITION_EPSILON = 1.0e-9;
+
+	/**
+	 * Verifies that a simulation resolves component positions using its own flight
+	 * configuration rather than the configuration selected in the user interface.
+	 */
+	@Test
+	public void testSimulationUsesItsOwnConfigurationForComponentPositions() throws SimulationException {
+		Rocket rocket = TestRockets.makeSimple2Stage();
+		FlightConfigurationId activeConfigId = TestRockets.TEST_FCID_0;
+		FlightConfigurationId disabledSustainerConfigId = new FlightConfigurationId();
+		double sustainerLength = rocket.getStage(0).getLength();
+
+		rocket.createFlightConfiguration(disabledSustainerConfigId);
+		rocket.getFlightConfiguration(disabledSustainerConfigId).clearStage(0);
+
+		// Simulate the fully active configuration while the disabled configuration is selected.
+		rocket.setSelectedConfiguration(disabledSustainerConfigId);
+		assertEquals(0.0, rocket.getStage(1).getPosition().getX(), POSITION_EPSILON);
+
+		Simulation activeSimulation = new Simulation(rocket);
+		activeSimulation.setFlightConfigurationId(activeConfigId);
+		assertEquals(sustainerLength, getBoosterPositionDuringSimulation(activeSimulation), POSITION_EPSILON);
+
+		// Running a simulation must not alter the selected configuration or its geometry.
+		assertEquals(disabledSustainerConfigId, rocket.getSelectedConfiguration().getId());
+		assertEquals(0.0, rocket.getStage(1).getPosition().getX(), POSITION_EPSILON);
+
+		// Also verify the inverse: simulate the disabled configuration while the active one is selected.
+		rocket.setSelectedConfiguration(activeConfigId);
+		assertEquals(sustainerLength, rocket.getStage(1).getPosition().getX(), POSITION_EPSILON);
+
+		Simulation disabledSustainerSimulation = new Simulation(rocket);
+		disabledSustainerSimulation.setFlightConfigurationId(disabledSustainerConfigId);
+		assertEquals(0.0, getBoosterPositionDuringSimulation(disabledSustainerSimulation), POSITION_EPSILON);
+
+		assertEquals(activeConfigId, rocket.getSelectedConfiguration().getId());
+		assertEquals(sustainerLength, rocket.getStage(1).getPosition().getX(), POSITION_EPSILON);
+	}
+
+	/**
+	 * Captures the booster position from the simulation-owned rocket before its
+	 * first branch starts.
+	 *
+	 * @param simulation simulation whose private configuration should be inspected
+	 * @return booster position in the simulation-owned rocket
+	 * @throws SimulationException if the simulation cannot start
+	 */
+	private double getBoosterPositionDuringSimulation(Simulation simulation) throws SimulationException {
+		double[] boosterPosition = { Double.NaN };
+		simulation.simulate(new AbstractSimulationListener() {
+			@Override
+			public void startSimulation(SimulationStatus status) {
+				boosterPosition[0] = status.getConfiguration().getRocket().getStage(1).getPosition().getX();
+			}
+		});
+		return boosterPosition[0];
+	}
 
     /**
      * Tests that the simulation results are correct when a single stage is deactivated and re-activated.

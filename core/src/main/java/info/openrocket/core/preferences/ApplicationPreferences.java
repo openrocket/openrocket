@@ -83,6 +83,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
 
 	private static final String CHECK_UPDATES = "CheckUpdates";
+	private static final String UPDATE_CHECK_PERMISSION = "UpdateCheckPermission";
 
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
@@ -132,6 +133,19 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
 	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_ENABLE_MSAA = "OpenGLMultisampleAntialiasingIsEnabled";
+	public static final String OPENGL_RENDER_QUALITY = "OpenGLRenderQuality";
+	public static final String OPENGL_ENABLE_SHADOWS = "OpenGLShadowsEnabled";
+	public static final String OPENGL_ENABLE_AMBIENT_OCCLUSION = "OpenGLAmbientOcclusionEnabled";
+	public static final String OPENGL_REDUCE_EFFECTS_DURING_INTERACTION =
+			"OpenGLReduceEffectsDuringInteraction";
+	public static final String OPENGL_ENABLE_ROUGHNESS_BUMP = "OpenGLRoughnessBumpEnabled";
+	public static final String OPENGL_SHOW_ORIGIN_AXES = "OpenGLShowOriginAxes";
+	public static final String OPENGL_SHOW_LIGHT_VISUALIZERS = "OpenGLShowLightVisualizers";
+	public static final String OPENGL_SHOW_CAMERA_POINT_OF_INTEREST = "OpenGLShowCameraPointOfInterest";
+	public static final String OPENGL_DRAG_ROTATION_SENSITIVITY = "OpenGLDragRotationSensitivityFactor";
+	public static final String OPENGL_ROTATE_ROCKET_ON_DRAG = "OpenGLRotateRocketOnDrag";
+	public static final String OPENGL_SCALE_CARETS_WITH_VIEW = "OpenGLScaleCaretsWithView";
 	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
@@ -227,6 +241,30 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public abstract boolean getBoolean(String key, boolean defaultValue);
 	
 	public abstract void putBoolean(String key, boolean value);
+
+	public boolean shouldReduceEffectsDuring3DInteraction() {
+		return getBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, false);
+	}
+
+	public void setReduceEffectsDuring3DInteraction(boolean enabled) {
+		if (shouldReduceEffectsDuring3DInteraction() == enabled) {
+			return;
+		}
+		putBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, enabled);
+		fireChangeEvent();
+	}
+
+	public boolean isMSAAEnabled() {
+		return getBoolean(OPENGL_ENABLE_MSAA, true);
+	}
+
+	public void setMSAAEnabled(boolean enabled) {
+		if (isMSAAEnabled() == enabled) {
+			return;
+		}
+		putBoolean(OPENGL_ENABLE_MSAA, enabled);
+		fireChangeEvent();
+	}
 	
 	public abstract int getInt(String key, int defaultValue);
 	
@@ -304,6 +342,28 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+
+	/**
+	 * Returns whether the user has answered the one-time question about update checks that access the internet.
+	 *
+	 * @return {@code true} if the user has allowed or declined automatic update checks
+	 */
+	public final boolean isUpdateCheckPermissionSet() {
+		return this.getPreferences().get(UPDATE_CHECK_PERMISSION, null) != null;
+	}
+
+	/**
+	 * Stores the user's update-check permission and applies it to both automatic update checkers.
+	 * The permission is stored after the individual settings so an interrupted write causes the question to be
+	 * shown again instead of allowing either checker to access the internet without a recorded answer.
+	 *
+	 * @param allowed {@code true} to enable automatic software and motor-database update checks
+	 */
+	public final void setUpdateCheckPermission(boolean allowed) {
+		this.setCheckUpdates(allowed);
+		this.setCheckMotorDatabaseUpdates(allowed);
+		this.putBoolean(UPDATE_CHECK_PERMISSION, allowed);
 	}
 
 	public final List<String> getIgnoreUpdateVersions() {

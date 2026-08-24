@@ -31,7 +31,10 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Window;
 import java.io.IOException;
@@ -48,6 +51,7 @@ public class UITheme {
     private static final Logger log = LoggerFactory.getLogger(UITheme.class);
 
     private static final Map<String, Float> fontOffsets = new HashMap<>();
+    private static boolean lafChangeAnimationActive;
 
     public static final class Keys {
         public static final String BACKGROUND = "OR.colors.background";
@@ -2033,7 +2037,17 @@ public class UITheme {
 
     
     private static void preApplyTheme() {
-        FlatAnimatedLafChange.showSnapshot();
+        // FlatAnimatedLafChange places a lightweight component over every layered pane.
+        // Mixing that temporary layer with a heavyweight Canvas can leave the native
+        // canvas excluded from mouse hit testing even after the layer is removed. This
+        // affects the AWTGLCanvas used by the 3D views. Keep animated changes for normal
+        // Swing windows, but change themes immediately while any Canvas is showing.
+        lafChangeAnimationActive = !hasShowingCanvas();
+        if (lafChangeAnimationActive) {
+            FlatAnimatedLafChange.showSnapshot();
+        } else {
+            FlatAnimatedLafChange.stop();
+        }
         GUIUtil.loadCustomFonts();
         FlatLaf.registerCustomDefaultsSource("themes");
     }
@@ -2058,16 +2072,40 @@ public class UITheme {
         log.info("Setting global font to {} {} {}", fontSize, fontStyle, fontTracking);
         setGlobalFont(fontStyle, fontSize, (float) fontTracking);
 
-        // After applying the theme settings, notify listeners
-        Theme.notifyUIThemeChangeListeners();
-
         // Update all components
         FlatLaf.updateUI();
 
         // Root-pane client properties are application overrides and survive FlatLaf.updateUI().
         // Reapply them after the component trees have adopted their new theme colors.
         applyThemeToOpenRootPanes(theme);
-        FlatAnimatedLafChange.hideSnapshotWithAnimation();
+        Theme.notifyUIThemeChangeListeners();
+        if (lafChangeAnimationActive) {
+            FlatAnimatedLafChange.hideSnapshotWithAnimation();
+        }
+        lafChangeAnimationActive = false;
+    }
+
+    private static boolean hasShowingCanvas() {
+        for (Window window : Window.getWindows()) {
+            if (window.isShowing() && containsShowingCanvas(window)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsShowingCanvas(Component component) {
+        if (component instanceof Canvas) {
+            return component.isShowing();
+        }
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                if (containsShowingCanvas(child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

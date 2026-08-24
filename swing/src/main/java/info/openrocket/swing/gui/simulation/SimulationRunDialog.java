@@ -262,6 +262,29 @@ public class SimulationRunDialog extends JDialog {
 	}
 
 	/**
+	 * Marks one worker as complete and reports whether this completed the batch.
+	 * A single batch-completion signal prevents the simulation table from sorting
+	 * while other workers are still publishing their result values.
+	 *
+	 * @param completed completion state for every worker in the batch
+	 * @param index index of the worker that completed
+	 * @return {@code true} only when this call completes the entire batch
+	 */
+	static boolean markSimulationComplete(boolean[] completed, int index) {
+		if (completed[index]) {
+			return false;
+		}
+
+		completed[index] = true;
+		for (boolean simulationComplete : completed) {
+			if (!simulationComplete) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Returns true if all the simulations ran successfully. Returns false if the simulations encountered
 	 * an exception, or were cancelled.
 	 */
@@ -403,11 +426,17 @@ public class SimulationRunDialog extends JDialog {
 		 */
 		@Override
 		protected void simulationDone() {
-			simulationDone[index] = true;
+			boolean batchComplete = markSimulationComplete(simulationDone, index);
 			log.debug("Simulation done");
 			setSimulationProgress(1.0);
 			updateProgress();
-			document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
+
+			// The simulation table is hidden behind this modal dialog. Refreshing it
+			// after each worker forces Swing to sort rows whose values are still being
+			// changed by other workers, which can violate TimSort's comparator contract.
+			if (batchComplete) {
+				document.fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
+			}
 		}
 
 		/**
