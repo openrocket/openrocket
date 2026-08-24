@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.awt.geom.Point2D;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -565,9 +564,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 		//    /   |x
 		//   /    |
 		//  +=====+
-		Point2D.Double toAdd = new Point2D.Double(1.01, 0.8);
 		try {
-			fin.addPoint(3, toAdd.getX(), toAdd.getY());
+			fin.addPoint(3, 1.01, 0.8);
 		} catch (IllegalFinPointException e) {
 			fail("IllegalFinPointException thrown");
 		}
