@@ -250,7 +250,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			nozzleExitDiameterLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Nozzleexitdiameter"));
 			panel.add(nozzleExitDiameterLabel);
 
-			nozzleExitDiameterSpinner = new EditableSpinner(nozzleExitDiameterModel.getSpinnerModel());
+			nozzleExitDiameterSpinner = new EditableSpinner(nozzleExitDiameterModel.getSpinnerModel(0.1));
 			panel.add(nozzleExitDiameterSpinner, "split 2, growx");
 
 			nozzleExitDiameterUnitSelector = new UnitSelector(nozzleExitDiameterModel);
