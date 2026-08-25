@@ -98,7 +98,7 @@ public class ScaleSelector {
 				final double oldScale = ScaleSelector.this.zoomModel.getScale();
 				final double newScale = getNextLargerScale(oldScale);
 				ScaleSelector.this.zoomModel.setScale(newScale);
-				setZoomText();
+				setZoomText(newScale, false);
 			}
 		});
 
@@ -141,9 +141,11 @@ public class ScaleSelector {
 					} else {
 						ScaleSelector.this.zoomModel.setScale(n);
 					}
-					setZoomText();
+					// A 3D zoom request is applied on the render thread.  Keep the accepted
+					// value visible until the model publishes its applied state rather than
+					// immediately replacing it with the previous cached scale.
+					setZoomText(n, fitSelection && Math.abs(n - 1.0) < 0.0001);
 				} catch (NumberFormatException ignore) {
-				} finally {
 					setZoomText();
 				}
 			}
@@ -164,7 +166,7 @@ public class ScaleSelector {
 				double scale = ScaleSelector.this.zoomModel.getScale();
 				scale = getNextSmallerScale(scale);
 				ScaleSelector.this.zoomModel.setScale(scale);
-				update();
+				setZoomText(scale, false);
 			}
 		});
 
@@ -175,7 +177,7 @@ public class ScaleSelector {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ScaleSelector.this.zoomModel.setFit();
-				update();
+				setZoomText(1.0, true);
 			}
 		});
 	}
@@ -207,7 +209,11 @@ public class ScaleSelector {
 	}
 
 	private void setZoomText() {
-		String text = formatScaleText(zoomModel.getScale(), zoomModel.isFit());
+		setZoomText(zoomModel.getScale(), zoomModel.isFit());
+	}
+
+	private void setZoomText(double scale, boolean fit) {
+		String text = formatScaleText(scale, fit);
 		if (!text.equals(scaleSelectorCombo.getSelectedItem())) {
 			updatingScaleSelectorText = true;
 			try {
