@@ -572,7 +572,13 @@ public class FinSetCalc extends RocketComponentCalc {
 		if (m >= 2) {
 			// At supersonic speeds use empirical formula
 			double beta = cond.getBeta();
-			return (ar * beta - 0.67) / (2 * ar * beta - 1);
+			double x = ar * beta;
+			// The formula (x - 0.67) / (2x - 1) has a pole at x = 0.5.
+			// Clamp the result to [0, 1] to prevent unphysical values.
+			if (Math.abs(2 * x - 1) < 1e-6) {
+				return 0.5;
+			}
+			return MathUtil.clamp((x - 0.67) / (2 * x - 1), 0, 1);
 		}
 		
 		// In between use interpolation polynomial
@@ -584,7 +590,18 @@ public class FinSetCalc extends RocketComponentCalc {
 			x *= m;
 		}
 
-		return val;
+		// When ar is near the polynomial singularity (poly all zeros), use linear
+		// interpolation between the subsonic and supersonic endpoints.
+		if (val == 0 && m > 0.5) {
+			double supersonicCP = (ar * cond.getBeta() - 0.67) / (2 * ar * cond.getBeta() - 1);
+			if (Double.isFinite(supersonicCP)) {
+				val = 0.25 + (MathUtil.clamp(supersonicCP, 0, 1) - 0.25) * (m - 0.5) / 1.5;
+			} else {
+				val = 0.25 + 0.25 * (m - 0.5) / 1.5;
+			}
+		}
+
+		return MathUtil.clamp(val, 0, 1);
 	}
 	
 	/**
@@ -605,6 +622,14 @@ public class FinSetCalc extends RocketComponentCalc {
 	 */
 	private void calculatePoly() {
 		double denom = pow2(1 - 3.4641 * ar); // common denominator
+		
+		// The polynomial coefficients have a singularity at ar = 1/3.4641 ≈ 0.2887.
+		// For aspect ratios near this value, use a linear fallback between the
+		// subsonic (0.25) and supersonic endpoints to avoid blowing up.
+		if (Math.abs(denom) < 1e-6) {
+			Arrays.fill(poly, 0);
+			return;
+		}
 		
 		poly[5] = (-1.58025 * (-0.728769 + ar) * (-0.192105 + ar)) / denom;
 		poly[4] = (12.8395 * (-0.725688 + ar) * (-0.19292 + ar)) / denom;

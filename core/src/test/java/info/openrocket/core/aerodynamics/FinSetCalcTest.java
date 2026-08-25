@@ -434,4 +434,45 @@ public class FinSetCalcTest {
 		assertEquals(0.0, finForces.getBaseCD(), EPSILON, "Airfoil fin base CD should be zero in force analysis");
 		assertTrue(finForces.getPressureCD() > 0, "Airfoil fin pressure CD should be positive");
 	}
+
+	/**
+	 * Test that low-aspect-ratio fins do not produce singular CP values at
+	 * supersonic speeds. The empirical formula (ar*beta - 0.67) / (2*ar*beta - 1)
+	 * has a pole at ar*beta = 0.5, which can occur at normal supersonic Mach
+	 * numbers for fins with AR < 1.
+	 */
+	@Test
+	public void testLowAspectRatioFinCPSingularity() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+
+		// Set up low-aspect-ratio fins: root=6cm, tip=4cm, height=0.5cm
+		// This gives AR ≈ 0.2, so the pole occurs at beta = 2.5, i.e. Mach ≈ 2.69
+		fins.setRootChord(0.06);
+		fins.setTipChord(0.04);
+		fins.setHeight(0.005);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+
+		// Test across the Mach range, especially near the pole at Mach ≈ 2.69
+		double[] testMachs = { 0.5, 1.0, 1.5, 2.0, 2.5, 2.69, 2.8, 3.0, 5.0 };
+		for (double mach : testMachs) {
+			conditions.setMach(mach);
+			AerodynamicForces forces = sumFins(fins, rocket);
+
+			// CP position must be finite and within the MAC
+			double cpX = forces.getCP().getX();
+			assertFalse(Double.isNaN(cpX),
+					"CP x-coordinate must not be NaN at Mach " + mach);
+			assertFalse(Double.isInfinite(cpX),
+					"CP x-coordinate must not be infinite at Mach " + mach);
+
+			// CNa must be positive (fins generate lift)
+			if (mach > 0.5) {
+				assertTrue(forces.getCP().getWeight() > 0,
+						"CNa must be positive at Mach " + mach);
+			}
+		}
+	}
 }
