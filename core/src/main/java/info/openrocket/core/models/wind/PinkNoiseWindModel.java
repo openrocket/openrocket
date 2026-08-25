@@ -49,7 +49,7 @@ public class PinkNoiseWindModel implements WindModel {
 	private double direction = Math.PI / 2; // this is an East wind
 	private double standardDeviation = 0;
 
-	private final int seed;
+	private int seed;
 
 	private PinkNoise randomSource = null;
 	private double time1;
@@ -68,6 +68,12 @@ public class PinkNoiseWindModel implements WindModel {
 
 	public PinkNoiseWindModel() {
 		this(new Random().nextInt());
+	}
+
+	@Override
+	public void setSeed(int seed) {
+		this.seed = seed ^ SEED_RANDOMIZATION;
+		reset();
 	}
 
 	/**

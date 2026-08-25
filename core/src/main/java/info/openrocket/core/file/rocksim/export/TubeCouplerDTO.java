@@ -47,6 +47,17 @@ public class TubeCouplerDTO extends CenteringRingDTO {
      *               individual instances for each cluster member will be added.
      */
     public TubeCouplerDTO(TubeCoupler tc, AttachableParts parent) {
+        this(tc, parent, null);
+    }
+
+    /**
+     * Full copy constructor used while exporting a complete document.
+     *
+     * @param tc      the corresponding OR tube coupler
+     * @param parent  the RockSim attached-parts container
+     * @param context per-export motor-mount mapping state
+     */
+    public TubeCouplerDTO(TubeCoupler tc, AttachableParts parent, RockSimExportContext context) {
         super(tc);
         setUsageCode(UsageCode.TubeCoupler);
 
@@ -56,19 +67,23 @@ public class TubeCouplerDTO extends CenteringRingDTO {
         for (RocketComponent component : tc.getChildren()) {
             component.setAxialMethod(AxialMethod.ABSOLUTE);
             if (component instanceof InnerTube) {
-                parent.addAttachedPart(new InnerBodyTubeDTO((InnerTube) component, parent));
+                InnerTube innerTube = (InnerTube) component;
+                InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, parent, context);
+                if (innerTube.getInstanceCount() == 1) {
+                    parent.addAttachedPart(innerBodyTubeDTO);
+                }
             } else if (component instanceof EngineBlock) {
                 parent.addAttachedPart(new EngineBlockDTO((EngineBlock) component));
             } else if (component instanceof TubeCoupler) {
-                new TubeCouplerDTO((TubeCoupler) component, parent);
+                new TubeCouplerDTO((TubeCoupler) component, parent, context);
             } else if (component instanceof CenteringRing) {
                 parent.addAttachedPart(new CenteringRingDTO((CenteringRing) component));
             } else if (component instanceof Bulkhead) {
                 parent.addAttachedPart(new BulkheadDTO((Bulkhead) component));
             } else if (component instanceof Parachute) {
-                parent.addAttachedPart(new ParachuteDTO((Parachute) component));
+                parent.addAttachedPart(new ParachuteDTO((Parachute) component, context));
             } else if (component instanceof Streamer) {
-                parent.addAttachedPart(new StreamerDTO((Streamer) component));
+                parent.addAttachedPart(new StreamerDTO((Streamer) component, context));
             } else if (component instanceof MassObject) {
                 parent.addAttachedPart(new MassObjectDTO((MassObject) component));
             }

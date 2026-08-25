@@ -222,7 +222,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 						String nameT = FlightDataType.TYPE_TIME.getName();
 						double dataT = Double.NaN;
-						final List<Double> time = allBranches.get(ser.getBranchIdx()).get((T)FlightDataType.TYPE_TIME);
+						final List<Double> time = allBranches.get(ser.getBranchIdx()).getView((T)FlightDataType.TYPE_TIME);
 						if (time != null) {
 							dataT = time.get(item);
 						}
@@ -279,8 +279,10 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 				// Use a thick line in the legend so the color block is still obvious with styled strokes.
 				for (int j = 0; j < data[axisno].getSeriesCount(); j += branchCount) {
-					String name = data[axisno].getSeries(j).getDescription();
+					MetadataXYSeries series = (MetadataXYSeries) data[axisno].getSeries(j);
+					String name = series.getDescription();
 					this.legendItems.lineLabels.add(name);
+					this.legendItems.seriesKeys.add(series.getLegendKey());
 					Paint linePaint = r.lookupSeriesPaint(j);
 					this.legendItems.linePaints.add(linePaint);
 					Shape itemShape = r.lookupSeriesShape(j);
@@ -324,8 +326,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		// Default implementation for regular DataBranch
 		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, dataIndex, unit.getUnit(), branchName, baseName);
 
-		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
-		List<Double> ploty = branch.get(type);
+		List<Double> plotx = branch.getView(filledConfig.getDomainAxisType());
+		List<Double> ploty = branch.getView(type);
 
 		int pointCount = plotx.size();
 		for (int j = 0; j < pointCount; j++) {
@@ -406,6 +408,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 	protected static class LegendItems implements LegendItemSource {
 		protected final List<String> lineLabels = new ArrayList<>();
+		protected final List<Comparable<?>> seriesKeys = new ArrayList<>();
 		protected final List<Paint> linePaints = new ArrayList<>();
 		protected final List<Stroke> lineStrokes = new ArrayList<>();
 		protected final List<Shape> pointShapes = new ArrayList<>();
@@ -437,6 +440,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 						urlText, shapeIsVisible, shape, shapeIsFilled, fillPaint,
 						shapeOutlineVisible, outlinePaint, outlineStroke, lineVisible,
 						legendLine, lineStroke, linePaint);
+				result.setSeriesKey(seriesKeys.get(i));
 
 				c.add(result);
 				i++;
@@ -607,6 +611,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		private final String unit;
 		private final String branchName;
 		private String baseName;
+		private Comparable<?> legendKey;
 
 		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, int dataIdx, String unit,
 								String branchName, String baseName) {
@@ -616,6 +621,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 			this.unit = unit;
 			this.branchName = branchName;
 			this.baseName = baseName;
+			this.legendKey = dataIdx >= 0 ? dataIdx : baseName;
 			updateDescription();
 		}
 
@@ -646,6 +652,20 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		public void setBaseName(String baseName) {
 			this.baseName = baseName;
+		}
+
+		/**
+		 * Returns the stable identity used to associate this series with its legend item.
+		 */
+		public Comparable<?> getLegendKey() {
+			return legendKey;
+		}
+
+		/**
+		 * Sets the stable identity used to associate this series with its legend item.
+		 */
+		public void setLegendKey(Comparable<?> legendKey) {
+			this.legendKey = legendKey;
 		}
 
 		public void updateDescription() {

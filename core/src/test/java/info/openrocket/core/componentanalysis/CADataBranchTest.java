@@ -84,6 +84,35 @@ class CADataBranchTest {
 	}
 
 	@Test
+	void typeAddedAfterFirstPointKeepsSeriesLengthsAligned() {
+		// This is how CAParameterSweep builds a branch: only the domain type is known
+		// up front, the component types are registered on the first setValue call
+		CADataBranch sweep = new CADataBranch("sweep", CADomainDataType.MACH);
+
+		sweep.addPoint();
+		sweep.setDomainValue(CADomainDataType.MACH, 0.5);
+		sweep.setValue(CADataType.CP_X, component, 1.0);
+
+		sweep.addPoint();
+		sweep.setDomainValue(CADomainDataType.MACH, 0.6);
+		sweep.setValue(CADataType.CP_X, component, 2.0);
+
+		assertEquals(2, sweep.getLength());
+		assertEquals(sweep.getLength(), sweep.getView(CADomainDataType.MACH).size());
+		assertEquals(sweep.getLength(), sweep.getView(CADataType.CP_X).size());
+		assertEquals(sweep.getLength(), sweep.get(CADataType.CP_X, component).size());
+	}
+
+	@Test
+	void getTypesHandlesDomainAndComponentTypesTogether() {
+		CADataBranch sweep = new CADataBranch("sweep", CADomainDataType.MACH);
+		sweep.addPoint();
+		sweep.setValue(CADataType.CP_X, component, 1.0);
+
+		assertEquals(2, sweep.getTypes().length);
+	}
+
+	@Test
 	void missingComponentDataReturnsNaN() {
 		assertTrue(Double.isNaN(branch.getMinimum(CADataType.CP_X, component)));
 		assertTrue(Double.isNaN(branch.getMaximum(CADataType.CP_X, component)));

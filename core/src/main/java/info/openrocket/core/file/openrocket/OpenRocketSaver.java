@@ -379,6 +379,9 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchlongitude", cond.getLaunchLongitude());
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
 		writeElement("simulationsteppermethod", cond.getSimulationStepperMethodChoice().name().toLowerCase(Locale.ENGLISH));
+		if (cond.isRandomSeedFixed()) {
+			writeElement("randomseed", cond.getRandomSeed());
+		}
 
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");
@@ -405,6 +408,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
+		writeElement("recoveryspeedwarning", cond.getRecoverySpeedWarning());
+		writeElement("drogueLowspeedwarning", cond.getDrogueLowSpeedWarning());
+		writeElement("recoverydroguemainhighspeedwarning", cond.getRecoveryDrogueMainHighSpeedWarning());
+		writeElement("recoverydroguemainlowspeedwarning", cond.getRecoveryDrogueMainLowSpeedWarning());
 		if (cond.getDragLookupCsvPath() != null || cond.getDragLookupTable() != null) {
 			writeCsvLookup("draglookup", cond.getDragLookupCsvPath(), cond.getDragLookupCsvRows());
 		}
@@ -507,8 +514,8 @@ public class OpenRocketSaver extends RocketSaver {
 					writeElement("parameter", ((Warning.LargeAOA) w).getAOA());
 				}
 
-				if (w instanceof Warning.HighSpeedDeployment) {
-					writeElement("parameter", ((Warning.HighSpeedDeployment) w).getSpeed());
+				if (w instanceof Warning.RecoveryHighSpeedDeployment) {
+					writeElement("parameter", ((Warning.RecoveryHighSpeedDeployment) w).getSpeed());
 				}
 
 				// We write the whole string content for backwards compatibility with old versions
@@ -647,7 +654,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Retrieve the data from the branch
 		List<List<Double>> data = new ArrayList<>(types.length);
 		for (FlightDataType type : types) {
-			data.add(branch.getClone(type));
+			data.add(branch.get(type));
 		}
 		
 		// Build the <databranch> tag
@@ -739,7 +746,7 @@ public class OpenRocketSaver extends RocketSaver {
 		if (types.length == 0)
 			return 0;
 		
-		final List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> timeData = branch.getView(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
 			// If time data not available, store all points
 			return branch.getLength();

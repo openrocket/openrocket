@@ -59,6 +59,7 @@ public class ExampleFilesTest extends BaseTestCase {
 	private static Path coreModuleRoot;
 	private static Injector previousInjector;
 	private static final String NO_MOTORS = "[No motors]";
+	private static final int SIMULATION_RANDOM_SEED = 0;
 
 	private static final Map<String, ExpectedWarnings> EXPECTATIONS = new HashMap<>();
 	private static final Map<String, ExpectedFlightConfigurations> EXPECTED_FLIGHT_CONFIGURATIONS = new HashMap<>();
@@ -427,6 +428,10 @@ public class ExampleFilesTest extends BaseTestCase {
 		Map<String, WarningCounts> actualSimWarnings = new HashMap<>();
 		for (Simulation simulation : doc.getSimulations()) {
 			try {
+				// Warning expectations must not depend on the random seed generated when
+				// the simulation options are constructed.
+				simulation.getOptions().setRandomSeed(SIMULATION_RANDOM_SEED);
+				simulation.getOptions().setRandomSeedFixed(true);
 				simulation.simulate();
 			} catch (Exception e) {
 				fail("Simulation failed for " + orkFile + " (" + simulation.getName() + "): " + e.getMessage(), e);

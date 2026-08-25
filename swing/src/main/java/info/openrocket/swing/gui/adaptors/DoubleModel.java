@@ -18,12 +18,10 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
@@ -69,6 +67,26 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	public class ValueSpinnerModel extends AbstractSpinnerModel implements Invalidatable {
 		
 		private ExpressionParser parser = new ExpressionParser();
+		private final double stepSize;
+
+		/**
+		 * Create a spinner model that uses the increment defined by the selected unit.
+		 */
+		public ValueSpinnerModel() {
+			this.stepSize = Double.NaN;
+		}
+
+		/**
+		 * Create a spinner model with a fixed increment in the selected display unit.
+		 *
+		 * @param stepSize spinner increment in the currently selected unit
+		 */
+		private ValueSpinnerModel(double stepSize) {
+			if (!Double.isFinite(stepSize) || stepSize <= 0) {
+				throw new IllegalArgumentException("Spinner step size must be finite and positive");
+			}
+			this.stepSize = stepSize;
+		}
 		
 		@Override
 		public Object getValue() {
@@ -127,7 +145,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			double max = inverted ? currentUnit.toUnit(minValue) : currentUnit.toUnit(maxValue);
 			if (MathUtil.equals(d, max))
 				return null;
-			d = currentUnit.getNextValue(d);
+			d = Double.isNaN(stepSize) ? currentUnit.getNextValue(d) : d + stepSize;
 			if (d > max)
 				d = max;
 			return d;
@@ -140,7 +158,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			double min = inverted ? currentUnit.toUnit(maxValue) : currentUnit.toUnit(minValue);
 			if (MathUtil.equals(d, min))
 				return null;
-			d = currentUnit.getPreviousValue(d);
+			d = Double.isNaN(stepSize) ? currentUnit.getPreviousValue(d) : d - stepSize;
 			if (d < min)
 				d = min;
 			return d;
@@ -170,6 +188,18 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 */
 	public SpinnerModel getSpinnerModel() {
 		return new ValueSpinnerModel();
+	}
+
+	/**
+	 * Returns a new SpinnerModel that increments by the specified amount in the
+	 * currently selected display unit.  The same numeric increment is retained when
+	 * the user selects another unit.
+	 *
+	 * @param stepSize spinner increment in the currently selected unit
+	 * @return a compatibility layer for a SpinnerModel
+	 */
+	public SpinnerModel getSpinnerModel(double stepSize) {
+		return new ValueSpinnerModel(stepSize);
 	}
 	
 	////////////  JSlider model  ////////////
@@ -729,11 +759,11 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			this.maxValue = Double.POSITIVE_INFINITY;
 		}
 
-        if (source instanceof RocketComponent rc) {
-            rc.addChangeListener(this);
-        } else if (source instanceof PhotoSettings ps) {
-            ps.addChangeListener(this);
-        }
+		// Listen to all observable value sources so programmatic changes, such as
+		// resetting simulation conditions, are propagated to the Swing widgets.
+		if (source instanceof ChangeSource changeSource) {
+			changeSource.addChangeListener(this);
+		}
 
 		try {
 			getMethod = source.getClass().getMethod("get" + valueName);

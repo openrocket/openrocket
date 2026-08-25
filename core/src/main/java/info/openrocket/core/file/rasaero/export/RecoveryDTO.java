@@ -9,6 +9,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -74,17 +75,18 @@ public class RecoveryDTO {
 
     public RecoveryDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) {
         List<Parachute> parachutes = getParachutesFromRocket(rocket);
+        FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
 
         switch (parachutes.size()) {
             case 0:
                 log.debug("No parachutes present");
                 break;
             case 1:
-                configureRecoveryDevice1(parachutes.get(0), errors);
+                configureRecoveryDevice1(parachutes.get(0), configurationId, errors);
                 break;
             case 2:
-                configureRecoveryDevice1(parachutes.get(0), errors);
-                configureRecoveryDevice2(parachutes.get(1), errors);
+                configureRecoveryDevice1(parachutes.get(0), configurationId, errors);
+                configureRecoveryDevice2(parachutes.get(1), configurationId, errors);
                 break;
         }
     }
@@ -112,10 +114,11 @@ public class RecoveryDTO {
         return parachutes;
     }
 
-    private void configureRecoveryDevice1(Parachute device1, ErrorSet errors) {
+    private void configureRecoveryDevice1(Parachute device1, FlightConfigurationId configurationId,
+            ErrorSet errors) {
         setCD1(device1.getCD());
         setDeviceType1("Parachute");
-        DeploymentConfiguration deployConfig = device1.getDeploymentConfigurations().getDefault();
+        DeploymentConfiguration deployConfig = device1.getDeploymentConfigurations().get(configurationId);
         setAltitude1(deployConfig.getDeployAltitude() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
         if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE) {
             setEventType1(RASAeroCommonConstants.DEPLOYMENT_APOGEE);
@@ -129,10 +132,11 @@ public class RecoveryDTO {
         setSize1(device1.getDiameter() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
     }
 
-    private void configureRecoveryDevice2(Parachute device2, ErrorSet errors) {
+    private void configureRecoveryDevice2(Parachute device2, FlightConfigurationId configurationId,
+            ErrorSet errors) {
         setCD1(device2.getCD());
         setDeviceType2("Parachute");
-        DeploymentConfiguration deployConfig = device2.getDeploymentConfigurations().getDefault();
+        DeploymentConfiguration deployConfig = device2.getDeploymentConfigurations().get(configurationId);
         setAltitude2(deployConfig.getDeployAltitude() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
         if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE) {
             setEventType2(RASAeroCommonConstants.DEPLOYMENT_APOGEE);

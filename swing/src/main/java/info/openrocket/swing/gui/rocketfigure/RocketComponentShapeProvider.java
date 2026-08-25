@@ -10,7 +10,13 @@ public class RocketComponentShapeProvider {
 	private final ServiceLoader<RocketComponentShapeService> loader;
 
 	private RocketComponentShapeProvider() {
-		loader = ServiceLoader.load(RocketComponentShapeService.class);
+		// Do not use the current thread's context class loader here.  AWT and native
+		// rendering transitions may initialize this singleton on a thread whose context
+		// loader cannot see OpenRocket's service registrations.  Use the service type's
+		// application loader so built-in shapes (and the bootstrapped plugin classpath)
+		// are resolved consistently.
+		loader = ServiceLoader.load(RocketComponentShapeService.class,
+				RocketComponentShapeService.class.getClassLoader());
 	}
 
 	public static RocketComponentShapeProvider getInstance() {

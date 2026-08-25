@@ -519,16 +519,29 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		});
 
-		// Set initial selection based on current wind model
+		// Keep the selector synchronized when options are changed programmatically,
+		// for example by the Reset to default button.
 		if (target instanceof SimulationOptions) {
 			SimulationOptions options = (SimulationOptions) target;
-			if (options.getWindModelType() == WindModelType.AVERAGE) {
-				averageButton.setSelected(true);
-				((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "Average");
-			} else {
-				multiLevelButton.setSelected(true);
-				((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "MultiLevel");
-			}
+			StateChangeListener selectionUpdater = event -> updateWindModelSelection(options, averageButton,
+					multiLevelButton, windSettingsPanel);
+			options.addChangeListener(selectionUpdater);
+			updateWindModelSelection(options, averageButton, multiLevelButton, windSettingsPanel);
+		}
+	}
+
+	/**
+	 * Updates the wind-model controls to match the simulation options.
+	 */
+	private static void updateWindModelSelection(SimulationOptions options, JRadioButton averageButton,
+			JRadioButton multiLevelButton, JPanel windSettingsPanel) {
+		CardLayout cardLayout = (CardLayout) windSettingsPanel.getLayout();
+		if (options.getWindModelType() == WindModelType.AVERAGE) {
+			averageButton.setSelected(true);
+			cardLayout.show(windSettingsPanel, "Average");
+		} else {
+			multiLevelButton.setSelected(true);
+			cardLayout.show(windSettingsPanel, "MultiLevel");
 		}
 	}
 

@@ -54,10 +54,25 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
      * @return the set of PodSetDTOs
      */
     public static PodSetDTO[] generatePodSetDTOs(ComponentAssembly theORPodSet) {
+        return generatePodSetDTOs(theORPodSet, null);
+    }
+
+    /**
+     * Generate physical RockSim pods while retaining links to their source
+     * components for motor-mount references.
+     *
+     * @param theORPodSet the OR PodSet
+     * @param context     per-export motor-mount mapping state
+     * @return the set of PodSetDTOs
+     */
+    public static PodSetDTO[] generatePodSetDTOs(ComponentAssembly theORPodSet, RockSimExportContext context) {
         PodSetDTO[] set = new PodSetDTO[theORPodSet.getInstanceCount()];
         int i = 0;
         for (RocketComponent podInstance : theORPodSet.splitInstances()) {
-            set[i] = new PodSetDTO((PodSet) podInstance);
+            if (context != null) {
+                context.registerSplitComponentTree(theORPodSet, podInstance);
+            }
+            set[i] = new PodSetDTO((PodSet) podInstance, context);
             i++;
         }
         return set;
@@ -69,6 +84,16 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
      * @param theORPodSet the single-instance OR PodSet
      */
     protected PodSetDTO(ComponentAssembly theORPodSet) {
+        this(theORPodSet, null);
+    }
+
+    /**
+     * Copy constructor used while exporting a complete document.
+     *
+     * @param theORPodSet the single-instance OR PodSet
+     * @param context     per-export motor-mount mapping state
+     */
+    protected PodSetDTO(ComponentAssembly theORPodSet, RockSimExportContext context) {
         super(theORPodSet);
         // OR should always override the radial angle and distance
         setAutoCalcRadialDistance(false);
@@ -88,15 +113,15 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
 
         for (RocketComponent child : theORPodSet.getChildren()) {
             if (child instanceof BodyTube) {
-                addAttachedPart(new BodyTubeDTO((BodyTube) child));
+                addAttachedPart(new BodyTubeDTO((BodyTube) child, context));
             } else if (child instanceof NoseCone) {
                 if (((NoseCone) child).isFlipped()) {
-                    addAttachedPart(new TransitionDTO((NoseCone) child));
+                    addAttachedPart(new TransitionDTO((NoseCone) child, context));
                 } else {
-                    addAttachedPart(new NoseConeDTO((NoseCone) child));
+                    addAttachedPart(new NoseConeDTO((NoseCone) child, context));
                 }
             } else if (child instanceof Transition) {
-                addAttachedPart(new TransitionDTO((Transition) child));
+                addAttachedPart(new TransitionDTO((Transition) child, context));
             }
         }
     }

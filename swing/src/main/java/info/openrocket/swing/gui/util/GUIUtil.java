@@ -246,7 +246,9 @@ public class GUIUtil {
 	public static double getDPI() {
 		int dpi = Application.getPreferences().getInt("DPI", 0); // Tenths of a dpi
 		
-		if (dpi < 10) {
+		// Headless environments cannot query the display toolkit, so retain the
+		// standard 96-DPI fallback used below when no preference is configured.
+		if (dpi < 10 && !GraphicsEnvironment.isHeadless()) {
 			dpi = Toolkit.getDefaultToolkit().getScreenResolution() * 10;
 		}
 		if (dpi < 10)

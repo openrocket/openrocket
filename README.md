@@ -46,6 +46,15 @@ You can find the OpenRocket installers [here](https://openrocket.info/downloads.
 
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
+### Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+- Committers and reviewers: [OpenRocket organization members](https://github.com/orgs/openrocket/people)
+- Approvers: [OpenRocket organization owners](https://github.com/orgs/openrocket/people?query=role%3Aowner)
+
+OpenRocket does not collect telemetry or upload rocket designs. It makes network requests for user-facing functions such as checking for application and motor-database updates, opening online resources, and submitting a bug report when requested by the user. Update checks can be disabled in the application preferences.
+
 ## 📖 Documentation
 
 You can find our documentation on [ReadTheDocs](https://openrocket.readthedocs.io/en/latest/).
@@ -138,6 +147,7 @@ You can view the full list of contributors [here](https://github.com/openrocket/
 - Mohamed Amin Elkebsi
 - Oleksandr Hladin
 - taotieren Simplified Chinese
+- Yüksel Dağhan Güven
 
 Want to help us translate OpenRocket into your language? Join our [Crowdin project](https://crowdin.com/project/openrocket) and contribute!
 
@@ -149,4 +159,11 @@ OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licens
  
 ⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
 
-[![Star History Chart](https://api.star-history.com/svg?repos=openrocket/openrocket&type=Date)](https://star-history.com/#openrocket/openrocket&Date)
+
+<a href="https://www.star-history.com/?type=date&repos=openrocket%2Fopenrocket">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&theme=dark&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=openrocket/openrocket&type=date&legend=top-left&sealed_token=Xvp0vEb6V9yLkglq3jkuXlS2HrHEZNXPciDDurMMBxf9V1CQcOyj3P_H3cC2V4AUaNfPDtM7rLnrfOQUTafyuwDf3wNDjFZZejgJqNBuF32odh7xByn8qY2XQHN8S0BhsP6mZtMIBsrjP3DcvW3mNtOIoqX0Enj2-YRNlEh468Y0TUPJSSCdBqLGW6TT" />
+ </picture>
+</a>

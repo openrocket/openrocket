@@ -81,13 +81,18 @@ public class InsideColorComponentHandler {
      * @param newState new edgesUseInsideAppearance value
      */
     public void setEdgesSameAsInside(boolean newState) {
+        boolean changed = this.edgesSameAsInside != newState;
         for (RocketComponent listener : component.configListeners) {
             if (listener instanceof InsideColorComponent) {
                 ((InsideColorComponent) listener).getInsideColorComponentHandler().setEdgesSameAsInside(newState);
             }
         }
+        if (!changed) {
+            return;
+        }
 
         this.edgesSameAsInside = newState;
+        component.fireComponentChangeEvent(ComponentChangeEvent.GRAPHIC_CHANGE);
     }
 
     /**
@@ -107,13 +112,18 @@ public class InsideColorComponentHandler {
      * @param newState new separateInsideOutside value
      */
     public void setSeparateInsideOutside(boolean newState) {
+        boolean changed = this.separateInsideOutside != newState;
         for (RocketComponent listener : component.configListeners) {
             if (listener instanceof InsideColorComponent) {
                 ((InsideColorComponent) listener).getInsideColorComponentHandler().setSeparateInsideOutside(newState);
             }
         }
+        if (!changed) {
+            return;
+        }
 
         this.separateInsideOutside = newState;
+        component.fireComponentChangeEvent(ComponentChangeEvent.GRAPHIC_CHANGE);
     }
 
     public void copyFrom(InsideColorComponentHandler src) {

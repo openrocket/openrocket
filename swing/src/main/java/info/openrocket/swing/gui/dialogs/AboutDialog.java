@@ -58,6 +58,7 @@ public class AboutDialog extends JDialog {
 		"Sibo Van Gool (Dutch)<br>" +
 		"Oleksandr Hladin (Ukrainian)" +
 		"Mohamed Amin Elkebsi (Arabic)<br>" +
+	    "Yüksel Dağhan Güven (Turkish)<br>" +
 		"<br>" +
 		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
 		"<br>" +
@@ -70,7 +71,8 @@ public class AboutDialog extends JDialog {
 		"JFreeChart" + href("http://www.jfree.org/jfreechart", true, true) + "<br>" +
 		"iText" + href("http://www.itextpdf.com", true, true) + "<br>" +
 		"exp4j" + href("http://projects.congrace.de/exp4j/index.html", true, true) + "<br>" +
-		"JOGL" + href("http://jogamp.org/jogl/www", true, true) + "<br>" +
+		"LWJGL" + href("https://www.lwjgl.org", true, true) + "<br>" +
+		"LWJGLX/lwjgl3-awt" + href("https://github.com/LWJGLX/lwjgl3-awt", true, true) + "<br>" +
 		"Guava" + href("https://github.com/google/guava", true, true) + "<br>" +
 		"Gson" + href("https://github.com/google/gson", true, true) + "<br>" +
 		"SQLite JDBC" + href("https://github.com/xerial/sqlite-jdbc", true, true) + "<br>" +

@@ -29,8 +29,19 @@ public class CADataBranch extends DataBranch<CADataType> {
 
 	@Override
 	public void addType(CADataType type) {
+		final int length = getLength();
+
 		super.addType(type);
+
 		if (!(type instanceof CADomainDataType)) {
+			// Component data lives in componentValues; the entry in values only exists so
+			// that getTypes() reports the type.  Pad it to the current length, otherwise a
+			// type added after the first data point stays permanently shorter than the rest.
+			ArrayList<Double> list = values.get(type);
+			for (int i = 0; i < length; i++) {
+				list.add(Double.NaN);
+			}
+
 			componentValues.put(type, new HashMap<>());
 			componentMinValues.put(type, new HashMap<>());
 			componentMaxValues.put(type, new HashMap<>());
@@ -112,7 +123,7 @@ public class CADataBranch extends DataBranch<CADataType> {
 
 	public List<Double> getClone(CADataType type, RocketComponent component) {
 		if (type instanceof CADomainDataType) {
-			return super.getClone(type);
+			return super.get(type);
 		}
 
 		Map<RocketComponent, ArrayList<Double>> typeMap = componentValues.get(type);
@@ -126,7 +137,7 @@ public class CADataBranch extends DataBranch<CADataType> {
 
 	public List<Double> get(CADataType type, RocketComponent component) {
 		if (type instanceof CADomainDataType) {
-			return super.get(type);
+			return super.getView(type);
 		}
 
 		Map<RocketComponent, ArrayList<Double>> typeMap = componentValues.get(type);

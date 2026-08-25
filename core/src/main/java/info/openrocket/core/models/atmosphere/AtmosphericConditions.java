@@ -208,12 +208,15 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 		if (!(other instanceof AtmosphericConditions))
 			return false;
 		AtmosphericConditions o = (AtmosphericConditions) other;
-		return MathUtil.equals(this.pressure, o.pressure) && MathUtil.equals(this.temperature, o.temperature);
+		return MathUtil.equals(this.pressure, o.pressure) &&
+				MathUtil.equals(this.temperature, o.temperature) &&
+				MathUtil.equals(this.relativeHumidity, o.relativeHumidity);
 	}
 
 	@Override
 	public int hashCode() {
-		return (int) (this.pressure + this.temperature * 1000);
+		return (int) (this.pressure + this.temperature * 1000 +
+				this.relativeHumidity * 1000000);
 	}
 
 	@Override

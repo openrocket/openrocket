@@ -454,6 +454,8 @@ class DocumentConfig {
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
+		setters.put("RecoveryDevice:isdrogue", new BooleanSetter(
+				Reflection.findMethod(RecoveryDevice.class, "setDrogue", boolean.class)));
 		
 		// Parachute
 		setters.put("Parachute:diameter", new DoubleSetter(

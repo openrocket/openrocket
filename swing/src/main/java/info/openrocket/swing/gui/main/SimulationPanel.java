@@ -425,6 +425,7 @@ public class SimulationPanel extends JPanel {
 
 		hasValidConfig = newHasValidConfig;
 		cardLayout.show(cardPanel, hasValidConfig ? CARD_TABLE : CARD_HELP);
+		updateActions();
 	}
 
 	/**
@@ -835,6 +836,7 @@ public class SimulationPanel extends JPanel {
 	}
 
 	public void updateActions() {
+		newSimulationAction.updateEnabledState();
 		editSimulationAction.updateEnabledState();
 		cutSimulationAction.updateEnabledState();
 		copySimulationAction.updateEnabledState();
