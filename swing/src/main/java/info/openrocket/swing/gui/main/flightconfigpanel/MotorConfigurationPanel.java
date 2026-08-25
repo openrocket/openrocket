@@ -311,28 +311,29 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 		}
 
-        double initDelay = initMount.getMotorConfig(initFcId).getEjectionDelay();
-
 		document.addUndoPosition("Select motor");
 
 		// Open the motor chooser dialog
 		motorChooserDialog.setMotorMountAndConfig(initFcId, initMount);
 		motorChooserDialog.open();
 
-        Motor mtr = motorChooserDialog.getSelectedMotor();
+		Motor mtr = motorChooserDialog.getSelectedMotor();
 		double d = motorChooserDialog.getSelectedDelay();
+		double nozzleExitDiameter = motorChooserDialog.getSelectedNozzleExitDiameter();
 
 
 		if (mtr != null) {
 			for (MotorMount mount : mounts) {
 				for (FlightConfigurationId fcId : fcIds) {
-					if (mtr != mount.getMotorConfig(fcId).getMotor() || d != initDelay) {
+					final MotorConfiguration templateConfig = mount.getMotorConfig(fcId);
+					if (mtr != templateConfig.getMotor() || d != templateConfig.getEjectionDelay()
+							|| nozzleExitDiameter != templateConfig.getNozzleExitDiameter()) {
 						update = true;
 
-						final MotorConfiguration templateConfig = mount.getMotorConfig(fcId);
 						final MotorConfiguration newConfig = new MotorConfiguration(mount, fcId, templateConfig);
 						newConfig.setMotor(mtr);
 						newConfig.setEjectionDelay(d);
+						newConfig.setNozzleExitDiameter(nozzleExitDiameter);
 						mount.setMotorConfig(newConfig, fcId);
 					}
 				}
