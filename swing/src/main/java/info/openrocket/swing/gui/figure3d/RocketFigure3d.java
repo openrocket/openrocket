@@ -1,134 +1,147 @@
 package info.openrocket.swing.gui.figure3d;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.SplashScreen;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.GLRunnable;
-import com.jogamp.opengl.awt.GLCanvas;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.fixedfunc.GLLightingFunc;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
-import com.jogamp.opengl.glu.GLU;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import javax.swing.event.MouseInputAdapter;
-
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.CoordinateIF;
-import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
+import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
+import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
+import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
+import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
+import info.openrocket.swing.gui.figureelements.RocketInfo;
+import info.openrocket.swing.gui.figureelements.RocketInfoContextHelper;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
-import com.jogamp.opengl.util.awt.Overlay;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.util.EventObject;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
-import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.BoundingBox;
-
-import info.openrocket.swing.gui.figureelements.CGCaret;
-import info.openrocket.swing.gui.figureelements.CPCaret;
-import info.openrocket.swing.gui.figureelements.FigureElement;
-import info.openrocket.swing.gui.main.Splash;
-
-/*
- * @author Bill Kuker <bkuker@billkuker.com>
+/**
+ * Swing adapter that embeds a {@link GLScenePanel} and schedules demand-driven rendering.
  */
-public class RocketFigure3d extends JPanel implements GLEventListener {
-	
+public class RocketFigure3d extends JPanel implements SharedCanvasRenderScheduler.Client {
+
+	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
+	private static final Translator trans = Application.getTranslator();
+	// JAWT drawing-surface access must be serialized across canvases. The shared
+	// scheduler renders every dirty view each tick, so idle views add no work.
+	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
+	private static final int IMAGE_CAPTURE_TIMEOUT_MS = 2_000;
+
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
 	public static final int TYPE_FINISHED = 4;
-	
-	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-	
-	static {
-		//this allows the GL canvas and things like the motor selection
-		//drop down to z-order themselves.
-		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-	}
-	
-	private static final double fovY = 15.0;
-	private static double fovX = Double.NaN;
-	private static final int CARET_SIZE = 20;
-	
-	private final OpenRocketDocument document;
-	private final Rocket rkt;
-	private Component canvas;
-	
-	
-	private Overlay extrasOverlay, caretOverlay;
-	private BufferedImage cgCaretRaster, cpCaretRaster;
-	private volatile boolean redrawExtras = true;
-	private boolean drawCarets = true;
-	
-	private final ArrayList<FigureElement> relativeExtra = new ArrayList<>();
-	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<>();
-	
-	private double roll = 0;
-	private double yaw = 0;
-	
-	Point pickPoint = null;
-	MouseEvent pickEvent;
-	
-	float[] lightPosition = new float[] { 1, 4, 1, 0 };
-	
-	RocketRenderer rr = new FigureRenderer();
 
 	private static Color backgroundColor;
-	private Color customBackgroundColor = null;
-	/** Strong reference required because UI theme listeners are stored weakly. */
-	private final Runnable themeChangeListener;
 
 	static {
 		initColors();
 	}
 
-	public RocketFigure3d(final OpenRocketDocument document) {
-		this.document = document;
-		this.rkt = document.getRocket();
-		this.themeChangeListener = this::refreshAfterThemeChange;
-		UITheme.Theme.addUIThemeChangeListener(themeChangeListener);
-		this.setLayout(new BorderLayout());
-		
-		//Only initialize GL if 3d is enabled.
-		if (is3dEnabled()) {
-			//Fixes a linux / X bug: Splash must be closed before GL Init
-			SplashScreen splash = Splash.getSplashScreen();
-			if (splash != null && splash.isVisible())
-				splash.close();
-			
-			initGLCanvas();
+	public interface ComponentSelectionListener {
+		void componentClicked(RocketComponent[] clicked, MouseEvent event);
+	}
+
+	private final OpenRocketDocument document;
+	private final HUDPanel hudPanel;
+	private final RocketInfo rocketInfo;
+	private final boolean enable3d;
+	private final List<ComponentSelectionListener> selectionListeners = new CopyOnWriteArrayList<>();
+	private final List<StateChangeListener> changeListeners = new CopyOnWriteArrayList<>();
+
+	private volatile GLScenePanel glScenePanel;
+	private volatile boolean renderingEnabled = false;
+	private volatile boolean disposed = false;
+	private volatile boolean selectionBridgeInstalled = false;
+	private RocketComponent[] pendingSelection;
+	private boolean glFailureLogged = false;
+	private volatile boolean glUnavailable = false;
+	private JPanel glFailurePanel;
+	private Color customBackgroundColor = null;
+	private volatile int currentType = TYPE_FINISHED;
+	private volatile boolean drawCarets = true;
+	private volatile double zoomScale = 1.0;
+	private volatile boolean zoomFitting = true;
+	private volatile Double pendingZoomScale = null;
+	private volatile boolean panModeEnabled = false;
+	// Latest CG/CP handed down by the owning panel, kept so they can be re-applied to a
+	// scene that did not exist yet when they arrived, or that has since been rebuilt.
+	private volatile CoordinateIF latestCG = null;
+	private volatile CoordinateIF latestCP = null;
+	// Demand-driven rendering: the background thread only calls renderFrame() when this is true.
+	// Starts true so the first frame renders immediately without an explicit trigger.
+	private final AtomicBoolean dirty = new AtomicBoolean(true);
+	private final AtomicReference<GLScenePanel> pendingContextResetRebuild = new AtomicReference<>();
+	private final AtomicBoolean contextResetRebuildScheduled = new AtomicBoolean(false);
+	// Camera pose captured from a canvas that is about to be rebuilt, so the new
+	// canvas resumes at the same view instead of resetting to the default pose.
+	private final AtomicReference<CameraRestoreState> pendingCameraRestore = new AtomicReference<>();
+
+	private static final class CameraRestoreState {
+		private final float angleX;
+		private final float angleY;
+		private final float distance;
+		private final float fieldOfView;
+		private final Vector3f centerOfInterest;
+
+		private CameraRestoreState(Camera camera) {
+			this.angleX = camera.getAngleX();
+			this.angleY = camera.getAngleY();
+			this.distance = camera.getDistance();
+			this.fieldOfView = camera.getFieldOfView();
+			this.centerOfInterest = new Vector3f(camera.getCenterOfInterest());
 		}
+	}
+
+	public RocketFigure3d(OpenRocketDocument document) {
+		this.document = document;
+		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
+		this.rocketInfo.set3DView(true);
+		this.hudPanel = new HUDPanel(document, rocketInfo);
+		this.enable3d = is3dEnabled();
+		setLayout(new BorderLayout());
+		setBackground(getBackgroundColor());
+	}
+
+	public static boolean is3dEnabled() {
+		if (System.getProperty("openrocket.3d.disable") != null) {
+			return false;
+		}
+		return Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLED, true);
 	}
 
 	private static void initColors() {
@@ -137,713 +150,840 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	}
 
 	public static void updateColors() {
-		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+	}
+
+	private void ensureCanvasCreatedOnEdt() {
+		if (!enable3d || glUnavailable) {
+			return;
+		}
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(this::ensureCanvasCreatedOnEdt);
+			return;
+		}
+		if (glScenePanel != null || disposed) {
+			return;
+		}
+		GLScenePanel panel;
+		try {
+			panel = new GLScenePanel(document.getRocket(), hudPanel);
+		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
+			log.warn("3D view disabled: LWJGL native libraries not available for {}/{}. " +
+					"Use a platform-specific build or install the appropriate natives.",
+					System.getProperty("os.name"), System.getProperty("os.arch"), e);
+			showGLInitFailureUI(null);
+			return;
+		}
+		panel.setPanModeEnabled(panModeEnabled);
+		// Mark dirty whenever the user interacts (drag, scroll, resize, key) so the
+		// background thread renders on demand rather than unconditionally.
+		panel.setRenderActivityCallback(this::markDirty);
+		panel.setRenderRequestCallback(this::requestRenderNow);
+		panel.setGraphicsResetCallback(() -> requestContextResetRebuild(panel));
+		panel.setGlInitFailureCallback(() -> showGLInitFailureUI(panel));
+		panel.setInitializationHook(orchestrator -> {
+			applyViewType(orchestrator, currentType);
+			applyCaretVisibility(orchestrator, drawCarets);
+			orchestrator.setCaretPositions(latestCG, latestCP);
+			Double requestedZoomScale = pendingZoomScale;
+			if (requestedZoomScale != null) {
+				orchestrator.getCameraController().setZoomScale(requestedZoomScale);
+			}
+			CameraRestoreState cameraRestore = pendingCameraRestore.getAndSet(null);
+			if (cameraRestore != null) {
+				restoreCamera(orchestrator, cameraRestore);
+			}
+			updateZoomState(orchestrator);
+		});
+		glScenePanel = panel;
+		add(panel, BorderLayout.CENTER);
+		applyBackgroundColor(panel);
+		revalidate();
+		repaint();
+	}
+
+	/** Replaces a failed native canvas with an explanatory message in the design view. */
+	void showGLInitFailureUI(GLScenePanel failedPanel) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> showGLInitFailureUI(failedPanel));
+			return;
+		}
+		if (disposed || failedPanel != null && glScenePanel != failedPanel) {
+			return;
+		}
+
+		glUnavailable = true;
+		stopRendering();
+		if (failedPanel != null) {
+			failedPanel.setRenderActivityCallback(null);
+			failedPanel.setRenderRequestCallback(null);
+			failedPanel.setGraphicsResetCallback(null);
+			failedPanel.setGlInitFailureCallback(null);
+			remove(failedPanel);
+			glScenePanel = null;
+			failedPanel.cleanup();
+		}
+		selectionBridgeInstalled = false;
+
+		if (glFailurePanel == null) {
+			glFailurePanel = createGLFailurePanel();
+		}
+		if (glFailurePanel.getParent() != this) {
+			add(glFailurePanel, BorderLayout.CENTER);
+		}
+		revalidate();
+		repaint();
+	}
+
+	private JPanel createGLFailurePanel() {
+		JPanel fallback = new JPanel(new GridBagLayout());
+		fallback.setBackground(getBackgroundColor());
+
+		JLabel title = new JLabel(trans.get("glInitFailed.title"));
+		title.setHorizontalAlignment(SwingConstants.CENTER);
+		Font font = title.getFont();
+		title.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 2.0f));
+
+		JLabel detail = new JLabel(trans.get("glInitFailed.detail"));
+		detail.setHorizontalAlignment(SwingConstants.CENTER);
+
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.weightx = 1.0;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.insets = new Insets(0, 16, 8, 16);
+		fallback.add(title, constraints);
+		constraints.gridy = 1;
+		constraints.insets = new Insets(0, 16, 0, 16);
+		fallback.add(detail, constraints);
+		return fallback;
+	}
+
+	private void rebuildCanvas(GLScenePanel failedPanel, String reason) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> rebuildCanvas(failedPanel, reason));
+			return;
+		}
+		if (disposed || !renderingEnabled) {
+			return;
+		}
+		if (glScenePanel != failedPanel) {
+			return;
+		}
+		log.info("Rebuilding 3D canvas after {}", reason);
+		captureCameraForRestore(failedPanel);
+		failedPanel.setRenderActivityCallback(null);
+		failedPanel.setRenderRequestCallback(null);
+		failedPanel.setGraphicsResetCallback(null);
+		failedPanel.setGlInitFailureCallback(null);
+		pendingContextResetRebuild.compareAndSet(failedPanel, null);
+		remove(failedPanel);
+		glScenePanel = null;
+		selectionBridgeInstalled = false;
+		failedPanel.cleanup();
+		revalidate();
+		repaint();
+
+		ensureCanvasCreatedOnEdt();
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			applyBackgroundColor(panel);
+		}
+		requestRenderNow();
+		scheduleStartupWatchdog();
+	}
+
+	private void maybeInstallSelectionBridge(GLScenePanel panel) {
+		if (selectionBridgeInstalled || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			return;
+		}
+		applyBackgroundColor(panel);
+		panel.addSceneSelectionListener(selection -> {
+			MouseEvent event = panel.consumePendingSelectionClickEvent();
+			if (event == null) {
+				return;
+			}
+			RocketComponent[] components = selection.stream()
+					.map(SceneObject::getRocketComponent)
+					.filter(rc -> rc != null)
+					.toArray(RocketComponent[]::new);
+			Runnable notifyListeners = () -> {
+				for (ComponentSelectionListener listener : selectionListeners) {
+					listener.componentClicked(components, event);
+				}
+			};
+			if (SwingUtilities.isEventDispatchThread()) {
+				notifyListeners.run();
+			} else {
+				SwingUtilities.invokeLater(notifyListeners);
+			}
+		});
+		selectionBridgeInstalled = true;
+		if (pendingSelection != null) {
+			RocketComponent[] selection = pendingSelection;
+			pendingSelection = null;
+			setSelection(selection);
+		}
+	}
+
+	private void renderFrame() {
+		if (!enable3d || !renderingEnabled || disposed) {
+			return;
+		}
+		ensureCanvasCreatedOnEdt();
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			// Canvas not created yet — keep dirty so the scheduler retries each tick
+			// until the EDT creates it.
+			if (!glUnavailable) {
+				markDirty();
+			}
+			return;
+		}
+		if (!panel.isDisplayable() || !panel.isShowing() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			// Panel not yet laid out or visible. Keep dirty only for the startup period
+			// (before the first frame), or while a resize is still outstanding: dropping the
+			// dirty flag there would leave the canvas showing a frame drawn for the previous
+			// size, with the newly exposed area never painted. Once a frame has completed and
+			// no resize is pending the panel is genuinely off-screen (minimized etc.) and we
+			// should not spin.
+			if (!panel.hasCompletedFrame() || panel.hasPendingResize()) {
+				markDirty();
+			}
+			return;
+		}
+
+		panel.render();
+		if (processPendingContextResetRebuild(panel)) {
+			return;
+		}
+		if (panel.hasGlInitFailed()) {
+			if (!glFailureLogged) {
+				log.error("GL initialization/rendering failed in RocketFigure3d");
+				glFailureLogged = true;
+			}
+			stopRendering();
+			return;
+		}
+		maybeInstallSelectionBridge(panel);
+		updateZoomState(panel.getScene3DOrchestrator());
+	}
+
+	private void captureCameraForRestore(GLScenePanel failedPanel) {
+		Scene3DOrchestrator orchestrator = failedPanel.getScene3DOrchestrator();
+		if (orchestrator == null || orchestrator.getCameraController() == null) {
+			return;
+		}
+		Camera camera = orchestrator.getCameraController().getCamera();
+		if (camera != null) {
+			pendingCameraRestore.set(new CameraRestoreState(camera));
+		}
+	}
+
+	private void restoreCamera(Scene3DOrchestrator orchestrator, CameraRestoreState state) {
+		Camera camera = orchestrator.getCameraController().getCamera();
+		if (camera == null) {
+			return;
+		}
+		camera.setCenterOfInterest(state.centerOfInterest);
+		camera.setAngleX(state.angleX);
+		camera.setAngleY(state.angleY);
+		camera.setFieldOfView(state.fieldOfView);
+		camera.setDistance(state.distance);
+		camera.update();
+	}
+
+	void requestContextResetRebuild(GLScenePanel failedPanel) {
+		pendingContextResetRebuild.compareAndSet(null, failedPanel);
+	}
+
+	boolean processPendingContextResetRebuild(GLScenePanel panel) {
+		if (pendingContextResetRebuild.get() != panel) {
+			return false;
+		}
+		if (contextResetRebuildScheduled.compareAndSet(false, true)) {
+			SwingUtilities.invokeLater(() -> {
+				try {
+					if (pendingContextResetRebuild.compareAndSet(panel, null)) {
+						rebuildCanvas(panel, "a graphics context reset");
+					}
+				} finally {
+					contextResetRebuildScheduled.set(false);
+				}
+			});
+		}
+		return true;
+	}
+
+	/** Marks this view as needing a render on the next scheduler tick. */
+	void markDirty() {
+		dirty.set(true);
+	}
+
+	@Override
+	public boolean isRenderActive() {
+		return enable3d && renderingEnabled && !glUnavailable && !disposed;
+	}
+
+	@Override
+	public boolean shouldRenderOnTick() {
+		if (contextResetRebuildScheduled.get()) {
+			return false;
+		}
+		// Atomically clear before rendering so activity arriving concurrently survives.
+		return dirty.getAndSet(false);
+	}
+
+	@Override
+	public void renderScheduledFrame() {
+		renderFrame();
+	}
+
+	@Override
+	public String getRenderDebugName() {
+		return "RocketFigure3d";
+	}
+
+	private void requestRenderNow() {
+		if (!enable3d) {
+			return;
+		}
+		markDirty();
+		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	/**
-	 * Refresh the OpenGL canvas after Swing has finished updating the component tree.
-	 * Deferring the repaint prevents the look-and-feel refresh from replacing the
-	 * rendered custom background with the theme default.
+	 * Called by RocketPanel when switching to 3D mode.
 	 */
-	void refreshAfterThemeChange() {
-		SwingUtilities.invokeLater(this::repaint);
+	public void startRendering() {
+		if (!enable3d || disposed) {
+			return;
+		}
+		renderingEnabled = true;
+		glFailureLogged = false;
+		SwingUtilities.invokeLater(() -> {
+			if (!renderingEnabled || disposed) {
+				return;
+			}
+			GLScenePanel failedPanel = glScenePanel;
+			if (failedPanel != null && failedPanel.hasFatalRenderFailure()) {
+				rebuildCanvas(failedPanel, "a previous rendering failure");
+			}
+			ensureCanvasCreatedOnEdt();
+			if (glUnavailable) {
+				renderingEnabled = false;
+				return;
+			}
+			GLScenePanel panel = glScenePanel;
+			if (panel != null) {
+				applyBackgroundColor(panel);
+			}
+			RENDER_SCHEDULER.register(this);
+			requestRenderNow();
+			scheduleStartupWatchdog();
+		});
 	}
 
 	/**
-	 * Get the current background color (custom or theme default).
-	 * @return the background color
+	 * Called by RocketPanel when switching back to 2D mode.
 	 */
+	public void stopRendering() {
+		renderingEnabled = false;
+		RENDER_SCHEDULER.unregister(this);
+	}
+
+	public void addComponentSelectionListener(ComponentSelectionListener listener) {
+		if (listener != null) {
+			selectionListeners.add(listener);
+		}
+	}
+
+	public void addChangeListener(StateChangeListener listener) {
+		if (listener != null) {
+			changeListeners.add(listener);
+		}
+	}
+
+	public void removeChangeListener(StateChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+
 	private Color getBackgroundColor() {
 		return customBackgroundColor != null ? customBackgroundColor : backgroundColor;
 	}
 
-	/**
-	 * Set a custom background color for this 3D figure. If null, uses the theme default.
-	 * @param color the custom background color, or null to use theme default
-	 */
 	public void setCustomBackgroundColor(Color color) {
 		this.customBackgroundColor = color;
-		if (canvas != null && canvas instanceof GLAutoDrawable) {
-			((GLAutoDrawable) canvas).invoke(true, drawable -> {
-				display(drawable);
-				return false;
-			});
+		setBackground(getBackgroundColor());
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			applyBackgroundColor(panel);
+			panel.repaint();
 		}
+	}
+
+	private void applyBackgroundColor(GLScenePanel panel) {
+		markDirty();
+		if (panel == null) {
+			return;
+		}
+		Color color = getBackgroundColor();
+		// A heavyweight Canvas may expose its AWT background while its native
+		// drawable is being resized. Match it to the scene so this fallback can
+		// never appear as a white flash.
+		panel.setBackground(color);
+		if (panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		float srgbR = color.getRed() / 255.0f;
+		float srgbG = color.getGreen() / 255.0f;
+		float srgbB = color.getBlue() / 255.0f;
+		float alpha = color.getAlpha() / 255.0f;
+		Vector4f linear = ColorUtils.srgbToLinear(new Vector4f(srgbR, srgbG, srgbB, alpha));
+		orchestrator.enqueueGlTask(() -> {
+			Scene scene = orchestrator.getScene();
+			if (scene != null) {
+				scene.setBackground(new SolidColorBackground(linear.x, linear.y, linear.z, linear.w));
+			}
+		});
 	}
 
 	public void flushTextureCaches() {
-		((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
-			@Override
-			public boolean run(GLAutoDrawable drawable) {
-				rr.flushTextureCache(drawable);
-				return false;
-			}
-		});
-	}
-	
-	/**
-	 * Return true if 3d view is enabled. This may be toggled by the user at
-	 * launch time.
-	 * @return
-	 */
-	public static boolean is3dEnabled() {
-		//Allow disable by command line, if program won't even start
-		if (System.getProperty("openrocket.3d.disable") != null)
-			return false;
-		//return by preference
-		return Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLED, true);
-	}
-	
-	private void initGLCanvas() {
-		log.debug("Initializing RocketFigure3D OpenGL Canvas");
-		try {
-			log.debug("Setting up GL capabilities...");
-			
-			log.trace("GL - Getting Default Profile");
-			final GLProfile glp = GLProfile.get(GLProfile.GL2);
-			
-			log.trace("GL - creating GLCapabilities");
-			final GLCapabilities caps = new GLCapabilities(glp);
-			
-			if (Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, true)) {
-				log.trace("GL - setSampleBuffers");
-				caps.setSampleBuffers(true);
-				
-				log.trace("GL - setNumSamples");
-				caps.setNumSamples(6);
-			} else {
-				log.trace("GL - Not enabling AA by user pref");
-			}
-			
-			if (Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_USE_FBO, false)) {
-				log.trace("GL - Creating GLJPanel");
-				canvas = new GLJPanel(caps);
-			} else {
-				log.trace("GL - Creating GLCanvas");
-				canvas = new GLCanvas(caps);
-			}
-			
-			log.trace("GL - Registering as GLEventListener on canvas");
-			((GLAutoDrawable) canvas).addGLEventListener(this);
-			
-			log.trace("GL - Adding canvas to this JPanel");
-			this.add(canvas, BorderLayout.CENTER);
-			
-			log.trace("GL - Setting up mouse listeners");
-			setupMouseListeners();
-			
-			log.trace("GL - Rasterizing Carets");
-			rasterizeCarets();
-			
-		} catch (Throwable t) {
-			log.error("An error occurred creating 3d View", t);
-			canvas = null;
-			this.add(new JLabel("Unable to load 3d Libraries: "
-					+ t.getMessage()));
-		}
-	}
-	
-	/**
-	 * Set up the standard rendering hints on the Graphics2D
-	 */
-	private static void setRenderingHints(Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
-				RenderingHints.VALUE_STROKE_NORMALIZE);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-	}
-	
-	/**
-	 * Rasterize the carets into 2 buffered images that I can blit onto the
-	 * 3d display every redraw without all of the caret shape rendering overhead
-	 */
-	private void rasterizeCarets() {
-		Graphics2D g2d;
-		
-		//Rasterize a CG Caret
-		cgCaretRaster = new BufferedImage(CARET_SIZE, CARET_SIZE, BufferedImage.TYPE_4BYTE_ABGR);
-		g2d = cgCaretRaster.createGraphics();
-		setRenderingHints(g2d);
-		
-		g2d.setBackground(new Color(0, 0, 0, 0));
-		g2d.clearRect(0, 0, CARET_SIZE, CARET_SIZE);
-		
-		new CGCaret((double) CARET_SIZE / 2, (double) CARET_SIZE / 2).paint(g2d, 1.0);
-		
-		g2d.dispose();
-		
-		//Rasterize a CP Caret
-		cpCaretRaster = new BufferedImage(CARET_SIZE, CARET_SIZE, BufferedImage.TYPE_4BYTE_ABGR);
-		g2d = cpCaretRaster.createGraphics();
-		setRenderingHints(g2d);
-		
-		g2d.setBackground(new Color(0, 0, 0, 0));
-		g2d.clearRect(0, 0, CARET_SIZE, CARET_SIZE);
-		
-		new CPCaret((double) CARET_SIZE / 2, (double) CARET_SIZE / 2).paint(g2d, 1.0);
-		
-		g2d.dispose();
-		
-	}
-	
-	private void setupMouseListeners() {
-		MouseInputAdapter a = new MouseInputAdapter() {
-			int lastX;
-			int lastY;
-			MouseEvent pressEvent;
-			
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				lastX = e.getX();
-				lastY = e.getY();
-				pressEvent = e;
-			}
-			
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				// Store the click point in AWT (top-left origin) coordinates and convert to
-				// OpenGL surface coordinates during rendering.  This is important on HiDPI
-				// displays (notably macOS Retina), where component coordinates and the GL
-				// drawable surface size can differ.
-				pickPoint = e.getPoint();
-				pickEvent = e;
-				internalRepaint();
-			}
-			
-			@Override
-			public void mouseDragged(final MouseEvent e) {
-				//You can get a drag without a press while a modal dialog is shown
-				if (pressEvent == null)
-					return;
-				
-				int dx = lastX - e.getX();
-				int dy = lastY - e.getY();
-				lastX = e.getX();
-				lastY = e.getY();
-				
-				if (pressEvent.getButton() == MouseEvent.BUTTON1) {
-					if (Math.abs(dx) > Math.abs(dy)) {
-						setYaw(yaw - dx / 100.0);
-					} else {
-						if (yaw > Math.PI / 2.0 && yaw < 3.0 * Math.PI / 2.0) {
-							dy = -dy;
-						}
-						setRoll(roll - dy / 100.0);
-					}
-				} else {
-					lightPosition[0] -= 0.1f * dx;
-					lightPosition[1] += 0.1f * dy;
-					internalRepaint();
-				}
-			}
-		};
-		canvas.addMouseMotionListener(a);
-		canvas.addMouseListener(a);
-	}
-	
-	
-	@Override
-	public void display(final GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
-		GLU glu = new GLU();
-
-		Color bgColor = getBackgroundColor();
-		gl.glClearColor(bgColor.getRed()/ 255.0f, bgColor.getGreen()/ 255.0f,
-				bgColor.getBlue()/ 255.0f, bgColor.getAlpha()/ 255.0f);
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-		
-		setupView(gl, glu);
-		
-		final FlightConfiguration configuration = rkt.getSelectedConfiguration();
-		if (pickPoint != null) {
-			gl.glDisable(GL.GL_MULTISAMPLE);
-			gl.glDisable(GLLightingFunc.GL_LIGHTING);
-			
-			final Point surfacePickPoint = toSurfacePickPoint(drawable, pickPoint);
-			final RocketComponent picked = rr.pick(drawable, configuration,
-					surfacePickPoint, pickEvent.isShiftDown() ? selection : null);
-			if (csl != null) {
-				final MouseEvent e = pickEvent;
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						if (picked == null) {
-							csl.componentClicked(new RocketComponent[] {}, e);
-						} else {
-							csl.componentClicked(new RocketComponent[] { picked }, e);
-						}
-					}
-				});
-				
-			}
-			pickPoint = null;
-
-			gl.glClearColor(bgColor.getRed()/ 255.0f, bgColor.getGreen()/ 255.0f,
-					bgColor.getBlue()/ 255.0f, bgColor.getAlpha()/ 255.0f);
-			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
-			gl.glEnable(GL.GL_MULTISAMPLE);
-			gl.glEnable(GLLightingFunc.GL_LIGHTING);
-
-			updateFigure();
-		}
-		rr.render(drawable, configuration, selection);
-		
-		drawExtras(drawable, gl, glu);
-		if (drawCarets) {
-			drawCarets(drawable, gl, glu);
-		}
-		
-		// GLJPanel with GLSL Flipper relies on this:
-		gl.glFrontFace(GL.GL_CCW);
-		
+		// Managed by Texture and renderer internals.
 	}
 
-	/**
-	 * Convert an AWT component coordinate (origin at top-left, in Swing "user space")
-	 * to an OpenGL drawable surface coordinate (origin at bottom-left, in pixel space).
-	 *
-	 * macOS HiDPI (Retina) is a common case where {@code canvas.getWidth()/getHeight()}
-	 * differ from {@code drawable.getSurfaceWidth()/getSurfaceHeight()}.
-	 */
-	private Point toSurfacePickPoint(final GLAutoDrawable drawable, final Point awtPoint) {
-		if (awtPoint == null || canvas == null) {
-			return awtPoint;
-		}
-
-		final int componentWidth = canvas.getWidth();
-		final int componentHeight = canvas.getHeight();
-		final int surfaceWidth = drawable.getSurfaceWidth();
-		final int surfaceHeight = drawable.getSurfaceHeight();
-
-		if (componentWidth <= 0 || componentHeight <= 0 || surfaceWidth <= 0 || surfaceHeight <= 0) {
-			return awtPoint;
-		}
-
-		final double scaleX = (double) surfaceWidth / (double) componentWidth;
-		final double scaleY = (double) surfaceHeight / (double) componentHeight;
-
-		final int x = (int) Math.floor((awtPoint.x + 0.5) * scaleX);
-		final int yTop = (int) Math.floor((awtPoint.y + 0.5) * scaleY);
-		final int y = surfaceHeight - 1 - yTop;
-
-		return new Point(
-				MathUtil.clamp(x, 0, surfaceWidth - 1),
-				MathUtil.clamp(y, 0, surfaceHeight - 1));
-	}
-	
-	/**
-	 * Creates a Graphics2D object for the overlay. The resultant Graphics2D
-	 * object has the rendering hints set and the transform to match the
-	 * current GraphicsConfiguration this component is rendered on. This takes
-	 * into account things such as DPI Scaling.
-	 *
-	 * @param overlay the overlay to use when creating the Graphics2D object.
-	 * @return Graphics2D a Graphics2D object for the overlay
-	 */
-	private Graphics2D createOverlayGraphics(final Overlay overlay) {
-		final Graphics2D og2d = overlay.createGraphics();
-		setRenderingHints(og2d);
-		GraphicsConfiguration gconf = getGraphicsConfiguration();
-		if (gconf != null) {
-			og2d.setTransform(gconf.getDefaultTransform());
-		}
-		return og2d;
-	}
-	
-	private void drawCarets(final GLAutoDrawable drawable, final GL2 gl, final GLU glu) {
-		final Graphics2D og2d = createOverlayGraphics(caretOverlay);
-		
-		og2d.setBackground(new Color(0, 0, 0, 0));
-		og2d.clearRect(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-		caretOverlay.markDirty(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-		
-		// The existing relative Extras don't really work right for 3d.
-		CoordinateIF pCP = project(cp, gl, glu);
-		CoordinateIF pCG = project(cg, gl, glu);
-		
-		final int d = CARET_SIZE / 2;
-		double height = canvas.getHeight();
-		
-		/* Need to take the displayScaling into account. If the scaling is not
-		 * taken into account here, the CG and CP carets are placed in the wrong
-		 * location. I *think* that's because the Coordinates returned by project(...)
-		 * are already appropriately scaled - but not 100% certain on that. The
-		 * following does work though.
-		 */
-		double displayScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
-		AffineTransform cgTransform = AffineTransform.getTranslateInstance(((pCG.getX() / displayScale) - d), height - ((pCG.getY() / displayScale) + d));
-		AffineTransform cpTransform = AffineTransform.getTranslateInstance(((pCP.getX() / displayScale) - d), height - ((pCP.getY() / displayScale) + d));
-		
-		//z order the carets 
-		if (pCG.getZ() < pCP.getZ()) {
-			//Subtract half of the caret size, so they are centered ( The +/- d in each translate)
-			//Flip the sense of the Y coordinate from GL to normal (Y+ up/down)
-			og2d.drawRenderedImage(cpCaretRaster, cpTransform);
-			og2d.drawRenderedImage(cgCaretRaster, cgTransform);
-		} else {
-			og2d.drawRenderedImage(cgCaretRaster, cgTransform);
-			og2d.drawRenderedImage(cpCaretRaster, cpTransform);
-		}
-		og2d.dispose();
-		
-		gl.glEnable(GL.GL_BLEND);
-		caretOverlay.drawAll();
-		gl.glDisable(GL.GL_BLEND);
-	}
-	
-	/**
-	 * Draw the extras overlay to the gl canvas.
-	 * Re-blits the overlay every frame. Only re-renders the overlay
-	 * when needed.
-	 */
-	private void drawExtras(final GLAutoDrawable drawable, final GL2 gl, final GLU glu) {
-		//Only re-render if needed
-		//	redrawExtras: Some external change (new simulation data) means
-		//		the data is out of date.
-		//	extrasOverlay.contentsLost(): For some reason the buffer with this
-		//		data is lost.
-		if (redrawExtras || extrasOverlay.contentsLost()) {
-			log.debug("Redrawing Overlay");
-			
-			final Graphics2D og2d = createOverlayGraphics(extrasOverlay);
-			
-			og2d.setBackground(new Color(0, 0, 0, 0));
-			og2d.clearRect(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-			extrasOverlay.markDirty(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-			
-			for (FigureElement e : relativeExtra) {
-				e.paint(og2d, 1);
-			}
-			Rectangle rect = this.getVisibleRect();
-			
-			for (FigureElement e : absoluteExtra) {
-				e.paint(og2d, 1.0, rect);
-			}
-			og2d.dispose();
-			
-			redrawExtras = false;
-		}
-		
-		//Re-blit to gl canvas every time
-		gl.glEnable(GL.GL_BLEND);
-		extrasOverlay.drawAll();
-		gl.glDisable(GL.GL_BLEND);
-	}
-	
-	@Override
-	public void dispose(final GLAutoDrawable drawable) {
-		log.trace("GL - dispose() called");
-		rr.dispose(drawable);
-	}
-	
-	@Override
-	public void init(final GLAutoDrawable drawable) {
-		log.trace("GL - init()");
-		
-		final GL2 gl = drawable.getGL().getGL2();
-		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
-		
-		gl.glDepthFunc(GL.GL_LESS); // the type of depth test to do
-		
-		float amb = 0.5f;
-		float dif = 1.0f;
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
-				new float[] { amb, amb, amb, 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
-				new float[] { dif, dif, dif, 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
-				new float[] { dif, dif, dif, 1 }, 0);
-		
-		gl.glEnable(GLLightingFunc.GL_LIGHT1);
-		gl.glEnable(GLLightingFunc.GL_LIGHTING);
-		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
-		
-		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
-		
-		rr.init(drawable);
-		
-		extrasOverlay = new Overlay(drawable);
-		caretOverlay = new Overlay(drawable);
-	}
-	
-	@Override
-	public void reshape(final GLAutoDrawable drawable, final int x, final int y, final int w, final int h) {
-		log.trace("GL - reshape()");
-		final GL2 gl = drawable.getGL().getGL2();
-		final GLU glu = new GLU();
-		
-		final double ratio = (double) w / (double) h;
-		fovX = fovY * ratio;
-		
-		// Make sure to set the viewport size to cover the full size
-		gl.glViewport(0, 0, w, h);
-		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
-		gl.glLoadIdentity();
-		glu.gluPerspective(fovY, ratio, 0.1f, 50.0f);
-		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-		
-		redrawExtras = true;
-	}
-	
-	private BoundingBox cachedBounds = null;
-	
-	/**
-	 * Calculates the bounds for the current configuration
-	 * 
-	 * @return
-	 */
-	private BoundingBox calculateBounds() {
-		if (cachedBounds == null) {
-			final FlightConfiguration configuration = rkt.getSelectedConfiguration();
-			cachedBounds = configuration.getBoundingBox();
-		}
-		return cachedBounds;
-	}
-	
-	private void setupView(final GL2 gl, final GLU glu) {
-		gl.glLoadIdentity();
-		
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION,
-				lightPosition, 0);
-
-		// Get the bounds
-		final BoundingBox b = calculateBounds();
-		
-		// Calculate the distance needed to fit the bounds in both the X and Y
-		// direction
-		// Add 10% for space around it.
-		final double maxR = Math.max( Math.hypot(b.min.getY(), b.min.getZ()),
-				Math.hypot(b.max.getY(), b.max.getZ()));
-		final double dX = (b.span().getX() * 1.2 / 2.0)
-				/ Math.tan(Math.toRadians(fovX / 2.0));
-		final double dY = (2*maxR * 1.2 / 2.0)
-				/ Math.tan(Math.toRadians(fovY / 2.0));
-		
-		// Move back the greater of the 2 distances
-		glu.gluLookAt(0, 0, Math.max(dX, dY), 0, 0, 0, 0, 1, 0);
-		
-		gl.glRotated(yaw * (180.0 / Math.PI), 0, 1, 0);
-		gl.glRotated(roll * (180.0 / Math.PI), 1, 0, 0);
-		
-		// Center the rocket in the view.
-		gl.glTranslated(-b.min.getX() - b.span().getX() / 2.0, 0, 0);
-		
-		//Change to LEFT Handed coordinates
-		gl.glScaled(1, 1, -1);
-		gl.glFrontFace(GL.GL_CW);
-		
-		//Flip textures for LEFT handed coords
-		gl.glMatrixMode(GL.GL_TEXTURE);
-		gl.glLoadIdentity();
-		gl.glScaled(-1, 1, 1);
-		gl.glTranslated(-1, 0, 0);
-		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-	}
-	
-	/**
-	 * Call when the rocket has changed
-	 */
 	public void updateFigure() {
-		log.debug("3D Figure Updated");
-		cachedBounds = null;
-		if (canvas != null) {
-			((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
-				@Override
-				public boolean run(GLAutoDrawable drawable) {
-					rr.updateFigure(drawable);
-					return false;
-				}
-			});
+		markDirty();
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			panel.markHudForUpdate();
+			panel.repaint();
 		}
 	}
-	
-	private void internalRepaint() {
-		if (canvas != null) {
-			((GLAutoDrawable) canvas).display();
+
+	public void setCustomTextColor(Color color) {
+		rocketInfo.setCustomTextColors(null, color);
+		rocketInfo.set3DView(true);
+		updateFigure();
+	}
+
+	public void setShowWarnings(boolean showWarnings) {
+		markDirty();
+		hudPanel.setShowWarnings(showWarnings);
+		requestRenderNow();
+	}
+
+	// Compatibility methods expected by RocketPanel.
+
+	public void setType(int type) {
+		markDirty();
+		currentType = type;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			return;
 		}
-		super.repaint();
-	}
-	
-	@Override
-	public void repaint() {
-		redrawExtras = true;
-		internalRepaint();
-	}
-	
-	private Set<RocketComponent> selection = new HashSet<>();
-	
-	public void setSelection(final RocketComponent[] selection) {
-		this.selection.clear();
-		if (selection != null) {
-			this.selection.addAll(Arrays.asList(selection));
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
 		}
-		internalRepaint();
+		applyViewType(orchestrator, type);
+		panel.markHudForUpdate();
+		panel.repaint();
 	}
-	
-	private void setRoll(final double rot) {
-		if (MathUtil.equals(roll, rot))
-			return;
-		this.roll = MathUtil.reduce2Pi(rot);
-		internalRepaint();
-	}
-	
-	private void setYaw(final double rot) {
-		if (MathUtil.equals(yaw, rot))
-			return;
-		this.yaw = MathUtil.reduce2Pi(rot);
-		internalRepaint();
-	}
-	
-	// ///////////// Extra methods
-	
-	private CoordinateIF project(final CoordinateIF c, final GL2 gl, final GLU glu) {
-		final double[] mvmatrix = new double[16];
-		final double[] projmatrix = new double[16];
-		final int[] viewport = new int[4];
-		
-		gl.glGetIntegerv(GL.GL_VIEWPORT, viewport, 0);
-		gl.glGetDoublev(GLMatrixFunc.GL_MODELVIEW_MATRIX, mvmatrix, 0);
-		gl.glGetDoublev(GLMatrixFunc.GL_PROJECTION_MATRIX, projmatrix, 0);
-		
-		final double out[] = new double[4];
-		glu.gluProject(c.getX(), c.getY(), c.getZ(), mvmatrix, 0, projmatrix, 0, viewport, 0,
-				out, 0);
-		
-		return new Coordinate(out[0], out[1], out[2]);
-		
-	}
-	
-	private CoordinateIF cp = new Coordinate(0, 0, 0);
-	private CoordinateIF cg = new Coordinate(0, 0, 0);
-	
-	public void setCG(final CoordinateIF cg) {
-		this.cg = cg;
-		redrawExtras = true;
-	}
-	
-	public void setCP(final CoordinateIF cp) {
-		this.cp = cp;
-		redrawExtras = true;
-	}
-	
-	public void addRelativeExtra(final FigureElement p) {
-		relativeExtra.add(p);
-		redrawExtras = true;
-	}
-	
-	public void removeRelativeExtra(final FigureElement p) {
-		relativeExtra.remove(p);
-		redrawExtras = true;
-	}
-	
-	public void clearRelativeExtra() {
-		relativeExtra.clear();
-		redrawExtras = true;
-	}
-	
-	public void addAbsoluteExtra(final FigureElement p) {
-		absoluteExtra.add(p);
-		redrawExtras = true;
-	}
-	
-	public void removeAbsoluteExtra(final FigureElement p) {
-		absoluteExtra.remove(p);
-		redrawExtras = true;
-	}
-	
-	public void clearAbsoluteExtra() {
-		absoluteExtra.clear();
-		redrawExtras = true;
-	}
-	
-	private ComponentSelectionListener csl;
-	
-	public static interface ComponentSelectionListener {
-		public void componentClicked(RocketComponent[] components, MouseEvent e);
-	}
-	
-	public void addComponentSelectionListener(
-			ComponentSelectionListener newListener) {
-		this.csl = newListener;
-	}
-	
-	public void setType(final int t) {
-		//There is no canvas if there was an error while creating it.
-		if (canvas == null)
-			return;
-		
-		// The first time the user selects any 3d figure types,  the canvas' internal _drawable
-		// has not been realized.  Unfortunately, there is a test in canvas.invoke which doesn't
-		// execute the runnable if the drawable isn't realized.
-		// In order to trump this, we test if the canvas has not been realized and initialize
-		// the renderer accordingly.  There is certainly a better way to do this.
-		
-		
-		final RocketRenderer newRR = switch (t) {
-			case TYPE_FINISHED -> new RealisticRenderer(document);
-			case TYPE_UNFINISHED -> new UnfinishedRenderer(document);
-			default -> new FigureRenderer();
+
+	private void applyViewType(Scene3DOrchestrator orchestrator, int type) {
+		DisplaySettings.RenderMode mode = switch (type) {
+			case TYPE_FIGURE -> DisplaySettings.RenderMode.XRAY;
+			case TYPE_UNFINISHED -> DisplaySettings.RenderMode.UNFINISHED;
+			case TYPE_FINISHED -> DisplaySettings.RenderMode.FINISHED;
+			default -> DisplaySettings.RenderMode.FINISHED;
 		};
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getDisplay().setMode(mode);
+		});
+	}
 
-		if (canvas instanceof GLCanvas && !((GLCanvas) canvas).isRealized()) {
-			rr = newRR;
-		} else if (canvas instanceof GLJPanel && !((GLJPanel) canvas).isRealized()) {
-			rr = newRR;
-		} else {
-			((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
-				@Override
-				public boolean run(GLAutoDrawable drawable) {
-					rr.dispose(drawable);
-					rr = newRR;
-					newRR.init(drawable);
-					if (canvas instanceof GLJPanel)
-						internalRepaint();
-					return false;
-				}
-			});
+	private void applyCaretVisibility(Scene3DOrchestrator orchestrator, boolean visible) {
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getVisualEffects().setCaretsVisible(visible);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+	}
+
+	private void updateZoomState(Scene3DOrchestrator orchestrator) {
+		if (orchestrator == null) {
+			return;
+		}
+		double currentZoomScale = orchestrator.getCameraController().getZoomScale();
+		boolean currentlyFitting = orchestrator.getCameraController().isZoomFitting();
+		if (Math.abs(currentZoomScale - zoomScale) <= 0.001 && currentlyFitting == zoomFitting) {
+			return;
+		}
+		zoomScale = currentZoomScale;
+		zoomFitting = currentlyFitting;
+		fireChangeEvent();
+	}
+
+	private void fireChangeEvent() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(this::fireChangeEvent);
+			return;
+		}
+		EventObject event = new EventObject(this);
+		for (StateChangeListener listener : changeListeners) {
+			listener.stateChanged(event);
 		}
 	}
 
-	public boolean isDrawCarets() {
-		return drawCarets;
+	public void setDrawCarets(boolean draw) {
+		markDirty();
+		drawCarets = draw;
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+			if (orchestrator != null) {
+				applyCaretVisibility(orchestrator, draw);
+			}
+			panel.markHudForUpdate();
+			panel.repaint();
+		}
 	}
 
-	public void setDrawCarets(boolean drawCarets) {
-		this.drawCarets = drawCarets;
+	public void setDragRotationSensitivity(float sensitivity) {
+		markDirty();
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getVisualEffects().setDragRotationSensitivity(sensitivity);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+		panel.repaint();
+	}
+
+	public void setPanModeEnabled(boolean enabled) {
+		markDirty();
+		panModeEnabled = enabled;
+		hudPanel.setPanModeEnabled(enabled);
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			panel.setPanModeEnabled(enabled);
+			panel.markHudForUpdate();
+			panel.repaint();
+		}
+		requestRenderNow();
+	}
+
+	public double getZoomScale() {
+		return zoomScale;
+	}
+
+	public boolean isZoomFitting() {
+		return zoomFitting;
+	}
+
+	public void setZoomScale(double scale) {
+		if (Double.isNaN(scale) || Double.isInfinite(scale) || scale <= 0.0) {
+			return;
+		}
+		pendingZoomScale = scale;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> orchestrator.getCameraController().setZoomScale(scale));
+		requestRenderNow();
+	}
+
+	public void zoomToFit() {
+		pendingZoomScale = 1.0;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(orchestrator::resetViewAndFocusOnRocket);
+		requestRenderNow();
+	}
+
+	public void setCaretPositions(CoordinateIF cg, CoordinateIF cp) {
+		markDirty();
+		RocketInfoContextHelper.applyCgAndCp(rocketInfo, cg, cp);
+		latestCG = cg;
+		latestCP = cp;
+		pushCaretPositions();
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			panel.markHudForUpdate();
+		}
 	}
 
 	/**
-	 * Captures the current 3D view as a BufferedImage.
-	 * This method renders the current state of the 3D canvas to an image.
+	 * Hands the latest centre of gravity and centre of pressure to the scene, so the markers
+	 * agree with the figures and the overlay beside them.
 	 *
-	 * @return a BufferedImage containing the current 3D view, or null if capture fails
+	 * <p>These arrive from the owning panel, which computes them under whatever flight
+	 * conditions are in force — the Component Analysis window can override Mach, angle of
+	 * attack and roll rate. The renderer has no way to know about those, so it must be told
+	 * rather than left to work the positions out for itself.</p>
 	 */
-	public BufferedImage captureImage() {
-		if (canvas == null) {
-			return null;
+	private void pushCaretPositions() {
+		GLScenePanel panel = glScenePanel;
+		Scene3DOrchestrator orchestrator = panel == null ? null : panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			// Applied by the initialization hook once the scene exists.
+			return;
 		}
-
-		// Use GLAutoDrawable to get the actual surface dimensions (important for HiDPI displays)
-		GLAutoDrawable drawable = (GLAutoDrawable) canvas;
-		int surfaceWidth = drawable.getSurfaceWidth();
-		int surfaceHeight = drawable.getSurfaceHeight();
-		if (surfaceWidth <= 0 || surfaceHeight <= 0) {
-			return null;
-		}
-
-		// Use AWTGLReadBufferUtil to read the framebuffer - works for both GLJPanel and GLCanvas
-		final BufferedImage[] result = new BufferedImage[1];
-		
-		drawable.invoke(true, glDrawable -> {
-			GL2 gl = glDrawable.getGL().getGL2();
-			AWTGLReadBufferUtil readBufferUtil = new AWTGLReadBufferUtil(glDrawable.getGLProfile(), true);
-			result[0] = readBufferUtil.readPixelsToBufferedImage(gl, true);
-			return true;
-		});
-		
-		return result[0];
+		CoordinateIF cg = latestCG;
+		CoordinateIF cp = latestCP;
+		orchestrator.enqueueGlTask(() -> orchestrator.setCaretPositions(cg, cp));
 	}
+
+	public void clearRelativeExtra() {
+		// Not implemented in the HUD overlay yet.
+	}
+
+	public void clearAbsoluteExtra() {
+		// HUD already renders the shared RocketInfo instance.
+	}
+
+	public void addAbsoluteExtra(RocketInfo info) {
+		// HUD already renders the shared RocketInfo instance.
+	}
+
+	public void setSelection(RocketComponent[] components) {
+		markDirty();
+		RocketComponent[] copy = components != null ? components.clone() : null;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			pendingSelection = copy;
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			pendingSelection = copy;
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> {
+			Scene scene = orchestrator.getScene();
+			if (scene == null) {
+				return;
+			}
+			List<SceneObject> selectedObjects = scene.getObjects().stream()
+					.filter(obj -> {
+						RocketComponent rc = obj.getRocketComponent();
+						if (rc == null || copy == null) {
+							return false;
+						}
+						for (RocketComponent component : copy) {
+							if (component == rc) {
+								return true;
+							}
+						}
+						return false;
+					})
+					.collect(Collectors.toList());
+			scene.setSelection(selectedObjects);
+		});
+	}
+
+	public Scene3DOrchestrator getSceneController() {
+		if (!enable3d) {
+			return null;
+		}
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getScene3DOrchestrator() : null;
+	}
+
+	public int getCanvasRenderCallCount() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getRenderCallCount() : 0;
+	}
+
+	public int getCanvasPaintCallCount() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getPaintCallCount() : 0;
+	}
+
+	public int getCanvasSwapCallCount() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getSwapCallCount() : 0;
+	}
+
+	public boolean hasCompletedCanvasFrame() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null && panel.hasCompletedFrame();
+	}
+
+	public String getCanvasDebugState() {
+		if (!enable3d) {
+			return "3d-disabled";
+		}
+		if (glUnavailable) {
+			return "3d-unavailable";
+		}
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getDebugStateSummary() : "panel=null";
+	}
+
+	public BufferedImage captureImage() {
+		if (!enable3d) {
+			return null;
+		}
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.hasGlInitFailed() || !panel.awaitInitialized(0)) {
+			return null;
+		}
+
+		AtomicReference<BufferedImage> result = new AtomicReference<>();
+		if (SwingUtilities.isEventDispatchThread()) {
+			SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+			AtomicBoolean completed = new AtomicBoolean(false);
+			Timer timeout = new Timer(IMAGE_CAPTURE_TIMEOUT_MS, event -> {
+				if (completed.compareAndSet(false, true)) {
+					log.warn("Timed out capturing 3D image");
+					loop.exit();
+				}
+			});
+			timeout.setRepeats(false);
+			panel.requestImageCapture(false, image -> {
+				if (completed.compareAndSet(false, true)) {
+					result.set(image);
+					timeout.stop();
+					loop.exit();
+				}
+			});
+			requestRenderNow();
+			timeout.start();
+			loop.enter();
+			timeout.stop();
+			return compositeHudOverlay(result.get(), panel);
+		}
+
+		CountDownLatch latch = new CountDownLatch(1);
+		panel.requestImageCapture(false, image -> {
+			result.set(image);
+			latch.countDown();
+		});
+		requestRenderNow();
+		try {
+			if (!latch.await(IMAGE_CAPTURE_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+				log.warn("Timed out capturing 3D image");
+				return null;
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		}
+		return compositeHudOverlay(result.get(), panel);
+	}
+
+	private BufferedImage compositeHudOverlay(BufferedImage image, GLScenePanel panel) {
+		if (image == null || panel == null || hudPanel == null || !hudPanel.isVisible()) {
+			return image;
+		}
+
+		if (SwingUtilities.isEventDispatchThread()) {
+			paintHudIntoImage(image, panel);
+			return image;
+		}
+
+		try {
+			SwingUtilities.invokeAndWait(() -> paintHudIntoImage(image, panel));
+		} catch (Exception e) {
+			log.warn("Failed to paint HUD into captured 3D image", e);
+		}
+		return image;
+	}
+
+	private void paintHudIntoImage(BufferedImage image, GLScenePanel panel) {
+		if (image == null || panel == null || hudPanel == null || !hudPanel.isVisible()) {
+			return;
+		}
+
+		int logicalWidth = Math.max(1, panel.getWidth());
+		int logicalHeight = Math.max(1, panel.getHeight());
+		double scaleX = image.getWidth() / (double) logicalWidth;
+		double scaleY = image.getHeight() / (double) logicalHeight;
+
+		Graphics2D g2 = image.createGraphics();
+		try {
+			g2.scale(scaleX, scaleY);
+			hudPanel.setBounds(0, 0, logicalWidth, logicalHeight);
+			hudPanel.paint(g2);
+		} finally {
+			g2.dispose();
+		}
+	}
+
+	public void cleanup() {
+		stopRendering();
+		disposed = true;
+		GLScenePanel panel = glScenePanel;
+		glScenePanel = null;
+		selectionBridgeInstalled = false;
+		pendingSelection = null;
+		pendingContextResetRebuild.set(null);
+		contextResetRebuildScheduled.set(false);
+		pendingCameraRestore.set(null);
+		if (panel != null) {
+			panel.setGraphicsResetCallback(null);
+			panel.cleanup();
+		}
+	}
+
+	@Override
+	public void removeNotify() {
+		cleanup();
+		super.removeNotify();
+	}
+
+	private void scheduleStartupWatchdog() {
+		int[] delaysMs = {750, 1500, 3000};
+		for (int delayMs : delaysMs) {
+			Timer timer = new Timer(delayMs, e -> runStartupWatchdog(delayMs));
+			timer.setRepeats(false);
+			timer.start();
+		}
+	}
+
+	private void runStartupWatchdog(int delayMs) {
+		if (!enable3d || !renderingEnabled || disposed) {
+			return;
+		}
+		ensureCanvasCreatedOnEdt();
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return;
+		}
+		if (panel.hasCompletedFrame()) {
+			return;
+		}
+		revalidate();
+		repaint();
+		panel.revalidate();
+		panel.repaint();
+		// Re-assert dirty on all platforms: with demand-driven rendering the background
+		// thread only fires when dirty=true, so the watchdog must re-mark it if the
+		// initial render was dropped (e.g. panel not yet showing when the first tick ran).
+		requestRenderNow();
+	}
+
 }

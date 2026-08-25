@@ -84,6 +84,19 @@ The updater takes several precautions when downloading and installing data:
 
   - This reduces risk from oversized downloads and decompression bombs.
 
+- Bounded and cancellable operations
+
+  - Metadata checks have a one-minute total deadline and database downloads have a five-minute total deadline, in
+    addition to socket inactivity timeouts.
+  - The progress dialog can cancel the worker and disconnect its active HTTP connection.
+
+- Concurrent-install protection
+
+  - An inter-process file lock prevents multiple OpenRocket instances from updating the shared motor library at once.
+  - Downloads use unique temporary files, and the installed version is checked again immediately before commit.
+  - If metadata replacement fails after database replacement, the previous database is restored from a temporary
+    backup.
+
 Signature format
 ----------------
 
@@ -117,6 +130,7 @@ Testing
 -------
 
 - `core/src/test/java/info/openrocket/core/database/MotorDatabaseRemoteUpdaterTest.java` verifies SHA handling (compressed
-  vs decompressed) and that mismatches are rejected.
+  vs decompressed), signature rejection, operation deadlines, concurrent-install locking, stale-version rejection,
+  and rollback when committing metadata fails.
 - `core/src/test/java/info/openrocket/core/database/motor/InitialMotorsDatabaseFormatTest.java` ensures the bundled
   `initial_motors.db` can be validated and loaded.

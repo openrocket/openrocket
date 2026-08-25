@@ -53,6 +53,12 @@ jobs:
         with:
           name: build-reports
           path: build/reports/
+      - name: Upload Checkstyle reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: checkstyle-reports
+          path: '**/build/reports/checkstyle/**'
       - name: Upload SpotBugs reports
         if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
