@@ -13,6 +13,9 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
 import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
 import java.util.List;
 
@@ -294,6 +297,56 @@ class FinSetGeneratorTest extends BaseTestCase {
 		}
 	}
 
+	/** Concave freeform fins must retain their indentation instead of filling the convex hull. */
+	@Test
+	void concaveFinFaceMatchesPlanformArea() {
+		BodyTube parent = new BodyTube();
+		parent.setOuterRadius(0.025);
+		parent.setLength(0.2);
+
+		FreeformFinSet finSet = new FreeformFinSet();
+		parent.addChild(finSet);
+		finSet.setThickness(0.001);
+		finSet.setPoints(new CoordinateIF[] {
+				new Coordinate(0.0, 0.0),
+				new Coordinate(0.0, 0.0067818),
+				new Coordinate(0.092075, 0.0067818),
+				new Coordinate(0.098425, 0.02032),
+				new Coordinate(0.111125, 0.02032),
+				new Coordinate(0.111125, 0.0)
+		}, false);
+
+		CoordinateIF[] planform = finSet.generateContinuousFinAndTabShape();
+		Mesh mesh = FinSetGenerator.create(finSet, parent, new RenderingConfiguration());
+		GeometryFactory geometryFactory = new GeometryFactory();
+		Polygon planformPolygon = createPolygon(geometryFactory, planform);
+		Geometry planformWithFloatTolerance = planformPolygon.buffer(1.0e-7);
+
+		double faceArea = 0.0;
+		for (int i = 0; i < mesh.getIndices().size(); i += 3) {
+			int first = mesh.getIndices().get(i);
+			int second = mesh.getIndices().get(i + 1);
+			int third = mesh.getIndices().get(i + 2);
+			if (first < planform.length && second < planform.length && third < planform.length) {
+				Vertex firstVertex = mesh.getVertices().get(first);
+				Vertex secondVertex = mesh.getVertices().get(second);
+				Vertex thirdVertex = mesh.getVertices().get(third);
+				faceArea += triangleArea(firstVertex, secondVertex, thirdVertex);
+				assertTrue(signedTwiceTriangleArea(firstVertex, secondVertex, thirdVertex) > 0.0,
+						"Front-face triangles must use counter-clockwise winding");
+				assertTrue(planformWithFloatTolerance.covers(createPolygon(geometryFactory,
+						new CoordinateIF[] {
+								new Coordinate(firstVertex.position.x, firstVertex.position.y),
+								new Coordinate(secondVertex.position.x, secondVertex.position.y),
+								new Coordinate(thirdVertex.position.x, thirdVertex.position.y)
+						})), "Every front-face triangle must remain inside the concave planform");
+			}
+		}
+
+		assertEquals(polygonArea(planform), faceArea, 1.0e-8,
+				"Front-face triangles must cover only the concave fin planform");
+	}
+
 	private static float expectedTrailingEdgeU(CoordinateIF[] shapePoints, CoordinateIF trailingRootPoint, float spanX) {
 		int trailingIndex = findMatchingPointIndex(shapePoints, trailingRootPoint);
 		float accumulatedLength = 0f;
@@ -339,5 +392,34 @@ class FinSetGeneratorTest extends BaseTestCase {
 		float dx = (float) (b.getX() - a.getX());
 		float dy = (float) (b.getY() - a.getY());
 		return (float) Math.sqrt(dx * dx + dy * dy);
+	}
+
+	private static double polygonArea(CoordinateIF[] points) {
+		double twiceArea = 0.0;
+		for (int i = 0; i < points.length; i++) {
+			CoordinateIF current = points[i];
+			CoordinateIF next = points[(i + 1) % points.length];
+			twiceArea += current.getX() * next.getY() - next.getX() * current.getY();
+		}
+		return Math.abs(twiceArea) * 0.5;
+	}
+
+	private static Polygon createPolygon(GeometryFactory geometryFactory, CoordinateIF[] points) {
+		org.locationtech.jts.geom.Coordinate[] coordinates =
+				new org.locationtech.jts.geom.Coordinate[points.length + 1];
+		for (int i = 0; i < points.length; i++) {
+			coordinates[i] = new org.locationtech.jts.geom.Coordinate(points[i].getX(), points[i].getY());
+		}
+		coordinates[points.length] = coordinates[0].copy();
+		return geometryFactory.createPolygon(coordinates);
+	}
+
+	private static double triangleArea(Vertex first, Vertex second, Vertex third) {
+		return Math.abs(signedTwiceTriangleArea(first, second, third)) * 0.5;
+	}
+
+	private static double signedTwiceTriangleArea(Vertex first, Vertex second, Vertex third) {
+		return (second.position.x - first.position.x) * (third.position.y - first.position.y)
+				- (third.position.x - first.position.x) * (second.position.y - first.position.y);
 	}
 }
