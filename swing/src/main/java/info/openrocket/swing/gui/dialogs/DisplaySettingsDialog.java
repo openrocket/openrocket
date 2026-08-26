@@ -417,7 +417,7 @@ public class DisplaySettingsDialog extends JDialog {
 		});
 		panel.add(lightVisualizersCheckBox, "wrap");
 
-		// Show camera point of interest
+		// Show the pivot used by the active drag-rotation mode
 		cameraPointOfInterestCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.advanced.cameraPointOfInterest"));
 		cameraPointOfInterestCheckBox.setToolTipText(
