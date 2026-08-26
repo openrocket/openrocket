@@ -233,8 +233,15 @@ public class SwingStartup {
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
-			BasicFrame startupFrame = BasicFrame.reopen();
-			BasicFrame.setStartupFrame(startupFrame);
+			if (BasicFrame.isFramesEmpty()) {
+				BasicFrame startupFrame = BasicFrame.reopen();
+				BasicFrame.setStartupFrame(startupFrame);
+			} else {
+				// A frame was already created during an EDT pump in startLoader()
+				// (e.g. APP_REOPENED_HANDLER fired while a modal dialog was showing).
+				// Adopt it as the startup frame instead of opening a second one.
+				BasicFrame.setStartupFrame(BasicFrame.lastFrameInstance);
+			}
 			showWelcomeDialog();
 		}
 		
