@@ -740,6 +740,100 @@ p'''(2)  & =  0
 %
 where $f(M)$ is the function of equation~(\ref{eq-fin-CP-mach2}).
 
+The theoretical form underlying equation~(\ref{eq-fin-CP-mach2}) appears
+as equation~(63) of NACA Report 1307 and is explicitly restricted to
+$\AR\beta>1$.\footnote{W.~C. Pitts, J.~N. Nielsen, and G.~E. Kaattari,
+\textit{Lift and Center of Pressure of Wing-Body-Tail Combinations at
+Subsonic, Transonic, and Supersonic Speeds}, NACA-TR-1307, 1957,
+\url{https://ntrs.nasa.gov/citations/19930091008}.}  The report notes that
+for $\AR\beta<1$ tip effects produce negative lifting pressures on
+rearward parts of the wing; the resulting CP is planform-dependent and
+requires a different low-aspect-ratio treatment.  Extrapolating
+equation~(\ref{eq-fin-CP-mach2}) into that range also crosses its pole at
+$\AR\beta=0.5$.
+
+OpenRocket therefore uses the source equation only at and above its
+applicability boundary.  In the absence of a generic low-aspect-ratio
+correlation for every supported fin planform, define $x=\AR\beta$ and
+denote the right-hand side of equation~(\ref{eq-fin-CP-mach2}) by $f(x)$.
+
+\begin{equation}
+x_0=\frac{0.67-0.25}{1-2(0.25)}=0.84,
+\end{equation}
+
+the point at which equation~(\ref{eq-fin-CP-mach2}) intersects the
+quarter chord.  For $x\leq x_0$ the fallback position is $q_0=0.25$.
+For $x_0<x<1$, a cubic Hermite bridge joins that position with zero
+gradient to the value and gradient of $f(x)$ at $x=1$.  With
+$u=(x-x_0)/(1-x_0)$ and the Hermite basis functions
+
+\begin{equation}
+h_{00}(u)=2u^3-3u^2+1,\quad
+h_{01}(u)=-2u^3+3u^2,\quad
+h_{11}(u)=u^3-u^2,
+\end{equation}
+
+the regularized supersonic curve is
+
+\begin{equation}
+g(x)=
+\begin{cases}
+q_0, & x\leq x_0,\\
+h_{00}(u)q_0+h_{01}(u)f(1)
+ +(1-x_0)h_{11}(u)f'(1), & x_0<x<1,\\
+f(x), & x\geq1.
+\end{cases}
+\end{equation}
+
+This bridge is a bounded continuity fallback, not an empirical prediction
+of low-aspect-ratio fin CP.  It prevents the singularity while making the
+unsupported part of the model explicit.
+
+The transonic interpolation uses $g$ for its Mach-2 endpoint.  Let
+
+\begin{equation}
+t=\frac{M-0.5}{1.5},\qquad
+x_2=\sqrt{3}\AR,\qquad
+\Delta=g(x_2)-q_0,\qquad
+s=x_2g'(x_2).
+\end{equation}
+
+Here $s$ is the endpoint slope in the normalized coordinate $t$, because
+
+\begin{equation}
+1.5\left.\frac{dx}{dM}\right|_{M=2}=x_2.
+\end{equation}
+
+Evaluating the original interpolation constraints directly gives
+
+\begin{align}
+p(t)=q_0
+ &+(10\Delta-6s)t^2+(-20\Delta+14s)t^3 \notag\\
+ &+(15\Delta-11s)t^4+(3s-4\Delta)t^5.
+\end{align}
+
+For ordinary fins this is the same fifth-order interpolation as before,
+apart from eliminating rounding in the precomputed coefficients.  At low
+aspect ratios, however, its first nonzero coefficient can become negative.  If
+$k=s/\Delta>5/3$, the curve initially moves forward even though both
+endpoint positions and slopes move aft.  The limiting monotone polynomial
+at $k=5/3$ is
+
+\begin{equation}
+B(t)=\frac{10}{3}t^3-\frac{10}{3}t^4+t^5.
+\end{equation}
+
+For $k>5/3$, OpenRocket uses the shape-preserving continuation
+
+\begin{equation}
+p(t)=q_0+\Delta\,[B(t)]^{k/(5/3)}.
+\end{equation}
+
+It equals the fifth-order curve at the boundary, remains monotone, and
+matches both the position and first derivative of $g$ at Mach 2.  Thus no
+aspect-ratio substitution or output clamp is needed, and the calculation
+remains finite and continuous through the former pole.
+
 
 
 The method presented here can be used to estimate the CP location of
