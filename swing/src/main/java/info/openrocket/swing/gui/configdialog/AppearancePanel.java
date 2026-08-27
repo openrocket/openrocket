@@ -54,7 +54,6 @@ import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.file.FileSystemAttachmentFactory;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
 import info.openrocket.core.rocketcomponent.InsideColorComponentHandler;
@@ -524,8 +523,6 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 					updateUI();
 				}
 
-				if (e == null) return;	// When e == null, you just want an update of the UI components, not a component change
-				c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 			}
 		});
 
@@ -542,9 +539,6 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				}
 				else {
 					return;
-				}
-				if (e != null) {	// When e == null, you just want an update of the UI components, not a component change
-					c.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 				}
 			}
 		});
@@ -840,8 +834,19 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		transformControlMap.put(builder, new TextureTransformControls(
 				scaleXModel, scaleYModel, offsetUModel, offsetVModel, rotationModel));
 
+		// Opacity affects texture checkbox
+		BooleanModel opacityAffectsTextureModel = new BooleanModel(builder, "OpacityAffectsTexture");
+		register(opacityAffectsTextureModel);
+		JCheckBox opacityAffectsTextureCheckBox = new JCheckBox(opacityAffectsTextureModel);
+		opacityAffectsTextureCheckBox.setText(trans.get("AppearanceCfg.checkbox.opacityAffectsTexture"));
+		opacityAffectsTextureCheckBox.setToolTipText(trans.get("AppearanceCfg.checkbox.ttip.opacityAffectsTexture"));
+		mDefault.addEnableComponent(opacityAffectsTextureCheckBox, false);
+		panel.add(opacityAffectsTextureCheckBox, "span 2, gapleft para");
+		order.add(order.indexOf(((SpinnerEditor) spinOpacity.getEditor()).getTextField()) + 1,
+				opacityAffectsTextureCheckBox);
+
 		// Repeat
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2, gapleft para");
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "gapleft para");
 		EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
 		System.arraycopy(EdgeMode.values(), 0, list, 0,
 				EdgeMode.values().length);

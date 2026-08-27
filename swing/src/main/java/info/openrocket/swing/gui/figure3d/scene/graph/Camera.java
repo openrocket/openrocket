@@ -1,0 +1,490 @@
+package info.openrocket.swing.gui.figure3d.scene.graph;
+
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
+/** Orbit camera supporting perspective and orthographic projection. */
+public class Camera {
+
+	private static final float FIT_MIN_ZOOM_FACTOR = 0.05f;
+	// Let the shared zoom control reach 5% in 3D instead of stopping at 50%.
+	// Going much farther with a perspective camera would sacrifice useful depth precision.
+	private static final float FIT_MAX_ZOOM_FACTOR = 20.0f;
+
+	private final Vector3f position = new Vector3f();
+	private boolean fixedCenterOfInterest;
+	private final Vector3f centerOfInterest = new Vector3f(0.0f, 0.0f, 0.0f);
+	// Shifts the whole camera rig (eye + lookAt) without moving the orbit pivot.
+	// Horizontal pan goes to centerOfInterest.x; vertical pan goes here.
+	private final Vector3f viewOffset = new Vector3f();
+	private final Vector3f scratchLookAt = new Vector3f();
+	private final Vector3f scratchUp = new Vector3f();
+	private float distance;
+	private float angleX; // Yaw
+	private float angleY; // Pitch
+	private boolean pitchClampingEnabled = true;
+	// When true, uses a fixed world-up vector (0,1,0) instead of the continuous orbitUp,
+	// matching the legacy JOGL photo-studio camera behavior.
+	private boolean forceFixedUp = false;
+
+	private float minZoom; // Minimum zoom distance
+	private float maxZoom; // Maximum zoom distance
+
+	private final Matrix4f projectionMatrix;
+	private final Matrix4f viewMatrix = new Matrix4f();
+
+	// Store original projection values
+	private float fov;
+	private float aspectRatio;
+	private final float zNear;
+	private final float zFar;
+
+	/**
+	 * Creates a camera with a perspective projection.
+	 * @param fov Field of view in radians.
+	 * @param aspectRatio Aspect ratio of the window (width / height).
+	 * @param zNear Near clipping plane distance.
+	 * @param zFar Far clipping plane distance.
+	 * @param fixedCenterOfInterest If true, the camera's center of interest cannot be changed by panning or dollying.
+	 */
+	private Camera(float fov, float aspectRatio, float zNear, float zFar, boolean fixedCenterOfInterest) {
+		this.fov = fov;
+		this.aspectRatio = aspectRatio;
+		this.zNear = zNear;
+		this.zFar = zFar;
+		this.projectionMatrix = new Matrix4f();
+		this.fixedCenterOfInterest = fixedCenterOfInterest;
+		this.distance = CameraConstants.DEFAULT_DISTANCE;
+		this.minZoom = CameraConstants.DEFAULT_MIN_ZOOM;
+		this.maxZoom = CameraConstants.DEFAULT_MAX_ZOOM;
+		this.angleX = CameraConstants.DEFAULT_ANGLE_X;
+		this.angleY = CameraConstants.DEFAULT_ANGLE_Y;
+		updateProjectionMatrix();
+		updateViewMatrix();
+	}
+
+	/**
+	 * Gets the current horizontal rotation angle (yaw) of the camera.
+	 *
+	 * @return the yaw angle in radians
+	 */
+	public float getAngleX() {
+		return angleX;
+	}
+
+	/**
+	 * Sets the horizontal rotation angle (yaw) of the camera.
+	 *
+	 * @param angleX the yaw angle in radians
+	 */
+	public void setAngleX(float angleX) {
+		this.angleX = angleX;
+	}
+
+	/**
+	 * Gets the current vertical rotation angle (pitch) of the camera.
+	 *
+	 * @return the pitch angle in radians
+	 */
+	public float getAngleY() {
+		return angleY;
+	}
+
+	/**
+	 * Sets the vertical rotation angle (pitch) of the camera.
+	 *
+	 * @param angleY the pitch angle in radians
+	 */
+	public void setAngleY(float angleY) {
+		this.angleY = angleY;
+	}
+
+	/**
+	 * Recalculates the projection matrix with a new aspect ratio.
+	 * @param aspectRatio The new aspect ratio of the window (width / height).
+	 */
+	public void setAspectRatio(float aspectRatio) {
+		this.aspectRatio = aspectRatio;
+		updateProjectionMatrix();
+	}
+
+	/**
+	 * Gets the current field of view in radians.
+	 *
+	 * @return the field of view in radians
+	 */
+	public float getFieldOfView() {
+		return fov;
+	}
+
+	/**
+	 * Sets the field of view in radians.
+	 *
+	 * @param fov the field of view in radians
+	 */
+	public void setFieldOfView(double fov) {
+		this.fov = (float) fov;
+		updateProjectionMatrix();
+	}
+
+	private void updateProjectionMatrix() {
+		float nearPlane = getEffectiveNearPlane();
+		float farPlane = getEffectiveFarPlane();
+		projectionMatrix.identity().perspective(fov, aspectRatio, nearPlane, farPlane);
+	}
+
+	// Scale clipping planes with the current orbit distance so close inspection does not clip the model.
+	private float getEffectiveNearPlane() {
+		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
+		float dynamicNear = effectiveDistance * CameraConstants.DYNAMIC_Z_NEAR_DISTANCE_FACTOR;
+		return MathUtil.clamp(dynamicNear, CameraConstants.MIN_DYNAMIC_Z_NEAR, zNear);
+	}
+
+	private float getEffectiveFarPlane() {
+		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
+		return Math.max(zFar, effectiveDistance * CameraConstants.DYNAMIC_Z_FAR_DISTANCE_FACTOR);
+	}
+	/** Sets the camera to the standard side view. */
+	public void setSideView() {
+		this.angleX = 0.0f;
+		this.angleY = 0.0f;
+	}
+
+	/**
+	 * Sets the center of interest for the camera.
+	 * This is the point the camera looks at.
+	 *
+	 * @param centerOfInterest The new center of interest.
+	 */
+	public void setCenterOfInterest(Vector3f centerOfInterest) {
+		if (fixedCenterOfInterest) {
+			return; // Do not allow changes if fixed
+		}
+		this.centerOfInterest.set(centerOfInterest);
+		updateViewMatrix();
+	}
+
+	/**
+	 * Automatically positions and zooms the camera to fit the specified 3D bounds.
+	 * The fitted distance is valid for every yaw around the world Y axis, so 100%
+	 * zoom remains stable while orbiting horizontally.
+	 *
+	 * @param boxDimensions the dimensions of the bounding box to fit in the view
+	 */
+	public void fitBounds(Vector3f boxDimensions) {
+		// The XZ diagonal is the maximum horizontal projection across all yaw angles.
+		float horizontalExtent = (float) Math.hypot(boxDimensions.x, boxDimensions.z);
+		float sinPitch = Math.abs((float) Math.sin(angleY));
+		float cosPitch = Math.abs((float) Math.cos(angleY));
+		float projWidth = horizontalExtent;
+		float projHeight = Math.abs(boxDimensions.y) * cosPitch + horizontalExtent * sinPitch;
+
+		// Distance required to fit the projected height in the vertical FOV
+		float distanceForHeight = (float) ((projHeight / 2.0f) / Math.tan(fov / 2.0f));
+
+		// Distance required to fit the projected width in the horizontal FOV
+		float distanceForWidth = (float) ((projWidth / 2.0f) / (Math.tan(fov / 2.0f) * this.aspectRatio));
+
+		// Use the greater of the two distances to ensure the object is fully visible.
+		float newDistance = Math.max(distanceForHeight, distanceForWidth);
+		newDistance *= CameraConstants.ZOOM_PADDING_FACTOR; // Add padding
+
+		float fittedDistance = Math.max(CameraConstants.MIN_DISTANCE, newDistance);
+		this.minZoom = Math.max(CameraConstants.MIN_DISTANCE, fittedDistance * FIT_MIN_ZOOM_FACTOR);
+		this.maxZoom = Math.max(this.minZoom * FIT_MAX_ZOOM_FACTOR, fittedDistance * FIT_MAX_ZOOM_FACTOR);
+		this.distance = MathUtil.clamp(fittedDistance, minZoom, maxZoom);
+
+		updateProjectionMatrix();
+		updateViewMatrix();
+	}
+
+	/**
+	 * Orbits the camera around the center of interest based on mouse movement.
+	 * Updates both yaw and pitch angles while constraining pitch to prevent gimbal lock.
+	 *
+	 * @param dx horizontal mouse movement delta for yaw rotation
+	 * @param dy vertical mouse movement delta for pitch rotation
+	 */
+	public void orbit(float dx, float dy, float sensitivity) {
+		// Invert orbit drag so the rocket follows the cursor direction.
+		angleX -= dx * sensitivity;
+		angleY += dy * sensitivity;
+		if (pitchClampingEnabled) {
+			angleY = MathUtil.clamp(angleY, CameraConstants.MIN_PITCH_ANGLE, CameraConstants.MAX_PITCH_ANGLE);
+		}
+	}
+
+
+	/**
+	 * Moves the camera and its target point parallel to the view plane.
+	 *
+	 * @param dx The change in the horizontal screen direction in viewport pixels.
+	 * @param dy The change in the vertical screen direction in viewport pixels.
+	 * @param viewportWidth The viewport width in logical pixels.
+	 * @param viewportHeight The viewport height in logical pixels.
+	 */
+	public void pan(float dx, float dy, int viewportWidth, int viewportHeight) {
+		if (fixedCenterOfInterest) return;
+		if (viewportWidth <= 0 || viewportHeight <= 0) return;
+		Vector3f right = new Vector3f();
+		viewMatrix.positiveX(right);
+		Vector3f up = new Vector3f();
+		viewMatrix.positiveY(up);
+
+		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
+		float halfHeight = effectiveDistance * (float) Math.tan(fov / 2.0f);
+		float halfWidth = halfHeight * aspectRatio;
+		float worldUnitsPerPixelX = (halfWidth * 2.0f) / viewportWidth;
+		float worldUnitsPerPixelY = (halfHeight * 2.0f) / viewportHeight;
+
+		// Compute full 3D world-space pan movement.
+		float moveX = right.x * (-dx * worldUnitsPerPixelX) + up.x * (dy * worldUnitsPerPixelY);
+		float moveY = right.y * (-dx * worldUnitsPerPixelX) + up.y * (dy * worldUnitsPerPixelY);
+		float moveZ = right.z * (-dx * worldUnitsPerPixelX) + up.z * (dy * worldUnitsPerPixelY);
+
+		// Horizontal component updates the orbit pivot (rocket lies along world X).
+		centerOfInterest.x += moveX;
+		// Vertical component shifts the view offset without touching the orbit pivot.
+		viewOffset.y += moveY;
+		viewOffset.z += moveZ;
+	}
+
+	/**
+	 * Resets the view offset accumulated by vertical panning, re-centering the view
+	 * on the orbit pivot without changing the camera angles or orbit distance.
+	 */
+	public void resetViewOffset() {
+		viewOffset.zero();
+	}
+
+	/**
+	 * Returns the effective world-space look-at target (orbit pivot + view offset).
+	 *
+	 * @return a new Vector3f with the effective look-at position
+	 */
+	public Vector3f getEffectiveLookAt() {
+		return new Vector3f(centerOfInterest).add(viewOffset);
+	}
+
+
+	/**
+	 * Moves the camera toward or away from its target point.
+	 *
+	 * @param scrollAmount The distance to move. Positive is forward, negative is backward.
+	 */
+	public void dolly(float scrollAmount) {
+		distance -= scrollAmount;
+		distance = MathUtil.clamp(distance, minZoom, maxZoom);
+
+		updateProjectionMatrix();
+	}
+
+	/**
+	 * Sets the camera distance from the center of interest.
+	 *
+	 * @param distance the new distance
+	 */
+	public void setDistance(float distance) {
+		this.distance = MathUtil.clamp(distance, minZoom, maxZoom);
+		updateProjectionMatrix();
+		updateViewMatrix();
+	}
+
+	/**
+	 * Gets the camera distance from the center of interest.
+	 *
+	 * @return the current distance
+	 */
+	public float getDistance() {
+		return distance;
+	}
+
+	/**
+	 * Sets zoom distance constraints for dolly/setDistance operations.
+	 *
+	 * @param minZoom minimum allowed distance (must be >= 0)
+	 * @param maxZoom maximum allowed distance (must be > minZoom)
+	 */
+	public void setZoomLimits(float minZoom, float maxZoom) {
+		if (minZoom < 0.0f) {
+			throw new IllegalArgumentException("minZoom must be >= 0");
+		}
+		if (maxZoom <= minZoom) {
+			throw new IllegalArgumentException("maxZoom must be > minZoom");
+		}
+		this.minZoom = minZoom;
+		this.maxZoom = maxZoom;
+		this.distance = MathUtil.clamp(distance, minZoom, maxZoom);
+		updateProjectionMatrix();
+		updateViewMatrix();
+	}
+
+	/**
+	 * Enables or disables pitch clamping during orbit controls.
+	 *
+	 * @param enabled true to clamp pitch, false for unrestricted pitch
+	 */
+	public void setPitchClampingEnabled(boolean enabled) {
+		this.pitchClampingEnabled = enabled;
+	}
+
+	/**
+	 * When true the view matrix uses a fixed world-up vector (0,1,0) instead of the
+	 * continuous orbit-up, reproducing the legacy JOGL gluLookAt behaviour used by
+	 * the photo studio.
+	 */
+	public void setForceFixedUp(boolean forceFixedUp) {
+		this.forceFixedUp = forceFixedUp;
+	}
+
+	/**
+	 * Updates the camera's internal state and view matrix.
+	 * This method should be called every frame to ensure camera transformations
+	 * are properly calculated and applied to the rendering pipeline.
+	 */
+	public void update() {
+		updateViewMatrix();
+	}
+
+	private void updateViewMatrix() {
+		float sinYaw = (float) Math.sin(angleX);
+		float cosYaw = (float) Math.cos(angleX);
+		float sinPitch = (float) Math.sin(angleY);
+		float cosPitch = (float) Math.cos(angleY);
+
+		float camX = distance * sinYaw * cosPitch;
+		float camY = distance * sinPitch;
+		float camZ = distance * cosYaw * cosPitch;
+		// Eye position is shifted by viewOffset so vertical pan moves the whole rig.
+		position.set(
+			centerOfInterest.x + viewOffset.x + camX,
+			centerOfInterest.y + viewOffset.y + camY,
+			centerOfInterest.z + viewOffset.z + camZ
+		);
+
+		// Choose up vector: legacy photo-studio mode uses a fixed world-up (0,1,0) to match
+		// the old JOGL gluLookAt behaviour exactly; normal interactive mode uses an orbit-up
+		// computed from yaw/pitch so crossing ±90° pitch stays continuous without snapping.
+		if (forceFixedUp) {
+			scratchUp.set(0, 1, 0);
+		} else {
+			scratchUp.set(-sinYaw * sinPitch, cosPitch, -cosYaw * sinPitch).normalize();
+		}
+
+		// LookAt target is the orbit pivot shifted by the same viewOffset.
+		scratchLookAt.set(centerOfInterest).add(viewOffset);
+		viewMatrix.identity().lookAt(position, scratchLookAt, scratchUp);
+	}
+
+	/**
+	 * Gets the camera's view transformation matrix.
+	 *
+	 * @return the 4x4 view matrix for transforming world coordinates to view space
+	 */
+	public Matrix4f getViewMatrix() {
+		return viewMatrix;
+	}
+
+	/**
+	 * Gets the current center-of-interest (look-at target) in world space.
+	 *
+	 * @return a copy of the center-of-interest vector
+	 */
+	public Vector3f getCenterOfInterest() {
+		return new Vector3f(centerOfInterest);
+	}
+
+	/**
+	 * Gets the camera's projection matrix.
+	 *
+	 * @return the 4x4 projection matrix for transforming view coordinates to clip space
+	 */
+	public Matrix4f getProjectionMatrix() {
+		return projectionMatrix;
+	}
+
+	/**
+	 * Gets the camera's current position in world space.
+	 *
+	 * @return the camera's 3D position vector
+	 */
+	public Vector3f getPosition() {
+		return new Vector3f(position);
+	}
+
+	public Vector3f getPosition(Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		return destination.set(position);
+	}
+
+	/** Builder for the camera settings needed when a scene is created. */
+	public static class Builder {
+		private float fov = CameraConstants.DEFAULT_FIELD_OF_VIEW;
+		private float aspectRatio = 1.0f;
+		private float zNear = CameraConstants.DEFAULT_Z_NEAR;
+		private float zFar = CameraConstants.DEFAULT_Z_FAR;
+		private boolean fixedCenterOfInterest = true;
+
+		/**
+		 * Sets the camera's field of view.
+		 * @param fov The field of view in radians (default: 45 degrees)
+		 * @return This builder instance
+		 */
+		public Builder withFieldOfView(double fov) {
+			this.fov = (float) fov;
+			return this;
+		}
+
+		/**
+		 * Sets the camera's aspect ratio.
+		 * @param aspectRatio The aspect ratio (width / height, default: 1.0)
+		 * @return This builder instance
+		 */
+		public Builder withAspectRatio(float aspectRatio) {
+			this.aspectRatio = aspectRatio;
+			return this;
+		}
+
+		/**
+		 * Sets the camera's near and far clipping planes.
+		 * @param zNear The near clipping plane distance (default: 0.1)
+		 * @param zFar The far clipping plane distance (default: 100.0)
+		 * @return This builder instance
+		 */
+		public Builder withClippingPlanes(float zNear, float zFar) {
+			this.zNear = zNear;
+			this.zFar = zFar;
+			return this;
+		}
+
+		/**
+		 * Sets whether the camera's center of interest is fixed.
+		 * @param fixed If true, the center of interest cannot be changed by panning (default: true)
+		 * @return This builder instance
+		 */
+		public Builder withFixedCenterOfInterest(boolean fixed) {
+			this.fixedCenterOfInterest = fixed;
+			return this;
+		}
+
+		/**
+		 * Builds the Camera with the configured settings.
+		 * @return A new Camera instance
+		 */
+		public Camera build() {
+			return new Camera(fov, aspectRatio, zNear, zFar, fixedCenterOfInterest);
+		}
+	}
+
+	/**
+	 * Creates a new camera builder.
+	 * @return A new Camera.Builder instance
+	 */
+	public static Builder builder() {
+		return new Builder();
+	}
+}

@@ -350,6 +350,7 @@ private static final Translator trans = Application.getTranslator();
 
 		this.validate();
 		vertical.setDividerLocation(0.4);
+		designPanel.setDividerLocation(0.4);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -861,8 +862,7 @@ private static final Translator trans = Application.getTranslator();
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Photo... selected");
-				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
-				pa.setVisible(true);
+				PhotoFrame.openForDocument(document, BasicFrame.this);
 			}
 		});
 		toolsMenu.add(item);

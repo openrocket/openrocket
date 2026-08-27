@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -29,6 +30,7 @@ import info.openrocket.core.database.ComponentPresetDao;
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
+import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.PlotAppearance;
@@ -248,6 +250,22 @@ public class OpenRocketSaverTest {
 	}
 
 	@Test
+	public void testAppearanceTextureOpacityRoundTrip() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withAppearance();
+		BodyTube bodyTube = (BodyTube) rocketDoc.getRocket().getStage(0).getChild(0);
+		bodyTube.setAppearance(new Appearance(new ORColor(100, 25, 50, 128), 1, null, true));
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		BodyTube loadedBodyTube = (BodyTube) rocketDocLoaded.getRocket().getStage(0).getChild(0);
+		Appearance loadedAppearance = loadedBodyTube.getAppearance();
+
+		assertNotNull(loadedAppearance);
+		assertEquals(128, loadedAppearance.getPaint().getAlpha());
+		assertTrue(loadedAppearance.isOpacityAffectsTexture());
+	}
+
+	@Test
 	public void testUntrustedScriptDisabledOnLoad() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
 		StorageOptions options = new StorageOptions();
@@ -404,13 +422,35 @@ public class OpenRocketSaverTest {
 	}
 	
 	////////////////////////////////
-	// Tests for File Version 1.11 //
+	// Tests for File Version 1.12 //
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion111_withSimulationExtension() {
+	public void testFileVersion112_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(111, getCalculatedFileVersion(rocketDoc));
+		assertEquals(112, getCalculatedFileVersion(rocketDoc));
+	}
+
+	@Test
+	public void testMotorConfigurationNozzleExitDiameter() {
+		InnerTube mount = new InnerTube();
+		FlightConfigurationId fcid = new FlightConfigurationId();
+		MotorConfiguration configuration = new MotorConfiguration(mount, fcid);
+		ThrustCurveMotor motor = createEmbeddedTestMotor("");
+
+		assertEquals(0.0, configuration.getNozzleExitDiameter());
+		configuration.setMotor(motor);
+		configuration.setNozzleExitDiameter(0.006);
+		assertEquals(0.006, configuration.getNozzleExitDiameter());
+		assertEquals(0.006, configuration.clone().getNozzleExitDiameter());
+		assertEquals(0.006, configuration.copy(new FlightConfigurationId()).getNozzleExitDiameter());
+		assertThrows(IllegalArgumentException.class, () -> configuration.setNozzleExitDiameter(-0.001));
+		assertThrows(IllegalArgumentException.class,
+				() -> configuration.setNozzleExitDiameter(motor.getDiameter() + 0.001));
+
+		configuration.setMotor(createEmbeddedTestMotor("replacement"));
+		assertEquals(0.0, configuration.getNozzleExitDiameter(),
+				"Selecting another motor must clear nozzle geometry from the previous motor");
 	}
 
 	@Test
@@ -437,8 +477,10 @@ public class OpenRocketSaverTest {
 		ThrustCurveMotor motor = createEmbeddedTestMotor(motorDigest);
 
 		MotorConfiguration motorConfig = new MotorConfiguration(innerTube, fcid);
+		assertEquals(0.0, motorConfig.getNozzleExitDiameter());
 		motorConfig.setMotor(motor);
 		motorConfig.setEjectionDelay(5);
+		motorConfig.setNozzleExitDiameter(0.006);
 		innerTube.setMotorConfig(motorConfig, fcid);
 
 		rocket.enableEvents();
@@ -484,6 +526,7 @@ public class OpenRocketSaverTest {
 
 		MotorConfiguration loadedMotorConfig = motorMount.getMotorConfig(loadedFcid);
 		assertNotNull(loadedMotorConfig);
+		assertEquals(0.006, loadedMotorConfig.getNozzleExitDiameter());
 		Motor loadedMotor = loadedMotorConfig.getMotor();
 		assertNotNull(loadedMotor, "Expected motor to be loaded from embedded .rse file");
 		assertTrue(loadedMotor instanceof ThrustCurveMotor);
