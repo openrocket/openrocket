@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.JDialog;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -22,8 +23,11 @@ import javax.swing.SwingWorker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.awt.Component;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Startup-time motor database update checker that can optionally install the latest remote motor database.
@@ -77,10 +81,14 @@ public abstract class MotorDatabaseUpdateChecker {
 		TaskResult<MotorDatabaseMetadata> remoteResult = runWithProgressDialog(
 				trans.get("MotorDbUpdate.Checking.title"),
 				trans.get("MotorDbUpdate.Checking.message"),
-				updater::fetchRemoteMetadata);
+				updater::fetchRemoteMetadata,
+				updater::cancelCurrentOperation);
 
 		MotorDatabaseMetadata remote = remoteResult.value;
 		if (remote == null) {
+			if (remoteResult.cancelled) {
+				return;
+			}
 			// If metadata cannot be downloaded/validated/parsed, we cannot safely offer an update.
 			// For user-initiated checks, show the failure message (and the underlying exception if present).
 			if (userInitiated) {
@@ -121,68 +129,89 @@ public abstract class MotorDatabaseUpdateChecker {
 			return;
 		}
 
-		// 5) Respect "skip this version": if the user previously chose to ignore this remote version,
-		//    don't prompt again (but do show feedback for manual checks).
+		// 5) When automatic installation is enabled, install the update without prompting.
+		//    A previously skipped version is deliberately ignored in this mode: enabling auto-install is
+		//    a more recent expression of intent, and otherwise the user would be stuck on that version.
 		String remoteVersion = Long.toString(remote.getDatabaseVersion());
-		if (prefs.getIgnoreMotorDatabaseUpdateVersions().contains(remoteVersion)) {
-			if (userInitiated) {
-				String message = trans.get("MotorDbUpdate.Skipped.message") + "\n\n" +
-						trans.get("MotorDbUpdate.Available.remoteVersion") + " " + remoteVersion;
-				JOptionPane.showMessageDialog(parent, message,
-						trans.get("MotorDbUpdate.Skipped.title"),
-						JOptionPane.INFORMATION_MESSAGE);
+		boolean autoInstall = prefs.getAutoInstallMotorDatabaseUpdates();
+
+		if (!autoInstall) {
+			// 5a) Respect "skip this version": if the user previously chose to ignore this remote version,
+			//     don't prompt again (but do show feedback for manual checks).
+			if (prefs.getIgnoreMotorDatabaseUpdateVersions().contains(remoteVersion)) {
+				if (userInitiated) {
+					String message = trans.get("MotorDbUpdate.Skipped.message") + "\n\n" +
+							trans.get("MotorDbUpdate.Available.remoteVersion") + " " + remoteVersion;
+					JOptionPane.showMessageDialog(parent, message,
+							trans.get("MotorDbUpdate.Skipped.title"),
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				return;
 			}
-			return;
-		}
 
-		// 6) Prompt the user: install now / not now / skip this version.
-		//    The prompt also includes a "Don't ask me again" checkbox which disables startup checks.
-		JPanel prompt = new JPanel(new MigLayout("fillx, ins 0", "[grow]"));
-		String message = "<html>" +
-				trans.get("MotorDbUpdate.Available.message") + "<br><br>" +
-				trans.get("MotorDbUpdate.Available.yourVersion") + " <b>" + localVersion + "</b><br>" +
-				trans.get("MotorDbUpdate.Available.remoteVersion") + " <b>" + remoteVersion + "</b><br>" +
-				trans.get("MotorDbUpdate.Available.question") +
-				"</html>";
-		prompt.add(new JLabel(message), "growx, wrap para");
+			// 6) Prompt the user: install now / not now / skip this version.
+			//    The prompt also includes an "Always install automatically" checkbox which enables
+			//    auto-installation from now on, and a "Don't ask me again" checkbox which disables
+			//    startup checks. Those two are mutually exclusive.
+			JPanel prompt = new JPanel(new MigLayout("fillx, ins 0", "[grow]"));
+			String message = "<html>" +
+					trans.get("MotorDbUpdate.Available.message") + "<br><br>" +
+					trans.get("MotorDbUpdate.Available.yourVersion") + " <b>" + localVersion + "</b><br>" +
+					trans.get("MotorDbUpdate.Available.remoteVersion") + " <b>" + remoteVersion + "</b><br>" +
+					trans.get("MotorDbUpdate.Available.question") +
+					"</html>";
+			prompt.add(new JLabel(message), "growx, wrap para");
 
-		JCheckBox dontAskAgain = new JCheckBox(trans.get("MotorDbUpdate.Available.dontAskAgain"));
-		dontAskAgain.setToolTipText(trans.get("MotorDbUpdate.Available.dontAskAgain.ttip"));
-		prompt.add(dontAskAgain, "growx, wrap");
+			final JCheckBox autoInstallBox = new JCheckBox(trans.get("MotorDbUpdate.Available.autoInstall"));
+			autoInstallBox.setToolTipText(trans.get("MotorDbUpdate.Available.autoInstall.ttip"));
+			prompt.add(autoInstallBox, "growx, wrap");
 
-		Object[] options = new Object[]{
-				trans.get("MotorDbUpdate.Available.btn.install"),
-				trans.get("MotorDbUpdate.Available.btn.later"),
-				trans.get("MotorDbUpdate.Available.btn.skipVersion"),
-		};
+			final JCheckBox dontAskAgain = new JCheckBox(trans.get("MotorDbUpdate.Available.dontAskAgain"));
+			dontAskAgain.setToolTipText(trans.get("MotorDbUpdate.Available.dontAskAgain.ttip"));
+			prompt.add(dontAskAgain, "growx, wrap");
 
-		int res = JOptionPane.showOptionDialog(
-				parent,
-				prompt,
-				trans.get("MotorDbUpdate.Available.title"),
-				JOptionPane.DEFAULT_OPTION,
-				JOptionPane.INFORMATION_MESSAGE,
-				null,
-				options,
-				options[0]);
+			// Installing automatically and never checking again are contradictory, so only allow one of them.
+			autoInstallBox.addActionListener(e -> dontAskAgain.setEnabled(!autoInstallBox.isSelected()));
+			dontAskAgain.addActionListener(e -> autoInstallBox.setEnabled(!dontAskAgain.isSelected()));
 
-		// Apply the "Don't ask me again" choice immediately, regardless of which button was clicked.
-		if (dontAskAgain.isSelected()) {
-			prefs.setCheckMotorDatabaseUpdates(false);
-		}
+			Object[] options = new Object[]{
+					trans.get("MotorDbUpdate.Available.btn.install"),
+					trans.get("MotorDbUpdate.Available.btn.later"),
+					trans.get("MotorDbUpdate.Available.btn.skipVersion"),
+			};
 
-		// "Skip this version": add this remote version to the ignore list and exit.
-		if (res == 2) {
-			List<String> ignored = new ArrayList<>(prefs.getIgnoreMotorDatabaseUpdateVersions());
-			if (!ignored.contains(remoteVersion)) {
-				ignored.add(remoteVersion);
-				prefs.setIgnoreMotorDatabaseUpdateVersions(ignored);
+			int res = JOptionPane.showOptionDialog(
+					parent,
+					prompt,
+					trans.get("MotorDbUpdate.Available.title"),
+					JOptionPane.DEFAULT_OPTION,
+					JOptionPane.INFORMATION_MESSAGE,
+					null,
+					options,
+					options[0]);
+
+			// Apply the checkbox choices immediately, regardless of which button was clicked: they apply
+			// to future updates, not to the one currently being offered.
+			if (autoInstallBox.isSelected()) {
+				prefs.setAutoInstallMotorDatabaseUpdates(true);
 			}
-			return;
-		}
-		// Anything other than "Install" exits without changes ("Not now", dialog close, etc.).
-		if (res != 0) {
-			return;
+			if (dontAskAgain.isSelected()) {
+				prefs.setCheckMotorDatabaseUpdates(false);
+			}
+
+			// "Skip this version": add this remote version to the ignore list and exit.
+			if (res == 2) {
+				List<String> ignored = new ArrayList<>(prefs.getIgnoreMotorDatabaseUpdateVersions());
+				if (!ignored.contains(remoteVersion)) {
+					ignored.add(remoteVersion);
+					prefs.setIgnoreMotorDatabaseUpdateVersions(ignored);
+				}
+				return;
+			}
+			// Anything other than "Install" exits without changes ("Not now", dialog close, etc.).
+			if (res != 0) {
+				return;
+			}
 		}
 
 		// 7) Download and install the remote database.
@@ -194,11 +223,22 @@ public abstract class MotorDatabaseUpdateChecker {
 				() -> {
 					updater.installRemoteDatabase(motorLibraryDir, remote);
 					return Boolean.TRUE;
-				});
+				},
+				updater::cancelCurrentOperation);
+
+		// An unattended auto-install at startup should not interrupt the user with result dialogs;
+		// the outcome is logged instead. Manual checks and explicit "Install" clicks always report back.
+		boolean reportResult = userInitiated || !autoInstall;
 
 		if (installedResult.value == null || !installedResult.value) {
+			if (installedResult.cancelled) {
+				return;
+			}
 			// Unable to download and install the motor database update.
-			// Always show failure details here because the user explicitly clicked "Install".
+			if (!reportResult) {
+				log.warn("Automatic motor database update to version {} failed", remoteVersion);
+				return;
+			}
 			String failureMessage = trans.get("MotorDbUpdate.Failed.message");
 			if (installedResult.error != null) {
 				failureMessage = failureMessage + "\n\n" + formatThrowable(installedResult.error);
@@ -210,6 +250,10 @@ public abstract class MotorDatabaseUpdateChecker {
 		}
 
 		// 8) Success: notify the user.
+		if (!reportResult) {
+			log.info("Automatically installed motor database version {}", remoteVersion);
+			return;
+		}
 		JOptionPane.showMessageDialog(parent,
 				trans.get("MotorDbUpdate.Installed.message"),
 				trans.get("MotorDbUpdate.Installed.title"),
@@ -223,10 +267,12 @@ public abstract class MotorDatabaseUpdateChecker {
 	private static final class TaskResult<T> {
 		private final T value;
 		private final Throwable error;
+		private final boolean cancelled;
 
-		private TaskResult(T value, Throwable error) {
+		private TaskResult(T value, Throwable error, boolean cancelled) {
 			this.value = value;
 			this.error = error;
+			this.cancelled = cancelled;
 		}
 	}
 
@@ -236,9 +282,11 @@ public abstract class MotorDatabaseUpdateChecker {
 	 * @param title   the dialog title
 	 * @param message the dialog message
 	 * @param task    the task to run
-	 * @return the result of the task, or null if an error occurred
+	 * @param cancelAction action that disconnects any blocking external work
+	 * @return the task value together with its failure or cancellation state
 	 */
-	private static <T> TaskResult<T> runWithProgressDialog(String title, String message, WorkerTask<T> task) {
+	private static <T> TaskResult<T> runWithProgressDialog(String title, String message, WorkerTask<T> task,
+			Runnable cancelAction) {
 		final ProgressDialog dialog = new ProgressDialog(title, message);
 		final SwingWorker<T, Void> worker = new SwingWorker<>() {
 			@Override
@@ -251,17 +299,24 @@ public abstract class MotorDatabaseUpdateChecker {
 				dialog.setVisible(false);
 			}
 		};
+		dialog.setCancelAction(() -> {
+			worker.cancel(true);
+			cancelAction.run();
+		});
 
 		worker.execute();
 		dialog.setVisible(true);
 
 		try {
-			return new TaskResult<>(worker.get(), null);
+			return new TaskResult<>(worker.get(), null, false);
+		} catch (CancellationException e) {
+			log.info("Motor database update check/download cancelled by user");
+			return new TaskResult<>(null, null, true);
 		} catch (Exception e) {
 			Throwable t = unwrapWorkerException(e);
 			log.info("Motor database update check/download failed: {}", t.getMessage());
 			log.debug("Motor database update check/download failed", t);
-			return new TaskResult<>(null, t);
+			return new TaskResult<>(null, t, false);
 		} finally {
 			dialog.dispose();
 		}
@@ -286,6 +341,9 @@ public abstract class MotorDatabaseUpdateChecker {
 	}
 
 	private static class ProgressDialog extends JDialog {
+		private Runnable cancelAction = () -> {
+		};
+
 		ProgressDialog(String title, String message) {
 			super(null, title, ModalityType.DOCUMENT_MODAL);
 
@@ -294,13 +352,27 @@ public abstract class MotorDatabaseUpdateChecker {
 
 			JProgressBar progress = new JProgressBar();
 			progress.setIndeterminate(true);
-			panel.add(progress, "growx");
+			panel.add(progress, "growx, wrap para");
+
+			JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
+			cancelButton.addActionListener(event -> cancelAction.run());
+			panel.add(cancelButton, "right");
 
 			this.add(panel);
 			this.pack();
 			this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+			this.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent event) {
+					cancelAction.run();
+				}
+			});
 			this.setLocationByPlatform(true);
 			GUIUtil.setWindowIcons(this);
+		}
+
+		private void setCancelAction(Runnable cancelAction) {
+			this.cancelAction = cancelAction;
 		}
 	}
 }

@@ -174,6 +174,7 @@ public class RocketComponentSaver {
 		ORColor paint = a.getPaint();
 		emitColor("paint", elements, paint, 1);
 		appendElement(elements, "shine", a.getShine(), 1);
+		appendElement(elements, "opacityaffectstexture", a.isOpacityAffectsTexture(), 1);
 		Decal decal = a.getTexture();
 		if (decal != null) {
 			String name = decal.getImage().getName();
@@ -287,6 +288,10 @@ public class RocketComponentSaver {
 			} else {
 				elements.add("    <delay>" + motorInstance.getEjectionDelay() + "</delay>");
 			}
+			if (motorInstance.getNozzleExitDiameter() > 0) {
+				elements.add("    <nozzleexitdiameter>" + motorInstance.getNozzleExitDiameter()
+						+ "</nozzleexitdiameter>");
+			}
 			
 			elements.add("  </motor>");
 			
@@ -307,8 +312,7 @@ public class RocketComponentSaver {
 	
 	private final static void emitColor(String elementName, List<String> elements, ORColor color, int indents) {
 		if (color != null) {
-			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " " + color.toXMLAttributes() + "/>");
 		}
 	}
 

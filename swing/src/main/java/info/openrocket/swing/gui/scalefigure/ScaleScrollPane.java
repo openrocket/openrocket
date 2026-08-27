@@ -26,8 +26,8 @@ import javax.swing.event.ChangeListener;
 
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.core.unit.Tick;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -108,10 +108,10 @@ public class ScaleScrollPane extends JScrollPane
 		this.setRowHeaderView(verticalRuler);
 
 		unitSelector = new UnitSelector(rulerUnit);
-		unitSelector.setFont(new Font("SansSerif", Font.PLAIN, 8));
+		unitSelector.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 8.0f, 0.0f));
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, unitSelector);
 		
-		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		applyThemeStyling();
 		
 		setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		getHorizontalScrollBar().setUnitIncrement(50);
@@ -136,6 +136,12 @@ public class ScaleScrollPane extends JScrollPane
 		viewport.addComponentListener(this);
 	}
 
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		applyThemeStyling();
+	}
+
 	private static void initColors() {
 		updateColors();
 		UITheme.Theme.addUIThemeChangeListener(ScaleScrollPane::updateColors);
@@ -143,6 +149,10 @@ public class ScaleScrollPane extends JScrollPane
 
 	public static void updateColors() {
 		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+	}
+
+	private void applyThemeStyling() {
+		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 	}
 	
 	public AbstractScaleFigure getFigure() {
@@ -173,6 +183,19 @@ public class ScaleScrollPane extends JScrollPane
 	public double getUserScale() {
 		return figure.getUserScale();
 	}
+
+	public double getFitScale() {
+		Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
+		return figure.getFitScale(calculatedViewSize);
+	}
+
+	public double getRelativeScale() {
+		double fitScale = getFitScale();
+		if (fitScale <= 0 || Double.isNaN(fitScale) || Double.isInfinite(fitScale)) {
+			return 1.0;
+		}
+		return figure.getUserScale() / fitScale;
+	}
 	
 	public void setScaling(final double newScale) {
 		// match if closer than 1%:
@@ -190,6 +213,14 @@ public class ScaleScrollPane extends JScrollPane
 		figureRescaled = figure.scaleTo(newScale, view);
 
 		revalidate();
+	}
+
+	public void setRelativeScaling(final double relativeScale) {
+		double fitScale = getFitScale();
+		if (fitScale <= 0 || Double.isNaN(fitScale) || Double.isInfinite(fitScale)) {
+			return;
+		}
+		setScaling(relativeScale * fitScale);
 	}
 	
 	
@@ -450,9 +481,9 @@ public class ScaleScrollPane extends JScrollPane
 			if (t.major) {
 				str = rulerUnit.getCurrentUnit().toString(t.value);
 				if (t.notable)
-					g.setFont(new Font("SansSerif", Font.BOLD, 9));
+					g.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, 9.0f, 0.0f));
 				else
-					g.setFont(new Font("SansSerif", Font.PLAIN, 9));
+					g.setFont(GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 9.0f, 0.0f));
 			}
 			
 			// Draw tick & text

@@ -3,6 +3,7 @@ package info.openrocket.core.util;
 import static java.lang.Math.PI;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -277,6 +278,36 @@ public class TextUtilTest {
 			String s = TextUtil.doubleToString(orig);
 			result = Double.parseDouble(s);
 			assertEquals(expected, result, 0.001);
+		}
+	}
+
+	@Test
+	public void storageDecimalPlacesTest() {
+		assertEquals(6, TextUtil.STORAGE_DECIMAL_PLACES);
+
+		// Values in the 0.001–0.1 m range where %.3f loses significant digits.
+		// 12.5 mm radius: %.3f → "0.013" (error); %.6f → "0.0125"
+		assertEquals("0.0125", TextUtil.doubleToString(0.0125, TextUtil.STORAGE_DECIMAL_PLACES));
+		// 24.73 mm diameter: %.3f → "0.025"; %.6f → "0.02473"
+		assertEquals("0.02473", TextUtil.doubleToString(0.02473, TextUtil.STORAGE_DECIMAL_PLACES));
+		// 1.234 mm: %.3f → "0.001" (only 1 sig fig); %.6f → "0.001234"
+		assertEquals("0.001234", TextUtil.doubleToString(0.001234, TextUtil.STORAGE_DECIMAL_PLACES));
+
+		// Reference area for a 25 mm diameter rocket (< 0.001 m², uses exp notation).
+		// Both formats use exp notation, but STORAGE_DECIMAL_PLACES gives 7 sig figs vs 4.
+		double refArea = Math.PI * 0.0125 * 0.0125;
+		String storedRefArea = TextUtil.doubleToString(refArea, TextUtil.STORAGE_DECIMAL_PLACES);
+		assertEquals(refArea, Double.parseDouble(storedRefArea), refArea * 1e-5);
+
+		// Confirm the old DEFAULT_DECIMAL_PLACES (3) was insufficient for these values.
+		assertNotEquals("0.0125", TextUtil.doubleToString(0.0125, TextUtil.DEFAULT_DECIMAL_PLACES));
+		assertNotEquals("0.02473", TextUtil.doubleToString(0.02473, TextUtil.DEFAULT_DECIMAL_PLACES));
+
+		// Round-trip: all values survive parse with relative error < 1e-5.
+		double[] values = { 0.001234, 0.0125, 0.02473, 0.12345678, 1.23456789, 12345.6789, 1.23456789e-5 };
+		for (double v : values) {
+			String s = TextUtil.doubleToString(v, TextUtil.STORAGE_DECIMAL_PLACES);
+			assertEquals(v, Double.parseDouble(s), Math.abs(v) * 1e-5, "Round-trip failed for " + v);
 		}
 	}
 

@@ -1,13 +1,25 @@
+import org.gradle.api.publish.maven.MavenPublication
+
 plugins {
     id 'java'
     id 'checkstyle'
     id 'com.adarshr.test-logger' version '4.0.0'
     id 'org.gradlex.extra-java-module-info' version '1.13.1'
+    id 'maven-publish'
+    id 'signing'
 }
 
 java {
     // Must be disabled in order to use the gradle-modules-plugin
     modularity.inferModulePath = false
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(Javadoc).configureEach {
+    // The core module still contains legacy Javadoc that fails modern doclint checks.
+    // Disable doclint so Gradle can produce the required Central javadoc JAR.
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 def buildProperties = new Properties()
@@ -15,6 +27,8 @@ def threadUtilFraction = project.hasProperty('threadUtilFraction') ? project.thr
 file('./src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
 group = 'info.openrocket'
 version = buildProperties['build.version']
+def isSnapshotVersion = version.toString().endsWith('-SNAPSHOT')
+def isReleaseVersion = !isSnapshotVersion
 
 repositories {
     mavenCentral()
@@ -68,6 +82,70 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.13.2'
 
     implementation 'org.xerial:sqlite-jdbc:3.51.1.0'
+}
+
+// Publish the core module as the supported Maven Central library artifact.
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'core'
+
+            pom {
+                name = 'OpenRocket Core'
+                description = 'Core library for OpenRocket'
+                url = 'https://github.com/openrocket/openrocket'
+
+                licenses {
+                    license {
+                        name = 'GNU General Public License v3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'openrocket'
+                        name = 'OpenRocket contributors'
+                        url = 'https://github.com/openrocket/openrocket'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:https://github.com/openrocket/openrocket.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/openrocket/openrocket.git'
+                    url = 'https://github.com/openrocket/openrocket'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'sonatype'
+            url = uri(isReleaseVersion
+                    ? 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
+                    : 'https://central.sonatype.com/repository/maven-snapshots/')
+
+            credentials {
+                username = findProperty('sonatypeUsername') ?: System.getenv('SONATYPE_USERNAME')
+                password = findProperty('sonatypePassword') ?: System.getenv('SONATYPE_PASSWORD')
+            }
+        }
+    }
+}
+
+signing {
+    if (isReleaseVersion) {
+        def signingKey = findProperty('signingKey') ?: System.getenv('SIGNING_KEY')
+        def signingPassword = findProperty('signingPassword') ?: System.getenv('SIGNING_PASSWORD')
+
+        if (signingKey) {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        }
+
+        sign publishing.publications.mavenJava
+    }
 }
 
 def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.db'
@@ -136,6 +214,11 @@ tasks.register('copyReadmeMain', Copy) {
         include 'ReleaseNotes.md'
     }
     into './src/main/resources'
+}
+
+tasks.named('sourcesJar') {
+    // The sources archive includes resources copied into src/main/resources at build time.
+    dependsOn 'copyReadmeMain', 'externalComponentsCopy'
 }
 
 def externalComponentsPath = './src/main/resources/datafiles/components/database'
@@ -221,7 +304,7 @@ jacocoTestCoverageVerification {
     }
 }
 
-// Get the short git commit hash to append to SNAPSHOT versions
+// Get the short git commit hash to append to snapshot versions embedded in build.properties.
 def gitCommitHash = 'unknown'
 try {
     gitCommitHash = 'git rev-parse --short HEAD'.execute([], rootDir).text.trim()
@@ -231,7 +314,7 @@ processResources {
     inputs.property('gitCommitHash', gitCommitHash)
     filesMatching('build.properties') {
         filter { line ->
-            if (line.startsWith('build.version=') && line.contains('SNAPSHOT')) {
+            if (line.startsWith('build.version=') && line.trim().endsWith('-SNAPSHOT')) {
                 "${line}-${gitCommitHash}"
             } else {
                 line

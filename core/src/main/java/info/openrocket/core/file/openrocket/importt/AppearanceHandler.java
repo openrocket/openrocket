@@ -49,22 +49,19 @@ class AppearanceHandler extends AbstractElementHandler {
 	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
 			throws SAXException {
 		if ("paint".equals(element)) {
-			int red = Integer.parseInt(attributes.get("red"));
-			int green = Integer.parseInt(attributes.get("green"));
-			int blue = Integer.parseInt(attributes.get("blue"));
-			int alpha = 255;// set default
-			// add a test if "alpha" was added to the XML / backwards compatibility
-			String a = attributes.get("alpha");
-			if (a != null) {
-				// "alpha" string was present so load the value
-				alpha = Integer.parseInt(a);
+			ORColor paint = ORColor.fromXMLAttributes(attributes);
+			if (paint != null) {
+				builder.setPaint(paint);
 			}
-			builder.setPaint(new ORColor(red, green, blue, alpha));
 			return;
 		}
 		if ("shine".equals(element)) {
 			double shine = Double.parseDouble(content);
 			builder.setShine(shine);
+			return;
+		}
+		if ("opacityaffectstexture".equals(element)) {
+			builder.setOpacityAffectsTexture(Boolean.parseBoolean(content));
 			return;
 		}
 		if (isInDecal && "center".equals(element)) {

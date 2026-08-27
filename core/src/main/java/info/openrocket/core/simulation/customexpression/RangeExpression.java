@@ -82,8 +82,11 @@ public class RangeExpression extends CustomExpression {
 		// Otherwise there will be a type conflict when we get the new data.
 		FlightDataType type = FlightDataType.getType(null, getSymbol(), null);
 
-		List<Double> data = dataBranch.getClone(type);
-		List<Double> time = dataBranch.getClone(FlightDataType.TYPE_TIME);
+		List<Double> data = dataBranch.get(type);
+		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		if (data == null || time == null || time.isEmpty()) {
+			return new Variable("Unknown");
+		}
 		LinearInterpolator interp = new LinearInterpolator(time, data);
 
 		// Evaluate the expression to get the start and end of the range
@@ -97,6 +100,14 @@ public class RangeExpression extends CustomExpression {
 		} catch (java.util.EmptyStackException e) {
 			log.info(Markers.USER_MARKER, "Unable to calculate time index for range expression " + getSymbol()
 					+ " due to empty stack exception");
+			return new Variable("Unknown");
+		}
+
+		// A range that runs backwards selects no data at all.  Reporting it as unknown
+		// keeps it out of any aggregate built on top of this expression.
+		if (startTime > endTime) {
+			log.info(Markers.USER_MARKER, "Range expression " + getSymbol() + " starts at " + startTime
+					+ ", after its end at " + endTime);
 			return new Variable("Unknown");
 		}
 

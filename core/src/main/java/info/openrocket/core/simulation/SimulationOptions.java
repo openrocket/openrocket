@@ -92,6 +92,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
+	private boolean randomSeedFixed = false;
 
 	private List<EventListener> listeners = new ArrayList<>();
 
@@ -103,6 +104,16 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double constantGravity = preferences.getConstantGravityValue();
 
 	private SimulationStepperMethod stepperMethodChoice = SimulationStepperMethod.RK4;
+
+	// Recovery deployment speed warning thresholds
+	/** No-drogue design: warn if any device deploys above this speed (m/s). Default 20 m/s. */
+	private double recoverySpeedWarning = 20.0;
+	/** Drogue design: warn if drogue deploys BELOW this speed at apogee (m/s). Default 3.048 m/s (10 fps). */
+	private double drogueLowSpeedWarning = 3.048;
+	/** Drogue design: warn if main deploys ABOVE this speed (m/s). Default 30.48 m/s (100 fps). */
+	private double recoveryDrogueMainHighSpeedWarning = 30.48;
+	/** Drogue design: warn if main deploys BELOW this speed (m/s). Default 15.24 m/s (50 fps). */
+	private double recoveryDrogueMainLowSpeedWarning = 15.24;
 
 	private Path dragLookupCsvPath;
 	private Path stabilityLookupCsvPath;
@@ -443,6 +454,50 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		fireChangeEvent();
 	}
 
+	public double getRecoverySpeedWarning() {
+		return recoverySpeedWarning;
+	}
+
+	public void setRecoverySpeedWarning(double recoverySpeedWarning) {
+		if (MathUtil.equals(this.recoverySpeedWarning, recoverySpeedWarning))
+			return;
+		this.recoverySpeedWarning = recoverySpeedWarning;
+		fireChangeEvent();
+	}
+
+	public double getDrogueLowSpeedWarning() {
+		return drogueLowSpeedWarning;
+	}
+
+	public void setDrogueLowSpeedWarning(double drogueLowSpeedWarning) {
+		if (MathUtil.equals(this.drogueLowSpeedWarning, drogueLowSpeedWarning))
+			return;
+		this.drogueLowSpeedWarning = drogueLowSpeedWarning;
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainHighSpeedWarning() {
+		return recoveryDrogueMainHighSpeedWarning;
+	}
+
+	public void setRecoveryDrogueMainHighSpeedWarning(double recoveryDrogueMainHighSpeedWarning) {
+		if (MathUtil.equals(this.recoveryDrogueMainHighSpeedWarning, recoveryDrogueMainHighSpeedWarning))
+			return;
+		this.recoveryDrogueMainHighSpeedWarning = recoveryDrogueMainHighSpeedWarning;
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainLowSpeedWarning() {
+		return recoveryDrogueMainLowSpeedWarning;
+	}
+
+	public void setRecoveryDrogueMainLowSpeedWarning(double recoveryDrogueMainLowSpeedWarning) {
+		if (MathUtil.equals(this.recoveryDrogueMainLowSpeedWarning, recoveryDrogueMainLowSpeedWarning))
+			return;
+		this.recoveryDrogueMainLowSpeedWarning = recoveryDrogueMainLowSpeedWarning;
+		fireChangeEvent();
+	}
+
 	public Path getDragLookupCsvPath() {
 		return dragLookupCsvPath;
 	}
@@ -554,22 +609,48 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			return;
 		}
 		this.randomSeed = randomSeed;
-		/*
-		 * This does not fire an event since we don't want to invalidate simulation
-		 * results
-		 * due to changing the seed value. This needs to be revisited if the user is
-		 * ever
-		 * allowed to select the seed value.
-		 */
-		// fireChangeEvent();
+		// Automatically generated seeds do not invalidate existing results, while a user-edited fixed seed does.
+		if (randomSeedFixed) {
+			fireChangeEvent();
+		}
+	}
+
+	/**
+	 * Returns whether simulations should reuse the configured random seed.
+	 *
+	 * @return {@code true} when the random seed is fixed across runs
+	 */
+	public boolean isRandomSeedFixed() {
+		return randomSeedFixed;
+	}
+
+	/**
+	 * Controls whether simulations reuse the configured random seed or generate a new one for every run.
+	 *
+	 * @param randomSeedFixed {@code true} to reuse the configured seed
+	 */
+	public void setRandomSeedFixed(boolean randomSeedFixed) {
+		if (this.randomSeedFixed == randomSeedFixed) {
+			return;
+		}
+		this.randomSeedFixed = randomSeedFixed;
+		fireChangeEvent();
 	}
 
 	/**
 	 * Randomize the random seed value.
 	 */
 	public void randomizeSeed() {
-		this.randomSeed = new Random().nextInt();
-		// fireChangeEvent();
+		setRandomSeed(new Random().nextInt());
+	}
+
+	/**
+	 * Generates a new random seed unless the user has chosen to reuse a fixed seed.
+	 */
+	public void randomizeSeedIfNotFixed() {
+		if (!randomSeedFixed) {
+			randomizeSeed();
+		}
 	}
 
 	@Override
@@ -603,6 +684,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// only do it if one of the "important" (user specified) parameters has really
 		// changed.
 		boolean isChanged = false;
+		boolean averageWindChanged = false;
+		boolean multiLevelWindChanged = false;
 
 		if (this.windModelType != src.windModelType) {
 			isChanged = true;
@@ -610,10 +693,12 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		}
 		if (!this.averageWindModel.equals(src.averageWindModel)) {
 			isChanged = true;
+			averageWindChanged = true;
 			this.averageWindModel.loadFrom(src.averageWindModel);
 		}
 		if (!this.multiLevelPinkNoiseWindModel.equals(src.multiLevelPinkNoiseWindModel)) {
 			isChanged = true;
+			multiLevelWindChanged = true;
 			this.multiLevelPinkNoiseWindModel.loadFrom(src.multiLevelPinkNoiseWindModel);
 		}
 
@@ -687,6 +772,14 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.geodeticComputation = src.geodeticComputation;
 		}
+		if (this.stepperMethodChoice != src.stepperMethodChoice) {
+			isChanged = true;
+			this.stepperMethodChoice = src.stepperMethodChoice;
+		}
+		if (this.randomSeedFixed != src.randomSeedFixed ||
+				(src.randomSeedFixed && this.randomSeed != src.randomSeed)) {
+			isChanged = true;
+		}
 
 		if (!Objects.equals(this.dragLookupCsvPath, src.dragLookupCsvPath) || this.dragLookupTable != src.dragLookupTable) {
 			isChanged = true;
@@ -700,10 +793,35 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			this.stabilityLookupTable = src.stabilityLookupTable;
 		}
 
+		if (this.recoverySpeedWarning != src.recoverySpeedWarning) {
+			isChanged = true;
+			this.recoverySpeedWarning = src.recoverySpeedWarning;
+		}
+		if (this.drogueLowSpeedWarning != src.drogueLowSpeedWarning) {
+			isChanged = true;
+			this.drogueLowSpeedWarning = src.drogueLowSpeedWarning;
+		}
+		if (this.recoveryDrogueMainHighSpeedWarning != src.recoveryDrogueMainHighSpeedWarning) {
+			isChanged = true;
+			this.recoveryDrogueMainHighSpeedWarning = src.recoveryDrogueMainHighSpeedWarning;
+		}
+		if (this.recoveryDrogueMainLowSpeedWarning != src.recoveryDrogueMainLowSpeedWarning) {
+			isChanged = true;
+			this.recoveryDrogueMainLowSpeedWarning = src.recoveryDrogueMainLowSpeedWarning;
+		}
+
 		if (isChanged) {
-			// Only copy the randomSeed if something else has changed.
-			// Honestly, I don't really see a need for that.
+			this.randomSeedFixed = src.randomSeedFixed;
 			this.randomSeed = src.randomSeed;
+
+			// The nested wind models are updated in bulk above, bypassing their
+			// setters. Notify their listeners so bound controls refresh as well.
+			if (averageWindChanged) {
+				this.averageWindModel.fireChangeEvent();
+			}
+			if (multiLevelWindChanged) {
+				this.multiLevelPinkNoiseWindModel.fireChangeEvent();
+			}
 			fireChangeEvent();
 		}
 	}
@@ -730,11 +848,18 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.maxSimulationTime, o.maxSimulationTime)) &&
+				this.stepperMethodChoice == o.stepperMethodChoice &&
 				this.windModelType == o.windModelType &&
 				this.averageWindModel.equals(o.averageWindModel) &&
 				this.multiLevelPinkNoiseWindModel.equals(o.multiLevelPinkNoiseWindModel) &&
 				this.gravityModelType == o.gravityModelType &&
-				MathUtil.equals(this.constantGravity, o.constantGravity);
+				MathUtil.equals(this.constantGravity, o.constantGravity) &&
+				MathUtil.equals(this.recoverySpeedWarning, o.recoverySpeedWarning) &&
+				MathUtil.equals(this.drogueLowSpeedWarning, o.drogueLowSpeedWarning) &&
+				MathUtil.equals(this.recoveryDrogueMainHighSpeedWarning, o.recoveryDrogueMainHighSpeedWarning) &&
+				MathUtil.equals(this.recoveryDrogueMainLowSpeedWarning, o.recoveryDrogueMainLowSpeedWarning) &&
+				this.randomSeedFixed == o.randomSeedFixed &&
+				(!this.randomSeedFixed || this.randomSeed == o.randomSeed);
 	}
 
 	/**
@@ -783,7 +908,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
 
+		// Seed the throwaway clone rather than the configured model, so that the seed
+		// governs the run without becoming part of the configuration's identity.
 		WindModel windModel = getWindModel().clone();
+		windModel.setSeed(randomSeed);
 		conditions.setWindModel(windModel);
 		conditions.setAtmosphericModel(getAtmosphericModel());
 
@@ -807,6 +935,11 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setTimeStep(getTimeStep());
 		conditions.setMaxSimulationTime(getMaxSimulationTime());
 		conditions.setMaximumAngleStep(getMaximumStepAngle());
+
+		conditions.setRecoverySpeedWarning(getRecoverySpeedWarning());
+		conditions.setDrogueLowSpeedWarning(getDrogueLowSpeedWarning());
+		conditions.setRecoveryDrogueMainHighSpeedWarning(getRecoveryDrogueMainHighSpeedWarning());
+		conditions.setRecoveryDrogueMainLowSpeedWarning(getRecoveryDrogueMainLowSpeedWarning());
 
 		return conditions;
 	}
@@ -832,6 +965,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    timeStep:  %f\n", timeStep))
 				.concat(String.format("    maxTime:  %f\n", maxSimulationTime))
 				.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
+				.concat(String.format("    stepperMethodChoice: %s\n", stepperMethodChoice))
+				.concat(String.format("    randomSeedFixed: %b\n", randomSeedFixed))
+				.concat(String.format("    randomSeed: %d\n", randomSeed))
 				.concat("]\n");
 	}
 

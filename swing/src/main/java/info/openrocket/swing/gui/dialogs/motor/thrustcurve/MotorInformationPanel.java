@@ -61,6 +61,7 @@ class MotorInformationPanel extends JPanel {
 	// Selected motor
 	private ThrustCurveMotor selectedMotor;
 
+	private final JLabel manufacturerLabel;
 	private final JLabel designationLabel;
 	private final JLabel commonNameLabel;
 	private final JLabel totalImpulseLabel;
@@ -96,6 +97,11 @@ class MotorInformationPanel extends JPanel {
 		
 		// Thrust curve info
 		{
+			//// Manufacturer
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Manufacturer")));
+			manufacturerLabel = new JLabel();
+			this.add(manufacturerLabel, "wrap");
+
 			//// Designation
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Designation")));
 			designationLabel = new JLabel();
@@ -284,6 +290,7 @@ class MotorInformationPanel extends JPanel {
 	public void clearData() {
 		selectedMotor = null;
 		selectedMotorSet = null;
+		manufacturerLabel.setText("");
 		designationLabel.setText("");
 		commonNameLabel.setText("");
 		totalImpulseLabel.setText("");
@@ -320,6 +327,7 @@ class MotorInformationPanel extends JPanel {
 		this.selectedMotor = selectedMotor;
 
 		// Update thrust curve data
+		manufacturerLabel.setText(selectedMotor.getManufacturer().getDisplayName());
 		designationLabel.setText(selectedMotor.getDesignation());
 		commonNameLabel.setText(selectedMotor.getCommonName());
 		double impulse = selectedMotor.getTotalImpulseEstimate();

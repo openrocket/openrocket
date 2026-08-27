@@ -194,6 +194,16 @@ public class RASAeroLoaderTest extends BaseTestCase {
             Rocket rocket = doc.getRocket();
             assertNotNull(rocket);
 
+            AxialStage sustainer = rocket.getStage(0);
+            AxialStage booster = rocket.getStage(1);
+
+            // The test motor database is empty.  RASAero's loaded values therefore
+            // cannot safely be converted to motor-free OpenRocket overrides.
+            assertFalse(sustainer.isMassOverridden(), "Unresolved sustainer motor must not be included in dry mass");
+            assertFalse(sustainer.isCGOverridden(), "Unresolved sustainer motor must not be included in dry CG");
+            assertFalse(booster.isMassOverridden(), "Unresolved booster motor must not be included in dry mass");
+            assertFalse(booster.isCGOverridden(), "Unresolved booster motor must not be included in dry CG");
+
             // TODO: fetch components and test their parameters
         } catch (IllegalStateException ise) {
             fail(ise.getMessage());
@@ -204,5 +214,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
         // include OR motors so the total
         // warning size decreases
         assertEquals(4, loader.getWarnings().size());
+        assertTrue(loader.getWarnings().stream()
+                .anyMatch(warning -> warning.toString().contains("mass and CG overrides were skipped")));
     }
 }

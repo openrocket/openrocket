@@ -23,8 +23,8 @@ public class SnapModeInfo implements FigureElement {
 
 	private static final Translator trans = Application.getTranslator();
 	private static final int MARGIN = 8;
-	private static final Font FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
-	private static final Font HINT_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
+	private static final Font FONT = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 14.0f, 0.0f);
+	private static final Font HINT_FONT = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_REGULAR, 11.0f, 0.0f);
 
 	private int caliperNumber;
 	private static Color snapHighlightColor;
@@ -83,4 +83,3 @@ public class SnapModeInfo implements FigureElement {
 		g2.drawGlyphVector(hintText, hintX, hintY);
 	}
 }
-

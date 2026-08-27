@@ -81,8 +81,9 @@ Runtime Issues
 
 .. rubric:: Issue: 3D view doesn't work or crashes
 
-The 3D view uses JOGL (Java OpenGL), which can be problematic on some systems. You can disable the 3D engine by running
-OpenRocket with the JVM argument ``-Dopenrocket.3d.disable``.
+The 3D view uses LWJGL 3 and lwjgl3-awt to host OpenGL inside Swing. Driver or platform-specific failures can be
+investigated with the diagnostics in :doc:`testing_and_debugging`. To start OpenRocket without the 3D engine, use the JVM
+argument ``-Dopenrocket.3d.disable``.
 
 Getting Help
 ============

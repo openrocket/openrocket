@@ -351,6 +351,7 @@ private static final Translator trans = Application.getTranslator();
 
 		this.validate();
 		vertical.setDividerLocation(0.4);
+		designPanel.setDividerLocation(0.4);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -862,8 +863,7 @@ private static final Translator trans = Application.getTranslator();
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Photo... selected");
-				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
-				pa.setVisible(true);
+				PhotoFrame.openForDocument(document, BasicFrame.this);
 			}
 		});
 		toolsMenu.add(item);
@@ -2342,8 +2342,8 @@ private static final Translator trans = Application.getTranslator();
 
 		frames.remove(BasicFrame.this);
 		if (frames.isEmpty()) {
-			// Don't quit the application on macOS, but keep the application open
-			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			// Closing the last window keeps the macOS application available, but an explicit quit must exit directly.
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && !quitCalled) {
 				DummyFrameMenuOSX.createDummyDialog();
 			} else {
 				log.info("Last frame closed, exiting");

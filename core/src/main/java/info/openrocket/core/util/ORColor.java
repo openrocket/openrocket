@@ -1,5 +1,6 @@
 package info.openrocket.core.util;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class ORColor {
@@ -70,6 +71,56 @@ public class ORColor {
 
 	public static ORColor fromAWTColor(java.awt.Color AWTColor) {
 		return new ORColor(AWTColor.getRed(), AWTColor.getGreen(), AWTColor.getBlue(), AWTColor.getAlpha());
+	}
+
+	/**
+	 * Parse an ORColor from XML attributes containing "red", "green", "blue", and optionally "alpha" keys.
+	 * Returns {@code null} if any required attribute is missing or if any value is not a valid integer in [0, 255].
+	 *
+	 * @param attributes the XML attribute map
+	 * @return the parsed color, or {@code null} if the attributes are incomplete or invalid
+	 */
+	public static ORColor fromXMLAttributes(Map<String, String> attributes) {
+		String redStr = attributes.get("red");
+		String greenStr = attributes.get("green");
+		String blueStr = attributes.get("blue");
+		if (redStr == null || greenStr == null || blueStr == null) {
+			return null;
+		}
+
+		int r, g, b;
+		try {
+			r = Integer.parseInt(redStr);
+			g = Integer.parseInt(greenStr);
+			b = Integer.parseInt(blueStr);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+
+		int a = 255;
+		String alphaStr = attributes.get("alpha");
+		if (alphaStr != null) {
+			try {
+				a = Integer.parseInt(alphaStr);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+
+		if (r < 0 || g < 0 || b < 0 || a < 0 || r > 255 || g > 255 || b > 255 || a > 255) {
+			return null;
+		}
+
+		return new ORColor(r, g, b, a);
+	}
+
+	/**
+	 * Produce the XML attribute fragment for this color: {@code red="R" green="G" blue="B" alpha="A"}.
+	 *
+	 * @return the XML attribute string (without leading/trailing spaces)
+	 */
+	public String toXMLAttributes() {
+		return "red=\"" + red + "\" green=\"" + green + "\" blue=\"" + blue + "\" alpha=\"" + alpha + "\"";
 	}
 
 	@Override

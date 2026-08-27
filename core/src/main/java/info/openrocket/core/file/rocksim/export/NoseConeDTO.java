@@ -35,7 +35,17 @@ public class NoseConeDTO extends AbstractTransitionDTO {
      * @param nc the OR nose cone
      */
     public NoseConeDTO(NoseCone nc) {
-        super(nc);
+        this(nc, null);
+    }
+
+    /**
+     * Full copy constructor used while exporting a complete document.
+     *
+     * @param nc      the OR nose cone
+     * @param context per-export motor-mount mapping state
+     */
+    public NoseConeDTO(NoseCone nc, RockSimExportContext context) {
+        super(nc, context);
         setBaseDia(nc.getAftRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setShoulderLen(nc.getAftShoulderLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setShoulderOD(nc.getAftShoulderRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);

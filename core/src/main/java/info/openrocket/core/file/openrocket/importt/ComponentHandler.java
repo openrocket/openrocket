@@ -48,6 +48,15 @@ class ComponentHandler extends AbstractElementHandler {
 			throw Reflection.handleWrappedException(e);
 		}
 
+		// Malformed and legacy files may contain component hierarchies that the
+		// current model cannot represent. Ignore the complete subtree instead of
+		// aborting the document load in RocketComponent.addChild().
+		if (!parent.isCompatible(c)) {
+			warnings.add(Warning.fromString(c.getComponentName() + " cannot be attached to "
+					+ parent.getComponentName() + "; ignoring this component and its subcomponents."));
+			return null;
+		}
+
 		parent.addChild(c);
 
 		return new ComponentParameterHandler(c, context);

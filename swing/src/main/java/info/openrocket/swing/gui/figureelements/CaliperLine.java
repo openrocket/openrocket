@@ -127,9 +127,8 @@ public class CaliperLine implements FigureElement {
 		// Update fonts
 		float handleFontSize = (float) (BASE_HANDLE_LABEL_FONT_SIZE * scale);
 		float indicatorFontSize = (float) (BASE_INDICATOR_LABEL_FONT_SIZE * scale);
-		Font baseFont = new Font(Font.SANS_SERIF, Font.BOLD, 12); // Base font
-		HANDLE_LABEL_FONT = baseFont.deriveFont(Font.BOLD, handleFontSize);
-		INDICATOR_LABEL_FONT = baseFont.deriveFont(Font.BOLD, indicatorFontSize);
+		HANDLE_LABEL_FONT = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, handleFontSize, 0.0f);
+		INDICATOR_LABEL_FONT = GUIUtil.createUIFont(GUIUtil.UI_FONT_STYLE_BOLD, indicatorFontSize, 0.0f);
 	}
 
 	/**
@@ -224,7 +223,6 @@ public class CaliperLine implements FigureElement {
 
 			double handleX_screen = screenPoint.x;
 			double siblingXScreen = siblingLine != null ? siblingLine.getScreenX(transform) : Double.NaN;
-			double handleY_screen = 0.0;  // Start at the very top
 
 			// Reset transform to draw in screen coordinates
 			g2Screen.setTransform(new AffineTransform());
@@ -235,11 +233,14 @@ public class CaliperLine implements FigureElement {
 			if (g2Screen.getClipBounds() != null) {
 				screenVisible = g2Screen.getClipBounds();
 			}
+			double handleY_screen = getHandleY(screenVisible);
 			
-			// Draw vertical line covering the full viewport height
-			// We draw in screen coordinates, from Y=0 to a very large number (e.g. 20000)
-			// The clip will ensure it doesn't draw outside the viewport
-			Line2D.Double screenLine = new Line2D.Double(handleX_screen, 0, handleX_screen, 20000);
+			// Draw the line across the visible viewport and keep its handle at the viewport's top edge.
+			double lineBottom = screenVisible != null
+					? screenVisible.y + screenVisible.height
+					: 20000;
+			Line2D.Double screenLine = new Line2D.Double(
+					handleX_screen, handleY_screen, handleX_screen, lineBottom);
 			float lineWidth = isHovered ? LINE_WIDTH_HOVER : LINE_WIDTH_NORMAL;
 
 			// Apply 50% transparency in snap mode
@@ -256,7 +257,7 @@ public class CaliperLine implements FigureElement {
 
 			double diamondCenterY = handleY_screen + DIAMOND_HALF_HEIGHT;
 
-			// Diamond shape: top tip at y=0, bottom tip pointing down toward the line
+			// Diamond shape: top tip at the viewport edge, bottom tip pointing down toward the line
 			marker.moveTo(handleX_screen, handleY_screen);                             // Top tip
 			marker.lineTo(handleX_screen + DIAMOND_HALF_WIDTH, diamondCenterY);       // Right point
 			marker.lineTo(handleX_screen, handleY_screen + DIAMOND_HALF_HEIGHT * 2);  // Bottom tip
@@ -331,9 +332,10 @@ public class CaliperLine implements FigureElement {
 	 * Get the bounds of the handle in screen coordinates for hit testing.
 	 *
 	 * @param transform the transform from model to screen coordinates
+	 * @param visible the visible viewport rectangle (for determining the handle Y position)
 	 * @return the handle bounds in screen coordinates, or null if invalid
 	 */
-	public Rectangle2D.Double getHandleBounds(AffineTransform transform) {
+	public Rectangle2D.Double getHandleBounds(AffineTransform transform, Rectangle visible) {
 		Point2D.Double modelPoint = new Point2D.Double(x, 0);
 		Point2D.Double screenPoint = new Point2D.Double();
 		transform.transform(modelPoint, screenPoint);
@@ -343,7 +345,7 @@ public class CaliperLine implements FigureElement {
 		}
 		
 		double handleX_screen = screenPoint.x;
-		double handleY_screen = 0.0;  // Start at the very top
+		double handleY_screen = getHandleY(visible);
 
 		// Return bounds that encompass the diamond handle
 		double minX = handleX_screen - DIAMOND_HALF_WIDTH;
@@ -359,6 +361,16 @@ public class CaliperLine implements FigureElement {
 			(maxX - minX) + 2 * padding,
 			(maxY - minY) + 2 * padding
 		);
+	}
+
+	/**
+	 * Return the top edge of the currently visible viewport in figure coordinates.
+	 *
+	 * @param visible the visible viewport rectangle, or null when painting without a viewport
+	 * @return the Y coordinate where the vertical handle should be anchored
+	 */
+	private static double getHandleY(Rectangle visible) {
+		return visible != null ? visible.y : 0.0;
 	}
 	
 	/**
@@ -566,4 +578,3 @@ public class CaliperLine implements FigureElement {
 		g2Screen.drawString(hint, (float) hintX, (float) hintY);
 	}
 }
-

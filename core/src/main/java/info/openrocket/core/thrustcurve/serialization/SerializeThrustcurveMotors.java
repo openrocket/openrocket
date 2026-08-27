@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
+import info.openrocket.core.file.motor.AbstractMotorLoader;
 import info.openrocket.core.file.motor.GeneralMotorLoader;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.database.motor.ThrustCurveMotorSQLiteDatabase;
@@ -284,7 +285,9 @@ public class SerializeThrustcurveMotors {
         builder.setMotorType(type);
 
         builder.setCommonName(tcMotor.getCommon_name());
-        builder.setDesignation(tcMotor.getDesignation());
+        // Strip trailing delay suffix from the API designation (e.g. "B6-0" -> "B6") so
+        // motors from this source can be grouped with motors from other sources.
+        builder.setDesignation(AbstractMotorLoader.removeDelay(tcMotor.getDesignation()));
         builder.setTcMotorId(tcMotor.getMotor_id());
         builder.setInfoUrl(tcMotor.getInfo_url());
         builder.setDataFiles(tcMotor.getData_files());

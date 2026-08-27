@@ -25,14 +25,18 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.Icon;
 import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
-import java.awt.font.TextAttribute;
+import java.awt.Window;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -47,6 +51,7 @@ public class UITheme {
     private static final Logger log = LoggerFactory.getLogger(UITheme.class);
 
     private static final Map<String, Float> fontOffsets = new HashMap<>();
+    private static boolean lafChangeAnimationActive;
 
     public static final class Keys {
         public static final String BACKGROUND = "OR.colors.background";
@@ -239,7 +244,14 @@ public class UITheme {
         // Static list of listeners (weak to avoid leaks)
         static List<WeakReference<Runnable>> themeChangeListeners = new ArrayList<>();
 
-        // Static method to add a listener
+        /**
+         * Add a weak theme-change listener.
+         *
+         * <p>Callers using a capturing lambda or instance method reference must keep a strong
+         * reference to the runnable for as long as they expect to receive notifications.</p>
+         *
+         * @param listener listener to invoke after a theme change
+         */
         static void addUIThemeChangeListener(Runnable listener) {
             if (listener == null) {
                 return;
@@ -2025,7 +2037,18 @@ public class UITheme {
 
     
     private static void preApplyTheme() {
-        FlatAnimatedLafChange.showSnapshot();
+        // FlatAnimatedLafChange places a lightweight component over every layered pane.
+        // Mixing that temporary layer with a heavyweight Canvas can leave the native
+        // canvas excluded from mouse hit testing even after the layer is removed. This
+        // affects the AWTGLCanvas used by the 3D views. Keep animated changes for normal
+        // Swing windows, but change themes immediately while any Canvas is showing.
+        lafChangeAnimationActive = !hasShowingCanvas();
+        if (lafChangeAnimationActive) {
+            FlatAnimatedLafChange.showSnapshot();
+        } else {
+            FlatAnimatedLafChange.stop();
+        }
+        GUIUtil.loadCustomFonts();
         FlatLaf.registerCustomDefaultsSource("themes");
     }
 
@@ -2042,10 +2065,6 @@ public class UITheme {
         log.info("Setting UI scale factor to {}", uiScale);
         System.setProperty("flatlaf.uiScale", uiScale);
 
-        // Load custom fonts
-        log.info("Loading custom fonts");
-        GUIUtil.loadCustomFonts();
-
         // Set the global font to
         int fontSize = prefs.getUIFontSize();
         String fontStyle = prefs.getUIFontStyle();
@@ -2053,12 +2072,64 @@ public class UITheme {
         log.info("Setting global font to {} {} {}", fontSize, fontStyle, fontTracking);
         setGlobalFont(fontStyle, fontSize, (float) fontTracking);
 
-        // After applying the theme settings, notify listeners
-        Theme.notifyUIThemeChangeListeners();
-
         // Update all components
         FlatLaf.updateUI();
-        FlatAnimatedLafChange.hideSnapshotWithAnimation();
+
+        // Root-pane client properties are application overrides and survive FlatLaf.updateUI().
+        // Reapply them after the component trees have adopted their new theme colors.
+        applyThemeToOpenRootPanes(theme);
+        Theme.notifyUIThemeChangeListeners();
+        if (lafChangeAnimationActive) {
+            FlatAnimatedLafChange.hideSnapshotWithAnimation();
+        }
+        lafChangeAnimationActive = false;
+    }
+
+    private static boolean hasShowingCanvas() {
+        for (Window window : Window.getWindows()) {
+            if (window.isShowing() && containsShowingCanvas(window)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsShowingCanvas(Component component) {
+        if (component instanceof Canvas) {
+            return component.isShowing();
+        }
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                if (containsShowingCanvas(child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Refresh theme-specific root-pane properties on every existing Swing window.
+     *
+     * @param theme the newly applied UI theme
+     */
+    private static void applyThemeToOpenRootPanes(Theme theme) {
+        applyThemeToRootPanes(theme, Window.getWindows());
+    }
+
+    /**
+     * Apply the theme to the root pane of each supplied Swing window.
+     *
+     * @param theme the newly applied UI theme
+     * @param windows candidate windows to refresh
+     */
+    static void applyThemeToRootPanes(Theme theme, Window[] windows) {
+        for (Window window : windows) {
+            if (window instanceof RootPaneContainer) {
+                RootPaneContainer rootPaneContainer = (RootPaneContainer) window;
+                theme.applyThemeToRootPane(rootPaneContainer.getRootPane());
+            }
+        }
     }
 
     private static void commonApplyThemeToRootPane(JRootPane rootPane, Color TextColor) {
@@ -2087,22 +2158,11 @@ public class UITheme {
                     // Reuse the existing fontOffsets map logic here
                     offset = fontOffsets.getOrDefault(fontKey, 0.0f);
                 }
-                // Create a font with the letter spacing attribute
-                Map<TextAttribute, Object> attributes = new HashMap<>();
-                attributes.put(TextAttribute.FAMILY, fontStyle);
-                attributes.put(TextAttribute.SIZE, size + offset);
-                attributes.put(TextAttribute.TRACKING, letterSpacing);
-
-                Font newFont = Font.getFont(attributes);
-                UIManager.put(key, newFont);
+                UIManager.put(key, GUIUtil.createUIFont(fontStyle, size + offset, letterSpacing));
             }
         }
 
         // Set the default font
-        Map<TextAttribute, Object> attributes = new HashMap<>();
-        attributes.put(TextAttribute.FAMILY, fontStyle);
-        attributes.put(TextAttribute.SIZE, size);
-        attributes.put(TextAttribute.TRACKING, letterSpacing);
-        UIManager.put("defaultFont", Font.getFont(attributes));
+        UIManager.put("defaultFont", GUIUtil.createUIFont(fontStyle, size, letterSpacing));
     }
 }

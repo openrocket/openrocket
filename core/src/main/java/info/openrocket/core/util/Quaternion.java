@@ -103,8 +103,8 @@ public class Quaternion implements Cloneable {
 	 */
 	public static Quaternion rotation(CoordinateIF axis, double angle) {
 		CoordinateIF a = axis.normalize();
-		double sin = Math.sin(angle);
-		double cos = Math.cos(angle);
+		double sin = Math.sin(angle / 2);
+		double cos = Math.cos(angle / 2);
 		return new Quaternion(cos, sin * a.getX(), sin * a.getY(), sin * a.getZ());
 	}
 

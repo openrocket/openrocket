@@ -1,9 +1,9 @@
 package info.openrocket.core.componentanalysis;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.DataType;
 import info.openrocket.core.startup.Application;
@@ -121,23 +121,18 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 	 * @return true if the component is relevant for the given CADataType, false otherwise
 	 */
 	public static boolean isComponentRelevantForType(RocketComponent component, CADataType type) {
-		// Only aerodynamic and rockets are relevant for any CADataType
-		if (!component.isAerodynamic() && !(component instanceof Rocket)) {
-			return false;
-		}
-
-		// Doesn't make sense to calculate per-instance drag for rockets
-		if (component instanceof Rocket && type.equals(CADataType.PER_INSTANCE_CD)) {
-			return false;
-		}
-
-		if (type.equals(CADataType.CP_X) || type.equals(CADataType.CNa) ||
-				type.equals(CADataType.PRESSURE_CD) || type.equals(CADataType.BASE_CD) ||
-				type.equals(CADataType.FRICTION_CD) || type.equals(CADataType.PER_INSTANCE_CD) || type.equals(CADataType.TOTAL_CD)) {
-			return true;
-		} else if (type.equals(CADataType.ROLL_FORCING_COEFFICIENT) || type.equals(CADataType.ROLL_DAMPING_COEFFICIENT) ||
+		// Aerodynamic calculations provide aggregate forces for component assemblies,
+		// including stages and the entire rocket.
+		if (type.equals(CADataType.CP_X) || type.equals(CADataType.CNa)) {
+			return component.isAerodynamic() || component instanceof ComponentAssembly;
+		} else if (type.equals(CADataType.PRESSURE_CD) || type.equals(CADataType.BASE_CD) ||
+				type.equals(CADataType.FRICTION_CD) || type.equals(CADataType.PER_INSTANCE_CD) ||
+				type.equals(CADataType.TOTAL_CD)) {
+			return component.isAerodynamic() || component instanceof ComponentAssembly;
+		} else if (type.equals(CADataType.ROLL_FORCING_COEFFICIENT) ||
+				type.equals(CADataType.ROLL_DAMPING_COEFFICIENT) ||
 				type.equals(CADataType.TOTAL_ROLL_COEFFICIENT)) {
-			return component instanceof FinSet;
+			return component instanceof FinSet || component instanceof ComponentAssembly;
 		}
 		return false;
 	}

@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.dialogs.preferences;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.util.GUIUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -14,9 +15,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import java.awt.Font;
-import java.awt.font.TextAttribute;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -70,14 +68,7 @@ public class UIPreviewPanel extends JPanel {
 	}
 
 	public void updatePreview(String fontStyle, int fontSize, float letterSpacing) {
-		// Create font attributes
-		Map<TextAttribute, Object> attributes = new HashMap<>();
-		attributes.put(TextAttribute.FAMILY, fontStyle);
-		attributes.put(TextAttribute.SIZE, fontSize);
-		attributes.put(TextAttribute.TRACKING, letterSpacing);
-
-		// Create the new font
-		Font newFont = Font.getFont(attributes);
+		Font newFont = GUIUtil.createUIFont(fontStyle, fontSize, letterSpacing);
 
 		// Update all components with new font
 		heading.setFont(newFont.deriveFont(Font.BOLD, newFont.getSize() + 2f));

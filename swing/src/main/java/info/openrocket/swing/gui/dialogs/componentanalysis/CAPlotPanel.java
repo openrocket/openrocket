@@ -37,17 +37,20 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
 	}
 
-	private CAPlotPanel(ComponentAnalysisPlotExportPanel parent, CADomainDataType[] typesX, CADataType[] typesY) {
-		super(typesX, typesY, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, null, null);
+	private CAPlotPanel(ComponentAnalysisPlotExportPanel parent, CADomainDataType[] typesX, CADataType[] typesY,
+						CAPlotConfiguration initialConfiguration) {
+		super(typesX, typesY, CUSTOM_CONFIGURATION, PRESET_ARRAY,
+				initialConfiguration != null ? initialConfiguration : DEFAULT_CONFIGURATION, null, null);
 
 		this.parent = parent;
 		updatePlots();
 	}
 
-	public static CAPlotPanel create(ComponentAnalysisPlotExportPanel parent, CADataType[] typesY) {
+	public static CAPlotPanel create(ComponentAnalysisPlotExportPanel parent, CADataType[] typesY,
+									 CAPlotConfiguration initialConfiguration) {
 		CADomainDataType[] typesX = new CADomainDataType[] { parent.getSelectedParameter() };
 
-		return new CAPlotPanel(parent, typesX, typesY);
+		return new CAPlotPanel(parent, typesX, typesY, initialConfiguration);
 	}
 
 	@Override

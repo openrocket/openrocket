@@ -95,7 +95,7 @@ public class RockSimMotorWriter {
 			case SINGLE -> "single-use";
 			case HYBRID -> "hybrid";
 			case RELOAD -> "reloadable";
-			default -> "single-use";
+			case UNKNOWN -> "unknown";
 		};
 	}
 
