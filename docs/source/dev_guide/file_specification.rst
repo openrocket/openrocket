@@ -142,9 +142,7 @@ of our repository).
        * Added simulation table column visibility preferences
        * Include file preview image (``preview.png``) in .ork zip file
        * Embedded thrust curve motor data as ``.rse`` (RockSim engine) files in a ``thrustcurves/`` directory within the .ork zip archive, keyed by motor digest
-   * - 1.12
-     - OpenRocket 26.xx
-     - Added optional per-simulation landing-dispersion settings
+       * Added optional per-simulation landing-dispersion settings
 
 ----
 
@@ -156,7 +154,7 @@ The following shows the root XML structure of an OpenRocket design file:
 .. code-block:: xml
 
    <?xml version='1.0' encoding='utf-8'?>
-   <openrocket version="1.12" creator="OpenRocket 26.xx">
+   <openrocket version="1.11" creator="OpenRocket 26.xx">
       <rocket>
          <!-- Rocket definition -->
       </rocket>

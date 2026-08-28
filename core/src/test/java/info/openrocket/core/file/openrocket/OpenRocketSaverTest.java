@@ -426,13 +426,13 @@ public class OpenRocketSaverTest {
 	}
 	
 	////////////////////////////////
-	// Tests for File Version 1.12 //
+	// Tests for File Version 1.11 //
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion112_withSimulationExtension() {
+	public void testFileVersion111_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(112, getCalculatedFileVersion(rocketDoc));
+		assertEquals(111, getCalculatedFileVersion(rocketDoc));
 	}
 
 	@Test
@@ -457,10 +457,6 @@ public class OpenRocketSaverTest {
 				"Selecting another motor must clear nozzle geometry from the previous motor");
 	}
 
-	////////////////////////////////
-	// Tests for File Version 1.12 //
-	////////////////////////////////
-
 	@Test
 	public void testLandingDispersionSettingsRemainAbsentUntilConfigured() throws IOException {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -470,7 +466,7 @@ public class OpenRocketSaverTest {
 		document.addSimulation(simulation);
 
 		assertNull(simulation.getLandingDispersionSettings());
-		assertEquals(112, getCalculatedFileVersion(document));
+		assertEquals(111, getCalculatedFileVersion(document));
 
 		File file = saveRocket(document, new StorageOptions());
 		assertFalse(Files.readString(file.toPath()).contains("<landingdispersion"));
@@ -495,10 +491,10 @@ public class OpenRocketSaverTest {
 		simulation.setLandingDispersionSettings(settings);
 		document.addSimulation(simulation);
 
-		assertEquals(112, getCalculatedFileVersion(document));
+		assertEquals(111, getCalculatedFileVersion(document));
 		File file = saveRocket(document, new StorageOptions());
 		String xml = Files.readString(file.toPath());
-		assertTrue(xml.contains("<openrocket version=\"1.12\""));
+		assertTrue(xml.contains("<openrocket version=\"1.11\""));
 		assertTrue(xml.contains("<landingdispersion runs=\"750\" seed=\"-123456789\">"));
 		assertTrue(xml.contains("parameter=\"airdensity\" distribution=\"lognormal\""));
 
