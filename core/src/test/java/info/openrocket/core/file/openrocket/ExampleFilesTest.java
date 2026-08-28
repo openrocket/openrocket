@@ -529,10 +529,10 @@ public class ExampleFilesTest extends BaseTestCase {
 						0.000000000, -0.028911746, -0.081368900, 0.441325000, 0.049758600,
 						0.081368900)
 				.aerodynamics(0.3, 0.346316323, 0.821718035)
-				.aerodynamics(0.8, 0.351444751, 1.007636150)
-				.aerodynamics(1.0, 0.355908243, 1.113618245)
-				.aerodynamics(1.2, 0.357813866, 1.084838004)
-				.aerodynamics(2.0, 0.338274902, 0.850365291)
+				.aerodynamics(0.8, 0.351490139, 1.007636150)
+				.aerodynamics(1.0, 0.355990018, 1.113618245)
+				.aerodynamics(1.2, 0.357955574, 1.084838004)
+				.aerodynamics(2.0, 0.338258107, 0.850365291)
 				.aerodynamics(3.0, 0.315263350, 0.709725705)
 				.simulation("Simulation 1", 0.075059249, 0.255898027, 0.000207999, -0.000000000, 29.826989419)
 				.simulation("Simulation 2", 0.074309249, 0.254315684, 0.000210098, -0.000000000, 92.350436331)
@@ -610,11 +610,11 @@ public class ExampleFilesTest extends BaseTestCase {
 						0.000000000, -0.027666716, -0.024790400, 0.577088000, 0.027666716,
 						0.024790400)
 				.aerodynamics(0.3, 0.496639644, 1.784827589)
-				.aerodynamics(0.8, 0.260395035, 1.913825697)
-				.aerodynamics(1.0, 0.048051098, 1.989120709)
-				.aerodynamics(1.2, -0.073846670, 1.970916577)
-				.aerodynamics(2.0, 0.387844953, 1.783745978)
-				.aerodynamics(3.0, 0.499185356, 1.634371956)
+				.aerodynamics(0.8, 0.496639644, 1.913825697)
+				.aerodynamics(1.0, 0.496639644, 1.989120709)
+				.aerodynamics(1.2, 0.496639644, 1.970916577)
+				.aerodynamics(2.0, 0.496639644, 1.783745978)
+				.aerodynamics(3.0, 0.497943848, 1.634371956)
 				.simulation("Simulation 1", 0.076401428, 0.452827035, -0.000029205, 0.000000000, 281.866439856)
 				.build());
 
@@ -726,6 +726,10 @@ public class ExampleFilesTest extends BaseTestCase {
 			SimulationMetrics preflightMetrics = describePreflightMetrics(simulation);
 			pinSimulationRandomness(simulation);
 			try {
+				// Warning expectations must not depend on the random seed generated when
+				// the simulation options are constructed.
+				simulation.getOptions().setRandomSeed(SIMULATION_RANDOM_SEED);
+				simulation.getOptions().setRandomSeedFixed(true);
 				simulation.simulate();
 			} catch (Exception e) {
 				fail("Simulation failed for " + orkFile + " (" + simulation.getName() + "): " + e.getMessage(), e);

@@ -1,0 +1,355 @@
+package info.openrocket.swing.gui.figure3d.scene.properties;
+
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
+import org.joml.Vector3f;
+
+/**
+ * Visual-effects settings for figure3d.
+ *
+ * Includes particles, motion blur, helper overlays, and related tuning values.
+ */
+public class VisualEffectsSettings {
+	public static final boolean DEFAULT_MOTION_BLUR_ENABLED = false;
+	public static final float DEFAULT_MOTION_BLUR_FACTOR = 5.0f;
+	public static final boolean DEFAULT_ORIGIN_AXES_VISIBLE = false;
+	public static final boolean DEFAULT_LIGHT_VISUALIZERS_VISIBLE = false;
+	public static final boolean DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE = false;
+	public static final boolean DEFAULT_CARETS_VISIBLE = true;
+	public static final boolean DEFAULT_ROTATE_ROCKET_ON_DRAG = true;
+	public static final float DEFAULT_DRAG_ROTATION_SENSITIVITY = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
+	public static final boolean DEFAULT_CARET_SCALE_WITH_VIEW = false;
+	public static final float DEFAULT_AMBIENT_LIGHT_FACTOR = 0.1f;
+	public static final boolean DEFAULT_PARTICLE_EFFECTS_ENABLED = true;
+	public static final boolean DEFAULT_STATIC_PARTICLES = true;
+	public static final float DEFAULT_PARTICLE_TIME = 10.0f;
+	public static final boolean DEFAULT_SPARK_PARTICLES_ENABLED = true;
+	public static final boolean DEFAULT_SMOKE_PARTICLES_ENABLED = true;
+	public static final boolean DEFAULT_FLAME_PARTICLES_ENABLED = true;
+	public static final float DEFAULT_SMOKE_RED = 0.9f;
+	public static final float DEFAULT_SMOKE_GREEN = 0.9f;
+	public static final float DEFAULT_SMOKE_BLUE = 0.9f;
+	public static final float DEFAULT_FLAME_RED = 1.0f;
+	public static final float DEFAULT_FLAME_GREEN = 0.4f;
+	public static final float DEFAULT_FLAME_BLUE = 0.2f;
+	public static final float DEFAULT_SMOKE_OPACITY = 1.0f;
+	public static final float DEFAULT_EXHAUST_SCALE = 1.0f;
+	public static final float DEFAULT_FLAME_ASPECT_RATIO = 1.0f;
+	public static final float DEFAULT_SPARK_CONCENTRATION = 1.0f;
+	public static final float DEFAULT_SPARK_WEIGHT = 0.0f;
+	public static final float DEFAULT_PARTICLE_LENGTH_SCALE = 1.0f;
+	public static final float DEFAULT_SMOKE_LENGTH_SCALE = 1.0f;
+	public static final float DEFAULT_FLAME_EXPOSURE_SCALE = 0.1f;
+	public static final float DEFAULT_SPARK_LENGTH_SCALE = 1.0f;
+	public static final float DEFAULT_SPARK_SPREAD_SCALE = 1.0f;
+
+	// Motion blur settings
+	private boolean motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
+	private float motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;
+
+	// Display elements
+	private boolean originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
+	private boolean lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+	private boolean cameraPointOfInterestVisible = DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE;
+	private boolean caretsVisible = DEFAULT_CARETS_VISIBLE;
+	private boolean rotateRocketOnDrag = DEFAULT_ROTATE_ROCKET_ON_DRAG;
+	private float dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;
+	private boolean caretScaleWithView = DEFAULT_CARET_SCALE_WITH_VIEW;
+	private float ambientLightFactor = DEFAULT_AMBIENT_LIGHT_FACTOR;
+
+	// Global particle settings
+	private boolean particleEffectsEnabled = DEFAULT_PARTICLE_EFFECTS_ENABLED;
+	private boolean staticParticles = DEFAULT_STATIC_PARTICLES;
+	private float particleTime = DEFAULT_PARTICLE_TIME;
+
+	// Individual particle type settings
+	private boolean sparkParticlesEnabled = DEFAULT_SPARK_PARTICLES_ENABLED;
+	private boolean smokeParticlesEnabled = DEFAULT_SMOKE_PARTICLES_ENABLED;
+	private boolean flameParticlesEnabled = DEFAULT_FLAME_PARTICLES_ENABLED;
+	private Vector3f smokeColor = createDefaultSmokeColor();
+	private Vector3f flameColor = createDefaultFlameColor();
+	private float smokeOpacity = DEFAULT_SMOKE_OPACITY;
+	private float exhaustScale = DEFAULT_EXHAUST_SCALE;
+	private float flameAspectRatio = DEFAULT_FLAME_ASPECT_RATIO;
+	private float sparkConcentration = DEFAULT_SPARK_CONCENTRATION;
+	private float sparkWeight = DEFAULT_SPARK_WEIGHT;
+	private float particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
+	private float smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
+	private float flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
+	private float sparkLengthScale = DEFAULT_SPARK_LENGTH_SCALE;
+	private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
+
+	public boolean isMotionBlurEnabled() {
+		return motionBlurEnabled;
+	}
+
+	public void setMotionBlurEnabled(boolean motionBlurEnabled) {
+		this.motionBlurEnabled = motionBlurEnabled;
+	}
+
+	public float getMotionBlurFactor() {
+		return motionBlurFactor;
+	}
+
+	public void setMotionBlurFactor(float motionBlurFactor) {
+		this.motionBlurFactor = motionBlurFactor;
+	}
+
+	public boolean isOriginAxesVisible() {
+		return originAxesVisible;
+	}
+
+	public void setOriginAxesVisible(boolean originAxesVisible) {
+		this.originAxesVisible = originAxesVisible;
+	}
+
+	public boolean areLightVisualizersVisible() {
+		return lightVisualizersVisible;
+	}
+
+	public void setLightVisualizersVisible(boolean lightVisualizersVisible) {
+		this.lightVisualizersVisible = lightVisualizersVisible;
+	}
+
+	public boolean isCameraPointOfInterestVisible() {
+		return cameraPointOfInterestVisible;
+	}
+
+	public void setCameraPointOfInterestVisible(boolean cameraPointOfInterestVisible) {
+		this.cameraPointOfInterestVisible = cameraPointOfInterestVisible;
+	}
+
+	public boolean areCaretsVisible() {
+		return caretsVisible;
+	}
+
+	public void setCaretsVisible(boolean caretsVisible) {
+		this.caretsVisible = caretsVisible;
+	}
+
+	public boolean isRotateRocketOnDrag() {
+		return rotateRocketOnDrag;
+	}
+
+	public void setRotateRocketOnDrag(boolean rotateRocketOnDrag) {
+		this.rotateRocketOnDrag = rotateRocketOnDrag;
+	}
+
+	public float getDragRotationSensitivity() {
+		return dragRotationSensitivity;
+	}
+
+	public void setDragRotationSensitivity(float dragRotationSensitivity) {
+		this.dragRotationSensitivity = Math.max(0.05f, dragRotationSensitivity);
+	}
+
+	public boolean isCaretScaleWithView() {
+		return caretScaleWithView;
+	}
+
+	public void setCaretScaleWithView(boolean caretScaleWithView) {
+		this.caretScaleWithView = caretScaleWithView;
+	}
+
+	public float getAmbientLightFactor() {
+		return ambientLightFactor;
+	}
+
+	public void setAmbientLightFactor(float ambientLightFactor) {
+		this.ambientLightFactor = Math.max(0.0f, ambientLightFactor);
+	}
+
+	public boolean areParticleEffectsEnabled() {
+		return particleEffectsEnabled;
+	}
+
+	public void setParticleEffectsEnabled(boolean particleEffectsEnabled) {
+		this.particleEffectsEnabled = particleEffectsEnabled;
+	}
+
+	public boolean areStaticParticles() {
+		return staticParticles;
+	}
+
+	public void setStaticParticles(boolean staticParticles) {
+		this.staticParticles = staticParticles;
+	}
+
+	public float getParticleTime() {
+		return particleTime;
+	}
+
+	public void setParticleTime(float particleTime) {
+		this.particleTime = particleTime;
+	}
+
+	public boolean areSparkParticlesEnabled() {
+		return sparkParticlesEnabled;
+	}
+
+	public void setSparkParticlesEnabled(boolean sparkParticlesEnabled) {
+		this.sparkParticlesEnabled = sparkParticlesEnabled;
+	}
+
+	public boolean areSmokeParticlesEnabled() {
+		return smokeParticlesEnabled;
+	}
+
+	public void setSmokeParticlesEnabled(boolean smokeParticlesEnabled) {
+		this.smokeParticlesEnabled = smokeParticlesEnabled;
+	}
+
+	public boolean areFlameParticlesEnabled() {
+		return flameParticlesEnabled;
+	}
+
+	public void setFlameParticlesEnabled(boolean flameParticlesEnabled) {
+		this.flameParticlesEnabled = flameParticlesEnabled;
+	}
+
+	/** @return a defensive copy of the linear RGB smoke colour */
+	public Vector3f getSmokeColor() {
+		return new Vector3f(smokeColor);
+	}
+
+	/** Copies the supplied linear RGB smoke colour. */
+	public void setSmokeColor(Vector3f smokeColor) {
+		if (smokeColor == null) {
+			throw new IllegalArgumentException("smokeColor must not be null");
+		}
+		this.smokeColor = new Vector3f(smokeColor);
+	}
+
+	/** @return a defensive copy of the linear RGB flame colour */
+	public Vector3f getFlameColor() {
+		return new Vector3f(flameColor);
+	}
+
+	/** Copies the supplied linear RGB flame colour. */
+	public void setFlameColor(Vector3f flameColor) {
+		if (flameColor == null) {
+			throw new IllegalArgumentException("flameColor must not be null");
+		}
+		this.flameColor = new Vector3f(flameColor);
+	}
+
+	public float getSmokeOpacity() {
+		return smokeOpacity;
+	}
+
+	public void setSmokeOpacity(float smokeOpacity) {
+		this.smokeOpacity = MathUtil.clamp(smokeOpacity, 0.0f, 1.0f);
+	}
+
+	public float getExhaustScale() {
+		return exhaustScale;
+	}
+
+	public void setExhaustScale(float exhaustScale) {
+		this.exhaustScale = Math.max(0.0f, exhaustScale);
+	}
+
+	public float getFlameAspectRatio() {
+		return flameAspectRatio;
+	}
+
+	public void setFlameAspectRatio(float flameAspectRatio) {
+		this.flameAspectRatio = Math.max(0.0f, flameAspectRatio);
+	}
+
+	public float getSparkConcentration() {
+		return sparkConcentration;
+	}
+
+	public void setSparkConcentration(float sparkConcentration) {
+		this.sparkConcentration = Math.max(0.0f, sparkConcentration);
+	}
+
+	public float getSparkWeight() {
+		return sparkWeight;
+	}
+
+	public void setSparkWeight(float sparkWeight) {
+		this.sparkWeight = Math.max(0.0f, sparkWeight);
+	}
+
+	public float getParticleLengthScale() {
+		return particleLengthScale;
+	}
+
+	public void setParticleLengthScale(float particleLengthScale) {
+		this.particleLengthScale = Math.max(0.0f, particleLengthScale);
+	}
+
+	public float getSmokeLengthScale() {
+		return smokeLengthScale;
+	}
+
+	public void setSmokeLengthScale(float smokeLengthScale) {
+		this.smokeLengthScale = Math.max(0.0f, smokeLengthScale);
+	}
+
+	public float getFlameExposureScale() {
+		return flameExposureScale;
+	}
+
+	public void setFlameExposureScale(float flameExposureScale) {
+		this.flameExposureScale = Math.max(0.0f, flameExposureScale);
+	}
+
+	public float getSparkLengthScale() {
+		return sparkLengthScale;
+	}
+
+	public void setSparkLengthScale(float sparkLengthScale) {
+		this.sparkLengthScale = Math.max(0.0f, sparkLengthScale);
+	}
+
+	public float getSparkSpreadScale() {
+		return sparkSpreadScale;
+	}
+
+	public void setSparkSpreadScale(float sparkSpreadScale) {
+		this.sparkSpreadScale = Math.max(0.0f, sparkSpreadScale);
+	}
+
+	/** Restores the built-in defaults. */
+	public void resetToDefaults() {
+		motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
+		motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;
+		originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
+		lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+		cameraPointOfInterestVisible = DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE;
+		caretsVisible = DEFAULT_CARETS_VISIBLE;
+		rotateRocketOnDrag = DEFAULT_ROTATE_ROCKET_ON_DRAG;
+		dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;
+		caretScaleWithView = DEFAULT_CARET_SCALE_WITH_VIEW;
+		ambientLightFactor = DEFAULT_AMBIENT_LIGHT_FACTOR;
+		particleEffectsEnabled = DEFAULT_PARTICLE_EFFECTS_ENABLED;
+		staticParticles = DEFAULT_STATIC_PARTICLES;
+		particleTime = DEFAULT_PARTICLE_TIME;
+		sparkParticlesEnabled = DEFAULT_SPARK_PARTICLES_ENABLED;
+		smokeParticlesEnabled = DEFAULT_SMOKE_PARTICLES_ENABLED;
+		flameParticlesEnabled = DEFAULT_FLAME_PARTICLES_ENABLED;
+		smokeColor = createDefaultSmokeColor();
+		flameColor = createDefaultFlameColor();
+		smokeOpacity = DEFAULT_SMOKE_OPACITY;
+		exhaustScale = DEFAULT_EXHAUST_SCALE;
+		flameAspectRatio = DEFAULT_FLAME_ASPECT_RATIO;
+		sparkConcentration = DEFAULT_SPARK_CONCENTRATION;
+		sparkWeight = DEFAULT_SPARK_WEIGHT;
+		particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
+		smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
+		flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
+		sparkLengthScale = DEFAULT_SPARK_LENGTH_SCALE;
+		sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
+	}
+
+	private static Vector3f createDefaultSmokeColor() {
+		return new Vector3f(DEFAULT_SMOKE_RED, DEFAULT_SMOKE_GREEN, DEFAULT_SMOKE_BLUE);
+	}
+
+	private static Vector3f createDefaultFlameColor() {
+		return new Vector3f(DEFAULT_FLAME_RED, DEFAULT_FLAME_GREEN, DEFAULT_FLAME_BLUE);
+	}
+}

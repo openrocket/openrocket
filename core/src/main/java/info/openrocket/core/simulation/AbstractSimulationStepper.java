@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -59,6 +61,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.flightConditions = SimulationListenerHelper.firePreFlightConditions(
 				status);
 		if (store.flightConditions != null) {
+			setThrustingNozzleExitAreas(status, store.flightConditions);
 			// Compute the store values
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
@@ -115,6 +118,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			store.lateralPitchRate = MathUtil.hypot(rot.getX(), rot.getY());
 		}
 
+		// Make the instantaneous propulsion state available to post-flight-condition
+		// listeners and, subsequently, to the aerodynamic drag calculator.
+		setThrustingNozzleExitAreas(status, store.flightConditions);
+
 		// Call post listeners
 		FlightConditions c = SimulationListenerHelper.firePostFlightConditions(
 				status, store.flightConditions);
@@ -124,6 +131,28 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
 		}
+		setThrustingNozzleExitAreas(status, store.flightConditions);
+	}
+
+	/**
+	 * Populate the first-order powered base-drag correction described in the
+	 * technical documentation. A zero nozzle exit diameter means that the geometry
+	 * is unknown and leaves the legacy base-drag calculation unchanged.
+	 */
+	private static void setThrustingNozzleExitAreas(SimulationStatus status, FlightConditions conditions) {
+		Map<ComponentAssembly, Double> areasByAssembly = new HashMap<>();
+		for (MotorClusterState motorState : status.getActiveMotors()) {
+			double nozzleExitDiameter = motorState.getNozzleExitDiameter();
+			if (!motorState.isThrusting() || nozzleExitDiameter <= 0) {
+				continue;
+			}
+
+			double nozzleExitRadius = nozzleExitDiameter / 2;
+			double area = motorState.getMotorCount() * Math.PI * MathUtil.pow2(nozzleExitRadius);
+			ComponentAssembly assembly = motorState.getMount().getAssembly();
+			areasByAssembly.merge(assembly, area, Double::sum);
+		}
+		conditions.setThrustingNozzleExitAreas(areasByAssembly);
 	}
 
 	/**

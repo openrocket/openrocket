@@ -602,6 +602,187 @@ public class BarrowmanCalculatorTest {
 	}
 
 	/**
+	 * Verify that motor exhaust excludes only its nozzle exit area from body-base drag.
+	 * Fin trailing-edge base drag is a separate contribution and must remain unchanged.
+	 */
+	@Test
+	public void testPoweredBaseDragSubtractsThrustingNozzleExitArea() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube bodyTube = (BodyTube) rocket.getChild(0).getChild(1);
+		FinSet finSet = (FinSet) bodyTube.getChild(0);
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(configuration);
+		conditions.setMach(0.5);
+
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		WarningSet warnings = new WarningSet();
+		Map<RocketComponent, AerodynamicForces> coastingForces =
+				calculator.getForceAnalysis(configuration, conditions, warnings);
+
+		double bodyBaseArea = Math.PI * MathUtil.pow2(bodyTube.getAftRadius());
+		double nozzleExitArea = Math.PI * MathUtil.pow2(0.010 / 2);
+		double exposedAreaFraction = (bodyBaseArea - nozzleExitArea) / bodyBaseArea;
+		double coastingBodyBaseCD = coastingForces.get(bodyTube).getBaseCD();
+		double coastingFinBaseCD = coastingForces.get(finSet).getBaseCD();
+
+		conditions.setThrustingNozzleExitAreas(Map.of(bodyTube.getAssembly(), nozzleExitArea));
+		Map<RocketComponent, AerodynamicForces> poweredForces =
+				calculator.getForceAnalysis(configuration, conditions, warnings);
+
+		assertEquals(coastingBodyBaseCD * exposedAreaFraction,
+				poweredForces.get(bodyTube).getBaseCD(), EPSILON,
+				"Powered body-base CD should use only the base area outside the thrusting motor");
+		assertEquals(coastingFinBaseCD, poweredForces.get(finSet).getBaseCD(), EPSILON,
+				"Motor exhaust must not alter fin trailing-edge base drag");
+		assertEquals(coastingForces.get(rocket).getBaseCD() - coastingBodyBaseCD * (1 - exposedAreaFraction),
+				poweredForces.get(rocket).getBaseCD(), EPSILON,
+				"Rocket base CD should contain the documented powered-area correction");
+	}
+
+	/**
+	 * An invalid or unusually large nozzle exit area must never create negative
+	 * body-base drag.
+	 */
+	@Test
+	public void testPoweredBaseDragClampsExposedBodyAreaToZero() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube bodyTube = (BodyTube) rocket.getChild(0).getChild(1);
+		FinSet finSet = (FinSet) bodyTube.getChild(0);
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(configuration);
+		conditions.setThrustingNozzleExitAreas(Map.of(bodyTube.getAssembly(),
+				2 * Math.PI * MathUtil.pow2(bodyTube.getAftRadius())));
+
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		Map<RocketComponent, AerodynamicForces> forceMap =
+				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
+
+		assertEquals(0, forceMap.get(bodyTube).getBaseCD(), EPSILON,
+				"Exposed body-base area should be clamped to zero");
+		assertTrue(forceMap.get(finSet).getBaseCD() > 0,
+				"Clamping body-base drag must not remove fin trailing-edge base drag");
+	}
+
+	/**
+	 * Motor exhaust acts at the terminal base; it must not suppress drag from an
+	 * upstream diameter discontinuity.
+	 */
+	@Test
+	public void testPoweredBaseDragLeavesInternalBodyStepUnchanged() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+		BodyTube forwardTube = new BodyTube(0.1, 0.02, 0.001);
+		BodyTube aftTube = new BodyTube(0.1, 0.01, 0.001);
+		stage.addChild(forwardTube);
+		stage.addChild(aftTube);
+
+		FlightConfiguration configuration = new FlightConfiguration(rocket);
+		FlightConditions conditions = new FlightConditions(configuration);
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		Map<RocketComponent, AerodynamicForces> coastingForces =
+				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
+
+		conditions.setThrustingNozzleExitAreas(Map.of(aftTube.getAssembly(),
+				Math.PI * MathUtil.pow2(aftTube.getAftRadius())));
+		Map<RocketComponent, AerodynamicForces> poweredForces =
+				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
+
+		assertTrue(coastingForces.get(forwardTube).getBaseCD() > 0,
+				"The diameter step should create base drag");
+		assertEquals(coastingForces.get(forwardTube).getBaseCD(), poweredForces.get(forwardTube).getBaseCD(), EPSILON,
+				"Powered correction must not alter an internal diameter step");
+		assertEquals(0, poweredForces.get(aftTube).getBaseCD(), EPSILON,
+				"A motor filling the terminal base should remove its body-base drag");
+	}
+
+	/**
+	 * Each core or booster assembly has an independent terminal wake.  Motors in one
+	 * wake must not scale the base drag of another, including when different motor
+	 * sizes burn at the same time.
+	 */
+	@Test
+	public void testPoweredBaseDragUsesIndependentWakeAreas() {
+		Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		configuration.setAllStages();
+
+		BodyTube coreBody = (BodyTube) rocket.getChild(1).getChild(0);
+		ParallelStage sideBoosters = (ParallelStage) coreBody.getChild(1);
+		BodyTube sideBody = (BodyTube) sideBoosters.getChild(1);
+		ComponentAssembly coreAssembly = coreBody.getAssembly();
+		ComponentAssembly sideAssembly = sideBody.getAssembly();
+		int sideBodyCount = configuration.getActiveInstances().count(sideBody);
+
+		FlightConditions conditions = new FlightConditions(configuration);
+		conditions.setMach(0.5);
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		WarningSet warnings = new WarningSet();
+		Map<RocketComponent, AerodynamicForces> coastingForces =
+				calculator.getForceAnalysis(configuration, conditions, warnings);
+
+		double coreBaseArea = Math.PI * MathUtil.pow2(coreBody.getAftRadius());
+		double sideBaseArea = sideBodyCount * Math.PI * MathUtil.pow2(sideBody.getAftRadius());
+		double coreNozzleExitArea = Math.PI * MathUtil.pow2(0.010 / 2);
+		double sideNozzleExitArea = sideBodyCount * Math.PI * MathUtil.pow2(0.008 / 2);
+		double coreAreaScale = (coreBaseArea - coreNozzleExitArea) / coreBaseArea;
+		double sideAreaScale = (sideBaseArea - sideNozzleExitArea) / sideBaseArea;
+
+		conditions.setThrustingNozzleExitAreas(Map.of(
+				coreAssembly, coreNozzleExitArea,
+				sideAssembly, sideNozzleExitArea));
+		Map<RocketComponent, AerodynamicForces> poweredForces =
+				calculator.getForceAnalysis(configuration, conditions, warnings);
+
+		double coastingCoreBaseCD = coastingForces.get(coreBody).getBaseCD();
+		double coastingSideBaseCD = coastingForces.get(sideBody).getBaseCD();
+		assertEquals(coastingCoreBaseCD * coreAreaScale, poweredForces.get(coreBody).getBaseCD(), EPSILON,
+				"The core motor should scale only the core wake");
+		assertEquals(coastingSideBaseCD * sideAreaScale, poweredForces.get(sideBody).getBaseCD(), EPSILON,
+				"The side motors should scale only the repeated booster wakes");
+		assertEquals(coastingForces.get(rocket).getBaseCD()
+					- coastingCoreBaseCD * (1 - coreAreaScale)
+					- sideBodyCount * coastingSideBaseCD * (1 - sideAreaScale),
+				poweredForces.get(rocket).getBaseCD(), EPSILON,
+				"Total base CD should contain each wake's independent correction");
+	}
+
+	/**
+	 * Motor area is clamped within its own wake instead of spilling into another
+	 * body's base-drag contribution.
+	 */
+	@Test
+	public void testPoweredBaseDragClampingDoesNotSpillAcrossWakes() {
+		Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		configuration.setAllStages();
+
+		BodyTube coreBody = (BodyTube) rocket.getChild(1).getChild(0);
+		ParallelStage sideBoosters = (ParallelStage) coreBody.getChild(1);
+		BodyTube sideBody = (BodyTube) sideBoosters.getChild(1);
+		int sideBodyCount = configuration.getActiveInstances().count(sideBody);
+
+		FlightConditions conditions = new FlightConditions(configuration);
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		Map<RocketComponent, AerodynamicForces> coastingForces =
+				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
+
+		double oversizedSideNozzleExitArea = 2 * sideBodyCount * Math.PI * MathUtil.pow2(sideBody.getAftRadius());
+		conditions.setThrustingNozzleExitAreas(Map.of(sideBody.getAssembly(), oversizedSideNozzleExitArea));
+		Map<RocketComponent, AerodynamicForces> poweredForces =
+				calculator.getForceAnalysis(configuration, conditions, new WarningSet());
+
+		assertEquals(coastingForces.get(coreBody).getBaseCD(), poweredForces.get(coreBody).getBaseCD(), EPSILON,
+				"Excess side-nozzle area must not reduce the core base drag");
+		assertEquals(0, poweredForces.get(sideBody).getBaseCD(), EPSILON,
+				"The side wake should clamp at zero exposed area");
+		assertEquals(coastingForces.get(rocket).getBaseCD()
+					- sideBodyCount * coastingForces.get(sideBody).getBaseCD(),
+				poweredForces.get(rocket).getBaseCD(), EPSILON,
+				"Only the side-body base contribution should be removed");
+	}
+
+	/**
 	 * Tests railbutton drag. Really is testing instancing more than actual drag
 	 * calculations, and making
 	 * sure we don't divide by 0 when not moving

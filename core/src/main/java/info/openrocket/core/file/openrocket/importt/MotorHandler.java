@@ -34,6 +34,7 @@ class MotorHandler extends AbstractElementHandler {
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
+	private double nozzleExitDiameter = 0.0;
 
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
@@ -136,6 +137,15 @@ class MotorHandler extends AbstractElementHandler {
 		return delay;
 	}
 
+	/**
+	 * Return the optional nozzle exit diameter stored with the motor selection.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when it was not specified
+	 */
+	public double getNozzleExitDiameter() {
+		return nozzleExitDiameter;
+	}
+
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -215,6 +225,17 @@ class MotorHandler extends AbstractElementHandler {
 					warnings.add(Warning.fromString("Illegal motor delay specified, ignoring."));
 				}
 
+			}
+
+		} else if (element.equals("nozzleexitdiameter")) {
+			try {
+				nozzleExitDiameter = Double.parseDouble(content.trim());
+			} catch (NumberFormatException ignore) {
+				nozzleExitDiameter = Double.NaN;
+			}
+			if (!Double.isFinite(nozzleExitDiameter) || nozzleExitDiameter < 0) {
+				warnings.add(Warning.fromString("Illegal nozzle exit diameter specified, assuming unknown."));
+				nozzleExitDiameter = 0.0;
 			}
 
 		} else {
