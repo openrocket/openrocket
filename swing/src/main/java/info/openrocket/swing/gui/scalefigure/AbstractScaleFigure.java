@@ -184,13 +184,22 @@ public abstract class AbstractScaleFigure extends JPanel {
 		if( 0 >= visibleBounds.getWidth() || 0 >= visibleBounds.getHeight())
 			return false;
 
-		updateSubjectDimensions();
-
-		final double width_scale = (visibleBounds.width - 2 * borderThickness_px.width) / (subjectBounds_m.getWidth() * baseScale);
-		final double height_scale = (visibleBounds.height - 2 * borderThickness_px.height) / (subjectBounds_m.getHeight() * baseScale);
-		final double newScale = Math.min(height_scale, width_scale);
+		final double newScale = getFitScale(visibleBounds);
 
 		return scaleTo(newScale, visibleBounds);
+	}
+
+	public double getFitScale(Dimension visibleBounds) {
+		if (visibleBounds == null || visibleBounds.width <= 0 || visibleBounds.height <= 0) {
+			return userScale;
+		}
+
+		updateSubjectDimensions();
+		final double widthScale = (visibleBounds.width - 2 * borderThickness_px.width) /
+				(subjectBounds_m.getWidth() * baseScale);
+		final double heightScale = (visibleBounds.height - 2 * borderThickness_px.height) /
+				(subjectBounds_m.getHeight() * baseScale);
+		return Math.min(heightScale, widthScale);
 	}
 	
     /**

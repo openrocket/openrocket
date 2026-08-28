@@ -427,6 +427,7 @@ public class RailButton extends ExternalComponent
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		super.loadFromPreset(preset);
+		
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			this.outerDiameter_m = preset.get(ComponentPreset.OUTER_DIAMETER);
 		}

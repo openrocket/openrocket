@@ -1,0 +1,236 @@
+name: Sign Windows installers
+
+on:
+  workflow_dispatch:
+
+# SignPath reads the workflow artifact and build metadata through GitHub.
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sign-windows-installers
+  cancel-in-progress: false
+
+jobs:
+  build-and-sign:
+    name: Build and sign Windows installers
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    env:
+      INSTALL4J_VERSION: '12.0.3'
+      INSTALL4J_DOWNLOAD_SHA256: 'b41678e50f0a68cfd22a10a05bae501ceff90ef7eb15e72a75ea19701159e403'
+      SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+      SIGNPATH_PROJECT_SLUG: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+      SIGNPATH_SIGNING_POLICY_SLUG: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+      SIGNPATH_ARTIFACT_CONFIGURATION_SLUG: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+
+    steps:
+      - name: Validate repository signing configuration
+        shell: pwsh
+        env:
+          INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        run: |
+          $requiredValues = @{
+            'INSTALL4J_LICENSE_KEY secret' = $env:INSTALL4J_LICENSE_KEY
+            'SIGNPATH_API_TOKEN secret' = $env:SIGNPATH_API_TOKEN
+            'SIGNPATH_ORGANIZATION_ID variable' = $env:SIGNPATH_ORGANIZATION_ID
+            'SIGNPATH_PROJECT_SLUG variable' = $env:SIGNPATH_PROJECT_SLUG
+            'SIGNPATH_SIGNING_POLICY_SLUG variable' = $env:SIGNPATH_SIGNING_POLICY_SLUG
+            'SIGNPATH_ARTIFACT_CONFIGURATION_SLUG variable' = $env:SIGNPATH_ARTIFACT_CONFIGURATION_SLUG
+          }
+
+          foreach ($entry in $requiredValues.GetEnumerator()) {
+            if ([string]::IsNullOrWhiteSpace($entry.Value)) {
+              throw "Missing GitHub repository $($entry.Key)."
+            }
+          }
+
+      - name: Checkout repository and submodules
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+          submodules: 'recursive'
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Read OpenRocket version
+        id: version
+        shell: pwsh
+        run: |
+          $match = Select-String -Path 'core/src/main/resources/build.properties' -Pattern '^build\.version=(.+)$'
+          if ($null -eq $match -or $match.Matches.Count -ne 1) {
+            throw 'Could not read a unique build.version from build.properties.'
+          }
+
+          $version = $match.Matches[0].Groups[1].Value.Trim()
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw 'build.version must not be empty.'
+          }
+
+          "value=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Build OpenRocket distribution JAR
+        shell: pwsh
+        run: .\gradlew.bat shadowJar --no-daemon
+
+      - name: Install install4j
+        id: install4j
+        shell: pwsh
+        run: |
+          $versionForUrl = $env:INSTALL4J_VERSION.Replace('.', '_')
+          $archive = Join-Path $env:RUNNER_TEMP "install4j-$($env:INSTALL4J_VERSION).zip"
+          $installDirectory = Join-Path $env:RUNNER_TEMP "install4j-$($env:INSTALL4J_VERSION)"
+          $downloadUrl = "https://download.ej-technologies.com/install4j/install4j_windows-x64_$versionForUrl.zip"
+
+          Invoke-WebRequest -Uri $downloadUrl -OutFile $archive
+          $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $env:INSTALL4J_DOWNLOAD_SHA256) {
+            throw "install4j archive checksum mismatch: expected $($env:INSTALL4J_DOWNLOAD_SHA256), got $actualHash."
+          }
+
+          Expand-Archive -Path $archive -DestinationPath $installDirectory
+          $compiler = Get-ChildItem -Path $installDirectory -Filter 'install4jc.exe' -File -Recurse |
+            Select-Object -First 1
+          if ($null -eq $compiler) {
+            throw 'install4jc.exe was not found in the downloaded install4j archive.'
+          }
+
+          "compiler=$($compiler.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Register install4j license
+        shell: pwsh
+        env:
+          INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
+          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
+        run: |
+          & $env:INSTALL4J_COMPILER -L $env:INSTALL4J_LICENSE_KEY
+          if ($LASTEXITCODE -ne 0) {
+            throw "install4j license registration failed with code $LASTEXITCODE."
+          }
+
+      - name: Build unsigned Windows installers
+        shell: pwsh
+        env:
+          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
+          OPENROCKET_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          $mediaDirectory = (New-Item -Path 'install4j/26.xx/media' -ItemType Directory -Force).FullName
+          $arguments = @(
+            '--disable-signing'
+            '--build-ids=60,248'
+            "--release=$env:OPENROCKET_VERSION"
+            "--destination=$mediaDirectory"
+            '-D'
+            "JAR_NAME=OpenRocket-$env:OPENROCKET_VERSION.jar"
+            'install4j/26.xx/openrocket-26.xx.install4j'
+          )
+
+          & $env:INSTALL4J_COMPILER @arguments
+          if ($LASTEXITCODE -ne 0) {
+            throw "install4j exited with code $LASTEXITCODE."
+          }
+
+          $installers = @(Get-ChildItem -Path 'install4j/26.xx/media' -Filter '*.exe' -File)
+          if ($installers.Count -ne 2) {
+            throw "Expected two Windows installers, found $($installers.Count)."
+          }
+
+          foreach ($installer in $installers) {
+            $versionInfo = $installer.VersionInfo
+            if ($versionInfo.CompanyName -ne 'OpenRocket' -or
+                $versionInfo.ProductName -ne 'OpenRocket' -or
+                $versionInfo.FileVersion -ne $env:OPENROCKET_VERSION -or
+                $versionInfo.ProductVersion -ne $env:OPENROCKET_VERSION -or
+                $versionInfo.LegalCopyright -ne 'OpenRocket' -or
+                $versionInfo.OriginalFilename -ne $installer.Name) {
+              throw "Unexpected PE metadata in $($installer.Name); it will not match the SignPath artifact configuration."
+            }
+          }
+
+      - name: Upload unsigned installers for SignPath
+        id: upload-unsigned-artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openrocket-windows-unsigned-${{ github.run_number }}
+          path: install4j/26.xx/media/*.exe
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Submit SignPath signing request
+        id: signpath
+        uses: signpath/github-action-submit-signing-request@c92b958760219087e01f8d67a1669ed57afe2627 # v2.3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ env.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ env.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ env.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+          github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 1800
+          output-artifact-directory: ${{ github.workspace }}/install4j/26.xx/signed-media
+          parameters: |
+            version: ${{ toJSON(steps.version.outputs.value) }}
+
+      - name: Verify Authenticode signatures
+        shell: pwsh
+        run: |
+          $installers = @(Get-ChildItem -Path 'install4j/26.xx/signed-media' -Filter '*.exe' -File -Recurse)
+          if ($installers.Count -ne 2) {
+            throw "Expected two signed Windows installers, found $($installers.Count)."
+          }
+
+          $expectedSignerThumbprint = $null
+
+          foreach ($installer in $installers) {
+            $signature = Get-AuthenticodeSignature -FilePath $installer.FullName
+            $status = $signature.Status.ToString()
+
+            if ($null -eq $signature.SignerCertificate) {
+              throw "$($installer.Name) has no Authenticode signer certificate."
+            }
+
+            Write-Host "$($installer.Name): status=$status, message=$($signature.StatusMessage)"
+
+            $hasExpectedTestTrustError =
+              $status -in @('NotTrusted', 'UnknownError') -and
+              $signature.StatusMessage -match 'root certificate.*not trusted'
+
+            if ($env:SIGNPATH_SIGNING_POLICY_SLUG -eq 'test-signing') {
+              if ($status -ne 'Valid' -and -not $hasExpectedTestTrustError) {
+                throw "Invalid test signature for $($installer.Name): status=$status; $($signature.StatusMessage)"
+              }
+            }
+            elseif ($status -ne 'Valid') {
+              throw "Invalid release signature for $($installer.Name): status=$status; $($signature.StatusMessage)"
+            }
+
+            $thumbprint = $signature.SignerCertificate.Thumbprint
+            if ($null -eq $expectedSignerThumbprint) {
+              $expectedSignerThumbprint = $thumbprint
+            }
+            elseif ($thumbprint -ne $expectedSignerThumbprint) {
+              throw "The installers were signed by different certificates."
+            }
+
+            Write-Host "$($installer.Name): signer=$($signature.SignerCertificate.Subject), thumbprint=$thumbprint"
+          }
+
+      - name: Upload signed Windows installers
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openrocket-windows-signed-${{ github.run_number }}
+          path: install4j/26.xx/signed-media/**/*.exe
+          compression-level: 0
+          if-no-files-found: error

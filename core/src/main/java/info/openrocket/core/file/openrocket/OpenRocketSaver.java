@@ -236,12 +236,7 @@ public class OpenRocketSaver extends RocketSaver {
 		/*
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 */
-		for (Simulation simulation : document.getSimulations()) {
-			if (simulation.getLandingDispersionSettings() != null) {
-				return FILE_VERSION_DIVISOR + 12;
-			}
-		}
-		return FILE_VERSION_DIVISOR + 11;
+		return FILE_VERSION_DIVISOR + 12;
 		
 	}
 	

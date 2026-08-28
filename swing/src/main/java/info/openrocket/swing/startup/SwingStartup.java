@@ -34,6 +34,7 @@ import info.openrocket.swing.gui.main.SwingExceptionHandler;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.logging.JvmCrashLog;
 import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.logging.PrintStreamToSLF4J;
 import info.openrocket.core.plugin.PluginModule;
@@ -77,6 +78,11 @@ public class SwingStartup {
 		// Initialize logging first so we can use it
 		initializeLogging();
 		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
+
+		// A fatal native error kills the process without reaching Java, leaving only the
+		// JVM's own crash report somewhere the user will never look. File it next to the
+		// rest of OpenRocket's data so it can actually be attached to a bug report.
+		JvmCrashLog.collectCrashLogs();
 
 		// Check JRE version
 		boolean ignoreJRE = System.getProperty("openrocket.ignore-jre") != null;
@@ -154,7 +160,7 @@ public class SwingStartup {
 			setPropertyIfNotSet("openrocket.debug.menu", "true");
 			setPropertyIfNotSet("openrocket.debug.mutexlocation", "true");
 			setPropertyIfNotSet("openrocket.debug.motordigest", "true");
-			setPropertyIfNotSet("jogl.debug", "all");
+			setPropertyIfNotSet("openrocket.gl.debug", "true");
 		}
 	}
 	
@@ -214,6 +220,9 @@ public class SwingStartup {
 			prefs.setUITheme(UITheme.Themes.valueOf(cmdLAF));
 		}
 		GUIUtil.applyLAF();
+
+		// Ask before either startup update checker is allowed to access the internet.
+		requestUpdateCheckPermission();
 		
 		guiModule.startLoader();
 		
@@ -268,6 +277,36 @@ public class SwingStartup {
 		String message = String.format(trans.get("SwingStartup.pluginMigrated"),
 				f.getName().replace(JarMigrationHelper.MIGRATION_SUFFIX, ""), f);
 		JOptionPane.showMessageDialog(null, message, "Plugin migrated", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Displays the one-time permission prompt for automatic software and motor-database update checks.
+	 * Closing the dialog is treated as declining permission, and the answer can later be changed in Preferences.
+	 */
+	private static void requestUpdateCheckPermission() {
+		ApplicationPreferences preferences = Application.getPreferences();
+		if (preferences.isUpdateCheckPermissionSet()) {
+			return;
+		}
+
+		Translator translator = Application.getTranslator();
+		Object[] options = {
+				translator.get("UpdateCheckConsent.btn.allow"),
+				translator.get("UpdateCheckConsent.btn.decline")
+		};
+		int choice = JOptionPane.showOptionDialog(
+				null,
+				translator.get("UpdateCheckConsent.message"),
+				translator.get("UpdateCheckConsent.title"),
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				options[0]);
+
+		boolean allowed = choice == JOptionPane.YES_OPTION;
+		preferences.setUpdateCheckPermission(allowed);
+		log.info("Automatic internet update checks {} by user", allowed ? "allowed" : "declined");
 	}
 
 	/**

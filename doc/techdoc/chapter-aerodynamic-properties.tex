@@ -740,6 +740,100 @@ p'''(2)  & =  0
 %
 where $f(M)$ is the function of equation~(\ref{eq-fin-CP-mach2}).
 
+The theoretical form underlying equation~(\ref{eq-fin-CP-mach2}) appears
+as equation~(63) of NACA Report 1307 and is explicitly restricted to
+$\AR\beta>1$.\footnote{W.~C. Pitts, J.~N. Nielsen, and G.~E. Kaattari,
+\textit{Lift and Center of Pressure of Wing-Body-Tail Combinations at
+Subsonic, Transonic, and Supersonic Speeds}, NACA-TR-1307, 1957,
+\url{https://ntrs.nasa.gov/citations/19930091008}.}  The report notes that
+for $\AR\beta<1$ tip effects produce negative lifting pressures on
+rearward parts of the wing; the resulting CP is planform-dependent and
+requires a different low-aspect-ratio treatment.  Extrapolating
+equation~(\ref{eq-fin-CP-mach2}) into that range also crosses its pole at
+$\AR\beta=0.5$.
+
+OpenRocket therefore uses the source equation only at and above its
+applicability boundary.  In the absence of a generic low-aspect-ratio
+correlation for every supported fin planform, define $x=\AR\beta$ and
+denote the right-hand side of equation~(\ref{eq-fin-CP-mach2}) by $f(x)$.
+
+\begin{equation}
+x_0=\frac{0.67-0.25}{1-2(0.25)}=0.84,
+\end{equation}
+
+the point at which equation~(\ref{eq-fin-CP-mach2}) intersects the
+quarter chord.  For $x\leq x_0$ the fallback position is $q_0=0.25$.
+For $x_0<x<1$, a cubic Hermite bridge joins that position with zero
+gradient to the value and gradient of $f(x)$ at $x=1$.  With
+$u=(x-x_0)/(1-x_0)$ and the Hermite basis functions
+
+\begin{equation}
+h_{00}(u)=2u^3-3u^2+1,\quad
+h_{01}(u)=-2u^3+3u^2,\quad
+h_{11}(u)=u^3-u^2,
+\end{equation}
+
+the regularized supersonic curve is
+
+\begin{equation}
+g(x)=
+\begin{cases}
+q_0, & x\leq x_0,\\
+h_{00}(u)q_0+h_{01}(u)f(1)
+ +(1-x_0)h_{11}(u)f'(1), & x_0<x<1,\\
+f(x), & x\geq1.
+\end{cases}
+\end{equation}
+
+This bridge is a bounded continuity fallback, not an empirical prediction
+of low-aspect-ratio fin CP.  It prevents the singularity while making the
+unsupported part of the model explicit.
+
+The transonic interpolation uses $g$ for its Mach-2 endpoint.  Let
+
+\begin{equation}
+t=\frac{M-0.5}{1.5},\qquad
+x_2=\sqrt{3}\AR,\qquad
+\Delta=g(x_2)-q_0,\qquad
+s=x_2g'(x_2).
+\end{equation}
+
+Here $s$ is the endpoint slope in the normalized coordinate $t$, because
+
+\begin{equation}
+1.5\left.\frac{dx}{dM}\right|_{M=2}=x_2.
+\end{equation}
+
+Evaluating the original interpolation constraints directly gives
+
+\begin{align}
+p(t)=q_0
+ &+(10\Delta-6s)t^2+(-20\Delta+14s)t^3 \notag\\
+ &+(15\Delta-11s)t^4+(3s-4\Delta)t^5.
+\end{align}
+
+For ordinary fins this is the same fifth-order interpolation as before,
+apart from eliminating rounding in the precomputed coefficients.  At low
+aspect ratios, however, its first nonzero coefficient can become negative.  If
+$k=s/\Delta>5/3$, the curve initially moves forward even though both
+endpoint positions and slopes move aft.  The limiting monotone polynomial
+at $k=5/3$ is
+
+\begin{equation}
+B(t)=\frac{10}{3}t^3-\frac{10}{3}t^4+t^5.
+\end{equation}
+
+For $k>5/3$, OpenRocket uses the shape-preserving continuation
+
+\begin{equation}
+p(t)=q_0+\Delta\,[B(t)]^{k/(5/3)}.
+\end{equation}
+
+It equals the fifth-order curve at the boundary, remains monotone, and
+matches both the position and first derivative of $g$ at Mach 2.  Thus no
+aspect-ratio substitution or output clamp is needed, and the calculation
+remains finite and continuous through the former pole.
+
 
 
 The method presented here can be used to estimate the CP location of
@@ -2107,12 +2201,48 @@ empirical formula~\cite[p.~23]{fleeman}
 The base drag is disrupted when a motor exhausts into the area.  A
 full examination of the process would need much more detailed
 information about the motor and would be unnecessarily complicated.  A
-reasonable approximation is achieved by subtracting the area of the
-thrusting motors from the base reference area~\cite[p.~23]{fleeman}.
-Thus, if the base is the same size as the motor itself, no base drag
-is generated.  On the other hand, if the base is large with only a
-small motor in the center, the base drag is approximately the same as
-when coasting.
+reasonable approximation is achieved by subtracting the nozzle exit
+area of thrusting motors from the exposed terminal body-base wake into which
+they exhaust~\cite[p.~23]{fleeman}.  OpenRocket treats the core and each
+parallel-stage or pod assembly as separate wakes.  For each wake $b$, it
+calculates the remaining area as
+%
+\begin{equation}
+A_{{\rm base,powered},b} = \max\left(0, A_{{\rm base},b} -
+  \sum_{i \in \mathcal{T}_b} N_i \pi \left(\frac{d_i}{2}\right)^2\right),
+\label{eq-powered-base-area}
+\end{equation}
+%
+where $A_{{\rm base},b}$ is the total projected terminal base area of
+wake $b$, and $\mathcal{T}_b$ contains the motor configurations that
+exhaust into that wake and are both active and currently thrusting.
+$N_i$ is the number of physical motors represented by configuration
+$i$, and $d_i$ is the user-supplied nozzle exit diameter. Motor data files
+do not provide nozzle-exit geometry, so a missing or zero diameter means
+that no powered base-drag correction is applied for that motor. The resulting
+terminal body-base contribution, expressed using the global reference area,
+is
+%
+\begin{equation}
+(C_{D_0})_{\rm base,powered} = \frac{1}{\Aref}
+  \sum_{b \in \mathcal{B}} A_{{\rm base,powered},b}
+  (C_{D\bullet})_{\rm base}.
+\label{eq-powered-base-drag}
+\end{equation}
+%
+where $\mathcal{B}$ is the set of exposed terminal body-base wakes.  A
+nozzle exit area is clamped within its own wake, so it cannot reduce the base
+drag of an unrelated core, booster, or pod.  The base area here is the
+projected area of the low-pressure wake bounded by the external body
+radius, not merely the annular material area of a thin tube wall.
+
+This correction is applied only to terminal body bases.  Base drag at
+internal body-radius reductions and fin trailing edges is calculated
+unchanged.  If no active motor is thrusting in a wake, its summation is
+zero and its coasting result is recovered. Thus, if the nozzle exits fill
+the terminal base, no body-base drag is generated. On the other hand, if
+the base is large relative to the nozzle exits, the base drag is approximately
+the same as when coasting.
 
 The equation presented above ignores the effect that the rear body
 slope angle has on the base pressure.  A boattail at the end of the
