@@ -7,6 +7,7 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.ModID;
 
 import info.openrocket.swing.gui.components.StyledLabel;
 
@@ -26,8 +27,13 @@ public class SaveDesignInfoPanel extends RocketConfig {
     private static final Translator trans = Application.getTranslator();
     private static final ApplicationPreferences preferences = Application.getPreferences();
 
+    /** Modification ID of the rocket when this panel was created; used to detect whether cancel needs to undo. */
+    private final ModID initialModID;
+
     public SaveDesignInfoPanel(OpenRocketDocument d, RocketComponent c, JDialog parent) {
         super(d, c, parent);
+
+        this.initialModID = d.getRocket().getModID();
 
         // (Optional) Fill in the design information for this file
         StyledLabel label = new StyledLabel(trans.get("SaveDesignInfoPanel.lbl.FillInInfo"), StyledLabel.Style.BOLD);
@@ -65,6 +71,11 @@ public class SaveDesignInfoPanel extends RocketConfig {
                 if (resultYesNo == JOptionPane.YES_OPTION) {
                     ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
                     disposeDialog();
+                    // Only undo if the user actually changed something, otherwise we would revert the edit
+                    // that the user made before opening this dialog.
+                    if (document.getRocket().getModID().compareTo(initialModID) != 0) {
+                        document.undo();
+                    }
                 }
             }
         });

@@ -2202,6 +2202,11 @@ private static final Translator trans = Application.getTranslator();
 		dialog.setTitle(trans.get("BasicFrame.lbl.SaveRocketInfo"));
 		dialog.setModal(true);
 		dialog.setLocationRelativeTo(null);
+
+		// Mark the current state so that cancelling the dialog can revert the edits made in it.
+		// Must be done before setVisible(), since the dialog is modal and setVisible() blocks.
+		document.addUndoPosition(trans.get("BasicFrame.lbl.SaveRocketInfo"));
+
 		dialog.setVisible(true);
 	}
 
