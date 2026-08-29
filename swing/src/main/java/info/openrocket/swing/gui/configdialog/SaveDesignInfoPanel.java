@@ -83,9 +83,4 @@ public class SaveDesignInfoPanel extends RocketConfig {
 
         this.add(buttonPanel, "newline, spanx, growx");
     }
-
-    @Override
-    public void updateFields() {
-        // Do nothing
-    }
 }
