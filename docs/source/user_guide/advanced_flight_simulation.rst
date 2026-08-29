@@ -314,3 +314,324 @@ for your exported data.
 
    The Export data window.
 
+----
+
+Exporting the 3D flight path
+============================
+
+In addition to the CSV data export, OpenRocket can export the flight's path as a
+geographic track that can be opened in mapping tools such as Google Earth. This is done
+from the :guilabel:`3D Path` tab of the simulation edit dialog.
+
+OpenRocket does not need a GPS log for this. During a simulation it already calculates a
+latitude and longitude for every time step, starting from the launch site coordinates and
+following the rocket's horizontal motion. The exported track therefore reflects the wind
+drift, the selected geodetic model, and the drift of separated stages.
+
+Because the track is built from the launch coordinates, you must set a launch latitude and
+longitude on the :guilabel:`Launch conditions` tab first. If both are left at zero, the
+track is placed at latitude 0, longitude 0 (in the ocean south of Ghana), and the tab
+warns you before writing the file.
+
+Exporting a flight path
+-----------------------
+
+#. Run the simulation so that it has flight data.
+#. On the :guilabel:`Launch conditions` tab, set the launch site latitude and longitude.
+#. Open the simulation and select the :guilabel:`3D Path` tab.
+#. Choose an output format, adjust the options described below, and click
+   :guilabel:`Export`.
+#. Choose where to save the file. For KML, open the resulting file in Google Earth
+   (see `Viewing the track in Google Earth`_).
+
+.. figure:: /img/user_guide/advanced_flight_simulation/ThreeDPathExport.png
+   :width: 800 px
+   :align: center
+   :figclass: or-image-border
+   :alt: The 3D Path export tab.
+
+   The 3D Path export tab.
+
+Options
+-------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Option
+     - Description
+   * - Format
+     - The output format. The built-in choices are **KML (Google Earth)**, **Waypoint
+       CSV** and **GPX track**, followed by any custom templates you have installed.
+   * - Altitude / Distance units
+     - The units used for the altitude and distance values that appear in labels and in
+       the waypoint CSV. Coordinate altitudes in KML and GPX are always written in metres,
+       as those formats require.
+   * - Waypoints
+     - Which points of interest to mark: pad, liftoff, burnout, apogee, recovery
+       deployment, landing, maximum velocity, and maximum acceleration. Each recovery
+       device that deploys produces its own marker, labelled with the device name.
+   * - Include flight path line
+     - Include the airborne path, drawn at its true (above sea level) altitude.
+   * - Include ground track
+     - Include the path projected straight down onto the ground.
+   * - Keep every Nth point
+     - Thins the path line by keeping only every Nth simulation step. Use this to reduce
+       the file size of long flights. The waypoint markers are not affected.
+
+The selected format and options are remembered for the next export.
+
+Output formats
+--------------
+
+OpenRocket includes three built-in formats. Each one is produced from a template, so you
+can also add your own (see `Creating your own templates`_).
+
+KML (Google Earth)
+~~~~~~~~~~~~~~~~~~~
+
+KML is the format used by Google Earth. The exported document contains one folder per
+stage, and within each: the airborne flight path drawn at its true altitude, the ground
+track projected onto the terrain, and a placemark for every selected waypoint. This is the
+best choice for viewing the flight in 3D. See `Viewing the track in Google Earth`_ for how
+to open it.
+
+Waypoint CSV
+~~~~~~~~~~~~
+
+The waypoint CSV lists only the selected points of interest, one per row, in the column
+layout used by Google My Maps: altitude, latitude, longitude, label, symbol, colour, label
+colour, and a descriptive name. Unlike KML it does not include the continuous path, which
+makes it a compact way to plot just the pad, apogee, recovery, and landing points on a map.
+
+To plot it in Google My Maps:
+
+#. Open `mymaps.google.com <https://mymaps.google.com>`_ and click
+   :guilabel:`Create a new map`.
+#. Under the map's layer click :guilabel:`Import`, and select the exported ``.csv`` file.
+#. When prompted, choose the ``latitude`` and ``longitude`` columns to position the
+   markers, and the ``name`` column for their titles.
+
+.. figure:: /img/user_guide/advanced_flight_simulation/ThreeDPathWaypointsCSV.png
+   :width: 800 px
+   :align: center
+   :figclass: or-image-border
+   :alt: Waypoints imported into Google My Maps.
+
+   Waypoints imported into Google My Maps.
+
+GPX track
+~~~~~~~~~
+
+GPX is a widely supported format for GPS tracks and waypoints. The exported file contains a
+waypoint for each selected point of interest and a track for each stage. Use it to load the
+flight into GPS software and other mapping tools that accept GPX; Google Earth can open GPX
+files as well.
+
+Viewing the track in Google Earth
+---------------------------------
+
+The KML file can be opened in either the web or the desktop version of Google Earth. Since
+the Google Earth Pro desktop application is being retired after 25 June 2027, the web
+version is described first.
+
+Google Earth for web
+~~~~~~~~~~~~~~~~~~~~~~
+
+Google Earth for web runs in a browser at `earth.google.com <https://earth.google.com>`_
+and needs no installation.
+
+#. Open `earth.google.com <https://earth.google.com>`_ and, if prompted, choose to
+   :guilabel:`Launch Earth`.
+#. In the left toolbar, click :guilabel:`Projects` (the bookmark icon).
+#. Click :guilabel:`New project` (or :guilabel:`Open`), then choose
+   :guilabel:`Import KML file from computer`.
+#. Select the ``.kml`` file you exported from OpenRocket.
+
+Google Earth flies to the launch site and shows the flight path, ground track, and
+waypoints. Click a waypoint to see its label, and use the project panel on the left to
+turn individual parts of the track on and off.
+
+.. figure:: /img/user_guide/advanced_flight_simulation/ThreeDPathGoogleEarthWeb.png
+   :width: 800 px
+   :align: center
+   :figclass: or-image-border
+   :alt: A flight path shown in Google Earth for web.
+
+   A flight path shown in Google Earth for web.
+
+Google Earth Pro (desktop)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you still have the Google Earth Pro desktop application installed, you can open the file
+directly:
+
+#. Double-click the exported ``.kml`` file, or in Google Earth Pro choose
+   :menuselection:`File --> Open` and select it.
+#. The track appears under :guilabel:`Places` in the left panel, where you can expand it to
+   toggle the flight path, ground track, and individual waypoints.
+
+Creating your own templates
+===========================
+
+Every output format is produced from a `Mustache <https://mustache.github.io/>`_
+template. The three built-in formats are templates that ship with OpenRocket, and you can
+add your own to produce a different layout, a different KML style, or an entirely
+different file format.
+
+Where templates go
+------------------
+
+Place template files in an ``ExportTemplates`` folder inside your OpenRocket user
+directory. Create the folder if it does not exist:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 80
+
+   * - Platform
+     - Folder
+   * - Windows
+     - ``%APPDATA%\OpenRocket\ExportTemplates``
+   * - macOS
+     - ``~/Library/Application Support/OpenRocket/ExportTemplates``
+   * - Linux
+     - ``~/.openrocket/ExportTemplates``
+
+Any file in that folder appears in the :guilabel:`Format` dropdown the next time you open
+the :guilabel:`3D Path` tab.
+
+Naming a template
+-----------------
+
+Name your file ``<name>.<ext>.mustache``. The middle part sets both the output file
+extension and how the text is escaped:
+
+- ``my-track.kml.mustache`` writes a ``.kml`` file with XML escaping.
+- ``club-waypoints.csv.mustache`` writes a ``.csv`` file with CSV quoting.
+- ``notes.txt.mustache`` writes a ``.txt`` file with no escaping.
+
+The ``<name>`` part is what shows in the dropdown.
+
+The data available to a template
+--------------------------------
+
+A template is filled from a model describing the flight. The top level holds summary
+information and a list of ``branches`` (one per stage). Each branch holds a list of
+``waypoints`` and a list of ``path`` points.
+
+Top level:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{title}}``
+     - The simulation name.
+   * - ``{{rocketName}}``
+     - The rocket name.
+   * - ``{{motor}}`` / ``{{configuration}}``
+     - The flight configuration description.
+   * - ``{{launchLatitude}}`` / ``{{launchLongitude}}``
+     - Launch site coordinates, in degrees.
+   * - ``{{launchAltitudeMeters}}``
+     - Launch site altitude above sea level, in metres.
+   * - ``{{altitudeUnit}}`` / ``{{distanceUnit}}``
+     - The selected unit labels, for example ``ft`` or ``m``.
+   * - ``{{maxAltitude}}`` / ``{{maxVelocity}}`` / ``{{maxAcceleration}}``
+     - The flight's peak values, formatted for display.
+   * - ``{{#includeFlightPath}}`` / ``{{#includeGroundTrack}}``
+     - Section tags that are true when that option is selected.
+   * - ``{{#branches}} ... {{/branches}}``
+     - Repeats once per stage.
+
+Inside ``{{#branches}}``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{name}}``
+     - The stage name.
+   * - ``{{#waypoints}} ... {{/waypoints}}``
+     - Repeats once per selected point of interest.
+   * - ``{{#path}} ... {{/path}}``
+     - Repeats once per (thinned) flight-path point.
+
+Inside ``{{#waypoints}}``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{type}}``
+     - A short key: ``pad``, ``liftoff``, ``burnout``, ``apogee``, ``recovery``,
+       ``landing``, ``maxvelocity`` or ``maxacceleration``.
+   * - ``{{label}}``
+     - The human-readable label, for example ``Apogee``. For a recovery deployment this is
+       the device name.
+   * - ``{{device}}``
+     - The recovery device name, or empty for other waypoints.
+   * - ``{{latitude}}`` / ``{{longitude}}``
+     - Coordinates in degrees, full precision.
+   * - ``{{latitudeStr}}`` / ``{{longitudeStr}}``
+     - The same coordinates rounded to six decimal places.
+   * - ``{{altitudeMslMeters}}``
+     - Altitude above sea level in metres, for use in coordinates.
+   * - ``{{altitude}}`` / ``{{altitudeMsl}}``
+     - Altitude above the pad, and above sea level, formatted in the selected unit.
+   * - ``{{distance}}``
+     - Horizontal distance from the pad, in the selected unit.
+   * - ``{{bearing}}``
+     - Compass bearing from the pad, in whole degrees.
+   * - ``{{time}}`` / ``{{timeStr}}``
+     - Time since launch, in seconds.
+
+Inside ``{{#path}}``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{latitude}}`` / ``{{longitude}}``
+     - Coordinates in degrees.
+   * - ``{{altitudeMslMeters}}``
+     - Altitude above sea level in metres.
+   * - ``{{altitude}}``
+     - Altitude above the pad, formatted in the selected unit.
+   * - ``{{time}}`` / ``{{timeStr}}``
+     - Time since launch, in seconds.
+
+Tokens from an outer level are still visible on an inner level, so inside
+``{{#waypoints}}`` you can still use ``{{rocketName}}`` or ``{{altitudeUnit}}``.
+
+.. note::
+
+   KML and GPX expect coordinates in the order **longitude, latitude, altitude**, and the
+   altitude in metres above sea level. Use ``{{longitude}}``, ``{{latitude}}`` and
+   ``{{altitudeMslMeters}}`` for those.
+
+Example
+-------
+
+The built-in waypoint CSV template is a good starting point. It writes a header row and
+then one row per waypoint:
+
+.. code-block:: none
+
+   "altitude({{altitudeUnit}})","latitude","longitude","label","symbol","color","label_color","name"
+   {{#branches}}{{#waypoints}}"{{altitude}}","{{latitudeStr}}","{{longitudeStr}}","{{type}}","pushpin","yellow","white","{{rocketName}} {{motor}} {{label}} - {{altitude}} {{altitudeUnit}} - {{distance}} {{distanceUnit}} @ {{bearing}} deg"
+   {{/waypoints}}{{/branches}}
+
+Saving that as ``club-waypoints.csv.mustache`` in the ``ExportTemplates`` folder makes it
+available as a format called *club-waypoints*.
+
