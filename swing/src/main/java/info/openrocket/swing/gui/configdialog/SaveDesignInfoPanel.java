@@ -7,6 +7,7 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.ModID;
 
 import info.openrocket.swing.gui.components.StyledLabel;
 
@@ -26,8 +27,13 @@ public class SaveDesignInfoPanel extends RocketConfig {
     private static final Translator trans = Application.getTranslator();
     private static final ApplicationPreferences preferences = Application.getPreferences();
 
+    /** State of the rocket when this panel was created, used to detect whether Cancel has anything to undo. */
+    private final ModID modIDAtOpen;
+
     public SaveDesignInfoPanel(OpenRocketDocument d, RocketComponent c, JDialog parent) {
         super(d, c, parent);
+
+        this.modIDAtOpen = d.getRocket().getModID();
 
         // (Optional) Fill in the design information for this file
         StyledLabel label = new StyledLabel(trans.get("SaveDesignInfoPanel.lbl.FillInInfo"), StyledLabel.Style.BOLD);
@@ -63,8 +69,8 @@ public class SaveDesignInfoPanel extends RocketConfig {
                 int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
                         trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (resultYesNo == JOptionPane.YES_OPTION) {
-                    ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
                     disposeDialog();
+                    undoChangesSince(document, modIDAtOpen);
                 }
             }
         });
@@ -82,5 +88,23 @@ public class SaveDesignInfoPanel extends RocketConfig {
         buttonPanel.add(okButton);
 
         this.add(buttonPanel, "newline, spanx, growx");
+    }
+
+    /**
+     * Discard the design info edits made in this dialog, restoring the state the rocket was in when the dialog
+     * was opened. The caller is expected to have added an undo position just before opening the dialog (see
+     * {@code BasicFrame.showSaveRocketInfoDialog()}), which is what that undo restores.
+     * <p>
+     * Nothing is undone when the rocket was not modified while the dialog was open: the document would then be in
+     * a clean state, and {@link OpenRocketDocument#undo()} would step back past the undo position and roll back
+     * whatever the user did <em>before</em> opening the dialog (see issue #2680).
+     *
+     * @param document      the document being edited
+     * @param modIDAtOpen   the rocket's modification ID at the time the dialog was opened
+     */
+    static void undoChangesSince(OpenRocketDocument document, ModID modIDAtOpen) {
+        if (document.getRocket().getModID() != modIDAtOpen) {
+            document.undo();
+        }
     }
 }
