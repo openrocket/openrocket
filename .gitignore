@@ -101,3 +101,7 @@ docs/build
 
 # Environment files
 **/.env
+
+# Vi/Vim
+*.swp
+*.swo
