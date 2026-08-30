@@ -54,6 +54,21 @@ public class MaterialDatabaseTest {
 		assertFalse(Databases.LINE_MATERIAL.isEmpty());
 	}
 
+	/**
+	 * Verify the exact number of built-in materials so accidental removals or duplicate additions
+	 * cannot silently reduce or expand the choices presented to users.
+	 */
+	@Test
+	void testDefaultMaterialCounts() {
+		assertEquals(32, Databases.BULK_MATERIAL.size());
+		assertEquals(8, Databases.SURFACE_MATERIAL.size());
+		assertEquals(42, Databases.LINE_MATERIAL.size());
+
+		int totalMaterialCount = Databases.BULK_MATERIAL.size() + Databases.SURFACE_MATERIAL.size()
+				+ Databases.LINE_MATERIAL.size();
+		assertEquals(82, totalMaterialCount);
+	}
+
 	@Test
 	void testFindMaterialByTypeAndName() {
 		Material aluminum = Databases.findMaterial(Material.Type.BULK, "Aluminum");

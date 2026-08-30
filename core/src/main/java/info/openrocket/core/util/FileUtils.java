@@ -41,6 +41,36 @@ public abstract class FileUtils {
 	}
 
 	/**
+	 * Reads a stream while rejecting content larger than {@code maxBytes}.
+	 *
+	 * @param is input stream
+	 * @param maxBytes maximum number of bytes to return
+	 * @return all bytes from the stream
+	 * @throws IOException if the stream exceeds the limit
+	 */
+	public static byte[] readBytes(InputStream is, int maxBytes) throws IOException {
+		if (maxBytes < 0) {
+			throw new IllegalArgumentException("Maximum byte count cannot be negative");
+		}
+
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(Math.min(1024, maxBytes));
+		byte[] buffer = new byte[8192];
+		int totalBytes = 0;
+		int bytesRead;
+		while ((bytesRead = is.read(buffer)) != -1) {
+			if (bytesRead == 0) {
+				continue;
+			}
+			if (bytesRead > maxBytes - totalBytes) {
+				throw new IOException("Input exceeds maximum size of " + maxBytes + " bytes");
+			}
+			bos.write(buffer, 0, bytesRead);
+			totalBytes += bytesRead;
+		}
+		return bos.toByteArray();
+	}
+
+	/**
 	 * Remove the extension from a file name, properly handling paths and edge cases.
 	 *
 	 * @param fileName the file name or path

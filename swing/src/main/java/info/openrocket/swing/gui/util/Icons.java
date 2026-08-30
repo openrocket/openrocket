@@ -352,6 +352,12 @@ public class Icons {
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
 					0x2d2dbd, "OR.icons.zoomFit"
 			));
+	public static final Icon PAN_VIEW = loadSvgIcon(
+			"pix/icons/lucide/move.svg",
+			"Pan view",
+			Map.of(
+					SVG_THEME_COLOR_RGB, "OR.colors.purple"
+			));
 
 	public static final Icon RULER = loadIcon(
 			"pix/icons/lucide/ruler-dimension-line.svg",
@@ -415,6 +421,13 @@ public class Icons {
 	public static final Icon RESET = loadSvgIcon(
 			"pix/icons/lucide/rotate-cw.svg",
 			"Reset");
+	public static final Icon SET_AS_DEFAULT = loadSvgIcon(
+			"pix/icons/lucide/bookmark-check.svg",
+			"Set as default",
+			Map.of(
+					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
+					0x2D2DBD, "OR.icons.tintColor"
+			));
 
 	public static final Icon NOT_FAVORITE = loadIcon(
 			"pix/icons/lucide/star-off.svg",

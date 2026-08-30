@@ -45,8 +45,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
-	private final double[] poly = new double[6];
-
 	private final double thickness;
 	private final double bodyRadius;
 	private final int finCount;
@@ -74,7 +72,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		this.leadingEdgeAngle = component.getLeadingEdgeAngle();
 		
 		calculateFinGeometry(component);
-		calculatePoly();
 		calculateInterferenceFinCount(component);
 	}
 	
@@ -149,13 +146,23 @@ public class FinSetCalc extends RocketComponentCalc {
 			break;
 		}
 				
-		// Body-fin interference effect
+		// Combined body-fin interference effect on the normal force
 		double r = bodyRadius;
 		double tau = r / (span + r);
-		if (Double.isNaN(tau) || Double.isInfinite(tau))
+		if (Double.isNaN(tau) || Double.isInfinite(tau)) {
 			tau = 0;
-		cna *= 1 + tau; // Classical Barrowman
-		//		cna *= pow2(1 + tau);	// Barrowman thesis (too optimistic??)
+		}
+		/*
+		 * TODO: Replace this scalar approximation with the complete fin/body
+		 * method from NACA Report 1307. Calculate fin-in-body and body-in-fin
+		 * CNa and CP separately (equations 13-34 and 58-71; charts 1-5 and
+		 * 10-16), then combine their moments. The report's two-panel,
+		 * constant-radius model must first be generalized and validated for
+		 * radial fin sets; preserve this approximation as the fallback outside
+		 * the full method's applicability range. See the technical documentation
+		 * subsection "Future complete NACA implementation" for the full roadmap.
+		 */
+		cna *= calculateBodyFinInterferenceFactor(tau, conditions.getMach());
 		//		logger.debug("Component cna = {}", cna);
 		
 		// TODO: LOW: check for fin tip mach cone interference
@@ -171,9 +178,9 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Without body-fin interference effect:
 		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 		//			conditions.getRefLength();
-		// With body-fin interference effect:
-		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle /
-				conditions.getRefLength());
+		// The body-in-fin lift does not act through the canted fin surface, so
+		// roll forcing retains only the classical fin-in-body correction.
+		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
 			forces.setCrollForce(forces.getCrollForce() * MathUtil.clamp(
@@ -223,7 +230,9 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * Pre-calculates the fin geometry values.
 	 */
 	protected void calculateFinGeometry(FinSet component) {
-		
+
+		geometryWarnings.clear();
+
 		span = component.getSpan();
 		finArea = component.getPlanformArea();
 		if (finArea < MathUtil.EPSILON) {
@@ -232,11 +241,10 @@ public class FinSetCalc extends RocketComponentCalc {
 		} else {
 			ar = 2 * pow2(span) / finArea;
 		}
-		
+
 		// Check geometry; don't consider points along fin root for this
 		// (doing so will cause spurious jagged fin warnings)
 		CoordinateIF[] points = component.getFinPoints();
-		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
 			if ((points[i].getY() > points[i - 1].getY() + 0.001) && down) {
@@ -415,6 +423,34 @@ public class FinSetCalc extends RocketComponentCalc {
 		K2 = new LinearInterpolator(x, k2);
 		K3 = new LinearInterpolator(x, k3);
 	}
+
+	/**
+	 * Calculate the combined fin-in-body and body-in-fin normal-force multiplier.
+	 *
+	 * <p>For slender configurations, equations 14 and 21 of NACA Report 1307
+	 * combine to {@code (1 + tau)^2}.  OpenRocket does not yet model the
+	 * supersonic Mach-cone geometry needed for the body contribution, so that
+	 * additional term is blended out over the existing transonic CNa interval.
+	 * The classical fin-in-body term remains at all Mach numbers.</p>
+	 *
+	 * @param tau body radius divided by the fin semispan measured from the rocket axis
+	 * @param mach flight Mach number
+	 * @return total body-fin interference multiplier
+	 * @see <a href="https://ntrs.nasa.gov/citations/19930091008">NACA Report 1307</a>
+	 */
+	static double calculateBodyFinInterferenceFactor(double tau, double mach) {
+		double finInBodyFactor = 1 + tau;
+		if (mach <= CNA_SUBSONIC) {
+			return pow2(finInBodyFactor);
+		}
+		if (mach >= CNA_SUPERSONIC) {
+			return finInBodyFactor;
+		}
+
+		double bodyInFinFactor = tau * finInBodyFactor;
+		double bodyContributionWeight = (CNA_SUPERSONIC - mach) / (CNA_SUPERSONIC - CNA_SUBSONIC);
+		return finInBodyFactor + bodyContributionWeight * bodyInFinFactor;
+	}
 	
 	protected double calculateFinCNa1(FlightConditions conditions) {
 		double mach = conditions.getMach();
@@ -444,7 +480,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		double sq = MathUtil.safeSqrt(1 + (1 - pow2(CNA_SUBSONIC)) * pow2(span * span / (finArea * cosGamma)));
 		subV = 2 * Math.PI * pow2(span) / ref / (1 + sq);
-		subD = 2 * mach * Math.PI * pow(span, 6) / (pow2(finArea * cosGamma) * ref *
+		subD = 2 * CNA_SUBSONIC * Math.PI * pow(span, 6) / (pow2(finArea * cosGamma) * ref *
 				sq * pow2(1 + sq));
 		
 		superV = finArea * (K1.getValue(CNA_SUPERSONIC) + K2.getValue(CNA_SUPERSONIC) * alpha +
@@ -521,7 +557,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * Return the relative position of the CP along the mean aerodynamic chord.
 	 * Below mach 0.5 it is at the quarter chord, above mach 2 calculated using an
 	 * empirical formula, between these two using an interpolation polynomial.
-	 * 
+	 *
 	 * @param cond   Mach speed used
 	 * @return		 CP position along the MAC
 	 */
@@ -530,51 +566,15 @@ public class FinSetCalc extends RocketComponentCalc {
 
 		if (m <= 0.5) {
 			// At subsonic speeds CP at quarter chord
-			return 0.25;
+			return SUBSONIC_CP_POS;
 		}
 		if (m >= 2) {
 			// At supersonic speeds use empirical formula
-			double beta = cond.getBeta();
-			return (ar * beta - 0.67) / (2 * ar * beta - 1);
-		}
-		
-		// In between use interpolation polynomial
-		double x = 1.0;
-		double val = 0;
-
-		for (double v : poly) {
-			val += v * x;
-			x *= m;
+			return supersonicCPPos(ar * cond.getBeta());
 		}
 
-		return val;
-	}
-	
-	/**
-	 * Calculate CP position interpolation polynomial coefficients from the
-	 * fin geometry.  This is a fifth order polynomial that satisfies
-	 * 
-	 * p(0.5)=0.25
-	 * p'(0.5)=0
-	 * p(2) = f(2)
-	 * p'(2) = f'(2)
-	 * p''(2) = 0
-	 * p'''(2) = 0
-	 * 
-	 * where f(M) = (ar*sqrt(M^2-1) - 0.67) / (2*ar*sqrt(M^2-1) - 1).
-	 * 
-	 * The values were calculated analytically in Mathematica.  The coefficients
-	 * are used as poly[0] + poly[1]*x + poly[2]*x^2 + ...
-	 */
-	private void calculatePoly() {
-		double denom = pow2(1 - 3.4641 * ar); // common denominator
-		
-		poly[5] = (-1.58025 * (-0.728769 + ar) * (-0.192105 + ar)) / denom;
-		poly[4] = (12.8395 * (-0.725688 + ar) * (-0.19292 + ar)) / denom;
-		poly[3] = (-39.5062 * (-0.72074 + ar) * (-0.194245 + ar)) / denom;
-		poly[2] = (55.3086 * (-0.711482 + ar) * (-0.196772 + ar)) / denom;
-		poly[1] = (-31.6049 * (-0.705375 + ar) * (-0.198476 + ar)) / denom;
-		poly[0] = (9.16049 * (-0.588838 + ar) * (-0.20624 + ar)) / denom;
+		// Use the shared shape-preserving interpolation between the two regimes.
+		return transonicCPPos(m, ar);
 	}
 	
 	

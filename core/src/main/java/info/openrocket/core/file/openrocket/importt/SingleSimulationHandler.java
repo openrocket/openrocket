@@ -3,10 +3,12 @@ package info.openrocket.core.file.openrocket.importt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.PlotAppearance;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.Simulation.Status;
 import info.openrocket.core.file.DocumentLoadingContext;
@@ -35,6 +37,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 	private SimulationConditionsHandler conditionHandler;
 	private ConfigHandler configHandler;
 	private FlightDataHandler dataHandler;
+	private SimulationPlotAppearanceHandler plotAppearanceHandler;
 
 	private final List<SimulationExtension> extensions = new ArrayList<>();
 
@@ -63,6 +66,9 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		} else if (element.equals("flightdata")) {
 			dataHandler = new FlightDataHandler(this, context);
 			return dataHandler;
+		} else if (element.equals("plotappearance")) {
+			plotAppearanceHandler = new SimulationPlotAppearanceHandler();
+			return plotAppearanceHandler;
 		} else {
 			warnings.add("Unknown element '" + element + "', ignoring.");
 			return null;
@@ -149,8 +155,11 @@ class SingleSimulationHandler extends AbstractElementHandler {
 			status = Status.LOADED;
 		}
 
+		Map<String, PlotAppearance> plotAppearances = plotAppearanceHandler != null
+				? plotAppearanceHandler.getPlotAppearances()
+				: null;
 		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
-				options, extensions, data);
+				options, extensions, data, plotAppearances);
 		simulation.setFlightConfigurationId(idToSet);
 
 		doc.addSimulation(simulation);

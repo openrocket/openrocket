@@ -86,7 +86,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public boolean isStageActive(FlightConfiguration fc) {
 		return fc.isStageActive(getStageNumber());
 	}
-	
+
 	@Override
 	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		separations.copyFlightConfiguration(oldConfigId, newConfigId);

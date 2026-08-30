@@ -27,11 +27,24 @@ public class InstanceMap extends ConcurrentHashMap<RocketComponent, ArrayList<In
 	}
 
 	public void emplace(final RocketComponent component, int number, final Transformation transform) {
+		emplace(component, number, transform, Transformation.IDENTITY);
+	}
+
+	/**
+	 * Adds a physical component instance and retains the transform of its parent.
+	 *
+	 * @param component component represented by the instance
+	 * @param number instance number relative to its parent
+	 * @param transform transform from component coordinates to rocket coordinates
+	 * @param parentTransform transform from parent coordinates to rocket coordinates
+	 */
+	public void emplace(final RocketComponent component, int number, final Transformation transform,
+			final Transformation parentTransform) {
 		if (!containsKey(component)) {
 			put(component, new ArrayList<>());
 		}
 
-		final InstanceContext context = new InstanceContext(component, number, transform);
+		final InstanceContext context = new InstanceContext(component, number, transform, parentTransform);
 		get(component).add(context);
 	}
 

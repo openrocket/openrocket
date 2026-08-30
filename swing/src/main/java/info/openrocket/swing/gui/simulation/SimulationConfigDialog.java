@@ -73,6 +73,7 @@ public class SimulationConfigDialog extends JDialog {
 	private static final int PLOT_IDX = 3;
 	private static final int EXPORT_IDX = 4;
 
+	private final SimulationOptionsPanel simulationOptionsTab;
 	private final SimulationPlotPanel plotTab;
 	private final SimulationExportPanel exportTab;
 	private static final int DIALOG_SCREEN_MARGIN = 80;
@@ -123,8 +124,9 @@ public class SimulationConfigDialog extends JDialog {
 				createTabScrollPane(new SimulationConditionsPanel(simulationList[0])));
 
 		//// Simulation options
+		this.simulationOptionsTab = new SimulationOptionsPanel(document, simulationList[0]);
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Simopt"),
-				createTabScrollPane(new SimulationOptionsPanel(document, simulationList[0])));
+				createTabScrollPane(simulationOptionsTab));
 
 		//// Simulation Warnings
 		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
@@ -416,6 +418,7 @@ public class SimulationConfigDialog extends JDialog {
 		this.okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				simulationOptionsTab.prepareForSimulation();
 				copyChangesToAllSims();
 
 				// Run outdated simulations

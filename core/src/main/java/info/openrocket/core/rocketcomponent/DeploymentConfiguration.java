@@ -2,6 +2,7 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.FlightEvent;
+import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ArrayList;
@@ -25,6 +26,14 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			public boolean isActivationEvent(DeploymentConfiguration config, FlightEvent e, RocketComponent source) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
 					return false;
+
+				// An ejection charge only pressurizes the airframe assembly its motor sits in, so a motor
+				// in a pod cannot deploy a recovery device in the parent airframe, and vice versa.
+				if (e.getData() instanceof MotorClusterState motorState) {
+					return motorState.getMount().getAssembly().equals(source.getAssembly());
+				}
+
+				// Fall back on the stage of the ejection charge if we don't know which motor fired it
 				RocketComponent charge = e.getSource();
 				return charge.getStageNumber() == source.getStageNumber();
 			}

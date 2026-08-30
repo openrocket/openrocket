@@ -293,7 +293,8 @@ public class HorizontalCaliperLine implements FigureElement {
 			
 			// Draw drag position tooltip below the handle
 			if (dragPositionLabel != null) {
-				drawDragTooltip(g2Screen, handleX_screen + DIAMOND_HALF_WIDTH, handleY_screen + DIAMOND_HALF_HEIGHT);
+				drawDragTooltip(g2Screen, handleX_screen + DIAMOND_HALF_WIDTH,
+						handleY_screen + DIAMOND_HALF_HEIGHT, screenVisible);
 			}
 
 			// Draw out-of-view indicator if the caliper line is outside the visible area
@@ -411,19 +412,18 @@ public class HorizontalCaliperLine implements FigureElement {
 	 * @param g2    graphics context in screen coordinates
 	 * @param cx    horizontal center of the handle diamond
 	 * @param topY  Y coordinate of the handle's bottom tip
+	 * @param visible visible viewport bounds used to keep the tooltip on-screen
 	 */
-	private void drawDragTooltip(Graphics2D g2, double cx, double topY) {
-		Font font = HANDLE_LABEL_FONT.deriveFont(Font.PLAIN, HANDLE_LABEL_FONT.getSize2D() * 1.5f);
+	private void drawDragTooltip(Graphics2D g2, double cx, double topY, Rectangle visible) {
+		Font font = HANDLE_LABEL_FONT.deriveFont(Font.PLAIN, HANDLE_LABEL_FONT.getSize2D() * 1.2f);
 		g2.setFont(font);
-		FontRenderContext frc = g2.getFontRenderContext();
-		Rectangle2D textBounds = font.getStringBounds(dragPositionLabel, frc);
-		double tw = textBounds.getWidth();
-		double th = textBounds.getHeight();
+		Rectangle2D.Double tooltipBounds = getDragTooltipBounds(g2, cx, topY, visible);
+		double boxX = tooltipBounds.getX();
+		double boxY = tooltipBounds.getY();
+		double boxW = tooltipBounds.getWidth();
+		double boxH = tooltipBounds.getHeight();
+		double textHeight = font.getStringBounds(dragPositionLabel, g2.getFontRenderContext()).getHeight();
 		double pad = 4.0;
-		double boxW = tw + pad * 2;
-		double boxH = th + pad;
-		double boxX = cx - boxW / 2.0;
-		double boxY = topY + 5.0;
 
 		g2.setColor(handleColor);
 		g2.fill(new RoundRectangle2D.Double(boxX, boxY, boxW, boxH, 6, 6));
@@ -432,7 +432,36 @@ public class HorizontalCaliperLine implements FigureElement {
 				handleBorderColor.getBlue(), 120));
 		g2.draw(new RoundRectangle2D.Double(boxX, boxY, boxW, boxH, 6, 6));
 		g2.setColor(handleTextColor);
-		g2.drawString(dragPositionLabel, (float) (boxX + pad), (float) (boxY + th * 0.8));
+		g2.drawString(dragPositionLabel, (float) (boxX + pad), (float) (boxY + textHeight * 0.8));
+	}
+
+	/**
+	 * Calculate the drag tooltip bounds and constrain them to the visible viewport horizontally.
+	 *
+	 * @param g2 graphics context used to measure the label
+	 * @param cx horizontal center of the handle diamond
+	 * @param topY Y coordinate of the handle's bottom tip
+	 * @param visible visible viewport bounds, or {@code null} when no viewport is available
+	 * @return the tooltip bounds in screen coordinates
+	 */
+	Rectangle2D.Double getDragTooltipBounds(Graphics2D g2, double cx, double topY, Rectangle visible) {
+		Font font = HANDLE_LABEL_FONT.deriveFont(Font.PLAIN, HANDLE_LABEL_FONT.getSize2D() * 1.2f);
+		FontRenderContext frc = g2.getFontRenderContext();
+		Rectangle2D textBounds = font.getStringBounds(dragPositionLabel, frc);
+		double padding = 4.0;
+		double boxWidth = textBounds.getWidth() + padding * 2;
+		double boxHeight = textBounds.getHeight() + padding;
+		double boxX = cx - boxWidth / 2.0;
+		double boxY = topY + 5.0;
+
+		if (visible != null) {
+			double viewportPadding = 2.0;
+			double minimumX = visible.getMinX() + viewportPadding;
+			double maximumX = visible.getMaxX() - viewportPadding - boxWidth;
+			boxX = Math.max(minimumX, Math.min(boxX, maximumX));
+		}
+
+		return new Rectangle2D.Double(boxX, boxY, boxWidth, boxHeight);
 	}
 
 	/**

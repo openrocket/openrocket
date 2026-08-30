@@ -71,7 +71,7 @@ public class LinearInterpolator implements Cloneable {
 					" y=" + y.size());
 		}
 		for (int i = 0; i < x.size(); i++) {
-			sortMap.put((Double) x.toArray()[i], (Double) y.toArray()[i]);
+			sortMap.put(x.get(i), y.get(i));
 		}
 	}
 

@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -59,6 +61,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.flightConditions = SimulationListenerHelper.firePreFlightConditions(
 				status);
 		if (store.flightConditions != null) {
+			setThrustingNozzleExitAreas(status, store.flightConditions);
 			// Compute the store values
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
@@ -115,6 +118,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			store.lateralPitchRate = MathUtil.hypot(rot.getX(), rot.getY());
 		}
 
+		// Make the instantaneous propulsion state available to post-flight-condition
+		// listeners and, subsequently, to the aerodynamic drag calculator.
+		setThrustingNozzleExitAreas(status, store.flightConditions);
+
 		// Call post listeners
 		FlightConditions c = SimulationListenerHelper.firePostFlightConditions(
 				status, store.flightConditions);
@@ -124,6 +131,28 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
 		}
+		setThrustingNozzleExitAreas(status, store.flightConditions);
+	}
+
+	/**
+	 * Populate the first-order powered base-drag correction described in the
+	 * technical documentation. A zero nozzle exit diameter means that the geometry
+	 * is unknown and leaves the legacy base-drag calculation unchanged.
+	 */
+	private static void setThrustingNozzleExitAreas(SimulationStatus status, FlightConditions conditions) {
+		Map<ComponentAssembly, Double> areasByAssembly = new HashMap<>();
+		for (MotorClusterState motorState : status.getActiveMotors()) {
+			double nozzleExitDiameter = motorState.getNozzleExitDiameter();
+			if (!motorState.isThrusting() || nozzleExitDiameter <= 0) {
+				continue;
+			}
+
+			double nozzleExitRadius = nozzleExitDiameter / 2;
+			double area = motorState.getMotorCount() * Math.PI * MathUtil.pow2(nozzleExitRadius);
+			ComponentAssembly assembly = motorState.getMount().getAssembly();
+			areasByAssembly.merge(assembly, area, Double::sum);
+		}
+		conditions.setThrustingNozzleExitAreas(areasByAssembly);
 	}
 
 	/**
@@ -573,12 +602,14 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * @return the propulsive part of the damping moment coefficient
 		 */
 		private double computePropulsiveDampingMomentCoefficient(SimulationStatus status, FlightDataBranch dataBranch) {
-			// mdot := d(motor mass)/dt, estimated using the last two stored points.
-			// Avoids reaching into motor internals.
-			double mdot = computeMotorMassDerivative(dataBranch);
-			if (Double.isNaN(mdot)) {
+			double motorMassDerivative = computeMotorMassDerivative(dataBranch);
+			if (Double.isNaN(motorMassDerivative)) {
 				return 0;
 			}
+
+			// The damping equation uses the positive mass-expulsion rate, while the remaining motor mass
+			// decreases during the burn. Therefore, massExpulsionRate = -d(motor mass)/dt.
+			double massExpulsionRate = -motorMassDerivative;
 
 			double cg = rocketMass.getCM().getX();
 
@@ -592,7 +623,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				}
 			}
 
-			return mdot * MathUtil.pow2(nozzleDistance - cg);
+			return massExpulsionRate * MathUtil.pow2(nozzleDistance - cg);
 		}
 
 		/**
@@ -603,8 +634,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * @return the motor mass time-derivative, or NaN if it cannot be computed
 		 */
 		private static double computeMotorMassDerivative(FlightDataBranch dataBranch) {
-			List<Double> motorMass = dataBranch.get(FlightDataType.TYPE_MOTOR_MASS);
-			List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+			List<Double> motorMass = dataBranch.getView(FlightDataType.TYPE_MOTOR_MASS);
+			List<Double> time = dataBranch.getView(FlightDataType.TYPE_TIME);
 			if (motorMass == null || time == null) {
 				return Double.NaN;
 			}

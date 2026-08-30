@@ -174,6 +174,21 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		fireChangeEvent();
 	}
 
+	/**
+	 * Seed each level from the given seed.
+	 * <p>
+	 * The levels are given distinct seeds derived from the one supplied, rather than
+	 * sharing it: levels seeded alike would generate identical turbulence, making the
+	 * gusts at every altitude perfectly correlated. Levels are held sorted by
+	 * altitude, so the derivation is a function of the configuration alone.
+	 */
+	@Override
+	public void setSeed(int seed) {
+		for (int i = 0; i < levels.size(); i++) {
+			levels.get(i).model.setSeed(seed * 31 + i);
+		}
+	}
+
 	@Override
 	public ModID getModID() {
 		return ModID.ZERO; // You might want to create a specific ModID for this model

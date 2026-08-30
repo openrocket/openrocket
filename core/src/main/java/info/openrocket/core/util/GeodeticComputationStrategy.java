@@ -2,6 +2,9 @@ package info.openrocket.core.util;
 
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 
@@ -138,9 +141,20 @@ public enum GeodeticComputationStrategy {
 		}
 	};
 
+	private static final Logger log = LoggerFactory.getLogger(GeodeticComputationStrategy.class);
+
 	private static final Translator trans = Application.getTranslator();
 
 	private static final double PRECISION_LIMIT = 0.5e-13;
+
+	/**
+	 * Maximum number of iterations of the Vincenty direct solution. The direct
+	 * solution converges in a handful of iterations and has no known non-convergent
+	 * case; it is the inverse solution that struggles near antipodal points. This
+	 * bound is only here because nothing else stops the loop, so that degenerate
+	 * input cannot hang the simulation thread.
+	 */
+	private static final int MAX_ITERATIONS = 100;
 
 	/**
 	 * Return the name of this geodetic computation method.
@@ -255,6 +269,7 @@ public enum GeodeticComputationStrategy {
 		double y = tu;
 
 		double sy, cy, cz, e;
+		int iterations = 0;
 		do {
 			sy = Math.sin(y);
 			cy = Math.cos(y);
@@ -266,7 +281,13 @@ public enum GeodeticComputationStrategy {
 			y = e + e - 1.0;
 			y = (((sy * sy * 4.0 - 3.0) * y * cz * d / 6.0 + x) *
 					d / 4.0 - cz) * sy * d + tu;
-		} while (Math.abs(y - c) > PRECISION_LIMIT);
+			iterations++;
+		} while ((Math.abs(y - c) > PRECISION_LIMIT) && (iterations < MAX_ITERATIONS));
+
+		if (iterations >= MAX_ITERATIONS) {
+			log.warn("Vincenty direct solution did not converge after " + iterations +
+					" iterations, using last value; dist=" + dist + " azimuth=" + azimuth);
+		}
 
 		baz = cu * cy * cf - su * sy;
 		c = r * Math.sqrt(sa * sa + baz * baz);

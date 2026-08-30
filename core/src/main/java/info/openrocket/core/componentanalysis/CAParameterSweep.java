@@ -4,16 +4,22 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.MathUtil;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class CAParameterSweep {
+	/** Highest number of decimals the sweep values are rounded to. */
+	private static final int MAX_SCALE = 10;
+
 	private final CAParameters parameters;
 	private final AerodynamicCalculator aerodynamicCalculator;
 	private final Rocket rocket;
@@ -59,23 +65,30 @@ public class CAParameterSweep {
 
 	private List<Double> generateSweepValues(double min, double max, double delta) {
 		List<Double> values = new ArrayList<>();
-		int scale = determineScale(delta);
-		double multiplier = Math.pow(10, scale);
+		if (!(delta > 0) || Double.isNaN(min) || Double.isNaN(max) || max < min) {
+			return values;
+		}
 
-		for (double value = min; value <= max; value += delta) {
-			double roundedValue = Math.round(value * multiplier) / multiplier;
-			values.add(roundedValue);
+		int scale = determineScale(delta);
+
+		// Step off min rather than accumulating delta, so that rounding error cannot
+		// build up over the sweep and drop the last value
+		int steps = (int) Math.floor((max - min) / delta + 1.0e-9);
+		for (int i = 0; i <= steps; i++) {
+			double value = min + i * delta;
+			values.add(BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP).doubleValue());
 		}
 		return values;
 	}
 
+	/**
+	 * Number of decimals the sweep values are rounded to, taken from the step size.
+	 * Reading it off the plain string form of the step got this wrong for any step
+	 * small enough to be printed in scientific notation.
+	 */
 	private int determineScale(double delta) {
-		String deltaStr = Double.toString(Math.abs(delta));
-		int indexOfDecimal = deltaStr.indexOf(".");
-		if (indexOfDecimal == -1) {
-			return 0;
-		}
-		return deltaStr.length() - indexOfDecimal - 1;
+		int scale = BigDecimal.valueOf(Math.abs(delta)).stripTrailingZeros().scale();
+		return MathUtil.clamp(scale, 0, MAX_SCALE);
 	}
 
 	private void setParameterValue(CADomainDataType parameterType, double value) {
@@ -133,7 +146,9 @@ public class CAParameterSweep {
 				dataBranch.setValue(CADataType.TOTAL_CD, component, forces.getCDTotal());
 			}
 
-			if (component instanceof FinSet) {
+			// Force analysis aggregates roll values for assemblies, so stages and the
+			// rocket can be plotted alongside individual fin sets.
+			if (component instanceof FinSet || component instanceof ComponentAssembly) {
 				dataBranch.setValue(CADataType.ROLL_FORCING_COEFFICIENT, component, forces.getCrollForce());
 				dataBranch.setValue(CADataType.ROLL_DAMPING_COEFFICIENT, component, forces.getCrollDamp());
 				dataBranch.setValue(CADataType.TOTAL_ROLL_COEFFICIENT, component, forces.getCrollForce() + forces.getCrollDamp());

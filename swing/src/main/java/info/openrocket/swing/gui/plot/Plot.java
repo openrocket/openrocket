@@ -9,6 +9,7 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.util.LineStyle;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.DecimalFormatter;
@@ -68,6 +69,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
 	protected static final float PLOT_STROKE_WIDTH = 1.5f;
+	private static final float LEGEND_STROKE_WIDTH = 10.0f;
+	private static final double LEGEND_LINE_LENGTH = 16.0;
 
 	protected int branchCount;
 	protected final List<B> allBranches;
@@ -219,7 +222,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 						String nameT = FlightDataType.TYPE_TIME.getName();
 						double dataT = Double.NaN;
-						final List<Double> time = allBranches.get(ser.getBranchIdx()).get((T)FlightDataType.TYPE_TIME);
+						final List<Double> time = allBranches.get(ser.getBranchIdx()).getView((T)FlightDataType.TYPE_TIME);
 						if (time != null) {
 							dataT = time.get(item);
 						}
@@ -247,32 +250,47 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				renderers.add(r);
 				r.setDefaultToolTipGenerator(tooltipGenerator);
 				plot.setRenderer(axisno, r);
+				// Render lines as a single path so dashed patterns stay consistent across uneven point spacing.
+				r.setDrawSeriesLineAsPath(true);
 				r.setDefaultShapesVisible(initialShowPoints);
 				r.setDefaultShapesFilled(true);
 
 				// Set colors for all series of the current axis
+				int safeBranchCount = Math.max(branchCount, 1);
 				for (int seriesIndex = 0; seriesIndex < data[axisno].getSeriesCount(); seriesIndex++) {
-					int colorIndex = cumulativeSeriesCount + seriesIndex;
-					r.setSeriesPaint(seriesIndex, Util.getPlotColor(colorIndex));
+					MetadataXYSeries series = (MetadataXYSeries) data[axisno].getSeries(seriesIndex);
+					int dataIdx = series.getDataIdx();
+					int relativeIndex = seriesIndex / safeBranchCount;
 
-					Stroke lineStroke = new BasicStroke(PLOT_STROKE_WIDTH);
+					Color color = config.getPlotDataColor(dataIdx);
+					if (color == null) {
+						int colorIndex = cumulativeSeriesCount + relativeIndex;
+						color = Util.getPlotColor(colorIndex);
+					}
+					r.setSeriesPaint(seriesIndex, color);
+
+					LineStyle lineStyle = config.getPlotDataLineStyle(dataIdx);
+					Stroke lineStroke = createPlotStroke(lineStyle);
 					r.setSeriesStroke(seriesIndex, lineStroke);
 				}
 
 				// Update the cumulative count for the next axis
 				cumulativeSeriesCount += data[axisno].getSeriesCount();
 
-				// Now we pull the colors for the legend.
+				// Use a thick line in the legend so the color block is still obvious with styled strokes.
 				for (int j = 0; j < data[axisno].getSeriesCount(); j += branchCount) {
-					String name = data[axisno].getSeries(j).getDescription();
+					MetadataXYSeries series = (MetadataXYSeries) data[axisno].getSeries(j);
+					String name = series.getDescription();
 					this.legendItems.lineLabels.add(name);
+					this.legendItems.seriesKeys.add(series.getLegendKey());
 					Paint linePaint = r.lookupSeriesPaint(j);
 					this.legendItems.linePaints.add(linePaint);
 					Shape itemShape = r.lookupSeriesShape(j);
 					this.legendItems.pointShapes.add(itemShape);
 					Stroke lineStroke = r.getSeriesStroke(j);
 					BasicStroke bs = (BasicStroke) lineStroke;
-					lineStroke = new BasicStroke(12.0f, bs.getEndCap(), bs.getLineJoin(), bs.getMiterLimit(), bs.getDashArray(), bs.getDashPhase());
+					lineStroke = new BasicStroke(LEGEND_STROKE_WIDTH, bs.getEndCap(), bs.getLineJoin(),
+							bs.getMiterLimit(), bs.getDashArray(), bs.getDashPhase());
 					this.legendItems.lineStrokes.add(lineStroke);
 				}
 
@@ -308,8 +326,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		// Default implementation for regular DataBranch
 		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, dataIndex, unit.getUnit(), branchName, baseName);
 
-		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
-		List<Double> ploty = branch.get(type);
+		List<Double> plotx = branch.getView(filledConfig.getDomainAxisType());
+		List<Double> ploty = branch.getView(type);
 
 		int pointCount = plotx.size();
 		for (int j = 0; j < pointCount; j++) {
@@ -390,6 +408,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 	protected static class LegendItems implements LegendItemSource {
 		protected final List<String> lineLabels = new ArrayList<>();
+		protected final List<Comparable<?>> seriesKeys = new ArrayList<>();
 		protected final List<Paint> linePaints = new ArrayList<>();
 		protected final List<Stroke> lineStrokes = new ArrayList<>();
 		protected final List<Shape> pointShapes = new ArrayList<>();
@@ -414,12 +433,14 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				Stroke lineStroke = lineStrokes.get(i);
 				Paint linePaint = linePaints.get(i);
 
-				Shape legendLine = new Line2D.Double(-.70, 0.0, .70, 0.0);
+				// Make the legend line long relative to stroke width so it reads as a block, not a vertical bar.
+				Shape legendLine = new Line2D.Double(-LEGEND_LINE_LENGTH / 2.0, 0.0, LEGEND_LINE_LENGTH / 2.0, 0.0);
 
 				LegendItem result = new LegendItem(label, description, toolTipText,
 						urlText, shapeIsVisible, shape, shapeIsFilled, fillPaint,
 						shapeOutlineVisible, outlinePaint, outlineStroke, lineVisible,
 						legendLine, lineStroke, linePaint);
+				result.setSeriesKey(seriesKeys.get(i));
 
 				c.add(result);
 				i++;
@@ -432,6 +453,12 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		for (ModifiedXYItemRenderer r : renderers) {
 			r.setDefaultShapesVisible(showPoints);
 		}
+	}
+
+	private static Stroke createPlotStroke(LineStyle style) {
+		LineStyle effective = style != null ? style : LineStyle.SOLID;
+		float[] dashes = effective == LineStyle.SOLID ? null : effective.getDashes();
+		return new BasicStroke(PLOT_STROKE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f, dashes, 0.0f);
 	}
 
     public void setShowEvents(boolean showEvents) {
@@ -490,16 +517,6 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		@Override
 		public Shape lookupLegendShape(int series) {
 			return DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE[series % branchCount % DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE.length];
-		}
-
-		@Override
-		public Font lookupLegendTextFont(int series) {
-			return super.lookupLegendTextFont(series / branchCount);
-		}
-
-		@Override
-		public Paint lookupLegendTextPaint(int series) {
-			return super.lookupLegendTextPaint(series / branchCount);
 		}
 
 		@Override
@@ -594,6 +611,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		private final String unit;
 		private final String branchName;
 		private String baseName;
+		private Comparable<?> legendKey;
 
 		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, int dataIdx, String unit,
 								String branchName, String baseName) {
@@ -603,6 +621,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 			this.unit = unit;
 			this.branchName = branchName;
 			this.baseName = baseName;
+			this.legendKey = dataIdx >= 0 ? dataIdx : baseName;
 			updateDescription();
 		}
 
@@ -633,6 +652,20 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		public void setBaseName(String baseName) {
 			this.baseName = baseName;
+		}
+
+		/**
+		 * Returns the stable identity used to associate this series with its legend item.
+		 */
+		public Comparable<?> getLegendKey() {
+			return legendKey;
+		}
+
+		/**
+		 * Sets the stable identity used to associate this series with its legend item.
+		 */
+		public void setLegendKey(Comparable<?> legendKey) {
+			this.legendKey = legendKey;
 		}
 
 		public void updateDescription() {

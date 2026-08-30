@@ -135,8 +135,9 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 		SymmetricComponent prevComp = null;
 		if ((component instanceof ComponentAssembly) &&
 				(!(component instanceof Rocket)) &&
-				(component.getChildCount() > 0)) {
-			prevComp = ((SymmetricComponent) (component.getChild(0))).getPreviousSymmetricComponent();
+				(component.getChildCount() > 0) &&
+				(component.getChild(0) instanceof SymmetricComponent firstChild)) {
+			prevComp = firstChild.getPreviousSymmetricComponent();
 		}
 
 		while (queue.peek() != null) {
