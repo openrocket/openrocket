@@ -406,6 +406,8 @@ public final class WeatherConditionsController {
 							"Surface wind: %.1f m/s from %.0f°; gusts %.1f m/s", surfaceWind.speed(),
 							Math.toDegrees(surfaceWind.direction()), conditions.windGust())),
 					formatPreviewField(selection.wind(), "Vertical wind profile: " + windProfile),
+					formatPreviewField(selection.turbulence(), String.format(Locale.ROOT,
+							"Turbulence intensity: %.0f%%", edits.turbulenceIntensity * 100.0)),
 					trans.get("simedtdlg.msg.weatherAttribution"));
 			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult(), timezone);
 			if (action == WeatherPreviewAction.OK) {
@@ -653,6 +655,8 @@ public final class WeatherConditionsController {
 		JCheckBox pressure = new JCheckBox(trans.get("simedtdlg.checkbox.weatherPressure"), current.pressure());
 		JCheckBox humidity = new JCheckBox(trans.get("simedtdlg.checkbox.weatherHumidity"), current.humidity());
 		JCheckBox wind = new JCheckBox(trans.get("simedtdlg.checkbox.weatherWind"), current.wind());
+		JCheckBox turbulence = new JCheckBox(trans.get("simedtdlg.checkbox.weatherTurbulence"),
+				current.turbulence());
 
 		DoubleModel latitudeModel = new DoubleModel(currentEdits.latitude, UnitGroup.UNITS_LATITUDE, -90, 90);
 		DoubleModel longitudeModel = new DoubleModel(currentEdits.longitude, UnitGroup.UNITS_LONGITUDE, -180, 180);
@@ -661,12 +665,15 @@ public final class WeatherConditionsController {
 		DoubleModel temperatureModel = new DoubleModel(currentEdits.temperature, UnitGroup.UNITS_TEMPERATURE, 0);
 		DoubleModel pressureModel = new DoubleModel(currentEdits.pressure, UnitGroup.UNITS_PRESSURE, 0);
 		DoubleModel humidityModel = new DoubleModel(currentEdits.relativeHumidity, UnitGroup.UNITS_RELATIVE, 0, 1);
+		DoubleModel turbulenceModel = new DoubleModel(currentEdits.turbulenceIntensity,
+				UnitGroup.UNITS_RELATIVE, 0, 1);
 		JSpinner latitude = unitSpinner(latitudeModel);
 		JSpinner longitude = unitSpinner(longitudeModel);
 		JSpinner elevationValue = unitSpinner(elevationModel);
 		JSpinner temperatureValue = unitSpinner(temperatureModel);
 		JSpinner pressureValue = unitSpinner(pressureModel);
 		JSpinner humidityValue = unitSpinner(humidityModel);
+		JSpinner turbulenceValue = unitSpinner(turbulenceModel);
 
 		MultiLevelPinkNoiseWindModel editableWind = new MultiLevelPinkNoiseWindModel();
 		editableWind.clearLevels();
@@ -724,6 +731,11 @@ public final class WeatherConditionsController {
 		fields.add(new UnitSelector(humidityModel), "growx, wrap");
 		fields.add(wind);
 		fields.add(editWind, "span 2, growx");
+		fields.add(new JSeparator(), "span 3, growx, gaptop 8, wrap");
+		fields.add(turbulence);
+		fields.add(turbulenceValue, "growx");
+		fields.add(new UnitSelector(turbulenceModel), "growx, wrap");
+		fields.add(new JLabel(trans.get("simedtdlg.msg.weatherTurbulenceDescription")), "span 3, growx, wrap");
 		CustomizationAction action = showWeatherCustomizationDialog(owner, fields);
 		if (action == CustomizationAction.CANCEL) {
 			return new WeatherCustomization(current, currentEdits, currentExcludedWindLevelIndices,
@@ -734,11 +746,11 @@ public final class WeatherConditionsController {
 						level.getStandardDeviation())).toList();
 		WeatherEdits edits = new WeatherEdits(latitudeModel.getValue(), longitudeModel.getValue(),
 				elevationModel.getValue(), temperatureModel.getValue(), pressureModel.getValue(),
-				humidityModel.getValue(), windLayers);
+				humidityModel.getValue(), windLayers, turbulenceModel.getValue());
 		ApplySelection selection = new ApplySelection(latitudeEnabled.isSelected(), longitudeEnabled.isSelected(),
 				elevation.isSelected(),
 				temperature.isSelected(), pressure.isSelected(), humidity.isSelected(),
-				excludedWindLevelIndices.get().size() < editableWind.getLevels().size());
+				excludedWindLevelIndices.get().size() < editableWind.getLevels().size(), turbulence.isSelected());
 		return new WeatherCustomization(selection, edits, excludedWindLevelIndices.get(), action);
 	}
 
@@ -821,7 +833,15 @@ public final class WeatherConditionsController {
 	private WeatherEdits editsFor(CurrentConditions conditions) {
 		return new WeatherEdits(conditions.latitude(), conditions.longitude(), conditions.elevation(),
 				conditions.temperature(), conditions.pressure(), conditions.relativeHumidity(),
-				conditions.windLayers());
+				conditions.windLayers(), turbulenceIntensityFor(conditions.windLayers()));
+	}
+
+	static double turbulenceIntensityFor(List<CurrentConditions.WindLayer> windLayers) {
+		return windLayers.stream()
+				.filter(layer -> layer.speed() > 0)
+				.findFirst()
+				.map(layer -> layer.standardDeviation() / layer.speed())
+				.orElse(0.0);
 	}
 
 	private static List<CurrentConditions.WindLayer> includedWindLayers(
@@ -840,7 +860,7 @@ public final class WeatherConditionsController {
 
 	private static WeatherEdits withIncludedWindLayers(WeatherEdits edits, Set<Integer> excludedIndices) {
 		return new WeatherEdits(edits.latitude, edits.longitude, edits.elevation, edits.temperature, edits.pressure,
-				edits.relativeHumidity, includedWindLayers(edits.windLayers, excludedIndices));
+				edits.relativeHumidity, includedWindLayers(edits.windLayers, excludedIndices), edits.turbulenceIntensity);
 	}
 
 	private static void applyWeatherConditions(SimulationOptions options, WeatherEdits edits,
@@ -855,18 +875,28 @@ public final class WeatherConditionsController {
 		if (selection.pressure()) options.setLaunchPressure(edits.pressure);
 		if (selection.humidity()) options.setLaunchRelativeHumidity(edits.relativeHumidity);
 
+		PinkNoiseWindModel averageWind = options.getAverageWindModel();
+		double appliedTurbulenceIntensity = selection.turbulence()
+				? edits.turbulenceIntensity : averageWind.getTurbulenceIntensity();
+		if (selection.turbulence() && !selection.wind()) {
+			averageWind.setTurbulenceIntensity(appliedTurbulenceIntensity);
+			for (MultiLevelPinkNoiseWindModel.LevelWindModel level : options.getMultiLevelWindModel().getLevels()) {
+				level.setTurbulenceIntensity(appliedTurbulenceIntensity);
+			}
+		}
+
 		if (selection.wind()) {
 			CurrentConditions.WindLayer surface = edits.windLayers.get(0);
-			PinkNoiseWindModel averageWind = options.getAverageWindModel();
 			averageWind.setAverage(surface.speed());
 			averageWind.setDirection(surface.direction());
-			averageWind.setStandardDeviation(surface.standardDeviation());
+			averageWind.setTurbulenceIntensity(appliedTurbulenceIntensity);
 
 			MultiLevelPinkNoiseWindModel windModel = options.getMultiLevelWindModel();
 			windModel.clearLevels();
 			windModel.setAltitudeReference(AltitudeReference.MSL);
 			for (CurrentConditions.WindLayer layer : edits.windLayers) {
-				windModel.addWindLevel(layer.altitude(), layer.speed(), layer.direction(), layer.standardDeviation());
+				windModel.addWindLevel(layer.altitude(), layer.speed(), layer.direction(),
+						layer.speed() * appliedTurbulenceIntensity);
 			}
 			options.setWindModelType(WindModelType.MULTI_LEVEL);
 		}
@@ -923,7 +953,8 @@ public final class WeatherConditionsController {
 	}
 
 	private record WeatherEdits(double latitude, double longitude, double elevation, double temperature,
-			double pressure, double relativeHumidity, List<CurrentConditions.WindLayer> windLayers) {
+			double pressure, double relativeHumidity, List<CurrentConditions.WindLayer> windLayers,
+			double turbulenceIntensity) {
 		private WeatherEdits {
 			windLayers = List.copyOf(windLayers);
 		}
@@ -934,19 +965,20 @@ public final class WeatherConditionsController {
 	}
 
 	private record ApplySelection(boolean latitude, boolean longitude, boolean elevation, boolean temperature, boolean pressure,
-			boolean humidity, boolean wind) {
+			boolean humidity, boolean wind, boolean turbulence) {
 		private static ApplySelection all() {
-			return new ApplySelection(true, true, true, true, true, true, true);
+			return new ApplySelection(true, true, true, true, true, true, true, true);
 		}
 
 		private static ApplySelection from(WeatherCustomizationPreferences.FieldSettings settings) {
 			return new ApplySelection(settings.latitude(), settings.longitude(), settings.elevation(),
-					settings.temperature(), settings.pressure(), settings.humidity(), settings.wind());
+					settings.temperature(), settings.pressure(), settings.humidity(), settings.wind(),
+					settings.turbulence());
 		}
 
 		private WeatherCustomizationPreferences.FieldSettings toFieldSettings() {
 			return new WeatherCustomizationPreferences.FieldSettings(latitude, longitude, elevation, temperature,
-					pressure, humidity, wind);
+					pressure, humidity, wind, turbulence);
 		}
 	}
 

@@ -37,7 +37,8 @@ final class WeatherCustomizationPreferences {
 				preferences.getBoolean("temperature", true),
 				preferences.getBoolean("pressure", true),
 				preferences.getBoolean("humidity", true),
-				preferences.getBoolean("wind", true)));
+				preferences.getBoolean("wind", true),
+				preferences.getBoolean("turbulence", true)));
 	}
 
 	void saveFieldSettings(FieldSettings settings) {
@@ -48,6 +49,7 @@ final class WeatherCustomizationPreferences {
 		preferences.putBoolean("pressure", settings.pressure());
 		preferences.putBoolean("humidity", settings.humidity());
 		preferences.putBoolean("wind", settings.wind());
+		preferences.putBoolean("turbulence", settings.turbulence());
 		preferences.putBoolean(FIELDS_SAVED, true);
 	}
 
@@ -83,6 +85,6 @@ final class WeatherCustomizationPreferences {
 	}
 
 	record FieldSettings(boolean latitude, boolean longitude, boolean elevation, boolean temperature,
-			boolean pressure, boolean humidity, boolean wind) {
+			boolean pressure, boolean humidity, boolean wind, boolean turbulence) {
 	}
 }

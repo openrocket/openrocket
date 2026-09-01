@@ -27,7 +27,7 @@ class WeatherCustomizationPreferencesTest {
 	void savesAndLoadsFieldSettings() {
 		WeatherCustomizationPreferences repository = new WeatherCustomizationPreferences(node);
 		WeatherCustomizationPreferences.FieldSettings expected =
-				new WeatherCustomizationPreferences.FieldSettings(false, true, false, true, false, true, true);
+				new WeatherCustomizationPreferences.FieldSettings(false, true, false, true, false, true, true, false);
 
 		repository.saveFieldSettings(expected);
 

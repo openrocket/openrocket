@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
@@ -14,6 +15,15 @@ import org.junit.jupiter.api.Test;
 import com.formdev.flatlaf.FlatClientProperties;
 
 class WeatherConditionsControllerTest {
+	@Test
+	void turbulenceIntensityComesFromTheFirstMovingWindLayer() {
+		List<CurrentConditions.WindLayer> layers = List.of(
+				new CurrentConditions.WindLayer(10, 0, 0, 0),
+				new CurrentConditions.WindLayer(80, 12, 0, 1.8));
+
+		assertEquals(0.15, WeatherConditionsController.turbulenceIntensityFor(layers), 0.000_001);
+	}
+
 	@Test
 	void previewCrossesOutFieldsThatWillNotBeApplied() {
 		assertEquals("Pressure: 12.3 hPa",
