@@ -9,8 +9,12 @@ import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.SymmetricComponent;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -23,6 +27,8 @@ public class FinSetCalc extends RocketComponentCalc {
 	
 	/** considers the stall angle as 20 degrees*/
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
+	/** Upper end of the small-angle range where NACA 1307 is used without blending. */
+	private static final double NACA_LINEAR_ANGLE = (10 * Math.PI / 180);
 	
 	/** Number of divisions in the fin chords. */
 	protected static final int DIVISIONS = 48;
@@ -50,6 +56,8 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final int finCount;
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
+	private final boolean rectangularPlanform;
+	private final NACA1307FinBodyInterference bodyFinInterference;
 	
 	/**
 	 * builds a calculator of aerodynamic forces a specified fin
@@ -68,9 +76,12 @@ public class FinSetCalc extends RocketComponentCalc {
 		this.span = component.getSpan();
 		this.finArea = component.getPlanformArea();
 		this.crossSection = component.getCrossSection();
+		this.rectangularPlanform = component instanceof TrapezoidFinSet trapezoidFinSet
+				&& MathUtil.equals(trapezoidFinSet.getRootChord(), trapezoidFinSet.getTipChord());
 		
 		calculateFinGeometry(component);
 		calculateInterferenceFinCount(component);
+		this.bodyFinInterference = createBodyFinInterferenceModel(component);
 	}
 	
 	/*
@@ -144,31 +155,60 @@ public class FinSetCalc extends RocketComponentCalc {
 			break;
 		}
 				
-		// Combined body-fin interference effect on the normal force
+		// Calculate the isolated-fin center of pressure before separating the
+		// fin-in-body and body-in-fin loads.
+		double finCp = macLead + calculateCPPos(conditions) * macLength;
+		double x = finCp;
+
+		// Body-fin interference uses the NACA model where its geometric assumptions
+		// hold, and retains the previous scalar correction as an explicit fallback.
 		double r = bodyRadius;
 		double tau = r / (span + r);
 		if (Double.isNaN(tau) || Double.isInfinite(tau)) {
 			tau = 0;
 		}
 		/*
-		 * TODO: Replace this scalar approximation with the complete fin/body
-		 * method from NACA Report 1307. Calculate fin-in-body and body-in-fin
-		 * CNa and CP separately (equations 13-34 and 58-71; charts 1-5 and
-		 * 10-16), then combine their moments. The report's two-panel,
-		 * constant-radius model must first be generalized and validated for
-		 * radial fin sets; preserve this approximation as the fallback outside
-		 * the full method's applicability range. See the technical documentation
-		 * subsection "Future complete NACA implementation" for the full roadmap.
+		 * Cant is a wing-incidence case even when the complete planform/CP model is
+		 * unavailable.  The report selects chart 3 for rectangular supersonic fins
+		 * above beta*A=2 and equation 19 for the remaining shapes and regimes.
+		 * Its validity does not improve as body angle of attack approaches stall;
+		 * the existing post-stall roll reduction below handles that regime instead.
 		 */
-		cna *= calculateBodyFinInterferenceFactor(tau, conditions.getMach());
+		double rollInterferenceFactor =
+				NACA1307FinBodyInterference.calculateWingIncidenceFactor(
+						tau, conditions.getMach(), ar, rectangularPlanform);
+		double isolatedCna = cna;
+		double fallbackCna = isolatedCna
+				* calculateBodyFinInterferenceFactor(tau, conditions.getMach());
+		double nacaWeight = bodyFinInterference == null
+				? 0.0 : calculateNacaApplicabilityWeight(conditions.getAOA());
+		if (nacaWeight > 0.0) {
+			double wingLiftCurveSlope = cna1 * conditions.getRefArea() / finArea;
+			NACA1307FinBodyInterference.Result interference =
+					bodyFinInterference.calculate(conditions.getMach(), wingLiftCurveSlope);
+			double finCna = isolatedCna * interference.finFactor();
+			/*
+			 * In the planar supersonic regime bodyFactor is normalized by the
+			 * caller's wing lift-curve slope.  Multiplication by isolatedCna restores
+			 * the report's absolute carryover load, so the cna1 dependence cancels.
+			 */
+			double bodyCna = isolatedCna * interference.bodyFactor();
+			double nacaCna = finCna + bodyCna;
+			double fallbackMoment = fallbackCna * finCp;
+			double nacaMoment = finCna * finCp + bodyCna * interference.bodyCp();
+			cna = fallbackCna + nacaWeight * (nacaCna - fallbackCna);
+			if (cna > MathUtil.EPSILON) {
+				x = (fallbackMoment + nacaWeight * (nacaMoment - fallbackMoment)) / cna;
+			}
+		} else {
+			cna = fallbackCna;
+		}
 		//		logger.debug("Component cna = {}", cna);
 		
 		// TODO: LOW: check for fin tip mach cone interference
 		// (Barrowman thesis pdf-page 40)
 		
 		// TODO: LOW: fin-fin mach cone effect, MIL-HDBK page 5-25
-		// Calculate CP position
-		double x = macLead + calculateCPPos(conditions) * macLength;
 		
 		
 		// Calculate roll forces, reduce forcing above stall angle
@@ -176,9 +216,10 @@ public class FinSetCalc extends RocketComponentCalc {
 		// Without body-fin interference effect:
 		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 		//			conditions.getRefLength();
-		// The body-in-fin lift does not act through the canted fin surface, so
-		// roll forcing retains only the classical fin-in-body correction.
-		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
+		// The body-in-fin lift does not act through the canted fin surface.  Cant
+		// therefore uses the selected lowercase NACA wing-incidence factor.
+		forces.setCrollForce((macSpan + r) * cna1 * rollInterferenceFactor * cantAngle
+				/ conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
 			forces.setCrollForce(forces.getCrollForce() * MathUtil.clamp(
@@ -423,13 +464,73 @@ public class FinSetCalc extends RocketComponentCalc {
 	}
 
 	/**
-	 * Calculate the combined fin-in-body and body-in-fin normal-force multiplier.
+	 * Build the complete NACA model only for the constant-radius trapezoidal
+	 * geometries covered by Report 1307.  Other fin and parent shapes continue
+	 * through the documented scalar fallback.
+	 */
+	private NACA1307FinBodyInterference createBodyFinInterferenceModel(FinSet finSet) {
+		if (!(finSet instanceof TrapezoidFinSet trapezoidFinSet)
+				|| !(finSet.getParent() instanceof BodyTube bodyTube)) {
+			return null;
+		}
+
+		double finFront = finSet.getAxialFront();
+		if (finFront < -MathUtil.EPSILON) {
+			return null;
+		}
+
+		double bodyEnd = calculateCylindricalAfterbodyEnd(finSet, bodyTube);
+		NACA1307FinBodyInterference model = new NACA1307FinBodyInterference(
+				bodyRadius, span, trapezoidFinSet.getRootChord(), trapezoidFinSet.getTipChord(),
+				trapezoidFinSet.getSweep(), ar, bodyEnd);
+		return model.isApplicable() ? model : null;
+	}
+
+	/**
+	 * Determine the constant-radius afterbody available to the NACA pressure
+	 * integration.  Consecutive, flush body tubes in the same component assembly
+	 * are physically one cylinder and therefore remain part of the afterbody.
+	 *
+	 * <p>The walk deliberately stops at stage/assembly boundaries and at every
+	 * transition, gap, or radius change.  This avoids counting components whose
+	 * active state may differ after staging and avoids extending the cylindrical
+	 * theory over a boattail.</p>
+	 */
+	static double calculateCylindricalAfterbodyEnd(FinSet finSet, BodyTube bodyTube) {
+		double finFront = finSet.getAxialOffset(AxialMethod.ABSOLUTE);
+		double cylinderRadius = bodyTube.getAftRadius();
+		double bodyEnd = bodyTube.getAxialOffset(AxialMethod.ABSOLUTE) + bodyTube.getLength();
+		BodyTube currentTube = bodyTube;
+
+		while (true) {
+			SymmetricComponent candidate = currentTube.getNextSymmetricComponent();
+			if (!(candidate instanceof BodyTube nextTube)
+					|| nextTube.getParent() != bodyTube.getParent()) {
+				break;
+			}
+
+			double nextStart = nextTube.getAxialOffset(AxialMethod.ABSOLUTE);
+			if (!MathUtil.equals(bodyEnd, nextStart)
+					|| !MathUtil.equals(nextTube.getForeRadius(), cylinderRadius)
+					|| !MathUtil.equals(nextTube.getAftRadius(), cylinderRadius)) {
+				break;
+			}
+
+			bodyEnd = nextStart + nextTube.getLength();
+			currentTube = nextTube;
+		}
+
+		return bodyEnd - finFront;
+	}
+
+	/**
+	 * Calculate the fallback combined fin-in-body and body-in-fin normal-force multiplier.
 	 *
 	 * <p>For slender configurations, equations 14 and 21 of NACA Report 1307
-	 * combine to {@code (1 + tau)^2}.  OpenRocket does not yet model the
-	 * supersonic Mach-cone geometry needed for the body contribution, so that
-	 * additional term is blended out over the existing transonic CNa interval.
-	 * The classical fin-in-body term remains at all Mach numbers.</p>
+	 * combine to {@code (1 + tau)^2}.  This approximation is retained for fin
+	 * planforms and parent-body geometries outside the complete NACA model's
+	 * assumptions.  Its body contribution is blended out over the existing
+	 * transonic CNa interval, while the classical fin term remains.</p>
 	 *
 	 * @param tau body radius divided by the fin semispan measured from the rocket axis
 	 * @param mach flight Mach number
@@ -448,6 +549,26 @@ public class FinSetCalc extends RocketComponentCalc {
 		double bodyInFinFactor = tau * finInBodyFactor;
 		double bodyContributionWeight = (CNA_SUPERSONIC - mach) / (CNA_SUPERSONIC - CNA_SUBSONIC);
 		return finInBodyFactor + bodyContributionWeight * bodyInFinFactor;
+	}
+
+	/**
+	 * Fade linear NACA interference into the established post-stall fallback.
+	 * Reverse flow is deliberately excluded because its leading and trailing
+	 * edges and afterbody relationship are not represented by the forward model.
+	 */
+	static double calculateNacaApplicabilityWeight(double angleOfAttack) {
+		if (!Double.isFinite(angleOfAttack) || angleOfAttack < 0.0
+				|| angleOfAttack >= STALL_ANGLE) {
+			return 0.0;
+		}
+		if (angleOfAttack <= NACA_LINEAR_ANGLE) {
+			return 1.0;
+		}
+
+		double fraction = (angleOfAttack - NACA_LINEAR_ANGLE)
+				/ (STALL_ANGLE - NACA_LINEAR_ANGLE);
+		double smoothFraction = fraction * fraction * (3.0 - 2.0 * fraction);
+		return 1.0 - smoothFraction;
 	}
 	
 	protected double calculateFinCNa1(FlightConditions conditions) {
@@ -559,7 +680,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * @param cond   Mach speed used
 	 * @return		 CP position along the MAC
 	 */
-	private double calculateCPPos(FlightConditions cond) {
+	protected double calculateCPPos(FlightConditions cond) {
 		double m = cond.getMach();
 
 		if (m <= 0.5) {
