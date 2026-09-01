@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="OpenRocket" xmlns="http://www.topografix.com/GPX/1/1">
+	<metadata>
+		<name>{{title}}</name>
+	</metadata>
+{{#branches}}
+{{#waypoints}}
+	<wpt lat="{{latitude}}" lon="{{longitude}}">
+		<ele>{{altitudeMslMeters}}</ele>
+		<name>{{label}}</name>
+	</wpt>
+{{/waypoints}}
+{{/branches}}
+{{#branches}}
+{{#hasPath}}
+	<trk>
+		<name>{{name}}</name>
+		<trkseg>
+{{#path}}			<trkpt lat="{{latitude}}" lon="{{longitude}}"><ele>{{altitudeMslMeters}}</ele></trkpt>
+{{/path}}		</trkseg>
+	</trk>
+{{/hasPath}}
+{{/branches}}
+</gpx>
