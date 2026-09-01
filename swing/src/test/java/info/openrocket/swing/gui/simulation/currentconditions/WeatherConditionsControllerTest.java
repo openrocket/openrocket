@@ -1,0 +1,34 @@
+package info.openrocket.swing.gui.simulation.currentconditions;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Set;
+
+import javax.swing.JCheckBox;
+
+import org.junit.jupiter.api.Test;
+
+import com.formdev.flatlaf.FlatClientProperties;
+
+class WeatherConditionsControllerTest {
+	@Test
+	void windImportCheckboxReflectsAllMixedAndNoneSelected() {
+		JCheckBox checkbox = new JCheckBox();
+
+		WeatherConditionsController.updateWindImportCheckbox(checkbox, 4, Set.of());
+		assertTrue(checkbox.isSelected());
+		assertNull(checkbox.getClientProperty(FlatClientProperties.SELECTED_STATE));
+
+		WeatherConditionsController.updateWindImportCheckbox(checkbox, 4, Set.of(1, 3));
+		assertTrue(checkbox.isSelected());
+		assertEquals(FlatClientProperties.SELECTED_STATE_INDETERMINATE,
+				checkbox.getClientProperty(FlatClientProperties.SELECTED_STATE));
+
+		WeatherConditionsController.updateWindImportCheckbox(checkbox, 4, Set.of(0, 1, 2, 3));
+		assertFalse(checkbox.isSelected());
+		assertNull(checkbox.getClientProperty(FlatClientProperties.SELECTED_STATE));
+	}
+}

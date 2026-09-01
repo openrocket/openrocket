@@ -32,7 +32,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -49,6 +53,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
@@ -62,6 +68,7 @@ import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.simulation.MultiLevelWindEditDialog;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.simulation.currentconditions.OpenMeteoClient.FetchResult;
 import info.openrocket.swing.gui.simulation.currentconditions.OpenMeteoClient.RefreshRateLimitException;
 import net.miginfocom.swing.MigLayout;
@@ -72,12 +79,23 @@ public final class WeatherConditionsController {
 	private static final int DEFAULT_CHOOSER_WIDTH = 520;
 	private static final int MINIMUM_CHOOSER_WIDTH = 360;
 	private static final int DIALOG_HORIZONTAL_OVERHEAD = 160;
+	private final WeatherCustomizationPreferences customizationPreferences;
 	private Instant selectedForecastTime;
 	private DeviceLocation selectedWeatherLocation;
-	private ApplySelection weatherApplySelection = ApplySelection.all();
-	private WeatherEdits weatherEdits;
-	private WeatherEditKey weatherEditKey;
+	private ApplySelection savedApplySelection;
+	private Set<Integer> savedExcludedWindLevelIndices;
 	private SwingWorker<ConditionsLookup, Void> weatherWorker;
+
+	public WeatherConditionsController() {
+		this(new WeatherCustomizationPreferences());
+	}
+
+	WeatherConditionsController(WeatherCustomizationPreferences customizationPreferences) {
+		this.customizationPreferences = customizationPreferences;
+		this.savedApplySelection = customizationPreferences.loadFieldSettings()
+				.map(ApplySelection::from).orElseGet(ApplySelection::all);
+		this.savedExcludedWindLevelIndices = customizationPreferences.loadExcludedWindLevelIndices();
+	}
 
 	public void cancel() {
 		if (weatherWorker != null && !weatherWorker.isDone()) {
@@ -358,35 +376,47 @@ public final class WeatherConditionsController {
 				.withZone(timezone == null ? ZoneId.systemDefault() : timezone).format(conditions.validAt());
 		String accuracy = Double.isFinite(lookup.location().horizontalAccuracy())
 				? String.format(Locale.ROOT, " (±%.0f m)", lookup.location().horizontalAccuracy()) : "";
-		ApplySelection selection = weatherApplySelection;
+		ApplySelection selection = savedApplySelection;
+		Set<Integer> excludedWindLevelIndices = savedExcludedWindLevelIndices;
 		while (true) {
-			CurrentConditions.WindLayer surfaceWind = edits.windLayers.get(0);
+			List<CurrentConditions.WindLayer> includedWindLayers =
+					includedWindLayers(edits.windLayers, excludedWindLevelIndices);
+			CurrentConditions.WindLayer surfaceWind = includedWindLayers.get(0);
 			String heading = lookup.fetchResult().cached() ? "" : "<b>" + preview + "</b><br><br>";
 			String summary = String.format(Locale.ROOT, trans.get("simedtdlg.msg.weatherSummary"),
 					heading, edits.latitude, edits.longitude,
 					accuracy, edits.elevation, validAt,
 					edits.temperature - 273.15,
 					edits.pressure / 100.0, edits.relativeHumidity * 100.0, surfaceWind.speed(),
-					Math.toDegrees(surfaceWind.direction()), conditions.windGust(), edits.windLayers.size(),
-					edits.windLayers.get(edits.windLayers.size() - 1).altitude(),
+					Math.toDegrees(surfaceWind.direction()), conditions.windGust(), includedWindLayers.size(),
+					includedWindLayers.get(includedWindLayers.size() - 1).altitude(),
 					trans.get("simedtdlg.msg.weatherAttribution"));
 			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult(), timezone);
 			if (action == WeatherPreviewAction.APPLY) {
-				weatherApplySelection = selection;
-				return new WeatherPreviewResult(selection, edits, false);
+				return new WeatherPreviewResult(selection, withIncludedWindLayers(edits, excludedWindLevelIndices), false);
 			}
 			if (action == WeatherPreviewAction.FORCE_REFRESH) {
 				return new WeatherPreviewResult(selection, edits, true);
 			}
 			if (action != WeatherPreviewAction.CUSTOMIZE) {
-				weatherApplySelection = selection;
 				return null;
 			}
-			WeatherCustomization customization = customizeApplySelection(owner, selection, edits);
+			WeatherCustomization customization = customizeApplySelection(owner, selection, edits,
+					excludedWindLevelIndices);
+			if (customization.action() == CustomizationAction.CANCEL) {
+				continue;
+			}
 			selection = customization.selection();
 			edits = customization.edits();
-			weatherApplySelection = selection;
-			weatherEdits = edits;
+			excludedWindLevelIndices = customization.excludedWindLevelIndices();
+			if (customization.action() == CustomizationAction.SAVE_AND_APPLY) {
+				customizationPreferences.saveFieldSettings(selection.toFieldSettings());
+				customizationPreferences.saveExcludedWindLevelIndices(excludedWindLevelIndices);
+				savedApplySelection = selection;
+				savedExcludedWindLevelIndices = excludedWindLevelIndices;
+			}
+			return new WeatherPreviewResult(selection,
+					withIncludedWindLayers(edits, excludedWindLevelIndices), false);
 		}
 	}
 
@@ -595,8 +625,8 @@ public final class WeatherConditionsController {
 		return cone.contains(pointer);
 	}
 
-	private static WeatherCustomization customizeApplySelection(Window owner, ApplySelection current,
-			WeatherEdits currentEdits) {
+	private WeatherCustomization customizeApplySelection(Window owner, ApplySelection current,
+			WeatherEdits currentEdits, Set<Integer> currentExcludedWindLevelIndices) {
 		JCheckBox latitudeEnabled = new JCheckBox(trans.get("simedtdlg.checkbox.weatherLatitude"), current.latitude());
 		JCheckBox longitudeEnabled = new JCheckBox(trans.get("simedtdlg.checkbox.weatherLongitude"), current.longitude());
 		JCheckBox elevation = new JCheckBox(trans.get("simedtdlg.checkbox.weatherElevation"), current.elevation());
@@ -625,8 +655,33 @@ public final class WeatherConditionsController {
 		for (CurrentConditions.WindLayer layer : currentEdits.windLayers) {
 			editableWind.addWindLevel(layer.altitude(), layer.speed(), layer.direction(), layer.standardDeviation());
 		}
+		Set<Integer> initialExcludedWindLevelIndices = current.wind()
+				? currentExcludedWindLevelIndices : allWindLevelIndices(editableWind.getLevels().size());
+		AtomicReference<Set<Integer>> excludedWindLevelIndices =
+				new AtomicReference<>(Set.copyOf(initialExcludedWindLevelIndices));
+		updateWindImportCheckbox(wind, editableWind.getLevels().size(), excludedWindLevelIndices.get());
+		wind.addActionListener(e -> {
+			boolean wasIndeterminate = FlatClientProperties.SELECTED_STATE_INDETERMINATE.equals(
+					wind.getClientProperty(FlatClientProperties.SELECTED_STATE));
+			Set<Integer> excluded = wasIndeterminate || wind.isSelected()
+					? Set.of() : allWindLevelIndices(editableWind.getLevels().size());
+			excludedWindLevelIndices.set(excluded);
+			updateWindImportCheckbox(wind, editableWind.getLevels().size(), excluded);
+		});
 		JButton editWind = new JButton(trans.get("simedtdlg.but.editWindLevels"));
-		editWind.addActionListener(e -> new MultiLevelWindEditDialog(owner, editableWind).setVisible(true));
+		editWind.addActionListener(e -> {
+			MultiLevelPinkNoiseWindModel workingWind = copyWindModel(editableWind);
+			MultiLevelWindEditDialog dialog = new MultiLevelWindEditDialog(owner, workingWind,
+					excludedWindLevelIndices.get());
+			dialog.setVisible(true);
+			MultiLevelWindEditDialog.WeatherImportResult result = dialog.getWeatherImportResult();
+			if (result.action() == MultiLevelWindEditDialog.WeatherImportAction.CANCEL) {
+				return;
+			}
+			replaceWindModel(editableWind, workingWind);
+			excludedWindLevelIndices.set(result.excludedWindLevelIndices());
+			updateWindImportCheckbox(wind, editableWind.getLevels().size(), result.excludedWindLevelIndices());
+		});
 
 		JPanel fields = new JPanel(new MigLayout("insets 0, fillx", "[][220lp!][]"));
 		fields.add(new JLabel(trans.get("simedtdlg.msg.chooseFieldsToUpdate")), "span 3, wrap");
@@ -650,10 +705,10 @@ public final class WeatherConditionsController {
 		fields.add(new UnitSelector(humidityModel), "growx, wrap");
 		fields.add(wind);
 		fields.add(editWind, "span 2, growx");
-		int result = JOptionPane.showConfirmDialog(owner, fields, trans.get("simedtdlg.title.customizeWeather"),
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result != JOptionPane.OK_OPTION) {
-			return new WeatherCustomization(current, currentEdits);
+		CustomizationAction action = showWeatherCustomizationDialog(owner, fields);
+		if (action == CustomizationAction.CANCEL) {
+			return new WeatherCustomization(current, currentEdits, currentExcludedWindLevelIndices,
+					CustomizationAction.CANCEL);
 		}
 		List<CurrentConditions.WindLayer> windLayers = editableWind.getLevels().stream()
 				.map(level -> new CurrentConditions.WindLayer(level.getAltitude(), level.getSpeed(), level.getDirection(),
@@ -663,8 +718,78 @@ public final class WeatherConditionsController {
 				humidityModel.getValue(), windLayers);
 		ApplySelection selection = new ApplySelection(latitudeEnabled.isSelected(), longitudeEnabled.isSelected(),
 				elevation.isSelected(),
-				temperature.isSelected(), pressure.isSelected(), humidity.isSelected(), wind.isSelected());
-		return new WeatherCustomization(selection, edits);
+				temperature.isSelected(), pressure.isSelected(), humidity.isSelected(),
+				excludedWindLevelIndices.get().size() < editableWind.getLevels().size());
+		return new WeatherCustomization(selection, edits, excludedWindLevelIndices.get(), action);
+	}
+
+	static void updateWindImportCheckbox(JCheckBox checkbox, int levelCount, Set<Integer> excludedIndices) {
+		long excludedCount = excludedIndices.stream().filter(index -> index >= 0 && index < levelCount).count();
+		if (excludedCount == 0) {
+			checkbox.putClientProperty(FlatClientProperties.SELECTED_STATE, null);
+			checkbox.setSelected(true);
+		} else if (excludedCount == levelCount) {
+			checkbox.putClientProperty(FlatClientProperties.SELECTED_STATE, null);
+			checkbox.setSelected(false);
+		} else {
+			checkbox.setSelected(true);
+			checkbox.putClientProperty(FlatClientProperties.SELECTED_STATE,
+					FlatClientProperties.SELECTED_STATE_INDETERMINATE);
+		}
+	}
+
+	private static Set<Integer> allWindLevelIndices(int levelCount) {
+		return IntStream.range(0, levelCount).boxed().collect(Collectors.toUnmodifiableSet());
+	}
+
+	private static CustomizationAction showWeatherCustomizationDialog(Window owner, JPanel fields) {
+		JDialog dialog = new JDialog(owner, trans.get("simedtdlg.title.customizeWeather"),
+				JDialog.ModalityType.APPLICATION_MODAL);
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		CustomizationAction[] action = { CustomizationAction.CANCEL };
+
+		JButton escape = new JButton();
+		escape.addActionListener(e -> dialog.dispose());
+		JButton apply = new JButton(trans.get("simedtdlg.but.applyWeather"));
+		apply.addActionListener(e -> {
+			action[0] = CustomizationAction.APPLY;
+			dialog.dispose();
+		});
+		JButton saveAndApply = new JButton(trans.get("simedtdlg.but.saveAndApplyWeather"));
+		saveAndApply.addActionListener(e -> {
+			action[0] = CustomizationAction.SAVE_AND_APPLY;
+			dialog.dispose();
+		});
+
+		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+		buttons.add(apply);
+		buttons.add(saveAndApply);
+		JPanel content = new JPanel(new BorderLayout(0, 16));
+		content.setBorder(BorderFactory.createEmptyBorder(18, 18, 14, 18));
+		content.add(fields, BorderLayout.CENTER);
+		content.add(buttons, BorderLayout.SOUTH);
+		dialog.setContentPane(content);
+		dialog.getRootPane().setDefaultButton(apply);
+		GUIUtil.installEscapeCloseButtonOperation(dialog, escape);
+		dialog.pack();
+		dialog.setLocationRelativeTo(owner);
+		dialog.setVisible(true);
+		return action[0];
+	}
+
+	private static MultiLevelPinkNoiseWindModel copyWindModel(MultiLevelPinkNoiseWindModel source) {
+		MultiLevelPinkNoiseWindModel copy = new MultiLevelPinkNoiseWindModel();
+		replaceWindModel(copy, source);
+		return copy;
+	}
+
+	private static void replaceWindModel(MultiLevelPinkNoiseWindModel target, MultiLevelPinkNoiseWindModel source) {
+		target.clearLevels();
+		target.setAltitudeReference(source.getAltitudeReference());
+		for (MultiLevelPinkNoiseWindModel.LevelWindModel level : source.getLevels()) {
+			target.addWindLevel(level.getAltitude(), level.getSpeed(), level.getDirection(),
+					level.getStandardDeviation());
+		}
 	}
 
 	private static JSpinner unitSpinner(DoubleModel model) {
@@ -674,14 +799,23 @@ public final class WeatherConditionsController {
 	}
 
 	private WeatherEdits editsFor(CurrentConditions conditions) {
-		WeatherEditKey key = new WeatherEditKey(conditions.latitude(), conditions.longitude(), conditions.validAt());
-		if (!key.equals(weatherEditKey) || weatherEdits == null) {
-			weatherEditKey = key;
-			weatherEdits = new WeatherEdits(conditions.latitude(), conditions.longitude(), conditions.elevation(),
-					conditions.temperature(), conditions.pressure(), conditions.relativeHumidity(),
-					conditions.windLayers());
-		}
-		return weatherEdits;
+		return new WeatherEdits(conditions.latitude(), conditions.longitude(), conditions.elevation(),
+				conditions.temperature(), conditions.pressure(), conditions.relativeHumidity(),
+				conditions.windLayers());
+	}
+
+	private static List<CurrentConditions.WindLayer> includedWindLayers(
+			List<CurrentConditions.WindLayer> windLayers, Set<Integer> excludedIndices) {
+		List<CurrentConditions.WindLayer> included = IntStream.range(0, windLayers.size())
+				.filter(index -> !excludedIndices.contains(index))
+				.mapToObj(windLayers::get)
+				.toList();
+		return included.isEmpty() ? windLayers : included;
+	}
+
+	private static WeatherEdits withIncludedWindLayers(WeatherEdits edits, Set<Integer> excludedIndices) {
+		return new WeatherEdits(edits.latitude, edits.longitude, edits.elevation, edits.temperature, edits.pressure,
+				edits.relativeHumidity, includedWindLayers(edits.windLayers, excludedIndices));
 	}
 
 	private static void applyWeatherConditions(SimulationOptions options, WeatherEdits edits,
@@ -752,10 +886,15 @@ public final class WeatherConditionsController {
 		CUSTOMIZE, CANCEL, APPLY, FORCE_REFRESH
 	}
 
-	private record WeatherCustomization(ApplySelection selection, WeatherEdits edits) {
+	private record WeatherCustomization(ApplySelection selection, WeatherEdits edits,
+			Set<Integer> excludedWindLevelIndices, CustomizationAction action) {
+		private WeatherCustomization {
+			excludedWindLevelIndices = Set.copyOf(excludedWindLevelIndices);
+		}
 	}
 
-	private record WeatherEditKey(double latitude, double longitude, Instant validAt) {
+	private enum CustomizationAction {
+		CANCEL, APPLY, SAVE_AND_APPLY
 	}
 
 	private record WeatherEdits(double latitude, double longitude, double elevation, double temperature,
@@ -773,6 +912,16 @@ public final class WeatherConditionsController {
 			boolean humidity, boolean wind) {
 		private static ApplySelection all() {
 			return new ApplySelection(true, true, true, true, true, true, true);
+		}
+
+		private static ApplySelection from(WeatherCustomizationPreferences.FieldSettings settings) {
+			return new ApplySelection(settings.latitude(), settings.longitude(), settings.elevation(),
+					settings.temperature(), settings.pressure(), settings.humidity(), settings.wind());
+		}
+
+		private WeatherCustomizationPreferences.FieldSettings toFieldSettings() {
+			return new WeatherCustomizationPreferences.FieldSettings(latitude, longitude, elevation, temperature,
+					pressure, humidity, wind);
 		}
 	}
 
