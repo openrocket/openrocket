@@ -15,6 +15,14 @@ import com.formdev.flatlaf.FlatClientProperties;
 
 class WeatherConditionsControllerTest {
 	@Test
+	void previewCrossesOutFieldsThatWillNotBeApplied() {
+		assertEquals("Pressure: 12.3 hPa",
+				WeatherConditionsController.formatPreviewField(true, "Pressure: 12.3 hPa"));
+		assertEquals("<font color='#808080'><strike>Pressure: 12.3 hPa</strike></font>",
+				WeatherConditionsController.formatPreviewField(false, "Pressure: 12.3 hPa"));
+	}
+
+	@Test
 	void windImportCheckboxReflectsAllMixedAndNoneSelected() {
 		JCheckBox checkbox = new JCheckBox();
 

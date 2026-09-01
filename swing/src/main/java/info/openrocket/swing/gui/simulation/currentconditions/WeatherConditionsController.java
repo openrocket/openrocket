@@ -379,20 +379,36 @@ public final class WeatherConditionsController {
 		ApplySelection selection = savedApplySelection;
 		Set<Integer> excludedWindLevelIndices = savedExcludedWindLevelIndices;
 		while (true) {
-			List<CurrentConditions.WindLayer> includedWindLayers =
-					includedWindLayers(edits.windLayers, excludedWindLevelIndices);
-			CurrentConditions.WindLayer surfaceWind = includedWindLayers.get(0);
+			List<CurrentConditions.WindLayer> selectedWindLayers =
+					selectedWindLayers(edits.windLayers, excludedWindLevelIndices);
+			List<CurrentConditions.WindLayer> displayedWindLayers = selectedWindLayers.isEmpty()
+					? edits.windLayers : selectedWindLayers;
+			CurrentConditions.WindLayer surfaceWind = displayedWindLayers.get(0);
 			String heading = lookup.fetchResult().cached() ? "" : "<b>" + preview + "</b><br><br>";
+			String windProfile = selectedWindLayers.size() == edits.windLayers.size()
+					? String.format(Locale.ROOT, "%d layers to %.0f m MSL", selectedWindLayers.size(),
+							displayedWindLayers.get(displayedWindLayers.size() - 1).altitude())
+					: String.format(Locale.ROOT, "%d of %d layers to %.0f m MSL", selectedWindLayers.size(),
+							edits.windLayers.size(), displayedWindLayers.get(displayedWindLayers.size() - 1).altitude());
 			String summary = String.format(Locale.ROOT, trans.get("simedtdlg.msg.weatherSummary"),
-					heading, edits.latitude, edits.longitude,
-					accuracy, edits.elevation, validAt,
-					edits.temperature - 273.15,
-					edits.pressure / 100.0, edits.relativeHumidity * 100.0, surfaceWind.speed(),
-					Math.toDegrees(surfaceWind.direction()), conditions.windGust(), includedWindLayers.size(),
-					includedWindLayers.get(includedWindLayers.size() - 1).altitude(),
+					heading,
+					formatPreviewField(selection.latitude() && selection.longitude(), String.format(Locale.ROOT,
+							"Location: %.5f°, %.5f°%s", edits.latitude, edits.longitude, accuracy)),
+					formatPreviewField(selection.elevation(),
+							String.format(Locale.ROOT, "Launch elevation: %.0f m MSL", edits.elevation)), validAt,
+					formatPreviewField(selection.temperature(),
+							String.format(Locale.ROOT, "Temperature: %.1f °C", edits.temperature - 273.15)),
+					formatPreviewField(selection.pressure(),
+							String.format(Locale.ROOT, "Pressure: %.1f hPa", edits.pressure / 100.0)),
+					formatPreviewField(selection.humidity(),
+							String.format(Locale.ROOT, "Humidity: %.0f%%", edits.relativeHumidity * 100.0)),
+					formatPreviewField(selection.wind(), String.format(Locale.ROOT,
+							"Surface wind: %.1f m/s from %.0f°; gusts %.1f m/s", surfaceWind.speed(),
+							Math.toDegrees(surfaceWind.direction()), conditions.windGust())),
+					formatPreviewField(selection.wind(), "Vertical wind profile: " + windProfile),
 					trans.get("simedtdlg.msg.weatherAttribution"));
 			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult(), timezone);
-			if (action == WeatherPreviewAction.APPLY) {
+			if (action == WeatherPreviewAction.OK) {
 				return new WeatherPreviewResult(selection, withIncludedWindLayers(edits, excludedWindLevelIndices), false);
 			}
 			if (action == WeatherPreviewAction.FORCE_REFRESH) {
@@ -415,9 +431,12 @@ public final class WeatherConditionsController {
 				savedApplySelection = selection;
 				savedExcludedWindLevelIndices = excludedWindLevelIndices;
 			}
-			return new WeatherPreviewResult(selection,
-					withIncludedWindLayers(edits, excludedWindLevelIndices), false);
+			continue;
 		}
+	}
+
+	static String formatPreviewField(boolean included, String value) {
+		return included ? value : "<font color='#808080'><strike>" + value + "</strike></font>";
 	}
 
 	private static WeatherPreviewAction showWeatherPreviewDialog(Window owner, String summary, FetchResult fetchResult,
@@ -585,14 +604,14 @@ public final class WeatherConditionsController {
 		});
 		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(e -> dialog.dispose());
-		JButton apply = new JButton(trans.get("simedtdlg.but.applyWeather"));
-		apply.addActionListener(e -> {
-			result[0] = WeatherPreviewAction.APPLY;
+		JButton ok = new JButton(trans.get("dlg.but.ok"));
+		ok.addActionListener(e -> {
+			result[0] = WeatherPreviewAction.OK;
 			dialog.dispose();
 		});
 		JPanel rightActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
 		rightActions.add(cancel);
-		rightActions.add(apply);
+		rightActions.add(ok);
 		JPanel actions = new JPanel(new BorderLayout());
 		actions.add(customize, BorderLayout.WEST);
 		actions.add(rightActions, BorderLayout.EAST);
@@ -602,7 +621,7 @@ public final class WeatherConditionsController {
 		content.add(body, BorderLayout.CENTER);
 		content.add(actions, BorderLayout.SOUTH);
 		dialog.setContentPane(content);
-		dialog.getRootPane().setDefaultButton(apply);
+		dialog.getRootPane().setDefaultButton(ok);
 		dialog.pack();
 		dialog.setLocationRelativeTo(owner);
 		dialog.setVisible(true);
@@ -748,8 +767,8 @@ public final class WeatherConditionsController {
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		CustomizationAction[] action = { CustomizationAction.CANCEL };
 
-		JButton escape = new JButton();
-		escape.addActionListener(e -> dialog.dispose());
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
+		cancel.addActionListener(e -> dialog.dispose());
 		JButton apply = new JButton(trans.get("simedtdlg.but.applyWeather"));
 		apply.addActionListener(e -> {
 			action[0] = CustomizationAction.APPLY;
@@ -762,6 +781,7 @@ public final class WeatherConditionsController {
 		});
 
 		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+		buttons.add(cancel);
 		buttons.add(apply);
 		buttons.add(saveAndApply);
 		JPanel content = new JPanel(new BorderLayout(0, 16));
@@ -770,7 +790,7 @@ public final class WeatherConditionsController {
 		content.add(buttons, BorderLayout.SOUTH);
 		dialog.setContentPane(content);
 		dialog.getRootPane().setDefaultButton(apply);
-		GUIUtil.installEscapeCloseButtonOperation(dialog, escape);
+		GUIUtil.installEscapeCloseButtonOperation(dialog, cancel);
 		dialog.pack();
 		dialog.setLocationRelativeTo(owner);
 		dialog.setVisible(true);
@@ -806,11 +826,16 @@ public final class WeatherConditionsController {
 
 	private static List<CurrentConditions.WindLayer> includedWindLayers(
 			List<CurrentConditions.WindLayer> windLayers, Set<Integer> excludedIndices) {
-		List<CurrentConditions.WindLayer> included = IntStream.range(0, windLayers.size())
+		List<CurrentConditions.WindLayer> included = selectedWindLayers(windLayers, excludedIndices);
+		return included.isEmpty() ? windLayers : included;
+	}
+
+	private static List<CurrentConditions.WindLayer> selectedWindLayers(
+			List<CurrentConditions.WindLayer> windLayers, Set<Integer> excludedIndices) {
+		return IntStream.range(0, windLayers.size())
 				.filter(index -> !excludedIndices.contains(index))
 				.mapToObj(windLayers::get)
 				.toList();
-		return included.isEmpty() ? windLayers : included;
 	}
 
 	private static WeatherEdits withIncludedWindLayers(WeatherEdits edits, Set<Integer> excludedIndices) {
@@ -883,7 +908,7 @@ public final class WeatherConditionsController {
 	}
 
 	private enum WeatherPreviewAction {
-		CUSTOMIZE, CANCEL, APPLY, FORCE_REFRESH
+		CUSTOMIZE, CANCEL, OK, FORCE_REFRESH
 	}
 
 	private record WeatherCustomization(ApplySelection selection, WeatherEdits edits,
