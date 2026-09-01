@@ -60,68 +60,8 @@ public class RK4SimulationStepper extends AbstractRKSimulationStepper {
             return;
         }
 
-        /*
-         * Select the actual time step to use.  It is the minimum of the following:
-         *  dt[0]:  the user-specified time step (or 1/5th of it if still on the launch rod)
-         *  dt[1]:  the value of maxTimeStep
-         *  dt[2]:  the maximum pitch step angle limit
-         *  dt[3]:  the maximum roll step angle limit
-         *  dt[4]:  the maximum roll rate change limit
-         *  dt[5]:  the maximum pitch change limit
-         *  dt[6]:  1/10th of the launch rod length if still on the launch rod
-         *  dt[7]:  1.50 times the previous time step
-         *
-         * The limits #5 and #6 are required since near the steady-state roll rate the roll rate
-         * may oscillate significantly even between the sub-steps of the RK4 integration.
-         *
-         * The step is still at least 1/20th of the user-selected time step.
-         */
-        double[] dt = new double[8];
-        Arrays.fill(dt, Double.MAX_VALUE);
-
-        // If the user selected a really small timestep, use MIN_TIME_STEP instead.
-        dt[0] = MathUtil.max(status.getSimulationConditions().getTimeStep(), MIN_TIME_STEP);
-        dt[1] = maxTimeStep;
-        dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
-        dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
-        dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.accelerationData.getRotationalAccelerationRC().getZ());
-        dt[5] = Math.abs(MAX_PITCH_YAW_CHANGE /
-                         MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().getX()),
-                                      Math.abs(store.accelerationData.getRotationalAccelerationRC().getY())));
-        if (!status.isLaunchRodCleared()) {
-            dt[0] /= 5.0;
-            dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
-        }
-        dt[7] = 1.5 * store.timeStep;
-
-        store.timeStep = Double.MAX_VALUE;
-        int limitingValue = -1;
-        for (int i = 0; i < dt.length; i++) {
-            if (dt[i] < store.timeStep) {
-                store.timeStep = dt[i];
-                limitingValue = i;
-            }
-        }
-
-        log.trace("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
-
-        // If our selected time step is too close to our next scheduled event,
-        // (passed in as maxTimeStep) adjust
-        double minTimeStep = status.getSimulationConditions().getTimeStep() / 20;
-
-        if (Math.abs(maxTimeStep - store.timeStep) < minTimeStep) {
-            store.timeStep = maxTimeStep;
-            log.trace("selected time step too close to maxTimeStep; adjusted to " + store.timeStep);
-        }
-
-        // If we've wound up with a too-small timestep, increase it avoid numerical instability even at the
-        // cost of not being *quite* on an event
-        if (store.timeStep < minTimeStep) {
-            log.trace("Too small time step " + store.timeStep + " (limiting factor " + limitingValue + "), using " +
-                    minTimeStep + " instead.");
-            store.timeStep = minTimeStep;
-        }
-
+		store.timeStep = computeTimeStep(status, maxTimeStep, k1);
+		
         // TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
         store.storeData(status);
         checkNaN(store.timeStep, "store.timeStep");
