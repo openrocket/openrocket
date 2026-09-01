@@ -1,5 +1,12 @@
 package info.openrocket.core.simulation;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.Warning;
@@ -15,23 +22,14 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.MutableCoordinate;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.WorldCoordinate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Random;
-
 
 public class RK6SimulationStepper extends AbstractSimulationStepper {
 
     private static final Logger log = LoggerFactory.getLogger(RK6SimulationStepper.class);
     private static final Translator trans = Application.getTranslator();
 
-
     /** Random value with which to XOR the random seed value */
     private static final int SEED_RANDOMIZATION = 0x23E3A01F;
-
 
     /**
      * A recommended reasonably accurate time step.
@@ -58,7 +56,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
      * circle so that the simulation will sample the most wind directions
      */
     private static final double MAX_ROLL_STEP_ANGLE = 2 * 28.32 * Math.PI / 180;
-    //	private static final double MAX_ROLL_STEP_ANGLE = 8.32 * Math.PI/180;
+    //  private static final double MAX_ROLL_STEP_ANGLE = 8.32 * Math.PI/180;
 
     private static final double MAX_ROLL_RATE_CHANGE = 2 * Math.PI / 180;
     private static final double MAX_PITCH_YAW_CHANGE = 4 * Math.PI / 180;
@@ -79,16 +77,14 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         SimulationConditions sim = original.getSimulationConditions();
 
-        store.launchRodDirection = new Coordinate(
-                Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
-                Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
-                Math.cos(sim.getLaunchRodAngle()));
+        store.launchRodDirection = new Coordinate(Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+                                                  Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+                                                  Math.cos(sim.getLaunchRodAngle()));
 
         this.random = new Random(original.getSimulationConditions().getRandomSeed() ^ SEED_RANDOMIZATION);
 
         return status;
     }
-
 
     @Override
     public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
@@ -105,46 +101,41 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
          */
         calculateFlightConditions(status, store);
 
-		/*
-		 * Perform RK6 integration.  Decide the time step length after the first step.
-		 *
-		 *
-		 * RK6 Coefficients from Mechee, M. S., & Rajihy, Y. (2017).
-		 * Generalized RK Integrators for Solving Ordinary Differential Equations:
-		 * A Survey & Comparison Study. Global Journal of Pure and Applied Mathematics, 13(7), 2923-2949.
-		 * https://www.researchgate.net/publication/318284280_Generalized_RK_Integrators_for_Solving_Ordinary_Differential_Equations_A_Survey_Comparison_Study
-		 * [Table 2]
+        /*
+         * Perform RK6 integration.  Decide the time step length after the first step.
+         *
+         * RK6 Coefficients from Mechee, M. S., & Rajihy, Y. (2017).
+         * Generalized RK Integrators for Solving Ordinary Differential Equations:
+         * A Survey & Comparison Study. Global Journal of Pure and Applied Mathematics, 13(7), 2923-2949.
+         * https://www.researchgate.net/publication/318284280_Generalized_RK_Integrators_for_Solving_Ordinary_Differential_Equations_A_Survey_Comparison_Study
+         * [Table 2]
 
+        Butcher Tableau for RK6, according to Mechee & Rajihy:
 
-		Butcher Tableau for RK6, according to Mechee & Rajihy:
+            0   | 0      & 0     & 0     & 0     & 0     & 0      & 0
+            1/3 | 1/3    & 0     & 0     & 0     & 0     & 0      & 0
+            2/3 | 0      & 2/3   & 0     & 0     & 0     & 0      & 0
+            1/3 | 1/12   & 1/3   & -1/12 & 0     & 0     & 0      & 0
+            1/2 | -1/16  & 9/8   & -3/16 & -3/8  & 0     & 0      & 0
+            1/2 | 0      & 9/8   & -3/8  & -3/4  & 1/2   & 0      & 0
+            1   | 9/44   & -9/11 & 63/44 & 18/11 & 0     & -16/11 & 0
+            ----------------------------------------------------------------
+                | 11/120 & 0     & 27/40 & 27/40 & -4/15 & -4/15  & 11/120
 
-			0   | 0      & 0     & 0     & 0     & 0     & 0      & 0
-			1/3 | 1/3    & 0     & 0     & 0     & 0     & 0      & 0
-			2/3 | 0      & 2/3   & 0     & 0     & 0     & 0      & 0
-			1/3 | 1/12   & 1/3   & -1/12 & 0     & 0     & 0      & 0
-			1/2 | -1/16  & 9/8   & -3/16 & -3/8  & 0     & 0      & 0
-			1/2 | 0      & 9/8   & -3/8  & -3/4  & 1/2   & 0      & 0
-			1   | 9/44   & -9/11 & 63/44 & 18/11 & 0     & -16/11 & 0
-			----------------------------------------------------------------
-				| 11/120 & 0     & 27/40 & 27/40 & -4/15 & -4/15  & 11/120
+        In function calls, it will be:
 
-
-		In function calls, it will be:
-
-			k1 = f(t, y)
-			k2 = f(t + h/3, y + 1/3*h*k1)
-			k3 = f(t + h*2/3, y + 2/3*h*k2)
-			k4 = f(t + h*1/3, y + 1/12*h*k1 + 1/3*h*k2 - 1/12*h*k3)
-			k5 = f(t + h*1/2, y - 1/16*h*k1 + 9/8*h*k2 - 3/16*h*k3 - 3/8*h*k4)
-			k6 = f(t + h*1/2, y + 9/8*h*k2 - 3/8*h*k3 - 3/4*h*k4 + 1/2*h*k5)
-			k7 = f(t + h, y + 9/44*h*k1 - 9/11*h*k2 + 63/44*h*k3 + 18/11*h*k4 - 16/11*h*k6)
-		*/
+            k1 = f(t, y)
+            k2 = f(t + h/3, y + 1/3*h*k1)
+            k3 = f(t + h*2/3, y + 2/3*h*k2)
+            k4 = f(t + h*1/3, y + 1/12*h*k1 + 1/3*h*k2 - 1/12*h*k3)
+            k5 = f(t + h*1/2, y - 1/16*h*k1 + 9/8*h*k2 - 3/16*h*k3 - 3/8*h*k4)
+            k6 = f(t + h*1/2, y + 9/8*h*k2 - 3/8*h*k3 - 3/4*h*k4 + 1/2*h*k5)
+            k7 = f(t + h, y + 9/44*h*k1 - 9/11*h*k2 + 63/44*h*k3 + 18/11*h*k4 - 16/11*h*k6)
+        */
 
         //// First position, k1 = f(t, y)
 
         k1 = computeParameters(status, store);
-
-
 
         // If maxTimeStep is NaN we'll just record sim params and leave
         if (Double.isNaN(maxTimeStep)) {
@@ -174,7 +165,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         double[] dt = new double[8];
         Arrays.fill(dt, Double.MAX_VALUE);
 
-
         // If the user selected a really small timestep, use MIN_TIME_STEP instead.
         dt[0] = MathUtil.max(status.getSimulationConditions().getTimeStep(), MIN_TIME_STEP);
         dt[1] = maxTimeStep;
@@ -182,8 +172,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
         dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.accelerationData.getRotationalAccelerationRC().getZ());
         dt[5] = Math.abs(MAX_PITCH_YAW_CHANGE /
-                MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().getX()),
-                        Math.abs(store.accelerationData.getRotationalAccelerationRC().getY())));
+						 MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().getX()),
+									  Math.abs(store.accelerationData.getRotationalAccelerationRC().getY())));
         if (!status.isLaunchRodCleared()) {
             dt[0] /= 5.0;
             dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
@@ -198,7 +188,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 limitingValue = i;
             }
         }
-
 
         // If our selected time step is too close to our next scheduled event,
         // (passed in as maxTimeStep) adjust
@@ -241,7 +230,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         k2 = computeParameters(status2, store);
 
-
         //// Third position, k3 = f(t + h*2/3, y + 2/3*h*k2)
         double weightk2 = 2.0/3;
         status2 = status.clone();
@@ -261,7 +249,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .toImmutable());
 
         k3 = computeParameters(status2, store);
-
 
         //// Fourth position, k4 = f(t + h*1/3, y + 1/12*h*k1 + 1/3*h*k2 - 1/12*h*k3)
         weightk1 = 1.0/12;
@@ -302,7 +289,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .toImmutable());
 
         k4 = computeParameters(status2, store);
-
 
         //// Fifth position, k5 = f(t + h*1/2, y - 1/16*h*k1 + 9/8*h*k2 - 3/16*h*k3 - 3/8*h*k4)
         weightk1 = -1.0/16;
@@ -352,8 +338,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         k5 = computeParameters(status2, store);
 
-
-
         //// Sixth position, k6 = f(t + h*1/2, y + 9/8*h*k2 - 3/8*h*k3 - 3/4*h*k4 + 1/2*h*k5)
         weightk2 = 9.0/8;
         weightk3 = -3.0/8;
@@ -401,7 +385,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .toImmutable());
 
         k6 = computeParameters(status2, store);
-
 
         //// Seventh position, k7 = f(t + h, y + 9/44*h*k1 - 9/11*h*k2 + 63/44*h*k3 + 18/11*h*k4 - 16/11*h*k6)
         weightk1 = 9.0/44;
@@ -567,9 +550,9 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
      * configuration, at the current simulation time, allowing listeners to override
      * TODO: HIGH:  This method does not take into account any moments generated by off-center motors.
      *
-     * @param status					the current simulation status.
+     * @param status                    the current simulation status.
      * @param store                     the simulation calculation DataStore (contains acceleration, atmosphere)
-     * @return							the average thrust during the time step.
+     * @return                          the average thrust during the time step.
      */
     protected double calculateThrust(SimulationStatus status,
                                      DataStore store) throws SimulationException {
@@ -622,7 +605,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         // Calculate the forces from the aerodynamic coefficients
 
         double dynP = (0.5 * store.flightConditions.getAtmosphericConditions().getDensity() *
-                MathUtil.pow2(store.flightConditions.getVelocity()));
+					   MathUtil.pow2(store.flightConditions.getVelocity()));
         double refArea = store.flightConditions.getRefArea();
         double refLength = store.flightConditions.getRefLength();
 
@@ -721,19 +704,16 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         // Calculate aerodynamic forces
         store.forces = status.getSimulationConditions().getAerodynamicCalculator()
                 .getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
-		status.addWarnings(warnings);
+        status.addWarnings(warnings);
 
         // Add very small randomization to yaw & pitch moments to prevent over-perfect flight
         // TODO: HIGH: This should rather be performed as a listener
         store.forces.setCm(store.forces.getCm() + (PITCH_YAW_RANDOM * 2 * (random.nextDouble() - 0.5)));
         store.forces.setCyaw(store.forces.getCyaw() + (PITCH_YAW_RANDOM * 2 * (random.nextDouble() - 0.5)));
 
-
         // Call post-listeners
         store.forces = SimulationListenerHelper.firePostAerodynamicCalculation(status, store.forces);
     }
-
-
 
     private static class RK6Parameters {
         /** Linear acceleration */
@@ -744,7 +724,6 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         public CoordinateIF ra;
         /** Rotational velocity */
         public CoordinateIF rv;
-
 
         public String toString() {
             return "----\na: " + a + "\nv:" + v + "\nra:" + ra + "\nrv:" + rv + "\n----";
