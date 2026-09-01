@@ -23,6 +23,11 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	@Inject
 	private ScriptingUtil util;
 
+	@Override
+	public boolean isMonteCarloSafe() {
+		return !isEnabled();
+	}
+
 	public ScriptingExtension() {
 		setLanguage(DEFAULT_LANGUAGE);
 		setScript("");

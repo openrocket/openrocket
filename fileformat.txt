@@ -106,3 +106,9 @@ The following file format versions exist:
                 <series symbol="Vz" red="0" green="100" blue="200" alpha="255"/>
               </plotappearance>
       Increased decimal precision of simulation <flightdata>, <event>, and <datapoint> values to 6 digits after the decimal point.
+
+1.12: Introduced with OpenRocket 26.XX.
+      Added optional per-simulation landing-dispersion settings
+      (<landingdispersion>). The element records the run count and master seed,
+      with one <uncertainty> child per dispersed parameter. Spreads are stored in
+      OpenRocket internal SI units.

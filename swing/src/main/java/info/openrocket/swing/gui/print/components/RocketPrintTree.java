@@ -80,7 +80,7 @@ public class RocketPrintTree extends JTree {
         List<OpenRocketPrintable> unstaged = OpenRocketPrintable.getUnstaged();
 		for (OpenRocketPrintable openRocketPrintable : unstaged) {
 			toAddTo.add(new CheckBoxNode(openRocketPrintable.getDescription(),
-					INITIAL_CHECKBOX_SELECTED));
+					isInitiallySelected(openRocketPrintable)));
 		}
 
 		RocketPrintTree tree = new RocketPrintTree(root);
@@ -182,10 +182,14 @@ public class RocketPrintTree extends JTree {
 		for (OpenRocketPrintable openRocketPrintable : printables) {
 			if (!onlyStageSpecific || openRocketPrintable.isStageSpecific()) {
 				nodes.add(new CheckBoxNode(openRocketPrintable.getDescription(),
-											INITIAL_CHECKBOX_SELECTED));
+											isInitiallySelected(openRocketPrintable)));
 			}
 		}
 		return nodes.toArray(new CheckBoxNode[0]);
+	}
+
+	static boolean isInitiallySelected(OpenRocketPrintable printable) {
+		return printable != OpenRocketPrintable.MONTE_CARLO_REPORT;
 	}
 	
 	/**

@@ -16,6 +16,11 @@ public class JavaCode extends AbstractSimulationExtension {
 	private Injector injector;
 
 	@Override
+	public boolean isMonteCarloSafe() {
+		return StringUtils.isEmpty(getClassName());
+	}
+
+	@Override
 	public void initialize(SimulationConditions conditions) throws SimulationException {
 		String className = getClassName();
 		try {

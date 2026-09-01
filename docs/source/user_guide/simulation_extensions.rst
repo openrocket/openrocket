@@ -286,7 +286,13 @@ start velocity).
      * Simulation extension that launches a rocket from a specific altitude.
      */
     public class AirStartExample extends AbstractSimulationExtension {
+
+        @Override
+        public boolean isMonteCarloSafe() {
+            return true;
+        }
     
+        @Override
         public void initialize(SimulationConditions conditions) throws SimulationException {
             conditions.getSimulationListenerList().add(new AirStartListener());
         }
@@ -312,16 +318,17 @@ start velocity).
 
 There are several important features in this example:
 
-* The ``initialize()`` method in lines 15-17, which adds the listener to the simulation. This is the 
+* The ``isMonteCarloSafe()`` method explicitly declares that the extension can run as part of a Monte Carlo analysis.
+* The ``initialize()`` method, which adds the listener to the simulation. This is the 
   only method that is actually required to be defined in your
-  extension, though any real extension (including this example) will have more.
-* The ``getName()`` method in lines 19-22, which provides the extension's name. A default ``getName()`` is provided by 
+  extension, though any real extension (including this example) will
+  almost certainly have more.
+* The ``getName()`` method, which provides the extension's name. A default ``getName()`` is provided by 
   ``AbstractSimulationExtension``, which simply uses the classname (so for this example, ``getName()`` would have returned 
   ``"AirStartExample"`` if this method hadn't overridden it).
-* The ``getDescription()`` method in lines 24-27, which provides a brief description of the purpose of the extension. 
-  This is the method that provides the text for the :guilabel:`Info`
-  button dialog in the extensions menu.
-* The listener itself in lines 29-35, which provides a single ``startSimulation()`` method. When the simulation starts 
+* The ``getDescription()`` method, which provides a brief description of the purpose of the extension. 
+  This is the method that provides the text for the :guilabel:`Info` button dialog shown in the first section of this page.
+* The listener itself, which provides a single ``startSimulation()`` method. When the simulation starts 
   executing, this listener is called, and the rocket is set to an altitude of 1000 meters.
 
 This will create the extension when it's compiled, but it won't put it in the simulation extension menu. To be able to 
@@ -351,6 +358,29 @@ and the provider in
 and compiling and running OpenRocket, will give you a new entry in the extensions menu; adding it to the simulation will cause your simulation to 
 start at an altitude of 1000 meters.
 
+Monte Carlo Compatibility
+-------------------------
+
+A Monte Carlo analysis runs the nominal trajectory followed by many dispersed
+trajectories, potentially in parallel. Simulation extensions are included in
+these trajectories; they are not silently ignored. However, an extension is
+considered incompatible by default. If an attached extension is incompatible,
+OpenRocket refuses to start the analysis and identifies the extension that must
+be disabled.
+
+Compatibility is declared by the extension author, not by the user. Override
+``isMonteCarloSafe()`` to return ``true`` only when every invocation confines its
+mutations to the copied simulation and is safe to execute repeatedly and
+concurrently. A compatible extension must not write files, print output, access
+the network, display user-interface elements, or otherwise produce external side
+effects. It must also avoid shared mutable state between trajectories. Extensions
+that execute arbitrary scripts or Java code should remain incompatible.
+
+The ``AirStartExample`` above is compatible because it changes only the state of
+the independently copied simulation. Its explicit override allows it to run in a
+Monte Carlo analysis. There is intentionally no user preference that can override
+an extension author's declaration.
+
 Adding a Configurator
 ---------------------
 
@@ -373,7 +403,13 @@ communicate with the extension. First, we'll modify the extension as follows:
      * Simulation extension that launches a rocket from a specific altitude.
      */
     public class AirStartExample extends AbstractSimulationExtension {
+
+        @Override
+        public boolean isMonteCarloSafe() {
+            return true;
+        }
     
+        @Override
         public void initialize(SimulationConditions conditions) throws SimulationException {
             conditions.getSimulationListenerList().add(new AirStartListener());
         }

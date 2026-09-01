@@ -95,6 +95,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.simulation.listeners;
 	exports info.openrocket.core.simulation.listeners.example;
 	exports info.openrocket.core.simulation.listeners.system;
+	exports info.openrocket.core.simulation.montecarlo;
 	exports info.openrocket.core.startup;
 	exports info.openrocket.core.thrustcurve;
 	exports info.openrocket.core.unit;
