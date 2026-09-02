@@ -8,6 +8,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.DecalNotFoundException;
 
 import javax.swing.JFileChooser;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import java.awt.Component;
 import java.io.File;
@@ -32,12 +33,12 @@ public abstract class DecalNotFoundDialog {
 
         // Show 'look up file" yes/no dialog
         String message = MessageWidthUtil.setMessageWidth(decex.getMessage(), 400);
-        int resultYesNo = JOptionPane.showConfirmDialog(parent, message,
-                trans.get("ExportDecalDialog.source.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        boolean userWantsToFind = MessageDialog.confirmYesNoWarning(parent, message,
+                trans.get("ExportDecalDialog.source.title"));
         int resultFileChooser = JFileChooser.CANCEL_OPTION;
 
         // Look for the file
-        if (resultYesNo == JOptionPane.YES_OPTION) {
+        if (userWantsToFind) {
             JFileChooser chooser = new JFileChooser();
             chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
             resultFileChooser = chooser.showOpenDialog(parent);
@@ -47,6 +48,6 @@ public abstract class DecalNotFoundDialog {
                 Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
             }
         }
-        return (resultYesNo == JOptionPane.YES_OPTION) && (resultFileChooser == JFileChooser.APPROVE_OPTION);
+        return userWantsToFind && (resultFileChooser == JFileChooser.APPROVE_OPTION);
     }
 }

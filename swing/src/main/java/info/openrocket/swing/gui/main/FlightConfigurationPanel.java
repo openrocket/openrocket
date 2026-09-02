@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.swing.gui.dialogs.flightconfiguration.RenameConfigDialog;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import info.openrocket.swing.gui.main.flightconfigpanel.FlightConfigurablePanel;
 import info.openrocket.swing.gui.main.flightconfigpanel.MotorConfigurationPanel;
 import info.openrocket.swing.gui.main.flightconfigpanel.RecoveryConfigurationPanel;
@@ -262,6 +263,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if (fcIds == null || fcIds.size() == 0)
 			return;
+
+		String msg = fcIds.size() == 1
+				? trans.get("FlightConfigurationPanel.confirm.delete.msg")
+				: String.format(trans.get("FlightConfigurationPanel.confirm.delete.msg.multi"), fcIds.size());
+		if (!MessageDialog.confirmYesNoWarningWithDontAsk(SwingUtilities.getWindowAncestor(this), msg,
+				trans.get("FlightConfigurationPanel.confirm.delete.title"),
+				trans.get("FlightConfigurationPanel.confirm.delete.dontAsk"),
+				Application.getPreferences()::getConfirmConfigurationDeletion,
+				() -> Application.getPreferences().setConfirmConfigurationDeletion(false))) return;
 
 		document.addUndoPosition("Remove configuration(s)");
 

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.JOptionPane;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JTable;
 
 import info.openrocket.core.util.StringUtils;
@@ -79,15 +79,13 @@ public class SimulationTableCSVExport {
 			bufferedWriter = new BufferedWriter(new FileWriter(CSVFile, StandardCharsets.UTF_8));
 			bufferedWriter.write(data);
 		} catch (IOException e) {
-			String msg = e.getMessage();
-			JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
+			MessageDialog.showError(simulationTable.getParent(), e.getMessage(), "Error writing CSV file");
 		} finally {
 			if (bufferedWriter != null) {
 				try {
 					bufferedWriter.close();
 				} catch (IOException e) {
-					String msg = e.getMessage();
-					JOptionPane.showMessageDialog(simulationTable.getParent(), msg);
+					MessageDialog.showError(simulationTable.getParent(), e.getMessage(), "Error writing CSV file");
 				}
 			}
 		}

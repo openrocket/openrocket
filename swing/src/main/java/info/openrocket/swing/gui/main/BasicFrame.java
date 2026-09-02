@@ -120,6 +120,7 @@ import info.openrocket.swing.gui.dialogs.DetailDialog;
 import info.openrocket.swing.gui.dialogs.LicenseDialog;
 import info.openrocket.swing.gui.dialogs.PrintDialog;
 import info.openrocket.swing.gui.dialogs.SwingWorkerDialog;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
@@ -1787,28 +1788,14 @@ private static final Translator trans = Application.getTranslator();
 	 * @return true if the file was written
 	 */
 	private boolean saveAsRASAero(File file) {
-		if (prefs.getShowRASAeroFormatWarning())  {
+		if (prefs.getShowRASAeroFormatWarning()) {
 			// Show RASAero format warning
 			JPanel panel = new JPanel(new MigLayout());
 			panel.add(new StyledLabel(trans.get("SaveRASAeroWarningDialog.txt1")), "wrap");
 			final JCheckBox check = new JCheckBox(trans.get("SaveRASAeroWarningDialog.donotshow"));
-			check.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					prefs.setShowRASAeroFormatWarning(!check.isSelected());
-				}
-			});
+			check.addActionListener(e -> prefs.setShowRASAeroFormatWarning(!check.isSelected()));
 			panel.add(check);
-			int sel = JOptionPane.showOptionDialog(BasicFrame.this,
-					panel,
-					"", // title
-					JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.WARNING_MESSAGE,
-					null, // icon
-					null, // options
-					null // default option
-			);
-			if (sel == 1) {
+			if (!MessageDialog.confirmOkCancelWarning(BasicFrame.this, panel, "")) {
 				return false;
 			}
 		}
@@ -1854,6 +1841,11 @@ private static final Translator trans = Application.getTranslator();
 						trans.get("BasicFrame.ErrorWarningDialog.saving.title"), errors, warnings);
 			}
 			// Do not update the save state of the document.
+			if (errors.isEmpty()) {
+				MessageDialog.showInfo(BasicFrame.this,
+						trans.get("BasicFrame.ExportCompleteDialog.rasaero.msg"),
+						trans.get("BasicFrame.ExportCompleteDialog.rasaero.title"));
+			}
 			return errors.isEmpty();
 		} catch (IOException e) {
 			return false;
@@ -1900,28 +1892,14 @@ private static final Translator trans = Application.getTranslator();
 	 * @return true if the file was written
 	 */
 	private boolean saveAsRockSim(File file) {
-		if ( prefs.getShowRockSimFormatWarning() ) {
+		if (prefs.getShowRockSimFormatWarning()) {
 			// Show RockSim format warning
 			JPanel panel = new JPanel(new MigLayout());
 			panel.add(new StyledLabel(trans.get("SaveRktWarningDialog.txt1")), "wrap");
 			final JCheckBox check = new JCheckBox(trans.get("SaveRktWarningDialog.donotshow"));
-			check.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					prefs.setShowRockSimFormatWarning(!check.isSelected());
-				}
-			});
+			check.addActionListener(e -> prefs.setShowRockSimFormatWarning(!check.isSelected()));
 			panel.add(check);
-			int sel = JOptionPane.showOptionDialog(BasicFrame.this,
-					panel,
-					"", // title
-					JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.WARNING_MESSAGE,
-					null, // icon
-					null, // options
-					null // default option
-					);
-			if ( sel == 1  ) {
+			if (!MessageDialog.confirmOkCancelWarning(BasicFrame.this, panel, "")) {
 				return false;
 			}
 		}
@@ -1941,8 +1919,32 @@ private static final Translator trans = Application.getTranslator();
 	private boolean saveRockSimFile(File file, StorageOptions options) {
 		try {
 			ROCKET_SAVER.save(file, document, options);
+
+			WarningSet warnings = ROCKET_SAVER.getWarnings();
+			ErrorSet errors = ROCKET_SAVER.getErrors();
+
+			if (!warnings.isEmpty() && errors.isEmpty()) {
+				WarningDialog.showWarnings(BasicFrame.this,
+						new Object[]{
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								trans.get("BasicFrame.WarningDialog.saving.txt2")
+						},
+						trans.get("BasicFrame.WarningDialog.saving.title"),
+						warnings);
+			} else if (!errors.isEmpty()) {
+				ErrorWarningDialog.showErrorsAndWarnings(BasicFrame.this,
+						new Object[]{
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								trans.get("BasicFrame.ErrorWarningDialog.txt1")
+						},
+						trans.get("BasicFrame.ErrorWarningDialog.saving.title"), errors, warnings);
+			} else {
+				MessageDialog.showInfo(BasicFrame.this,
+						trans.get("BasicFrame.ExportCompleteDialog.rocksim.msg"),
+						trans.get("BasicFrame.ExportCompleteDialog.rocksim.title"));
+			}
 			// Do not update the save state of the document.
-			return true;
+			return errors.isEmpty();
 		} catch (IOException e) {
 			return false;
 		} catch (DecalNotFoundException decex) {

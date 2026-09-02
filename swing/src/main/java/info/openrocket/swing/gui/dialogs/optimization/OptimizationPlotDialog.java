@@ -117,7 +117,7 @@ public class OptimizationPlotDialog extends JDialog {
 				OptimizationPlotDialog.this.setVisible(false);
 			}
 		});
-		panel.add(close, "right");
+		panel.add(close, "span, tag ok");
 		
 
 		this.add(panel);

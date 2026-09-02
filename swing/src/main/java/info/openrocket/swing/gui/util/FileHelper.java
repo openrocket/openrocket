@@ -7,6 +7,7 @@ import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
 
 import javax.imageio.ImageIO;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
@@ -172,10 +173,9 @@ public final class FileHelper {
 	public static boolean confirmWrite(File file, Component parent) {
 		if (file.exists()) {
 			log.info(Markers.USER_MARKER, "File " + file + " exists, confirming overwrite from user");
-			int result = JOptionPane.showConfirmDialog(parent,
+			if (!MessageDialog.confirmYesNo(parent,
 					L10N.replace(trans.get("error.fileExists.desc"), "{filename}", file.getName()),
-					trans.get("error.fileExists.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if (result != JOptionPane.YES_OPTION) {
+					trans.get("error.fileExists.title"))) {
 				log.info(Markers.USER_MARKER, "User decided not to overwrite the file");
 				return false;
 			}

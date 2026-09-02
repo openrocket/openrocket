@@ -80,7 +80,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 				cancel();
 			}
 		});
-		panel.add(cancel, "right");
+		panel.add(cancel, "span, tag cancel");
 		
 		this.add(panel);
 		this.setMinimumSize(new Dimension(250, 100));

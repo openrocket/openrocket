@@ -612,7 +612,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				GeneralOptimizationDialog.this.dispose();
 			}
 		});
-		panel.add(closeButton, "right");
+		panel.add(closeButton, "tag ok");
 		
 		this.add(new JScrollPane(panel));
 		clearHistory();
