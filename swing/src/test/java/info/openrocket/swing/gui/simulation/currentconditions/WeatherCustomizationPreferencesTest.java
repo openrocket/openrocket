@@ -30,8 +30,23 @@ class WeatherCustomizationPreferencesTest {
 				new WeatherCustomizationPreferences.FieldSettings(false, true, false, true, false, true, true, false);
 
 		repository.saveFieldSettings(expected);
+		repository.saveTurbulenceIntensity(0);
 
 		assertEquals(expected, repository.loadFieldSettings().orElseThrow());
+		assertEquals(0, repository.loadTurbulenceIntensity().orElseThrow(), 0.0);
+		repository.clearTurbulenceIntensity();
+		assertTrue(repository.loadTurbulenceIntensity().isEmpty());
+	}
+
+	@Test
+	void ignoresMissingOrInvalidSavedTurbulenceIntensity() {
+		WeatherCustomizationPreferences repository = new WeatherCustomizationPreferences(node);
+		repository.saveFieldSettings(new WeatherCustomizationPreferences.FieldSettings(
+				true, true, true, true, true, true, true, true));
+
+		assertTrue(repository.loadTurbulenceIntensity().isEmpty());
+		node.putDouble("turbulenceIntensity", 1.5);
+		assertTrue(repository.loadTurbulenceIntensity().isEmpty());
 	}
 
 	@Test

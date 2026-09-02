@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.simulation.currentconditions;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.prefs.Preferences;
@@ -15,6 +16,7 @@ final class WeatherCustomizationPreferences {
 	private static final String NODE_NAME = "weatherCustomization";
 	private static final String FIELDS_SAVED = "fieldsSaved";
 	private static final String EXCLUDED_WIND_LEVELS = "excludedWindLevelIndices";
+	private static final String TURBULENCE_INTENSITY = "turbulenceIntensity";
 
 	private final Preferences preferences;
 
@@ -51,6 +53,26 @@ final class WeatherCustomizationPreferences {
 		preferences.putBoolean("wind", settings.wind());
 		preferences.putBoolean("turbulence", settings.turbulence());
 		preferences.putBoolean(FIELDS_SAVED, true);
+	}
+
+	OptionalDouble loadTurbulenceIntensity() {
+		if (!preferences.getBoolean(FIELDS_SAVED, false)) {
+			return OptionalDouble.empty();
+		}
+		double value = preferences.getDouble(TURBULENCE_INTENSITY, Double.NaN);
+		return Double.isFinite(value) && value >= 0 && value <= 1
+				? OptionalDouble.of(value) : OptionalDouble.empty();
+	}
+
+	void saveTurbulenceIntensity(double value) {
+		if (!Double.isFinite(value) || value < 0 || value > 1) {
+			throw new IllegalArgumentException("Turbulence intensity must be between zero and one");
+		}
+		preferences.putDouble(TURBULENCE_INTENSITY, value);
+	}
+
+	void clearTurbulenceIntensity() {
+		preferences.remove(TURBULENCE_INTENSITY);
 	}
 
 	Set<Integer> loadExcludedWindLevelIndices() {

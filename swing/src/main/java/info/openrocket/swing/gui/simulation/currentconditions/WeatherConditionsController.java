@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -84,6 +85,7 @@ public final class WeatherConditionsController {
 	private DeviceLocation selectedWeatherLocation;
 	private ApplySelection savedApplySelection;
 	private Set<Integer> savedExcludedWindLevelIndices;
+	private Double savedTurbulenceIntensity;
 	private SwingWorker<ConditionsLookup, Void> weatherWorker;
 
 	public WeatherConditionsController() {
@@ -95,6 +97,8 @@ public final class WeatherConditionsController {
 		this.savedApplySelection = customizationPreferences.loadFieldSettings()
 				.map(ApplySelection::from).orElseGet(ApplySelection::all);
 		this.savedExcludedWindLevelIndices = customizationPreferences.loadExcludedWindLevelIndices();
+		OptionalDouble savedTurbulence = customizationPreferences.loadTurbulenceIntensity();
+		this.savedTurbulenceIntensity = savedTurbulence.isPresent() ? savedTurbulence.getAsDouble() : null;
 	}
 
 	public void cancel() {
@@ -406,8 +410,10 @@ public final class WeatherConditionsController {
 							"Surface wind: %.1f m/s from %.0f°; gusts %.1f m/s", surfaceWind.speed(),
 							Math.toDegrees(surfaceWind.direction()), conditions.windGust())),
 					formatPreviewField(selection.wind(), "Vertical wind profile: " + windProfile),
-					formatPreviewField(selection.turbulence(), String.format(Locale.ROOT,
-							"Turbulence intensity: %.0f%%", edits.turbulenceIntensity * 100.0)),
+					formatPreviewField(selection.turbulence(), edits.turbulenceIntensity == null
+							? "Turbulence intensity: varies by level"
+							: String.format(Locale.ROOT, "Turbulence intensity: %.0f%%",
+									edits.turbulenceIntensity * 100.0)),
 					trans.get("simedtdlg.msg.weatherAttribution"));
 			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult(), timezone);
 			if (action == WeatherPreviewAction.OK) {
@@ -430,8 +436,14 @@ public final class WeatherConditionsController {
 			if (customization.action() == CustomizationAction.SAVE_AND_APPLY) {
 				customizationPreferences.saveFieldSettings(selection.toFieldSettings());
 				customizationPreferences.saveExcludedWindLevelIndices(excludedWindLevelIndices);
+				if (edits.turbulenceIntensity == null) {
+					customizationPreferences.clearTurbulenceIntensity();
+				} else {
+					customizationPreferences.saveTurbulenceIntensity(edits.turbulenceIntensity);
+				}
 				savedApplySelection = selection;
 				savedExcludedWindLevelIndices = excludedWindLevelIndices;
+				savedTurbulenceIntensity = edits.turbulenceIntensity;
 			}
 			continue;
 		}
@@ -665,7 +677,8 @@ public final class WeatherConditionsController {
 		DoubleModel temperatureModel = new DoubleModel(currentEdits.temperature, UnitGroup.UNITS_TEMPERATURE, 0);
 		DoubleModel pressureModel = new DoubleModel(currentEdits.pressure, UnitGroup.UNITS_PRESSURE, 0);
 		DoubleModel humidityModel = new DoubleModel(currentEdits.relativeHumidity, UnitGroup.UNITS_RELATIVE, 0, 1);
-		DoubleModel turbulenceModel = new DoubleModel(currentEdits.turbulenceIntensity,
+		boolean initialMixedTurbulence = currentEdits.turbulenceIntensity == null;
+		DoubleModel turbulenceModel = new DoubleModel(initialMixedTurbulence ? 0 : currentEdits.turbulenceIntensity,
 				UnitGroup.UNITS_RELATIVE, 0, 1);
 		JSpinner latitude = unitSpinner(latitudeModel);
 		JSpinner longitude = unitSpinner(longitudeModel);
@@ -674,6 +687,8 @@ public final class WeatherConditionsController {
 		JSpinner pressureValue = unitSpinner(pressureModel);
 		JSpinner humidityValue = unitSpinner(humidityModel);
 		JSpinner turbulenceValue = unitSpinner(turbulenceModel);
+		boolean[] mixedTurbulence = { initialMixedTurbulence };
+		boolean[] updatingTurbulenceModel = { false };
 
 		MultiLevelPinkNoiseWindModel editableWind = new MultiLevelPinkNoiseWindModel();
 		editableWind.clearLevels();
@@ -681,6 +696,49 @@ public final class WeatherConditionsController {
 		for (CurrentConditions.WindLayer layer : currentEdits.windLayers) {
 			editableWind.addWindLevel(layer.altitude(), layer.speed(), layer.direction(), layer.standardDeviation());
 		}
+		AtomicReference<List<Double>> turbulenceRestoreValues =
+				new AtomicReference<>(standardDeviations(editableWind));
+		boolean[] globalTurbulenceOverrideActive = { false };
+		if (mixedTurbulence[0]) {
+			showMixedValue(turbulenceValue);
+		} else if (turbulence.isSelected()) {
+			setTurbulenceIntensity(editableWind, turbulenceModel.getValue());
+			globalTurbulenceOverrideActive[0] = true;
+		}
+		turbulenceModel.addChangeListener(e -> {
+			if (!updatingTurbulenceModel[0]) {
+				mixedTurbulence[0] = false;
+			}
+			if (!updatingTurbulenceModel[0] && turbulence.isSelected()) {
+				if (!globalTurbulenceOverrideActive[0]) {
+					turbulenceRestoreValues.set(standardDeviations(editableWind));
+				}
+				setTurbulenceIntensity(editableWind, turbulenceModel.getValue());
+				globalTurbulenceOverrideActive[0] = true;
+			}
+		});
+		turbulence.addActionListener(e -> {
+			if (turbulence.isSelected() && !mixedTurbulence[0]) {
+				if (!globalTurbulenceOverrideActive[0]) {
+					turbulenceRestoreValues.set(standardDeviations(editableWind));
+				}
+				setTurbulenceIntensity(editableWind, turbulenceModel.getValue());
+				globalTurbulenceOverrideActive[0] = true;
+			} else if (!turbulence.isSelected() && globalTurbulenceOverrideActive[0]) {
+				restoreStandardDeviations(editableWind, turbulenceRestoreValues.get());
+				globalTurbulenceOverrideActive[0] = false;
+				OptionalDouble restoredTurbulence = uniformTurbulenceIntensity(editableWind);
+				if (restoredTurbulence.isPresent()) {
+					updatingTurbulenceModel[0] = true;
+					turbulenceModel.setValue(restoredTurbulence.getAsDouble());
+					updatingTurbulenceModel[0] = false;
+					mixedTurbulence[0] = false;
+				} else {
+					mixedTurbulence[0] = true;
+					showMixedValue(turbulenceValue);
+				}
+			}
+		});
 		Set<Integer> initialExcludedWindLevelIndices = current.wind()
 				? currentExcludedWindLevelIndices : allWindLevelIndices(editableWind.getLevels().size());
 		AtomicReference<Set<Integer>> excludedWindLevelIndices =
@@ -696,6 +754,13 @@ public final class WeatherConditionsController {
 		});
 		JButton editWind = new JButton(trans.get("simedtdlg.but.editWindLevels"));
 		editWind.addActionListener(e -> {
+			if (turbulence.isSelected() && !mixedTurbulence[0]) {
+				if (!globalTurbulenceOverrideActive[0]) {
+					turbulenceRestoreValues.set(standardDeviations(editableWind));
+				}
+				setTurbulenceIntensity(editableWind, turbulenceModel.getValue());
+				globalTurbulenceOverrideActive[0] = true;
+			}
 			MultiLevelPinkNoiseWindModel workingWind = copyWindModel(editableWind);
 			MultiLevelWindEditDialog dialog = new MultiLevelWindEditDialog(owner, workingWind,
 					excludedWindLevelIndices.get());
@@ -705,6 +770,18 @@ public final class WeatherConditionsController {
 				return;
 			}
 			replaceWindModel(editableWind, workingWind);
+			globalTurbulenceOverrideActive[0] = false;
+			turbulenceRestoreValues.set(standardDeviations(editableWind));
+			OptionalDouble uniformTurbulence = uniformTurbulenceIntensity(editableWind);
+			if (uniformTurbulence.isPresent()) {
+				updatingTurbulenceModel[0] = true;
+				turbulenceModel.setValue(uniformTurbulence.getAsDouble());
+				updatingTurbulenceModel[0] = false;
+				mixedTurbulence[0] = false;
+			} else {
+				mixedTurbulence[0] = true;
+				showMixedValue(turbulenceValue);
+			}
 			excludedWindLevelIndices.set(result.excludedWindLevelIndices());
 			updateWindImportCheckbox(wind, editableWind.getLevels().size(), result.excludedWindLevelIndices());
 		});
@@ -746,7 +823,8 @@ public final class WeatherConditionsController {
 						level.getStandardDeviation())).toList();
 		WeatherEdits edits = new WeatherEdits(latitudeModel.getValue(), longitudeModel.getValue(),
 				elevationModel.getValue(), temperatureModel.getValue(), pressureModel.getValue(),
-				humidityModel.getValue(), windLayers, turbulenceModel.getValue());
+				humidityModel.getValue(), windLayers,
+				mixedTurbulence[0] ? null : turbulenceModel.getValue());
 		ApplySelection selection = new ApplySelection(latitudeEnabled.isSelected(), longitudeEnabled.isSelected(),
 				elevation.isSelected(),
 				temperature.isSelected(), pressure.isSelected(), humidity.isSelected(),
@@ -824,6 +902,40 @@ public final class WeatherConditionsController {
 		}
 	}
 
+	static void setTurbulenceIntensity(MultiLevelPinkNoiseWindModel windModel, double turbulenceIntensity) {
+		for (MultiLevelPinkNoiseWindModel.LevelWindModel level : windModel.getLevels()) {
+			level.setTurbulenceIntensity(turbulenceIntensity);
+		}
+	}
+
+	static List<Double> standardDeviations(MultiLevelPinkNoiseWindModel windModel) {
+		return windModel.getLevels().stream()
+				.map(MultiLevelPinkNoiseWindModel.LevelWindModel::getStandardDeviation)
+				.toList();
+	}
+
+	static void restoreStandardDeviations(MultiLevelPinkNoiseWindModel windModel,
+			List<Double> standardDeviations) {
+		int count = Math.min(windModel.getLevels().size(), standardDeviations.size());
+		for (int index = 0; index < count; index++) {
+			windModel.getLevels().get(index).setStandardDeviation(standardDeviations.get(index));
+		}
+	}
+
+	static OptionalDouble uniformTurbulenceIntensity(MultiLevelPinkNoiseWindModel windModel) {
+		if (windModel.getLevels().isEmpty()) {
+			return OptionalDouble.empty();
+		}
+		double first = windModel.getLevels().get(0).getTurbulenceIntensity();
+		boolean uniform = windModel.getLevels().stream()
+				.allMatch(level -> Math.abs(level.getTurbulenceIntensity() - first) < 1.0e-9);
+		return uniform ? OptionalDouble.of(first) : OptionalDouble.empty();
+	}
+
+	private static void showMixedValue(JSpinner spinner) {
+		((SpinnerEditor) spinner.getEditor()).getTextField().setText("—");
+	}
+
 	private static JSpinner unitSpinner(DoubleModel model) {
 		JSpinner spinner = new JSpinner(model.getSpinnerModel());
 		spinner.setEditor(new SpinnerEditor(spinner));
@@ -831,9 +943,11 @@ public final class WeatherConditionsController {
 	}
 
 	private WeatherEdits editsFor(CurrentConditions conditions) {
+		double turbulenceIntensity = savedTurbulenceIntensity != null
+				? savedTurbulenceIntensity : turbulenceIntensityFor(conditions.windLayers());
 		return new WeatherEdits(conditions.latitude(), conditions.longitude(), conditions.elevation(),
 				conditions.temperature(), conditions.pressure(), conditions.relativeHumidity(),
-				conditions.windLayers(), turbulenceIntensityFor(conditions.windLayers()));
+				conditions.windLayers(), turbulenceIntensity);
 	}
 
 	static double turbulenceIntensityFor(List<CurrentConditions.WindLayer> windLayers) {
@@ -876,9 +990,10 @@ public final class WeatherConditionsController {
 		if (selection.humidity()) options.setLaunchRelativeHumidity(edits.relativeHumidity);
 
 		PinkNoiseWindModel averageWind = options.getAverageWindModel();
-		double appliedTurbulenceIntensity = selection.turbulence()
+		boolean hasUniformTurbulenceOverride = selection.turbulence() && edits.turbulenceIntensity != null;
+		double appliedTurbulenceIntensity = hasUniformTurbulenceOverride
 				? edits.turbulenceIntensity : averageWind.getTurbulenceIntensity();
-		if (selection.turbulence() && !selection.wind()) {
+		if (hasUniformTurbulenceOverride && !selection.wind()) {
 			averageWind.setTurbulenceIntensity(appliedTurbulenceIntensity);
 			for (MultiLevelPinkNoiseWindModel.LevelWindModel level : options.getMultiLevelWindModel().getLevels()) {
 				level.setTurbulenceIntensity(appliedTurbulenceIntensity);
@@ -889,14 +1004,19 @@ public final class WeatherConditionsController {
 			CurrentConditions.WindLayer surface = edits.windLayers.get(0);
 			averageWind.setAverage(surface.speed());
 			averageWind.setDirection(surface.direction());
-			averageWind.setTurbulenceIntensity(appliedTurbulenceIntensity);
+			if (selection.turbulence() && edits.turbulenceIntensity == null) {
+				averageWind.setStandardDeviation(surface.standardDeviation());
+			} else {
+				averageWind.setTurbulenceIntensity(appliedTurbulenceIntensity);
+			}
 
 			MultiLevelPinkNoiseWindModel windModel = options.getMultiLevelWindModel();
 			windModel.clearLevels();
 			windModel.setAltitudeReference(AltitudeReference.MSL);
 			for (CurrentConditions.WindLayer layer : edits.windLayers) {
-				windModel.addWindLevel(layer.altitude(), layer.speed(), layer.direction(),
-						layer.speed() * appliedTurbulenceIntensity);
+				double standardDeviation = selection.turbulence() && edits.turbulenceIntensity == null
+						? layer.standardDeviation() : layer.speed() * appliedTurbulenceIntensity;
+				windModel.addWindLevel(layer.altitude(), layer.speed(), layer.direction(), standardDeviation);
 			}
 			options.setWindModelType(WindModelType.MULTI_LEVEL);
 		}
@@ -954,7 +1074,7 @@ public final class WeatherConditionsController {
 
 	private record WeatherEdits(double latitude, double longitude, double elevation, double temperature,
 			double pressure, double relativeHumidity, List<CurrentConditions.WindLayer> windLayers,
-			double turbulenceIntensity) {
+			Double turbulenceIntensity) {
 		private WeatherEdits {
 			windLayers = List.copyOf(windLayers);
 		}
