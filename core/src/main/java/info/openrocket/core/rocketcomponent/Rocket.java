@@ -541,6 +541,10 @@ public class Rocket extends ComponentAssembly {
 		this.functionalModID = source.functionalModID;
 		this.refType = source.refType;
 		this.customReferenceLength = source.customReferenceLength;
+		this.designer = source.designer;
+		this.revision = source.revision;
+		this.designType = source.designType;
+		this.kitName = source.kitName;
 		this.stageMap = new ConcurrentHashMap<>(source.stageMap);
 
 		// these flight configurations need to reference the _this_ Rocket:
