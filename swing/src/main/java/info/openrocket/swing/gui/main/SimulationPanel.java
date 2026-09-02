@@ -1,12 +1,15 @@
 package info.openrocket.swing.gui.main;
 
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
@@ -17,6 +20,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -31,17 +35,19 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -54,9 +60,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.logging.Message;
 import info.openrocket.core.logging.Warning;
@@ -192,8 +198,6 @@ public class SimulationPanel extends JPanel {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
 
 		this.document = doc;
-
-
 		// Simulation actions
 		newSimulationAction = new NewSimulationAction();
 		editSimulationAction = new EditSimulationAction();
@@ -206,6 +210,7 @@ public class SimulationPanel extends JPanel {
 		deleteSimulationAction = new DeleteSimulationAction();
 		simTableExportAction = new ExportSimulationTableAsCSVAction();
 		selectedSimsExportAction = new ExportSelectedSimulationsAsCSVAction();
+
 
 		////////  The simulation action buttons ////////
 
@@ -221,12 +226,17 @@ public class SimulationPanel extends JPanel {
 		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
 		this.add(editButton, "gapright para");
 
-		//// Run simulations
+
+        //// Run simulations
 		runButton = new IconButton();
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
-
+        //// Duplicate simulation button
+        JButton duplicateButton = new IconButton();
+        RocketActions.tieActionToButton(duplicateButton, duplicateSimulationAction, trans.get("simpanel.but.duplicatesimulation"));
+        duplicateButton.setToolTipText(trans.get("simpanel.but.ttip.duplicatesim"));
+        this.add(duplicateButton, "gapright para");
 		//// Delete simulations button
 		deleteButton = new IconButton();
 		RocketActions.tieActionToButton(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
@@ -254,6 +264,7 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTable.setDefaultRenderer(WarningsBox.class, new WarningsBoxRenderer());
+        simulationTable.setDefaultRenderer(Simulation.class, new ActionsColumnRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
 		simulationTable.setupAutoSizeColumns();
 		simulationTable.setFillsViewportHeight(true);
@@ -299,64 +310,126 @@ public class SimulationPanel extends JPanel {
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(simulationTable);
 
 		// Mouse listener to act on double-clicks
-		simulationTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int selectedRow = simulationTable.getSelectedRow();
-				int row = simulationTable.rowAtPoint(e.getPoint());
-				int column = simulationTable.columnAtPoint(e.getPoint());
+        simulationTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = simulationTable.getSelectedRow();
+                int row = simulationTable.rowAtPoint(e.getPoint());
+                int column = simulationTable.columnAtPoint(e.getPoint());
 
-				// Clear the table selection when clicked outside the table rows.
-				if (row == -1 || column == -1 || selectedRow == -1) {
-					simulationTable.clearSelection();
-					return;
-				}
+                if (column == simulationTable.getColumnCount() - 1 && row >= 0 && e.getButton() == MouseEvent.BUTTON1) {
+                    Rectangle cellRect = simulationTable.getCellRect(row, column, true);
+                    int x = e.getX() - cellRect.x;
 
-				if (e.getButton() == MouseEvent.BUTTON1) {
-					if (e.getClickCount() == 1) {
-						// Rerun the simulation
-						if (column == 0) {
-							int selected = simulationTable.convertRowIndexToModel(selectedRow);
-							Simulation sim = document.getSimulations().get(selected);
-							Status status = sim.getStatus();
+                    // Select the clicked row first
+                    simulationTable.setRowSelectionInterval(row, row);
 
-							if (status == Status.NOT_SIMULATED || status == Status.OUTDATED) {
-								runSimulation();
-							}
-						}
-					} else if (e.getClickCount() == 2) {
-						int selected = simulationTable.convertRowIndexToModel(selectedRow);
-						// Show the warnings for the simulation
-						if (column == 1) {
-							SimulationConfigDialog dialog = new SimulationConfigDialog(parent, document, false,
-									document.getSimulations().get(selected));
-							dialog.switchToWarningsTab();
-							dialog.setVisible(true);
-						}
-						// Edit the simulation or plot/export
-						else if (column > 1) {
-							simulationTable.clearSelection();
-							simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
+                    // Determine which button was clicked and trigger the corresponding existing action
+                    if (x >= 0 && x < 28) {
+                        // Edit button - reuse existing editSimulationAction
+                        editSimulationAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "edit"));
+                    } else if (x >= 28 && x < 56) {
+                        // Duplicate button - reuse existing duplicateSimulationAction
+                        duplicateSimulationAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "duplicate"));
+                    } else if (x >= 56 && x < 90) {
+                        // Delete button - reuse existing deleteSimulationAction
+                        deleteSimulationAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "delete"));
+                    }
+                    return;
+                }
 
-							openDialog(document.getSimulations().get(selected));
-						}
-					}
-				}
-				// Show context menu
-				else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
-					// Select new row
-					if (!simulationTable.isRowSelected(row)) {
-						if (row >= 0 && row < simulationTable.getRowCount()) {
-							simulationTable.setRowSelectionInterval(row, row);
-						} else {
-							return;
-						}
-					}
+                // Clear the table selection when clicked outside the table rows.
+                if (row == -1 || column == -1 || selectedRow == -1) {
+                    simulationTable.clearSelection();
+                    return;
+                }
 
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (e.getClickCount() == 1) {
+                        // Rerun the simulation
+                        if (column == 0) {
+                            int selected = simulationTable.convertRowIndexToModel(selectedRow);
+                            Simulation sim = document.getSimulations().get(selected);
+                            Status status = sim.getStatus();
+
+                            if (status == Status.NOT_SIMULATED || status == Status.OUTDATED) {
+                                runSimulation();
+                            }
+                        }
+                    } else if (e.getClickCount() == 2) {
+                        int selected = simulationTable.convertRowIndexToModel(selectedRow);
+                        // Show the warnings for the simulation
+                        if (column == 1) {
+                            SimulationConfigDialog dialog = new SimulationConfigDialog(parent, document, false,
+                                    document.getSimulations().get(selected));
+                            dialog.switchToWarningsTab();
+                            dialog.setVisible(true);
+                        }
+                        // Edit the simulation or plot/export
+                        else if (column > 1) {
+                            simulationTable.clearSelection();
+                            simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
+                            openDialog(document.getSimulations().get(selected));
+                        }
+                    }
+                }
+                // Show context menu
+                else if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
+                    if (!simulationTable.isRowSelected(row)) {
+                        if (row >= 0 && row < simulationTable.getRowCount()) {
+                            simulationTable.setRowSelectionInterval(row, row);
+                        } else {
+                            return;
+                        }
+                    }
                     doPopup(e);
-				}
-			}
-		});
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                int column = simulationTable.columnAtPoint(e.getPoint());
+                if (column == simulationTable.getColumnCount() - 1) {
+                    simulationTable.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                simulationTable.setCursor(Cursor.getDefaultCursor());
+            }
+        });
+        simulationTable.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int row = simulationTable.rowAtPoint(e.getPoint());
+                int column = simulationTable.columnAtPoint(e.getPoint());
+
+                // If hovering over the Actions column
+                if (column == simulationTable.getColumnCount() - 1 && row >= 0) {
+                    Rectangle cellRect = simulationTable.getCellRect(row, column, true);
+                    int x = e.getX() - cellRect.x;
+
+                    // Determine which button is being hovered and show appropriate tooltip
+                    String tooltip = null;
+                    if (x >= 0 && x < 28) {
+                        // Edit button
+                        tooltip = trans.get("simpanel.but.ttip.editsim");
+                    } else if (x >= 28 && x < 56) {
+                        // Duplicate button
+                        tooltip = trans.get("simpanel.but.ttip.duplicatesim");
+                    } else if (x >= 56 && x < 90) {
+                        // Delete button
+                        tooltip = trans.get("simpanel.but.ttip.deletesim");
+                    }
+
+                    simulationTable.setToolTipText(tooltip);
+                } else {
+                    // Clear tooltip when not over Actions column
+                    simulationTable.setToolTipText(null);
+                }
+            }
+        });
 
 		simulationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			private int previousSelectedRow = -1;
@@ -1244,9 +1317,7 @@ public class SimulationPanel extends JPanel {
 
 	}
 
-
-	
-	public static class CellTransferable implements Transferable {
+    public static class CellTransferable implements Transferable {
 
         public static final DataFlavor CELL_DATA_FLAVOR = new DataFlavor(Object.class, "application/x-cell-value");
 
@@ -1432,11 +1503,59 @@ public class SimulationPanel extends JPanel {
 		}
 	}
 
+    private class ActionsColumnRenderer extends DefaultTableCellRenderer {
+        private final JPanel panel;
+        private final JButton editBtn;
+        private final JButton duplicateBtn;
+        private final JButton deleteBtn;
+
+        public ActionsColumnRenderer() {
+            panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
+            panel.setOpaque(true);
+
+            // Create buttons with icons
+            editBtn = createIconButton(Icons.EDIT_EDIT, "Edit this simulation");
+            duplicateBtn = createIconButton(Icons.EDIT_DUPLICATE, "Duplicate this simulation");
+            deleteBtn = createIconButton(Icons.EDIT_DELETE, "Delete this simulation");
+
+            panel.add(editBtn);
+            panel.add(duplicateBtn);
+            panel.add(deleteBtn);
+        }
+
+        private JButton createIconButton(Icon icon, String tooltip) {
+            JButton btn = new JButton(icon);
+            btn.setPreferredSize(new Dimension(24, 24));
+            btn.setMargin(new Insets(1, 1, 1, 1));
+            btn.setToolTipText(tooltip);
+            btn.setBorderPainted(false);
+            btn.setContentAreaFilled(false);
+            btn.setFocusPainted(false);
+            return btn;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+
+            if (isSelected) {
+                panel.setBackground(table.getSelectionBackground());
+            } else {
+                panel.setBackground(table.getBackground());
+            }
+
+            return panel;
+        }
+    }
+
+
+
 	private class SimulationTableModel extends ColumnTableModel {
 		private static final long serialVersionUID = 8686456963492628476L;
 
 		public SimulationTableModel() {
 			super(
+
 					////  Status column
 					new Column("") {
 						private StatusLabel label = null;
@@ -1695,7 +1814,27 @@ public class SimulationPanel extends JPanel {
 
 							return data.getGroundHitVelocity();
 						}
-					}
+					},
+                    //// Actions column - per-row actions
+                    new Column(trans.get("simpanel.col.Actions")) {
+                        @Override
+                        public Object getValueAt(int row) {
+                            if (row < 0 || row >= document.getSimulationCount())
+                                return null;
+                            return document.getSimulation(row);
+                        }
+
+                        @Override
+                        public int getExactWidth() {
+                            return 90;
+                        }
+
+                        @Override
+                        public Class<?> getColumnClass() {
+                            return Simulation.class;
+                        }
+                    }
+
 			);
 		}
 
