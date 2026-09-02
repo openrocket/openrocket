@@ -495,6 +495,7 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	/**
 	 * Get the current font style used for the UI.
+	 * Legacy preference values are normalized to the canonical UI font style IDs when read.
 	 * @return the current style weight (e.g. "Inter-Regular")
 	 */
 	public String getUIFontStyle() {

@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
@@ -34,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -94,14 +92,11 @@ import org.slf4j.LoggerFactory;
 
 public class GUIUtil {
 	private static final Logger log = LoggerFactory.getLogger(GUIUtil.class);
-	public static final String UI_FONT_FAMILY = "Inter";
+	public static final String UI_FONT_FAMILY = "Lucida Grande";
 	public static final String UI_FONT_STYLE_LIGHT = "inter-light";
 	public static final String UI_FONT_STYLE_REGULAR = "inter-regular";
 	public static final String UI_FONT_STYLE_MEDIUM = "inter-medium";
 	public static final String UI_FONT_STYLE_BOLD = "inter-bold";
-	private static final String UI_REGULAR_FONT_PATH = "/fonts/Inter/Inter-Regular.ttf";
-	private static final String UI_ITALIC_FONT_PATH = "/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf";
-	private static final Map<String, String> UI_FONT_PATHS = new HashMap<>();
 	private static final Map<String, Font> UI_FONT_CACHE = new HashMap<>();
 	private static boolean customFontsLoaded;
 	
@@ -110,11 +105,6 @@ public class GUIUtil {
 	
 	private static final List<Image> images = new ArrayList<>();
 	static {
-		UI_FONT_PATHS.put(UI_FONT_STYLE_LIGHT, "/fonts/Inter/Inter-Light.ttf");
-		UI_FONT_PATHS.put(UI_FONT_STYLE_REGULAR, UI_REGULAR_FONT_PATH);
-		UI_FONT_PATHS.put(UI_FONT_STYLE_MEDIUM, "/fonts/Inter/Inter-Medium.ttf");
-		UI_FONT_PATHS.put(UI_FONT_STYLE_BOLD, "/fonts/Inter/Inter-Bold.ttf");
-
 		loadImage("pix/icon/icon-256.png");
 		loadImage("pix/icon/icon-064.png");
 		loadImage("pix/icon/icon-048.png");
@@ -153,24 +143,20 @@ public class GUIUtil {
 	}
 
 	/**
-	 * Loads the bundled UI fonts once so the theme can resolve the Inter family before
-	 * component defaults are created.
+	 * Retained for the theme startup path.  Lucida Grande is resolved from the platform
+	 * font registry instead of a bundled font file.
 	 */
 	public static synchronized void loadCustomFonts() {
 		if (customFontsLoaded) {
 			return;
 		}
-
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		registerFont(ge, UI_FONT_STYLE_REGULAR);
-		registerFont(ge, UI_ITALIC_FONT_PATH);
 		customFontsLoaded = true;
 	}
 
 	/**
 	 * Creates an OpenRocket UI font from the stored style identifier.
-	 * Each preference value maps to a specific bundled Inter face so light, regular,
-	 * medium, and bold remain visually distinct on every platform.
+	 * The stored identifiers keep their legacy names for preference compatibility,
+	 * but resolve to Lucida Grande.
 	 */
 	public static Font createUIFont(String fontStyle, float fontSize, float letterSpacing) {
 		Font baseFont = getBaseUIFont(fontStyle);
@@ -187,45 +173,23 @@ public class GUIUtil {
 			return cachedFont;
 		}
 
-		Font loadedFont = loadBundledFont(UI_FONT_PATHS.get(normalizedStyle));
-		if (loadedFont == null) {
-			loadedFont = new Font(UI_FONT_FAMILY, Font.PLAIN, 1);
-		}
+		Font loadedFont = new Font(UI_FONT_FAMILY, fontStyleToAwtStyle(normalizedStyle), 1);
 		UI_FONT_CACHE.put(normalizedStyle, loadedFont);
 		return loadedFont;
 	}
 
 	private static String normalizeUIFontStyle(String fontStyle) {
-		if (UI_FONT_PATHS.containsKey(fontStyle)) {
+		if (UI_FONT_STYLE_LIGHT.equals(fontStyle) ||
+				UI_FONT_STYLE_REGULAR.equals(fontStyle) ||
+				UI_FONT_STYLE_MEDIUM.equals(fontStyle) ||
+				UI_FONT_STYLE_BOLD.equals(fontStyle)) {
 			return fontStyle;
 		}
 		return UI_FONT_STYLE_REGULAR;
 	}
 
-	private static void registerFont(GraphicsEnvironment graphicsEnvironment, String fontPathOrStyle) {
-		Font font = loadBundledFont(resolveUIFontPath(fontPathOrStyle));
-		if (font == null) {
-			return;
-		}
-		graphicsEnvironment.registerFont(font);
-		log.debug("Loaded custom font: {}", font.getName());
-	}
-
-	private static String resolveUIFontPath(String fontPathOrStyle) {
-		return UI_FONT_PATHS.getOrDefault(fontPathOrStyle, fontPathOrStyle);
-	}
-
-	private static Font loadBundledFont(String fontPath) {
-		if (fontPath == null) {
-			return null;
-		}
-
-		try (InputStream inputStream = Objects.requireNonNull(GUIUtil.class.getResourceAsStream(fontPath))) {
-			return Font.createFont(Font.TRUETYPE_FONT, inputStream);
-		} catch (IOException | FontFormatException e) {
-			log.error("Error loading custom font from {}", fontPath, e);
-			return null;
-		}
+	private static int fontStyleToAwtStyle(String normalizedStyle) {
+		return UI_FONT_STYLE_BOLD.equals(normalizedStyle) ? Font.BOLD : Font.PLAIN;
 	}
 
 	public static void printAvailableFonts() {
