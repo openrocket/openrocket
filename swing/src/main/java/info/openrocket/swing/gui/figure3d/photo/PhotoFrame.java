@@ -37,7 +37,7 @@ import info.openrocket.core.database.Databases;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.RocketLoadException;
-import info.openrocket.core.gui.util.SimpleFileFilter;
+import info.openrocket.swing.gui.util.SwingFileFilter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.plugin.PluginModule;
@@ -258,7 +258,7 @@ public class PhotoFrame extends JFrame {
 		}
 		log.info("Got image {} to save...", image);
 
-		final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"), ".png");
+		final FileFilter png = new SwingFileFilter(trans.get("PhotoFrame.fileFilter.png"), ".png");
 		final JFileChooser chooser = new SaveFileChooser();
 		chooser.addChoosableFileFilter(png);
 		chooser.setFileFilter(png);

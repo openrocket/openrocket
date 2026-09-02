@@ -13,7 +13,7 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.StorageOptions.FileType;
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
-import info.openrocket.core.gui.util.SimpleFileFilter;
+import info.openrocket.swing.gui.util.SwingFileFilter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
@@ -131,8 +131,8 @@ class RememberFilenamePropertyListener implements PropertyChangeListener {
 		JFileChooser chooser = (JFileChooser) event.getSource();
 		FileFilter currentFilter = chooser.getFileFilter();
 
-		if (currentFilter instanceof SimpleFileFilter) {
-			SimpleFileFilter filter = (SimpleFileFilter) currentFilter;
+		if (currentFilter instanceof SwingFileFilter) {
+			SwingFileFilter filter = (SwingFileFilter) currentFilter;
 			String desiredExtension = filter.getExtensions()[0];
 
 			if (oldFileName == null) {
