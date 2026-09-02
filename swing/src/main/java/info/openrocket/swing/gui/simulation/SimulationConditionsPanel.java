@@ -2,9 +2,12 @@ package info.openrocket.swing.gui.simulation;
 
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.HierarchyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.EventObject;
@@ -21,7 +24,9 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JOptionPane;
+import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
+import javax.swing.JViewport;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -45,13 +50,16 @@ import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.simulation.currentconditions.WeatherConditionsController;
 
-public class SimulationConditionsPanel extends JPanel {
+public class SimulationConditionsPanel extends JPanel implements Scrollable {
 	private static final Translator trans = Application.getTranslator();
 	private static final String PANEL_LAYOUT = "fillx, gap rel rel";
 	private static final String SECTION_LAYOUT = "fillx, gap rel rel";
 	private static final String WIND_SECTION_LAYOUT = "fillx";
 	private static final String FIELD_COLUMNS = "[grow][80lp!][32lp!][72lp!]";
+	private static final int SCROLLBAR_TOLERANCE = 8;
+	private final WeatherConditionsController weatherConditions = new WeatherConditionsController();
 
 
 	SimulationConditionsPanel(final Simulation simulation) {
@@ -64,6 +72,40 @@ public class SimulationConditionsPanel extends JPanel {
 
 		// Add buttons for restoring and saving defaults
 		addDefaultButtons(simulationOptions);
+	}
+
+	@Override
+	public void removeNotify() {
+		weatherConditions.cancel();
+		super.removeNotify();
+	}
+
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+		return getPreferredSize();
+	}
+
+	@Override
+	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+		return 16;
+	}
+
+	@Override
+	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+		return Math.max(16, visibleRect.height - 16);
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportWidth() {
+		return true;
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportHeight() {
+		// MigLayout can report a few extra pixels for trailing gaps even when every control visibly fits. Absorb only
+		// that small discrepancy; larger overflows still use the normal scrollbar so content remains reachable.
+		return getParent() instanceof JViewport viewport
+				&& getPreferredSize().height - viewport.getExtentSize().height <= SCROLLBAR_TOLERANCE;
 	}
 
 	/**
@@ -620,6 +662,21 @@ public class SimulationConditionsPanel extends JPanel {
 		JPanel summaryPanel = new JPanel(new MigLayout("fill, ins 0"));
 		JLabel summaryLabel = new JLabel();
 		updateWindLevelSummary(summaryLabel, model);
+		StateChangeListener summaryListener = event -> updateWindLevelSummary(summaryLabel, model);
+		model.addChangeListener(summaryListener);
+		boolean[] listenerAttached = { true };
+		summaryPanel.addHierarchyListener(event -> {
+			if ((event.getChangeFlags() & HierarchyEvent.DISPLAYABILITY_CHANGED) == 0) {
+				return;
+			}
+			if (summaryPanel.isDisplayable() && !listenerAttached[0]) {
+				model.addChangeListener(summaryListener);
+				listenerAttached[0] = true;
+			} else if (!summaryPanel.isDisplayable() && listenerAttached[0]) {
+				model.removeChangeListener(summaryListener);
+				listenerAttached[0] = false;
+			}
+		});
 		summaryPanel.add(summaryLabel, "grow, wrap");
 		
 		// Add edit button
@@ -750,6 +807,14 @@ public class SimulationConditionsPanel extends JPanel {
 
 
 	private void addDefaultButtons(SimulationOptions options) {
+		JPanel buttons = new JPanel(new MigLayout("insets 0, fillx, gap rel", "[]push[][]"));
+		buttons.setOpaque(false);
+
+		JButton currentConditions = new JButton(trans.get("simedtdlg.but.currentConditions"));
+		currentConditions.setToolTipText(trans.get("simedtdlg.but.currentConditions.ttip"));
+		currentConditions.addActionListener(e -> weatherConditions.request(currentConditions, options));
+		buttons.add(currentConditions);
+
 		// Reset to default
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		restoreDefaults.addActionListener(e -> {
@@ -757,7 +822,7 @@ public class SimulationConditionsPanel extends JPanel {
 			SimulationOptions defaults = f.getDefault();
 			options.copyConditionsFrom(defaults);
 		});
-		this.add(restoreDefaults, "span, split 3, skip, gapright para, right");
+		buttons.add(restoreDefaults);
 
 		// Save as default
 		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
@@ -765,7 +830,9 @@ public class SimulationConditionsPanel extends JPanel {
 			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 			f.saveDefault(options);
 		});
-		this.add(saveDefaults, "gapright para, right");
+		buttons.add(saveDefaults);
+
+		this.add(buttons, "span, growx");
 	}
 
 	/**
