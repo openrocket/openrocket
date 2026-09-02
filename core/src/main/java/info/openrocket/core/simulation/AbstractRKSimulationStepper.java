@@ -9,10 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.SimulationAbort;
-import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.RigidBody;
-import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
@@ -20,8 +18,6 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.MutableCoordinate;
-import info.openrocket.core.util.Quaternion;
-import info.openrocket.core.util.WorldCoordinate;
 
 public abstract class AbstractRKSimulationStepper extends AbstractSimulationStepper {
 
