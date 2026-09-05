@@ -64,7 +64,7 @@ public class VariableTableModel extends AbstractTableModel {
     }
 	
 	public String getSymbolAt(int row) {
-		if (row < 0 || row > types.size()){
+		if (row < 0 || row >= types.size()){
 			return "";
 		}
 		else { 
