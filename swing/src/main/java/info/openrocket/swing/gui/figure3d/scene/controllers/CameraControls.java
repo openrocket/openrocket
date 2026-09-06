@@ -25,6 +25,7 @@ public interface CameraControls {
 	void update();
 	double getZoomScale();
 	void setZoomScale(double scale);
+	void setZoomFitting(boolean zoomFitting);
 
 	/**
 	 * Returns a multiplier in (0, 1] that slows orbit/rotate sensitivity as the
