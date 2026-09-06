@@ -13,7 +13,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
 import java.util.ArrayList;
@@ -49,7 +48,6 @@ public final class ForecastDateTimePicker {
 		LocalDate minimumDate = minimum.atZone(zone).toLocalDate();
 		LocalDate maximumDate = maximum.atZone(zone).toLocalDate();
 		LocalDate today = openedAt.atZone(zone).toLocalDate();
-		Instant nextForecastHour = openedAt.truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.HOURS);
 		LocalDate[] selectedDate = { initialLocal.toLocalDate() };
 		YearMonth[] displayedMonth = { YearMonth.from(selectedDate[0]) };
 		Selection[] result = { null };
@@ -77,13 +75,7 @@ public final class ForecastDateTimePicker {
 			if (selectedDate[0].equals(today)) {
 				time.addItem(HourOption.current(TRANS.get("simedtdlg.but.useCurrentTime")));
 			}
-			for (Instant candidate : hourlyInstants(selectedDate[0], zone)) {
-				if (candidate.isBefore(minimum) || candidate.isAfter(maximum)) {
-					continue;
-				}
-				if (selectedDate[0].equals(today) && candidate.isBefore(nextForecastHour)) {
-					continue;
-				}
+			for (Instant candidate : selectableHourlyInstants(selectedDate[0], zone, minimum, maximum)) {
 				ZonedDateTime cursor = candidate.atZone(zone);
 				HourOption option = new HourOption(candidate,
 						cursor.format(DateTimeFormatter.ofPattern("h:00 a z", Locale.getDefault())));
@@ -214,6 +206,12 @@ public final class ForecastDateTimePicker {
 			cursor = cursor.plusHours(1);
 		}
 		return result;
+	}
+
+	static List<Instant> selectableHourlyInstants(LocalDate date, ZoneId zone, Instant minimum, Instant maximum) {
+		return hourlyInstants(date, zone).stream()
+				.filter(candidate -> !candidate.isBefore(minimum) && !candidate.isAfter(maximum))
+				.toList();
 	}
 
 	static List<DayOfWeek> orderedWeekdays(Locale locale) {
