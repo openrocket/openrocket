@@ -297,6 +297,18 @@ public class CameraController implements CameraControls {
 	}
 
 	/**
+	 * Sets whether viewport resizes should keep the rocket fitted to the window.
+	 * Callers that supply an explicit camera distance disable fitting so a resize
+	 * changes only the projection aspect ratio.
+	 *
+	 * @param zoomFitting whether the camera should track the fitted distance
+	 */
+	@Override
+	public void setZoomFitting(boolean zoomFitting) {
+		this.zoomFitting = zoomFitting;
+	}
+
+	/**
 	 * Handle window/framebuffer resize by updating the camera's aspect ratio.
 	 *
 	 * @param newAspectRatio the new aspect ratio after window resize
