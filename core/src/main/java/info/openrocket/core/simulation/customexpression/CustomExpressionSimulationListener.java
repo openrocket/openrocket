@@ -17,12 +17,12 @@ public class CustomExpressionSimulationListener extends AbstractSimulationListen
 
 	public CustomExpressionSimulationListener(List<CustomExpression> expressions) {
 		super();
-		this.expressions = expressions;
+		this.expressions = expressions == null ? List.of() : List.copyOf(expressions);
 	}
 
 	@Override
 	public void postStep(SimulationStatus status) throws SimulationException {
-		if (expressions == null || expressions.size() == 0) {
+		if (expressions.isEmpty()) {
 			return;
 		}
 		// Calculate values for custom expressions

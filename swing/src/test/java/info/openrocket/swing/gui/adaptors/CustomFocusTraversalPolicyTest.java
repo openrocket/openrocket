@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.adaptors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -112,6 +114,31 @@ class CustomFocusTraversalPolicyTest {
         Component previous = policy.getComponentBefore(null, first);
 
         assertEquals(second, previous);
+    }
+
+    @Test
+    void getComponentBeforeWrapsPastInactiveFirstEntry() {
+        StubComponent first = new StubComponent("first");
+        StubComponent second = new StubComponent("second");
+        StubComponent third = new StubComponent("third");
+        first.setEnabled(false);
+        CustomFocusTraversalPolicy policy = policyWith(first, second, third);
+
+        Component previous = policy.getComponentBefore(null, second);
+
+        assertEquals(third, previous);
+    }
+
+    @Test
+    void emptyOrderHasSafeFallbacks() {
+        StubComponent component = new StubComponent("component");
+        CustomFocusTraversalPolicy policy = policyWith();
+
+        assertSame(component, policy.getComponentAfter(null, component));
+        assertSame(component, policy.getComponentBefore(null, component));
+        assertNull(policy.getFirstComponent(null));
+        assertNull(policy.getLastComponent(null));
+        assertNull(policy.getDefaultComponent(null));
     }
 
     @Test
