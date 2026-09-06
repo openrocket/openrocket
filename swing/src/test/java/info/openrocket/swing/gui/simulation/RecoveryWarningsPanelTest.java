@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,8 @@ import javax.swing.plaf.basic.BasicHTML;
 import javax.swing.text.View;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -246,12 +249,14 @@ public class RecoveryWarningsPanelTest extends BaseTestCase {
 		});
 	}
 
-	@Test
-	public void testFirstExpansionWrapsWithoutResizing() throws Exception {
+	@ParameterizedTest
+	@ValueSource(ints = {800, 1200})
+	public void testFirstExpansionWrapsWithoutResizing(int requestedWidth) throws Exception {
 		assumeFalse(GraphicsEnvironment.isHeadless(), "A display is required for Swing validation");
 		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
 		Simulation simulation = new Simulation(document, document.getRocket());
 		JDialog[] dialog = new JDialog[1];
+		Dimension[] sizeBeforeExpansion = new Dimension[1];
 		LookAndFeel originalLookAndFeel = UIManager.getLookAndFeel();
 		List<JLabel> descriptions = new ArrayList<>();
 		List<CollapsiblePanel> sections = new ArrayList<>();
@@ -268,14 +273,20 @@ public class RecoveryWarningsPanelTest extends BaseTestCase {
 				sections.get(1).setExpanded(false);
 				dialog[0] = new JDialog();
 				dialog[0].setContentPane(panel);
-				dialog[0].setSize(1200, 700);
+				dialog[0].setSize(requestedWidth, 700);
 				dialog[0].setVisible(true);
 			});
 			flushSwingValidation();
-			SwingUtilities.invokeAndWait(() -> sections.get(1).getHeaderButton().doClick());
+			SwingUtilities.invokeAndWait(() -> {
+				// The window manager can constrain the requested size to the CI display.
+				// Expansion must preserve the actual size of the already-visible dialog.
+				sizeBeforeExpansion[0] = dialog[0].getSize();
+				sections.get(1).getHeaderButton().doClick();
+			});
 			flushSwingValidation();
 			SwingUtilities.invokeAndWait(() -> {
-				assertEquals(1200, dialog[0].getWidth(), "The dialog must not need a resize to wrap correctly");
+				assertEquals(sizeBeforeExpansion[0], dialog[0].getSize(),
+						"The dialog must not need a resize to wrap correctly");
 				for (JLabel description : descriptions) {
 					View view = (View) description.getClientProperty(BasicHTML.propertyKey);
 					assertEquals(description.getWidth(), (int) view.getPreferredSpan(View.X_AXIS),
