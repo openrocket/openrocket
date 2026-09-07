@@ -29,6 +29,11 @@ public final class TipShapeCode {
         if (FinSet.CrossSection.AIRFOIL.equals(cs)) {
             return 2;
         }
+        if (FinSet.CrossSection.TRIANGULAR.equals(cs)) {
+            // RockSim has no triangular leading-edge code; square preserves the
+            // same blunt trailing edge and is the closest export shape.
+            return 0;
+        }
         return 0;
     }
 }

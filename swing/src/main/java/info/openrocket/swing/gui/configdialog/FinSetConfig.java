@@ -17,6 +17,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.adaptors.EnumModel;
@@ -33,14 +34,24 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Path2D;
+import java.util.EventObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -135,6 +146,163 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			addButtons(split, convert);
 			order.add(split);
 			order.add(convert);
+		}
+	}
+
+	protected void addTriangularLeadingEdgeControls(JPanel panel) {
+		FinSet finSet = (FinSet) component;
+		JPanel editor = new JPanel(new MigLayout("fillx, gap rel unrel, ins 0", "[][65lp::][30lp::][100lp::]", ""));
+		editor.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0));
+
+		// Angle and vertex distance are two editable views of the same stored angle.
+		JLabel title = new JLabel(trans.get("FinSetConfig.lbl.LeadingEdge"));
+		editor.add(title, "span, wrap");
+
+		JLabel modeLabel = new JLabel(trans.get("FinSetConfig.lbl.LeadingEdgeMode"));
+		editor.add(modeLabel);
+		JRadioButton angleMode = new JRadioButton(trans.get("FinSetConfig.LeadingEdgeMode.Angle"));
+		JRadioButton distanceMode = new JRadioButton(trans.get("FinSetConfig.LeadingEdgeMode.Distance"));
+		ButtonGroup modeGroup = new ButtonGroup();
+		modeGroup.add(angleMode);
+		modeGroup.add(distanceMode);
+		angleMode.setSelected(true);
+		JPanel modePanel = new JPanel(new MigLayout("ins 0, gap rel 0"));
+		modePanel.add(angleMode);
+		modePanel.add(distanceMode);
+		editor.add(modePanel, "span 3, growx, wrap");
+		order.add(angleMode);
+		order.add(distanceMode);
+
+		JLabel angleLabel = new JLabel(trans.get("FinSetConfig.lbl.LeadingEdgeAngle"));
+		angleLabel.setToolTipText(trans.get("FinSetConfig.ttip.LeadingEdgeAngle"));
+		editor.add(angleLabel);
+		DoubleModel angleModel = new DoubleModel(component, "LeadingEdgeAngle", UnitGroup.UNITS_ANGLE,
+				0, FinSet.MAX_LEADING_EDGE_ANGLE);
+		register(angleModel);
+		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
+		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
+		angleSpinner.setToolTipText(trans.get("FinSetConfig.ttip.LeadingEdgeAngle"));
+		editor.add(angleSpinner, "growx");
+		order.add(((SpinnerEditor) angleSpinner.getEditor()).getTextField());
+		UnitSelector angleUnit = new UnitSelector(angleModel);
+		editor.add(angleUnit, "growx");
+		BasicSlider angleSlider = new BasicSlider(angleModel.getSliderModel(0, FinSet.DEFAULT_LEADING_EDGE_ANGLE,
+				FinSet.MAX_LEADING_EDGE_ANGLE));
+		editor.add(angleSlider, "w 100lp, wrap");
+
+		JLabel distanceLabel = new JLabel(trans.get("FinSetConfig.lbl.LeadingEdgeDistance"));
+		distanceLabel.setToolTipText(trans.get("FinSetConfig.ttip.LeadingEdgeDistance"));
+		editor.add(distanceLabel);
+		DoubleModel distanceModel = new DoubleModel(component, "LeadingEdgeDistance", UnitGroup.UNITS_LENGTH, 0);
+		register(distanceModel);
+		JSpinner distanceSpinner = new JSpinner(distanceModel.getSpinnerModel());
+		distanceSpinner.setEditor(new SpinnerEditor(distanceSpinner));
+		distanceSpinner.setToolTipText(trans.get("FinSetConfig.ttip.LeadingEdgeDistance"));
+		editor.add(distanceSpinner, "growx");
+		order.add(((SpinnerEditor) distanceSpinner.getEditor()).getTextField());
+		UnitSelector distanceUnit = new UnitSelector(distanceModel);
+		editor.add(distanceUnit, "growx, wrap");
+
+		LeadingEdgePreview preview = new LeadingEdgePreview(finSet);
+		editor.add(preview, "skip, span 3, growx, h 90lp!, wrap");
+
+		ActionListener updateEditMode = e -> {
+			boolean angleSelected = angleMode.isSelected();
+			setComponentsEnabled(angleLabel, angleSelected);
+			setComponentsEnabled(angleSpinner, angleSelected);
+			setComponentsEnabled(angleUnit, angleSelected);
+			setComponentsEnabled(angleSlider, angleSelected);
+			setComponentsEnabled(distanceLabel, !angleSelected);
+			setComponentsEnabled(distanceSpinner, !angleSelected);
+			setComponentsEnabled(distanceUnit, !angleSelected);
+			preview.repaint();
+		};
+		angleMode.addActionListener(updateEditMode);
+		distanceMode.addActionListener(updateEditMode);
+
+		StateChangeListener visibilityListener = new StateChangeListener() {
+			@Override
+			public void stateChanged(EventObject e) {
+				boolean triangular = finSet.getCrossSection() == FinSet.CrossSection.TRIANGULAR;
+				editor.setVisible(triangular);
+				updateEditMode.actionPerformed(null);
+				preview.repaint();
+				JComponent parent = (JComponent) editor.getParent();
+				if (parent != null) {
+					parent.revalidate();
+					parent.repaint();
+				}
+			}
+		};
+		component.addChangeListener(visibilityListener);
+		visibilityListener.stateChanged(new EventObject(component));
+
+		panel.add(editor, "span, growx, wrap para");
+	}
+
+	private static void setComponentsEnabled(JComponent component, boolean enabled) {
+		component.setEnabled(enabled);
+	}
+
+	private static class LeadingEdgePreview extends JPanel implements StateChangeListener {
+		private final FinSet finSet;
+
+		private LeadingEdgePreview(FinSet finSet) {
+			this.finSet = finSet;
+			setPreferredSize(new Dimension(260, 90));
+			finSet.addChangeListener(this);
+		}
+
+		@Override
+		public void stateChanged(EventObject e) {
+			repaint();
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g.create();
+			try {
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+				int margin = 10;
+				int h = getHeight() - 2 * margin;
+				int w = getWidth() - 2 * margin;
+				int maxBaseHeight = Math.max(2, Math.min(h - 16, 46));
+				double angle = Math.max(finSet.getEffectiveLeadingEdgeAngle(), Math.toRadians(0.25));
+				double leadingEdgeDistance = FinSet.leadingEdgeDistanceFromAngle(1.0, angle);
+				double maxBevelLength = Math.max(8, w * 0.45);
+				// Fit the whole cross-section to the preview, preserving the selected included angle.
+				double scale = Math.min(maxBevelLength / Math.max(leadingEdgeDistance, 0.001), maxBaseHeight);
+				int baseHeight = (int) MathUtil.clamp(Math.round(scale), 2, maxBaseHeight);
+				int bevelLength = (int) MathUtil.clamp(Math.round(leadingEdgeDistance * scale), 2, maxBevelLength);
+				int baseX = margin + bevelLength;
+				int midY = getHeight() / 2;
+				int topY = midY - baseHeight / 2;
+				int bottomY = midY + baseHeight / 2;
+				int rectRight = getWidth() - margin;
+
+				Path2D triangle = new Path2D.Double();
+				triangle.moveTo(margin, midY);
+				triangle.lineTo(baseX, topY);
+				triangle.lineTo(baseX, bottomY);
+				triangle.closePath();
+
+				Color fill = new Color(180, 205, 230);
+				Color rectFill = new Color(220, 225, 230);
+				Color stroke = getForeground();
+
+				g2.setColor(fill);
+				g2.fill(triangle);
+				g2.setColor(rectFill);
+				g2.fillRect(baseX, topY, rectRight - baseX, baseHeight);
+				g2.setColor(stroke);
+				g2.draw(triangle);
+				g2.drawRect(baseX, topY, rectRight - baseX, baseHeight);
+				g2.drawLine(baseX, topY, baseX, bottomY);
+			} finally {
+				g2.dispose();
+			}
 		}
 	}
 	

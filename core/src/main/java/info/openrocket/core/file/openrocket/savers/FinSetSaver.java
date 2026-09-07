@@ -21,6 +21,12 @@ public class FinSetSaver extends ExternalComponentSaver {
 		elements.add("<thickness>" + fins.getThickness() + "</thickness>");
 		elements.add("<crosssection>" + fins.getCrossSection().name().toLowerCase(Locale.ENGLISH)
 				+ "</crosssection>");
+		// Only triangular leading edges have an extra shape parameter.  The .ork
+		// value is written in degrees to match the surrounding fin angle fields.
+		if (fins.getCrossSection() == info.openrocket.core.rocketcomponent.FinSet.CrossSection.TRIANGULAR &&
+				!MathUtil.equals(fins.getLeadingEdgeAngle(), 0)) {
+			elements.add("<leadingedgeangle>" + Math.toDegrees(fins.getLeadingEdgeAngle()) + "</leadingedgeangle>");
+		}
 		elements.add("<cant>" + Math.toDegrees(fins.getCantAngle()) + "</cant>");
 
 		// Save fin tabs only if they exist (compatibility with file version < 1.1)

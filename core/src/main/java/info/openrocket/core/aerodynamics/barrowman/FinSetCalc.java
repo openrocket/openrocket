@@ -50,6 +50,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final int finCount;
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
+	private final double leadingEdgeAngle;
 	
 	/**
 	 * builds a calculator of aerodynamic forces a specified fin
@@ -68,6 +69,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		this.span = component.getSpan();
 		this.finArea = component.getPlanformArea();
 		this.crossSection = component.getCrossSection();
+		this.leadingEdgeAngle = component.getLeadingEdgeAngle();
 		
 		calculateFinGeometry(component);
 		calculateInterferenceFinCount(component);
@@ -637,16 +639,12 @@ public class FinSetCalc extends RocketComponentCalc {
 				crossSection == FinSet.CrossSection.ROUNDED) {
 
 			// Round leading edge
-			if (mach < 0.9) {
-				cd = Math.pow(1 - pow2(mach), -0.417) - 1;
-			} else if (mach < 1) {
-				cd = 1 - 1.785 * (mach - 0.9);
-			} else {
-				cd = 1.214 - 0.502 / pow2(mach) + 0.1095 / pow2(pow2(mach));
-			}
+			cd = calculateRoundedLeadingEdgePressureCoefficient(mach);
 
 		} else if (crossSection == FinSet.CrossSection.SQUARE) {
 			cd = stagnationCD;
+		} else if (crossSection == FinSet.CrossSection.TRIANGULAR) {
+			cd = calculateTriangularLeadingEdgePressureCoefficient(mach, stagnationCD);
 		} else {
 			throw new UnsupportedOperationException("Unsupported fin profile: " + crossSection);
 		}
@@ -660,6 +658,97 @@ public class FinSetCalc extends RocketComponentCalc {
 		return cd;
 	}
 
+	private double calculateRoundedLeadingEdgePressureCoefficient(double mach) {
+		if (mach < 0.9) {
+			return Math.pow(1 - pow2(mach), -0.417) - 1;
+		} else if (mach < 1) {
+			return 1 - 1.785 * (mach - 0.9);
+		} else {
+			return 1.214 - 0.502 / pow2(mach) + 0.1095 / pow2(pow2(mach));
+		}
+	}
+
+	private double calculateTriangularLeadingEdgePressureCoefficient(double mach, double stagnationCD) {
+		// Resolve Mach normal to the swept leading edge.  A symmetric triangular
+		// leading edge behaves like two equal wedges with deflection phi / 2.
+		double edgeMach = mach * Math.max(0, cosGammaLead);
+		double chord = macLength > MathUtil.EPSILON ? macLength : 0;
+		double phi = FinSet.getEffectiveLeadingEdgeAngle(leadingEdgeAngle, thickness, chord);
+		double theta = phi / 2;
+
+		if (edgeMach <= 0.9) {
+			// Below transonic speeds, retain the existing rounded-leading-edge
+			// correlation but apply it to the leading-edge-normal Mach number.
+			return calculateRoundedLeadingEdgePressureCoefficient(edgeMach);
+		}
+		if (edgeMach >= 1.1) {
+			// Supersonic wedge drag uses the attached-shock solution when possible;
+			// detached shocks fall back to the square-edge stagnation limit.
+			double cp = calculateAttachedWedgePressureCoefficient(edgeMach, theta);
+			return Double.isNaN(cp) ? stagnationCD : Math.min(cp, stagnationCD);
+		}
+
+		// Blend through the transonic gap to avoid a discontinuity at Mach 1.
+		double subsonic = calculateRoundedLeadingEdgePressureCoefficient(0.9);
+		double supersonic = calculateAttachedWedgePressureCoefficient(1.1, theta);
+		if (Double.isNaN(supersonic)) {
+			supersonic = stagnationCD;
+		} else {
+			supersonic = Math.min(supersonic, stagnationCD);
+		}
+		double fraction = MathUtil.clamp((edgeMach - 0.9) / 0.2, 0, 1);
+		double smooth = fraction * fraction * (3 - 2 * fraction);
+		return subsonic * (1 - smooth) + supersonic * smooth;
+	}
+
+	private double calculateAttachedWedgePressureCoefficient(double mach, double theta) {
+		if (mach <= 1 || theta <= 0) {
+			return Double.NaN;
+		}
+
+		// Solve the theta-beta-M relation for the weak attached shock.  No root means
+		// the requested wedge angle exceeds the attached-shock limit for this Mach.
+		double betaMin = Math.asin(1 / mach) + 1.0e-8;
+		double betaMax = Math.PI / 2 - 1.0e-8;
+		double previousBeta = betaMin;
+		double previousValue = thetaFromShockAngle(mach, previousBeta) - theta;
+
+		for (int i = 1; i <= 200; i++) {
+			double beta = betaMin + (betaMax - betaMin) * i / 200.0;
+			double value = thetaFromShockAngle(mach, beta) - theta;
+			if (previousValue <= 0 && value >= 0) {
+				double root = bisectShockAngle(mach, theta, previousBeta, beta);
+				double normalMachSquared = pow2(mach * Math.sin(root));
+				double pressureRatio = (2 * GAMMA * normalMachSquared - (GAMMA - 1)) / (GAMMA + 1);
+				return (pressureRatio - 1) / (0.5 * GAMMA * pow2(mach));
+			}
+			previousBeta = beta;
+			previousValue = value;
+		}
+
+		return Double.NaN;
+	}
+
+	private double bisectShockAngle(double mach, double theta, double low, double high) {
+		for (int i = 0; i < 80; i++) {
+			double mid = (low + high) / 2;
+			double value = thetaFromShockAngle(mach, mid) - theta;
+			if (value >= 0) {
+				high = mid;
+			} else {
+				low = mid;
+			}
+		}
+		return (low + high) / 2;
+	}
+
+	private double thetaFromShockAngle(double mach, double beta) {
+		double sinBeta = Math.sin(beta);
+		double numerator = 2 / Math.tan(beta) * (pow2(mach) * pow2(sinBeta) - 1);
+		double denominator = pow2(mach) * (GAMMA + Math.cos(2 * beta)) + 2;
+		return Math.atan(numerator / denominator);
+	}
+
 	@Override
 	public double calculateComponentBaseCD(FlightConditions conditions,
 										   double baseCD, WarningSet warnings) {
@@ -670,8 +759,9 @@ public class FinSetCalc extends RocketComponentCalc {
 
 		double cd = 0;
 
-		// Trailing edge drag
-		if (crossSection == FinSet.CrossSection.SQUARE) {
+		// Trailing edge drag.  The triangular option only changes the leading edge,
+		// so its blunt trailing edge matches the square-section base drag.
+		if (crossSection == FinSet.CrossSection.SQUARE || crossSection == FinSet.CrossSection.TRIANGULAR) {
 			cd = baseCD;
 		} else if (crossSection == FinSet.CrossSection.ROUNDED) {
 			cd = baseCD / 2;
