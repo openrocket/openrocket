@@ -64,7 +64,7 @@ The **File Menu** is divided into five divisions by function:
 3. **Import and export options**:
       - :guilabel:`Export as`: Export the project to a different file format, such as Rocksim 10 (`.rkt`).
       - :guilabel:`Save decal image`: Save a decal image file used in the project.
-      - :guilabel:`Print/Export design info...`: Print or export technical details of the rocket's components, fin set templates, or the rocket design to a `*.pdf`.
+      - :guilabel:`Print/Export design info...`: Print or export technical details of the rocket's components, fin set templates, or the rocket design report to a `*.pdf`. The design report includes static statistics (length, diameters, masses, CG/CP, stability, drag, and inertia) for the whole rocket and, for multi-stage designs, each stage. The design report data can also be exported to a `*.csv` file (design metadata and statistics, plus nose-to-fin-root distances for each fin set); the schematic and motor data are not included in the CSV.
 4. **Closing**:
       - :guilabel:`Close design`: Exit the current project (prompts to save unsaved changes).
 5. **Quitting**:
