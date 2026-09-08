@@ -68,9 +68,10 @@ public class PrintController {
      * @param settings    the print settings
      * @param rotation    the angle the rocket figure is rotated
      * @param runSims     determines whether to re-run out of date simulations or not
+     * @param includeMotors whether to include the motor and flight-data tables in the design report
      */
     public void print(OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile,
-                      PrintSettings settings, double rotation, boolean runSims) {
+                      PrintSettings settings, double rotation, boolean runSims, boolean includeMotors) {
 
         Document idoc = new Document(getSize(settings));
         PdfWriter writer = null;
@@ -94,7 +95,7 @@ public class PrintController {
 
                 switch (printableContext.getPrintable()) {
                     case DESIGN_REPORT:
-                        DesignReport dp = new DesignReport(doc, idoc, rotation, runSims, true, this.window);
+                        DesignReport dp = new DesignReport(doc, idoc, rotation, runSims, true, this.window, includeMotors);
                         dp.writeToDocument(writer);
                         idoc.newPage();
 						dp.restoreUITheme();

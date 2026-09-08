@@ -64,7 +64,7 @@ The **File Menu** is divided into five divisions by function:
 3. **Import and export options**:
       - :guilabel:`Export as`: Export the project to a different file format, such as Rocksim 10 (`.rkt`).
       - :guilabel:`Save decal image`: Save a decal image file used in the project.
-      - :guilabel:`Print design info...`: Print or export technical details of the rocket's components, fin set templates, or the rocket design to a `*.pdf`.
+      - :guilabel:`Print/Export design info...`: Print or export technical details of the rocket's components, fin set templates, or the rocket design to a `*.pdf`.
 4. **Closing**:
       - :guilabel:`Close design`: Exit the current project (prompts to save unsaved changes).
 5. **Quitting**:

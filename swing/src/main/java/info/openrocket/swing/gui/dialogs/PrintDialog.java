@@ -11,6 +11,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Iterator;
 
@@ -39,6 +42,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.print.DesignReportCSVExport;
 import info.openrocket.swing.gui.print.PrintController;
 import info.openrocket.swing.gui.print.PrintSettings;
 import info.openrocket.swing.gui.print.PrintableContext;
@@ -71,8 +75,10 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private JButton cancel;
 
     private double rotation = 0.0d;
-    
+
     private boolean updateSimulations = true;
+
+    private boolean includeMotors = true;
 	
 	private final static SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
@@ -131,6 +137,16 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 
 		// Checkboxes and buttons
 		final JPanel optionsPanel = new JPanel(new MigLayout());
+
+		final JCheckBox includeMotorsCheckbox = new JCheckBox(trans.get("checkbox.includeMotors"));
+		includeMotorsCheckbox.setSelected(this.includeMotors);
+		includeMotorsCheckbox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				includeMotors = includeMotorsCheckbox.isSelected();
+			}
+		});
+		optionsPanel.add(includeMotorsCheckbox, "pad 0, grow, wrap");
 		
 		final JCheckBox updateSimulationsCheckbox = new JCheckBox(trans.get("checkbox.updateSimulations"));
 		updateSimulationsCheckbox.setEnabled(true);
@@ -142,7 +158,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			}
 		});
 		optionsPanel.add(updateSimulationsCheckbox, "pad 0, grow, wrap");
-		
+
 		final JCheckBox sortByStage = new JCheckBox(trans.get("checkbox.showByStage"));
 		sortByStage.setEnabled(stages > 1);
 		sortByStage.setSelected(stages > 1);
@@ -204,6 +220,19 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			}
 		});
 		panel.add(saveAsPDF, "right, gap para");
+
+
+		JButton saveAsCSV = new JButton(trans.get("printdlg.but.saveascsv"));
+		saveAsCSV.setToolTipText(trans.get("printdlg.but.saveascsv.ttip"));
+		saveAsCSV.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (onSaveCSV()) {
+					PrintDialog.this.setVisible(false);
+				}
+			}
+		});
+		panel.add(saveAsCSV, "right, gap para");
 		
 
 		cancel = new JButton(trans.get("button.cancel"));
@@ -310,7 +339,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		PrintController controller = new PrintController();
 		controller.setWindow(this.getOwner());
 		controller.print(document, toBePrinted, new FileOutputStream(f),
-		                 settings, rotation, updateSimulations);
+		                 settings, rotation, updateSimulations, includeMotors);
 		return f;
 	}
 	
@@ -403,6 +432,47 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		}
 	}
 	
+	/**
+	 * Handler for when the "Save as CSV" button is clicked. Exports the textual
+	 * design information (metadata and statistics); the diagram has no CSV form.
+	 *
+	 * @return true if the CSV was saved
+	 */
+	private boolean onSaveCSV() {
+		JFileChooser chooser = new SaveFileChooser();
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
+
+		File dir = document.getFile();
+		if (dir != null) {
+			dir = dir.getParentFile();
+		}
+		if (dir == null) {
+			dir = prefs.getDefaultDirectory();
+		}
+		chooser.setCurrentDirectory(dir);
+
+		int returnVal = chooser.showSaveDialog(this);
+		File file = chooser.getSelectedFile();
+		if (returnVal == JFileChooser.APPROVE_OPTION && file != null) {
+			file = FileHelper.forceExtension(file, "csv");
+			if (!FileHelper.confirmWrite(file, this)) {
+				return false;
+			}
+
+			try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+				// UTF-8 BOM so spreadsheet apps detect the encoding and render unit
+				// symbols (e.g. the middot and superscript in "oz.in^2") correctly.
+				writer.write((char) 0xFEFF);
+				DesignReportCSVExport.export(document, writer);
+			} catch (IOException e) {
+				FileHelper.errorWriting(e, this);
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
 	public PrintSettings getPrintSettings() {
 		PrintSettings settings = new PrintSettings();
 		Color c;
