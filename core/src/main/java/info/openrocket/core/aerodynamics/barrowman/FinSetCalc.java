@@ -553,8 +553,18 @@ public class FinSetCalc extends RocketComponentCalc {
 
 	/**
 	 * Fade linear NACA interference into the established post-stall fallback.
-	 * Reverse flow is deliberately excluded because its leading and trailing
-	 * edges and afterbody relationship are not represented by the forward model.
+	 *
+	 * <p>{@link FlightConditions#getAOA()} represents an unsigned angle in
+	 * {@code [0, pi]} radians; the lateral airflow direction is stored separately
+	 * in {@link FlightConditions#getTheta()}. The negative-angle check below is
+	 * therefore a defensive input guard, not a restriction on signed incidence.
+	 * Reverse flow corresponds to angles above {@code pi / 2} and is already
+	 * excluded by the stall cutoff. Its leading and trailing edges and afterbody
+	 * relationship are not represented by the forward model.</p>
+	 *
+	 * @param angleOfAttack unsigned angle of attack in radians
+	 * @return NACA blend weight from zero (fallback only) to one (full NACA model),
+	 *         or zero for invalid input
 	 */
 	static double calculateNacaApplicabilityWeight(double angleOfAttack) {
 		if (!Double.isFinite(angleOfAttack) || angleOfAttack < 0.0
