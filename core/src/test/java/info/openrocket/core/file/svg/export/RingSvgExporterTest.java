@@ -4,7 +4,7 @@ import info.openrocket.core.rocketcomponent.InnerTube;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.awt.Color;
+import info.openrocket.core.util.ORColor;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collections;
@@ -15,7 +15,7 @@ class RingSvgExporterTest {
 	@Test
 	void renderRingWritesOuterAndInnerCircles() throws Exception {
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.2, true);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.2, true);
 
 		RingSvgExporter.renderRing(builder, 0, 0, 0.05, 0.02,
 				Collections.emptyList(), options);

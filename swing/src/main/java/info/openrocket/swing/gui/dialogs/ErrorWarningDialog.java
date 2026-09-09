@@ -106,7 +106,7 @@ public abstract class ErrorWarningDialog {
             if (isSelected) {
                 label.setForeground(Color.WHITE);
             } else {
-                label.setForeground(info.openrocket.core.util.ORColor.DARK_RED.toAWTColor());
+                label.setForeground(info.openrocket.swing.gui.util.ColorConversion.toAwtColor(info.openrocket.core.util.ORColor.DARK_RED));
             }
 
             return label;

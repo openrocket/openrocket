@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.configdialog;
 
 import java.awt.Color;
+
+import info.openrocket.core.util.ORColor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -285,7 +287,7 @@ public class FinSetConfigTest extends BaseTestCase {
 
         bodyTube.addChild(finSet);
 
-        SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+        SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
         File destFile = File.createTempFile("test", ".svg");
 

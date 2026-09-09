@@ -7,12 +7,10 @@ import info.openrocket.core.preset.TypedPropertyMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.imageio.ImageIO;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -35,9 +33,12 @@ public class BaseComponentDTOTest {
         // Convert the presets to a BodyTubeDTO
         BodyTubeDTO dto = new BodyTubeDTO(preset);
 
-        // Add an image to the DTO.
-        BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream("/test_image.png"));
-        dto.setImage(image);
+        // Add an image to the DTO (raw PNG bytes; no java.desktop needed).
+        final byte[] imageData;
+        try (InputStream is = this.getClass().getResourceAsStream("/test_image.png")) {
+            imageData = is.readAllBytes();
+        }
+        dto.setImageData(imageData);
 
         JAXBContext binder = JAXBContext.newInstance(OpenRocketComponentDTO.class);
         Marshaller marshaller = binder.createMarshaller();
@@ -52,9 +53,8 @@ public class BaseComponentDTOTest {
         Unmarshaller unmarshaller = binder.createUnmarshaller();
         BodyTubeDTO redone = (BodyTubeDTO) unmarshaller.unmarshal(new StringReader(xml));
 
-        // Compare the image.
-        Assertions.assertArrayEquals(((DataBufferByte) image.getData().getDataBuffer()).getData(),
-                ((DataBufferByte) redone.getImage().getData().getDataBuffer()).getData());
+        // Compare the image: the raw PNG bytes must survive the XML round-trip.
+        Assertions.assertArrayEquals(imageData, redone.getImageData());
 
         // Assert the rest of the attributes.
         Assertions.assertEquals(dto.getInsideDiameter(), redone.getInsideDiameter(), 0.00001);
@@ -64,8 +64,5 @@ public class BaseComponentDTOTest {
         Assertions.assertEquals(dto.getManufacturer(), redone.getManufacturer());
         Assertions.assertEquals(dto.getMass(), redone.getMass(), 0.00001);
         Assertions.assertEquals(dto.getPartNo(), redone.getPartNo());
-
-        // Uncomment if you want to write the image to a file to view it.
-        // ImageIO.write(redone.getImage(), "png", new FileOutputStream("redone.png"));
     }
 }
