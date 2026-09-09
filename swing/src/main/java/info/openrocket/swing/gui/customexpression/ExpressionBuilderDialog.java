@@ -221,8 +221,8 @@ public class ExpressionBuilderDialog extends JDialog {
 		mainPanel.add(expressionCheck, "wrap, center");
 		mainPanel.add(insertOperatorButton, "span 2, right, split 2");
 		mainPanel.add(insertVariableButton, "right, wrap");
-		mainPanel.add(cancelButton, "span 2, right, width :50:100");
-		mainPanel.add(okButton, "right, width :50:100, wrap");
+		mainPanel.add(cancelButton, "span 2, right, gapright rel, tag cancel");
+		mainPanel.add(okButton, "right, tag ok, wrap");
 
 		this.add(mainPanel);
 		this.validate();

@@ -7,6 +7,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -175,9 +176,7 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 		StorageOptionChooser chooser = new StorageOptionChooser(document, options);
 
 		//// Save options
-		if (JOptionPane.showConfirmDialog(parent, chooser, trans.get("StorageOptChooser.lbl.Saveopt"), 
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) !=
-					JOptionPane.OK_OPTION) {
+		if (!MessageDialog.confirmOkCancel(parent, chooser, trans.get("StorageOptChooser.lbl.Saveopt"))) {
 			// User cancelled
 			return false;
 		}

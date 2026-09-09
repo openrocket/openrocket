@@ -58,7 +58,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 				close(true);
 			}
 		});
-		panel.add(okButton, "tag ok, split, align right, gapright unrel, gapbottom unrel");
+		panel.add(okButton, "split 2, gapbefore push, gapright rel, tag ok");
 		
 		//// Cancel button
 		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));

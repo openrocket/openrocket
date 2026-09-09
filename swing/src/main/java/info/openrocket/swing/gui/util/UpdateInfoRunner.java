@@ -46,7 +46,7 @@ public abstract class UpdateInfoRunner {
 			retriever.cancel(); // Add way to cancel retriever
 			dialog1.dispose();
 		});
-		panel.add(cancel, "right");
+		panel.add(cancel, "span, tag cancel");
 		dialog1.add(panel);
 
 		GUIUtil.setDisposableDialogOptions(dialog1, cancel);
