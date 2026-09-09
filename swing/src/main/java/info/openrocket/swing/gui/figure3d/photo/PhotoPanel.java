@@ -589,10 +589,10 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			applyLighting(scene, config);
 			if (camera != null) {
 				if (cameraSettingsChanged) {
-					applyCamera(camera);
+					applyCamera(orchestrator, camera);
 					rememberCameraSettings();
 				} else if (currentCameraState != null) {
-					restoreCamera(camera, currentCameraState);
+					restoreCamera(orchestrator, camera, currentCameraState);
 				}
 			}
 			if (rebuild || isRocketTransformRequired(scene)) {
@@ -645,7 +645,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		scene.setRocketRotationPivotOverride(0.0f, 0.0f, 0.0f);
 	}
 
-	private void applyCamera(Camera camera) {
+	private void applyCamera(Scene3DOrchestrator orchestrator, Camera camera) {
 		configurePhotoCamera(camera);
 		// PhotoStudio model transforms already recenter the rocket around world origin.
 		// Keep camera orbit pivot locked to origin to match legacy JOGL behavior.
@@ -656,19 +656,23 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		camera.setAngleY((float) settings.getViewAlt());
 		camera.setFieldOfView(settings.getFov());
 		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
+		// Photo Studio owns an explicit persisted distance; resizing must not replace it
+		// with the shared design view's fit-to-window distance.
+		orchestrator.getCameraController().setZoomFitting(false);
 		// Use the orbit-up vector so dragging past ±90° altitude doesn't snap the view.
 		// (forceFixedUp=true would use a fixed world-up that becomes degenerate at the poles.)
 		camera.setForceFixedUp(false);
 		camera.update();
 	}
 
-	private void restoreCamera(Camera camera, CameraState state) {
+	private void restoreCamera(Scene3DOrchestrator orchestrator, Camera camera, CameraState state) {
 		configurePhotoCamera(camera);
 		camera.setCenterOfInterest(state.centerOfInterest);
 		camera.setAngleX(state.angleX);
 		camera.setAngleY(state.angleY);
 		camera.setFieldOfView(state.fieldOfView);
 		camera.setDistance(state.distance);
+		orchestrator.getCameraController().setZoomFitting(false);
 		camera.setForceFixedUp(false);
 		camera.update();
 	}
