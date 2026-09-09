@@ -32,6 +32,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 
@@ -343,6 +344,44 @@ public class BarrowmanCalculatorTest {
 
 		calc.checkGeometry(configuration, rocket, warnings);
 		assertFalse(warnings.isEmpty(), " Estes Alpha III has an undetected discontinuity:");
+	}
+
+	/**
+	 * The airframe-continuity check must not depend on the user's display-unit
+	 * preference. A diameter step near display precision must be reported (or not)
+	 * identically whether lengths are shown in cm or inches. Regression test for
+	 * <a href="https://github.com/openrocket/openrocket/issues/3285">#3285</a>.
+	 */
+	@Test
+	public void testContinuityIndependentOfDisplayUnit() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		AerodynamicCalculator calc = new BarrowmanCalculator();
+		FlightConfiguration configuration = rocket.getSelectedConfiguration();
+
+		// A 0.4 mm diameter step: below cm display precision (rounds away) but not below
+		// inch display precision, so the old string-based check disagreed across units.
+		NoseCone nose = (NoseCone) rocket.getChild(0).getChild(0);
+		BodyTube body = (BodyTube) rocket.getChild(0).getChild(1);
+		nose.setAftRadius(0.0502);
+		body.setOuterRadius(0.0500);
+
+		final int originalUnit = UnitGroup.UNITS_LENGTH.getDefaultUnitIndex();
+		try {
+			UnitGroup.UNITS_LENGTH.setDefaultUnit("cm");
+			WarningSet metric = new WarningSet();
+			calc.checkGeometry(configuration, rocket, metric);
+
+			UnitGroup.UNITS_LENGTH.setDefaultUnit("in");
+			WarningSet imperial = new WarningSet();
+			calc.checkGeometry(configuration, rocket, imperial);
+
+			assertEquals(metric.toString(), imperial.toString(),
+					"continuity warnings must not depend on the display unit");
+			assertFalse(metric.isEmpty(),
+					"a 0.4 mm diameter step should be reported as a discontinuity");
+		} finally {
+			UnitGroup.UNITS_LENGTH.setDefaultUnit(originalUnit);
+		}
 	}
 
 	@Test
