@@ -126,6 +126,9 @@ public class FlightEventsTest extends BaseTestCase {
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
 		sim.getOptions ().getAverageWindModel().setAverage(0.1);
+		// Pin both independent random sources so repeated event times test the design.
+		sim.getOptions().setRandomSeed(0);
+		sim.getOptions().getAverageWindModel().setSeed(0);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
@@ -168,7 +171,7 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.31, null),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.13, null),
 						new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
@@ -255,8 +258,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.11, centerBoosterBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.74, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 3.35, rocket),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.45, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.63, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null)
 				};
