@@ -11,8 +11,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
@@ -42,12 +44,16 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.print.PrintController;
 import info.openrocket.swing.gui.print.PrintSettings;
 import info.openrocket.swing.gui.print.PrintableContext;
+import info.openrocket.swing.gui.print.MonteCarloReportData;
+import info.openrocket.swing.gui.print.MonteCarloReportData.Entry;
+import info.openrocket.swing.gui.print.OpenRocketPrintable;
 import info.openrocket.swing.gui.print.TemplateProperties;
 import info.openrocket.swing.gui.print.components.CheckTreeManager;
 import info.openrocket.swing.gui.print.components.RocketPrintTree;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.simulation.LandingDispersionAnalysisCache;
 
 /**
  * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
@@ -127,7 +133,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		// Add the tree to the UI
 		final JScrollPane scrollPane = new JScrollPane(stagedTree);
 		panel.add(scrollPane, "width 400lp, height 200lp, grow, wrap para");
-		
 
 		// Checkboxes and buttons
 		final JPanel optionsPanel = new JPanel(new MigLayout());
@@ -187,8 +192,9 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		previewButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				onPreview();
-				PrintDialog.this.setVisible(false);
+				if (onPreview()) {
+					PrintDialog.this.setVisible(false);
+				}
 			}
 		});
 		panel.add(previewButton, "split, right, gap para");
@@ -238,7 +244,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			saveAsPDF.setEnabled(false);
 		}
 	}
-	
+
 	/**
 	 * If expand is true, expands all nodes in the tree. Otherwise, collapses all nodes in the theTree.
 	 *
@@ -260,7 +266,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 * @param expand expand if true, contract if not
 	 */
 	private void expandAll(RocketPrintTree theTree, TreePath parent, boolean expand) {
-		theTree.addSelectionPath(parent);
 		// Traverse children
 		TreeNode node = (TreeNode) parent.getLastPathComponent();
 		if (node.getChildCount() >= 0) {
@@ -289,10 +294,10 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 *
 	 * @throws IOException thrown if the file could not be generated
 	 */
-	private File generateReport(PrintSettings settings) throws IOException {
+	private File generateReport(PrintSettings settings, PreparedReport report) throws IOException {
 		final File f = File.createTempFile("openrocket-", ".pdf");
 		f.deleteOnExit();
-		return generateReport(f, settings);
+		return generateReport(f, settings, report);
 	}
 	
 	/**
@@ -305,27 +310,109 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 *
 	 * @throws IOException thrown if the file could not be generated
 	 */
-	private File generateReport(File f, PrintSettings settings) throws IOException {
-		Iterator<PrintableContext> toBePrinted = currentTree.getToBePrinted();
+	private File generateReport(File f, PrintSettings settings, PreparedReport report) throws IOException {
 		PrintController controller = new PrintController();
 		controller.setWindow(this.getOwner());
-		controller.print(document, toBePrinted, new FileOutputStream(f),
+		controller.setMonteCarloReportData(report.monteCarloData());
+		controller.print(document, report.printables().iterator(), new FileOutputStream(f),
 		                 settings, rotation, updateSimulations);
 		return f;
+	}
+
+	private PreparedReport prepareReport() {
+		List<PrintableContext> toBePrinted = new ArrayList<>();
+		currentTree.getToBePrinted().forEachRemaining(toBePrinted::add);
+		MonteCarloReportData monteCarloData = prepareMonteCarloReport(toBePrinted);
+		if (monteCarloData == null) {
+			return null;
+		}
+		return new PreparedReport(toBePrinted, monteCarloData);
+	}
+
+	private MonteCarloReportData prepareMonteCarloReport(List<PrintableContext> printables) {
+		boolean reportSelected = printables.stream()
+				.anyMatch(context -> context.getPrintable() == OpenRocketPrintable.MONTE_CARLO_REPORT);
+		if (!reportSelected) {
+			return MonteCarloReportData.EMPTY;
+		}
+
+		MonteCarloReportOptionsPanel optionsPanel = new MonteCarloReportOptionsPanel(getOwner(), document);
+		if (!optionsPanel.showDialog(this)) {
+			return null;
+		}
+		List<Simulation> selected = optionsPanel.getSelectedSimulations();
+		if (selected.isEmpty()) {
+			JOptionPane.showMessageDialog(this, trans.get("printdlg.monteCarlo.noneSelected"),
+					trans.get("printdlg.monteCarlo.noneSelected.title"), JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+
+		List<Simulation> missing = selected.stream()
+				.filter(simulation -> LandingDispersionAnalysisCache.get(simulation,
+						simulation.getLandingDispersionSettings()) == null)
+				.toList();
+		boolean skipMissing = false;
+		if (!missing.isEmpty()) {
+			int decision = showMissingResultsPrompt(missing);
+			if (decision == 2 || decision == JOptionPane.CLOSED_OPTION) {
+				return null;
+			}
+			skipMissing = decision == 1;
+			if (!skipMissing && !MonteCarloReportRunDialog.run(this, missing)) {
+				return null;
+			}
+		}
+
+		List<Entry> entries = new ArrayList<>();
+		List<String> omitted = new ArrayList<>();
+		for (Simulation simulation : selected) {
+			var result = LandingDispersionAnalysisCache.get(simulation,
+					simulation.getLandingDispersionSettings());
+			boolean wasMissing = missing.stream().anyMatch(candidate -> candidate == simulation);
+			if (result == null || skipMissing && wasMissing) {
+				omitted.add(simulation.getName());
+			} else {
+				entries.add(new Entry(simulation, result));
+			}
+		}
+		return new MonteCarloReportData(entries, omitted);
+	}
+
+	private int showMissingResultsPrompt(List<Simulation> missing) {
+		int runCount = missing.stream()
+				.map(Simulation::getLandingDispersionSettings)
+				.mapToInt(settings -> settings.getRunCount())
+				.sum();
+		String names = missing.stream().map(Simulation::getName)
+				.collect(java.util.stream.Collectors.joining("\n• ", "• ", ""));
+		String message = String.format(trans.get("printdlg.monteCarlo.missing"), names, runCount);
+		Object[] options = {
+				trans.get("printdlg.monteCarlo.missing.run"),
+				trans.get("printdlg.monteCarlo.missing.skip"),
+				trans.get("button.cancel")
+		};
+		return JOptionPane.showOptionDialog(this, message,
+				trans.get("printdlg.monteCarlo.missing.title"), JOptionPane.DEFAULT_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 	}
 	
 	
 	/**
 	 * Handler for when the Preview button is clicked.
 	 */
-	private void onPreview() {
+	private boolean onPreview() {
 		if (desktop != null) {
 			try {
+				PreparedReport report = prepareReport();
+				if (report == null) {
+					return false;
+				}
 				PrintSettings settings = getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
-				File f = generateReport(settings);
+				File f = generateReport(settings, report);
 				openPreviewHelper(f);
+				return true;
 			} catch (IOException e) {
 				log.error("Could not open preview.", e);
 				JOptionPane.showMessageDialog(this, new String[] {
@@ -333,6 +420,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 						trans.get("error.preview.desc2") },
 						trans.get("error.preview.title"),
 						JOptionPane.ERROR_MESSAGE);
+			return false;
 			}
 		} else {
 			JOptionPane.showMessageDialog(this, new String[] {
@@ -340,6 +428,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 					trans.get("error.preview.desc2") },
 					trans.get("error.preview.title"),
 					JOptionPane.INFORMATION_MESSAGE);
+			return false;
 		}
 	}
 	
@@ -363,6 +452,10 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 * @return	true if the PDF was saved
 	 */
 	private boolean onSavePDF() {
+		PreparedReport report = prepareReport();
+		if (report == null) {
+			return false;
+		}
 		
 		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.PDF_FILTER);
@@ -391,7 +484,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 				PrintSettings settings = getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
-				generateReport(file, settings);
+				generateReport(file, settings, report);
 				
 			} catch (IOException e) {
 				FileHelper.errorWriting(e, this);
@@ -401,6 +494,9 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		} else {
 			return false;
 		}
+	}
+
+	private record PreparedReport(List<PrintableContext> printables, MonteCarloReportData monteCarloData) {
 	}
 	
 	public PrintSettings getPrintSettings() {

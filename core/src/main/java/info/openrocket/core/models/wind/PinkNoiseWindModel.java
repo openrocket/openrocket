@@ -55,7 +55,7 @@ public class PinkNoiseWindModel implements WindModel {
 	private double time1;
 	private double value1, value2;
 
-	private final List<StateChangeListener> listeners = new ArrayList<>();
+	private List<StateChangeListener> listeners = new ArrayList<>();
 
 	/**
 	 * Construct a new wind simulation with a specific seed value.
@@ -103,6 +103,24 @@ public class PinkNoiseWindModel implements WindModel {
 		double intensity = getTurbulenceIntensity();
 		this.average = average;
 		setTurbulenceIntensity(intensity);
+		fireChangeEvent();
+	}
+
+	/**
+	 * Set the average wind speed without changing the configured standard deviation.
+	 * If the average wind speed is negative, the direction will be reversed.
+	 *
+	 * @param average the average wind speed to set
+	 */
+	public void setAveragePreservingStandardDeviation(double average) {
+		if (average < 0) {
+			average = -average;
+			setDirection(Math.PI + getDirection());
+		}
+		if (average == this.average) {
+			return;
+		}
+		this.average = average;
 		fireChangeEvent();
 	}
 
@@ -244,6 +262,8 @@ public class PinkNoiseWindModel implements WindModel {
 		try {
 			PinkNoiseWindModel clone = (PinkNoiseWindModel) super.clone();
 			clone.loadFrom(this);
+			clone.listeners = new ArrayList<>();
+			clone.reset();
 			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError(); // This should never happen
