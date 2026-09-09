@@ -126,12 +126,11 @@ public class MassComponent extends MassObject {
 
 	@Override
 	public boolean allowsChildren() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		// Allow no components to be attached to a MassComponent
-		return false;
+		return InternalComponent.class.isAssignableFrom(type);
 	}
 }
