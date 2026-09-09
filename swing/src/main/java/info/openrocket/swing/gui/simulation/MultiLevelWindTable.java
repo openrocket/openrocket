@@ -22,6 +22,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -48,8 +49,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class MultiLevelWindTable extends JPanel implements ChangeSource {
@@ -61,7 +64,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private static final int FLASH_DURATION_MS = 800;
 	private static final int CELL_PADDING = 8; // Padding inside cells
 
-	private static final ColumnDefinition[] COLUMNS = {
+	private static final ColumnDefinition[] BASE_COLUMNS = {
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.AltitudeMSL"), trans.get("MultiLevelWindTable.col.AltitudeMSL.ttip"),
 					100, UnitGroup.UNITS_DISTANCE),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 100, UnitGroup.UNITS_WINDSPEED),
@@ -72,6 +75,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Intensity"), 85, null),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Delete"), 60, null)
 	};
+	private static final ColumnDefinition IMPORT_COLUMN = new ColumnDefinition(
+			trans.get("MultiLevelWindTable.col.Import"), trans.get("MultiLevelWindTable.col.Import.ttip"), 60, null);
 
 	public interface RowSelectionListener {
 		void onRowSelected(LevelWindModel level);
@@ -82,6 +87,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private final JPanel headerPanel;
 	private final MultiLevelPinkNoiseWindModel windModel;
 	private final List<LevelRow> rows;
+	private final List<ColumnDefinition> columns;
+	private final boolean showImportSelection;
+	private final Set<Integer> initiallyExcludedIndices;
 	private LevelRow changedRow = null;
 	private JLabel altitudeHeaderLabel;
 
@@ -115,8 +123,23 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	}
 
 	public MultiLevelWindTable(MultiLevelPinkNoiseWindModel windModel) {
+		this(windModel, false, Set.of());
+	}
+
+	public MultiLevelWindTable(MultiLevelPinkNoiseWindModel windModel, Set<Integer> initiallyExcludedIndices) {
+		this(windModel, true, initiallyExcludedIndices);
+	}
+
+	private MultiLevelWindTable(MultiLevelPinkNoiseWindModel windModel, boolean showImportSelection,
+			Set<Integer> initiallyExcludedIndices) {
 		this.windModel = windModel;
 		this.rows = new ArrayList<>();
+		this.showImportSelection = showImportSelection;
+		this.initiallyExcludedIndices = Set.copyOf(initiallyExcludedIndices);
+		this.columns = new ArrayList<>(List.of(BASE_COLUMNS));
+		if (showImportSelection) {
+			this.columns.add(this.columns.size() - 1, IMPORT_COLUMN);
+		}
 		setLayout(new BorderLayout());
 		
 		// Initialize shared unit models with dummy values (will be updated when units change)
@@ -135,12 +158,12 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.Y_AXIS));
 
 		// Populate rows from the wind model
-		windModel.getLevels().forEach(lvl -> {
-			LevelRow row = new LevelRow(lvl);
+		for (int i = 0; i < windModel.getLevels().size(); i++) {
+			LevelWindModel lvl = windModel.getLevels().get(i);
+			LevelRow row = new LevelRow(lvl, !this.initiallyExcludedIndices.contains(i));
 			rows.add(row);
 			rowsPanel.add(row);
-		});
-
+		}
 		// Initial sort
 		resortRows(null);
 		
@@ -174,8 +197,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		));
 		panel.setBackground(tableHeaderBg);
 
-		for (int i = 0; i < COLUMNS.length; i++) {
-			ColumnDefinition column = COLUMNS[i];
+		for (int i = 0; i < columns.size(); i++) {
+			ColumnDefinition column = columns.get(i);
 			
 			// Create header cell with label and optional unit selector
 			JPanel cell;
@@ -212,6 +235,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			} else {
 				// For columns without units, just add the label
 				JLabel label = new JLabel(column.header(), SwingConstants.CENTER);
+				if (column.headerTooltip() != null) {
+					label.setToolTipText(column.headerTooltip());
+				}
 				label.setFont(HEADER_FONT);
 				cell = createFixedCell(label, column.width());
 			}
@@ -219,7 +245,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			cell.setBackground(tableHeaderBg);
 			panel.add(cell);
 
-			if (i < COLUMNS.length - 1) {
+			if (i < columns.size() - 1) {
 				panel.add(createVerticalSeparator());
 			}
 		}
@@ -308,7 +334,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 		newLevel.ifPresent(lvl -> {
 			List<LevelRow> originalOrder = new ArrayList<>(rows);
-			LevelRow row = new LevelRow(lvl);
+			LevelRow row = new LevelRow(lvl, true);
 			rows.add(row);
 			changedRow = row; // Mark the new row to be highlighted
 			int thisIdx = rows.indexOf(row);
@@ -452,10 +478,23 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private void syncRowsFromModel() {
 		rows.clear();
 		windModel.getLevels().forEach(lvl -> {
-			LevelRow row = new LevelRow(lvl);
+			LevelRow row = new LevelRow(lvl, true);
 			rows.add(row);
 		});
 		resortRows(null);
+	}
+
+	/**
+	 * Returns the zero-based positions of rows unchecked for the weather import.
+	 */
+	public Set<Integer> getExcludedRowIndices() {
+		Set<Integer> excluded = new LinkedHashSet<>();
+		for (int i = 0; i < rows.size(); i++) {
+			if (!rows.get(i).isIncluded()) {
+				excluded.add(i);
+			}
+		}
+		return Set.copyOf(excluded);
 	}
 
 	/**
@@ -726,12 +765,14 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		private final DoubleModel dmStdDeviation;
 		private final DoubleModel dmTurbulence;
 		private final JLabel intensityLabel;
+		private final JCheckBox importCheckBox;
+		private final List<JComponent> importControlledComponents = new ArrayList<>();
 		private final JButton deleteButton;
 		private JMenuItem deleteItem;
 
 		private boolean selected = false;
 		
-		public LevelRow(LevelWindModel level) {
+		public LevelRow(LevelWindModel level, boolean initiallyIncluded) {
 			this.level = level;
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
@@ -786,19 +827,35 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmTurbulence.addChangeListener(dmStdDeviation);
 
 			// Create UI components for each column
-			JPanel altitudeGroup = createSpinnerOnly(dmAltitude, COLUMNS[0].width);
-			JPanel speedGroup = createSpinnerOnly(dmSpeed, COLUMNS[1].width);
-			JPanel directionGroup = createSpinnerOnly(dmDirection, COLUMNS[2].width);
-			JPanel stdDeviationGroup = createSpinnerOnly(dmStdDeviation, COLUMNS[3].width);
-			JPanel turbulenceGroup = createSpinnerOnly(dmTurbulence, COLUMNS[4].width);
+			JPanel altitudeGroup = createSpinnerOnly(dmAltitude, BASE_COLUMNS[0].width);
+			JPanel speedGroup = createSpinnerOnly(dmSpeed, BASE_COLUMNS[1].width);
+			JPanel directionGroup = createSpinnerOnly(dmDirection, BASE_COLUMNS[2].width);
+			JPanel stdDeviationGroup = createSpinnerOnly(dmStdDeviation, BASE_COLUMNS[3].width);
+			JPanel turbulenceGroup = createSpinnerOnly(dmTurbulence, BASE_COLUMNS[4].width);
 
 			// Intensity description label
 			intensityLabel = new JLabel(level.getIntensityDescription());
-			JPanel intensityCell = createFixedCell(intensityLabel, COLUMNS[5].width);
+			JPanel intensityCell = createFixedCell(intensityLabel, BASE_COLUMNS[5].width);
 			intensityCell.setOpaque(false);
+			importControlledComponents.add(altitudeGroup);
+			importControlledComponents.add(speedGroup);
+			importControlledComponents.add(directionGroup);
+			importControlledComponents.add(stdDeviationGroup);
+			importControlledComponents.add(turbulenceGroup);
+			importControlledComponents.add(intensityCell);
 
 			// Update intensity description when turbulence changes
 			dmTurbulence.addChangeListener(e -> intensityLabel.setText(level.getIntensityDescription()));
+
+			if (showImportSelection) {
+				importCheckBox = new JCheckBox();
+				importCheckBox.setSelected(initiallyIncluded);
+				importCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
+				importCheckBox.setToolTipText(trans.get("MultiLevelWindTable.col.Import.ttip"));
+				importCheckBox.addActionListener(e -> setIncluded(importCheckBox.isSelected()));
+			} else {
+				importCheckBox = null;
+			}
 
 			// Delete button with improved styling
 			deleteButton = new JButton(Icons.EDIT_DELETE);
@@ -806,7 +863,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			deleteButton.addActionListener(e -> deleteRow(this));
 			// Button state will be set by updateDeleteButtonsState()
 
-			JPanel deleteCell = createFixedCell(deleteButton, COLUMNS[6].width);
+			JPanel deleteCell = createFixedCell(deleteButton, BASE_COLUMNS[6].width);
 			deleteCell.setOpaque(false);
 
 			// Add all cells to row with separators
@@ -822,7 +879,14 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			add(createVerticalSeparator());
 			add(intensityCell);
 			add(createVerticalSeparator());
+			if (showImportSelection) {
+				JPanel importCell = createFixedCell(importCheckBox, IMPORT_COLUMN.width());
+				importCell.setOpaque(false);
+				add(importCell);
+				add(createVerticalSeparator());
+			}
 			add(deleteCell);
+			setImportControlledComponentsEnabled(initiallyIncluded);
 
 			// Set size constraints
 			Dimension currentSize = getPreferredSize();
@@ -926,6 +990,34 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		public void setSelected(boolean selected) {
 			this.selected = selected;
 			updateHighlight();
+		}
+
+		public boolean isIncluded() {
+			return importCheckBox == null || importCheckBox.isSelected();
+		}
+
+		private void setIncluded(boolean included) {
+			if (importCheckBox == null) {
+				return;
+			}
+			setImportControlledComponentsEnabled(included);
+			updateHighlight();
+			MultiLevelWindTable.this.fireChangeEvent();
+		}
+
+		private void setImportControlledComponentsEnabled(boolean enabled) {
+			for (JComponent component : importControlledComponents) {
+				setComponentTreeEnabled(component, enabled);
+			}
+		}
+
+		private void setComponentTreeEnabled(Component component, boolean enabled) {
+			component.setEnabled(enabled);
+			if (component instanceof Container container) {
+				for (Component child : container.getComponents()) {
+					setComponentTreeEnabled(child, enabled);
+				}
+			}
 		}
 		
 		/**

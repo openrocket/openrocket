@@ -30,10 +30,12 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
+import java.util.Set;
 
 public class MultiLevelWindEditDialog extends JDialog {
 	private final MultiLevelWindTable windTable;
 	private final WindProfilePanel visualization;
+	private WeatherImportAction weatherImportAction = WeatherImportAction.CANCEL;
 	private static final Translator trans = Application.getTranslator();
 	private static final ApplicationPreferences prefs = Application.getPreferences();
 
@@ -44,14 +46,27 @@ public class MultiLevelWindEditDialog extends JDialog {
 	}
 
 	public MultiLevelWindEditDialog(Window owner, MultiLevelPinkNoiseWindModel model) {
+		this(owner, model, null);
+	}
+
+	/**
+	 * Creates a transactional editor for a weather wind profile.
+	 *
+	 * @param excludedWindLevelIndices zero-based wind-level positions that should start unchecked
+	 */
+	public MultiLevelWindEditDialog(Window owner, MultiLevelPinkNoiseWindModel model,
+			Set<Integer> excludedWindLevelIndices) {
 		super(owner, trans.get("WindProfileEditorDlg.title"), ModalityType.APPLICATION_MODAL);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		boolean weatherImportCustomization = excludedWindLevelIndices != null;
 
 		// Create main panel with split layout
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setContinuousLayout(true); // Smoother resizing
 
 		// Create left panel with table
-		windTable = new MultiLevelWindTable(model);
+		windTable = weatherImportCustomization
+				? new MultiLevelWindTable(model, excludedWindLevelIndices) : new MultiLevelWindTable(model);
 		
 		// Create and configure the scroll pane
 		JScrollPane tableScrollPane = new JScrollPane(windTable.getRowsPanel()) {
@@ -198,9 +213,25 @@ public class MultiLevelWindEditDialog extends JDialog {
 
 		// Dialog buttons
 		JPanel dialogButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		JButton closeButton = new JButton(trans.get("button.close"));
-		closeButton.addActionListener(e -> dispose());
-		dialogButtonPanel.add(closeButton);
+		JButton escapeButton;
+		if (weatherImportCustomization) {
+			JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
+			cancelButton.addActionListener(e -> dispose());
+			JButton okButton = new JButton(trans.get("dlg.but.ok"));
+			okButton.addActionListener(e -> {
+				weatherImportAction = WeatherImportAction.OK;
+				dispose();
+			});
+			dialogButtonPanel.add(cancelButton);
+			dialogButtonPanel.add(okButton);
+			getRootPane().setDefaultButton(okButton);
+			escapeButton = cancelButton;
+		} else {
+			JButton closeButton = new JButton(trans.get("button.close"));
+			closeButton.addActionListener(e -> dispose());
+			dialogButtonPanel.add(closeButton);
+			escapeButton = closeButton;
+		}
 
 		// Main layout
 		JPanel contentPane = new JPanel(new BorderLayout());
@@ -208,13 +239,27 @@ public class MultiLevelWindEditDialog extends JDialog {
 		contentPane.add(dialogButtonPanel, BorderLayout.SOUTH);
 
 		setContentPane(contentPane);
-		setSize(900, 500);
+		setSize(weatherImportCustomization ? 980 : 900, 500);
 		setLocationRelativeTo(owner);
 		
 		// Set minimum size to ensure UI doesn't get too cramped
 		setMinimumSize(new Dimension(700, 400));
 
-		GUIUtil.installEscapeCloseButtonOperation(this, closeButton);
+		GUIUtil.installEscapeCloseButtonOperation(this, escapeButton);
+	}
+
+	public WeatherImportResult getWeatherImportResult() {
+		return new WeatherImportResult(weatherImportAction, windTable.getExcludedRowIndices());
+	}
+
+	public enum WeatherImportAction {
+		CANCEL, OK
+	}
+
+	public record WeatherImportResult(WeatherImportAction action, Set<Integer> excludedWindLevelIndices) {
+		public WeatherImportResult {
+			excludedWindLevelIndices = Set.copyOf(excludedWindLevelIndices);
+		}
 	}
 
 	private void importLevels(MultiLevelPinkNoiseWindModel model) {
