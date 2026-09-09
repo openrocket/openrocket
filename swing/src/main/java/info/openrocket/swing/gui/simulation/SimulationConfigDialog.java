@@ -72,10 +72,12 @@ public class SimulationConfigDialog extends JDialog {
 	private static final int WARNINGS_IDX = 2;
 	private static final int PLOT_IDX = 3;
 	private static final int EXPORT_IDX = 4;
+	private static final int THREED_PATH_IDX = 5;
 
 	private final SimulationOptionsPanel simulationOptionsTab;
 	private final SimulationPlotPanel plotTab;
 	private final SimulationExportPanel exportTab;
+	private final SimulationFlightPathExportPanel threeDPathTab;
 	private static final int DIALOG_SCREEN_MARGIN = 80;
 
 	private static Color multiCompEditColor;
@@ -169,6 +171,20 @@ public class SimulationConfigDialog extends JDialog {
 			tabbedPane.setToolTipTextAt(EXPORT_IDX, ttip);
 		}
 
+		//// 3D path export
+		if (hasData) {
+			this.threeDPathTab = new SimulationFlightPathExportPanel(simulationList[0]);
+		} else {
+			this.threeDPathTab = null;
+		}
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.ThreeDPath"),
+				threeDPathTab == null ? null : createTabScrollPane(threeDPathTab));
+		if (isMultiCompEdit() || !hasData) {
+			tabbedPane.setEnabledAt(THREED_PATH_IDX, false);
+			String ttip = hasData ? trans.get("SimulationConfigDialog.tab.expDis.ttip") : trans.get("SimulationConfigDialog.tab.expNoData.ttip");
+			tabbedPane.setToolTipTextAt(THREED_PATH_IDX, ttip);
+		}
+
 		contentPanel.add(tabbedPane, "grow, push, wrap");
 
 		// ======== Bottom panel ========
@@ -202,6 +218,7 @@ public class SimulationConfigDialog extends JDialog {
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case EXPORT_IDX:
+					case THREED_PATH_IDX:
 						okButton.setText(trans.get("SimulationConfigDialog.btn.export"));
 						cancelButton.setText(trans.get("dlg.but.close"));
 						cancelButton.setVisible(true);
@@ -444,6 +461,13 @@ public class SimulationConfigDialog extends JDialog {
 						return;
 					}
 					exportTab.doExport();
+					return;
+				} else if (tabIdx == THREED_PATH_IDX) {
+					if (threeDPathTab == null) {
+						closeDialog();
+						return;
+					}
+					threeDPathTab.doExport();
 					return;
 				}
 

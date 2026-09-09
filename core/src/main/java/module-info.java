@@ -24,6 +24,7 @@ open module info.openrocket.core {
 	requires com.google.gson;
 	requires org.slf4j;
 	requires com.opencsv;
+	requires com.samskivert.jmustache;
 	requires org.commonmark;
 	requires org.locationtech.jts;
 	requires org.objectweb.asm.commons;
@@ -44,6 +45,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.document.attachments;
 	exports info.openrocket.core.document.events;
 	exports info.openrocket.core.file;
+	exports info.openrocket.core.file.flightpath;
 	exports info.openrocket.core.file.iterator;
 	exports info.openrocket.core.file.motor;
 	exports info.openrocket.core.file.openrocket;

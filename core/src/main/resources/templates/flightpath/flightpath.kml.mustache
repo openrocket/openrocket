@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+	<Document>
+		<name>{{title}}</name>
+		<open>1</open>
+		<Style id="flightPath"><LineStyle><color>ffff0000</color><width>3</width></LineStyle></Style>
+		<Style id="groundTrack"><LineStyle><color>ff000000</color><width>2</width></LineStyle></Style>
+{{#branches}}
+		<Folder>
+			<name>{{name}}</name>
+{{#waypoints}}
+			<Placemark>
+				<name>{{label}}</name>
+				<Point>
+					<altitudeMode>absolute</altitudeMode>
+					<coordinates>{{longitude}},{{latitude}},{{altitudeMslMeters}}</coordinates>
+				</Point>
+			</Placemark>
+{{/waypoints}}
+{{#includeFlightPath}}
+{{#hasPath}}
+			<Placemark>
+				<name>{{name}} flight path</name>
+				<styleUrl>#flightPath</styleUrl>
+				<LineString>
+					<extrude>0</extrude>
+					<tessellate>1</tessellate>
+					<altitudeMode>absolute</altitudeMode>
+					<coordinates>
+{{#path}}						{{longitude}},{{latitude}},{{altitudeMslMeters}}
+{{/path}}					</coordinates>
+				</LineString>
+			</Placemark>
+{{/hasPath}}
+{{/includeFlightPath}}
+{{#includeGroundTrack}}
+{{#hasPath}}
+			<Placemark>
+				<name>{{name}} ground track</name>
+				<styleUrl>#groundTrack</styleUrl>
+				<LineString>
+					<tessellate>1</tessellate>
+					<altitudeMode>clampToGround</altitudeMode>
+					<coordinates>
+{{#path}}						{{longitude}},{{latitude}},{{altitudeMslMeters}}
+{{/path}}					</coordinates>
+				</LineString>
+			</Placemark>
+{{/hasPath}}
+{{/includeGroundTrack}}
+		</Folder>
+{{/branches}}
+	</Document>
+</kml>
