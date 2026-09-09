@@ -182,6 +182,47 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(actualMOIlong, overrideMOIlong, EPSILON, "Alpha III Longitudinal MOI calculated incorrectly: ");
 	}
 
+	/**
+	 * A mass override that covers all subcomponents must scale the moment of
+	 * inertia to the overridden mass.  Regression test for the bug where only the
+	 * mass was replaced while the inertia stayed at the geometric value, so the
+	 * roll/pitch inertia was identical no matter what mass you pinned the stage to.
+	 */
+	@Test
+	public void testSubcomponentMassOverrideScalesInertia() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		config.setAllStages();
+
+		// Baseline: geometric mass and inertia of the un-overridden rocket.
+		final RigidBody baseline = MassCalculator.calculateStructure(config);
+		final double geometricMass = baseline.getMass();
+		final double baselineRot = baseline.getRotationalInertia();
+		final double baselineLong = baseline.getLongitudinalInertia();
+
+		// Pin the whole (single) stage's mass, covering its subcomponents.
+		final AxialStage sustainer = rocket.getStage(0);
+		sustainer.setSubcomponentsOverriddenMass(true);
+		sustainer.setMassOverridden(true);
+
+		// Keeping the geometric distribution, mass X carries X/m times the inertia.
+		// (Before the fix the two inertia asserts failed for every factor != 1.)
+		for (double factor : new double[] { 1.0, 1.8, 3.6, 9.1 }) {
+			sustainer.setOverrideMass(geometricMass * factor);
+			final RigidBody pinned = MassCalculator.calculateStructure(config);
+			final double expMass = geometricMass * factor;
+			final double expRot  = baselineRot * factor;
+			final double expLong = baselineLong * factor;
+			assertEquals(expMass, pinned.getMass(), Math.abs(expMass) * 1e-6,
+					"overridden total mass wrong at factor " + factor);
+			assertEquals(expRot, pinned.getRotationalInertia(), Math.abs(expRot) * 1e-6,
+					"rotational (roll) inertia must scale with the overridden mass, factor " + factor);
+			assertEquals(expLong, pinned.getLongitudinalInertia(), Math.abs(expLong) * 1e-6,
+					"longitudinal inertia must scale with the overridden mass, factor " + factor);
+		}
+	}
+
 	@Test
 	public void testAlphaIIILaunchMass() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -1196,12 +1237,15 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expCM.getZ(), boosterSetCM.getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, boosterSetCM, " Booster Launch CM is incorrect: ");
 
-		// Validate MOI
-		double expMOI_axial = 0.005873702474290652;
+		// Validate MOI.  Because the 0.5 kg mass override covers the booster's
+		// subcomponents, the geometric inertia is rescaled to the overridden mass
+		// (scale = overrideMass / geometricMass); the values below reflect the
+		// mass-consistent inertia rather than the geometric-mass inertia.
+		double expMOI_axial = 0.004843421529808234;
 		double boosterMOI_xx = burnout.getRotationalInertia();
 		assertEquals(expMOI_axial, boosterMOI_xx, EPSILON, " Booster x-axis MOI is incorrect: ");
 
-		double expMOI_tr = 17.78089035006232;
+		double expMOI_tr = 14.662020679052493;
 		double boosterMOI_tr = burnout.getLongitudinalInertia();
 		assertEquals(expMOI_tr, boosterMOI_tr, EPSILON, " Booster transverse MOI is incorrect: ");
 	}
