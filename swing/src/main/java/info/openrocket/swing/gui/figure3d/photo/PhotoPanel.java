@@ -538,6 +538,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
 		orchestrator.getCameraController().addCameraChangeListener(cameraChangeListener);
+		orchestrator.setRocketSceneRebuiltCallback(this::applySettings);
 		Scene scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().addLightChangeListener(lightChangeListener);
@@ -610,6 +611,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 		orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
+		orchestrator.setRocketSceneRebuiltCallback(null);
 		Scene scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().removeLightChangeListener(lightChangeListener);
