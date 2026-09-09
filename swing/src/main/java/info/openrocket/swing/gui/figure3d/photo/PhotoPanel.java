@@ -1086,17 +1086,17 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	 *
 	 * <p>Inverse of the applyLighting() formula:
 	 * <pre>
-	 *   direction = (-cos(alt)*cos(az),  -sin(alt),  cos(alt)*sin(az))
+	 *   direction = (cos(alt)*cos(az),  -sin(alt),  cos(alt)*sin(az))
 	 * </pre>
 	 * Recovery:
 	 * <pre>
 	 *   alt = asin(-direction.y)
-	 *   az  = atan2(direction.z, -direction.x)
+	 *   az  = atan2(direction.z, direction.x)
 	 * </pre>
 	 */
 	private void syncSettingsFromLightDirection(float dx, float dy, float dz) {
 		double lightAlt = Math.asin(MathUtil.clamp(-dy, -1.0, 1.0));
-		double lightAz = MathUtil.reduce2Pi(Math.atan2(dz, -dx));
+		double lightAz = lightAzimuthFromDirection(dx, dz);
 
 		if (MathUtil.equals(lightAlt, settings.getLightAlt(), CAMERA_SETTINGS_EPSILON)
 				&& MathUtil.equals(lightAz, settings.getLightAz(), CAMERA_SETTINGS_EPSILON)) {
@@ -1109,6 +1109,11 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		} finally {
 			suppressLightToSettingsSync.set(false);
 		}
+	}
+
+	/** Returns the azimuth represented by a directional light's X/Z components. */
+	static double lightAzimuthFromDirection(float dx, float dz) {
+		return MathUtil.reduce2Pi(Math.atan2(dz, dx));
 	}
 
 	private static boolean isTrackedDragButton(int button) {
