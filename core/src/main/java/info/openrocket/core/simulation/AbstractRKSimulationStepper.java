@@ -211,6 +211,17 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
             thrust += currentMotorState.getThrust( status.getSimulationTime() );
         }
 
+		store.thrustCorrection = 0;
+		if (thrust > 0)  {
+			double area = store.flightConditions.getThrustingNozzleExitArea();
+			if (area > 0) {
+				// Correct motor thrust for air pressure
+				store.thrustCorrection = area * (store.flightConditions.getAtmosphericConditions().STANDARD_PRESSURE -
+												 store.flightConditions.getAtmosphericConditions().getPressure());
+				thrust += store.thrustCorrection;
+			}
+		}
+		
         // Post-listeners
         thrust = SimulationListenerHelper.firePostThrustCalculation(status, thrust);
 

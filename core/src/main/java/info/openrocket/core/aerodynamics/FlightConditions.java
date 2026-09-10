@@ -204,7 +204,8 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 
 	/**
 	 * Return the total nozzle exit area of all currently thrusting motors.  This is
-	 * useful for reporting; aerodynamic calculations use the per-assembly values.
+	 * useful for reporting and thrust correction based on air pressure;
+	 * aerodynamic calculations use the per-assembly values.
 	 *
 	 * @return total thrusting nozzle exit area in square metres
 	 */
