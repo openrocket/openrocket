@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -26,14 +28,20 @@ import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.openrocket.core.aerodynamics.AerodynamicCalculator;
+import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.logging.Warning;
+import info.openrocket.core.document.DesignInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.PlotAppearance;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.RocketSaver;
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
@@ -123,7 +131,10 @@ public class OpenRocketSaver extends RocketSaver {
 
 		// Save document preferences
 		saveDocumentPreferences(document.getDocumentPreferences());
-		
+
+		// Optionally save the derived design information (informational, ignored on load)
+		saveDesignInfo(document);
+
 		indent--;
 		writeln("</openrocket>");
 		
@@ -582,6 +593,93 @@ public class OpenRocketSaver extends RocketSaver {
 
 		indent--;
 		writeln("</docprefs>");
+	}
+
+	/**
+	 * Optionally write the derived design information (static statistics and fin-root
+	 * measurements) as a {@code <designinfo>} block. This is controlled by a preference
+	 * (off by default). The data is informational only: it is not read back on load
+	 * (unknown elements are ignored), so older or third-party software simply skips it.
+	 *
+	 * @param document the document being saved
+	 */
+	private void saveDesignInfo(OpenRocketDocument document) throws IOException {
+		if (!Application.getPreferences().isExportDesignInfoToFile()) {
+			return;
+		}
+		log.debug("Saving Design Info");
+
+		final Rocket rocket = document.getRocket();
+		final AerodynamicCalculator aero = new BarrowmanCalculator();
+
+		writeln("<designinfo>");
+		indent++;
+
+		// Whole-rocket statistics (all stages active). Work on a clone so the document's
+		// selected configuration is not modified by saving.
+		final FlightConfiguration whole = rocket.getSelectedConfiguration().clone();
+		whole.setAllStages();
+		writeStatistics("rocket", null, null, DesignInfo.fileStatistics(whole, aero));
+
+		// Per-stage statistics for multi-stage designs.
+		if (rocket.getStageCount() > 1) {
+			for (AxialStage stage : whole.getActiveStages()) {
+				final FlightConfiguration stageConfig = rocket.getSelectedConfiguration().clone();
+				stageConfig.setOnlyStage(stage.getStageNumber());
+				writeStatistics("stage", stage.getStageNumber(), stage.getName(),
+						DesignInfo.fileStatistics(stageConfig, aero));
+			}
+		}
+
+		// Nose-to-fin-root measurements, per fin set.
+		for (DesignInfo.FinMeasurement m : DesignInfo.finMeasurements(rocket)) {
+			writeln("<finset stagenumber=\"" + m.stageNumber() + "\" stage=\""
+					+ TextUtil.escapeXML(m.stageName()) + "\" name=\"" + TextUtil.escapeXML(m.finName()) + "\">");
+			indent++;
+			writeln("<nosetoroottop unit=\"m\">" + formatDesignInfoValue(m.noseToRootTop()) + "</nosetoroottop>");
+			writeln("<nosetorootbottom unit=\"m\">" + formatDesignInfoValue(m.noseToRootBottom()) + "</nosetorootbottom>");
+			indent--;
+			writeln("</finset>");
+		}
+
+		indent--;
+		writeln("</designinfo>");
+	}
+
+	private void writeStatistics(String scope, Integer stageNumber, String stageName,
+			List<DesignInfo.FileStat> stats) throws IOException {
+		StringBuilder open = new StringBuilder("<statistics scope=\"").append(scope).append("\"");
+		if (stageNumber != null) {
+			open.append(" stagenumber=\"").append(stageNumber).append("\"");
+		}
+		if (stageName != null) {
+			open.append(" name=\"").append(TextUtil.escapeXML(stageName)).append("\"");
+		}
+		open.append(">");
+		writeln(open.toString());
+		indent++;
+		for (DesignInfo.FileStat stat : stats) {
+			writeln("<stat field=\"" + TextUtil.escapeXML(stat.field()) + "\" value=\""
+					+ formatDesignInfoValue(stat.value()) + "\" unit=\"" + TextUtil.escapeXML(stat.unit()) + "\"/>");
+		}
+		indent--;
+		writeln("</statistics>");
+	}
+
+	/**
+	 * Format a design-info value to at most 4 significant figures, without exponent
+	 * notation and without trailing zeros (e.g. {@code 0.425}, {@code 2499}, {@code 0.0000114}).
+	 * The design info is informational, so a compact rounded value is preferred over the
+	 * full binary precision of the double.
+	 *
+	 * @param value the SI value
+	 * @return the formatted value
+	 */
+	private static String formatDesignInfoValue(double value) {
+		if (Double.isNaN(value) || value == 0) {
+			return "0";
+		}
+		return BigDecimal.valueOf(value).round(new MathContext(4)).stripTrailingZeros().toPlainString();
 	}
 
 	/**

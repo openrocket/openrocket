@@ -202,6 +202,9 @@ The **Design** tab contains settings for the design of the rocket.
 - :guilabel:`Size of text in rocket design panel`: The size of the text in the rocket design view.
 - :guilabel:`Default Mach Number for C.P. Estimate`: Mach value that is used for the Center of Pressure (CP) calculations
   in the rocket design view.
+- :guilabel:`Save design info (statistics) in the design file`: If enabled, saved ``.ork`` files include a ``<designInfo>``
+  block with the rocket's static statistics (for the whole rocket and each stage) and nose-to-fin-root distances for each
+  fin set. This data is informational only and is ignored when loading, so it does not affect compatibility. Off by default.
 - :guilabel:`Always open leftmost tab when opening a component edit dialog`: If enabled, if you edit a rocket component and
   open the component configuration, it will always open in the leftmost tab. If disabled, the last tab you used will be opened.
 - :guilabel:`Show confirmation dialog for discarding component changes`: If enabled, OpenRocket will show a confirmation

@@ -38,6 +38,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.document.DesignInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.formatting.RocketDescriptor;
@@ -180,21 +181,6 @@ public class DesignReport {
 	private static final String DEPLOYMENT_VELOCITY = "Velocity at Deployment";
 	private static final String LANDING_VELOCITY = "Landing Velocity";
 	private static final String ROCKET_DESIGN = "Rocket Design";
-	//// Rocket static stats block (labels have no trailing colon; the PDF adds it)
-	private static final String STAT_LENGTH = "Length";
-	private static final String STAT_MAX_DIAMETER = "Max Diameter";
-	private static final String STAT_MASS_EMPTY = "Mass (Empty)";
-	private static final String STAT_MASS_LOADED = "Mass (Loaded)";
-	private static final String STAT_FINENESS = "Fineness (L/D)";
-	private static final String STAT_CG_EMPTY = "CG (Empty)";
-	private static final String STAT_CG_LOADED = "CG (Loaded)";
-	private static final String STAT_CP = "CP";
-	private static final String STAT_STABILITY_ON_PAD = "Stability (on pad)";
-	private static final String STAT_STABILITY_PERCENT = "Stability (%)";
-	private static final String STAT_DRAG_COEFF = "Drag Coeff.";
-	private static final String STAT_NORMAL_FORCE_SLOPE = "Normal-Force Slope (CN" + Chars.ALPHA + ")";
-	private static final String STAT_PITCH_INERTIA = "Pitch Inertia (Loaded)";
-	private static final String STAT_ROLL_INERTIA = "Roll Inertia (Loaded)";
 	private static final double GRAVITY_CONSTANT = 9.80665d;
 	
 	/**
@@ -511,77 +497,36 @@ public class DesignReport {
 	 */
 	static List<Stat> computeStaticStats(final FlightConfiguration configuration,
 			final AerodynamicCalculator aero) {
+		// The physics live in core's DesignInfo (shared with the CSV export and the .ork
+		// designInfo block); here we only format the raw SI values into display units.
+		final DesignInfo.StaticStats s = DesignInfo.computeStatistics(configuration, aero);
+
 		final Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		final Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
 		// Inertia is tiny for most designs, so use the smallest unit in the user's chosen
 		// unit system to keep precision (the default kg-m^2 would round it to ~0).
 		final Unit inertiaUnit = smallestInertiaUnit();
-		final DecimalFormat plainFormat = new DecimalFormat("0.00");
-		final DecimalFormat dragFormat = new DecimalFormat("0.000");
-
-		// Geometry
-		final double length = configuration.getLength();
-		double diameter = Double.NaN;
-		for (RocketComponent c : configuration.getCoreComponents()) {
-			if (c instanceof SymmetricComponent sc) {
-				diameter = MathUtil.max(diameter, sc.getForeRadius() * 2, sc.getAftRadius() * 2);
-			}
-		}
-		final double fineness = (!Double.isNaN(diameter) && diameter > 0) ? length / diameter : Double.NaN;
-
-		// Masses / CG / inertia
-		final RigidBody launch = MassCalculator.calculateLaunch(configuration);
-		final RigidBody structure = MassCalculator.calculateStructure(configuration);
-		final double massLoaded = launch.getMass();
-		final double massEmpty = structure.getMass();
-		final double cgLoaded = launch.getCM().getX();
-		final double cgEmpty = structure.getCM().getX();
-		final double pitchInertia = launch.getLongitudinalInertia();
-		final double rollInertia = launch.getRotationalInertia();
-
-		// Aerodynamics (CP, stability margin, drag, normal-force slope) at the default Mach
-		final double mach = Application.getPreferences().getDefaultMach();
-		double cpX = Double.NaN;
-		double cna = Double.NaN;
-		double cd = Double.NaN;
-		try {
-			final FlightConditions conditions = new FlightConditions(configuration);
-			conditions.setMach(mach);
-			conditions.setAOA(0);
-			final WarningSet warnings = new WarningSet();
-			final CoordinateIF cp = aero.getWorstCP(configuration, conditions, warnings);
-			if (cp.getWeight() > MathUtil.EPSILON) {
-				cpX = cp.getX();
-			}
-			final AerodynamicForces forces = aero.getAerodynamicForces(configuration, conditions, warnings);
-			if (forces.getCP().getWeight() > MathUtil.EPSILON) {
-				cna = forces.getCP().getWeight();
-			}
-			cd = forces.getCD();
-		} catch (Exception e) {
-			log.warn("Unable to compute aerodynamic static stats for the design report", e);
-		}
-
-		final double margin = !Double.isNaN(cpX) ? cpX - cgLoaded : Double.NaN;
 		final Unit caliberUnit = new CaliberUnit(configuration);
 		final Unit percentUnit = new PercentageOfLengthUnit(configuration);
-		final String machStr = new DecimalFormat("0.##").format(mach);
+		final DecimalFormat plainFormat = new DecimalFormat("0.00");
+		final DecimalFormat dragFormat = new DecimalFormat("0.000");
+		final String machStr = new DecimalFormat("0.##").format(s.mach());
 
 		final List<Stat> stats = new ArrayList<>();
-		stats.add(unitStat(STAT_LENGTH, length, lengthUnit));
-		stats.add(unitStat(STAT_MAX_DIAMETER, diameter, lengthUnit));
-		stats.add(unitStat(STAT_MASS_EMPTY, massEmpty, massUnit));
-		stats.add(unitStat(STAT_MASS_LOADED, massLoaded, massUnit));
-		stats.add(plainStat(STAT_FINENESS, fineness, plainFormat, ""));
-		stats.add(unitStat(STAT_CG_EMPTY, cgEmpty, lengthUnit));
-		stats.add(unitStat(STAT_CG_LOADED, cgLoaded, lengthUnit));
-		stats.add(unitStat(STAT_CP, cpX, lengthUnit));
-		stats.add(unitStat(STAT_STABILITY_ON_PAD, margin, caliberUnit));
-		stats.add(unitStat(STAT_STABILITY_PERCENT, margin, percentUnit));
-		stats.add(plainStat(STAT_DRAG_COEFF + " (Ma " + machStr + ")", cd, dragFormat, ""));
-		stats.add(plainStat(STAT_NORMAL_FORCE_SLOPE, cna, plainFormat, "/rad"));
-		stats.add(unitStat(STAT_PITCH_INERTIA, pitchInertia, inertiaUnit));
-		stats.add(unitStat(STAT_ROLL_INERTIA, rollInertia, inertiaUnit));
+		stats.add(unitStat(DesignInfo.LENGTH, s.length(), lengthUnit));
+		stats.add(unitStat(DesignInfo.MAX_DIAMETER, s.maxDiameter(), lengthUnit));
+		stats.add(unitStat(DesignInfo.MASS_EMPTY, s.massEmpty(), massUnit));
+		stats.add(unitStat(DesignInfo.MASS_LOADED, s.massLoaded(), massUnit));
+		stats.add(plainStat(DesignInfo.FINENESS, s.fineness(), plainFormat, ""));
+		stats.add(unitStat(DesignInfo.CG_EMPTY, s.cgEmpty(), lengthUnit));
+		stats.add(unitStat(DesignInfo.CG_LOADED, s.cgLoaded(), lengthUnit));
+		stats.add(unitStat(DesignInfo.CP, s.cp(), lengthUnit));
+		stats.add(unitStat(DesignInfo.STABILITY_ON_PAD, s.stabilityMargin(), caliberUnit));
+		stats.add(unitStat(DesignInfo.STABILITY_PERCENT, s.stabilityMargin(), percentUnit));
+		stats.add(plainStat(DesignInfo.DRAG_COEFFICIENT + " (Ma " + machStr + ")", s.dragCoefficient(), dragFormat, ""));
+		stats.add(plainStat(DesignInfo.NORMAL_FORCE_SLOPE, s.normalForceSlope(), plainFormat, "/rad"));
+		stats.add(unitStat(DesignInfo.PITCH_INERTIA, s.pitchInertia(), inertiaUnit));
+		stats.add(unitStat(DesignInfo.ROLL_INERTIA, s.rollInertia(), inertiaUnit));
 		return stats;
 	}
 

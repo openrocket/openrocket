@@ -2,24 +2,18 @@ package info.openrocket.swing.gui.print;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
+import info.openrocket.core.document.DesignInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.DesignType;
-import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.StringUtils;
 
 /**
@@ -104,46 +98,14 @@ public final class DesignReportCSVExport {
 		final Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		final boolean multiStage = rocket.getStageCount() > 1;
 
-		// Group fin sets by stage, preserving tree order.
-		final Map<AxialStage, List<FinSet>> finSetsByStage = new LinkedHashMap<>();
-		for (RocketComponent component : rocket) {
-			if (component instanceof FinSet finSet) {
-				finSetsByStage.computeIfAbsent(finSet.getStage(), s -> new ArrayList<>()).add(finSet);
-			}
-		}
-
-		for (Map.Entry<AxialStage, List<FinSet>> entry : finSetsByStage.entrySet()) {
-			final AxialStage stage = entry.getKey();
-			final List<FinSet> finSets = entry.getValue();
-			final String scope = (multiStage && stage != null) ? stage.getName() : ROCKET_SCOPE;
-
-			// Count names to know which need a disambiguating suffix.
-			final Map<String, Integer> nameCounts = new HashMap<>();
-			for (FinSet finSet : finSets) {
-				nameCounts.merge(finSet.getName(), 1, Integer::sum);
-			}
-			final Map<String, Integer> nameSeen = new HashMap<>();
-
-			for (FinSet finSet : finSets) {
-				final CoordinateIF[] locations = finSet.getComponentLocations();
-				if (locations.length == 0) {
-					continue;
-				}
-				// The fin set's reference point is the fore end of the root; the root
-				// chord (its length) extends aft from there.
-				final double rootTop = locations[0].getX();
-				final double rootBottom = rootTop + finSet.getLength();
-
-				String finName = finSet.getName();
-				if (nameCounts.get(finName) > 1) {
-					finName = finName + " #" + nameSeen.merge(finName, 1, Integer::sum);
-				}
-
-				writeRow(writer, scope, finName + ": Nose to top of fin root",
-						lengthUnit.toString(rootTop), lengthUnit.getUnit());
-				writeRow(writer, scope, finName + ": Nose to bottom of fin root",
-						lengthUnit.toString(rootBottom), lengthUnit.getUnit());
-			}
+		for (DesignInfo.FinMeasurement m : DesignInfo.finMeasurements(rocket)) {
+			// Single-stage designs are scoped "Rocket" to match the statistics; multi-stage
+			// designs are scoped by stage name.
+			final String scope = multiStage ? m.stageName() : ROCKET_SCOPE;
+			writeRow(writer, scope, m.finName() + ": Nose to top of fin root",
+					lengthUnit.toString(m.noseToRootTop()), lengthUnit.getUnit());
+			writeRow(writer, scope, m.finName() + ": Nose to bottom of fin root",
+					lengthUnit.toString(m.noseToRootBottom()), lengthUnit.getUnit());
 		}
 	}
 
