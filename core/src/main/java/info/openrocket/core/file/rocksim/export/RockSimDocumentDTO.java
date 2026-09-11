@@ -17,7 +17,7 @@ public class RockSimDocumentDTO {
     @JacksonXmlProperty(localName = RockSimCommonConstants.DESIGN_INFORMATION)
     private RockSimDesignDTO design;
 
-    @XmlElement(name = RockSimCommonConstants.SIMULATION_RESULTS_LIST)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SIMULATION_RESULTS_LIST)
     private SimulationResultsListDTO simulationResultsList;
 
     /**

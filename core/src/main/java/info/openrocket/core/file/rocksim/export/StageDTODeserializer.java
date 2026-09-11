@@ -33,10 +33,13 @@ public class StageDTODeserializer extends StdDeserializer<StageDTO> {
     public StageDTO deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         StageDTO stage = new StageDTO();
 
-        // Expect START_OBJECT for the stage element
-        if (p.currentToken() == JsonToken.START_OBJECT) {
-            p.nextToken();
+        // An empty stage (e.g. <Stage1Parts/>) is not presented as an object.  Return it
+        // without advancing, otherwise the loop below consumes the following sibling
+        // element and desynchronizes the parser.
+        if (p.currentToken() != JsonToken.START_OBJECT) {
+            return stage;
         }
+        p.nextToken();
 
         while (p.currentToken() != JsonToken.END_OBJECT && p.currentToken() != null) {
             String fieldName = p.currentName();

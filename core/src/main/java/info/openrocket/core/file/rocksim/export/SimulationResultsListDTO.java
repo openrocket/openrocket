@@ -7,17 +7,16 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * Container for the simulations exported at the root of a RockSim document.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class SimulationResultsListDTO {
 
-	@XmlElement(name = RockSimCommonConstants.SIMULATION_RESULTS)
+	@JacksonXmlElementWrapper(useWrapping = false)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.SIMULATION_RESULTS)
 	private final List<SimulationResultsDTO> simulations = new ArrayList<>();
 
 	/**

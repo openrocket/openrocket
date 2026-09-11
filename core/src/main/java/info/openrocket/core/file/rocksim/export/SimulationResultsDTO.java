@@ -25,10 +25,8 @@ import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * RockSim's combined simulation-input and simulation-results record.
@@ -38,7 +36,6 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
  * their unevaluated values because results produced by a different simulator
  * should not be presented as RockSim results.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class SimulationResultsDTO {
 
 	private static final int ROCKSIM_CUSTOM_PRESET = 99;
@@ -48,84 +45,87 @@ public class SimulationResultsDTO {
 	private static final double STANDARD_TEMPERATURE_OFFSET = 273.15;
 	private static final double PASCALS_PER_MMHG = 101325.0 / 760.0;
 
-	@XmlElement(name = RockSimCommonConstants.FINAL_STATE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.FINAL_STATE)
 	private final int finalState = ROCKSIM_NOT_SIMULATED;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_GUIDE_TYPE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_GUIDE_TYPE)
 	private final int launchGuideType = 0;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_GUIDE_LEN)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_GUIDE_LEN)
 	private double launchGuideLength;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_DIRECTION)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_DIRECTION)
 	private final int launchWindDirection = 0;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_SPEED)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_SPEED)
 	private final double launchWindSpeed = 0.0;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_DIRECTION)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_DIRECTION)
 	private final int launchDirection = 0;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_ANGLE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_ANGLE)
 	private double launchAngle;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_GUIDE_AZIMUTH)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_GUIDE_AZIMUTH)
 	private double launchGuideAzimuth;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_BAROMETER)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_BAROMETER)
 	private double launchBarometer;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_LATITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_LATITUDE)
 	private double launchLatitude;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_LONGITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_LONGITUDE)
 	private double launchLongitude;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_HUMIDITY)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_HUMIDITY)
 	private double launchHumidity;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_TEMPERATURE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_TEMPERATURE)
 	private double launchTemperature;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_ALTITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_ALTITUDE)
 	private double launchAltitude;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_LANDING_ALTITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_LANDING_ALTITUDE)
 	private double launchLandingAltitude;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_PRESET)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_PRESET)
 	private final int launchWindPreset = ROCKSIM_CUSTOM_PRESET;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_LOW_SPEED)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_LOW_SPEED)
 	private double launchWindLowSpeed;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_HIGH_SPEED)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_HIGH_SPEED)
 	private double launchWindHighSpeed;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_TURBULENCE_PRESET)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_TURBULENCE_PRESET)
 	private final int launchWindTurbulencePreset = ROCKSIM_CUSTOM_PRESET;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_USE_RANDOM_CONDITIONS)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_USE_RANDOM_CONDITIONS)
 	private final int launchUseRandomConditions = 0;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_TABLE_SIZE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_TABLE_SIZE)
 	private int launchWindTableSize;
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_ALT_TABLE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_ALT_TABLE)
 	private String launchWindAltitudeTable = zeroWindTable();
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_SPEED_TABLE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_SPEED_TABLE)
 	private String launchWindSpeedTable = zeroWindTable();
-	@XmlElement(name = RockSimCommonConstants.LAUNCH_WIND_DIRECTION_TABLE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.LAUNCH_WIND_DIRECTION_TABLE)
 	private String launchWindDirectionTable = zeroWindTable();
-	@XmlElement(name = RockSimCommonConstants.CNA_MULTIPLIER)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.CNA_MULTIPLIER)
 	private final double cnaMultiplier = 1.0;
-	@XmlElement(name = RockSimCommonConstants.CD_MULTIPLIER)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.CD_MULTIPLIER)
 	private final double cdMultiplier = 1.0;
-	@XmlElement(name = RockSimCommonConstants.CP_OFFSET)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.CP_OFFSET)
 	private final double cpOffset = 0.0;
-	@XmlElement(name = RockSimCommonConstants.MAX_SIM_TIME)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.MAX_SIM_TIME)
 	private double maxSimulationTime;
-	@XmlElement(name = RockSimCommonConstants.SIMULATION_NAME)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.SIMULATION_NAME)
 	private String simulationName = "";
-	@XmlElement(name = RockSimCommonConstants.COMMENTS)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.COMMENTS)
 	private String comments = "";
-	@XmlElement(name = RockSimCommonConstants.CALC_RESOLUTION)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.CALC_RESOLUTION)
 	private final int calculateResolution = 1;
-	@XmlElement(name = RockSimCommonConstants.SIMULATION_TYPE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.SIMULATION_TYPE)
 	private final int simulationType = ROCKSIM_RUNGE_KUTTA;
-	@XmlElement(name = RockSimCommonConstants.CALCULATION_FLAGS)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.CALCULATION_FLAGS)
 	private final int calculationFlags = 1;
-	@XmlElementWrapper(name = RockSimCommonConstants.SIMULATION_EVENTS)
-	@XmlElement(name = RockSimCommonConstants.SIMULATION_EVENT)
+	@JacksonXmlElementWrapper(localName = RockSimCommonConstants.SIMULATION_EVENTS)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.SIMULATION_EVENT)
 	private final List<SimulationEventDTO> simulationEvents = new ArrayList<>();
 
-	@XmlElementWrapper(name = RockSimCommonConstants.STAGE_1_ENGINES)
-	@XmlElement(name = RockSimCommonConstants.ENGINE_SET)
+	@JacksonXmlElementWrapper(localName = RockSimCommonConstants.STAGE_1_ENGINES)
+	@com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = EngineSetSerializer.class)
+	@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = EngineSetListDeserializer.class)
 	private final List<EngineSetDTO> stage1Engines = new ArrayList<>();
-	@XmlElementWrapper(name = RockSimCommonConstants.STAGE_2_ENGINES)
-	@XmlElement(name = RockSimCommonConstants.ENGINE_SET)
+	@JacksonXmlElementWrapper(localName = RockSimCommonConstants.STAGE_2_ENGINES)
+	@com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = EngineSetSerializer.class)
+	@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = EngineSetListDeserializer.class)
 	private final List<EngineSetDTO> stage2Engines = new ArrayList<>();
-	@XmlElementWrapper(name = RockSimCommonConstants.STAGE_3_ENGINES)
-	@XmlElement(name = RockSimCommonConstants.ENGINE_SET)
+	@JacksonXmlElementWrapper(localName = RockSimCommonConstants.STAGE_3_ENGINES)
+	@com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = EngineSetSerializer.class)
+	@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = EngineSetListDeserializer.class)
 	private final List<EngineSetDTO> stage3Engines = new ArrayList<>();
 
 	/**
