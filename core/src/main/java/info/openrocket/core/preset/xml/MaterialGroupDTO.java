@@ -1,40 +1,38 @@
 package info.openrocket.core.preset.xml;
 
 import info.openrocket.core.material.MaterialGroup;
-import jakarta.xml.bind.annotation.XmlEnum;
-import jakarta.xml.bind.annotation.XmlEnumValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A mirror enum of MaterialGroup, for the purposes of mapping to/from an XML
  * representation.
  */
-@XmlEnum
 public enum MaterialGroupDTO {
-	@XmlEnumValue("Metals")
+	@JsonProperty("Metals")
 	METALS(MaterialGroup.METALS),
-	@XmlEnumValue("Woods")
+	@JsonProperty("Woods")
 	WOODS(MaterialGroup.WOODS),
-	@XmlEnumValue("Plastics")
+	@JsonProperty("Plastics")
 	PLASTICS(MaterialGroup.PLASTICS),
-	@XmlEnumValue("Fabrics")
+	@JsonProperty("Fabrics")
 	FABRICS(MaterialGroup.FABRICS),
-	@XmlEnumValue("PaperProducts")
+	@JsonProperty("PaperProducts")
 	PAPER(MaterialGroup.PAPER),
-	@XmlEnumValue("Foams")
+	@JsonProperty("Foams")
 	FOAMS(MaterialGroup.FOAMS),
-	@XmlEnumValue("Composites")
+	@JsonProperty("Composites")
 	COMPOSITES(MaterialGroup.COMPOSITES),
-	@XmlEnumValue("Fibers")
+	@JsonProperty("Fibers")
 	FIBERS(MaterialGroup.FIBERS),
-  @XmlEnumValue("Elastics")
+  @JsonProperty("Elastics")
   ELASTICS(MaterialGroup.ELASTICS),
-  @XmlEnumValue("Kevlars")
+  @JsonProperty("Kevlars")
   KEVLARS(MaterialGroup.KEVLARS),
-  @XmlEnumValue("Nylons")
+  @JsonProperty("Nylons")
   NYLONS(MaterialGroup.NYLONS),
-	@XmlEnumValue("Other")
+	@JsonProperty("Other")
 	OTHER(MaterialGroup.OTHER),
-	@XmlEnumValue("Custom")
+	@JsonProperty("Custom")
 	CUSTOM(MaterialGroup.CUSTOM);
 
 	private final MaterialGroup corollary;

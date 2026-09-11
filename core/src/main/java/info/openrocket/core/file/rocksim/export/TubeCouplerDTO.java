@@ -12,16 +12,13 @@ import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Conversion DTO for a TubeCoupler. TubeCoupler's are represented as Rings in
  * Rocksim.
  */
-@XmlRootElement(name = RockSimCommonConstants.RING)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.RING)
 public class TubeCouplerDTO extends CenteringRingDTO {
 
     /**

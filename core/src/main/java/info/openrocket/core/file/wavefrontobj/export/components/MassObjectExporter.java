@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.DefaultObjFace;
@@ -14,7 +14,7 @@ import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.RocketComponentUtils;
 
 public class MassObjectExporter extends RocketComponentExporter<MassObject> {
-    public MassObjectExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+    public MassObjectExporter(@Nonnull DefaultObj obj, FlightConfiguration config, @Nonnull CoordTransform transformer,
                               MassObject component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
                               WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);

@@ -3,19 +3,16 @@ package info.openrocket.core.file.rocksim.export;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.MassObject;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Class that models a Rocksim MassObject.
  */
-@XmlRootElement(name = RockSimCommonConstants.MASS_OBJECT)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.MASS_OBJECT)
 public class MassObjectDTO extends BasePartDTO {
 
-    @XmlElement(name = RockSimCommonConstants.TYPE_CODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TYPE_CODE)
     private final int typeCode = 0;
 
     /**

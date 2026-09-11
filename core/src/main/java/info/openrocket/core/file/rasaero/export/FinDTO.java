@@ -10,49 +10,47 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.startup.Application;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 
-@XmlRootElement(name = RASAeroCommonConstants.FIN)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.FIN)
 public class FinDTO {
-    @XmlElement(name = RASAeroCommonConstants.FIN_COUNT)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_COUNT)
     private int count;
-    @XmlElement(name = RASAeroCommonConstants.FIN_CHORD)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_CHORD)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double chord;
-    @XmlElement(name = RASAeroCommonConstants.FIN_SPAN)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_SPAN)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double span;
-    @XmlElement(name = RASAeroCommonConstants.FIN_SWEEP_DISTANCE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_SWEEP_DISTANCE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double sweepDistance;
-    @XmlElement(name = RASAeroCommonConstants.FIN_TIP_CHORD)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_TIP_CHORD)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double tipChord;
-    @XmlElement(name = RASAeroCommonConstants.FIN_THICKNESS)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_THICKNESS)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double thickness;
-    @XmlElement(name = RASAeroCommonConstants.FIN_LE_RADIUS)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_LE_RADIUS)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double LERadius = 0.0d; // Leading edge radius
-    @XmlElement(name = RASAeroCommonConstants.LOCATION)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LOCATION)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double location;
-    @XmlElement(name = RASAeroCommonConstants.AIRFOIL_SECTION)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.AIRFOIL_SECTION)
     private String airfoilSection;
-    @XmlElement(name = RASAeroCommonConstants.FIN_FX1)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_FX1)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double FX1 = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.FIN_FX3)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN_FX3)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double FX3 = 0.0d;
 
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     /**

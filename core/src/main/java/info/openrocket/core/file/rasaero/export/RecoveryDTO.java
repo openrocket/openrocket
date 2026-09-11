@@ -17,54 +17,53 @@ import info.openrocket.core.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomBooleanAdapter;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 import java.util.LinkedList;
 import java.util.List;
 
-@XmlRootElement(name = RASAeroCommonConstants.RECOVERY)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.RECOVERY)
 public class RecoveryDTO {
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_ALTITUDE + 1)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_ALTITUDE + 1)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double altitude1 = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_ALTITUDE + 2)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_ALTITUDE + 2)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double altitude2 = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_DEVICE_TYPE + 1)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_DEVICE_TYPE + 1)
     private String deviceType1 = "None";
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_DEVICE_TYPE + 2)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_DEVICE_TYPE + 2)
     private String deviceType2 = "None";
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_EVENT + 1)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_EVENT + 1)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean event1 = false;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_EVENT + 2)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_EVENT + 2)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean event2 = false;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_SIZE + 1)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_SIZE + 1)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double size1 = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_SIZE + 2)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_SIZE + 2)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double size2 = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_EVENT_TYPE + 1)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_EVENT_TYPE + 1)
     private String eventType1 = "None";
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_EVENT_TYPE + 2)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_EVENT_TYPE + 2)
     private String eventType2 = "None";
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_CD + 1)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_CD + 1)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double CD1 = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RECOVERY_CD + 2)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RECOVERY_CD + 2)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double CD2 = 0.0d;
 
-    @XmlTransient
+    @JsonIgnore
     private static final Logger log = LoggerFactory.getLogger(RecoveryDTO.class);
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     /**

@@ -2,10 +2,9 @@ package info.openrocket.core.preset.xml;
 
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPresetFactory;
@@ -15,23 +14,25 @@ import info.openrocket.core.preset.TypedPropertyMap;
 /**
  * A NoseCone preset XML handler.
  */
-@XmlRootElement(name = "NoseCone")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = "NoseCone")
 public class NoseConeDTO extends BaseComponentDTO {
 
-    @XmlElement(name = "Shape")
+    @JacksonXmlProperty(localName = "Shape")
     private ShapeDTO shape;
-    @XmlElement(name = "OutsideDiameter")
+    @JacksonXmlProperty(localName = "OutsideDiameter")
     private AnnotatedLengthDTO outsideDiameter;
-    @XmlElement(name = "ShoulderDiameter")
+    @JacksonXmlProperty(localName = "ShoulderDiameter")
     private AnnotatedLengthDTO shoulderDiameter;
-    @XmlElement(name = "ShoulderLength")
+    @JacksonXmlProperty(localName = "ShoulderLength")
     private AnnotatedLengthDTO shoulderLength;
-    @XmlElement(name = "Length")
+    @JacksonXmlProperty(localName = "Length")
     private AnnotatedLengthDTO length;
 
-    @XmlElement(name = "Thickness")
+    @JacksonXmlProperty(localName = "Thickness")
     private AnnotatedLengthDTO thickness;
+
+    @JacksonXmlProperty(localName = "InsideDiameter")
+    private AnnotatedLengthDTO insideDiameter;
 
     /**
      * Default constructor.
@@ -80,6 +81,7 @@ public class NoseConeDTO extends BaseComponentDTO {
         outsideDiameter = theOutsideDiameter;
     }
 
+    @JsonIgnore
     public void setOutsideDiameter(final double theOutsideDiameter) {
         outsideDiameter = new AnnotatedLengthDTO(theOutsideDiameter);
     }
@@ -92,6 +94,7 @@ public class NoseConeDTO extends BaseComponentDTO {
         shoulderDiameter = theShoulderDiameter;
     }
 
+    @JsonIgnore
     public void setShoulderDiameter(final double theShoulderDiameter) {
         shoulderDiameter = new AnnotatedLengthDTO(theShoulderDiameter);
     }
@@ -104,6 +107,7 @@ public class NoseConeDTO extends BaseComponentDTO {
         shoulderLength = theShoulderLength;
     }
 
+    @JsonIgnore
     public void setShoulderLength(final double theShoulderLength) {
         shoulderLength = new AnnotatedLengthDTO(theShoulderLength);
     }
@@ -116,6 +120,7 @@ public class NoseConeDTO extends BaseComponentDTO {
         length = theLength;
     }
 
+    @JsonIgnore
     public void setLength(final double theLength) {
         length = new AnnotatedLengthDTO(theLength);
     }
@@ -128,8 +133,22 @@ public class NoseConeDTO extends BaseComponentDTO {
         this.thickness = thickness;
     }
 
+    @JsonIgnore
     public void setThickness(double thickness) {
         this.thickness = new AnnotatedLengthDTO(thickness);
+    }
+
+    public double getInsideDiameter() {
+        return insideDiameter == null ? 0.0 : insideDiameter.getValue();
+    }
+
+    public void setInsideDiameter(AnnotatedLengthDTO insideDiameter) {
+        this.insideDiameter = insideDiameter;
+    }
+
+    @JsonIgnore
+    public void setInsideDiameter(double insideDiameter) {
+        this.insideDiameter = new AnnotatedLengthDTO(insideDiameter);
     }
 
     @Override

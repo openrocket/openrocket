@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.shapes;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import de.javagl.obj.FloatTuple;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
@@ -24,8 +24,8 @@ public class DiskExporter {
      * @param vMin The minimum v texture coordinate
      * @param vMax The maximum v texture coordinate
      */
-    public static void closeDiskMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                     @NotNull List<Integer> outerVertices, List<Integer> innerVertices,
+    public static void closeDiskMesh(@Nonnull DefaultObj obj, @Nonnull CoordTransform transformer, String groupName,
+                                     @Nonnull List<Integer> outerVertices, List<Integer> innerVertices,
                                      boolean isClockwise, boolean isTopFace,
                                      float uMin, float uMax, float vMin, float vMax) {
         if (outerVertices.isEmpty()) {
@@ -137,15 +137,15 @@ public class DiskExporter {
         }
     }
 
-    public static void closeDiskMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                     @NotNull List<Integer> outerVertices, List<Integer> innerVertices,
+    public static void closeDiskMesh(@Nonnull DefaultObj obj, @Nonnull CoordTransform transformer, String groupName,
+                                     @Nonnull List<Integer> outerVertices, List<Integer> innerVertices,
                                      boolean isClockwise, boolean isTopFace) {
         // By default, OpenRocket doesn't really render textures on disks (often edges of tubes), so we don't either
         closeDiskMesh(obj, transformer, groupName, outerVertices, innerVertices, isClockwise, isTopFace, 0, 0, 0, 0);
     }
 
-    public static void closeDiskMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                     @NotNull List<Integer> outerVertices, boolean isClockwise, boolean isTopFace,
+    public static void closeDiskMesh(@Nonnull DefaultObj obj, @Nonnull CoordTransform transformer, String groupName,
+                                     @Nonnull List<Integer> outerVertices, boolean isClockwise, boolean isTopFace,
                                      float uMin, float uMax, float vMin, float vMax) {
         closeDiskMesh(obj, transformer, groupName, outerVertices, null, isClockwise, isTopFace, uMin, uMax, vMin, vMax);
     }
@@ -160,8 +160,8 @@ public class DiskExporter {
      * @param isClockwise Whether the vertices are in clockwise order (true) or counter-clockwise order (false)
      * @param isTopFace Whether the disk is a top face (true) or bottom face (false)
      */
-    public static void closeDiskMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                     @NotNull List<Integer> outerVertices, boolean isClockwise, boolean isTopFace) {
+    public static void closeDiskMesh(@Nonnull DefaultObj obj, @Nonnull CoordTransform transformer, String groupName,
+                                     @Nonnull List<Integer> outerVertices, boolean isClockwise, boolean isTopFace) {
         // By default, OpenRocket doesn't really render textures on disks (often edges of tubes), so we don't either
         closeDiskMesh(obj, transformer, groupName, outerVertices, isClockwise, isTopFace, 0, 0, 0, 0);
     }

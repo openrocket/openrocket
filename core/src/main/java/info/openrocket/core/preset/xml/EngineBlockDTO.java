@@ -4,16 +4,13 @@ package info.openrocket.core.preset.xml;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.InvalidComponentPresetException;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import java.util.List;
 
 /**
  * Engine block preset XML handler.
  */
-@XmlRootElement(name = "EngineBlock")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = "EngineBlock")
 public class EngineBlockDTO extends BodyTubeDTO {
 
     /**

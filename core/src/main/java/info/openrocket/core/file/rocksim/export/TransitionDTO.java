@@ -3,29 +3,26 @@ package info.openrocket.core.file.rocksim.export;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.Transition;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This class models a transition XML element in Rocksim file format.
  */
-@XmlRootElement(name = RockSimCommonConstants.TRANSITION)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.TRANSITION)
 public class TransitionDTO extends AbstractTransitionDTO {
 
-    @XmlElement(name = RockSimCommonConstants.FRONT_SHOULDER_LEN)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.FRONT_SHOULDER_LEN)
     private double frontShoulderLen = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.REAR_SHOULDER_LEN)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.REAR_SHOULDER_LEN)
     private double rearShoulderLen = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.FRONT_SHOULDER_DIA)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.FRONT_SHOULDER_DIA)
     private double frontShoulderDia = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.REAR_SHOULDER_DIA)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.REAR_SHOULDER_DIA)
     private double rearShoulderDia = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.FRONT_DIA)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.FRONT_DIA)
     private double frontDia = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.REAR_DIA)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.REAR_DIA)
     private double rearDia = 0.0d;
 
     /**

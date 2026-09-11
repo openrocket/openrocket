@@ -23,7 +23,7 @@ open module info.openrocket.swing {
 	requires com.google.guice;
 	requires java.scripting;
 	requires org.fife.RSyntaxTextArea;
-	requires jakarta.xml.bind;
+	requires com.fasterxml.jackson.core;
 	requires lwjgl3.awt;
 	requires org.lwjgl;
 	requires org.lwjgl.stb;

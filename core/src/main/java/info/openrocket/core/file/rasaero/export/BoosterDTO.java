@@ -11,13 +11,11 @@ import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
@@ -27,64 +25,63 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 
-@XmlRootElement(name = RASAeroCommonConstants.BOOSTER)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.BOOSTER)
 public class BoosterDTO implements BodyTubeDTOAdapter {
 
-    @XmlElement(name = RASAeroCommonConstants.PART_TYPE)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.PART_TYPE)
     private String partType;
-    @XmlElement(name = RASAeroCommonConstants.LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double length;
-    @XmlElement(name = RASAeroCommonConstants.DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double diameter;
-    @XmlElement(name = RASAeroCommonConstants.INSIDE_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.INSIDE_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double insideDiameter;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double launchLugDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_LUG_LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double launchLugLength = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RAIL_GUIDE_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double railGuideDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_HEIGHT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RAIL_GUIDE_HEIGHT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double railGuideHeight = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_SHOE_AREA)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_SHOE_AREA)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double launchShoeArea = 0.0d; // Currently not available in OR
-    @XmlElement(name = RASAeroCommonConstants.LOCATION)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LOCATION)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double location;
-    @XmlElement(name = RASAeroCommonConstants.COLOR)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.COLOR)
     private String color;
-    @XmlElement(name = RASAeroCommonConstants.SHOULDER_LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SHOULDER_LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double shoulderLength;
-    @XmlElement(name = RASAeroCommonConstants.NOZZLE_EXIT_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.NOZZLE_EXIT_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double nozzleExitDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOATTAIL_LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double boattailLength;
-    @XmlElement(name = RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double boattailRearDiameter;
 
-    @XmlElementRef(name = RASAeroCommonConstants.FIN, type = FinDTO.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN)
     private FinDTO fin;
 
-    @XmlTransient
+    @JsonIgnore
     private final RocketComponent component;
-    @XmlTransient
+    @JsonIgnore
     private final WarningSet warnings;
-    @XmlTransient
+    @JsonIgnore
     private final ErrorSet errors;
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     /**

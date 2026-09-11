@@ -15,62 +15,59 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlElementRefs;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.List;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
-@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressWarnings("unused")
 public class RocketDesignDTO {
-    @XmlElementRefs({
-            @XmlElementRef(name = RASAeroCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
-            @XmlElementRef(name = RASAeroCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
-            @XmlElementRef(name = RASAeroCommonConstants.TRANSITION, type = TransitionDTO.class),
-            @XmlElementRef(name = RASAeroCommonConstants.BOOSTER, type = BoosterDTO.class)
-    })
+    // A single ordered list of external parts preserves the original component order
+    // (e.g. NoseCone → BodyTube → Transition → BodyTube). This matters because the
+    // importer constructs components sequentially, so grouping them by type would
+    // change the resulting geometry. PartListSerializer derives each element's XML name
+    // from its runtime type, mirroring the former JAXB @XmlElementRefs behaviour.
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JsonSerialize(contentUsing = PartListSerializer.class)
     private final List<BasePartDTO> externalPart = new ArrayList<>();
 
-    @XmlElementRefs({
-            @XmlElementRef(name = RASAeroCommonConstants.BOOSTER, type = BoosterDTO.class),
-    })
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER)
     private final List<BoosterDTO> boosters = new ArrayList<>();
 
-    @XmlElement(name = RASAeroCommonConstants.SURFACE_FINISH)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SURFACE_FINISH)
     private String surface = RASAeroCommonConstants.FINISH_SMOOTH;
-    @XmlElement(name = RASAeroCommonConstants.CD)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.CD)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double CD = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.MODIFIED_BARROWMAN)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.MODIFIED_BARROWMAN)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean modifiedBarrowman = false;
-    @XmlElement(name = RASAeroCommonConstants.TURBULENCE)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.TURBULENCE)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean turbulence = false;
-    @XmlElement(name = RASAeroCommonConstants.SUSTAINER_NOZZLE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SUSTAINER_NOZZLE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double sustainerNozzle = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_NOZZLE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_NOZZLE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster1Nozzle = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER2_NOZZLE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER2_NOZZLE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster2Nozzle = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.USE_BOOSTER1)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.USE_BOOSTER1)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean useBooster1 = false;
-    @XmlElement(name = RASAeroCommonConstants.USE_BOOSTER2)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.USE_BOOSTER2)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean useBooster2 = false;
-    @XmlElement(name = RASAeroCommonConstants.COMMENTS)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.COMMENTS)
     private String comments = "";
 
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     public RocketDesignDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) {

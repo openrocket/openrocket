@@ -2,17 +2,14 @@ package info.openrocket.core.file.rocksim.export;
 
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * High-level placeholder element for Rocksim.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class RockSimDesignDTO {
 
-    @XmlElement(name = RockSimCommonConstants.ROCKET_DESIGN)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ROCKET_DESIGN)
     private RocketDesignDTO design;
 
     /**

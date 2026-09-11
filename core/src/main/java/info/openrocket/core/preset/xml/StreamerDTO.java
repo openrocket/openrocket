@@ -6,24 +6,22 @@ import info.openrocket.core.preset.ComponentPresetFactory;
 import info.openrocket.core.preset.InvalidComponentPresetException;
 import info.openrocket.core.preset.TypedPropertyMap;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import java.util.List;
 
 /**
  * Streamer preset XML handler.
  */
-@XmlRootElement(name = "Streamer")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = "Streamer")
 public class StreamerDTO extends BaseComponentDTO {
 
-    @XmlElement(name = "Length")
+    @JacksonXmlProperty(localName = "Length")
     private AnnotatedLengthDTO length;
-    @XmlElement(name = "Width")
+    @JacksonXmlProperty(localName = "Width")
     private AnnotatedLengthDTO width;
-    @XmlElement(name = "Thickness")
+    @JacksonXmlProperty(localName = "Thickness")
     private AnnotatedLengthDTO thickness;
 
     /**
@@ -56,6 +54,7 @@ public class StreamerDTO extends BaseComponentDTO {
         width = theWidth;
     }
 
+    @JsonIgnore
     public void setWidth(final double theId) {
         width = new AnnotatedLengthDTO(theId);
     }
@@ -68,6 +67,7 @@ public class StreamerDTO extends BaseComponentDTO {
         thickness = theThickness;
     }
 
+    @JsonIgnore
     public void setThickness(final double theThickness) {
         thickness = new AnnotatedLengthDTO(theThickness);
     }
@@ -80,6 +80,7 @@ public class StreamerDTO extends BaseComponentDTO {
         length = theLength;
     }
 
+    @JsonIgnore
     public void setLength(final double theLength) {
         length = new AnnotatedLengthDTO(theLength);
     }

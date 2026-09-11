@@ -1,9 +1,7 @@
 package info.openrocket.core.file.rocksim.export;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
@@ -35,8 +33,7 @@ import java.util.Map;
 /**
  * The base class for all OpenRocket to RockSim conversions.
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement
 public abstract class BasePartDTO {
 
     /**
@@ -47,47 +44,47 @@ public abstract class BasePartDTO {
      */
     private static int currentSerialNumber = 1;
 
-    @XmlElement(name = RockSimCommonConstants.KNOWN_MASS)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.KNOWN_MASS)
     private double knownMass = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.DENSITY)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DENSITY)
     private double density = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.MATERIAL)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.MATERIAL)
     private String material = "";
-    @XmlElement(name = RockSimCommonConstants.NAME)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.NAME)
     private String name = "";
-    @XmlElement(name = RockSimCommonConstants.KNOWN_CG)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.KNOWN_CG)
     private double knownCG = 0;
-    @XmlElement(name = RockSimCommonConstants.USE_KNOWN_CG)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.USE_KNOWN_CG)
     private int useKnownCG = 1;
-    @XmlElement(name = RockSimCommonConstants.XB)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.XB)
     private double xb = 0;
-    @XmlElement(name = RockSimCommonConstants.CALC_MASS)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.CALC_MASS)
     private double calcMass = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.CALC_CG)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.CALC_CG)
     private double calcCG = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.DENSITY_TYPE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DENSITY_TYPE)
     private int densityType = 0;
-    @XmlElement(name = RockSimCommonConstants.RADIAL_LOC)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.RADIAL_LOC)
     private double radialLoc = 0;
-    @XmlElement(name = RockSimCommonConstants.RADIAL_ANGLE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.RADIAL_ANGLE)
     private double radialAngle = 0;
-    @XmlElement(name = RockSimCommonConstants.OPACITY)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.OPACITY)
     private double opacity = 1;
-    @XmlElement(name = RockSimCommonConstants.DIFFUSE_COLOR)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DIFFUSE_COLOR)
     private String diffuseColor;
-    @XmlElement(name = RockSimCommonConstants.AMBIENT_COLOR)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.AMBIENT_COLOR)
     private String ambientColor;
-    @XmlElement(name = RockSimCommonConstants.USE_SINGLE_COLOR)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.USE_SINGLE_COLOR)
     private int useSingleColor = 1;
-    @XmlElement(name = RockSimCommonConstants.LOCATION_MODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.LOCATION_MODE)
     private int locationMode = 0;
-    @XmlElement(name = RockSimCommonConstants.LEN, required = false, nillable = false)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.LEN)
     private double len = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.FINISH_CODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.FINISH_CODE)
     private int finishCode = 0;
-    @XmlElement(name = RockSimCommonConstants.SERIAL_NUMBER)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SERIAL_NUMBER)
     private int serialNumber = -1;
-    @XmlElement(name = RockSimCommonConstants.COLOR)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.COLOR)
     private String color;
 
     private static final Map<Class<? extends RocketComponent>, ORColor> DEFAULT_FIGURE_COLORS = new LinkedHashMap<>();
