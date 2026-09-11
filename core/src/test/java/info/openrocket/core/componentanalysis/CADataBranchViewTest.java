@@ -20,7 +20,7 @@ class CADataBranchViewTest extends BaseTestCase {
 		branch.setDomainValue(CADomainDataType.MACH, 0.1);
 		branch.setValue(CADataType.TOTAL_CD, component, 0.4);
 
-		List<Double> domainView = branch.get(CADomainDataType.MACH);
+		List<Double> domainView = branch.getView(CADomainDataType.MACH);
 		List<Double> componentView = branch.get(CADataType.TOTAL_CD, component);
 
 		assertEquals(0.1, domainView.get(0));

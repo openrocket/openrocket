@@ -114,6 +114,8 @@ public class Streamer extends RecoveryDevice {
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		
 		if (preset.has(ComponentPreset.LENGTH)) {
 			this.stripLength = preset.get(ComponentPreset.LENGTH);
 		}
@@ -128,7 +130,6 @@ public class Streamer extends RecoveryDevice {
 		this.cd = cd;
 		this.cdAutomatic = true;
 
-		super.loadFromPreset(preset);
 		// Fix the length to the stripWidth since RocketComponent assigns
 		// ComponentPreset.LENGTH to length.
 		this.length = this.stripWidth;

@@ -29,10 +29,23 @@ public class InstanceContext {
 
 	public InstanceContext(final RocketComponent _component, final int _instanceNumber,
 			final Transformation _transform) {
+		this(_component, _instanceNumber, _transform, Transformation.IDENTITY);
+	}
+
+	/**
+	 * Creates the context for one physical component instance.
+	 *
+	 * @param _component component represented by this context
+	 * @param _instanceNumber instance number relative to its parent
+	 * @param _transform transform from component coordinates to rocket coordinates
+	 * @param _parentTransform transform from parent coordinates to rocket coordinates
+	 */
+	public InstanceContext(final RocketComponent _component, final int _instanceNumber,
+			final Transformation _transform, final Transformation _parentTransform) {
 		component = _component;
 		instanceNumber = _instanceNumber;
 		transform = _transform;
-
+		parentTransform = _parentTransform;
 	}
 
 	@Override
@@ -44,12 +57,23 @@ public class InstanceContext {
 		return transform.transform(Coordinate.ZERO);
 	}
 
+	/**
+	 * Returns the transform of the physical parent instance.  This allows consumers
+	 * to aggregate a component's own instances without descending the component tree.
+	 *
+	 * @return transform from parent coordinates to rocket coordinates
+	 */
+	public Transformation getParentTransform() {
+		return parentTransform;
+	}
+
 	// =========== Instance Member Variables ========================
 
 	// ==== public ====
 	final public RocketComponent component;
 	final public int instanceNumber;
 	final public Transformation transform;
+	private final Transformation parentTransform;
 
 	// =========== Private Instance Functions ========================
 

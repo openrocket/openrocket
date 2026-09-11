@@ -2,11 +2,11 @@ package info.openrocket.core.preferences;
 
 import info.openrocket.core.database.Database;
 import info.openrocket.core.material.Material;
-import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.StateChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * ORPreferences specific to an OpenRocket document (= preferences that are saved in the document file, not
@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class DocumentPreferences implements ChangeSource, ORPreferences {
+public class DocumentPreferences extends AbstractChangeSource implements ORPreferences {
 	// Map that stores all the document preferences
 	private final Map<String, DocumentPreference> preferencesMap = new HashMap<>();
 
@@ -36,17 +36,16 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	public static final String PREF_3D_BACKGROUND_COLOR = "RocketPanel.3DBackgroundColor";
 	public static final String PREF_2D_TEXT_COLOR = "RocketPanel.2DTextColor";
 	public static final String PREF_3D_TEXT_COLOR = "RocketPanel.3DTextColor";
+	public static final String PREF_3D_RENDER_QUALITY = "RocketPanel.3DRenderQuality";
+	public static final String PREF_3D_SHADOWS_ENABLED = "RocketPanel.3DShadowsEnabled";
+	public static final String PREF_3D_AMBIENT_OCCLUSION_ENABLED = "RocketPanel.3DAmbientOcclusionEnabled";
+	public static final String PREF_3D_ROUGHNESS_BUMP_ENABLED = "RocketPanel.3DRoughnessBumpEnabled";
+	public static final String PREF_3D_ORIGIN_AXES_VISIBLE = "RocketPanel.3DOriginAxesVisible";
+	public static final String PREF_3D_LIGHT_VISUALIZERS_VISIBLE = "RocketPanel.3DLightVisualizersVisible";
+	public static final String PREF_3D_CAMERA_POINT_OF_INTEREST_VISIBLE = "RocketPanel.3DCameraPointOfInterestVisible";
+	public static final String PREF_3D_ROTATE_ROCKET_ON_DRAG = "RocketPanel.3DRotateRocketOnDrag";
+	public static final String PREF_3D_CARET_SCALE_WITH_VIEW = "RocketPanel.3DCaretScaleWithView";
 
-
-	@Override
-	public void addChangeListener(StateChangeListener listener) {
-
-	}
-
-	@Override
-	public void removeChangeListener(StateChangeListener listener) {
-
-	}
 
 	@Override
 	public boolean getBoolean(String key, boolean defaultValue) {
@@ -56,7 +55,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putBoolean(String key, boolean value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	@Override
@@ -67,7 +66,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putInt(String key, int value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	@Override
@@ -78,7 +77,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putDouble(String key, double value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	@Override
@@ -89,7 +88,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 
 	@Override
 	public void putString(String key, String value) {
-		preferencesMap.put(key, new DocumentPreference(value));
+		putPreference(key, value);
 	}
 
 	/**
@@ -116,11 +115,19 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 */
 	public void putColor(String key, java.awt.Color value) {
 		if (value == null) {
-			preferencesMap.remove(key);
+			removePreference(key);
 		} else {
-			String colorString = stringifyColor(value);
-			preferencesMap.put(key, new DocumentPreference(colorString));
+			putPreference(key, stringifyColor(value));
 		}
+	}
+
+	private void putPreference(String key, Object value) {
+		DocumentPreference current = preferencesMap.get(key);
+		if (current != null && Objects.equals(current.getValue(), value)) {
+			return;
+		}
+		preferencesMap.put(key, new DocumentPreference(value));
+		fireChangeEvent();
 	}
 	
 	/**
@@ -165,6 +172,12 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 */
 	public Map<String, DocumentPreference> getPreferencesMap() {
 		return preferencesMap;
+	}
+
+	public void removePreference(String key) {
+		if (preferencesMap.remove(key) != null) {
+			fireChangeEvent();
+		}
 	}
 
 	public Database<Material> getBulkMaterials() {

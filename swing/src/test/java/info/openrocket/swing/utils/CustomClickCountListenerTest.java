@@ -1,10 +1,10 @@
 package info.openrocket.swing.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Field;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -17,8 +17,9 @@ import org.junit.jupiter.api.Test;
 class CustomClickCountListenerTest {
 
     @Test
-    void accumulatesClicksWithinInterval() throws Exception {
-        CustomClickCountListener listener = new CustomClickCountListener(500);
+    void accumulatesClicksWithinInterval() {
+        TestTimer timer = new TestTimer();
+        CustomClickCountListener listener = new CustomClickCountListener(500, timer);
 
         try {
             listener.click();
@@ -26,59 +27,61 @@ class CustomClickCountListenerTest {
 
             assertEquals(2, listener.getClickCount());
         } finally {
-            cancelTimer(listener);
+            timer.cancel();
         }
     }
 
     @Test
-    void resetsClickCountAfterIntervalElapses() throws Exception {
-        CustomClickCountListener listener = new CustomClickCountListener(50);
+    void resetsClickCountAfterIntervalElapses() {
+        TestTimer timer = new TestTimer();
+        CustomClickCountListener listener = new CustomClickCountListener(50, timer);
 
         try {
             listener.click();
-            Thread.sleep(75);
+            timer.runScheduledTask();
 
             assertEquals(0, listener.getClickCount());
         } finally {
-            cancelTimer(listener);
+            timer.cancel();
         }
     }
 
     @Test
-    void rapidSequenceOfClicksKeepsAccumulating() throws Exception {
-        CustomClickCountListener listener = new CustomClickCountListener(200);
+    void rapidSequenceOfClicksKeepsAccumulating() {
+        TestTimer timer = new TestTimer();
+        CustomClickCountListener listener = new CustomClickCountListener(200, timer);
 
         try {
             listener.click();
-            Thread.sleep(50);
             listener.click();
-            Thread.sleep(50);
             listener.click();
 
             assertEquals(3, listener.getClickCount());
         } finally {
-            cancelTimer(listener);
+            timer.cancel();
         }
     }
 
     @Test
-    void clickAfterIntervalStartsNewSequence() throws Exception {
-        CustomClickCountListener listener = new CustomClickCountListener(75);
+    void clickAfterIntervalStartsNewSequence() {
+        TestTimer timer = new TestTimer();
+        CustomClickCountListener listener = new CustomClickCountListener(75, timer);
 
         try {
             listener.click();
-            Thread.sleep(100);
+            timer.runScheduledTask();
             listener.click();
 
             assertEquals(1, listener.getClickCount());
         } finally {
-            cancelTimer(listener);
+            timer.cancel();
         }
     }
 
     @Test
     void parallelClicksDoNotThrowAndKeepCounterPositive() throws Exception {
-        CustomClickCountListener listener = new CustomClickCountListener(200);
+        TestTimer timer = new TestTimer();
+        CustomClickCountListener listener = new CustomClickCountListener(200, timer);
         ExecutorService executor = Executors.newFixedThreadPool(4);
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch done = new CountDownLatch(4);
@@ -97,18 +100,18 @@ class CustomClickCountListenerTest {
             assertTrue(listener.getClickCount() > 0);
         } finally {
             executor.shutdownNow();
-            cancelTimer(listener);
+            timer.cancel();
         }
     }
 
     @Test
-    void timerCancellationPreventsFurtherScheduling() throws Exception {
-        CustomClickCountListener listener = new CustomClickCountListener(100);
+    void timerCancellationPreventsFurtherScheduling() {
+        Timer timer = new Timer("click-count-listener-test", true);
+        CustomClickCountListener listener = new CustomClickCountListener(100, timer);
 
         try {
             listener.click();
-            Timer timer = getTimer(listener);
-            cancelTimer(listener);
+            timer.cancel();
 
             assertThrows(IllegalStateException.class,
                     () -> timer.schedule(new TimerTask() {
@@ -117,21 +120,8 @@ class CustomClickCountListenerTest {
                         }
                     }, 10));
         } finally {
-            cancelTimer(listener);
+            timer.cancel();
         }
-    }
-
-    private static void cancelTimer(CustomClickCountListener listener) throws Exception {
-        Field timerField = CustomClickCountListener.class.getDeclaredField("timer");
-        timerField.setAccessible(true);
-        Timer timer = (Timer) timerField.get(listener);
-        timer.cancel();
-    }
-
-    private static Timer getTimer(CustomClickCountListener listener) throws Exception {
-        Field timerField = CustomClickCountListener.class.getDeclaredField("timer");
-        timerField.setAccessible(true);
-        return (Timer) timerField.get(listener);
     }
 
     private static void await(CountDownLatch latch) {
@@ -139,6 +129,29 @@ class CustomClickCountListenerTest {
             latch.await();
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Timer that records reset tasks so tests can trigger them without relying on wall-clock timing.
+     */
+    private static final class TestTimer extends Timer {
+        private TimerTask scheduledTask;
+
+        private TestTimer() {
+            super("click-count-listener-test", true);
+        }
+
+        @Override
+        public synchronized void schedule(TimerTask task, long delay) {
+            scheduledTask = task;
+        }
+
+        private synchronized void runScheduledTask() {
+            TimerTask task = scheduledTask;
+            scheduledTask = null;
+            assertNotNull(task, "Expected a click-count reset task to be scheduled");
+            task.run();
         }
     }
 }

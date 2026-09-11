@@ -56,12 +56,14 @@ public class MaterialEditPanel extends JPanel {
 	private final JButton revertButton;
 	private static final Translator trans = Application.getTranslator();
 	private final OpenRocketDocument document;
+	private List<Material> materialRows;
 	
 	
 	public MaterialEditPanel(OpenRocketDocument document) {
 		super(new MigLayout("fill"));
 
 		this.document = document;
+		refreshMaterials();
 		
 
 		// TODO: LOW: Create sorter that keeps material types always in order
@@ -167,8 +169,7 @@ public class MaterialEditPanel extends JPanel {
 				) {
 					@Override
 					public int getRowCount() {
-						return Databases.BULK_MATERIAL.size() + Databases.SURFACE_MATERIAL.size() +
-								Databases.LINE_MATERIAL.size() + document.getDocumentPreferences().getTotalMaterialCount();
+						return materialRows.size();
 					}
 				};
 		
@@ -378,8 +379,25 @@ public class MaterialEditPanel extends JPanel {
 	}
 
 	private void fireChange(ColumnTableModel model) {
+		refreshMaterials();
 		model.fireTableDataChanged();
 		document.getRocket().fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	/**
+	 * Rebuild the table rows as one stable snapshot of the application and document databases.
+	 * JTable row sorters cache model indices, so exposing live database sizes while a material is
+	 * removed and re-added can make the sorter request a row that no longer exists.
+	 */
+	private void refreshMaterials() {
+		List<Material> refreshedMaterials = new ArrayList<>();
+		refreshedMaterials.addAll(Databases.BULK_MATERIAL);
+		refreshedMaterials.addAll(document.getDocumentPreferences().getBulkMaterials());
+		refreshedMaterials.addAll(Databases.SURFACE_MATERIAL);
+		refreshedMaterials.addAll(document.getDocumentPreferences().getSurfaceMaterials());
+		refreshedMaterials.addAll(Databases.LINE_MATERIAL);
+		refreshedMaterials.addAll(document.getDocumentPreferences().getLineMaterials());
+		materialRows = refreshedMaterials;
 	}
 
 	private void addMaterial(Material m) {
@@ -523,51 +541,7 @@ public class MaterialEditPanel extends JPanel {
 	}
 	
 	private Material getMaterial(int origRow) {
-		int row = origRow;
-		int n;
-		
-		n = Databases.BULK_MATERIAL.size();
-		if (row < n) {
-			return Databases.BULK_MATERIAL.get(row);
-		}
-		row -= n;
-
-		n = document.getDocumentPreferences().getBulkMaterials().size();
-		if (row < n) {
-			return document.getDocumentPreferences().getBulkMaterials().get(row);
-		}
-		row -= n;
-		
-		n = Databases.SURFACE_MATERIAL.size();
-		if (row < n) {
-			return Databases.SURFACE_MATERIAL.get(row);
-		}
-		row -= n;
-
-		n = document.getDocumentPreferences().getSurfaceMaterials().size();
-		if (row < n) {
-			return document.getDocumentPreferences().getSurfaceMaterials().get(row);
-		}
-		row -= n;
-
-		n = Databases.LINE_MATERIAL.size();
-		if (row < n) {
-			return Databases.LINE_MATERIAL.get(row);
-		}
-		row -= n;
-
-		n = document.getDocumentPreferences().getLineMaterials().size();
-		if (row < n) {
-			return document.getDocumentPreferences().getLineMaterials().get(row);
-		}
-
-		throw new IndexOutOfBoundsException("row=" + origRow + " while material count" +
-				" bulk:" + Databases.BULK_MATERIAL.size() +
-				" bulk document:" + document.getDocumentPreferences().getBulkMaterials().size() +
-				" surface:" + Databases.SURFACE_MATERIAL.size() +
-				" surface document:" + document.getDocumentPreferences().getSurfaceMaterials().size() +
-				" line:" + Databases.LINE_MATERIAL.size() +
-				" line document:" + document.getDocumentPreferences().getLineMaterials().size());
+		return materialRows.get(origRow);
 	}
 	
 	

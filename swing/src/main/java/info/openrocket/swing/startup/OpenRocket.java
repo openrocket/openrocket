@@ -16,7 +16,7 @@ import info.openrocket.core.arch.SystemInfo.Platform;
  * classpath setup.
  * 
  * The startup class sequence is the following:
- *   1. Startup
+ *   1. OpenRocket
  *   2. SwingStartup
  * 
  * This class changes the current classpath to contain the jar-in-jar
@@ -26,9 +26,9 @@ import info.openrocket.core.arch.SystemInfo.Platform;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenRocket {
-	
+	static final String CLASSPATH_READY_PROPERTY = "openrocket.startup.classpath-ready";
 	private static final String STARTUP_CLASS = "info.openrocket.swing.startup.SwingStartup";
-	
+
 	public static void main(String[] args) {
 		// Set OSX-specific properties
 		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
@@ -40,8 +40,32 @@ public class OpenRocket {
 		// by designation.
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
 		addClasspathUrlHandler();
-		JarInJarStarter.runMain(STARTUP_CLASS, args, new CurrentClasspathProvider(),
-				new ManifestClasspathProvider(), new PluginClasspathProvider());
+
+		String previousClasspathReady = System.getProperty(CLASSPATH_READY_PROPERTY);
+		System.setProperty(CLASSPATH_READY_PROPERTY, Boolean.TRUE.toString());
+		try {
+			JarInJarStarter.runMain(STARTUP_CLASS, args, new CurrentClasspathProvider(),
+					new ManifestClasspathProvider(), new PluginClasspathProvider());
+		} finally {
+			restoreClasspathReadyProperty(previousClasspathReady);
+		}
+	}
+
+	/**
+	 * Check whether the first startup stage has prepared the application and plugin classpath.
+	 *
+	 * @return True when {@link SwingStartup} is running through the bootstrap classloader.
+	 */
+	static boolean isClasspathReady() {
+		return Boolean.parseBoolean(System.getProperty(CLASSPATH_READY_PROPERTY));
+	}
+
+	private static void restoreClasspathReadyProperty(String previousValue) {
+		if (previousValue == null) {
+			System.clearProperty(CLASSPATH_READY_PROPERTY);
+		} else {
+			System.setProperty(CLASSPATH_READY_PROPERTY, previousValue);
+		}
 	}
 	
 	private static void addClasspathUrlHandler() {

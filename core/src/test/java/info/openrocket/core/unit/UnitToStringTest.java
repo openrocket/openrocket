@@ -19,6 +19,24 @@ public class UnitToStringTest {
 		Locale.setDefault(Locale.US);
 	}
 
+	/**
+	 * Verify that Unit does not retain decimal symbols from the locale active when
+	 * its formatter was first used.
+	 */
+	@Test
+	public void testLocaleChangeAfterUnitInitialization() {
+		Locale originalLocale = Locale.getDefault();
+		try {
+			Locale.setDefault(Locale.US);
+			assertEquals("-0.001", Unit.NOUNIT.toString(-0.00051));
+
+			Locale.setDefault(Locale.GERMANY);
+			assertEquals("-0,001", Unit.NOUNIT.toString(-0.00051));
+		} finally {
+			Locale.setDefault(originalLocale);
+		}
+	}
+
 	@Test
 	public void testPositiveToString() {
 		if (isPointDecimalSeparator()) {

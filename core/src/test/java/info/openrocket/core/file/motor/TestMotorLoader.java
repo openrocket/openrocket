@@ -19,6 +19,8 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 public class TestMotorLoader {
 
@@ -56,14 +58,16 @@ public class TestMotorLoader {
 		test(new ZipFileMotorLoader(), "/file/motor/test.zip", DIGEST2, DIGEST1);
 	}
 
-	@Test
-	public void testRockSimMotorWriterRoundTrip() throws IOException {
+	@ParameterizedTest
+	@EnumSource(Motor.Type.class)
+	public void testRockSimMotorWriterRoundTrip(Motor.Type motorType) throws IOException {
 		// Build a motor
 		ThrustCurveMotor original = new ThrustCurveMotor.Builder()
-				.setManufacturer(Manufacturer.getManufacturer("TestMfg"))
+				// Estes has a known default type, so UNKNOWN only survives if it was explicit.
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("G80")
 				.setDescription("Test motor")
-				.setMotorType(Motor.Type.RELOAD)
+				.setMotorType(motorType)
 				.setStandardDelays(new double[] { 4, 7, Motor.PLUGGED_DELAY })
 				.setDiameter(0.029)
 				.setLength(0.124)

@@ -174,6 +174,7 @@ public class RocketComponentSaver {
 		ORColor paint = a.getPaint();
 		emitColor("paint", elements, paint, 1);
 		appendElement(elements, "shine", a.getShine(), 1);
+		appendElement(elements, "opacityaffectstexture", a.isOpacityAffectsTexture(), 1);
 		Decal decal = a.getTexture();
 		if (decal != null) {
 			String name = decal.getImage().getName();
@@ -286,6 +287,10 @@ public class RocketComponentSaver {
 				elements.add("    <delay>none</delay>");
 			} else {
 				elements.add("    <delay>" + motorInstance.getEjectionDelay() + "</delay>");
+			}
+			if (motorInstance.getNozzleExitDiameter() > 0) {
+				elements.add("    <nozzleexitdiameter>" + motorInstance.getNozzleExitDiameter()
+						+ "</nozzleexitdiameter>");
 			}
 			
 			elements.add("  </motor>");

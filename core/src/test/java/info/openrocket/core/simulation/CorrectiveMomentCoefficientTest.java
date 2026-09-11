@@ -50,8 +50,8 @@ public class CorrectiveMomentCoefficientTest extends BaseTestCase {
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
 		assertNotNull(branch);
 
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
-		List<Double> ccm = branch.get(FlightDataType.TYPE_CORRECTIVE_MOMENT_COEFF);
+		List<Double> time = branch.getView(FlightDataType.TYPE_TIME);
+		List<Double> ccm = branch.getView(FlightDataType.TYPE_CORRECTIVE_MOMENT_COEFF);
 		assertNotNull(time);
 		assertNotNull(ccm);
 		assertFalse(ccm.isEmpty());

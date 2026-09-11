@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -36,11 +37,13 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 	private RocketComponent nonAerodynamicComponent;
 
 	private Rocket rocket;
+	private AxialStage stage;
 	private FinSet finSet;
 
 	@BeforeEach
 	void setUp() {
 		rocket = createRocket();
+		stage = new AxialStage();
 		finSet = new TrapezoidFinSet();
 
 		when(aerodynamicComponent.isAerodynamic()).thenReturn(true);
@@ -55,14 +58,16 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 	}
 
 	@Test
-	void rocketProvidesFallbackDataForPerInstanceDrag() {
+	void assemblyTotalsProvidePerInstanceDragData() {
 		assertTrue(CADataType.isComponentRelevantForType(rocket, CADataType.PER_INSTANCE_CD));
+		assertTrue(CADataType.isComponentRelevantForType(stage, CADataType.PER_INSTANCE_CD));
 	}
 
 	@Test
-	void rollCoefficientsAreLimitedToFinSetsAndRocketTotal() {
+	void rollCoefficientsAreAvailableForFinSetsAndAssemblyTotals() {
 		assertTrue(CADataType.isComponentRelevantForType(finSet, CADataType.ROLL_FORCING_COEFFICIENT));
 		assertTrue(CADataType.isComponentRelevantForType(rocket, CADataType.ROLL_FORCING_COEFFICIENT));
+		assertTrue(CADataType.isComponentRelevantForType(stage, CADataType.ROLL_FORCING_COEFFICIENT));
 		assertFalse(CADataType.isComponentRelevantForType(aerodynamicComponent, CADataType.ROLL_FORCING_COEFFICIENT));
 	}
 
@@ -70,6 +75,7 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 	void calculateComponentsFiltersByRelevanceForRequestedType() {
 		when(configuration.getAllActiveComponents()).thenReturn(List.of(
 				rocket,
+				stage,
 				finSet,
 				aerodynamicComponent,
 				nonAerodynamicComponent
@@ -78,6 +84,7 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 		List<RocketComponent> components = CADataType.calculateComponentsForType(configuration, CADataType.CP_X);
 
 		assertTrue(components.contains(rocket));
+		assertTrue(components.contains(stage));
 		assertTrue(components.contains(finSet));
 		assertTrue(components.contains(aerodynamicComponent));
 		assertFalse(components.contains(nonAerodynamicComponent));
@@ -86,9 +93,10 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 	}
 
 	@Test
-	void calculateComponentsForRollTypesReturnsRocketTotalAndFinSets() {
+	void calculateComponentsForRollTypesReturnsAssemblyTotalsAndFinSets() {
 		when(configuration.getAllActiveComponents()).thenReturn(List.of(
 				rocket,
+				stage,
 				finSet,
 				aerodynamicComponent,
 				nonAerodynamicComponent
@@ -96,8 +104,9 @@ class CADataTypeTest extends ComponentAnalysisTestBase {
 
 		List<RocketComponent> components = CADataType.calculateComponentsForType(configuration, CADataType.ROLL_DAMPING_COEFFICIENT);
 
-		assertEquals(2, components.size());
+		assertEquals(3, components.size());
 		assertEquals(rocket, components.get(0));
-		assertEquals(finSet, components.get(1));
+		assertEquals(stage, components.get(1));
+		assertEquals(finSet, components.get(2));
 	}
 }

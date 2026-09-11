@@ -24,8 +24,6 @@ import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.MassComponent;
-import info.openrocket.core.rocketcomponent.MassComponent.MassComponentType;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
@@ -116,13 +114,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		}
 
 		// Set the tree icon
-		final Icon treeIcon;
-		if (c.getClass().isAssignableFrom(MassComponent.class)) {
-			MassComponentType t = ((MassComponent) c).getMassComponentType();
-			treeIcon = ComponentIcons.getSmallMassTypeIcon(t);
-		} else {
-			treeIcon = ComponentIcons.getSmallIcon(value.getClass());
-		}
+		final Icon treeIcon = ComponentIcons.getSmallIcon(c);
 
 		panel.add(new JLabel(treeIcon), BorderLayout.WEST);
 

@@ -83,6 +83,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
 
 	private static final String CHECK_UPDATES = "CheckUpdates";
+	private static final String UPDATE_CHECK_PERMISSION = "UpdateCheckPermission";
 
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
@@ -132,6 +133,19 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
 	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_ENABLE_MSAA = "OpenGLMultisampleAntialiasingIsEnabled";
+	public static final String OPENGL_RENDER_QUALITY = "OpenGLRenderQuality";
+	public static final String OPENGL_ENABLE_SHADOWS = "OpenGLShadowsEnabled";
+	public static final String OPENGL_ENABLE_AMBIENT_OCCLUSION = "OpenGLAmbientOcclusionEnabled";
+	public static final String OPENGL_REDUCE_EFFECTS_DURING_INTERACTION =
+			"OpenGLReduceEffectsDuringInteraction";
+	public static final String OPENGL_ENABLE_ROUGHNESS_BUMP = "OpenGLRoughnessBumpEnabled";
+	public static final String OPENGL_SHOW_ORIGIN_AXES = "OpenGLShowOriginAxes";
+	public static final String OPENGL_SHOW_LIGHT_VISUALIZERS = "OpenGLShowLightVisualizers";
+	public static final String OPENGL_SHOW_CAMERA_POINT_OF_INTEREST = "OpenGLShowCameraPointOfInterest";
+	public static final String OPENGL_DRAG_ROTATION_SENSITIVITY = "OpenGLDragRotationSensitivityFactor";
+	public static final String OPENGL_ROTATE_ROCKET_ON_DRAG = "OpenGLRotateRocketOnDrag";
+	public static final String OPENGL_SCALE_CARETS_WITH_VIEW = "OpenGLScaleCaretsWithView";
 	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
@@ -162,6 +176,12 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String GRAVITY_MODEL = "GravityModel";
 	public static final String CONSTANT_GRAVITY_VALUE = "ConstantGravityValue";
 	public static final String SIMULATION_STEPPER_METHOD = "SimulationStepperMethod";
+	public static final String RECOVERY_SPEED_WARNING = "RecoverySpeedWarning";
+	public static final String DROGUE_LOW_SPEED_WARNING = "DrogueLowSpeedWarning";
+	public static final String RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING = "RecoveryDrogueMainHighSpeedWarning";
+	public static final String RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING = "RecoveryDrogueMainLowSpeedWarning";
+	public static final String SIMULATION_RANDOM_SEED = "SimulationRandomSeed";
+	public static final String SIMULATION_RANDOM_SEED_FIXED = "SimulationRandomSeedFixed";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -221,6 +241,30 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public abstract boolean getBoolean(String key, boolean defaultValue);
 	
 	public abstract void putBoolean(String key, boolean value);
+
+	public boolean shouldReduceEffectsDuring3DInteraction() {
+		return getBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, false);
+	}
+
+	public void setReduceEffectsDuring3DInteraction(boolean enabled) {
+		if (shouldReduceEffectsDuring3DInteraction() == enabled) {
+			return;
+		}
+		putBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, enabled);
+		fireChangeEvent();
+	}
+
+	public boolean isMSAAEnabled() {
+		return getBoolean(OPENGL_ENABLE_MSAA, true);
+	}
+
+	public void setMSAAEnabled(boolean enabled) {
+		if (isMSAAEnabled() == enabled) {
+			return;
+		}
+		putBoolean(OPENGL_ENABLE_MSAA, enabled);
+		fireChangeEvent();
+	}
 	
 	public abstract int getInt(String key, int defaultValue);
 	
@@ -298,6 +342,28 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+
+	/**
+	 * Returns whether the user has answered the one-time question about update checks that access the internet.
+	 *
+	 * @return {@code true} if the user has allowed or declined automatic update checks
+	 */
+	public final boolean isUpdateCheckPermissionSet() {
+		return this.getPreferences().get(UPDATE_CHECK_PERMISSION, null) != null;
+	}
+
+	/**
+	 * Stores the user's update-check permission and applies it to both automatic update checkers.
+	 * The permission is stored after the individual settings so an interrupted write causes the question to be
+	 * shown again instead of allowing either checker to access the internet without a recorded answer.
+	 *
+	 * @param allowed {@code true} to enable automatic software and motor-database update checks
+	 */
+	public final void setUpdateCheckPermission(boolean allowed) {
+		this.setCheckUpdates(allowed);
+		this.setCheckMotorDatabaseUpdates(allowed);
+		this.putBoolean(UPDATE_CHECK_PERMISSION, allowed);
 	}
 
 	public final List<String> getIgnoreUpdateVersions() {
@@ -719,6 +785,50 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putEnum(SIMULATION_STEPPER_METHOD, choice);
 	}
 
+	/**
+	 * Returns the default random seed for newly created simulations.
+	 *
+	 * @return the configured signed 32-bit seed
+	 */
+	public int getRandomSeed() {
+		return this.getInt(SIMULATION_RANDOM_SEED, 0);
+	}
+
+	/**
+	 * Sets the default random seed for newly created simulations.
+	 *
+	 * @param randomSeed the signed 32-bit seed
+	 */
+	public void setRandomSeed(int randomSeed) {
+		if (this.getInt(SIMULATION_RANDOM_SEED, 0) == randomSeed) {
+			return;
+		}
+		this.putInt(SIMULATION_RANDOM_SEED, randomSeed);
+		fireChangeEvent();
+	}
+
+	/**
+	 * Returns whether newly created simulations should reuse the configured random seed.
+	 *
+	 * @return {@code true} to create simulations with a fixed seed
+	 */
+	public boolean isRandomSeedFixed() {
+		return this.getBoolean(SIMULATION_RANDOM_SEED_FIXED, false);
+	}
+
+	/**
+	 * Sets whether newly created simulations should reuse the configured random seed.
+	 *
+	 * @param randomSeedFixed {@code true} to create simulations with a fixed seed
+	 */
+	public void setRandomSeedFixed(boolean randomSeedFixed) {
+		if (this.getBoolean(SIMULATION_RANDOM_SEED_FIXED, false) == randomSeedFixed) {
+			return;
+		}
+		this.putBoolean(SIMULATION_RANDOM_SEED_FIXED, randomSeedFixed);
+		fireChangeEvent();
+	}
+
 
 	public double getTimeStep() {
 		return this.getDouble(ApplicationPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
@@ -740,6 +850,50 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (MathUtil.equals(this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME), maxTime))
 			return;
 		this.putDouble(SIMULATION_MAX_TIME, maxTime);
+		fireChangeEvent();
+	}
+
+	public double getRecoverySpeedWarning() {
+		return this.getDouble(RECOVERY_SPEED_WARNING, 20.0);
+	}
+
+	public void setRecoverySpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_SPEED_WARNING, 20.0), value))
+			return;
+		this.putDouble(RECOVERY_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getDrogueLowSpeedWarning() {
+		return this.getDouble(DROGUE_LOW_SPEED_WARNING, 3.048);
+	}
+
+	public void setDrogueLowSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(DROGUE_LOW_SPEED_WARNING, 3.048), value))
+			return;
+		this.putDouble(DROGUE_LOW_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainHighSpeedWarning() {
+		return this.getDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, 30.48);
+	}
+
+	public void setRecoveryDrogueMainHighSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, 30.48), value))
+			return;
+		this.putDouble(RECOVERY_DROGUE_MAIN_HIGH_SPEED_WARNING, value);
+		fireChangeEvent();
+	}
+
+	public double getRecoveryDrogueMainLowSpeedWarning() {
+		return this.getDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, 15.24);
+	}
+
+	public void setRecoveryDrogueMainLowSpeedWarning(double value) {
+		if (MathUtil.equals(this.getDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, 15.24), value))
+			return;
+		this.putDouble(RECOVERY_DROGUE_MAIN_LOW_SPEED_WARNING, value);
 		fireChangeEvent();
 	}
 

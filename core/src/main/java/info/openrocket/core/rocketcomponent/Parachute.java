@@ -210,6 +210,8 @@ public class Parachute extends RecoveryDevice {
 	 */
 	@Override
 	protected void loadFromPreset(ComponentPreset preset, Object...params) {
+		super.loadFromPreset(preset, params);
+		
 		boolean allowAutoRadius = true;
 		if (params != null && params.length > 0) {
 			allowAutoRadius = (boolean) params[0];
@@ -296,8 +298,6 @@ public class Parachute extends RecoveryDevice {
 			this.overrideMass = 0;
 			massOverridden = false;
 		}
-
-		super.loadFromPreset(preset, params);
 	}
 
 	@Override

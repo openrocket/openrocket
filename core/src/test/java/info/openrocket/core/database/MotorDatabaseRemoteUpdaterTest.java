@@ -1,7 +1,9 @@
 package info.openrocket.core.database;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.communication.ConnectionSourceStub;
 import info.openrocket.core.communication.HttpURLConnectionMock;
@@ -24,9 +26,14 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.util.Base64;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
@@ -142,6 +149,103 @@ public class MotorDatabaseRemoteUpdaterTest {
 
 		byte[] installed = Files.readAllBytes(new File(tempDir.toFile(), "motors.db").toPath());
 		assertArrayEquals(dbBytes, installed);
+	}
+
+	@Test
+	public void testMetadataFetchEnforcesTotalDeadline() throws Exception {
+		KeyPair keyPair = KeyPairGenerator.getInstance("Ed25519").generateKeyPair();
+		MotorDatabaseMetadata metadata = signedMetadata(
+				123,
+				"0000000000000000000000000000000000000000000000000000000000000000",
+				keyPair.getPrivate());
+
+		HttpURLConnectionMock connection = new HttpURLConnectionMock();
+		connection.setDoInput(true);
+		connection.setResponseCode(200);
+		connection.setContent(metadata.getRawJson());
+		connection.setConnectionDelay(25);
+
+		MotorDatabaseRemoteUpdater updater = new MotorDatabaseRemoteUpdater(
+				new ConnectionSourceStub(connection), keyPair.getPublic(), 1, 1_000);
+
+		assertThrows(SocketTimeoutException.class, updater::fetchRemoteMetadata);
+	}
+
+	@Test
+	public void testInstallRejectsConcurrentInstaller() throws Exception {
+		KeyPair keyPair = KeyPairGenerator.getInstance("Ed25519").generateKeyPair();
+		byte[] dbBytes = createValidMotorDbBytes();
+		byte[] gzBytes = gzip(dbBytes);
+		MotorDatabaseMetadata metadata = signedMetadata(123, sha256Hex(gzBytes), keyPair.getPrivate());
+
+		HttpURLConnectionMock connection = new HttpURLConnectionMock();
+		connection.setDoInput(true);
+		connection.setResponseCode(200);
+		connection.setContent(gzBytes);
+		MotorDatabaseRemoteUpdater updater = new MotorDatabaseRemoteUpdater(
+				new ConnectionSourceStub(connection), keyPair.getPublic());
+
+		Path lockPath = tempDir.resolve(".motor-database-update.lock");
+		try (FileChannel channel = FileChannel.open(lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			 FileLock ignored = channel.lock()) {
+			IOException error = assertThrows(IOException.class,
+					() -> updater.installRemoteDatabase(tempDir.toFile(), metadata,
+							"https://openrocket.info/motor-database/motors.db.gz"));
+			assertTrue(error.getMessage().contains("already running"));
+		}
+	}
+
+	@Test
+	public void testInstallRejectsStaleVersionAtCommit() throws Exception {
+		KeyPair keyPair = KeyPairGenerator.getInstance("Ed25519").generateKeyPair();
+		byte[] dbBytes = createValidMotorDbBytes();
+		byte[] gzBytes = gzip(dbBytes);
+		MotorDatabaseMetadata metadata = signedMetadata(123, sha256Hex(gzBytes), keyPair.getPrivate());
+		Files.writeString(tempDir.resolve("metadata.json"), "{\"database_version\":124}");
+
+		HttpURLConnectionMock connection = new HttpURLConnectionMock();
+		connection.setDoInput(true);
+		connection.setResponseCode(200);
+		connection.setContent(gzBytes);
+		MotorDatabaseRemoteUpdater updater = new MotorDatabaseRemoteUpdater(
+				new ConnectionSourceStub(connection), keyPair.getPublic());
+
+		IOException error = assertThrows(IOException.class,
+				() -> updater.installRemoteDatabase(tempDir.toFile(), metadata,
+						"https://openrocket.info/motor-database/motors.db.gz"));
+		assertTrue(error.getMessage().contains("Refusing stale motor database update"));
+		assertNoDownloadFiles();
+	}
+
+	@Test
+	public void testDatabaseIsRolledBackWhenMetadataCommitFails() throws Exception {
+		KeyPair keyPair = KeyPairGenerator.getInstance("Ed25519").generateKeyPair();
+		byte[] dbBytes = createValidMotorDbBytes();
+		byte[] gzBytes = gzip(dbBytes);
+		MotorDatabaseMetadata metadata = signedMetadata(123, sha256Hex(gzBytes), keyPair.getPrivate());
+		byte[] originalDatabase = "existing database".getBytes(StandardCharsets.UTF_8);
+		Files.write(tempDir.resolve("motors.db"), originalDatabase);
+		Files.createDirectory(tempDir.resolve("metadata.json"));
+		Files.writeString(tempDir.resolve("metadata.json").resolve("block-replacement"), "keep");
+
+		HttpURLConnectionMock connection = new HttpURLConnectionMock();
+		connection.setDoInput(true);
+		connection.setResponseCode(200);
+		connection.setContent(gzBytes);
+		MotorDatabaseRemoteUpdater updater = new MotorDatabaseRemoteUpdater(
+				new ConnectionSourceStub(connection), keyPair.getPublic());
+
+		assertThrows(IOException.class,
+				() -> updater.installRemoteDatabase(tempDir.toFile(), metadata,
+						"https://openrocket.info/motor-database/motors.db.gz"));
+		assertArrayEquals(originalDatabase, Files.readAllBytes(tempDir.resolve("motors.db")));
+		assertNoDownloadFiles();
+	}
+
+	private void assertNoDownloadFiles() throws IOException {
+		try (Stream<Path> files = Files.list(tempDir)) {
+			assertFalse(files.anyMatch(path -> path.getFileName().toString().endsWith(".download")));
+		}
 	}
 
 	private static byte[] gzip(byte[] content) throws Exception {

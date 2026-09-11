@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.EventObject;
-import java.util.Locale;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -22,28 +21,73 @@ import info.openrocket.core.startup.Application;
 @SuppressWarnings("serial")
 public class ScaleSelector {
 	private static final Translator trans = Application.getTranslator();
+
+	public interface ZoomModel {
+		double getScale();
+		boolean isFit();
+		void setScale(double scale);
+		void setFit();
+		void addChangeListener(StateChangeListener listener);
+		void removeChangeListener(StateChangeListener listener);
+	}
     
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
+	private static final String SCALE_FIT_SUFFIX = trans.get("ScaleSelector.lbl.ZoomFitSuffix");
 
 	private static final double[] SCALE_LEVELS = { 0.15, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
-	private static final String SCALE_FIT = "Fit"; // trans.get("ScaleSelector.something.something");
 	private static final String[] SCALE_LABELS;
 	static {
-		SCALE_LABELS = new String[SCALE_LEVELS.length + 1];
-		for (int i = 0; i < SCALE_LEVELS.length; i++)
-			SCALE_LABELS[i] = PERCENT_FORMAT.format(SCALE_LEVELS[i]);
-		SCALE_LABELS[SCALE_LABELS.length - 1] = SCALE_FIT;
+		SCALE_LABELS = new String[SCALE_LEVELS.length];
+		for (int i = 0; i < SCALE_LEVELS.length; i++) {
+			SCALE_LABELS[i] = formatScaleText(SCALE_LEVELS[i], SCALE_LEVELS[i] == 1.0);
+		}
 	}
 
-	private final ScaleScrollPane scrollPane;
+	private final ZoomModel zoomModel;
 	private final JComboBox<String> scaleSelectorCombo;
 	private final JButton zoomOutButton;
 	private final JButton zoomInButton;
 	private final JButton zoomFitButton;
+	private boolean updatingScaleSelectorText = false;
+	private int comboTextWidth = -1;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
-		this.scrollPane = scroll;
+		this(new ZoomModel() {
+			@Override
+			public double getScale() {
+				return scroll.getUserScale();
+			}
+
+			@Override
+			public boolean isFit() {
+				return scroll.isFitting();
+			}
+
+			@Override
+			public void setScale(double scale) {
+				scroll.setScaling(scale);
+			}
+
+			@Override
+			public void setFit() {
+				scroll.setFitting(true);
+			}
+
+			@Override
+			public void addChangeListener(StateChangeListener listener) {
+				scroll.getFigure().addChangeListener(listener);
+			}
+
+			@Override
+			public void removeChangeListener(StateChangeListener listener) {
+				scroll.getFigure().removeChangeListener(listener);
+			}
+		});
+	}
+
+	public ScaleSelector(ZoomModel zoomModel) {
+		this.zoomModel = zoomModel;
 
 		// Zoom out button
 		zoomOutButton = new IconButton(Icons.ZOOM_OUT);
@@ -51,10 +95,10 @@ public class ScaleSelector {
 		zoomOutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final double oldScale = scrollPane.getUserScale();
+				final double oldScale = ScaleSelector.this.zoomModel.getScale();
 				final double newScale = getNextLargerScale(oldScale);
-				scrollPane.setScaling(newScale);
-				setZoomText();
+				ScaleSelector.this.zoomModel.setScale(newScale);
+				setZoomText(newScale, false);
 			}
 		});
 
@@ -64,44 +108,49 @@ public class ScaleSelector {
 			public Dimension getPreferredSize() {
 				Dimension d = super.getPreferredSize();
 				String currentText = getSelectedItem() != null ? getSelectedItem().toString() : "";
-				FontMetrics fm = getFontMetrics(getFont());
-				int textWidth = fm.stringWidth(currentText);
-				d.width = Math.max(d.width, textWidth + 30); // Add padding for combobox arrow
+				d.width = Math.max(d.width, getRequiredComboWidth(currentText));
 				return d;
 			}
 		};
 		scaleSelectorCombo.setEditable(true);
-		scaleSelectorCombo.setSelectedItem(" Fit (100.0%) ");	// Make sure the combobox can fit this text
-		scaleSelectorCombo.setPreferredSize(scaleSelectorCombo.getPreferredSize());
+		scaleSelectorCombo.setPrototypeDisplayValue(formatScaleText(1.0, true));
+		scaleSelectorCombo.setSelectedItem(formatScaleText(1.0, true));	// Make sure the combobox can fit this text
+		Dimension comboSize = scaleSelectorCombo.getPreferredSize();
+		scaleSelectorCombo.setPreferredSize(comboSize);
+		scaleSelectorCombo.setMinimumSize(comboSize);
 		setZoomText();
 		scaleSelectorCombo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (updatingScaleSelectorText) {
+					return;
+				}
 				try {
 					String text = (String) scaleSelectorCombo.getSelectedItem();
 					if (text == null) return;
-					text = text.replaceAll("%", "").trim();
-
-					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
-						scrollPane.setFitting(true);
-						setZoomText();
-						return;
-					}
+					boolean fitSelection = text.endsWith(SCALE_FIT_SUFFIX);
+					text = text.replace(SCALE_FIT_SUFFIX, "").replace("%", "").trim();
 
 					double n = Double.parseDouble(text);
 					n /= 100;
 					if (n <= 0.005)
 						n = 0.005;
 
-					scrollPane.setScaling(n);
-					setZoomText();
+					if (fitSelection && Math.abs(n - 1.0) < 0.0001) {
+						ScaleSelector.this.zoomModel.setFit();
+					} else {
+						ScaleSelector.this.zoomModel.setScale(n);
+					}
+					// A 3D zoom request is applied on the render thread.  Keep the accepted
+					// value visible until the model publishes its applied state rather than
+					// immediately replacing it with the previous cached scale.
+					setZoomText(n, fitSelection && Math.abs(n - 1.0) < 0.0001);
 				} catch (NumberFormatException ignore) {
-				} finally {
 					setZoomText();
 				}
 			}
 		});
-		scrollPane.getFigure().addChangeListener(new StateChangeListener() {
+		zoomModel.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				update();
@@ -114,10 +163,10 @@ public class ScaleSelector {
 		zoomInButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getUserScale();
+				double scale = ScaleSelector.this.zoomModel.getScale();
 				scale = getNextSmallerScale(scale);
-				scrollPane.setScaling(scale);
-				update();
+				ScaleSelector.this.zoomModel.setScale(scale);
+				setZoomText(scale, false);
 			}
 		});
 
@@ -127,8 +176,8 @@ public class ScaleSelector {
 		zoomFitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				scrollPane.setFitting(true);
-				update();
+				ScaleSelector.this.zoomModel.setFit();
+				setZoomText(1.0, true);
 			}
 		});
 	}
@@ -160,13 +209,40 @@ public class ScaleSelector {
 	}
 
 	private void setZoomText() {
-	    final double userScale = scrollPane.getUserScale();
-	    String text = PERCENT_FORMAT.format(userScale);
-		if (scrollPane.isFitting()) {
-			text = "Fit (" + text + ")";
+		setZoomText(zoomModel.getScale(), zoomModel.isFit());
+	}
+
+	private void setZoomText(double scale, boolean fit) {
+		String text = formatScaleText(scale, fit);
+		if (!text.equals(scaleSelectorCombo.getSelectedItem())) {
+			updatingScaleSelectorText = true;
+			try {
+				scaleSelectorCombo.setSelectedItem(text);
+			} finally {
+				updatingScaleSelectorText = false;
+			}
 		}
-		if (!text.equals(scaleSelectorCombo.getSelectedItem()))
-			scaleSelectorCombo.setSelectedItem(text);
+	}
+
+	private static String formatScaleText(double scale, boolean fit) {
+		String text = PERCENT_FORMAT.format(scale);
+		if (fit) {
+			text = text + SCALE_FIT_SUFFIX;
+		}
+		return text;
+	}
+
+	private int getRequiredComboWidth(String currentText) {
+		FontMetrics fontMetrics = scaleSelectorCombo.getFontMetrics(scaleSelectorCombo.getFont());
+		if (comboTextWidth < 0) {
+			comboTextWidth = 0;
+			for (String label : SCALE_LABELS) {
+				comboTextWidth = Math.max(comboTextWidth, fontMetrics.stringWidth(label));
+			}
+			comboTextWidth = Math.max(comboTextWidth, fontMetrics.stringWidth(formatScaleText(1.0, true)));
+		}
+		int currentWidth = currentText != null ? fontMetrics.stringWidth(currentText) : 0;
+		return Math.max(comboTextWidth, currentWidth) + 40;
 	}
 
 	private static double getNextLargerScale(final double currentScale) {

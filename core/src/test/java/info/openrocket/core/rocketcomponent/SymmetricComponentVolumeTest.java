@@ -366,8 +366,10 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftRadius(aftRadius);
 		nc.setThickness(thickness);
 		nc.setAftShoulderRadius(aftRadius);
-		nc.setAftShoulderLength(length);
+        nc.setAftShoulderLength(length);
 		nc.setAftShoulderThickness(thickness);
+        nc.setAftShoulderCapped(false);
+
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
 		final CoordinateIF coneCG = calculateConicalTransitionCG(length, 0, aftRadius, thickness);
@@ -530,9 +532,11 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftShoulderLength(length);
 		nc.setAftShoulderRadius(aftRadius);
 		nc.setAftShoulderThickness(thickness);
+        nc.setAftShoulderCapped(false);
 		nc.setForeShoulderLength(length);
 		nc.setForeShoulderRadius(foreRadius);
 		nc.setForeShoulderThickness(thickness); // note this means fore shoulder is filled.
+        nc.setForeShoulderCapped(false);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
 		final CoordinateIF foreShoulderCG = calculateShoulderCG(-length, length, foreRadius, thickness);

@@ -1,6 +1,7 @@
 package info.openrocket.core.file.rasaero;
 
 import info.openrocket.core.file.motor.AbstractMotorLoader;
+import info.openrocket.core.file.rasaero.RASAeroMotorsLoader.RASAeroMotor;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
@@ -12,8 +13,10 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.MathUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -389,31 +392,147 @@ public class RASAeroCommonConstants {
 
     /**
      * Format an OpenRocket motor as a RASAero motor.
-     * @param RASAeroMotors list of available RASAero motors
-     * @param ORMotor OpenRocket motor
+     *
+     * @param rasaeroMotors motors present in RASAero's {@code rasp.eng}
+     * @param openRocketMotor OpenRocket motor to export
+     * @param warnings warning set for unavailable or ambiguous motors
      * @return a RASAero String representation of a motor
      */
-    public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> RASAeroMotors, Motor ORMotor,
+    public static String OPENROCKET_TO_RASAERO_MOTOR(List<RASAeroMotor> rasaeroMotors, Motor openRocketMotor,
                                                      WarningSet warnings) {
-        if (!(ORMotor instanceof ThrustCurveMotor)) {
-            log.debug("RASAero motor not found: not a thrust curve motor");
+        if (openRocketMotor == null) {
+            return null;
+        }
+        if (!(openRocketMotor instanceof ThrustCurveMotor)) {
+            String msg = String.format("Motor '%s' cannot be exported to RASAero because it is not a thrust-curve "
+                    + "motor.", openRocketMotor.getDesignation());
+            addMotorWarning(warnings, msg);
+            log.debug(msg);
+            return null;
+        }
+        if (rasaeroMotors == null || rasaeroMotors.isEmpty()) {
             return null;
         }
 
-        for (ThrustCurveMotor RASAeroMotor : RASAeroMotors) {
-            String RASAeroDesignation = AbstractMotorLoader.removeDelay(RASAeroMotor.getDesignation());
-            if (ORMotor.getDesignation().equals(RASAeroDesignation) &&
-                    ((ThrustCurveMotor) ORMotor).getManufacturer().matches(RASAeroMotor.getManufacturer().getDisplayName())) {
-                String motorName = RASAeroMotor.getDesignation();
-                log.debug(String.format("RASAero RASAeroMotor found: %s", motorName));
-                return motorName + "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(RASAeroMotor.getManufacturer()) + ")";
-            }
+        ThrustCurveMotor thrustCurveMotor = (ThrustCurveMotor) openRocketMotor;
+        List<RASAeroMotor> candidates = findDesignationMatches(rasaeroMotors, thrustCurveMotor);
+        RASAeroMotor match = selectUniqueMotor(candidates, thrustCurveMotor);
+
+        if (match == null && candidates.isEmpty()) {
+            // Some databases use a propellant suffix while others only retain the
+            // impulse class and average thrust. Physical dimensions keep this fallback
+            // conservative and prevent similarly named motors from being confused.
+            candidates = findCommonNameMatches(rasaeroMotors, thrustCurveMotor);
+            match = selectUniqueMotor(candidates, thrustCurveMotor);
         }
 
-        String msg = String.format("Could not find RASAero motor for '%s'", ORMotor.getDesignation());
-        warnings.add(msg);
-        log.debug(msg);
+        if (match != null) {
+            String motorName = match.getDesignation();
+            log.debug("RASAero motor found: {}", motorName);
+            return motorName + "  (" + match.getManufacturer() + ")";
+        }
+
+        String message;
+        if (candidates.isEmpty()) {
+            message = String.format("Motor '%s' by %s is not available in RASAero II's rasp.eng catalog; "
+                            + "the motor field was omitted.",
+                    openRocketMotor.getDesignation(), thrustCurveMotor.getManufacturer().getDisplayName());
+        } else {
+            message = String.format("Motor '%s' by %s matches multiple entries in RASAero II's rasp.eng catalog; "
+                            + "the motor field was omitted.",
+                    openRocketMotor.getDesignation(), thrustCurveMotor.getManufacturer().getDisplayName());
+        }
+        addMotorWarning(warnings, message);
+        log.debug(message);
         return null;
+    }
+
+    /**
+     * Finds catalog entries whose full designation matches after removing a
+     * RASP delay suffix. Matching is case-insensitive, so an OpenRocket
+     * {@code I59WN} can match RASAero's {@code I59WN-P}.
+     */
+    private static List<RASAeroMotor> findDesignationMatches(List<RASAeroMotor> rasaeroMotors,
+                                                              ThrustCurveMotor openRocketMotor) {
+        List<RASAeroMotor> matches = new ArrayList<>();
+        String designation = normalizeMotorDesignation(openRocketMotor.getDesignation());
+        for (RASAeroMotor rasaeroMotor : rasaeroMotors) {
+            if (sameManufacturer(openRocketMotor, rasaeroMotor)
+                    && designation.equals(normalizeMotorDesignation(rasaeroMotor.getDesignation()))) {
+                matches.add(rasaeroMotor);
+            }
+        }
+        return matches;
+    }
+
+    /**
+     * Finds a conservative fallback match using the simplified designation and
+     * motor case dimensions.
+     */
+    private static List<RASAeroMotor> findCommonNameMatches(List<RASAeroMotor> rasaeroMotors,
+                                                             ThrustCurveMotor openRocketMotor) {
+        List<RASAeroMotor> matches = new ArrayList<>();
+        String designation = commonMotorDesignation(openRocketMotor.getDesignation());
+        for (RASAeroMotor rasaeroMotor : rasaeroMotors) {
+            if (sameManufacturer(openRocketMotor, rasaeroMotor)
+                    && designation.equals(commonMotorDesignation(rasaeroMotor.getDesignation()))
+                    && motorDimensionsMatch(openRocketMotor, rasaeroMotor)) {
+                matches.add(rasaeroMotor);
+            }
+        }
+        return matches;
+    }
+
+    /**
+     * Selects a single catalog entry. If a designation maps to more than one
+     * entry, dimensions may disambiguate it; otherwise the exporter warns instead
+     * of guessing.
+     */
+    private static RASAeroMotor selectUniqueMotor(List<RASAeroMotor> candidates,
+                                                   ThrustCurveMotor openRocketMotor) {
+        if (candidates.size() == 1) {
+            return candidates.get(0);
+        }
+        if (candidates.size() > 1) {
+            List<RASAeroMotor> dimensionMatches = new ArrayList<>();
+            for (RASAeroMotor candidate : candidates) {
+                if (motorDimensionsMatch(openRocketMotor, candidate)) {
+                    dimensionMatches.add(candidate);
+                }
+            }
+            if (dimensionMatches.size() == 1) {
+                return dimensionMatches.get(0);
+            }
+        }
+        return null;
+    }
+
+    private static boolean sameManufacturer(ThrustCurveMotor openRocketMotor, RASAeroMotor rasaeroMotor) {
+        String manufacturer = OPENROCKET_TO_RASAERO_MANUFACTURER(openRocketMotor.getManufacturer());
+        return manufacturer.equalsIgnoreCase(rasaeroMotor.getManufacturer());
+    }
+
+    private static String normalizeMotorDesignation(String designation) {
+        String withoutDelay = AbstractMotorLoader.removeDelay(designation.trim());
+        return withoutDelay.replaceAll("\\s+", "").toUpperCase(Locale.ROOT);
+    }
+
+    private static String commonMotorDesignation(String designation) {
+        return ThrustCurveMotor.Builder.simplifyDesignation(normalizeMotorDesignation(designation));
+    }
+
+    private static boolean motorDimensionsMatch(Motor first, RASAeroMotor second) {
+        // Motor data sources commonly differ by rounding a metric case dimension.
+        double diameterTolerance = Math.max(0.001, first.getDiameter() * 0.02);
+        double lengthTolerance = Math.max(0.003, first.getLength() * 0.02);
+        return Math.abs(first.getDiameter() - second.getDiameter()) <= diameterTolerance
+                && Math.abs(first.getLength() - second.getLength()) <= lengthTolerance;
+    }
+
+    private static void addMotorWarning(WarningSet warnings, String message) {
+        if (warnings != null) {
+            warnings.add(message);
+        }
     }
 
     public static String OPENROCKET_TO_RASAERO_MANUFACTURER(Manufacturer manufacturer) {

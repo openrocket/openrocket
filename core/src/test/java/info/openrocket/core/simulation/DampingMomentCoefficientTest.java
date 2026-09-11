@@ -60,9 +60,9 @@ public class DampingMomentCoefficientTest extends BaseTestCase {
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
 		assertNotNull(branch);
 
-		List<Double> total = branch.get(FlightDataType.TYPE_DAMPING_MOMENT_COEFF);
-		List<Double> aerodynamic = branch.get(FlightDataType.TYPE_DAMPING_MOMENT_COEFF_AERODYNAMIC);
-		List<Double> propulsive = branch.get(FlightDataType.TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE);
+		List<Double> total = branch.getView(FlightDataType.TYPE_DAMPING_MOMENT_COEFF);
+		List<Double> aerodynamic = branch.getView(FlightDataType.TYPE_DAMPING_MOMENT_COEFF_AERODYNAMIC);
+		List<Double> propulsive = branch.getView(FlightDataType.TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE);
 
 		assertNotNull(total);
 		assertNotNull(aerodynamic);

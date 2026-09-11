@@ -29,6 +29,7 @@ import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.RailButton;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.ShockCord;
 import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.Transition;
@@ -217,9 +218,21 @@ public class ComponentIcons {
 	 * @return the icon, or <code>null</code> if none available.
 	 */
 	public static Icon getSmallIcon(Class<?> c) {
-		if (c.isAssignableFrom(MassComponent.class)) {
-		}
 		return SMALL_ICONS.get(c);
+	}
+
+	/**
+	 * Return the small icon for a component instance.  Mass components use the
+	 * icon for their configured subtype, matching the component tree.
+	 *
+	 * @param component the component instance
+	 * @return the icon, or {@code null} if none is available
+	 */
+	public static Icon getSmallIcon(RocketComponent component) {
+		if (component instanceof MassComponent massComponent) {
+			return getSmallMassTypeIcon(massComponent.getMassComponentType());
+		}
+		return getSmallIcon(component.getClass());
 	}
 
 	public static Icon getSmallMassTypeIcon(MassComponentType t) {

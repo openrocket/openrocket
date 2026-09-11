@@ -1,6 +1,5 @@
 package info.openrocket.swing.file.photo;
 
-import info.openrocket.core.file.openrocket.importt.OpenRocketHandler;
 import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
 import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
 import info.openrocket.core.util.ORColor;
@@ -14,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.function.DoubleConsumer;
 
 /**
  * This class takes in the PhotoSetting map from the core module and converts it
@@ -27,7 +27,8 @@ import java.util.Map;
 public class PhotoStudioGetter {
     private PhotoSettings p = null;
     private Map<String, String> parameters = null;
-    private static final Logger log = LoggerFactory.getLogger(OpenRocketHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(PhotoStudioGetter.class);
+    private boolean backgroundTypeExplicitlySet = false;
 
     public PhotoStudioGetter(Map<String, String> par) {
         this.parameters = par;
@@ -40,76 +41,95 @@ public class PhotoStudioGetter {
                 processElement(entry.getKey(), entry.getValue());
             }
         }
+        // Backward compat: files saved before backgroundType was introduced have only <sky>.
+        // Infer the background type from whether a sky texture was present.
+        if (!backgroundTypeExplicitlySet) {
+            p.setBackgroundType(p.getSky() != null
+                    ? PhotoSettings.BackgroundType.TEXTURE
+                    : PhotoSettings.BackgroundType.SOLID_COLOR);
+        }
         return p;
     }
 
     private void processElement(String element, String content) {
         if ("roll".equals(element)) {
-            double roll = Double.parseDouble(content);
-            p.setRoll(roll);
+            setDouble(element, content, p::setRoll);
             return;
         }
         if ("yaw".equals(element)) {
-            double yaw = Double.parseDouble(content);
-            p.setYaw(yaw);
+            setDouble(element, content, p::setYaw);
             return;
         }
         if ("pitch".equals(element)) {
-            double pitch = Double.parseDouble(content);
-            p.setPitch(pitch);
+            setDouble(element, content, p::setPitch);
             return;
         }
         if ("advance".equals(element)) {
-            double advance = Double.parseDouble(content);
-            p.setAdvance(advance);
+            setDouble(element, content, p::setAdvance);
             return;
         }
 
         if ("viewAlt".equals(element)) {
-            double viewAlt = Double.parseDouble(content);
-            p.setViewAlt(viewAlt);
+            setDouble(element, content, p::setViewAlt);
             return;
         }
         if ("viewAz".equals(element)) {
-            double viewAz = Double.parseDouble(content);
-            p.setViewAz(viewAz);
+            setDouble(element, content, p::setViewAz);
             return;
         }
         if ("viewDistance".equals(element)) {
-            double viewDistance = Double.parseDouble(content);
-            p.setViewDistance(viewDistance);
+            setDouble(element, content, p::setViewDistance);
             return;
         }
         if ("fov".equals(element)) {
-            double fov = Double.parseDouble(content);
-            p.setFov(fov);
+            setDouble(element, content, p::setFov);
             return;
         }
 
         if ("lightAlt".equals(element)) {
-            double lightAlt = Double.parseDouble(content);
-            p.setLightAlt(lightAlt);
+            setDouble(element, content, p::setLightAlt);
             return;
         }
         if ("lightAz".equals(element)) {
-            double lightAz = Double.parseDouble(content);
-            p.setLightAz(lightAz);
+            setDouble(element, content, p::setLightAz);
             return;
         }
         if ("sunlight".equals(element)) {
-            ORColor sunlight = getColor(content);
-            p.setSunlight(sunlight);
+            ORColor sunlight = getColor(element, content);
+            if (sunlight != null) p.setSunlight(sunlight);
+            return;
+        }
+        if ("lightStrength".equals(element)) {
+            setDouble(element, content, p::setLightStrength);
             return;
         }
         if ("ambiance".equals(element)) {
-            double ambiance = Double.parseDouble(content);
-            p.setAmbiance(ambiance);
+            setDouble(element, content, p::setAmbiance);
             return;
         }
 
         if ("skyColor".equals(element)) {
-            ORColor skyColor = getColor(content);
-            p.setSkyColor(skyColor);
+            ORColor skyColor = getColor(element, content);
+            if (skyColor != null) p.setSkyColor(skyColor);
+            return;
+        }
+        if ("backgroundType".equals(element)) {
+            try {
+                p.setBackgroundType(PhotoSettings.BackgroundType.valueOf(content));
+                backgroundTypeExplicitlySet = true;
+            } catch (IllegalArgumentException e) {
+                log.warn("Unknown backgroundType '{}', using default.", content);
+            }
+            return;
+        }
+        if ("gradientTopColor".equals(element)) {
+            ORColor color = getColor(element, content);
+            if (color != null) p.setGradientTopColor(color);
+            return;
+        }
+        if ("gradientBottomColor".equals(element)) {
+            ORColor color = getColor(element, content);
+            if (color != null) p.setGradientBottomColor(color);
             return;
         }
 
@@ -118,14 +138,18 @@ public class PhotoStudioGetter {
             p.setMotionBlurred(motionBlurred);
             return;
         }
+        if ("motionBlurAmount".equals(element)) {
+            setDouble(element, content, p::setMotionBlurAmount);
+            return;
+        }
         if ("flame".equals(element)) {
             boolean flame = Boolean.parseBoolean(content);
             p.setFlame(flame);
             return;
         }
         if ("flameColor".equals(element)) {
-            ORColor flameColor = getColor(content);
-            p.setFlameColor(flameColor);
+            ORColor flameColor = getColor(element, content);
+            if (flameColor != null) p.setFlameColor(flameColor);
             return;
         }
         if ("smoke".equals(element)) {
@@ -134,8 +158,8 @@ public class PhotoStudioGetter {
             return;
         }
         if ("smokeColor".equals(element)) {
-            ORColor smokeColor = getColor(content);
-            p.setSmokeColor(smokeColor);
+            ORColor smokeColor = getColor(element, content);
+            if (smokeColor != null) p.setSmokeColor(smokeColor);
             return;
         }
         if ("sparks".equals(element)) {
@@ -144,24 +168,20 @@ public class PhotoStudioGetter {
             return;
         }
         if ("exhaustScale".equals(element)) {
-            double exhaustScale = Double.parseDouble(content);
-            p.setExhaustScale(exhaustScale);
+            setDouble(element, content, p::setExhaustScale);
             return;
         }
         if ("flameAspectRatio".equals(element)) {
-            double flameAspectRatio = Double.parseDouble(content);
-            p.setFlameAspectRatio(flameAspectRatio);
+            setDouble(element, content, p::setFlameAspectRatio);
             return;
         }
 
         if ("sparkConcentration".equals(element)) {
-            double sparkConcentration = Double.parseDouble(content);
-            p.setSparkConcentration(sparkConcentration);
+            setDouble(element, content, p::setSparkConcentration);
             return;
         }
         if ("sparkWeight".equals(element)) {
-            double sparkWeight = Double.parseDouble(content);
-            p.setSparkWeight(sparkWeight);
+            setDouble(element, content, p::setSparkWeight);
             return;
         }
 
@@ -170,37 +190,63 @@ public class PhotoStudioGetter {
                 p.setSky(null);
                 return;
             }
-            Sky s = null;
-            try {
-                Class<?> cl = Class.forName(content);
-                if (Mountains.class.isAssignableFrom(cl))
-                    s = Mountains.instance;
-                else if (Lake.class.isAssignableFrom(cl))
-                    s = Lake.instance;
-                else if (Meadow.class.isAssignableFrom(cl))
-                    s = Meadow.instance;
-                else if (Miramar.class.isAssignableFrom(cl))
-                    s = Miramar.instance;
-                else if (Orbit.class.isAssignableFrom(cl))
-                    s = Orbit.instance;
-                else if (Storm.class.isAssignableFrom(cl))
-                    s = Storm.instance;
-            }
-            catch (ClassNotFoundException e) {
-                log.info("Could not load sky class '" + content + "'.");
-            }
-            p.setSky(s);
+            p.setSky(resolveSky(content));
         }
     }
 
-    private ORColor getColor(String content) {
-        String[] values = content.split(" ");
-        if (values.length < 4) return null;
+    private Sky resolveSky(String content) {
+        String simpleName = content.substring(content.lastIndexOf('.') + 1);
+        return switch (simpleName) {
+            case "Mountains" -> Mountains.instance;
+            case "Lake" -> Lake.instance;
+            case "Meadow" -> Meadow.instance;
+            case "Miramar" -> Miramar.instance;
+            case "Orbit" -> Orbit.instance;
+            case "Storm" -> Storm.instance;
+            default -> {
+                log.info("Could not load sky class '{}'.", content);
+                yield null;
+            }
+        };
+    }
 
-        int red = Integer.parseInt(values[0]);
-        int green = Integer.parseInt(values[1]);
-        int blue = Integer.parseInt(values[2]);
-        int alpha = Integer.parseInt(values[3]);
-        return new ORColor(red, green, blue, alpha);
+    private ORColor getColor(String element, String content) {
+        try {
+            String[] values = content.trim().split("\\s+");
+            if (values.length != 4) {
+                throw new IllegalArgumentException("expected four color channels");
+            }
+
+            int red = Integer.parseInt(values[0]);
+            int green = Integer.parseInt(values[1]);
+            int blue = Integer.parseInt(values[2]);
+            int alpha = Integer.parseInt(values[3]);
+            if (red < 0 || red > 255 || green < 0 || green > 255
+                    || blue < 0 || blue > 255 || alpha < 0 || alpha > 255) {
+                throw new IllegalArgumentException("color channel outside 0..255");
+            }
+            return new ORColor(red, green, blue, alpha);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            log.warn("Invalid Photo Studio value for '{}': '{}'; using the default.", element, content);
+            return null;
+        }
+    }
+
+    private void setDouble(String element, String content, DoubleConsumer setter) {
+        Double value = parseDouble(element, content);
+        if (value != null) setter.accept(value);
+    }
+
+    private Double parseDouble(String element, String content) {
+        try {
+            double value = Double.parseDouble(content);
+            if (!Double.isFinite(value)) {
+                throw new NumberFormatException("non-finite value");
+            }
+            return value;
+        } catch (NumberFormatException | NullPointerException e) {
+            log.warn("Invalid Photo Studio value for '{}': '{}'; using the default.", element, content);
+            return null;
+        }
     }
 }

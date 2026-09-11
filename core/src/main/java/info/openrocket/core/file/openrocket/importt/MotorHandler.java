@@ -1,5 +1,7 @@
 package info.openrocket.core.file.openrocket.importt;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +16,9 @@ import info.openrocket.core.file.simplesax.PlainTextHandler;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.ThrustCurveMotor;
+import info.openrocket.core.util.DecalNotFoundException;
 
 import org.xml.sax.SAXException;
 
@@ -30,6 +34,7 @@ class MotorHandler extends AbstractElementHandler {
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
+	private double nozzleExitDiameter = 0.0;
 
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
@@ -65,7 +70,7 @@ class MotorHandler extends AbstractElementHandler {
 
 		// Try loading from embedded .rse file in the zip archive.
 		if (digest != null && !digest.isEmpty()) {
-			Motor zipMotor = loadMotorFromZip(digest);
+			Motor zipMotor = loadMotorFromZip(digest, warnings);
 			if (zipMotor != null) {
 				return zipMotor;
 			}
@@ -80,20 +85,43 @@ class MotorHandler extends AbstractElementHandler {
 	 * Attempt to load a motor from a {@code thrustcurves/<digest>.rse} entry in the .ork zip archive.
 	 *
 	 * @param motorDigest the motor digest used as the filename
-	 * @return the loaded motor, or {@code null} if not found or not parseable
+	 * @param warnings warnings sink for an attachment that exists but cannot be used
+	 * @return the loaded motor, or {@code null} if the attachment is absent or invalid
 	 */
-	private Motor loadMotorFromZip(String motorDigest) {
+	private Motor loadMotorFromZip(String motorDigest, WarningSet warnings) {
+		String attachmentName = "thrustcurves/" + motorDigest + ".rse";
 		try {
-			Attachment attachment = context.getAttachmentFactory().getAttachment("thrustcurves/" + motorDigest + ".rse");
+			Attachment attachment = context.getAttachmentFactory().getAttachment(attachmentName);
 			try (InputStream is = attachment.getBytes()) {
 				GeneralMotorLoader loader = new GeneralMotorLoader();
 				List<ThrustCurveMotor.Builder> motors = loader.load(is, motorDigest + ".rse");
-				if (!motors.isEmpty()) {
-					return motors.get(0).build();
+				if (motors.isEmpty()) {
+					warnings.add(Warning.fromString("Embedded motor attachment '" + attachmentName
+							+ "' contains no motors."));
+					return null;
 				}
+
+				for (ThrustCurveMotor.Builder builder : motors) {
+					ThrustCurveMotor motor = builder.build();
+					if (MotorDigest.isDigestCompatible(motor, motorDigest)) {
+						// Keep the digest referenced by the ORK file stable across future saves.
+						return builder.setDigest(motorDigest).build();
+					}
+				}
+
+				warnings.add(Warning.fromString("Embedded motor attachment '" + attachmentName
+						+ "' contains no motor matching digest '" + motorDigest + "'."));
 			}
-		} catch (Exception e) {
-			// Entry not found or parse error — fall through.
+		} catch (DecalNotFoundException | FileNotFoundException e) {
+			// Missing attachments are expected for files that rely on the motor database.
+			return null;
+		} catch (IOException | IllegalArgumentException e) {
+			String reason = e.getMessage();
+			if (reason == null || reason.isBlank()) {
+				reason = e.getClass().getSimpleName();
+			}
+			warnings.add(Warning.fromString("Unable to load embedded motor attachment '" + attachmentName
+					+ "': " + reason));
 		}
 		return null;
 	}
@@ -107,6 +135,15 @@ class MotorHandler extends AbstractElementHandler {
 			return Motor.PLUGGED_DELAY;
 		}
 		return delay;
+	}
+
+	/**
+	 * Return the optional nozzle exit diameter stored with the motor selection.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when it was not specified
+	 */
+	public double getNozzleExitDiameter() {
+		return nozzleExitDiameter;
 	}
 
 	@Override
@@ -188,6 +225,17 @@ class MotorHandler extends AbstractElementHandler {
 					warnings.add(Warning.fromString("Illegal motor delay specified, ignoring."));
 				}
 
+			}
+
+		} else if (element.equals("nozzleexitdiameter")) {
+			try {
+				nozzleExitDiameter = Double.parseDouble(content.trim());
+			} catch (NumberFormatException ignore) {
+				nozzleExitDiameter = Double.NaN;
+			}
+			if (!Double.isFinite(nozzleExitDiameter) || nozzleExitDiameter < 0) {
+				warnings.add(Warning.fromString("Illegal nozzle exit diameter specified, assuming unknown."));
+				nozzleExitDiameter = 0.0;
 			}
 
 		} else {

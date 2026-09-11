@@ -20,6 +20,7 @@ public abstract class ThicknessRingComponent extends RingComponent {
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			this.outerRadiusAutomatic = false;
 			this.innerRadiusAutomatic = false;
@@ -30,7 +31,6 @@ public abstract class ThicknessRingComponent extends RingComponent {
 				this.thickness = (outerDiameter - innerDiameter) / 2.0;
 			}
 		}
-		super.loadFromPreset(preset);
 
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 

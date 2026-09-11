@@ -71,6 +71,11 @@ class MotorMountHandler extends AbstractElementHandler {
 			MotorConfiguration motorConfig = new MotorConfiguration(mount, fcid, mount.getDefaultMotorConfig());
 			motorConfig.setMotor(motor);
 			motorConfig.setEjectionDelay(motorHandler.getDelay(warnings));
+			try {
+				motorConfig.setNozzleExitDiameter(motorHandler.getNozzleExitDiameter());
+			} catch (IllegalArgumentException e) {
+				warnings.add(Warning.fromString("Invalid nozzle exit diameter, assuming unknown: " + e.getMessage()));
+			}
 
 			mount.setMotorConfig(motorConfig, fcid);
 

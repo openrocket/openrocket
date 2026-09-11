@@ -1,0 +1,272 @@
+package info.openrocket.swing.gui.figure3d.scene.graph;
+
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
+import info.openrocket.swing.gui.figure3d.geometry.Mesh;
+import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
+import info.openrocket.swing.gui.figure3d.rendering.Renderable;
+import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.Objects;
+import java.util.UUID;
+
+/**
+ * Mesh instance with its transform, appearance, interaction state, and optional
+ * component associations.
+ */
+public class SceneObject {
+
+	private final UUID id;
+	private final RocketComponent rocketComponent;		// Selection and rocket-wide behavior
+	private final RocketComponent appearanceSourceComponent;
+	private final ComponentAppearanceRole appearanceRole;
+
+	private final Mesh mesh; 							// The raw geometry data
+	private final Renderable renderableMesh; 		// The GPU-ready version of the mesh
+	private final Matrix4f modelMatrix = new Matrix4f();	// The model matrix that transforms the object in the scene
+	private Appearance3D appearance;					// The appearance of this object, including materials and textures
+
+	// --- Animation support ---
+	private PoseProvider poseProvider = null;
+	private Matrix4f baseModelSnapshot = null;   // captured once, the first time we animate
+	private final Matrix4f dynamicTransform = new Matrix4f(); // T*R per-frame
+
+	private boolean isSelected = false;					// Whether this object is currently selected
+	private boolean isSelectable = true;				// Whether this object can be selected by the user
+	private boolean renderOnTop = false;				// Whether this object should always render on top of others
+	private boolean originAxis = false;
+	private boolean cleaned = false;
+
+	/**
+	 * Constructs a new SceneObject associated with an OpenRocket component.
+	 * This constructor creates the full object representation including both
+	 * raw geometry and GPU-optimized rendering data.
+	 *
+	 * @param component the associated component for selection and rocket-wide behavior (may be null)
+	 * @param mesh the raw geometric mesh data
+	 * @param position the initial 3D position of the object
+	 * @param appearance the visual appearance including materials and textures
+	 */
+	public SceneObject(RocketComponent component, Mesh mesh, Vector3f position, Appearance3D appearance) {
+		this(component, component, ComponentAppearanceRole.PRIMARY, mesh, position, appearance);
+	}
+
+	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
+			ComponentAppearanceRole appearanceRole, Mesh mesh, Vector3f position, Appearance3D appearance) {
+		this(component, appearanceSourceComponent, appearanceRole,
+				mesh, new GLRenderableMesh(mesh), position, appearance);
+	}
+
+	private SceneObject(RocketComponent component, RocketComponent appearanceSourceComponent,
+			ComponentAppearanceRole appearanceRole, Mesh mesh, Renderable renderableMesh,
+			Vector3f position, Appearance3D appearance) {
+		this.id = UUID.randomUUID();
+		this.rocketComponent = component;
+		this.appearanceSourceComponent = appearanceSourceComponent;
+		this.appearanceRole = appearanceRole;
+		this.mesh = mesh;
+		this.renderableMesh = Objects.requireNonNull(renderableMesh, "renderableMesh");
+		this.modelMatrix.translate(position);
+		this.appearance = appearance;
+	}
+
+	/** Creates a component object using a caller-owned renderable lease. */
+	public static SceneObject withRenderable(RocketComponent component, Mesh mesh, Renderable renderableMesh,
+			Vector3f position, Appearance3D appearance) {
+		return withRenderable(component, mesh, renderableMesh, position, appearance,
+				ComponentAppearanceRole.PRIMARY);
+	}
+
+	/** Creates one material partition of a component using a caller-owned renderable lease. */
+	public static SceneObject withRenderable(RocketComponent component, Mesh mesh, Renderable renderableMesh,
+			Vector3f position, Appearance3D appearance, ComponentAppearanceRole appearanceRole) {
+		return new SceneObject(component, component, appearanceRole, mesh, renderableMesh, position, appearance);
+	}
+
+	/**
+	 * Creates an object that remains associated with a component for selection and
+	 * rocket-wide transforms, but whose appearance comes from another model object.
+	 * Motor meshes use this form: they are grouped with their mount for selection,
+	 * while retaining the motor label and material during mount appearance edits.
+	 */
+	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
+			Mesh mesh, Vector3f position, Appearance3D appearance) {
+		return new SceneObject(selectionComponent, null, null, mesh, position, appearance);
+	}
+
+	/** Creates an independently styled object using a caller-owned renderable lease. */
+	public static SceneObject withIndependentAppearance(RocketComponent selectionComponent,
+			Mesh mesh, Renderable renderableMesh, Vector3f position, Appearance3D appearance) {
+		return new SceneObject(selectionComponent, null, null, mesh, renderableMesh, position, appearance);
+	}
+
+	/**
+	 * Constructs a new SceneObject without an associated OpenRocket component.
+	 * This constructor is used for objects that are not directly part of the rocket
+	 * model, such as light visualizers, environment objects, or UI elements.
+	 *
+	 * @param mesh the raw geometric mesh data
+	 * @param position the initial 3D position of the object
+	 * @param appearance the visual appearance including materials and textures
+	 */
+	public SceneObject(Mesh mesh, Vector3f position, Appearance3D appearance) {
+		this(null, mesh, position, appearance);
+	}
+
+	public UUID getId() {
+		return id;
+	}
+
+	/**
+	 * Gets the component used to group this object for selection and rocket-wide behavior.
+	 *
+	 * @return the associated component, or null if this is not rocket-derived geometry
+	 */
+	public RocketComponent getRocketComponent() {
+		return rocketComponent;
+	}
+
+	/**
+	 * Returns the component whose live appearance this object follows.
+	 *
+	 * @return the appearance source, or {@code null} for independently styled objects
+	 */
+	public RocketComponent getAppearanceSourceComponent() {
+		return appearanceSourceComponent;
+	}
+
+	/** @return the primary/secondary material partition, or {@code null} for independent objects */
+	public ComponentAppearanceRole getAppearanceRole() {
+		return appearanceRole;
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	/**
+	 * Sets the selection state of this object.
+	 * Selected objects typically have different visual appearance (highlighting, outlines, etc.)
+	 *
+	 * @param selected true to select the object, false to deselect it
+	 */
+	public void setSelected(boolean selected) {
+		isSelected = selected;
+	}
+
+	/**
+	 * Checks if this object can be selected by user interaction.
+	 *
+	 * @return true if the object can be selected, false if it's non-interactive
+	 */
+	public boolean isSelectable() {
+		return isSelectable;
+	}
+
+	public boolean isRenderOnTop() {
+		return renderOnTop;
+	}
+
+	public void setSelectable(boolean selectable) {
+		isSelectable = selectable;
+	}
+
+	public void setAppearance(Appearance3D appearance) {
+		this.appearance = appearance;
+	}
+
+	/**
+	 * Force-sets the position of this object by recreating its model matrix.
+	 */
+	public void setPosition(Vector3f position) {
+		this.modelMatrix.setTranslation(position);
+	}
+
+	public void setRenderOnTop(boolean renderOnTop) {
+		this.renderOnTop = renderOnTop;
+	}
+
+	public boolean isOriginAxis() {
+		return originAxis;
+	}
+
+	public void setOriginAxis(boolean originAxis) {
+		this.originAxis = originAxis;
+	}
+
+	/**
+	 * Returns the raw mesh data, used for physics and raycasting.
+	 * @return The Mesh object.
+	 */
+	public Mesh getMesh() {
+		return mesh;
+	}
+
+	/**
+	 * Returns the renderable mesh, used by the renderer.
+	 * @return the GPU-backed renderable or shared-resource lease
+	 */
+	public Renderable getRenderableMesh() {
+		return renderableMesh;
+	}
+
+	public Matrix4f getModelMatrix() {
+		return modelMatrix;
+	}
+
+	public Appearance3D getAppearance() {
+		return appearance;
+	}
+
+	// ---------- Animation hooks ----------
+	public void setPoseProvider(PoseProvider provider) {
+		this.poseProvider = provider;
+	}
+
+	public PoseProvider getPoseProvider() {
+		return poseProvider;
+	}
+
+	public boolean hasPoseProvider() {
+		return poseProvider != null;
+	}
+
+	public void clearPoseProvider() {
+		this.poseProvider = null;
+		if (baseModelSnapshot != null) {
+			this.modelMatrix.set(baseModelSnapshot);
+		}
+	}
+
+	/**
+	 * Applies the dynamic pose before the object's original model transform, which is
+	 * captured on the first call.
+	 */
+	public void applyPoseAtTime(double t) {
+		if (poseProvider == null) return;
+		if (baseModelSnapshot == null) {
+			baseModelSnapshot = new Matrix4f(this.modelMatrix);
+		}
+		Vector3f p = poseProvider.getPosition(t);
+		Quaternionf q = poseProvider.getOrientation(t);
+		dynamicTransform.identity().translate(p).rotate(q);
+		this.modelMatrix.set(dynamicTransform).mul(baseModelSnapshot);
+	}
+
+	/** Releases this object's resource leases. Subsequent calls have no effect. */
+	public void cleanup() {
+		if (cleaned) {
+			return;
+		}
+		cleaned = true;
+		try {
+			renderableMesh.cleanup();
+		} finally {
+			appearance.cleanup();
+		}
+	}
+}

@@ -1,5 +1,6 @@
 package info.openrocket.swing.utils;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -9,30 +10,43 @@ import java.util.TimerTask;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class CustomClickCountListener {
-    private final int CLICK_INTERVAL; // Maximum interval between two clicks for them to still be registered as a double click (in ms)
+    private final int clickInterval; // Maximum interval between two clicks for them to still be registered as a double click (in ms)
     private int clickCnt = 0;
-    private final java.util.Timer timer = new java.util.Timer("doubleClickTimer", false);
+    private final Timer timer;
 
     public CustomClickCountListener() {
-        this.CLICK_INTERVAL = 600;  // ms
+        this(600);
     }
 
     public CustomClickCountListener(int clickInterval) {
-        this.CLICK_INTERVAL = clickInterval;
+        this(clickInterval, new Timer("doubleClickTimer", false));
+    }
+
+    /**
+     * Creates a click listener using the supplied timer.
+     *
+     * @param clickInterval maximum interval between grouped clicks, in milliseconds
+     * @param timer timer used to schedule the click-count reset
+     */
+    CustomClickCountListener(int clickInterval, Timer timer) {
+        this.clickInterval = clickInterval;
+        this.timer = timer;
     }
 
     /**
      * Call this method when the mouseClicked event is activated.
      */
-    public void click() {
+    public synchronized void click() {
         clickCnt++;
         if (clickCnt == 1) {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    clickCnt = 0;
+                    synchronized (CustomClickCountListener.this) {
+                        clickCnt = 0;
+                    }
                 }
-            }, CLICK_INTERVAL);
+            }, clickInterval);
         }
     }
 
@@ -40,7 +54,7 @@ public class CustomClickCountListener {
      * Return the current click count.
      * @return the current click count
      */
-    public int getClickCount() {
+    public synchronized int getClickCount() {
         return clickCnt;
     }
 }

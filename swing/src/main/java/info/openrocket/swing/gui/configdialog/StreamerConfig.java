@@ -28,6 +28,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.startup.Application;
@@ -265,6 +266,15 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		deploymentPanel.add(slider, "w 100lp, wrap");
 
 		deploymentPanel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap");
+
+		//// Is Drogue checkbox — read-only; managed from the stage Recovery tab
+		JCheckBox drogueCheck = new JCheckBox(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue"));
+		drogueCheck.setToolTipText(trans.get("RecoveryDeviceCfg.checkbox.IsDrogue.managedByStage.ttip"));
+		drogueCheck.setSelected(streamer.isDrogue());
+		drogueCheck.setEnabled(false);
+		deploymentPanel.add(drogueCheck, "spanx");
+		deploymentPanel.add(new StyledLabel(trans.get("RecoveryDeviceCfg.lbl.IsDrogue.managedByStage"), -1, StyledLabel.Style.ITALIC), "spanx, wrap");
+		order.add(drogueCheck);
 
 		panel.add(deploymentPanel, "growx");
 		primary.add(panel, "grow");

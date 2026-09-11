@@ -4,6 +4,7 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -145,7 +146,9 @@ public class CAParameterSweep {
 				dataBranch.setValue(CADataType.TOTAL_CD, component, forces.getCDTotal());
 			}
 
-			if (component instanceof FinSet) {
+			// Force analysis aggregates roll values for assemblies, so stages and the
+			// rocket can be plotted alongside individual fin sets.
+			if (component instanceof FinSet || component instanceof ComponentAssembly) {
 				dataBranch.setValue(CADataType.ROLL_FORCING_COEFFICIENT, component, forces.getCrollForce());
 				dataBranch.setValue(CADataType.ROLL_DAMPING_COEFFICIENT, component, forces.getCrollDamp());
 				dataBranch.setValue(CADataType.TOTAL_ROLL_COEFFICIENT, component, forces.getCrollForce() + forces.getCrollDamp());

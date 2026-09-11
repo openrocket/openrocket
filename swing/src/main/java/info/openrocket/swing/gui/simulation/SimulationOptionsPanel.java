@@ -7,6 +7,8 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
@@ -14,8 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import info.openrocket.core.rocketcomponent.RocketComponent;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -26,9 +31,18 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.text.View;
+import javax.swing.JTextField;
+import javax.swing.MenuElement;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import info.openrocket.core.aerodynamics.lookup.MachAoALookup;
 import info.openrocket.core.document.OpenRocketDocument;
@@ -54,6 +68,7 @@ import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.util.FlatLafOutlines;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.theme.UITheme;
@@ -86,6 +101,10 @@ class SimulationOptionsPanel extends JPanel {
 	private UnitSelector gravityUnit;
 	private BasicSlider gravitySlider;
 	private JLabel gravityLabel;
+	private final JCheckBox fixedRandomSeedCheckBox;
+	private final JTextField randomSeedField;
+	private final FlatLafOutlines.Validator randomSeedValidator;
+	private boolean updatingRandomSeedControls;
 
 	private static Color textColor;
 	private static Color dimTextColor;
@@ -170,7 +189,7 @@ class SimulationOptionsPanel extends JPanel {
 		configureImmediateTooltipDelay(aerodynamicLookupSummaryIconLabel);
 		subsub.add(aerodynamicLookupSummaryIconLabel, "gapleft rel, wrap para");
 
-		sub.add(subsub, "spanx, wrap para");
+		sub.add(subsub, "spanx, growx, wmin 0, wrap para");
 
 		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
@@ -303,6 +322,74 @@ class SimulationOptionsPanel extends JPanel {
 		unit.setToolTipText(tip);
 		subsub.add(unit, "wrap");
 
+		// // Fixed random seed:
+		tip = trans.get("simedtdlg.checkbox.ttip.FixedRandomSeed");
+		fixedRandomSeedCheckBox = new JCheckBox(trans.get("simedtdlg.checkbox.FixedRandomSeed"),
+				conditions.isRandomSeedFixed());
+		fixedRandomSeedCheckBox.setToolTipText(tip);
+		subsub.add(fixedRandomSeedCheckBox, "gaptop para, gapright para");
+
+		randomSeedField = new JTextField(12);
+		randomSeedField.setToolTipText(trans.get("simedtdlg.lbl.ttip.RandomSeed"));
+		updateRandomSeedControlsFromOptions();
+		subsub.add(randomSeedField, "w 130lp!, spanx, wrap");
+
+		randomSeedValidator = FlatLafOutlines.validator(randomSeedField)
+				.errorIf(() -> fixedRandomSeedCheckBox.isSelected()
+						&& parseRandomSeed(randomSeedField.getText()) == null,
+						() -> trans.get("simedtdlg.error.RandomSeed"))
+				.showMessagePopup(2500);
+		randomSeedValidator.update();
+
+		fixedRandomSeedCheckBox.addActionListener(e -> {
+			if (updatingRandomSeedControls) {
+				return;
+			}
+
+			updatingRandomSeedControls = true;
+			if (fixedRandomSeedCheckBox.isSelected()) {
+				// Start each newly enabled fixed-seed session with a usable value that the user can override.
+				conditions.randomizeSeed();
+				randomSeedField.setText(Integer.toString(conditions.getRandomSeed()));
+				randomSeedField.setEnabled(true);
+				conditions.setRandomSeedFixed(true);
+			} else {
+				conditions.setRandomSeedFixed(false);
+				randomSeedField.setText("");
+				randomSeedField.setEnabled(false);
+			}
+			updatingRandomSeedControls = false;
+			randomSeedValidator.update();
+		});
+
+		randomSeedField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+		});
+		randomSeedField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent event) {
+				if (!event.isTemporary()) {
+					replaceInvalidRandomSeed();
+				}
+			}
+		});
+
 		// Reset to default button
 		JButton resetBtn = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		// Reset the time step to its default value (
@@ -323,6 +410,18 @@ class SimulationOptionsPanel extends JPanel {
 				conditions.setGeodeticComputation(preferences.getEnum(
 						ApplicationPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));
+				conditions.setRecoverySpeedWarning(preferences.getRecoverySpeedWarning());
+				//conditions.setDrogueLowSpeedWarning(preferences.getDrogueLowSpeedWarning());
+				conditions.setRecoveryDrogueMainHighSpeedWarning(preferences.getRecoveryDrogueMainHighSpeedWarning());
+				conditions.setRecoveryDrogueMainLowSpeedWarning(preferences.getRecoveryDrogueMainLowSpeedWarning());
+				if (preferences.isRandomSeedFixed()) {
+					conditions.setRandomSeed(preferences.getRandomSeed());
+					conditions.setRandomSeedFixed(true);
+				} else {
+					conditions.setRandomSeedFixed(false);
+				}
+				updateRandomSeedControlsFromOptions();
+				randomSeedValidator.update();
 			}
 		});
 
@@ -335,14 +434,69 @@ class SimulationOptionsPanel extends JPanel {
 				preferences.setTimeStep(conditions.getTimeStep());
 				preferences.setMaxSimulationTime(conditions.getMaxSimulationTime());
 				preferences.setGeodeticComputation(conditions.getGeodeticComputation());
+				preferences.setRecoverySpeedWarning(conditions.getRecoverySpeedWarning());
+				//preferences.setDrogueLowSpeedWarning(conditions.getDrogueLowSpeedWarning());
+				preferences.setRecoveryDrogueMainHighSpeedWarning(conditions.getRecoveryDrogueMainHighSpeedWarning());
+				preferences.setRecoveryDrogueMainLowSpeedWarning(conditions.getRecoveryDrogueMainLowSpeedWarning());
+				prepareForSimulation();
+				if (conditions.isRandomSeedFixed()) {
+					preferences.setRandomSeed(conditions.getRandomSeed());
+				}
+				preferences.setRandomSeedFixed(conditions.isRandomSeedFixed());
 			}
 		});
 
+		// Recovery speed warnings - tabbed by deployment type
+		JTabbedPane recoveryTabs = new JTabbedPane();
+
+		// --- Single deployment tab ---
+		JPanel singleTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
+		singleTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.RecoveryWarnings.desc"), Style.ITALIC), "spanx, growx, wmin 0, wrap para");
+		label = new JLabel(trans.get("simedtdlg.lbl.HighSpeedWarning"));
+		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.HighSpeedWarning"));
+		singleTab.add(label, "gapright para");
+		m = new DoubleModel(conditions, "RecoverySpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.HighSpeedWarning"));
+		singleTab.add(spin, "");
+		singleTab.add(new UnitSelector(m), "wrap");
+		recoveryTabs.addTab(trans.get("simedtdlg.border.SingleDeployment"), singleTab);
+
+		// --- Dual deployment tab ---
+		JPanel dualTab = new JPanel(new MigLayout("insets n, fillx", "[][min!][min!][grow]"));
+		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.RecoveryWarnings.desc"), Style.ITALIC), "spanx, growx, wmin 0, wrap para");
+
+		dualTab.add(createWrappingInfoText(trans.get("simedtdlg.lbl.DualDeployment.HowTo"), Style.PLAIN), "spanx, growx, wmin 0, wrap para");
+
+		label = new JLabel(trans.get("simedtdlg.lbl.LowSpeedWarning"));
+		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.LowSpeedWarning"));
+		dualTab.add(label, "gapright para");
+		m = new DoubleModel(conditions, "RecoveryDrogueMainLowSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.LowSpeedWarning"));
+		dualTab.add(spin, "");
+		dualTab.add(new UnitSelector(m), "wrap");
+
+		label = new JLabel(trans.get("simedtdlg.lbl.HighSpeedWarning"));
+		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.HighSpeedWarning"));
+		dualTab.add(label, "gapright para");
+		m = new DoubleModel(conditions, "RecoveryDrogueMainHighSpeedWarning", UnitGroup.UNITS_VELOCITY, 0);
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(trans.get("simedtdlg.lbl.ttip.HighSpeedWarning"));
+		dualTab.add(spin, "");
+		dualTab.add(new UnitSelector(m), "wrap");
+
+		recoveryTabs.addTab(trans.get("simedtdlg.border.DualDeployment"), dualTab);
+		subsub.add(recoveryTabs, "spanx, gaptop para, growx, wmin 0, wrap");
+
 		sub.add(resetBtn, "align left, split 2");
 		sub.add(saveBtn, "wrap");
-
-
-
+		
+		
+		
 		//// Simulation extensions
 		sub = new JPanel(new MigLayout("fillx, gap 0 0"));
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.SimExt")));
@@ -376,6 +530,85 @@ class SimulationOptionsPanel extends JPanel {
 		options.addChangeListener(e -> SwingUtilities.invokeLater(this::updateLookupSummary));
 		updateLookupSummary();
 
+	}
+
+	/**
+	 * Resolves the seed controls before a simulation starts. An empty or invalid fixed seed falls back to the normal
+	 * per-run random seed behavior.
+	 */
+	void prepareForSimulation() {
+		boolean useFixedSeed = applyRandomSeedInput(options, fixedRandomSeedCheckBox.isSelected(),
+				randomSeedField.getText());
+
+		updatingRandomSeedControls = true;
+		fixedRandomSeedCheckBox.setSelected(useFixedSeed);
+		randomSeedField.setEnabled(useFixedSeed);
+		if (!useFixedSeed) {
+			randomSeedField.setText("");
+		}
+		updatingRandomSeedControls = false;
+		randomSeedValidator.update();
+	}
+
+	/**
+	 * Applies a final seed field value and reports whether fixed-seed mode remains enabled.
+	 *
+	 * @param options simulation options to update
+	 * @param fixedSeedRequested whether the fixed-seed checkbox is selected
+	 * @param seedText contents of the random seed field
+	 * @return {@code true} if a valid fixed seed was applied
+	 */
+	static boolean applyRandomSeedInput(SimulationOptions options, boolean fixedSeedRequested, String seedText) {
+		Integer seed = fixedSeedRequested ? parseRandomSeed(seedText) : null;
+		if (seed == null) {
+			options.setRandomSeedFixed(false);
+			return false;
+		}
+
+		options.setRandomSeed(seed);
+		options.setRandomSeedFixed(true);
+		return true;
+	}
+
+	private void updateRandomSeedFromField() {
+		if (updatingRandomSeedControls || !fixedRandomSeedCheckBox.isSelected()) {
+			return;
+		}
+		Integer seed = parseRandomSeed(randomSeedField.getText());
+		if (seed != null) {
+			options.setRandomSeed(seed);
+		}
+	}
+
+	/**
+	 * Replaces an invalid committed edit with a fresh seed while preserving fixed-seed mode.
+	 */
+	private void replaceInvalidRandomSeed() {
+		if (!fixedRandomSeedCheckBox.isSelected() || parseRandomSeed(randomSeedField.getText()) != null) {
+			return;
+		}
+
+		options.randomizeSeed();
+		updatingRandomSeedControls = true;
+		randomSeedField.setText(Integer.toString(options.getRandomSeed()));
+		updatingRandomSeedControls = false;
+		randomSeedValidator.update();
+	}
+
+	private void updateRandomSeedControlsFromOptions() {
+		updatingRandomSeedControls = true;
+		fixedRandomSeedCheckBox.setSelected(options.isRandomSeedFixed());
+		randomSeedField.setEnabled(options.isRandomSeedFixed());
+		randomSeedField.setText(options.isRandomSeedFixed() ? Integer.toString(options.getRandomSeed()) : "");
+		updatingRandomSeedControls = false;
+	}
+
+	private static Integer parseRandomSeed(String seedText) {
+		try {
+			return Integer.valueOf(seedText.trim());
+		} catch (NumberFormatException exception) {
+			return null;
+		}
 	}
 
 	private static void initColors() {
@@ -573,6 +806,67 @@ class SimulationOptionsPanel extends JPanel {
 		// Both needed:
 		this.revalidate();
 		this.repaint();
+	}
+
+	private JTextPane createWrappingInfoText(String text, Style style) {
+		JTextPane pane = new JTextPane() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Dimension getPreferredSize() {
+				Dimension d = super.getPreferredSize();
+				// An HTML JTextPane reports a large "natural" preferred width (it prefers
+				// to keep text on one line). If that width is allowed to influence the
+				// enclosing layout, the panel - which lives inside a JScrollPane and is
+				// therefore sized to its preferred width - keeps growing wider on every
+				// re-layout (e.g. each recovery tab switch). Report only the minimum
+				// wrap width so the pane never drives the container wider, and derive the
+				// height from the width actually allocated so the text isn't clipped.
+				View view = getUI().getRootView(this);
+				int width = getWidth();
+				if (width > 0) {
+					view.setSize(width, Float.MAX_VALUE);
+					d.height = (int) Math.ceil(view.getPreferredSpan(View.Y_AXIS));
+				}
+				d.width = (int) Math.ceil(view.getMinimumSpan(View.X_AXIS));
+				return d;
+			}
+		};
+		pane.setEditable(false);
+		pane.setFocusable(false);
+		pane.setOpaque(false);
+		pane.setBorder(BorderFactory.createEmptyBorder());
+		pane.setContentType("text/html");
+		pane.setMinimumSize(new Dimension(0, 0));
+
+		String normalizedText = text == null ? "" : text;
+		String trimmed = normalizedText.trim().toLowerCase();
+		if (trimmed.startsWith("<html")) {
+			pane.setText(normalizedText);
+		} else {
+			String styleCss = "";
+			switch (style) {
+				case ITALIC:
+					styleCss = "font-style:italic;";
+					break;
+				case BOLD:
+					styleCss = "font-weight:bold;";
+					break;
+				case BOLD_ITALIC:
+					styleCss = "font-weight:bold;font-style:italic;";
+					break;
+				case PLAIN:
+				default:
+					break;
+			}
+
+			pane.setText("<html><body style='margin:0;" + styleCss + "'>"
+					+ escapeHtml(normalizedText).replace("\n", "<br>")
+					+ "</body></html>");
+		}
+
+		pane.setCaretPosition(0);
+		return pane;
 	}
 
 

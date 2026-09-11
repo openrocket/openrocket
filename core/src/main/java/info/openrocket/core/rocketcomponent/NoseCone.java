@@ -314,8 +314,8 @@ public class NoseCone extends Transition implements InsideColorComponent {
 		// for a normal nose cone (e.g. aft diameter)
 		boolean flipped = isFlipped;
 		setFlipped(false);
-		// Many parameters are handled by the super class Transition.loadFromPreset
 		super.loadFromPreset(preset);
+		
 		setFlipped(flipped);
 	}
 

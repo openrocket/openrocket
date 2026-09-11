@@ -156,6 +156,89 @@ public class MotorDigest {
 
 	}
 
+	/**
+	 * Check whether a motor matches a current or historical OpenRocket digest.
+	 * <p>
+	 * Motor loaders have historically used different combinations of thrust, mass,
+	 * and CG data.  Comparing these supported variants lets serialized RSE data be
+	 * checked against the digest stored in an ORK file without rejecting equivalent
+	 * motors that originally came from another motor format.
+	 *
+	 * @param motor the motor whose numerical data should be checked
+	 * @param digest the expected current or historical digest
+	 * @return {@code true} if the motor data matches the expected digest
+	 */
+	public static boolean isDigestCompatible(Motor motor, String digest) {
+		if (digest == null || motor == null) {
+			return false;
+		}
+
+		if (digest.equals(motor.getDigest())) {
+			return true;
+		}
+
+		if (!(motor instanceof ThrustCurveMotor thrustCurveMotor)) {
+			return false;
+		}
+
+		double[] timePoints = thrustCurveMotor.getTimePoints();
+		double[] thrustPoints = thrustCurveMotor.getThrustPoints();
+		CoordinateIF[] cgPoints = thrustCurveMotor.getCGPoints();
+		double[] mass = new double[cgPoints.length];
+		double[] cgx = new double[cgPoints.length];
+		for (int i = 0; i < cgPoints.length; i++) {
+			mass[i] = cgPoints[i].getWeight();
+			cgx[i] = cgPoints[i].getX();
+		}
+
+		try {
+			// RASP and automatically calculated RSE mass use endpoint masses.
+			MotorDigest massSpecific = new MotorDigest();
+			massSpecific.update(DataType.TIME_ARRAY, timePoints);
+			massSpecific.update(DataType.MASS_SPECIFIC, thrustCurveMotor.getLaunchMass(),
+					thrustCurveMotor.getBurnoutMass());
+			massSpecific.update(DataType.FORCE_PER_TIME, thrustPoints);
+			if (digest.equals(massSpecific.getDigest())) {
+				return true;
+			}
+
+			// Some RSE files provide CG samples while asking the loader to calculate mass.
+			MotorDigest massSpecificAndCg = new MotorDigest();
+			massSpecificAndCg.update(DataType.TIME_ARRAY, timePoints);
+			massSpecificAndCg.update(DataType.MASS_SPECIFIC, thrustCurveMotor.getLaunchMass(),
+					thrustCurveMotor.getBurnoutMass());
+			massSpecificAndCg.update(DataType.CG_PER_TIME, cgx);
+			massSpecificAndCg.update(DataType.FORCE_PER_TIME, thrustPoints);
+			if (digest.equals(massSpecificAndCg.getDigest())) {
+				return true;
+			}
+
+			// Thrust-only digests remain stable if mass and CG modeling changes.
+			MotorDigest thrustOnly = new MotorDigest();
+			thrustOnly.update(DataType.TIME_ARRAY, timePoints);
+			thrustOnly.update(DataType.FORCE_PER_TIME, thrustPoints);
+			if (digest.equals(thrustOnly.getDigest())) {
+				return true;
+			}
+
+			MotorDigest massPerTime = new MotorDigest();
+			massPerTime.update(DataType.TIME_ARRAY, timePoints);
+			massPerTime.update(DataType.MASS_PER_TIME, mass);
+			massPerTime.update(DataType.FORCE_PER_TIME, thrustPoints);
+			if (digest.equals(massPerTime.getDigest())) {
+				return true;
+			}
+
+			MotorDigest cgPerTime = new MotorDigest();
+			cgPerTime.update(DataType.TIME_ARRAY, timePoints);
+			cgPerTime.update(DataType.CG_PER_TIME, cgx);
+			cgPerTime.update(DataType.FORCE_PER_TIME, thrustPoints);
+			return digest.equals(cgPerTime.getDigest());
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
 	public static String digestComment(String comment) {
 		comment = comment.replaceAll("\\s+", " ").trim();
 

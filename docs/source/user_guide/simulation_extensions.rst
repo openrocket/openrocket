@@ -2,17 +2,23 @@
 Simulation Extensions
 *********************
 
-By using OpenRocket's extension and listener mechanism, it's possible to modify the program itself to add features that 
-are not supported by the program as distributed; some extensions that have been created already provide the ability to 
-air-start a rocket, to add active roll control, and to calculate and save extra flight data.
+By using OpenRocket's extension and listener mechanism, it's possible
+to modify the program itself to add features that are not supported by
+it as distributed. Some extensions that have been created already
+provide the ability to air-start a rocket, to add active roll control,
+and to calculate and save extra flight data. It's also not uncommon to
+see proposed new featues created as extensions first, and then
+integrated into the program.
 
-This page will discuss extensions and simulations. We'll start by showing how a simulation is executed 
-(so you can get a taste of what's possible), and then document the process of creating the extension. 
+This page will discuss simulation extensions, including extensions
+provided with OpenRocket and third party extensions, and the process
+of creating a new extension.
 
 .. warning::
 
-   Writing an extension inserts new code into the program. It is entirely possible to disrupt a simulation in a way that 
-   invalidates simulation results, or can even crash the program. Be careful!
+   Writing an extension inserts new code into the program. It is
+   entirely possible to disrupt a simulation in a way that invalidates
+   simulation results, or can even crash the program. Be careful!
    
 .. contents:: Table of Contents
    :depth: 2
@@ -21,55 +27,101 @@ This page will discuss extensions and simulations. We'll start by showing how a 
 
 ----
 
-Adding an Existing Extension to a Simulation
+There are three sources for simulation extensions: extensions that
+are provided with OpenRocket for use as examples, extensions obtained
+from third party developers, and extensions you write yourself. The
+following sections describe these simulation sources.
+
+----
+
+Example Simulation Extensions Provided With OpenRocket
+======================================================
+
+OpenRocket ships with several example extensions in the source
+tree. These are available "out of the box", and you can simply add
+them following the instructions in section :ref:`adding`
+
+The example extensions are all located in
+:file:`core/src/main/java/info/openrocket/core/simulation/extension/example/`
+and their configurators are all located in
+:file:`swing/src/main/java/info/openrocket/swing/simulation/extension/example/`.
+
+The extensions provided with OpenRocket include:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Purpose
+     - Extension
+     - Configurator
+   * - Set air-start altitude and velocity
+     - `AirStart.java`
+     - `AirStartConfigurator.java`
+   * - Save some simulation values as a CSV file
+     - `CSVSave.java`
+     - *(none)*
+   * - Calculate damping moment coefficient after every simulation step
+     - `DampingMoment.java`
+     - *(none)*
+   * - Print summary of simulation progress after each step
+     - `PrintSimulation.java`
+     - *(none)*
+   * - Active roll control
+     - `RollControl.java`
+     - `RollControlConfigurator.java`
+   * - Stop simulation at specified time or number of steps
+     - `StopSimulation`
+     - `StopSimulationConfigurator`
+
+*Note that these extensions exist primarily to demonstrate the
+process. Several of them actually duplicate functionality that is in
+OpenRocket itself*
+
+----
+
+Extensions Written by Third Party Developers
 ============================================
 
-Extensions are added to a simulation through a menu in the "Simulation Options" tab.
+Several external developers have created extensions, which are
+distributed as .jar files.  If you obtain one of these, you can 
+make it available to your simulation by putting it in a
+system-dependent plugins directory. The location of this directory
+is:
 
-1. Open a .ork file and go to the **Flight Simulations** tab.
-2. Click the **Edit simulation** button to open the **Edit simulation** dialog.
-3. Go to the **Simulation options** tab.
-4. Click the **Add extension** button.
+.. list-table:: Default Plugins Directories by Operating System
+   :widths: auto
+   :header-rows: 1
+   :class: or-table-line-blocks
 
-This will open a menu similar to the one in the following screenshot:
+   * - Operating System
+     - Plugins Directory
+   * - Windows
+     - | :file:`%APPDATA%\\OpenRocket\\Plugins` (if ``APPDATA`` is available)\*
+       | :file:`C:\\Users\\[YOUR USERNAME]\\OpenRocket\\Plugins` (fallback if ``APPDATA`` is not available)
+       |
+       | \* ``APPDATA`` is usually :file:`C:\\Users\\[YOUR USERNAME]\\AppData\\Roaming`
+   * - macOS
+     - :file:`/Users/[YOUR USERNAME]/Library/Application Support/OpenRocket/Plugins/`
+   * - Linux
+     - :file:`/home/[YOUR USERNAME]/.openrocket/Plugins/` (note
+       :file:`.openrocket` is a hidden directory)
 
-.. figure:: /img/user_guide/simulation_extensions/Extension-menu.png
-   :align: center
-   :width: 35%
-   :figclass: or-image-border
-   :alt: Extension menu
+``[YOUR USERNAME]`` **is your user name on your device.**
 
-   Extension menu.
+Once you have placed the plugin in the plugins directory, you can add
+it to your simulation using the instructions in section :ref:`adding`
 
-Clicking on the name of an extension will add it to the simulation; if it has a configuration dialog the dialog will be opened:
-
-.. figure:: /img/user_guide/simulation_extensions/Air-start-configuration.png
-   :align: center
-   :width: 45%
-   :figclass: or-image-border
-   :alt: Air-start configuration dialog
-
-   Air-start configuration dialog.
-
-In the case of the air-start extension, the configuration dialog allows you to set the altitude and velocity at which
-your simulation will begin. After you close the configuration dialog (if any), a new panel will be added to the
-**Simulation options** pane, showing the new extension with buttons to reconfigure it, obtain information about it, or
-remove it from the simulation:
-
-.. figure:: /img/user_guide/simulation_extensions/Air-start-pane.png
-   :align: center
-   :width: 35%
-   :figclass: or-image-border
-   :alt: Air-start extension pane
-
-   Air-start extension pane.
+*Sorry, we don't maintain any sort of directory or library of third
+party extensions, nor can we vouch for the quality of any extensions
+provided by third party developers.*
 
 ----
 
 Creating a New OpenRocket Extension
 ===================================
 
-The remainder of this page will describe how a new simulation extension is created.
+Finally, you can create your own extension. *It is assumed that you
+have experience in Java development before reading this section.*
 
 Preliminary Concepts
 --------------------
@@ -81,35 +133,50 @@ Simulation Status
 ~~~~~~~~~~~~~~~~~
 
 As a simulation proceeds, it maintains its state in a
-`SimulationStatus` object. This object contains
+``SimulationStatus`` object. This object contains
 information about the rocket's current position, orientation,
 velocity, simulation state, and the simulation's event queue. It also contains a
 reference to a copy of the rocket design and its configuration. Any
 simulation listener method (see below) may modify the state of
-the rocket by changing the properties of the `SimulationStatus` object.
+the rocket by changing the properties of the ``SimulationStatus`` object.
 
-You can obtain current information regarding the state of the simulation by calling `get*()` methods. For instance, the
-rocket's current position is returned by calling `getRocketPosition()`; the rocket's position can be changed by calling
-`setRocketPosition(Coordinate position)`. All of the `get*()` and `set*()` methods can be found in
-:file:`core/src/main/java/info/openrocket/core/simulation/SimulationStatus.java`. Note that while some information can be obtained in
-this way, it is not as complete as that found in `FlightData` and `FlightDataBranch` objects.
+You can obtain current information regarding the state of the
+simulation by calling ``get*()`` methods, and change it with
+``set*()`` methods. For instance, the
+rocket's current position can be obtained by calling
+``getRocketPosition()`` and changed by calling
+``setRocketPosition(Coordinate position)``. All of the ``get*()`` and
+``set*()`` methods can be found in
+:file:`core/src/main/java/info/openrocket/core/simulation/SimulationStatus.java`. Note
+that while some information can be obtained in this way, it is not as
+complete as that found in ``FlightData`` and ``FlightDataBranch``
+objects to be described below.
 
-Flight Data
-~~~~~~~~~~~
+Simulation Data
+~~~~~~~~~~~~~~~
 
-OpenRocket refers to simulation variables as `FlightDataType`s, which are `List<Double>` objects with one list for each
-simulation variable and one element in the list for each time step. To obtain a `FlightDataType`, for example the current
-motor mass, from `flightData`, we call `flightData.get(FlightDataType.TYPE_MOTOR_MASS)`. The standard `FlightDataType`
-lists are all created in `core/src/main/java/info/openrocket/core/simulation/FlightDataType.java`; the mechanism for creating a new
-`FlightDataType` if needed for your extension will be described later.
+All of the data for a simulation is stored in an object of type
+``FlightData`` This in turn consists of some summary data for the
+entire simulation, plus the data collected during the execution of the
+simulation.
 
-Data from the current simulation step can be obtained with e.g. `flightData.getLast(FlightDataType.TYPE_MOTOR_MASS)`.
+The simulation of each stage of the rocket creates a new branch of the
+simulation.  The data for the branch is stored in a ``FlightDataBranch``
+The main content of a ``FlightDataBranch`` is a number of objects of
+type ``FlightDataType`` which are in turn ``List<Double>`` objects
+with one list for each simulation variable and one element in the list
+for each time step.  Each simulation must have at least one
+``FlightDataBranch``.
 
-The simulation data for each stage of the rocket's flight is referred to as a `FlightDataBranch`. Every simulation has 
-at least one `FlightDataBranch` for its sustainer, and will have additional branches for its boosters.
+To obtain a ``FlightDataType``, for example the motor mass, from a
+``FlightDataBranch`` called ``flightDataBranch``, we call
+``flightDataBranch.get(FlightDataType.TYPE_MOTOR_MASS)``. The standard
+``FlightDataType`` lists are all created in
+``core/src/main/java/info/openrocket/core/simulation/FlightDataType.java``.
 
-Finally, the collection of all of the `FlightDataBranch` es and some summary data for the simulation is stored in a 
-`FlightData` object.
+Data from the current simulation step can be obtained with *e.g.*
+``flightDataBranch.getLast(FlightDataType.TYPE_MOTOR_MASS)`` to obtain
+the current motor mass.
 
 Flight Conditions
 ~~~~~~~~~~~~~~~~~
@@ -144,31 +211,26 @@ The full set of listener methods, with documentation regarding when they are cal
 
 The listener methods can have three return value types:
 
-* The ``startSimulation()``, ``endSimulation()``, and ``postStep()`` are called at a specific point of the simulation. They are 
-  void methods and do not return any value.
+* The ``startSimulation()``, ``endSimulation()``, and ``postStep()`` are ``void`` methods and do not return any value.
 * The ``preStep()`` and event-related hook methods return a boolean value indicating whether the associated action should 
-  be taken or not. A return value of ``true`` indicates that the action should be taken as normally would be (default), 
+  be taken or not. A return value of ``true`` indicates that the
+  action should be taken as it normally would be (default), 
   ``false`` will inhibit the action.
 * The pre- and post-computation methods may return the computed value, either as an object or a double value. The 
-  pre-computation methods allow pre-empting the entire computation, while the post-computation methods allow augmenting 
-  the computed values. These methods may return ``null`` or ``Double.NaN`` to use the original values (default), or return 
-  an overriding value.
+  pre-computation methods allow pre-empting the entire computation,
+  while the post-computation methods allow modifying   the computed
+  values. These methods may return ``null`` or ``Double.NaN`` to use
+  the original values, or return an overriding value.
 
 Every listener receives a ``SimulationStatus`` (see above) object as the first argument, and may also have additional arguments.
 
 Each listener method may also throw a ``SimulationException``. This is
 considered an error during simulation (not a program bug),
-and an error dialog is displayed to the user with the exception message. The simulation data produced thus far is not 
-stored in the simulation. Throwing a ``RuntimeException`` is considered a bug in the software and will result in a bug report dialog.
-
-If a simulation listener wants to stop a simulation prematurely without an error condition, it needs to add a flight 
-event of type ``FlightEvent.SIMULATION_END`` to the simulation event queue:
-
-.. code-block:: java
-
-   status.getEventQueue().add(new FlightEvent(FlightEvent.Type.SIMULATION_END, status.getSimulationTime(), null));
-
-This will cause the simulation to be terminated normally.
+and an error dialog is displayed to the user with the exception
+message.  As an example, when the ``RollControl`` example simulation
+extension is configured, the user is required to enter the name of a
+fin set. If no fin set with this name is present in the rocket
+being simulated, a ``SimulationException`` is thrown.
 
 Creating a New Simulation Extension
 -----------------------------------
@@ -178,30 +240,31 @@ Creating an extension for OpenRocket requires writing three classes:
 * A listener, which extends ``AbstractSimulationListener``. This will be the bulk of your extension, and performs all the real work.
 * An extension, which extends ``AbstractSimulationExtension``. This inserts your listener into the simulation. Your listener 
   can (and ordinarily will) be private to your extension.
-* A provider, which extends ``AbstractSimulationExtensionProvider``. This puts your extension into the menu described above.
+* A provider, which extends
+  ``AbstractSimulationExtensionProvider``. This puts your extension
+  into the extension menu (to be described below).
 
 In addition, if your extension will have a configuration GUI, you will need to write:
 
 * A configurator, which extends ``AbstractSwingSimulationExtensionConfigurator<E>``
 
-You can either create your extension outside the source tree and make sure it is in a directory that is in your Java 
-classpath when OpenRocket is executed, or you can insert it in the source tree and compile it along with OpenRocket. 
+You can either create and build your extension outside the source tree and make sure it is in a directory that is in your Java 
+classpath when OpenRocket is executed (for instance, the ``Plugins``
+directory described above), or you can insert it in the source tree and compile it along with OpenRocket. 
 Since all of OpenRocket's code is freely available, and reading the code for the existing extensions will be very helpful 
 in writing your own, the easiest approach is to simply insert it in the source tree. If you select this option, a very 
 logical place to put your extension is in :file:`core/src/main/java/info/openrocket/core/simulation/extension/`
-
 The extension examples provided with OpenRocket are located in a
 subdirectory of this named :file:`example/`.
 
 Your configurator, if any, will logically go in :file:`swing/src/main/java/info/openrocket/swing/simulation/extension/`
-
 Configurators for the example extensions are located in a subdirectory
 of this named :file:`example/`.
 
 Extension Example
 -----------------
 
-To make things concrete, we'll start by creating a simple example extension, to air-start a rocket from a hard-coded altitude. 
+To make things concrete, we'll create a simple example extension to air-start a rocket from a hard-coded altitude. 
 Later, we'll add a configurator to the extension so we can set the launch altitude through a GUI at runtime. This is a 
 simplified version of the ``AirStart`` extension included in the extension
 ``example`` directory in the OpenRocket source code tree (that extension also sets a 
@@ -251,13 +314,13 @@ There are several important features in this example:
 
 * The ``initialize()`` method in lines 15-17, which adds the listener to the simulation. This is the 
   only method that is actually required to be defined in your
-  extension, though any real extension (including this example) will
-  almost certainly have more.
+  extension, though any real extension (including this example) will have more.
 * The ``getName()`` method in lines 19-22, which provides the extension's name. A default ``getName()`` is provided by 
   ``AbstractSimulationExtension``, which simply uses the classname (so for this example, ``getName()`` would have returned 
   ``"AirStartExample"`` if this method hadn't overridden it).
 * The ``getDescription()`` method in lines 24-27, which provides a brief description of the purpose of the extension. 
-  This is the method that provides the text for the :guilabel:`Info` button dialog shown in the first section of this page.
+  This is the method that provides the text for the :guilabel:`Info`
+  button dialog in the extensions menu.
 * The listener itself in lines 29-35, which provides a single ``startSimulation()`` method. When the simulation starts 
   executing, this listener is called, and the rocket is set to an altitude of 1000 meters.
 
@@ -285,7 +348,7 @@ first level entry that didn't previously exist will add it to the first level me
 Try it! Putting the extension in a file named :file:`core/src/main/java/info/openrocket/core/simulation/extension/AirStartExample.java`
 and the provider in
 :file:`core/src/main/java/info/openrocket/core/simulation/extension/AirStartExampleProvider.java`,
-and compiling, and running OpenRocket will give you a new entry in the extensions menu; adding it to the simulation will cause your simulation to 
+and compiling and running OpenRocket, will give you a new entry in the extensions menu; adding it to the simulation will cause your simulation to 
 start at an altitude of 1000 meters.
 
 Adding a Configurator
@@ -434,35 +497,53 @@ The surrounding Dialog window and the **Close** button are provided by the syste
 
 ----
 
-Example User Extensions Provided With OpenRocket
-================================================
+.. _adding:
+Adding an Extension to a Simulation
+===================================
 
-Several examples of user extensions are provided in the OpenRocket source tree. As mentioned previously, the extensions
-are all located in :file:`core/src/main/java/info/openrocket/core/simulation/extension/example/` and their configurators are all located
-in :file:`swing/src/main/java/info/openrocket/swing/simulation/extension/example/`. Also recall that every extension has a corresponding
-provider.
+An extension, whether it's one of the included examples, a third
+party extension, or an extension you've written, is added to a
+simulation through a menu in the "Simulation Options" tab. 
 
-.. list-table::
-   :header-rows: 1
+1. Open a .ork file and go to the **Flight Simulations** tab.
+2. Click the **Edit simulation** button to open the **Edit simulation** dialog.
+3. Go to the **Simulation options** tab.
+4. Click the **Add extension** button.
 
-   * - Purpose
-     - Extension
-     - Configurator
-   * - Set air-start altitude and velocity
-     - `AirStart.java`
-     - `AirStartConfigurator.java`
-   * - Save some simulation values as a CSV file
-     - `CSVSave.java`
-     - *(none)*
-   * - Calculate damping moment coefficient after every simulation step
-     - `DampingMoment.java`
-     - *(none)*
-   * - Print summary of simulation progress after each step
-     - `PrintSimulation.java`
-     - *(none)*
-   * - Active roll control
-     - `RollControl.java`
-     - `RollControlConfigurator.java`
-   * - Stop simulation at specified time or number of steps
-     - `StopSimulation`
-     - `StopSimulationConfigurator`
+This will open a menu similar to the one in the following screenshot:
+
+.. figure:: /img/user_guide/simulation_extensions/Extension-menu.png
+   :align: center
+   :width: 35%
+   :figclass: or-image-border
+   :alt: Extension menu
+
+   Extension menu.
+
+Clicking on the name of an extension will add it to the simulation; if
+it has a configuration dialog the dialog will be opened:
+
+.. figure:: /img/user_guide/simulation_extensions/Air-start-configuration.png
+   :align: center
+   :width: 45%
+   :figclass: or-image-border
+   :alt: Air-start configuration dialog
+
+   Air-start configuration dialog.
+
+In the case of the air-start extension included with OpenRocket, the
+configuration dialog allows you to set the altitude and velocity at
+which your simulation will begin. After you close the configuration
+dialog (if any), a new panel will be added to the **Simulation
+options** pane, showing the new extension with buttons to reconfigure
+it, obtain information about it, or remove it from the simulation:
+
+.. figure:: /img/user_guide/simulation_extensions/Air-start-pane.png
+   :align: center
+   :width: 35%
+   :figclass: or-image-border
+   :alt: Air-start extension pane
+
+   Air-start extension pane.
+
+----

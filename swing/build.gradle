@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'java'
     id 'com.adarshr.test-logger' version '4.0.0'
@@ -18,7 +20,6 @@ version = buildProperties['build.version']
 repositories {
     mavenCentral()
     maven { url = "https://jitpack.io" }
-    maven { url = "https://jogamp.org/deployment/maven/" }
 }
 
 checkstyle {
@@ -32,9 +33,19 @@ configurations {
         canBeResolved = true
         visible = false
     }
+    lwjglNativeArtifacts {
+        canBeConsumed = false
+        canBeResolved = true
+        visible = false
+    }
 }
 
 def flatlafVersionValue = "3.7.2"
+def lwjglVersionValue = "3.4.2"
+def lwjgl3AwtGroupValue = "com.github.LWJGLX"
+// Pin the upstream commit used by the 0.2.5 snapshot until that version is released.
+def lwjgl3AwtVersionValue = "8affe68f2cce0bceffe4891b072541758ce09937"
+def jomlVersionValue = "1.10.9"
 
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
@@ -43,15 +54,6 @@ extraJavaModuleInfo {
     automaticModule('slf4j-api-1.7.25.jar', 'org.slf4j.api')
     automaticModule('slf4j-api-1.7.32.jar', 'org.slf4j.api')
     automaticModule('versioncompare-1.5.0.jar', 'versioncompare')
-    module('gluegen-rt-2.6.0.jar', 'org.jogamp.gluegen.rt', '2.6.0') {
-        requires('java.desktop')
-        exportAllPackages()
-    }
-    module('jogl-all-2.6.0.jar', 'org.jogamp.jogl.all', '2.6.0') {
-        requires('java.desktop')
-        requires('org.jogamp.gluegen.rt')
-        exportAllPackages()
-    }
     module('jcommon-1.0.24.jar', 'jcommon', '1.0.24') {
         requires('java.desktop')
         exportAllPackages()
@@ -62,6 +64,87 @@ extraJavaModuleInfo {
     }
 
     automaticModule('obj-0.4.0.jar', 'de.javagl.obj')
+    automaticModule("lwjgl3-awt-${lwjgl3AwtVersionValue}.jar", 'lwjgl3.awt')
+}
+
+ext {
+    lwjglVersion = lwjglVersionValue
+    lwjgl3AwtGroup = lwjgl3AwtGroupValue
+    lwjgl3AwtVersion = lwjgl3AwtVersionValue
+    jomlVersion = jomlVersionValue
+
+    switch (OperatingSystem.current()) {
+        case OperatingSystem.FREE_BSD:
+            lwjglNatives = "natives-freebsd"
+            break
+        case OperatingSystem.LINUX:
+            lwjglNatives = "natives-linux"
+            def osArch = System.getProperty("os.arch")
+            if (osArch.startsWith("arm") || osArch.startsWith("aarch64")) {
+                lwjglNatives += osArch.contains("64") || osArch.startsWith("armv8") ? "-arm64" : "-arm32"
+            } else if  (osArch.startsWith("ppc")) {
+                lwjglNatives += "-ppc64le"
+            } else if  (osArch.startsWith("riscv")) {
+                lwjglNatives += "-riscv64"
+            }
+            break
+        case OperatingSystem.MAC_OS:
+            lwjglNatives = System.getProperty("os.arch").startsWith("aarch64") ? "natives-macos-arm64" : "natives-macos"
+            break
+        case OperatingSystem.WINDOWS:
+            def osArch = System.getProperty("os.arch")
+            lwjglNatives = osArch.contains("64")
+                    ? "natives-windows${osArch.startsWith("aarch64") ? "-arm64" : ""}"
+                    : "natives-windows-x86"
+            break
+    }
+}
+
+def extractLwjglNatives = tasks.register('extractLwjglNatives', Sync) {
+    into layout.buildDirectory.dir('lwjgl-natives')
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from({
+        configurations.lwjglNativeArtifacts.files.collect { zipTree(it) }
+    }) {
+        include '**/*.dll', '**/*.dylib', '**/*.jnilib', '**/*.so'
+        eachFile { details ->
+            details.path = details.name
+        }
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    dependsOn(extractLwjglNatives)
+    systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
+}
+
+tasks.withType(Test).configureEach {
+    dependsOn(extractLwjglNatives)
+    systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
+
+    // Gradle does not hand command-line -D flags to the forked test JVM, so without
+    // this the 3D stress knobs (soak durations, frame geometry, MSAA sample count,
+    // effect isolation, UI scaling) silently run at their defaults. Forward only the
+    // prefixes those tests read; the values also become task inputs, so changing a
+    // knob correctly re-runs the test instead of reporting it UP-TO-DATE.
+    ['openrocket.test.', 'openrocket.figure3d.', 'sun.java2d.'].each { prefix ->
+        systemProperties(providers.systemPropertiesPrefixedBy(prefix).get())
+    }
+}
+
+tasks.register('stressTest', Test) {
+    group = 'verification'
+    description = 'Runs the Swing stress test suite.'
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'stress'
+    }
+
+    shouldRunAfter tasks.named('test')
 }
 
 dependencies {
@@ -91,8 +174,24 @@ dependencies {
     implementation 'ch.qos.logback:logback-core:1.5.20'
     implementation 'ch.qos.logback:logback-classic:1.5.20'
 
-    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.6.0'
-    implementation 'org.jogamp.jogl:jogl-all-main:2.6.0'
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-stb"
+    implementation "org.lwjgl:lwjgl-jawt"
+
+    // Natives for the current build platform (used for local development and testing)
+    runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+    lwjglNativeArtifacts platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    lwjglNativeArtifacts "org.lwjgl:lwjgl::$lwjglNatives"
+    lwjglNativeArtifacts "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    lwjglNativeArtifacts "org.lwjgl:lwjgl-stb::$lwjglNatives"
+
+    implementation("${lwjgl3AwtGroup}:lwjgl3-awt:${lwjgl3AwtVersion}")
+    implementation "org.joml:joml:${jomlVersion}"
 
     testImplementation 'ch.qos.logback:logback-classic:1.5.20'
     testImplementation 'org.assertj:assertj-core:3.26.3'

@@ -33,6 +33,10 @@ public class DefaultSimulationOptionFactory {
 	public SimulationOptions getDefault() {
 		SimulationOptions defaults = new SimulationOptions();
 		copyLaunchConditions(prefs, defaults);
+		if (prefs.isRandomSeedFixed()) {
+			defaults.setRandomSeed(prefs.getRandomSeed());
+			defaults.setRandomSeedFixed(true);
+		}
 		return defaults;
 	}
 

@@ -116,6 +116,9 @@ public class MaterialModel extends AbstractListModel<Material> implements
 
 	@Override
 	public Material getElementAt(int index) {
+		if (index < 0) {
+			return null;
+		}
 		if (index < applicationDatabase.size()) {
 			return applicationDatabase.get(index);
 		} else if (index < applicationDatabase.size() + documentDatabase.size()) {

@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileSystemView;
 
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,8 @@ public class SaveFileChooserTest {
 	@Test
 	public void testAcceptsFileSystemDirectory() {
 		File directory = tempDirectory.toFile();
-		FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+		FileSystemView fileSystemView = mock(FileSystemView.class);
+		when(fileSystemView.isFileSystem(directory)).thenReturn(true);
 
 		assertTrue(SaveFileChooser.isFileSystemDirectory(directory, fileSystemView));
 	}
@@ -51,7 +53,8 @@ public class SaveFileChooserTest {
 	@Test
 	public void testRejectsMissingDirectory() {
 		File directory = tempDirectory.resolve("missing").toFile();
-		FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+		FileSystemView fileSystemView = mock(FileSystemView.class);
+		when(fileSystemView.isFileSystem(directory)).thenReturn(true);
 
 		assertFalse(SaveFileChooser.isFileSystemDirectory(directory, fileSystemView));
 	}
@@ -60,41 +63,63 @@ public class SaveFileChooserTest {
 	 * Approval must remain inside the chooser when the current location is a virtual shell node.
 	 */
 	@Test
-	public void testVirtualShellDirectoryPreventsApproval() {
+	public void testVirtualShellDirectoryPreventsApproval() throws Exception {
 		File directory = tempDirectory.toFile();
 		FileSystemView fileSystemView = mock(FileSystemView.class);
-		when(fileSystemView.isFileSystem(directory)).thenReturn(false);
-		TestSaveFileChooser chooser = new TestSaveFileChooser();
-		chooser.setCurrentDirectory(directory);
-		chooser.setSelectedFile(new File(directory, "rocket.obj"));
-		chooser.setTestFileSystemView(fileSystemView);
-		AtomicBoolean approved = new AtomicBoolean(false);
-		chooser.addActionListener(event -> approved.set(
-				JFileChooser.APPROVE_SELECTION.equals(event.getActionCommand())));
 
-		chooser.approveSelection();
+		SwingUtilities.invokeAndWait(() -> {
+			TestSaveFileChooser chooser = new TestSaveFileChooser();
+			try {
+				chooser.setCurrentDirectory(directory);
+				chooser.setSelectedFile(new File(directory, "rocket.obj"));
+				// Windows may normalize the selected directory to a different File representation.
+				when(fileSystemView.isFileSystem(chooser.getCurrentDirectory())).thenReturn(false);
+				chooser.setTestFileSystemView(fileSystemView);
+				AtomicBoolean approved = new AtomicBoolean(false);
+				chooser.addActionListener(event -> approved.set(
+						JFileChooser.APPROVE_SELECTION.equals(event.getActionCommand())));
 
-		assertTrue(chooser.isInvalidLocationWarningShown());
-		assertFalse(approved.get());
+				chooser.approveSelection();
+
+				assertTrue(chooser.isInvalidLocationWarningShown());
+				assertFalse(approved.get());
+			} finally {
+				// Uninstall the UI to stop any platform directory-model work started by JFileChooser.
+				chooser.releaseUiResources();
+			}
+		});
 	}
 
 	/**
 	 * Approval must proceed normally when the current location is a filesystem directory.
 	 */
 	@Test
-	public void testFileSystemDirectoryAllowsApproval() {
+	public void testFileSystemDirectoryAllowsApproval() throws Exception {
 		File directory = tempDirectory.toFile();
-		TestSaveFileChooser chooser = new TestSaveFileChooser();
-		chooser.setCurrentDirectory(directory);
-		chooser.setSelectedFile(new File(directory, "rocket.obj"));
-		AtomicBoolean approved = new AtomicBoolean(false);
-		chooser.addActionListener(event -> approved.set(
-				JFileChooser.APPROVE_SELECTION.equals(event.getActionCommand())));
+		FileSystemView fileSystemView = mock(FileSystemView.class);
 
-		chooser.approveSelection();
+		SwingUtilities.invokeAndWait(() -> {
+			TestSaveFileChooser chooser = new TestSaveFileChooser();
+			try {
+				chooser.setCurrentDirectory(directory);
+				chooser.setSelectedFile(new File(directory, "rocket.obj"));
+				// Stub the platform-normalized directory that approveSelection actually validates.
+				when(fileSystemView.isFileSystem(chooser.getCurrentDirectory())).thenReturn(true);
+				chooser.setTestFileSystemView(fileSystemView);
+				AtomicBoolean approved = new AtomicBoolean(false);
+				chooser.addActionListener(event -> approved.set(
+						JFileChooser.APPROVE_SELECTION.equals(event.getActionCommand())));
 
-		assertFalse(chooser.isInvalidLocationWarningShown());
-		assertTrue(approved.get());
+				chooser.approveSelection();
+
+				assertFalse(chooser.isInvalidLocationWarningShown());
+				assertFalse(chooser.isIllegalFilenameWarningShown());
+				assertTrue(approved.get());
+			} finally {
+				// Uninstall the UI to stop any platform directory-model work started by JFileChooser.
+				chooser.releaseUiResources();
+			}
+		});
 	}
 
 	/**
@@ -103,6 +128,7 @@ public class SaveFileChooserTest {
 	private static final class TestSaveFileChooser extends SaveFileChooser {
 		private FileSystemView testFileSystemView;
 		private boolean invalidLocationWarningShown;
+		private boolean illegalFilenameWarningShown;
 
 		@Override
 		public FileSystemView getFileSystemView() {
@@ -114,12 +140,28 @@ public class SaveFileChooserTest {
 			invalidLocationWarningShown = true;
 		}
 
+		@Override
+		protected void showIllegalFilenameWarning(String fileName, char c) {
+			illegalFilenameWarningShown = true;
+		}
+
 		private void setTestFileSystemView(FileSystemView fileSystemView) {
 			testFileSystemView = fileSystemView;
 		}
 
 		private boolean isInvalidLocationWarningShown() {
 			return invalidLocationWarningShown;
+		}
+
+		private boolean isIllegalFilenameWarningShown() {
+			return illegalFilenameWarningShown;
+		}
+
+		/**
+		 * Uninstalls the test chooser UI so its asynchronous directory model cannot outlive the test.
+		 */
+		private void releaseUiResources() {
+			setUI(null);
 		}
 	}
 }
