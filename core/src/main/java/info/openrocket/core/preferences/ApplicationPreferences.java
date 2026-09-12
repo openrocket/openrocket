@@ -73,6 +73,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String EXPORT_FIELD_NAME_COMMENT = "ExportFieldDescriptionComment";
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
+	public static final String EXPORT_DESIGN_INFO_TO_FILE = "ExportDesignInfoToFile";
 	public static final String USER_LOCAL = "locale";
 	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
 	public static final String FILE_PREVIEW_VIEW_TYPE = "FilePreviewViewType";
@@ -251,6 +252,23 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 			return;
 		}
 		putBoolean(OPENGL_REDUCE_EFFECTS_DURING_INTERACTION, enabled);
+		fireChangeEvent();
+	}
+
+	/**
+	 * Whether the derived design information (static statistics and fin measurements)
+	 * is written to a {@code <designInfo>} block when saving a .ork file. This data is
+	 * informational only and is ignored on load. Off by default.
+	 */
+	public boolean isExportDesignInfoToFile() {
+		return getBoolean(EXPORT_DESIGN_INFO_TO_FILE, false);
+	}
+
+	public void setExportDesignInfoToFile(boolean export) {
+		if (isExportDesignInfoToFile() == export) {
+			return;
+		}
+		putBoolean(EXPORT_DESIGN_INFO_TO_FILE, export);
 		fireChangeEvent();
 	}
 

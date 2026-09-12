@@ -23,7 +23,9 @@ import info.openrocket.swing.gui.print.visitor.TransitionStrategy;
 import java.awt.Window;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -72,6 +74,19 @@ public class PrintController {
     public void print(OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile,
                       PrintSettings settings, double rotation, boolean runSims) {
 
+        // The motor and flight data tables are a sub-selection of the design report, so the
+        // selections are collected up front; otherwise the flag would not be known by the time
+        // the design report itself is written.
+        final List<PrintableContext> selected = new ArrayList<>();
+        boolean includeMotors = false;
+        while (toBePrinted.hasNext()) {
+            final PrintableContext printableContext = toBePrinted.next();
+            if (printableContext.getPrintable() == OpenRocketPrintable.DESIGN_REPORT_MOTORS)
+                includeMotors = true;
+            else
+                selected.add(printableContext);
+        }
+
         Document idoc = new Document(getSize(settings));
         PdfWriter writer = null;
         try {
@@ -87,14 +102,12 @@ public class PrintController {
 
             boolean addRule = false;
 
-            while (toBePrinted.hasNext()) {
-                PrintableContext printableContext = toBePrinted.next();
-
+            for (PrintableContext printableContext : selected) {
                 Set<Integer> stages = printableContext.getStageNumber();
 
                 switch (printableContext.getPrintable()) {
                     case DESIGN_REPORT:
-                        DesignReport dp = new DesignReport(doc, idoc, rotation, runSims, true, this.window);
+                        DesignReport dp = new DesignReport(doc, idoc, rotation, runSims, true, this.window, includeMotors);
                         dp.writeToDocument(writer);
                         idoc.newPage();
 						dp.restoreUITheme();

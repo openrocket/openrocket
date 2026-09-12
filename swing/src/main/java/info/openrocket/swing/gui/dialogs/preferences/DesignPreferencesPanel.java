@@ -76,6 +76,19 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		this.add(spin, "wrap");
 
+		// // Write derived design info (statistics and fin measurements) to saved .ork files
+		final JCheckBox exportDesignInfo = new JCheckBox(
+				trans.get("pref.dlg.checkbox.ExportDesignInfo"));
+		exportDesignInfo.setSelected(preferences.isExportDesignInfoToFile());
+		exportDesignInfo.setToolTipText(trans.get("pref.dlg.checkbox.ExportDesignInfo.ttip"));
+		exportDesignInfo.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				preferences.setExportDesignInfoToFile(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		this.add(exportDesignInfo, "wrap, growx, spanx");
+
 		// // Always open leftmost tab when opening a component edit dialog
 		final JCheckBox alwaysOpenLeftmostTab = new JCheckBox(
 				trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost"));
