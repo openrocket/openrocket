@@ -16,6 +16,8 @@ import info.openrocket.core.startup.Application;
 public enum OpenRocketPrintable {
 	// Design Report
 	DESIGN_REPORT("OpenRocketPrintable.DesignReport", false, 1),
+	// Motor and flight data tables of the design report
+	DESIGN_REPORT_MOTORS("OpenRocketPrintable.DesignReportMotors", false, 2),
 	// Parts detail
 	PARTS_DETAIL("OpenRocketPrintable.Partsdetail", true, 3),
 	// Nose Cone Templates

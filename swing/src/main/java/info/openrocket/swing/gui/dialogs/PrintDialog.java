@@ -77,8 +77,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
     private double rotation = 0.0d;
 
     private boolean updateSimulations = true;
-
-    private boolean includeMotors = true;
 	
 	private final static SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
@@ -138,16 +136,6 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		// Checkboxes and buttons
 		final JPanel optionsPanel = new JPanel(new MigLayout());
 
-		final JCheckBox includeMotorsCheckbox = new JCheckBox(trans.get("checkbox.includeMotors"));
-		includeMotorsCheckbox.setSelected(this.includeMotors);
-		includeMotorsCheckbox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				includeMotors = includeMotorsCheckbox.isSelected();
-			}
-		});
-		optionsPanel.add(includeMotorsCheckbox, "pad 0, grow, wrap");
-		
 		final JCheckBox updateSimulationsCheckbox = new JCheckBox(trans.get("checkbox.updateSimulations"));
 		updateSimulationsCheckbox.setEnabled(true);
 		updateSimulationsCheckbox.setSelected(this.updateSimulations);
@@ -339,7 +327,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		PrintController controller = new PrintController();
 		controller.setWindow(this.getOwner());
 		controller.print(document, toBePrinted, new FileOutputStream(f),
-		                 settings, rotation, updateSimulations, includeMotors);
+		                 settings, rotation, updateSimulations);
 		return f;
 	}
 	
