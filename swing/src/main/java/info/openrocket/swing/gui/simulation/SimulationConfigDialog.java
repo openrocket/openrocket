@@ -120,6 +120,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		// ======== Tabbed pane ========
 		this.tabbedPane = new JTabbedPane();
+		tabbedPane.setMinimumSize(new Dimension(0, 0));
 
 		//// Launch conditions
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Launchcond"),
@@ -131,18 +132,9 @@ public class SimulationConfigDialog extends JDialog {
 				createTabScrollPane(simulationOptionsTab));
 
 		//// Simulation Warnings
-		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
-		JScrollPane warningsScrollPane = new JScrollPane(warningsTab);
-		warningsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		warningsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		Dimension d = warningsScrollPane.getPreferredSize();
-		warningsScrollPane.setPreferredSize(new Dimension(d.width, 200));
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsScrollPane);
-
-		if (isMultiCompEdit()) {
-			tabbedPane.setEnabledAt(WARNINGS_IDX, false);
-			tabbedPane.setToolTipTextAt(WARNINGS_IDX, trans.get("SimulationConfigDialog.tab.warnDis.ttip"));
-		}
+		final SimulationWarningsPanel warningsTab =
+				new SimulationWarningsPanel(simulationList[0], !isMultiCompEdit());
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsTab);
 
 		//// Plot data
 		boolean hasData = simulationList[0].hasSimulationData();
@@ -201,14 +193,10 @@ public class SimulationConfigDialog extends JDialog {
 				switch (selectedIndex) {
 					case LAUNCH_CONDITIONS_IDX:
 					case SIMULATION_OPTIONS_IDX:
+					case WARNINGS_IDX:
 						okButton.setText(trans.get("dlg.but.ok"));
 						cancelButton.setText(trans.get("dlg.but.cancel"));
 						cancelButton.setVisible(true);
-						SimulationConfigDialog.this.revalidate();
-						break;
-					case WARNINGS_IDX:
-						okButton.setText(trans.get("dlg.but.close"));
-						cancelButton.setVisible(false);
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case PLOT_IDX:
@@ -376,7 +364,9 @@ public class SimulationConfigDialog extends JDialog {
 		);
 		topPanel.add(simStatus, "span 3, wrap");
 
-		contentPanel.add(topPanel, "growx, height pref, wrap");
+		// The header shares a column with the tabs; its minimum width must not
+		// push their scrollbars outside the dialog when the window is narrowed.
+		contentPanel.add(topPanel, "growx, wmin 0, height pref, wrap");
 	}
 
 	private JPanel generateBottomPanel() {
@@ -481,7 +471,8 @@ public class SimulationConfigDialog extends JDialog {
 
 	private void cancelClose() {
 		if (tabbedPane.getSelectedIndex() == LAUNCH_CONDITIONS_IDX ||
-				tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX) {
+				tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX ||
+				tabbedPane.getSelectedIndex() == WARNINGS_IDX) {
 			cancelSimEdit();
 		} else {
 			// Normal close action

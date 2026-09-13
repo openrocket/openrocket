@@ -1,7 +1,5 @@
 package info.openrocket.core.aerodynamics.barrowman;
 
-import static info.openrocket.core.util.MathUtil.pow2;
-
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.Warning;
@@ -23,7 +21,6 @@ public class TubeFinSetCalc extends TubeCalc {
 	private final static Logger log = LoggerFactory.getLogger(TubeFinSetCalc.class);
 
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
-	private final double[] poly = new double[6];
 
 	private final TubeFinSet tubes;
 
@@ -80,8 +77,6 @@ public class TubeFinSetCalc extends TubeCalc {
 
 		// aspect ratio.
 		ar = 2 * innerRadius / chord;
-		// The transonic CP polynomial depends on the tube-fin aspect ratio.
-		calculatePoly();
 
 		// Some trigonometry...
 		// We need a triangle with the following three sides:
@@ -220,51 +215,15 @@ public class TubeFinSetCalc extends TubeCalc {
 		// log.debug("m = {} ", m);
 		if (m <= 0.5) {
 			// At subsonic speeds CP at quarter chord
-			return 0.25;
+			return SUBSONIC_CP_POS;
 		}
 		if (m >= 2) {
 			// At supersonic speeds use empirical formula
-			double beta = cond.getBeta();
-			return (ar * beta - 0.67) / (2 * ar * beta - 1);
+			return supersonicCPPos(ar * cond.getBeta());
 		}
 
-		// In between use interpolation polynomial
-		double x = 1.0;
-		double val = 0;
-
-		for (double v : poly) {
-			val += v * x;
-			x *= m;
-		}
-		// log.debug("val = {}", val);
-		return val;
-	}
-
-	/**
-	 * Calculate CP position interpolation polynomial coefficients from the
-	 * fin geometry. This is a fifth order polynomial that satisfies
-	 * 
-	 * p(0.5)=0.25
-	 * p'(0.5)=0
-	 * p(2) = f(2)
-	 * p'(2) = f'(2)
-	 * p''(2) = 0
-	 * p'''(2) = 0
-	 * 
-	 * where f(M) = (ar*sqrt(M^2-1) - 0.67) / (2*ar*sqrt(M^2-1) - 1).
-	 * 
-	 * The values were calculated analytically in Mathematica. The coefficients
-	 * are used as poly[0] + poly[1]*x + poly[2]*x^2 + ...
-	 */
-	private void calculatePoly() {
-		double denom = pow2(1 - 3.4641 * ar); // common denominator
-
-		poly[5] = (-1.58025 * (-0.728769 + ar) * (-0.192105 + ar)) / denom;
-		poly[4] = (12.8395 * (-0.725688 + ar) * (-0.19292 + ar)) / denom;
-		poly[3] = (-39.5062 * (-0.72074 + ar) * (-0.194245 + ar)) / denom;
-		poly[2] = (55.3086 * (-0.711482 + ar) * (-0.196772 + ar)) / denom;
-		poly[1] = (-31.6049 * (-0.705375 + ar) * (-0.198476 + ar)) / denom;
-		poly[0] = (9.16049 * (-0.588838 + ar) * (-0.20624 + ar)) / denom;
+		// Use the same shape-preserving interpolation as conventional fins.
+		return transonicCPPos(m, ar);
 	}
 
 	@Override

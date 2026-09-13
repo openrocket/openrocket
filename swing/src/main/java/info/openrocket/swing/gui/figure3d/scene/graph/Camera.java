@@ -24,7 +24,7 @@ public class Camera {
 	private float distance;
 	private float angleX; // Yaw
 	private float angleY; // Pitch
-	private boolean pitchClampingEnabled = true;
+	private boolean pitchClampingEnabled = false;
 	// When true, uses a fixed world-up vector (0,1,0) instead of the continuous orbitUp,
 	// matching the legacy JOGL photo-studio camera behavior.
 	private boolean forceFixedUp = false;
@@ -202,7 +202,8 @@ public class Camera {
 
 	/**
 	 * Orbits the camera around the center of interest based on mouse movement.
-	 * Updates both yaw and pitch angles while constraining pitch to prevent gimbal lock.
+	 * Updates both yaw and pitch angles. Pitch is constrained only when clamping has
+	 * explicitly been enabled.
 	 *
 	 * @param dx horizontal mouse movement delta for yaw rotation
 	 * @param dy vertical mouse movement delta for pitch rotation
