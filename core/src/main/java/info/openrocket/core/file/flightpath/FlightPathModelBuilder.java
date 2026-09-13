@@ -6,6 +6,8 @@ import java.util.Locale;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.flightpath.FlightPathExportOptions.Waypoint;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataBranch;
@@ -25,6 +27,37 @@ public class FlightPathModelBuilder {
 
 	private static final Translator trans = Application.getTranslator();
 
+	/**
+	 * Per-branch track colors, so the stages of a staged flight can be told apart. These are the
+	 * same values the plot window assigns to its series, so a stage keeps its color whether you
+	 * look at it in a graph or on a map.
+	 */
+	private static final int[] BRANCH_COLORS = {
+			0x0072BD, 0xD95319, 0xEDB120, 0x7E318E, 0x77AC30,
+			0x4DBEEE, 0xA2142F, 0xC56A7A, 0xFF7F50, 0x556B2F,
+	};
+
+	/**
+	 * Coordinates written into the exported file when the simulation carries no launch position:
+	 * the Kennedy Space Center. A coordinate left at zero is OpenRocket's "not set" rather than a
+	 * real position on the equator or the prime meridian, and dropping a flight on Null Island
+	 * tells the reader nothing.
+	 *
+	 * <p>These are used for the exported coordinates only. Nothing here writes to the simulation,
+	 * and its launch position is left exactly as the user set it.
+	 */
+	public static final double EXPORT_FALLBACK_LATITUDE = 28.61;
+	public static final double EXPORT_FALLBACK_LONGITUDE = -80.6;
+
+	/**
+	 * Ground tracks keep their branch's hue so you can still tell the stages apart on the map, but
+	 * are darkened hard against the flight path's full-strength color. Hue alone does not separate
+	 * them: looking straight down, a ground track sits right under its flight path, and two lines
+	 * of the same color read as one.
+	 */
+	private static final double GROUND_TRACK_DARKEN = 0.45;
+	private static final int GROUND_TRACK_ALPHA = 0xD0;
+
 	private final Simulation simulation;
 	private final FlightData data;
 	private final FlightPathExportOptions options;
@@ -32,6 +65,25 @@ public class FlightPathModelBuilder {
 	private final Unit altUnit;
 	private final Unit distUnit;
 	private final double launchAltitude;
+
+	/**
+	 * The latitude the exported track is anchored at: the simulation's launch latitude, or
+	 * {@link #EXPORT_FALLBACK_LATITUDE} when it has none. Read from the simulation, never written
+	 * back to it.
+	 */
+	private final double originLatitude;
+	/** The longitude the exported track is anchored at. See {@link #originLatitude}. */
+	private final double originLongitude;
+	/** Meters per degree of latitude, and of longitude at {@link #originLatitude}. */
+	private final double metersPerDegreeLatitude;
+	private final double metersPerDegreeLongitude;
+
+	/**
+	 * Whether waypoint labels are qualified with the stage they belong to. Only true for a
+	 * staged flight, where every branch otherwise contributes an identically named "Apogee",
+	 * "Burnout" and "Landing" and the reader cannot tell the stages apart.
+	 */
+	private boolean qualifyLabels;
 
 	/**
 	 * @param simulation the simulation whose launch position and metadata are used
@@ -45,6 +97,32 @@ public class FlightPathModelBuilder {
 		this.altUnit = options.getAltitudeUnit();
 		this.distUnit = options.getDistanceUnit();
 		this.launchAltitude = simulation.getOptions().getLaunchAltitude();
+
+		double launchLat = simulation.getOptions().getLaunchLatitude();
+		double launchLon = simulation.getOptions().getLaunchLongitude();
+		// Either coordinate still at zero means the position was never filled in: a half-set one
+		// puts the track on the prime meridian or the equator, which is a plausible-looking lie.
+		// A real site sitting on exactly 0.000000 would have to be within a few centimeters of one
+		// of those lines, so treating zero as "not set" costs nothing in practice. This only
+		// chooses what coordinates to write out; the simulation's own launch position is untouched.
+		boolean unset = (launchLat == 0 || launchLon == 0);
+		this.originLatitude = unset ? EXPORT_FALLBACK_LATITUDE : launchLat;
+		this.originLongitude = unset ? EXPORT_FALLBACK_LONGITUDE : launchLon;
+
+		// WGS84 degree lengths at that latitude, good to a few centimeters per kilometer.
+		double phi = Math.toRadians(originLatitude);
+		this.metersPerDegreeLatitude = 111132.92 - 559.82 * Math.cos(2 * phi) + 1.175 * Math.cos(4 * phi);
+		this.metersPerDegreeLongitude = 111412.84 * Math.cos(phi) - 93.5 * Math.cos(3 * phi);
+	}
+
+	/** The exported latitude for a point the given distance north of the launch site. */
+	private double latitudeFromNorth(double north) {
+		return originLatitude + north / metersPerDegreeLatitude;
+	}
+
+	/** The exported longitude for a point the given distance east of the launch site. */
+	private double longitudeFromEast(double east) {
+		return originLongitude + east / metersPerDegreeLongitude;
 	}
 
 	/**
@@ -65,14 +143,17 @@ public class FlightPathModelBuilder {
 		catch (Exception ignore) {
 			// Metadata is best-effort; a missing configuration must not fail the export.
 		}
-		model.launchLatitude = simulation.getOptions().getLaunchLatitude();
-		model.launchLongitude = simulation.getOptions().getLaunchLongitude();
+		model.launchLatitude = originLatitude;
+		model.launchLongitude = originLongitude;
 		model.launchAltitudeMeters = launchAltitude;
 
 		model.altitudeUnit = altUnit.getUnit();
 		model.distanceUnit = distUnit.getUnit();
 		model.includeFlightPath = options.isIncludeFlightPath();
 		model.includeGroundTrack = options.isIncludeGroundTrack();
+		model.kmlAltitudeMode = altitudeReference().getKmlAltitudeMode();
+		model.showWaypointLabels = options.isShowWaypointLabels();
+		model.colorWaypointPins = options.isColorWaypointPins();
 
 		if (data != null) {
 			// Summary values. Altitude uses the chosen altitude unit; velocity and
@@ -82,17 +163,33 @@ public class FlightPathModelBuilder {
 			model.maxAcceleration = UnitGroup.UNITS_ACCELERATION.getDefaultUnit()
 					.toString(data.getMaxAcceleration());
 
+			qualifyLabels = data.getBranchCount() > 1;
+
+			boolean primary = true;
 			for (FlightDataBranch branch : data.getBranches()) {
-				FlightPathModel.Branch b = buildBranch(branch);
-				if (b != null) 
+				FlightPathModel.Branch b = buildBranch(branch, primary);
+				if (b != null) {
+					b.index = model.branches.size();
+					int rgb = BRANCH_COLORS[b.index % BRANCH_COLORS.length];
+					b.colorRgb = String.format(Locale.US, "%06x", rgb);
+					b.pathColorKml = kmlColor(rgb, 0xFF);
+					b.groundColorKml = kmlColor(darken(rgb, GROUND_TRACK_DARKEN), GROUND_TRACK_ALPHA);
+
 					model.branches.add(b);
+					primary = false;
+				}
 			}
 		}
 
 		return model;
 	}
 
-	private FlightPathModel.Branch buildBranch(FlightDataBranch branch) {
+	/**
+	 * @param primary whether this is the branch the flight started on. The stages fly as one
+	 *                stack until separation, and every later branch repeats that shared ascent,
+	 *                so the pad and liftoff waypoints are emitted on the primary branch only.
+	 */
+	private FlightPathModel.Branch buildBranch(FlightDataBranch branch, boolean primary) {
 		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 		List<Double> alt = branch.get(FlightDataType.TYPE_ALTITUDE);
 		List<Double> lat = branch.get(FlightDataType.TYPE_LATITUDE);
@@ -107,25 +204,31 @@ public class FlightPathModelBuilder {
 		List<Double> acc = branch.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
 
 		final int n = min(time.size(), alt.size(), lat.size(), lon.size());
+		final int start = startIndex(branch, time, n, primary);
 
 		FlightPathModel.Branch modelBranch = new FlightPathModel.Branch();
 		modelBranch.name = branch.getName();
 
-		Ctx ctx = new Ctx(time, alt, lat, lon, x, y, xy, n);
+		Ctx ctx = new Ctx(time, alt, lat, lon, x, y, xy, n, modelBranch.name, primary);
 
-		if (options.hasWaypoint(Waypoint.PAD))
-			modelBranch.waypoints.add(waypoint(ctx, 0, "pad", trans.get("FlightPathExport.waypoint.pad"), null));
+		// Leaving the pad is something the whole vehicle does, not any one stage, so it is not
+		// qualified with a stage name the way the per-stage waypoints are.
+		if (primary && options.hasWaypoint(Waypoint.PAD))
+			modelBranch.waypoints.add(waypoint(ctx, 0, "pad", trans.get("FlightPathExport.waypoint.pad"), null, null));
 
 		for (FlightEvent event : branch.getEvents())
 			addEventWaypoint(modelBranch, ctx, event);
 
+		// Scanned from the separation point so a spent booster reports its own peaks. Scanning
+		// the copied ascent instead would label the whole stack's maxima as the booster's, at
+		// altitudes it reached while still bolted to the sustainer.
 		if (options.hasWaypoint(Waypoint.MAX_VELOCITY) && vel != null && !vel.isEmpty()) {
-			int idx = indexOfMax(vel, Math.min(n, vel.size()));
+			int idx = indexOfMax(vel, start, Math.min(n, vel.size()));
 			modelBranch.waypoints.add(waypoint(ctx, idx, "maxvelocity",
 					trans.get("FlightPathExport.waypoint.maxVelocity"), null));
 		}
 		if (options.hasWaypoint(Waypoint.MAX_ACCELERATION) && acc != null && !acc.isEmpty()) {
-			int idx = indexOfMax(acc, Math.min(n, acc.size()));
+			int idx = indexOfMax(acc, start, Math.min(n, acc.size()));
 			modelBranch.waypoints.add(waypoint(ctx, idx, "maxacceleration",
 					trans.get("FlightPathExport.waypoint.maxAcceleration"), null));
 		}
@@ -134,11 +237,11 @@ public class FlightPathModelBuilder {
 
 		if (options.isIncludeFlightPath() || options.isIncludeGroundTrack()) {
 			int stride = options.getPathStride();
-			for (int i = 0; i < n; i += stride)
+			for (int i = start; i < n; i += stride)
 				modelBranch.path.add(pathPoint(ctx, i));
 
 			// Always include the final point so the track ends at landing.
-			if ((n - 1) % stride != 0 && n > 0)
+			if ((n - 1 - start) % stride != 0 && n > start)
 				modelBranch.path.add(pathPoint(ctx, n - 1));
 		}
 
@@ -149,13 +252,24 @@ public class FlightPathModelBuilder {
 		int idx = indexOfTime(ctx.time, event.getTime(), ctx.n);
 		switch (event.getType()) {
 			case LIFTOFF:
-				if (options.hasWaypoint(Waypoint.LIFTOFF))
-					modelBranch.waypoints.add(waypoint(ctx, idx, "liftoff", trans.get("FlightPathExport.waypoint.liftoff"), null));
+				// As with the pad: the stack lifts off as a whole. OpenRocket only records the
+				// event on the primary branch anyway, and naming it after the branch would claim
+				// the sustainer left the pad under its own power.
+				if (ctx.primary && options.hasWaypoint(Waypoint.LIFTOFF))
+					modelBranch.waypoints.add(waypoint(ctx, idx, "liftoff",
+							trans.get("FlightPathExport.waypoint.liftoff"), null, null));
 				break;
 			case BURNOUT:
-				if (options.hasWaypoint(Waypoint.BURNOUT))
-					modelBranch.waypoints.add(waypoint(ctx, idx, "burnout", trans.get("FlightPathExport.waypoint.burnout"), null));
-
+				if (options.hasWaypoint(Waypoint.BURNOUT)) {
+					// Until separation the stages fly as one stack, so a booster's burnout is
+					// recorded in the sustainer's branch as well. Qualify it with the stage that
+					// actually burned out rather than the branch, otherwise the sustainer ends up
+					// with two waypoints both named after the sustainer.
+					String stage = stageName(event.getSource());
+					modelBranch.waypoints.add(waypoint(ctx, idx, "burnout",
+							trans.get("FlightPathExport.waypoint.burnout"), null,
+							stage != null ? stage : ctx.branchName));
+				}
 				break;
 			case APOGEE:
 				if (options.hasWaypoint(Waypoint.APOGEE))
@@ -163,10 +277,13 @@ public class FlightPathModelBuilder {
 				break;
 			case RECOVERY_DEVICE_DEPLOYMENT:
 				if (options.hasWaypoint(Waypoint.RECOVERY)) {
+					// The deploying component's name is kept on the waypoint for templates that want
+					// it, but is not what the pin is called: the map only needs to say a chute came
+					// out here, not which one.
 					RocketComponent source = event.getSource();
-					String device = (source != null) ? safe(source.getName()) : "";
-					String label = device.isEmpty() ? trans.get("FlightPathExport.waypoint.recovery") : device;
-					modelBranch.waypoints.add(waypoint(ctx, idx, "recovery", label, device));
+					modelBranch.waypoints.add(waypoint(ctx, idx, "recovery",
+							trans.get("FlightPathExport.waypoint.recovery"),
+							(source != null) ? safe(source.getName()) : ""));
 				}
 				break;
 			case GROUND_HIT:
@@ -179,17 +296,31 @@ public class FlightPathModelBuilder {
 	}
 
 	private FlightPathModel.Waypoint waypoint(Ctx ctx, int i, String type, String label, String device) {
+		return waypoint(ctx, i, type, label, device, ctx.branchName);
+	}
+
+	/**
+	 * @param qualifier the stage name to prefix the label with on a staged flight; usually the
+	 *                  branch name, but see the burnout case in
+	 *                  {@link #addEventWaypoint(FlightPathModel.Branch, Ctx, FlightEvent)}
+	 */
+	private FlightPathModel.Waypoint waypoint(Ctx ctx, int i, String type, String label, String device,
+			String qualifier) {
 		FlightPathModel.Waypoint w = new FlightPathModel.Waypoint();
 		w.type = type;
 		w.label = label;
+		w.branchName = safe(ctx.branchName);
+		w.qualifiedLabel = qualify(qualifier, label);
 		w.device = device == null ? "" : device;
 
 		double altAgl = ctx.alt.get(i);
-		w.latitude = ctx.lat.get(i);
-		w.longitude = ctx.lon.get(i);
+		w.latitude = latitude(ctx, i);
+		w.longitude = longitude(ctx, i);
 		w.latitudeStr = String.format(Locale.US, "%.6f", w.latitude);
 		w.longitudeStr = String.format(Locale.US, "%.6f", w.longitude);
 		w.altitudeMslMeters = altAgl + launchAltitude;
+		w.altitudeAglMeters = altAgl;
+		w.altitudeKmlMeters = kmlAltitude(altAgl);
 		w.time = ctx.time.get(i);
 		w.timeStr = String.format(Locale.US, "%.2f", w.time);
 
@@ -204,9 +335,11 @@ public class FlightPathModelBuilder {
 
 	private FlightPathModel.PathPoint pathPoint(Ctx ctx, int i) {
 		FlightPathModel.PathPoint p = new FlightPathModel.PathPoint();
-		p.latitude = ctx.lat.get(i);
-		p.longitude = ctx.lon.get(i);
+		p.latitude = latitude(ctx, i);
+		p.longitude = longitude(ctx, i);
 		p.altitudeMslMeters = ctx.alt.get(i) + launchAltitude;
+		p.altitudeAglMeters = ctx.alt.get(i);
+		p.altitudeKmlMeters = kmlAltitude(ctx.alt.get(i));
 		p.time = ctx.time.get(i);
 		p.timeStr = String.format(Locale.US, "%.2f", p.time);
 		p.altitude = altUnit.toString(ctx.alt.get(i));
@@ -221,9 +354,12 @@ public class FlightPathModelBuilder {
 	private static final class Ctx {
 		final List<Double> time, alt, lat, lon, x, y, xy;
 		final int n;
+		final String branchName;
+		final boolean primary;
 
 		Ctx(List<Double> time, List<Double> alt, List<Double> lat, List<Double> lon,
-				List<Double> x, List<Double> y, List<Double> xy, int n) {
+				List<Double> x, List<Double> y, List<Double> xy, int n, String branchName,
+				boolean primary) {
 			this.time = time;
 			this.alt = alt;
 			this.lat = lat;
@@ -232,6 +368,18 @@ public class FlightPathModelBuilder {
 			this.y = y;
 			this.xy = xy;
 			this.n = n;
+			this.branchName = branchName;
+			this.primary = primary;
+		}
+
+		/** Meters east of the launch site, or null when the branch carries no position data. */
+		Double east(int i) {
+			return (x != null && i < x.size()) ? x.get(i) : null;
+		}
+
+		/** Meters north of the launch site, or null when the branch carries no position data. */
+		Double north(int i) {
+			return (y != null && i < y.size()) ? y.get(i) : null;
 		}
 
 		double distance(int i) {
@@ -253,6 +401,101 @@ public class FlightPathModelBuilder {
 		}
 	}
 
+	/**
+	 * Prefix a waypoint label with the stage it belongs to, so a staged flight does not export
+	 * several identically named "Apogee" / "Burnout" / "Landing" waypoints. Labels that already
+	 * name the stage (recovery devices are typically called "Booster Chute", "Sustainer Main")
+	 * are left alone rather than doubled up.
+	 */
+	private String qualify(String qualifier, String label) {
+		if (!qualifyLabels || qualifier == null || qualifier.isEmpty() || label == null)
+			return safe(label);
+
+		if (label.toLowerCase(Locale.ROOT).startsWith(qualifier.toLowerCase(Locale.ROOT)))
+			return label;
+
+		return qualifier + " " + label;
+	}
+
+	/**
+	 * The name of the stage a flight event's source component belongs to, or {@code null} when
+	 * the event has no source or the source is the rocket itself.
+	 */
+	private static String stageName(RocketComponent component) {
+		if (component == null || component instanceof Rocket)
+			return null;
+
+		AxialStage stage = (component instanceof AxialStage) ? (AxialStage) component : component.getStage();
+		return (stage == null || stage.getName().isEmpty()) ? null : stage.getName();
+	}
+
+	/**
+	 * Format an RRGGBB color as a KML {@code <color>} literal, which is aabbggrr: alpha first
+	 * and the channels in the opposite order to the usual web notation.
+	 */
+	private static String kmlColor(int rgb, int alpha) {
+		return String.format(Locale.US, "%02x%02x%02x%02x",
+				alpha & 0xFF, rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+	}
+
+	/**
+	 * The exported latitude of a data point.
+	 *
+	 * <p>This prefers the distance north of the launch site over the simulated latitude, because a
+	 * simulation loaded from a saved file has had its coordinates rounded to three decimal places.
+	 * In degrees that is about 94 m, so the whole flight collapses onto two or three positions and
+	 * the track comes out as a staircase of right angles. The same rounding applied to a distance
+	 * in meters leaves it accurate to a millimeter. A file-loaded simulation counts as up to date
+	 * and is never re-run, so this is the ordinary case, not a corner one.
+	 */
+	private double latitude(Ctx ctx, int i) {
+		Double north = ctx.north(i);
+		return (north != null) ? latitudeFromNorth(north) : ctx.lat.get(i) + originLatitude
+				- simulation.getOptions().getLaunchLatitude();
+	}
+
+	/** The exported longitude of a data point. See {@link #latitude(Ctx, int)}. */
+	private double longitude(Ctx ctx, int i) {
+		Double east = ctx.east(i);
+		if (east != null) 
+			return longitudeFromEast(east);
+
+		// Without a position to work from, fall back to the simulated coordinate, rescaled when the
+		// export is anchored at a different latitude than the simulation flew from.
+		double launchLon = simulation.getOptions().getLaunchLongitude();
+		double scale = Math.cos(Math.toRadians(simulation.getOptions().getLaunchLatitude()))
+				/ Math.cos(Math.toRadians(originLatitude));
+		return originLongitude + (ctx.lon.get(i) - launchLon) * scale;
+	}
+
+	/**
+	 * The altitude a KML coordinate should carry, matching the chosen altitude reference. Hanging
+	 * the track off the terrain is the default because OpenRocket's launch altitude defaults to
+	 * zero: measured against sea level, a flight from a 1200 m site is drawn 1200 m underground
+	 * and simply does not appear.
+	 */
+	private double kmlAltitude(double altAgl) {
+		return (altitudeReference() == FlightPathExportOptions.AltitudeReference.SEA_LEVEL)
+				? altAgl + launchAltitude
+				: altAgl;
+	}
+
+	/**
+	 * The altitude reference to export in, with {@code AUTOMATIC} resolved against this
+	 * simulation's launch altitude.
+	 */
+	private FlightPathExportOptions.AltitudeReference altitudeReference() {
+		return options.getAltitudeReference().resolve(launchAltitude);
+	}
+
+	/** Scale every channel of an RRGGBB color towards black. */
+	private static int darken(int rgb, double factor) {
+		int r = (int) (((rgb >> 16) & 0xFF) * factor);
+		int g = (int) (((rgb >> 8) & 0xFF) * factor);
+		int b = (int) ((rgb & 0xFF) * factor);
+		return (r << 16) | (g << 8) | b;
+	}
+
 	private static String safe(String s) {
 		return s == null ? "" : s;
 	}
@@ -265,10 +508,33 @@ public class FlightPathModelBuilder {
 		return m;
 	}
 
-	private static int indexOfMax(List<Double> values, int n) {
-		int maxIndex = 0;
+	/**
+	 * The first data index that belongs to this branch alone. A branch created at stage
+	 * separation starts life as a verbatim copy of its parent's points, so every non-primary
+	 * branch repeats the ascent the stages flew together. Exporting that prefix again would
+	 * draw the shared ascent once per stage and attribute the stack's flight to a stage that
+	 * was not yet flying on its own.
+	 *
+	 * @return the index of the separation point, or 0 for the primary branch, for any branch
+	 *         with no recorded separation, and when the user asked for every stage's track to
+	 *         start on the pad
+	 */
+	private int startIndex(FlightDataBranch branch, List<Double> time, int n, boolean primary) {
+		if (primary || options.getStageTrackStart() == FlightPathExportOptions.StageTrackStart.PAD)
+			return 0;
+
+		double separation = branch.getSeparationTime();
+		if (Double.isNaN(separation))
+			return 0;
+
+		int idx = indexOfTime(time, separation, n);
+		return (idx > 0 && idx < n) ? idx : 0;
+	}
+
+	private static int indexOfMax(List<Double> values, int from, int n) {
+		int maxIndex = from;
 		double max = Double.NEGATIVE_INFINITY;
-		for (int i = 0; i < n; i++) {
+		for (int i = from; i < n; i++) {
 			double v = values.get(i);
 			if (!Double.isNaN(v) && v > max) {
 				max = v;

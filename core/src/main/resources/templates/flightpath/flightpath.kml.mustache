@@ -3,17 +3,32 @@
 	<Document>
 		<name>{{title}}</name>
 		<open>1</open>
-		<Style id="flightPath"><LineStyle><color>ffff0000</color><width>3</width></LineStyle></Style>
-		<Style id="groundTrack"><LineStyle><color>ff000000</color><width>2</width></LineStyle></Style>
+{{#branches}}
+		<Style id="flightPath{{index}}"><LineStyle><color>{{pathColorKml}}</color><width>3</width></LineStyle></Style>
+		<Style id="groundTrack{{index}}"><LineStyle><color>{{groundColorKml}}</color><width>2</width></LineStyle></Style>
+		<Style id="waypoint{{index}}">
+{{#colorWaypointPins}}
+			<IconStyle>
+				<color>{{pathColorKml}}</color>
+				<Icon><href>https://maps.google.com/mapfiles/kml/pushpin/wht-pushpin.png</href></Icon>
+				<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+			</IconStyle>
+{{/colorWaypointPins}}
+{{^showWaypointLabels}}
+			<LabelStyle><scale>0</scale></LabelStyle>
+{{/showWaypointLabels}}
+		</Style>
+{{/branches}}
 {{#branches}}
 		<Folder>
 			<name>{{name}}</name>
 {{#waypoints}}
 			<Placemark>
-				<name>{{label}}</name>
+				<name>{{qualifiedLabel}}</name>
+				<styleUrl>#waypoint{{index}}</styleUrl>
 				<Point>
-					<altitudeMode>absolute</altitudeMode>
-					<coordinates>{{longitude}},{{latitude}},{{altitudeMslMeters}}</coordinates>
+					<altitudeMode>{{kmlAltitudeMode}}</altitudeMode>
+					<coordinates>{{longitude}},{{latitude}},{{altitudeKmlMeters}}</coordinates>
 				</Point>
 			</Placemark>
 {{/waypoints}}
@@ -21,13 +36,12 @@
 {{#hasPath}}
 			<Placemark>
 				<name>{{name}} flight path</name>
-				<styleUrl>#flightPath</styleUrl>
+				<styleUrl>#flightPath{{index}}</styleUrl>
 				<LineString>
 					<extrude>0</extrude>
-					<tessellate>1</tessellate>
-					<altitudeMode>absolute</altitudeMode>
+					<altitudeMode>{{kmlAltitudeMode}}</altitudeMode>
 					<coordinates>
-{{#path}}						{{longitude}},{{latitude}},{{altitudeMslMeters}}
+{{#path}}						{{longitude}},{{latitude}},{{altitudeKmlMeters}}
 {{/path}}					</coordinates>
 				</LineString>
 			</Placemark>
@@ -37,7 +51,7 @@
 {{#hasPath}}
 			<Placemark>
 				<name>{{name}} ground track</name>
-				<styleUrl>#groundTrack</styleUrl>
+				<styleUrl>#groundTrack{{index}}</styleUrl>
 				<LineString>
 					<tessellate>1</tessellate>
 					<altitudeMode>clampToGround</altitudeMode>

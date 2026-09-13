@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.awt.Font;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -23,11 +24,14 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.flightpath.FlightPathExportOptions;
+import info.openrocket.core.file.flightpath.FlightPathExportOptions.AltitudeReference;
+import info.openrocket.core.file.flightpath.FlightPathExportOptions.StageTrackStart;
 import info.openrocket.core.file.flightpath.FlightPathExportOptions.Waypoint;
 import info.openrocket.core.file.flightpath.FlightPathExporter;
 import info.openrocket.core.file.flightpath.FlightPathTemplate;
@@ -56,6 +60,23 @@ public class SimulationFlightPathExportPanel extends JPanel {
 	private static final String PREF_NODE = "FlightPathExport";
 	private static final String PREF_FORMAT = "format";
 
+	/**
+	 * MigLayout constraint for anything that draws text, giving it a few pixels more than it asks
+	 * for.
+	 *
+	 * <p>The bundled Inter UI font measures a shade narrower through {@link java.awt.FontMetrics},
+	 * which is what sizes a label, than the look and feel paints it. A label laid out at exactly
+	 * its preferred width therefore fails the fit test by a fraction of a pixel, and Swing does not
+	 * trim a fraction: it drops whole characters until the text plus an ellipsis fits, costing
+	 * three or four of them. Without this every label in this panel came out as "Burno..." or
+	 * "Color pins by sta...".
+	 */
+	private static String textWidth() {
+		Font font = UIManager.getFont("Label.font");
+		float size = (font != null) ? font.getSize2D() : 12f;
+		return "w pref+" + Math.max(8, Math.round(size * 0.75f)) + "px";
+	}
+
 	private final Simulation simulation;
 	private final JComboBox<String> formatSelector;
 	private final List<FlightPathTemplate> templates;
@@ -79,11 +100,11 @@ public class SimulationFlightPathExportPanel extends JPanel {
 
 		JPanel formatPanel = new JPanel(new MigLayout("fillx, ins 5"));
 		formatPanel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Format")));
-		formatPanel.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.format")));
+		formatPanel.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.format")), textWidth());
 		formatPanel.add(formatSelector, "growx");
 		add(formatPanel, "growx");
 
-		this.options = new FlightPathOptionsPanel();
+		this.options = new FlightPathOptionsPanel(isStaged(simulation));
 		options.load(prefs);
 		add(options, "growx");
 
@@ -100,10 +121,28 @@ public class SimulationFlightPathExportPanel extends JPanel {
 	}
 
 	/**
+	 * Whether the flight produced more than one branch, i.e. the rocket staged. The staged-track
+	 * option has nothing to choose between on a single-stage flight.
+	 */
+	private static boolean isStaged(Simulation simulation) {
+		return simulation.hasSimulationData() && simulation.getSimulatedData().getBranchCount() > 1;
+	}
+
+	/**
 	 * Show a save dialog and write the flight path with the selected template. Returns
 	 * {@code true} if a file was written, and shows a confirmation dialog on success.
 	 */
 	public boolean doExport() {
+		// The flight path comes entirely from the simulated data, so refuse to export a
+		// simulation that has never been run rather than writing an empty track.
+		if (!simulation.hasSimulationData()) {
+			JOptionPane.showMessageDialog(this,
+					trans.get("SimExpPan.flightPath.noData.desc"),
+					trans.get("SimExpPan.flightPath.noData.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
 		int idx = formatSelector.getSelectedIndex();
 		if (idx < 0 || templates.isEmpty()) {
 			return false;
@@ -204,35 +243,78 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		private final JCheckBox flightPath = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.flightPath"));
 		private final JCheckBox groundTrack = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.groundTrack"));
 		private final JSpinner stride = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
+		private final JComboBox<String> stageTrackStart = new JComboBox<>(new String[] {
+				trans.get("SimExpPan.flightPath.stageTracks.separation"),
+				trans.get("SimExpPan.flightPath.stageTracks.pad") });
+		private final JCheckBox waypointLabels = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.waypointLabels"));
+		private final JCheckBox colorPins = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.colorPins"));
+		private final JComboBox<String> altitudeReference = new JComboBox<>(new String[] {
+				trans.get("SimExpPan.flightPath.altitudeRef.automatic"),
+				trans.get("SimExpPan.flightPath.altitudeRef.ground"),
+				trans.get("SimExpPan.flightPath.altitudeRef.seaLevel") });
 
-		FlightPathOptionsPanel() {
+		FlightPathOptionsPanel(boolean staged) {
 			super(new MigLayout("ins 0, fillx, wrap", "[grow]"));
 
-			JPanel units = new JPanel(new MigLayout("ins 5, fillx"));
+			// Every box below lays out one control per row in a two-column "label | control" grid,
+			// and anything wider goes in a nested panel of its own. Spanning a control across
+			// columns instead lets MigLayout under-report the width the box needs, and the dialog
+			// then hands it less than that and paints the labels with an ellipsis.
+
+			JPanel units = new JPanel(new MigLayout("ins 5, fillx, wrap", "[][grow]"));
 			units.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.units")));
-			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.altitude")));
+			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.altitude")), textWidth());
 			units.add(altitudeUnit, "growx");
-			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.distance")), "gapleft para");
-			units.add(distanceUnit, "growx, wrap");
+			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.distance")), textWidth());
+			units.add(distanceUnit, "growx");
+			JLabel altRefLabel = new JLabel(trans.get("SimExpPan.flightPath.lbl.altitudeRef"));
+			String altRefTtip = trans.get("SimExpPan.flightPath.altitudeRef.ttip");
+			altRefLabel.setToolTipText(altRefTtip);
+			altitudeReference.setToolTipText(altRefTtip);
+			units.add(altRefLabel, textWidth());
+			units.add(altitudeReference, "growx");
 			add(units, "growx");
 
-			JPanel wp = new JPanel(new MigLayout("ins 5", "[]para[]"));
+			JPanel wp = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			wp.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.waypoints")));
+			JPanel waypointGrid = new JPanel(new MigLayout("ins 0", "[]para[]"));
 			int col = 0;
 			for (Waypoint w : Waypoint.values()) {
 				JCheckBox box = new JCheckBox(waypointLabel(w));
 				waypointBoxes.put(w, box);
-				wp.add(box, (col % 2 == 1) ? "wrap" : "");
+				waypointGrid.add(box, (col % 2 == 1) ? textWidth() + ", wrap" : textWidth());
 				col++;
 			}
+			wp.add(waypointGrid);
+			waypointLabels.setToolTipText(trans.get("SimExpPan.flightPath.waypointLabels.ttip"));
+			wp.add(waypointLabels, "gaptop para, " + textWidth());
+			colorPins.setToolTipText(trans.get("SimExpPan.flightPath.colorPins.ttip"));
+			wp.add(colorPins, textWidth());
 			add(wp, "growx");
 
-			JPanel path = new JPanel(new MigLayout("ins 5, fillx"));
+			JPanel path = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			path.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.path")));
-			path.add(flightPath, "wrap");
-			path.add(groundTrack, "wrap");
-			path.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.stride")), "split 2");
-			path.add(stride);
+			path.add(flightPath, textWidth());
+			path.add(groundTrack, textWidth());
+
+			JPanel strideRow = new JPanel(new MigLayout("ins 0", "[][]"));
+			strideRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.stride")), textWidth());
+			strideRow.add(stride);
+			path.add(strideRow);
+
+			// Only a staged flight has a shared ascent to draw once or once per stage.
+			JPanel stageRow = new JPanel(new MigLayout("ins 0, fillx", "[][grow]"));
+			JLabel stageTrackLabel = new JLabel(trans.get("SimExpPan.flightPath.lbl.stageTracks"));
+			stageRow.add(stageTrackLabel, textWidth());
+			stageRow.add(stageTrackStart, "growx");
+			if (!staged) {
+				stageTrackLabel.setEnabled(false);
+				stageTrackStart.setEnabled(false);
+				String ttip = trans.get("SimExpPan.flightPath.stageTracks.singleStage.ttip");
+				stageTrackLabel.setToolTipText(ttip);
+				stageTrackStart.setToolTipText(ttip);
+			}
+			path.add(stageRow, "growx");
 			add(path, "growx");
 		}
 
@@ -246,6 +328,10 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			o.setIncludeFlightPath(flightPath.isSelected());
 			o.setIncludeGroundTrack(groundTrack.isSelected());
 			o.setPathStride((Integer) stride.getValue());
+			o.setStageTrackStart(StageTrackStart.values()[Math.max(0, stageTrackStart.getSelectedIndex())]);
+			o.setAltitudeReference(AltitudeReference.values()[Math.max(0, altitudeReference.getSelectedIndex())]);
+			o.setShowWaypointLabels(waypointLabels.isSelected());
+			o.setColorWaypointPins(colorPins.isSelected());
 			return o;
 		}
 
@@ -259,6 +345,34 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			flightPath.setSelected(p.getBoolean("includeFlightPath", true));
 			groundTrack.setSelected(p.getBoolean("includeGroundTrack", true));
 			stride.setValue(p.getInt("pathStride", 1));
+			stageTrackStart.setSelectedIndex(stageTrackStartOrdinal(p.get("stageTrackStart", null)));
+			altitudeReference.setSelectedIndex(altitudeReferenceOrdinal(p.get("altitudeReference", null)));
+			waypointLabels.setSelected(p.getBoolean("showWaypointLabels", true));
+			colorPins.setSelected(p.getBoolean("colorWaypointPins", true));
+		}
+
+		/** Preferences hold the enum name; fall back to the default on anything unrecognized. */
+		private static int altitudeReferenceOrdinal(String name) {
+			if (name != null) {
+				for (AltitudeReference value : AltitudeReference.values()) {
+					if (value.name().equals(name))
+						return value.ordinal();
+				}
+			}
+			
+			return AltitudeReference.AUTOMATIC.ordinal();
+		}
+
+		/** Preferences hold the enum name; fall back to the default on anything unrecognized. */
+		private static int stageTrackStartOrdinal(String name) {
+			if (name != null) {
+				for (StageTrackStart value : StageTrackStart.values()) {
+					if (value.name().equals(name))
+						return value.ordinal();
+				}
+			}
+
+			return StageTrackStart.SEPARATION.ordinal();
 		}
 
 		void store(Preferences p) {
@@ -270,6 +384,12 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			p.putBoolean("includeFlightPath", flightPath.isSelected());
 			p.putBoolean("includeGroundTrack", groundTrack.isSelected());
 			p.putInt("pathStride", (Integer) stride.getValue());
+			p.put("stageTrackStart",
+					StageTrackStart.values()[Math.max(0, stageTrackStart.getSelectedIndex())].name());
+			p.put("altitudeReference",
+					AltitudeReference.values()[Math.max(0, altitudeReference.getSelectedIndex())].name());
+			p.putBoolean("showWaypointLabels", waypointLabels.isSelected());
+			p.putBoolean("colorWaypointPins", colorPins.isSelected());
 		}
 
 		private static JComboBox<Unit> createUnitCombo() {

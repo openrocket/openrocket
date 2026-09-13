@@ -10,7 +10,7 @@ import java.util.List;
  * directly (e.g. <code>{{rocketName}}</code>, <code>{{#branches}}...{{/branches}}</code>).
  * <p>
  * Two representations of altitude are provided because different formats need different
- * things: coordinate values (KML, GPX) require metres above sea level, while human-facing
+ * things: coordinate values (KML, GPX) require meters above sea level, while human-facing
  * labels (the waypoint CSV) typically show altitude above the pad in the user's unit.
  */
 public class FlightPathModel {
@@ -34,6 +34,21 @@ public class FlightPathModel {
 	// Geometry toggles, mirrored from the export options so templates can gate output.
 	public boolean includeFlightPath = true;
 	public boolean includeGroundTrack = true;
+	/**
+	 * The KML {@code <altitudeMode>} that {@code altitudeKmlMeters} is expressed in, i.e. whether
+	 * the track is hung off the terrain or off sea level.
+	 */
+	public String kmlAltitudeMode = "relativeToGround";
+	/**
+	 * Whether waypoint names are drawn on the map. A near-vertical flight stacks its waypoints
+	 * into a few hundred meters of screen, and the reader may prefer bare markers they can click.
+	 */
+	public boolean showWaypointLabels = true;
+	/**
+	 * Whether waypoint pins carry their stage's color. This needs an icon fetched from Google's
+	 * servers, so it can be turned off for a file that has to render without a network.
+	 */
+	public boolean colorWaypointPins = true;
 
 	// Summary values (in display units, preformatted)
 	public String maxAltitude = "";
@@ -45,6 +60,17 @@ public class FlightPathModel {
 	/** A single flight branch (stage / booster), with its waypoints and sampled path. */
 	public static class Branch {
 		public String name = "";
+		/** Zero-based position in {@link FlightPathModel#branches}, for building unique style ids. */
+		public int index;
+		/**
+		 * This branch's color as RRGGBB, so each stage's track is distinguishable. Taken from
+		 * the same palette the plot window uses, so a stage keeps its color between the two.
+		 */
+		public String colorRgb = "";
+		/** {@link #colorRgb} as a KML aabbggrr literal, opaque, for the flight-path line. */
+		public String pathColorKml = "";
+		/** {@link #colorRgb} as a KML aabbggrr literal, translucent, for the ground track. */
+		public String groundColorKml = "";
 		public List<Waypoint> waypoints = new ArrayList<>();
 		public List<PathPoint> path = new ArrayList<>();
 
@@ -59,12 +85,21 @@ public class FlightPathModel {
 		}
 	}
 
-	/** A single labelled point of interest (pad, apogee, recovery deployment, ...). */
+	/** A single labeled point of interest (pad, apogee, recovery deployment, ...). */
 	public static class Waypoint {
 		/** Machine key, e.g. "pad", "apogee", "main". Handy for template conditionals. */
 		public String type = "";
 		/** Localized human label, e.g. "Apogee". */
 		public String label = "";
+		/**
+		 * {@link #label} qualified with the stage it belongs to, e.g. "Booster Apogee". For a
+		 * single-branch flight this is identical to {@link #label}; it only differs when the
+		 * rocket staged, where otherwise every stage would contribute an identically named
+		 * "Apogee", "Burnout" and "Landing" and the export would be impossible to read.
+		 */
+		public String qualifiedLabel = "";
+		/** Name of the flight branch (stage) this waypoint belongs to, e.g. "Booster". */
+		public String branchName = "";
 		/** For recovery deployments, the deploying component's name (e.g. "Main"). */
 		public String device = "";
 
@@ -73,8 +108,12 @@ public class FlightPathModel {
 		/** Fixed 6-decimal lat/lon strings, convenient for CSV output. */
 		public String latitudeStr = "";
 		public String longitudeStr = "";
-		/** Altitude above sea level, in metres, for coordinate output. */
+		/** Altitude above sea level, in meters. GPX elevations are defined this way. */
 		public double altitudeMslMeters;
+		/** Altitude above the ground, in meters. */
+		public double altitudeAglMeters;
+		/** The altitude to write into a KML coordinate, in {@link FlightPathModel#kmlAltitudeMode}. */
+		public double altitudeKmlMeters;
 
 		public double time;
 		public String timeStr = "";
@@ -90,7 +129,12 @@ public class FlightPathModel {
 	public static class PathPoint {
 		public double latitude;
 		public double longitude;
+		/** Altitude above sea level, in meters. GPX elevations are defined this way. */
 		public double altitudeMslMeters;
+		/** Altitude above the ground, in meters. */
+		public double altitudeAglMeters;
+		/** The altitude to write into a KML coordinate, in {@link FlightPathModel#kmlAltitudeMode}. */
+		public double altitudeKmlMeters;
 		public double time;
 		public String timeStr = "";
 		public String altitude = "";
