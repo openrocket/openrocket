@@ -95,6 +95,8 @@ docs/build
 # AI tools
 **/copilot.*.xml
 **/AGENTS.md
+# Share the repository's contribution guidelines; keep local agent files ignored.
+!/AGENTS.md
 **/CLAUDE.md
 **/GEMINI.md
 **/.claude

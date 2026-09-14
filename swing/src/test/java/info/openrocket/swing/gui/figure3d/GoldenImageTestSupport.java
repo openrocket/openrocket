@@ -97,10 +97,14 @@ public final class GoldenImageTestSupport {
 
 				JFrame frame = new JFrame(title);
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				// Window-manager decorations and automatic multi-monitor placement can alter
+				// the realized Linux canvas by a few pixels after pack(), producing a native
+				// framebuffer with a different aspect ratio from the fixed golden-test size.
+				frame.setUndecorated(true);
 				frame.setResizable(false);
 				frame.add(panel);
 				frame.pack();
-				frame.setLocationByPlatform(true);
+				frame.setLocationRelativeTo(null);
 
 				RenderHarness harness = new RenderHarness(frame, panel, renderExecutor);
 				panel.setRenderActivityCallback(harness::requestRender);
