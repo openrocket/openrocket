@@ -37,6 +37,7 @@ public class PrintController {
 	 * is not null.
 	 */
 	private Window window = null;
+	private MonteCarloReportData monteCarloReportData = MonteCarloReportData.EMPTY;
 	
 	/**
 	 * Sets the reference Window for displaying progress information
@@ -57,6 +58,10 @@ public class PrintController {
 	 */
 	public Window getWindow() {
 		return this.window;
+	}
+
+	public void setMonteCarloReportData(MonteCarloReportData data) {
+		this.monteCarloReportData = data == null ? MonteCarloReportData.EMPTY : data;
 	}
 
     /**
@@ -99,6 +104,11 @@ public class PrintController {
                         idoc.newPage();
 						dp.restoreUITheme();
                         break;
+
+					case MONTE_CARLO_REPORT:
+						new MonteCarloReport(idoc, writer, monteCarloReportData).writeToDocument();
+						idoc.newPage();
+						break;
 
                     case FIN_TEMPLATE:
                         final FinSetPrintStrategy finWriter = new FinSetPrintStrategy(idoc, writer, stages, pageFitPrint);
