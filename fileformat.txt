@@ -106,3 +106,11 @@ The following file format versions exist:
                 <series symbol="Vz" red="0" green="100" blue="200" alpha="255"/>
               </plotappearance>
       Increased decimal precision of simulation <flightdata>, <event>, and <datapoint> values to 6 digits after the decimal point.
+      Optionally added a <designinfo> element (sibling of <rocket>) holding derived,
+      informational design data: static statistics (per rocket and per stage) as
+      <statistics scope="..."><stat field="..." value="..." unit="..."/></statistics>
+      and per-fin-set nose-to-root distances as
+      <finset ...><nosetoroottop.../><nosetorootbottom.../></finset>. Values are in SI
+      base units. This block is written only when the "save design info" preference is
+      enabled, is purely informational, and is ignored (recomputed live) on load, so it
+      does not require a file-format version change.

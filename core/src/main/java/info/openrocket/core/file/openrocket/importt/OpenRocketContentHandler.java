@@ -72,6 +72,12 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 			return new DocumentPreferencesHandler(getDocument());
 		}
 
+		// The <designinfo> block holds derived, informational data (statistics and fin
+		// measurements) that is recomputed live; skip it silently rather than warning.
+		if (element.equals("designinfo")) {
+			return null;
+		}
+
 		warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
 
 		return null;
