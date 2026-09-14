@@ -237,6 +237,9 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		/** Waypoints enabled by default (matches {@link FlightPathExportOptions}). */
 		private static final EnumSet<Waypoint> DEFAULT_WAYPOINTS = EnumSet.allOf(Waypoint.class);
 
+		/** Columns the waypoint checkboxes are laid out in; keep in step with the grid's columns. */
+		private static final int WAYPOINT_COLUMNS = 3;
+
 		private final JComboBox<Unit> altitudeUnit = createUnitCombo();
 		private final JComboBox<Unit> distanceUnit = createUnitCombo();
 		private final Map<Waypoint, JCheckBox> waypointBoxes = new EnumMap<>(Waypoint.class);
@@ -256,46 +259,61 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		FlightPathOptionsPanel(boolean staged) {
 			super(new MigLayout("ins 0, fillx, wrap", "[grow]"));
 
-			// Every box below lays out one control per row in a two-column "label | control" grid,
-			// and anything wider goes in a nested panel of its own. Spanning a control across
-			// columns instead lets MigLayout under-report the width the box needs, and the dialog
-			// then hands it less than that and paints the labels with an ellipsis.
+			// Each box is a single growing column, and every row inside it is a nested panel with
+			// its own simple grid. Spanning controls across columns of one big grid instead lets
+			// MigLayout under-report the width the box needs, and the dialog then hands it less
+			// than that and paints the labels with an ellipsis.
 
-			JPanel units = new JPanel(new MigLayout("ins 5, fillx, wrap", "[][grow]"));
+			JPanel units = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			units.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.units")));
-			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.altitude")), textWidth());
-			units.add(altitudeUnit, "growx");
-			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.distance")), textWidth());
-			units.add(distanceUnit, "growx");
+
+			// The two unit pickers are a pair of short controls, so they share a row.
+			JPanel unitRow = new JPanel(new MigLayout("ins 0, fillx", "[][grow]para[][grow]"));
+			unitRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.altitude")), textWidth());
+			unitRow.add(altitudeUnit, "growx");
+			unitRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.distance")), textWidth());
+			unitRow.add(distanceUnit, "growx");
+			units.add(unitRow, "growx");
+
+			// The altitude reference keeps a row of its own: its choices are whole phrases.
+			JPanel refRow = new JPanel(new MigLayout("ins 0, fillx", "[][grow]"));
 			JLabel altRefLabel = new JLabel(trans.get("SimExpPan.flightPath.lbl.altitudeRef"));
 			String altRefTtip = trans.get("SimExpPan.flightPath.altitudeRef.ttip");
 			altRefLabel.setToolTipText(altRefTtip);
 			altitudeReference.setToolTipText(altRefTtip);
-			units.add(altRefLabel, textWidth());
-			units.add(altitudeReference, "growx");
+			refRow.add(altRefLabel, textWidth());
+			refRow.add(altitudeReference, "growx");
+			units.add(refRow, "growx");
 			add(units, "growx");
 
 			JPanel wp = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			wp.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.waypoints")));
-			JPanel waypointGrid = new JPanel(new MigLayout("ins 0", "[]para[]"));
+			JPanel waypointGrid = new JPanel(new MigLayout("ins 0", "[]para[]para[]"));
 			int col = 0;
 			for (Waypoint w : Waypoint.values()) {
 				JCheckBox box = new JCheckBox(waypointLabel(w));
 				waypointBoxes.put(w, box);
-				waypointGrid.add(box, (col % 2 == 1) ? textWidth() + ", wrap" : textWidth());
+				boolean endOfRow = (col % WAYPOINT_COLUMNS == WAYPOINT_COLUMNS - 1);
+				waypointGrid.add(box, endOfRow ? textWidth() + ", wrap" : textWidth());
 				col++;
 			}
 			wp.add(waypointGrid);
+
+			// The two marker options are a pair, so they sit side by side rather than stacked.
+			JPanel markerRow = new JPanel(new MigLayout("ins 0", "[]para[]"));
 			waypointLabels.setToolTipText(trans.get("SimExpPan.flightPath.waypointLabels.ttip"));
-			wp.add(waypointLabels, "gaptop para, " + textWidth());
+			markerRow.add(waypointLabels, textWidth());
 			colorPins.setToolTipText(trans.get("SimExpPan.flightPath.colorPins.ttip"));
-			wp.add(colorPins, textWidth());
+			markerRow.add(colorPins, textWidth());
+			wp.add(markerRow, "gaptop para");
 			add(wp, "growx");
 
 			JPanel path = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			path.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.path")));
-			path.add(flightPath, textWidth());
-			path.add(groundTrack, textWidth());
+			JPanel geometryRow = new JPanel(new MigLayout("ins 0", "[]para[]"));
+			geometryRow.add(flightPath, textWidth());
+			geometryRow.add(groundTrack, textWidth());
+			path.add(geometryRow);
 
 			JPanel strideRow = new JPanel(new MigLayout("ins 0", "[][]"));
 			strideRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.stride")), textWidth());
