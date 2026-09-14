@@ -434,6 +434,9 @@ public class FlightPathExportTest extends BaseTestCase {
 		sim.getOptions().setLaunchLatitude(0);
 		sim.getOptions().setLaunchLongitude(0);
 
+		assertFalse(new FlightPathExporter(sim, buildFlightData(0, 0), new FlightPathExportOptions())
+				.hasLaunchPosition(), "both coordinates at zero is the unset case");
+
 		FlightPathModel substituted = new FlightPathModelBuilder(
 				sim, buildFlightData(0, 0), new FlightPathExportOptions()).build();
 
@@ -528,14 +531,13 @@ public class FlightPathExportTest extends BaseTestCase {
 	}
 
 	/**
-	 * A half-filled position is no more real than an empty one: a latitude with no longitude puts
-	 * the flight on the prime meridian, a longitude with no latitude puts it on the equator. Both
-	 * look plausible on a map and neither is where the rocket flew, so either coordinate left at
-	 * zero makes the export fall back to its substitute coordinates.
+	 * Only both coordinates at zero is OpenRocket's "not set". A single zero is a real coordinate:
+	 * a site on the equator, or on the prime meridian, is exported where the user put it rather
+	 * than being second-guessed.
 	 */
 	@Test
-	public void aHalfSetLaunchPositionCountsAsUnset() {
-		for (double[] position : new double[][] { { 30.6146, 0 }, { 0, -97.4966 }, { 0, 0 } }) {
+	public void onlyABothZeroLaunchPositionCountsAsUnset() {
+		for (double[] position : new double[][] { { 30.6146, 0 }, { 0, -97.4966 }, { 51.5, 0 } }) {
 			Simulation sim = buildSimulation();
 			sim.getOptions().setLaunchLatitude(position[0]);
 			sim.getOptions().setLaunchLongitude(position[1]);
@@ -544,11 +546,11 @@ public class FlightPathExportTest extends BaseTestCase {
 					sim, buildFlightData(position[0], position[1]), new FlightPathExportOptions()).build();
 
 			String where = position[0] + ", " + position[1];
-			assertEquals(FlightPathModelBuilder.EXPORT_FALLBACK_LATITUDE, model.launchLatitude, 1e-9, where);
-			assertEquals(FlightPathModelBuilder.EXPORT_FALLBACK_LONGITUDE, model.launchLongitude, 1e-9, where);
+			assertEquals(position[0], model.launchLatitude, 1e-9, where);
+			assertEquals(position[1], model.launchLongitude, 1e-9, where);
 
 			// The warning the user sees has to agree with what the export actually did.
-			assertFalse(new FlightPathExporter(sim, buildFlightData(), new FlightPathExportOptions())
+			assertTrue(new FlightPathExporter(sim, buildFlightData(), new FlightPathExportOptions())
 					.hasLaunchPosition(), where);
 		}
 	}

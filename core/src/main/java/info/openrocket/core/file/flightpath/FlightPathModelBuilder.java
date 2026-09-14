@@ -39,9 +39,9 @@ public class FlightPathModelBuilder {
 
 	/**
 	 * Coordinates written into the exported file when the simulation carries no launch position:
-	 * the Kennedy Space Center. A coordinate left at zero is OpenRocket's "not set" rather than a
-	 * real position on the equator or the prime meridian, and dropping a flight on Null Island
-	 * tells the reader nothing.
+	 * the Kennedy Space Center. Both coordinates at zero is OpenRocket's "not set" rather than a
+	 * real position in the Gulf of Guinea, and dropping a flight on Null Island tells the reader
+	 * nothing.
 	 *
 	 * <p>These are used for the exported coordinates only. Nothing here writes to the simulation,
 	 * and its launch position is left exactly as the user set it.
@@ -100,12 +100,11 @@ public class FlightPathModelBuilder {
 
 		double launchLat = simulation.getOptions().getLaunchLatitude();
 		double launchLon = simulation.getOptions().getLaunchLongitude();
-		// Either coordinate still at zero means the position was never filled in: a half-set one
-		// puts the track on the prime meridian or the equator, which is a plausible-looking lie.
-		// A real site sitting on exactly 0.000000 would have to be within a few centimeters of one
-		// of those lines, so treating zero as "not set" costs nothing in practice. This only
-		// chooses what coordinates to write out; the simulation's own launch position is untouched.
-		boolean unset = (launchLat == 0 || launchLon == 0);
+		// Both coordinates at zero is OpenRocket's "not set". A single zero is a real coordinate --
+		// the equator, or the prime meridian -- and a launch site on one of them is exported where
+		// the user put it. This only chooses what coordinates to write out; the simulation's own
+		// launch position is untouched either way.
+		boolean unset = (launchLat == 0 && launchLon == 0);
 		this.originLatitude = unset ? EXPORT_FALLBACK_LATITUDE : launchLat;
 		this.originLongitude = unset ? EXPORT_FALLBACK_LONGITUDE : launchLon;
 

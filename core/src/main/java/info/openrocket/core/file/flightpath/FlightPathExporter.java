@@ -49,14 +49,14 @@ public class FlightPathExporter {
 	}
 
 	/**
-	 * Returns whether the simulation has a launch position set. Either coordinate still at zero
-	 * counts as unset, matching where {@link FlightPathModelBuilder} decides to fall back to its
-	 * fallback coordinates; callers may warn that the exported track will not be where the rocket
-	 * flew. Neither this nor the builder changes the simulation's own launch position.
+	 * Returns whether the simulation has a launch position set. Only both coordinates at zero
+	 * counts as unset, matching where {@link FlightPathModelBuilder} falls back to its substitute
+	 * coordinates; callers may warn that the exported track will not be where the rocket flew.
+	 * Neither this nor the builder changes the simulation's own launch position.
 	 */
 	public boolean hasLaunchPosition() {
 		return simulation.getOptions().getLaunchLatitude() != 0
-				&& simulation.getOptions().getLaunchLongitude() != 0;
+				|| simulation.getOptions().getLaunchLongitude() != 0;
 	}
 
 	/**

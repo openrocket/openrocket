@@ -339,10 +339,11 @@ drift of separated stages.
    stored data is what gets exported.
 
 Because the track is built from the launch coordinates, set a launch latitude and longitude
-on the :guilabel:`Launch conditions` tab first. If either is left at zero -- which is
-OpenRocket's "not set" rather than a real position on the equator or the prime meridian --
-the exported file falls back to the Kennedy Space Center (28.61, -80.6), and the tab warns you
-before writing it. This affects the exported file only: the simulation's own launch position is
+on the :guilabel:`Launch conditions` tab first. If both are left at zero -- which is
+OpenRocket's "not set" rather than a real position in the Gulf of Guinea -- the exported file
+falls back to the Kennedy Space Center (28.61, -80.6), and the tab warns you before writing it.
+A single zero is a real coordinate, so a site on the equator or the prime meridian is exported
+where you put it. This affects the exported file only: the simulation's own launch position is
 never changed, and the shape of the flight is exported correctly either way.
 
 It is worth setting the launch **altitude** on the same tab as well. OpenRocket leaves it at
