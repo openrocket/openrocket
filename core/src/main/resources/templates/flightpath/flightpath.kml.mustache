@@ -27,7 +27,8 @@
 				<name>{{qualifiedLabel}}</name>
 				<styleUrl>#waypoint{{index}}</styleUrl>
 				<Point>
-					<altitudeMode>{{kmlAltitudeMode}}</altitudeMode>
+{{#extrudeWaypoints}}					<extrude>1</extrude>
+{{/extrudeWaypoints}}					<altitudeMode>{{kmlWaypointAltitudeMode}}</altitudeMode>
 					<coordinates>{{longitude}},{{latitude}},{{altitudeKmlMeters}}</coordinates>
 				</Point>
 			</Placemark>
@@ -38,8 +39,9 @@
 				<name>{{name}} flight path</name>
 				<styleUrl>#flightPath{{index}}</styleUrl>
 				<LineString>
-					<extrude>0</extrude>
-					<altitudeMode>{{kmlAltitudeMode}}</altitudeMode>
+{{#extrudePath}}					<extrude>1</extrude>
+{{/extrudePath}}{{#tessellatePath}}					<tessellate>1</tessellate>
+{{/tessellatePath}}					<altitudeMode>{{kmlAltitudeMode}}</altitudeMode>
 					<coordinates>
 {{#path}}						{{longitude}},{{latitude}},{{altitudeKmlMeters}}
 {{/path}}					</coordinates>

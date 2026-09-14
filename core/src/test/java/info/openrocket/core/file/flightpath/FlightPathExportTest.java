@@ -130,8 +130,10 @@ public class FlightPathExportTest extends BaseTestCase {
 
 	@Test
 	public void kmlTemplateProducesLonLatAglCoordinatesWhenReferencedToGround() throws Exception {
+		// Both halves, since the track's reference and the pins' are set separately.
 		FlightPathExportOptions groundRelative = new FlightPathExportOptions();
 		groundRelative.setAltitudeReference(AltitudeReference.GROUND);
+		groundRelative.setWaypointAltitudeReference(AltitudeReference.GROUND);
 		String kml = render("kml", groundRelative);
 
 		assertTrue(kml.contains("<kml xmlns=\"http://www.opengis.net/kml/2.2\">"), kml);
@@ -349,6 +351,87 @@ public class FlightPathExportTest extends BaseTestCase {
 
 		assertTrue(kml.contains("<altitudeMode>absolute</altitudeMode>"), kml);
 		assertTrue(kml.contains(",450.0</coordinates>"), kml);
+	}
+
+	/**
+	 * The track's altitude reference and the waypoints' are set separately. A flight is worth
+	 * seeing suspended in the air, while the pins that label it read better against the ground
+	 * they sit over, so the common pairing is a real track altitude with clamped pins.
+	 */
+	@Test
+	public void trackAndWaypointAltitudesAreReferencedSeparately() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setAltitudeReference(AltitudeReference.SEA_LEVEL);
+		options.setWaypointAltitudeReference(AltitudeReference.CLAMPED);
+		String kml = render("kml", options);
+
+		assertTrue(kml.contains("<altitudeMode>absolute</altitudeMode>"), kml);
+		assertTrue(kml.contains("<altitudeMode>clampToGround</altitudeMode>"), kml);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildFlightData(), options).build();
+		assertEquals("absolute", model.kmlAltitudeMode);
+		assertEquals("clampToGround", model.kmlWaypointAltitudeMode);
+
+		// The pins carry height above the ground, the track height above sea level: a clamped
+		// altitude is ignored by KML, but the number stays meaningful to anything else reading it.
+		FlightPathModel.Branch branch = model.branches.get(0);
+		assertEquals(250.0, waypointOfType(branch, "apogee").altitudeKmlMeters, 1e-9);
+		assertEquals(450.0, branch.path.get(2).altitudeKmlMeters, 1e-9);
+	}
+
+	/** A clamped track is tessellated, or it cuts through hills instead of draping over them. */
+	@Test
+	public void aClampedTrackIsTessellated() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setAltitudeReference(AltitudeReference.CLAMPED);
+		assertTrue(render("kml", options).contains("<tessellate>1</tessellate>"));
+
+		options.setAltitudeReference(AltitudeReference.GROUND);
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildFlightData(), options).build();
+		assertFalse(model.tessellatePath, "only a clamped track needs tessellating");
+	}
+
+	/**
+	 * The shadow is KML's extrude: a curtain under the track and a plumb line under each pin. It
+	 * is meaningless once the geometry is already lying on the ground, so a clamped reference
+	 * drops it on that half alone.
+	 */
+	@Test
+	public void theShadowIsDroppedForWhicheverHalfIsClamped() {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setDrawShadow(true);
+		options.setAltitudeReference(AltitudeReference.SEA_LEVEL);
+		options.setWaypointAltitudeReference(AltitudeReference.CLAMPED);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildFlightData(), options).build();
+		assertTrue(model.extrudePath, "the airborne track still has somewhere to cast to");
+		assertFalse(model.extrudeWaypoints, "a clamped pin is already on the ground");
+
+		options.setDrawShadow(false);
+		model = new FlightPathModelBuilder(buildSimulation(), buildFlightData(), options).build();
+		assertFalse(model.extrudePath);
+		assertFalse(model.extrudeWaypoints);
+	}
+
+	/** With the shadow on, the extrude elements reach the file; with it off, nothing is emitted. */
+	@Test
+	public void theShadowReachesTheKml() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setAltitudeReference(AltitudeReference.SEA_LEVEL);
+		options.setWaypointAltitudeReference(AltitudeReference.SEA_LEVEL);
+
+		assertFalse(render("kml", options).contains("<extrude>"), "no shadow by default");
+
+		options.setDrawShadow(true);
+		String kml = render("kml", options);
+		assertTrue(kml.contains("<extrude>1</extrude>"), kml);
+		// One curtain under the track, and one plumb line under every pin.
+		assertEquals(countOccurrences(kml, "<Point>") + countOccurrences(kml, "<LineString>")
+				- countOccurrences(kml, "clampToGround"),
+				countOccurrences(kml, "<extrude>1</extrude>"), kml);
 	}
 
 	/** Pin tinting needs an icon off the network, so it can be turned off. */

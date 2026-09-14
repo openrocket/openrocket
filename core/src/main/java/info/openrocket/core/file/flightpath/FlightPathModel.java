@@ -39,6 +39,22 @@ public class FlightPathModel {
 	 * the track is hung off the terrain or off sea level.
 	 */
 	public String kmlAltitudeMode = "relativeToGround";
+	/** The KML {@code <altitudeMode>} a waypoint's {@code altitudeKmlMeters} is expressed in. */
+	public String kmlWaypointAltitudeMode = "relativeToGround";
+	/**
+	 * Draw {@code <extrude>} lines from the track and the pins down to the ground. These are
+	 * Mustache sections rather than values, so a template written before they existed renders
+	 * nothing for them instead of emitting an empty element. Already false when the geometry is
+	 * clamped, since there is nothing to extrude to.
+	 */
+	public boolean extrudePath = false;
+	public boolean extrudeWaypoints = false;
+	/**
+	 * Break the flight-path line into terrain-following pieces. KML only honors
+	 * {@code <tessellate>} for a clamped line, and without it a clamped path cuts straight
+	 * through hills instead of draping over them.
+	 */
+	public boolean tessellatePath = false;
 	/**
 	 * Whether waypoint names are drawn on the map. A near-vertical flight stacks its waypoints
 	 * into a few hundred meters of screen, and the reader may prefer bare markers they can click.
