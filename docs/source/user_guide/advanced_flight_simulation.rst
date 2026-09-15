@@ -339,10 +339,11 @@ drift of separated stages.
    stored data is what gets exported.
 
 Because the track is built from the launch coordinates, set a launch latitude and longitude
-on the :guilabel:`Launch conditions` tab first. If either is left at zero -- which is
-OpenRocket's "not set" rather than a real position on the equator or the prime meridian --
-the exported file falls back to the Kennedy Space Center (28.61, -80.6), and the tab warns you
-before writing it. This affects the exported file only: the simulation's own launch position is
+on the :guilabel:`Launch conditions` tab first. If both are left at zero -- which is
+OpenRocket's "not set" rather than a real position in the Gulf of Guinea -- the exported file
+falls back to the Kennedy Space Center (28.61, -80.6), and the tab warns you before writing it.
+A single zero is a real coordinate, so a site on the equator or the prime meridian is exported
+where you put it. This affects the exported file only: the simulation's own launch position is
 never changed, and the shape of the flight is exported correctly either way.
 
 It is worth setting the launch **altitude** on the same tab as well. OpenRocket leaves it at
@@ -384,8 +385,17 @@ Options
      - The units used for the altitude and distance values that appear in labels and in
        the waypoint CSV. Coordinate altitudes are always written in meters, as KML and GPX
        require.
-   * - Measured from
-     - What the exported altitudes are measured from. See `Altitude reference`_.
+   * - Presets
+     - Three one-click placements -- **Drift cast**, **Flight path** and **Landing plots** --
+       which set the controls below rather than acting behind them, so the panel always shows what
+       the file will contain and a preset can be taken as a starting point.
+   * - Track altitude from / Waypoint altitude from
+     - What the exported altitudes are measured from, set separately for the path and the markers.
+       See `Altitude reference`_.
+   * - Draw shadow down to the ground
+     - Adds a curtain under the track and a plumb line under each marker, so you can read where a
+       point in the air sits on the map. Disabled once both are clamped, since there is nothing
+       left to draw.
    * - Waypoints
      - Which points of interest to mark: pad, liftoff, burnout, apogee, ejection, landing,
        maximum velocity, and maximum acceleration. Every recovery device that deploys
@@ -418,9 +428,10 @@ The selected format and options are remembered for the next export.
 Altitude reference
 ------------------
 
-The :guilabel:`Measured from` setting decides whether the exported altitudes are heights
-above the terrain or heights above sea level. This matters more than it sounds, because
-OpenRocket's launch altitude defaults to zero:
+The :guilabel:`Track altitude from` and :guilabel:`Waypoint altitude from` settings decide
+whether the exported altitudes are heights above the terrain, heights above sea level, or
+ignored entirely. This matters more than it sounds, because OpenRocket's launch altitude
+defaults to zero:
 
 .. list-table::
    :header-rows: 1
@@ -438,6 +449,35 @@ OpenRocket's launch altitude defaults to zero:
    * - Above sea level
      - Places the track at its true elevation, which is the geometrically faithful
        trajectory. It needs a real launch altitude to be set.
+   * - Clamped to the ground
+     - Ignores the altitudes and lays the geometry flat on the terrain. This is the one to pick
+       when the question is what the rocket drifts *over* rather than how high it went. A clamped
+       track is tessellated, so it drapes over hills instead of cutting through them.
+
+The track and the waypoints are set separately because they want different answers. A flight is
+worth seeing suspended in the air, while the markers that label it are easier to read against the
+ground they sit over -- so a common pairing is the track above sea level with the markers clamped.
+
+Placements
+----------
+
+The three preset buttons set the placement controls in one click:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Preset
+     - What it sets
+   * - Drift cast
+     - Everything flat on the terrain, ground track only -- for reading the hazards under the
+       drift. The airborne line is dropped because, clamped, it would only trace the ground track
+       again.
+   * - Flight path
+     - The flight suspended in the air where it belongs, both tracks drawn, with shadows down to
+       the ground so each point can still be placed on the map.
+   * - Landing plots
+     - The landing marker alone, on the ground, with no tracks at all.
 
 .. warning::
 
@@ -659,9 +699,16 @@ Top level:
    * - ``{{#showWaypointLabels}}`` / ``{{#colorWaypointPins}}``
      - Section tags for the two marker options. Use ``{{^showWaypointLabels}}`` to emit
        something only when names are switched off.
-   * - ``{{kmlAltitudeMode}}``
-     - The KML ``<altitudeMode>`` matching the chosen altitude reference, either
-       ``relativeToGround`` or ``absolute``. Pair it with ``{{altitudeKmlMeters}}``.
+   * - ``{{kmlAltitudeMode}}`` / ``{{kmlWaypointAltitudeMode}}``
+     - The KML ``<altitudeMode>`` matching the chosen altitude reference for the path and for the
+       waypoints: ``relativeToGround``, ``absolute`` or ``clampToGround``. Pair each with the
+       matching ``{{altitudeKmlMeters}}``.
+   * - ``{{#extrudePath}}`` / ``{{#extrudeWaypoints}}``
+     - Section tags that are true when the shadow should be drawn. They are sections rather than
+       values so a template written before they existed renders nothing for them instead of an
+       empty element.
+   * - ``{{#tessellatePath}}``
+     - Section tag that is true when the track is clamped and so needs tessellating.
    * - ``{{#branches}} ... {{/branches}}``
      - Repeats once per stage.
 

@@ -58,7 +58,12 @@ public class FlightPathExportOptions {
 		/** Altitudes are height above the terrain, which is right whatever the launch altitude says. */
 		GROUND("relativeToGround"),
 		/** Altitudes are height above sea level, for a simulation with a correct launch altitude. */
-		SEA_LEVEL("absolute");
+		SEA_LEVEL("absolute"),
+		/**
+		 * Altitudes are ignored and the geometry is laid flat on the terrain. The one to pick when
+		 * the question is what the rocket drifts <em>over</em> rather than how high it went.
+		 */
+		CLAMPED("clampToGround");
 
 		private final String kmlAltitudeMode;
 
@@ -98,6 +103,8 @@ public class FlightPathExportOptions {
 	private int pathStride = 1;
 	private StageTrackStart stageTrackStart = StageTrackStart.SEPARATION;
 	private AltitudeReference altitudeReference = AltitudeReference.AUTOMATIC;
+	private AltitudeReference waypointAltitudeReference = AltitudeReference.AUTOMATIC;
+	private boolean drawShadow = false;
 	private boolean showWaypointLabels = true;
 	private boolean colorWaypointPins = true;
 
@@ -170,6 +177,34 @@ public class FlightPathExportOptions {
 
 	public void setAltitudeReference(AltitudeReference altitudeReference) {
 		this.altitudeReference = (altitudeReference == null) ? AltitudeReference.AUTOMATIC : altitudeReference;
+	}
+
+	/**
+	 * What the exported waypoints' altitudes are measured from, which is set separately from the
+	 * track's: a flight is worth seeing suspended in the air, while the pins that label it are
+	 * easier to read against the ground they sit over.
+	 */
+	public AltitudeReference getWaypointAltitudeReference() {
+		return waypointAltitudeReference;
+	}
+
+	public void setWaypointAltitudeReference(AltitudeReference waypointAltitudeReference) {
+		this.waypointAltitudeReference =
+				(waypointAltitudeReference == null) ? AltitudeReference.AUTOMATIC : waypointAltitudeReference;
+	}
+
+	/**
+	 * Draw a line from the track and from each pin straight down to the ground. This is KML's
+	 * {@code <extrude>}, which Google Earth renders as a curtain under the path and a plumb line
+	 * under a pin, and it is how you read where a point in the air sits on the map. Meaningless
+	 * once the geometry is already lying on the ground, so it is ignored for a clamped reference.
+	 */
+	public boolean isDrawShadow() {
+		return drawShadow;
+	}
+
+	public void setDrawShadow(boolean drawShadow) {
+		this.drawShadow = drawShadow;
 	}
 
 	public boolean isShowWaypointLabels() {

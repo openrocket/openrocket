@@ -39,9 +39,9 @@ public class FlightPathModelBuilder {
 
 	/**
 	 * Coordinates written into the exported file when the simulation carries no launch position:
-	 * the Kennedy Space Center. A coordinate left at zero is OpenRocket's "not set" rather than a
-	 * real position on the equator or the prime meridian, and dropping a flight on Null Island
-	 * tells the reader nothing.
+	 * the Kennedy Space Center. Both coordinates at zero is OpenRocket's "not set" rather than a
+	 * real position in the Gulf of Guinea, and dropping a flight on Null Island tells the reader
+	 * nothing.
 	 *
 	 * <p>These are used for the exported coordinates only. Nothing here writes to the simulation,
 	 * and its launch position is left exactly as the user set it.
@@ -100,12 +100,11 @@ public class FlightPathModelBuilder {
 
 		double launchLat = simulation.getOptions().getLaunchLatitude();
 		double launchLon = simulation.getOptions().getLaunchLongitude();
-		// Either coordinate still at zero means the position was never filled in: a half-set one
-		// puts the track on the prime meridian or the equator, which is a plausible-looking lie.
-		// A real site sitting on exactly 0.000000 would have to be within a few centimeters of one
-		// of those lines, so treating zero as "not set" costs nothing in practice. This only
-		// chooses what coordinates to write out; the simulation's own launch position is untouched.
-		boolean unset = (launchLat == 0 || launchLon == 0);
+		// Both coordinates at zero is OpenRocket's "not set". A single zero is a real coordinate --
+		// the equator, or the prime meridian -- and a launch site on one of them is exported where
+		// the user put it. This only chooses what coordinates to write out; the simulation's own
+		// launch position is untouched either way.
+		boolean unset = (launchLat == 0 && launchLon == 0);
 		this.originLatitude = unset ? EXPORT_FALLBACK_LATITUDE : launchLat;
 		this.originLongitude = unset ? EXPORT_FALLBACK_LONGITUDE : launchLon;
 
@@ -152,6 +151,13 @@ public class FlightPathModelBuilder {
 		model.includeFlightPath = options.isIncludeFlightPath();
 		model.includeGroundTrack = options.isIncludeGroundTrack();
 		model.kmlAltitudeMode = altitudeReference().getKmlAltitudeMode();
+		model.kmlWaypointAltitudeMode = waypointAltitudeReference().getKmlAltitudeMode();
+		// Nothing to extrude to once the geometry is already lying on the ground.
+		model.extrudePath = options.isDrawShadow()
+				&& altitudeReference() != FlightPathExportOptions.AltitudeReference.CLAMPED;
+		model.extrudeWaypoints = options.isDrawShadow()
+				&& waypointAltitudeReference() != FlightPathExportOptions.AltitudeReference.CLAMPED;
+		model.tessellatePath = altitudeReference() == FlightPathExportOptions.AltitudeReference.CLAMPED;
 		model.showWaypointLabels = options.isShowWaypointLabels();
 		model.colorWaypointPins = options.isColorWaypointPins();
 
@@ -320,7 +326,7 @@ public class FlightPathModelBuilder {
 		w.longitudeStr = String.format(Locale.US, "%.6f", w.longitude);
 		w.altitudeMslMeters = altAgl + launchAltitude;
 		w.altitudeAglMeters = altAgl;
-		w.altitudeKmlMeters = kmlAltitude(altAgl);
+		w.altitudeKmlMeters = kmlAltitude(altAgl, waypointAltitudeReference());
 		w.time = ctx.time.get(i);
 		w.timeStr = String.format(Locale.US, "%.2f", w.time);
 
@@ -339,7 +345,7 @@ public class FlightPathModelBuilder {
 		p.longitude = longitude(ctx, i);
 		p.altitudeMslMeters = ctx.alt.get(i) + launchAltitude;
 		p.altitudeAglMeters = ctx.alt.get(i);
-		p.altitudeKmlMeters = kmlAltitude(ctx.alt.get(i));
+		p.altitudeKmlMeters = kmlAltitude(ctx.alt.get(i), altitudeReference());
 		p.time = ctx.time.get(i);
 		p.timeStr = String.format(Locale.US, "%.2f", p.time);
 		p.altitude = altUnit.toString(ctx.alt.get(i));
@@ -469,23 +475,31 @@ public class FlightPathModelBuilder {
 	}
 
 	/**
-	 * The altitude a KML coordinate should carry, matching the chosen altitude reference. Hanging
-	 * the track off the terrain is the default because OpenRocket's launch altitude defaults to
-	 * zero: measured against sea level, a flight from a 1200 m site is drawn 1200 m underground
-	 * and simply does not appear.
+	 * The altitude a KML coordinate should carry, for the given reference. Hanging geometry off the
+	 * terrain is the default because OpenRocket's launch altitude defaults to zero: measured
+	 * against sea level, a flight from a 1200 m site is drawn 1200 m underground and simply does
+	 * not appear.
+	 *
+	 * <p>A clamped coordinate's altitude is ignored by KML, but writing the height above the ground
+	 * rather than a bare zero keeps the number meaningful to anything else that reads the file.
 	 */
-	private double kmlAltitude(double altAgl) {
-		return (altitudeReference() == FlightPathExportOptions.AltitudeReference.SEA_LEVEL)
+	private double kmlAltitude(double altAgl, FlightPathExportOptions.AltitudeReference reference) {
+		return (reference == FlightPathExportOptions.AltitudeReference.SEA_LEVEL)
 				? altAgl + launchAltitude
 				: altAgl;
 	}
 
 	/**
-	 * The altitude reference to export in, with {@code AUTOMATIC} resolved against this
+	 * The altitude reference the track is exported in, with {@code AUTOMATIC} resolved against this
 	 * simulation's launch altitude.
 	 */
 	private FlightPathExportOptions.AltitudeReference altitudeReference() {
 		return options.getAltitudeReference().resolve(launchAltitude);
+	}
+
+	/** The altitude reference the waypoints are exported in. See {@link #altitudeReference()}. */
+	private FlightPathExportOptions.AltitudeReference waypointAltitudeReference() {
+		return options.getWaypointAltitudeReference().resolve(launchAltitude);
 	}
 
 	/** Scale every channel of an RRGGBB color towards black. */

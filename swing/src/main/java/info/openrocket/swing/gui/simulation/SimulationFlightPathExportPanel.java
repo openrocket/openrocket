@@ -6,15 +6,18 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.awt.Font;
 import java.awt.Window;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -237,6 +240,9 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		/** Waypoints enabled by default (matches {@link FlightPathExportOptions}). */
 		private static final EnumSet<Waypoint> DEFAULT_WAYPOINTS = EnumSet.allOf(Waypoint.class);
 
+		/** Columns the waypoint checkboxes are laid out in; keep in step with the grid's columns. */
+		private static final int WAYPOINT_COLUMNS = 3;
+
 		private final JComboBox<Unit> altitudeUnit = createUnitCombo();
 		private final JComboBox<Unit> distanceUnit = createUnitCombo();
 		private final Map<Waypoint, JCheckBox> waypointBoxes = new EnumMap<>(Waypoint.class);
@@ -248,54 +254,98 @@ public class SimulationFlightPathExportPanel extends JPanel {
 				trans.get("SimExpPan.flightPath.stageTracks.pad") });
 		private final JCheckBox waypointLabels = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.waypointLabels"));
 		private final JCheckBox colorPins = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.colorPins"));
-		private final JComboBox<String> altitudeReference = new JComboBox<>(new String[] {
-				trans.get("SimExpPan.flightPath.altitudeRef.automatic"),
-				trans.get("SimExpPan.flightPath.altitudeRef.ground"),
-				trans.get("SimExpPan.flightPath.altitudeRef.seaLevel") });
+		private final JComboBox<String> altitudeReference = createAltitudeReferenceCombo();
+		private final JComboBox<String> waypointAltitudeReference = createAltitudeReferenceCombo();
+		private final JCheckBox drawShadow = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.drawShadow"));
 
 		FlightPathOptionsPanel(boolean staged) {
 			super(new MigLayout("ins 0, fillx, wrap", "[grow]"));
 
-			// Every box below lays out one control per row in a two-column "label | control" grid,
-			// and anything wider goes in a nested panel of its own. Spanning a control across
-			// columns instead lets MigLayout under-report the width the box needs, and the dialog
-			// then hands it less than that and paints the labels with an ellipsis.
+			// Each box is a single growing column, and every row inside it is a nested panel with
+			// its own simple grid. Spanning controls across columns of one big grid instead lets
+			// MigLayout under-report the width the box needs, and the dialog then hands it less
+			// than that and paints the labels with an ellipsis.
 
-			JPanel units = new JPanel(new MigLayout("ins 5, fillx, wrap", "[][grow]"));
+			// The two unit pickers are a pair of short controls, so they share the box's one row.
+			JPanel units = new JPanel(new MigLayout("ins 5, fillx", "[][grow]para[][grow]"));
 			units.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.units")));
 			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.altitude")), textWidth());
 			units.add(altitudeUnit, "growx");
 			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.distance")), textWidth());
 			units.add(distanceUnit, "growx");
-			JLabel altRefLabel = new JLabel(trans.get("SimExpPan.flightPath.lbl.altitudeRef"));
-			String altRefTtip = trans.get("SimExpPan.flightPath.altitudeRef.ttip");
-			altRefLabel.setToolTipText(altRefTtip);
-			altitudeReference.setToolTipText(altRefTtip);
-			units.add(altRefLabel, textWidth());
-			units.add(altitudeReference, "growx");
 			add(units, "growx");
+
+			// Where the geometry sits on the map. The unit pickers are deliberately not in here:
+			// they choose how numbers are written, not where anything is placed.
+			JPanel placements = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
+			placements.setBorder(
+					BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.placements")));
+
+			// Nothing to draw a shadow onto once both references are already lying on the ground.
+			ActionListener shadowEnabler = e -> drawShadow.setEnabled(
+					selected(altitudeReference) != AltitudeReference.CLAMPED
+							|| selected(waypointAltitudeReference) != AltitudeReference.CLAMPED);
+			altitudeReference.addActionListener(shadowEnabler);
+			waypointAltitudeReference.addActionListener(shadowEnabler);
+
+			// Presets set the controls rather than acting behind them, so what the file will
+			// contain is always what the panel shows, and one can be taken as a starting point.
+			// They sit directly above the controls they move, so the effect of a click is visible
+			// in the same glance.
+			JPanel presetRow = new JPanel(new MigLayout("ins 0", "[]rel[]rel[]"));
+			presetRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.presets")), textWidth());
+			for (Preset preset : Preset.values()) {
+				JButton button = new JButton(trans.get(preset.labelKey()));
+				button.setToolTipText(trans.get(preset.tooltipKey()));
+				button.addActionListener(e -> {
+					preset.applyTo(this);
+					shadowEnabler.actionPerformed(e);
+				});
+				presetRow.add(button);
+			}
+			placements.add(presetRow);
+
+			// The two altitude references each keep a row: their choices are whole phrases. The
+			// track's and the pins' are set separately because a flight is worth seeing suspended
+			// in the air, while the pins that label it read better against the ground they sit over.
+			String altRefTtip = trans.get("SimExpPan.flightPath.altitudeRef.ttip");
+			placements.add(referenceRow(trans.get("SimExpPan.flightPath.lbl.trackAltitude"),
+					altitudeReference, altRefTtip), "growx");
+			placements.add(referenceRow(trans.get("SimExpPan.flightPath.lbl.waypointAltitude"),
+					waypointAltitudeReference, altRefTtip), "growx");
+
+			drawShadow.setToolTipText(trans.get("SimExpPan.flightPath.drawShadow.ttip"));
+			placements.add(drawShadow, textWidth());
+			add(placements, "growx");
 
 			JPanel wp = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			wp.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.waypoints")));
-			JPanel waypointGrid = new JPanel(new MigLayout("ins 0", "[]para[]"));
+			JPanel waypointGrid = new JPanel(new MigLayout("ins 0", "[]para[]para[]"));
 			int col = 0;
 			for (Waypoint w : Waypoint.values()) {
 				JCheckBox box = new JCheckBox(waypointLabel(w));
 				waypointBoxes.put(w, box);
-				waypointGrid.add(box, (col % 2 == 1) ? textWidth() + ", wrap" : textWidth());
+				boolean endOfRow = (col % WAYPOINT_COLUMNS == WAYPOINT_COLUMNS - 1);
+				waypointGrid.add(box, endOfRow ? textWidth() + ", wrap" : textWidth());
 				col++;
 			}
 			wp.add(waypointGrid);
+
+			// The two marker options are a pair, so they sit side by side rather than stacked.
+			JPanel markerRow = new JPanel(new MigLayout("ins 0", "[]para[]"));
 			waypointLabels.setToolTipText(trans.get("SimExpPan.flightPath.waypointLabels.ttip"));
-			wp.add(waypointLabels, "gaptop para, " + textWidth());
+			markerRow.add(waypointLabels, textWidth());
 			colorPins.setToolTipText(trans.get("SimExpPan.flightPath.colorPins.ttip"));
-			wp.add(colorPins, textWidth());
+			markerRow.add(colorPins, textWidth());
+			wp.add(markerRow, "gaptop para");
 			add(wp, "growx");
 
 			JPanel path = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			path.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.path")));
-			path.add(flightPath, textWidth());
-			path.add(groundTrack, textWidth());
+			JPanel geometryRow = new JPanel(new MigLayout("ins 0", "[]para[]"));
+			geometryRow.add(flightPath, textWidth());
+			geometryRow.add(groundTrack, textWidth());
+			path.add(geometryRow);
 
 			JPanel strideRow = new JPanel(new MigLayout("ins 0", "[][]"));
 			strideRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.stride")), textWidth());
@@ -329,7 +379,9 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			o.setIncludeGroundTrack(groundTrack.isSelected());
 			o.setPathStride((Integer) stride.getValue());
 			o.setStageTrackStart(StageTrackStart.values()[Math.max(0, stageTrackStart.getSelectedIndex())]);
-			o.setAltitudeReference(AltitudeReference.values()[Math.max(0, altitudeReference.getSelectedIndex())]);
+			o.setAltitudeReference(selected(altitudeReference));
+			o.setWaypointAltitudeReference(selected(waypointAltitudeReference));
+			o.setDrawShadow(drawShadow.isSelected() && drawShadow.isEnabled());
 			o.setShowWaypointLabels(waypointLabels.isSelected());
 			o.setColorWaypointPins(colorPins.isSelected());
 			return o;
@@ -347,6 +399,11 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			stride.setValue(p.getInt("pathStride", 1));
 			stageTrackStart.setSelectedIndex(stageTrackStartOrdinal(p.get("stageTrackStart", null)));
 			altitudeReference.setSelectedIndex(altitudeReferenceOrdinal(p.get("altitudeReference", null)));
+			waypointAltitudeReference.setSelectedIndex(
+					altitudeReferenceOrdinal(p.get("waypointAltitudeReference", null)));
+			drawShadow.setSelected(p.getBoolean("drawShadow", false));
+			drawShadow.setEnabled(selected(altitudeReference) != AltitudeReference.CLAMPED
+					|| selected(waypointAltitudeReference) != AltitudeReference.CLAMPED);
 			waypointLabels.setSelected(p.getBoolean("showWaypointLabels", true));
 			colorPins.setSelected(p.getBoolean("colorWaypointPins", true));
 		}
@@ -386,10 +443,103 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			p.putInt("pathStride", (Integer) stride.getValue());
 			p.put("stageTrackStart",
 					StageTrackStart.values()[Math.max(0, stageTrackStart.getSelectedIndex())].name());
-			p.put("altitudeReference",
-					AltitudeReference.values()[Math.max(0, altitudeReference.getSelectedIndex())].name());
+			p.put("altitudeReference", selected(altitudeReference).name());
+			p.put("waypointAltitudeReference", selected(waypointAltitudeReference).name());
+			p.putBoolean("drawShadow", drawShadow.isSelected());
 			p.putBoolean("showWaypointLabels", waypointLabels.isSelected());
 			p.putBoolean("colorWaypointPins", colorPins.isSelected());
+		}
+
+		/** One of the two altitude-reference pickers: the track's, and the pins'. */
+		private static JComboBox<String> createAltitudeReferenceCombo() {
+			return new JComboBox<>(new String[] {
+					trans.get("SimExpPan.flightPath.altitudeRef.automatic"),
+					trans.get("SimExpPan.flightPath.altitudeRef.ground"),
+					trans.get("SimExpPan.flightPath.altitudeRef.seaLevel"),
+					trans.get("SimExpPan.flightPath.altitudeRef.clamped") });
+		}
+
+		/** The reference a picker is showing. Its items are in {@link AltitudeReference} order. */
+		private static AltitudeReference selected(JComboBox<String> combo) {
+			return AltitudeReference.values()[Math.max(0, combo.getSelectedIndex())];
+		}
+
+		private static JPanel referenceRow(String label, JComboBox<String> combo, String tooltip) {
+			JPanel row = new JPanel(new MigLayout("ins 0, fillx", "[][grow]"));
+			JLabel rowLabel = new JLabel(label);
+			rowLabel.setToolTipText(tooltip);
+			combo.setToolTipText(tooltip);
+			row.add(rowLabel, textWidth());
+			row.add(combo, "growx");
+			return row;
+		}
+
+		/**
+		 * One-click placements. Each one only sets the controls below it, so the panel always shows
+		 * what the file will contain and a preset can be taken as a starting point and adjusted.
+		 */
+		private enum Preset {
+			/**
+			 * What the rocket drifts over: everything flat on the terrain, and the airborne line
+			 * dropped because clamped it would only trace the ground track again.
+			 */
+			DRIFT_CAST("driftCast", AltitudeReference.CLAMPED, AltitudeReference.CLAMPED,
+					false, true, false, EnumSet.allOf(Waypoint.class)),
+			/**
+			 * How high it went: suspended in the air where it belongs, with shadows so you can
+			 * still read where each point sits on the map.
+			 */
+			FLIGHT_PATH("flightPath", AltitudeReference.AUTOMATIC, AltitudeReference.AUTOMATIC,
+					true, true, true, EnumSet.allOf(Waypoint.class)),
+			/** Where it comes down, and nothing else. */
+			LANDING("landing", AltitudeReference.CLAMPED, AltitudeReference.CLAMPED,
+					false, false, false, EnumSet.of(Waypoint.LANDING));
+
+			private final String id;
+			private final AltitudeReference trackReference;
+			private final AltitudeReference waypointReference;
+			private final boolean flightPath;
+			private final boolean groundTrack;
+			private final boolean shadow;
+			/**
+			 * The waypoints this preset ticks, and by omission the ones it clears.
+			 *
+			 * <p>Every preset states the whole selection rather than only narrowing it. A preset
+			 * that just narrowed would be a one-way door: picking the landing-only placement and
+			 * then the flight-path one would leave the flight drawn with a single pin on it, and
+			 * nothing but eight manual ticks to undo that.
+			 */
+			private final Set<Waypoint> waypoints;
+
+			Preset(String id, AltitudeReference trackReference, AltitudeReference waypointReference,
+					boolean flightPath, boolean groundTrack, boolean shadow, Set<Waypoint> waypoints) {
+				this.id = id;
+				this.trackReference = trackReference;
+				this.waypointReference = waypointReference;
+				this.flightPath = flightPath;
+				this.groundTrack = groundTrack;
+				this.shadow = shadow;
+				this.waypoints = waypoints;
+			}
+
+			String labelKey() {
+				return "SimExpPan.flightPath.preset." + id;
+			}
+
+			String tooltipKey() {
+				return "SimExpPan.flightPath.preset." + id + ".ttip";
+			}
+
+			void applyTo(FlightPathOptionsPanel panel) {
+				panel.altitudeReference.setSelectedIndex(trackReference.ordinal());
+				panel.waypointAltitudeReference.setSelectedIndex(waypointReference.ordinal());
+				panel.flightPath.setSelected(flightPath);
+				panel.groundTrack.setSelected(groundTrack);
+				panel.drawShadow.setSelected(shadow);
+				for (Map.Entry<Waypoint, JCheckBox> e : panel.waypointBoxes.entrySet()) {
+					e.getValue().setSelected(waypoints.contains(e.getKey()));
+				}
+			}
 		}
 
 		private static JComboBox<Unit> createUnitCombo() {
