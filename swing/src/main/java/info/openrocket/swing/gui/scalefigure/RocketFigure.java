@@ -106,7 +106,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<>();
 	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<>();
-	/** Elements painted last, on top of everything (including absoluteExtra), using the rocket transform. */
+	/** Elements painted over the rocket but below screen-space HUD elements, using the rocket transform. */
 	private final ArrayList<FigureElement> relativeTopExtra = new ArrayList<>();
 
 	private static Color motorFillColor;
@@ -358,20 +358,22 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 
 		
-		// Draw absolute extras
-		g2.setTransform(baseTransform);
-		Rectangle rect = this.getVisibleRect();
-
-		for (FigureElement e : absoluteExtra) {
-			e.paint(g2, 1.0, rect);
-		}
-
-		// Draw relative top extras (on top of everything, using the rocket transform)
+		// Draw relative overlays above the rocket, but below the screen-space HUD.
+		// Calipers use this layer so their handles stay interactive without obscuring
+		// rocket information in the top corners.
 		if (drawCarets && !relativeTopExtra.isEmpty()) {
 			g2.setTransform(rocketTransform);
 			for (FigureElement e : relativeTopExtra) {
 				e.paint(g2, scale, visibleRect);
 			}
+		}
+
+		// Draw absolute screen-space extras last so informational text remains legible.
+		g2.setTransform(baseTransform);
+		Rectangle rect = this.getVisibleRect();
+
+		for (FigureElement e : absoluteExtra) {
+			e.paint(g2, 1.0, rect);
 		}
 
 	}
