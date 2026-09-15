@@ -1,7 +1,6 @@
 package info.openrocket.core.file.rasaero.export;
 
 import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.util.BugException;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.RocketSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -10,13 +9,13 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -31,6 +30,10 @@ public class RASAeroSaver extends RocketSaver {
      * The logger.
      */
     private static final Logger log = LoggerFactory.getLogger(RASAeroSaver.class);
+
+    private static final XmlMapper XML_MAPPER = (XmlMapper) new XmlMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public static class RASAeroExportException extends Exception {
         public RASAeroExportException(String errorMessage) {
@@ -47,14 +50,8 @@ public class RASAeroSaver extends RocketSaver {
      */
     public String marshalToRASAero(OpenRocketDocument doc, WarningSet warnings, ErrorSet errors) {
         try {
-            JAXBContext binder = JAXBContext.newInstance(RASAeroDocumentDTO.class);
-            Marshaller marshaller = binder.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            StringWriter sw = new StringWriter();
-
-            marshaller.marshal(toRASAeroDocumentDTO(doc, warnings, errors), sw);
-            return sw.toString();
+            return XML_MAPPER.writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(toRASAeroDocumentDTO(doc, warnings, errors));
         } catch (RASAeroExportException e) {
             errors.add(e.getMessage());
         } catch (Exception e) {
@@ -70,13 +67,9 @@ public class RASAeroSaver extends RocketSaver {
             ErrorSet errors) throws IOException {
         log.info("Saving .CDX1 file");
 
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8))) {
-            writer.write(marshalToRASAero(doc, warnings, errors));
-            writer.flush();
-        } catch (IOException e) {
-            log.warn("Failed to write RASAero export: " + e.getMessage());
-            throw new BugException(e);
-        }
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
+        writer.write(marshalToRASAero(doc, warnings, errors));
+        writer.flush();
     }
 
     @Override

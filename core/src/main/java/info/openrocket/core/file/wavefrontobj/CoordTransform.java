@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import de.javagl.obj.FloatTuple;
 import info.openrocket.core.util.CoordinateIF;
 
@@ -37,7 +37,7 @@ public class CoordTransform {
      * @param origYOffs the y-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      * @param origZOffs the z-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      */
-    public CoordTransform(@NotNull Axis xAxis, @NotNull Axis yAxis, @NotNull Axis zAxis,
+    public CoordTransform(@Nonnull Axis xAxis, @Nonnull Axis yAxis, @Nonnull Axis zAxis,
                           double origXOffs, double origYOffs, double origZOffs) {
         if (xAxis == null || yAxis == null || zAxis == null) {
             throw new IllegalArgumentException("Axes cannot be null");

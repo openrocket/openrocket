@@ -6,9 +6,7 @@ import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.Streamer;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * A RockSim recovery-device deployment event.
@@ -16,7 +14,6 @@ import jakarta.xml.bind.annotation.XmlElement;
  * RockSim misspells {@code DeplyTime} in its file format; that spelling must be
  * retained for compatibility.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class SimulationEventDTO {
 
 	private static final int NO_EVENT = 0;
@@ -30,41 +27,41 @@ public class SimulationEventDTO {
 	private static final String UNUSED_TEST_VALUES = "0,0,0";
 	private static final String STANDARD_TEST_TYPES = "28,28,28";
 
-	@XmlElement(name = RockSimCommonConstants.PART_SERIAL_NUMBER)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.PART_SERIAL_NUMBER)
 	private int partSerialNumber;
-	@XmlElement(name = RockSimCommonConstants.EVENT_TYPE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.EVENT_TYPE)
 	private int type;
-	@XmlElement(name = RockSimCommonConstants.DEPLOY_ALTITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEPLOY_ALTITUDE)
 	private double deployAltitude;
-	@XmlElement(name = RockSimCommonConstants.DEPLY_TIME)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEPLY_TIME)
 	private double deployTime;
-	@XmlElement(name = RockSimCommonConstants.HAS_DEPLOYED)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.HAS_DEPLOYED)
 	private final int hasDeployed = 0;
-	@XmlElement(name = RockSimCommonConstants.DEPLOYED_AT_ALTITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEPLOYED_AT_ALTITUDE)
 	private final double deployedAtAltitude = 0.0;
-	@XmlElement(name = RockSimCommonConstants.DEPLOYED_AT_VELOCITY)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEPLOYED_AT_VELOCITY)
 	private final double deployedAtVelocity = 0.0;
-	@XmlElement(name = RockSimCommonConstants.DEPLOYED_AT_RANGE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEPLOYED_AT_RANGE)
 	private final double deployedAtRange = 0.0;
-	@XmlElement(name = RockSimCommonConstants.DEPLOYED_AT_TIME)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEPLOYED_AT_TIME)
 	private final double deployedAtTime = 0.0;
-	@XmlElement(name = RockSimCommonConstants.DEVICE_ID)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.DEVICE_ID)
 	private int deviceId;
-	@XmlElement(name = RockSimCommonConstants.TEST_TYPE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_TYPE)
 	private final String testType = STANDARD_TEST_TYPES;
-	@XmlElement(name = RockSimCommonConstants.TEST_CONDITION)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_CONDITION)
 	private final String testCondition = UNUSED_TEST_VALUES;
-	@XmlElement(name = RockSimCommonConstants.TEST_VALUE_ALTITUDE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_VALUE_ALTITUDE)
 	private final String testValueAltitude = UNUSED_TEST_VALUES;
-	@XmlElement(name = RockSimCommonConstants.TEST_VALUE_DEGREES)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_VALUE_DEGREES)
 	private final String testValueDegrees = UNUSED_TEST_VALUES;
-	@XmlElement(name = RockSimCommonConstants.TEST_VALUE_PRESSURE)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_VALUE_PRESSURE)
 	private final String testValuePressure = UNUSED_TEST_VALUES;
-	@XmlElement(name = RockSimCommonConstants.TEST_VALUE_MACH)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_VALUE_MACH)
 	private final String testValueMach = UNUSED_TEST_VALUES;
-	@XmlElement(name = RockSimCommonConstants.TEST_VALUE_TIME)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_VALUE_TIME)
 	private final String testValueTime = UNUSED_TEST_VALUES;
-	@XmlElement(name = RockSimCommonConstants.TEST_VALUE_Q)
+	@JacksonXmlProperty(localName = RockSimCommonConstants.TEST_VALUE_Q)
 	private final String testValueQ = UNUSED_TEST_VALUES;
 
 	/** Constructor required by JAXB. */

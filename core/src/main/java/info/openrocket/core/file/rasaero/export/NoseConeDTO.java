@@ -6,37 +6,24 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.NoseCone;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants.NoseConeShapeSettings;
 
-@XmlRootElement(name = RASAeroCommonConstants.NOSE_CONE)
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {
-        "partType",
-        "length",
-        "diameter",
-        "shape",
-        "bluntRadius",
-        "location",
-        "color",
-        "powerLaw"
-})
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.NOSE_CONE)
 public class NoseConeDTO extends BasePartDTO {
 
-    @XmlElement(name = RASAeroCommonConstants.SHAPE)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SHAPE)
     private String shape;
-    @XmlElement(name = RASAeroCommonConstants.BLUNT_RADIUS)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BLUNT_RADIUS)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double bluntRadius = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.POWER_LAW)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.POWER_LAW)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double powerLaw;
 
     /**

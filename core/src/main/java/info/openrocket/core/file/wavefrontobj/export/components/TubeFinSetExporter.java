@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
@@ -14,7 +14,7 @@ import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 
 public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
-    public TubeFinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+    public TubeFinSetExporter(@Nonnull DefaultObj obj, FlightConfiguration config, @Nonnull CoordTransform transformer,
                               TubeFinSet component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
                               WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);

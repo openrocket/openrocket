@@ -4,20 +4,16 @@ import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.RadiusRingComponent;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * Centering ring conversion from OR to RockSim.
  */
-@XmlRootElement(name = RockSimCommonConstants.RING)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.RING)
 public class CenteringRingDTO extends BasePartDTO {
 
-    @XmlTransient
     protected enum UsageCode {
         // UsageCode
         CenteringRing(0),
@@ -33,13 +29,13 @@ public class CenteringRingDTO extends BasePartDTO {
         }
     }
 
-    @XmlElement(name = RockSimCommonConstants.OD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.OD)
     private double od = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.ID)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ID)
     private double id = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.USAGE_CODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.USAGE_CODE)
     private int usageCode = UsageCode.CenteringRing.ordinal;
-    @XmlElement(name = RockSimCommonConstants.AUTO_SIZE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.AUTO_SIZE)
     private int autoSize = 0;
 
     /**
