@@ -62,8 +62,8 @@ public class SimulationConditionsPanel extends JPanel {
 		// Simulation conditions settings
 		addSimulationConditionsPanel(this, simulationOptions);
 
-		// Add buttons for restoring and saving defaults
-		addDefaultButtons(simulationOptions);
+
+
 	}
 
 	/**
@@ -749,24 +749,6 @@ public class SimulationConditionsPanel extends JPanel {
 	}
 
 
-	private void addDefaultButtons(SimulationOptions options) {
-		// Reset to default
-		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
-		restoreDefaults.addActionListener(e -> {
-			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
-			SimulationOptions defaults = f.getDefault();
-			options.copyConditionsFrom(defaults);
-		});
-		this.add(restoreDefaults, "span, split 3, skip, gapright para, right");
-
-		// Save as default
-		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
-		saveDefaults.addActionListener(e -> {
-			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
-			f.saveDefault(options);
-		});
-		this.add(saveDefaults, "gapright para, right");
-	}
 
 	/**
 	 * Shh, don't tell anyone about this easter-egg. (displays a fun quote when the text of the spinner equals 42)
