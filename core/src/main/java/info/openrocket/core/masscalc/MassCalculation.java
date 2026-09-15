@@ -70,7 +70,20 @@ public class MassCalculation {
 	public void addInertia( final RigidBody data ) {
 		this.bodies.add( data );
 	}
-	
+
+	/**
+	 * Scale the mass and moment of inertia of every accumulated body by the given
+	 * non-negative factor.  Used when a mass override covers all subcomponents: the
+	 * geometric mass distribution is preserved but rescaled to the overridden total,
+	 * keeping the moment of inertia consistent with the mass.
+	 *
+	 * @param factor  non-negative scale factor
+	 */
+	void scaleInertia( final double factor ) {
+		for (int i = 0; i < this.bodies.size(); i++)
+			this.bodies.set(i, this.bodies.get(i).scaleMass(factor));
+	}
+
 	public void addMass( final CoordinateIF pointMass ) {
 		if( MIN_MASS > this.centerOfMass.getWeight() ){
 		    this.centerOfMass = pointMass;
@@ -353,6 +366,13 @@ public class MassCalculation {
 			// setting zero as the CG position means the top of the component, which is component.getPosition()
 			final CoordinateIF compZero = parentTransform.transform( component.getPosition() );
 
+			// Geometric (non-overridden) mass of this component, captured before a
+			// mass override rewrites compCM's weight.  A subcomponent mass override
+			// then rescales the inertia to the overridden mass instead of leaving it
+			// at the geometric value (see below).
+			final double componentGeometricMass = compCM.getWeight();
+			double inertiaMass = componentGeometricMass;
+
 			if (component.isMassOverridden()) {
 				if (!component.isMassive()) {
 					compCM = children.getCM();
@@ -360,7 +380,26 @@ public class MassCalculation {
 				compCM = compCM.setWeight(component.getOverrideMass());
 
 				if (component.isSubcomponentsOverriddenMass()) {
+					// The override replaces the mass of this component AND all of its
+					// subcomponents.  Keep the geometric mass *distribution* but
+					// rescale it to the overridden total so the moment of inertia
+					// stays consistent with the mass.  Previously only the mass was
+					// zeroed while the inertia of the subcomponents (and of this
+					// component) was left at its geometric value, so overriding the
+					// mass silently left the rotational/longitudinal inertia
+					// unchanged.
+					final double geometricMass = componentGeometricMass + children.getMass();
+					final double scale = geometricMass > MIN_MASS
+							? component.getOverrideMass() / geometricMass
+							: 0.0;
+					children.scaleInertia(scale);
 					children.setCM(children.getCM().setWeight(0));
+					inertiaMass = componentGeometricMass * scale;
+				} 
+				else {
+					// Override applies to this component only; its own inertia
+					// follows the overridden mass.
+					inertiaMass = component.getOverrideMass();
 				}
 			}
 
@@ -380,9 +419,9 @@ public class MassCalculation {
 				entry.updateAverageCM(compCM);
 			}
 			
-			final double compIx = component.getRotationalUnitInertia() * compCM.getWeight();
-			final double compIt = component.getLongitudinalUnitInertia() * compCM.getWeight();
-			final RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
+			final double compIx = component.getRotationalUnitInertia() * inertiaMass;
+			final double compIt = component.getLongitudinalUnitInertia() * inertiaMass;
+			final RigidBody componentInertia = new RigidBody( compCM.setWeight(inertiaMass), compIx, compIt, compIt );
 			this.addInertia( componentInertia );
 			// // vvv DEBUG
 			// if( 0 < compCM.getWeight() ) {
