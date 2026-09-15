@@ -2,11 +2,14 @@ package info.openrocket.swing.gui.util;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileView;
 
 import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.startup.Application;
 
 /**
@@ -19,6 +22,9 @@ public final class GraphicsEditorChooser {
 
 	public static Optional<String> chooseEditor(Component parentComponent) {
 		JFileChooser chooser = new JFileChooser();
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+			chooser.setFileView(createMacApplicationFileView());
+		}
 		File initialDirectory = determineInitialDirectory();
 		if (initialDirectory != null) {
 			chooser.setCurrentDirectory(initialDirectory);
@@ -33,6 +39,24 @@ public final class GraphicsEditorChooser {
 		}
 
 		return Optional.empty();
+	}
+
+	/**
+	 * Create a file view that exposes macOS application bundles as selectable files.
+	 * Swing otherwise treats these directories as folders and opens them in the chooser.
+	 */
+	static FileView createMacApplicationFileView() {
+		return new FileView() {
+			@Override
+			public Boolean isTraversable(File file) {
+				return isMacApplicationBundle(file) ? Boolean.FALSE : null;
+			}
+		};
+	}
+
+	private static boolean isMacApplicationBundle(File file) {
+		return file != null && file.isDirectory()
+				&& file.getName().toLowerCase(Locale.ROOT).endsWith(".app");
 	}
 
 	/**
