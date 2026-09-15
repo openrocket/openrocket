@@ -12,16 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OBJOptionChooserTest extends BaseTestCase {
     @Test
-    void blenderPresetUsesBlenderCompatibleOptions() {
+    void blenderOverridesPreserveRenderingOptions() {
         OBJExportOptions options = new OBJExportOptions(new Rocket());
-        options.setExportMotors(false);
-        options.setExportAppearance(false);
+        options.setExportMotors(true);
+        options.setExportAppearance(true);
         options.setUseSRGB(false);
         options.setScaling(20);
-        options.setTriangulate(true);
-        options.setLOD(ObjUtils.LevelOfDetail.LOW_QUALITY);
+        options.setTriangulate(false);
+        options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
 
-        OBJOptionChooser.applyBlenderPreset(options);
+        OBJOptionChooser.applyBlenderOverrides(options);
 
         assertTrue(options.isExportMotors());
         assertTrue(options.isExportAppearance());
@@ -35,7 +35,12 @@ class OBJOptionChooserTest extends BaseTestCase {
     @Test
     void blenderPresetMatcherRejectsChangedColorSpace() {
         OBJExportOptions options = new OBJExportOptions(new Rocket());
-        OBJOptionChooser.applyBlenderPreset(options);
+        options.setExportMotors(true);
+        options.setExportAppearance(true);
+        options.setTriangulate(false);
+        options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
+        options.setScaling(20);
+        OBJOptionChooser.applyBlenderOverrides(options);
         options.setUseSRGB(false);
 
         assertFalse(OBJOptionChooser.isOptimizedForBlender(options));

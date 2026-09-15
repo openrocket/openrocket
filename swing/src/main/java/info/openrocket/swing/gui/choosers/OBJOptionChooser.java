@@ -512,7 +512,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
                 options.getLOD() == ObjUtils.LevelOfDetail.HIGH_QUALITY && options.isRemoveOffset() && options.getScaling() == 1000;
     }
 
-    private void optimizeSettingsForRendering() {
+    private OBJExportOptions optimizeSettingsForRendering() {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
 
@@ -523,6 +523,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
         options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
 
         loadOptions(options);
+        return options;
     }
 
     /**
@@ -536,21 +537,16 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
     }
 
     private void optimizeSettingsForBlender() {
-        OBJExportOptions options = new OBJExportOptions(rocket);
-        storeOptions(options, true);
+        OBJExportOptions options = optimizeSettingsForRendering();
 
-        applyBlenderPreset(options);
+        applyBlenderOverrides(options);
 
         loadOptions(options);
     }
 
-    static void applyBlenderPreset(OBJExportOptions options) {
-        options.setExportMotors(true);
-        options.setExportAppearance(true);
+    static void applyBlenderOverrides(OBJExportOptions options) {
         options.setUseSRGB(true);
         options.setScaling(1);
-        options.setTriangulate(false);
-        options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
     }
 
     static boolean isOptimizedForBlender(OBJExportOptions options) {
