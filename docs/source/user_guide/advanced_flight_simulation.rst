@@ -458,6 +458,15 @@ The track and the waypoints are set separately because they want different answe
 worth seeing suspended in the air, while the markers that label it are easier to read against the
 ground they sit over -- so a common pairing is the track above sea level with the markers clamped.
 
+.. warning::
+
+   Exporting above sea level with the launch altitude left at zero draws the flight
+   underground. A launch site 1200 m above sea level reports a 700 m flight as 700 m above
+   *sea level*, which is 500 m below the terrain -- Google Earth then shows nothing at all.
+   The **Automatic** setting avoids this, but the real fix is to set the launch altitude on
+   the :guilabel:`Launch conditions` tab, since air density affects the simulated altitudes
+   and velocities too.
+
 Placements
 ----------
 
@@ -470,23 +479,18 @@ The three preset buttons set the placement controls in one click:
    * - Preset
      - What it sets
    * - Drift cast
-     - Everything flat on the terrain, ground track only -- for reading the hazards under the
-       drift. The airborne line is dropped because, clamped, it would only trace the ground track
-       again.
+     - Everything flat on the terrain, ground track only, every waypoint marked -- for reading the
+       hazards under the drift. The airborne line is dropped because, clamped, it would only trace
+       the ground track again.
    * - Flight path
-     - The flight suspended in the air where it belongs, both tracks drawn, with shadows down to
-       the ground so each point can still be placed on the map.
+     - The flight suspended in the air where it belongs, both tracks drawn, every waypoint marked,
+       with shadows down to the ground so each point can still be placed on the map.
    * - Landing plots
      - The landing marker alone, on the ground, with no tracks at all.
 
-.. warning::
-
-   Exporting above sea level with the launch altitude left at zero draws the flight
-   underground. A launch site 1200 m above sea level reports a 700 m flight as 700 m above
-   *sea level*, which is 500 m below the terrain -- Google Earth then shows nothing at all.
-   The **Automatic** setting avoids this, but the real fix is to set the launch altitude on
-   the :guilabel:`Launch conditions` tab, since air density affects the simulated altitudes
-   and velocities too.
+Each preset states the whole set of controls rather than only some of them, so clicking one
+always leaves the panel in a fully determined state and any preset can be reached from any
+other. That includes the waypoint selection: a preset will replace one you picked by hand.
 
 Staged flights
 --------------
