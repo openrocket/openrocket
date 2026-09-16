@@ -43,6 +43,21 @@ public class RigidBody {
 		return new RigidBody(newCM, newIxx, newIyy, newIzz);
 	}
 
+	/**
+	 * Return a copy of this body with its mass and moment of inertia scaled by the
+	 * given non-negative factor.  For a fixed geometry the moment of inertia scales
+	 * linearly with mass, so scaling the stored MOI together with the mass keeps the
+	 * body self-consistent under {@link #rebase(CoordinateIF)}, whose parallel-axis
+	 * term uses the mass.
+	 *
+	 * @param factor  non-negative scale factor
+	 * @return a mass- and inertia-scaled copy of this body
+	 */
+	public RigidBody scaleMass(final double factor) {
+		return new RigidBody(cm.setWeight(cm.getWeight() * factor),
+				Ixx * factor, Iyy * factor, Izz * factor);
+	}
+
 	public CoordinateIF getCenterOfMass() {
 		return cm;
 	}
