@@ -105,6 +105,7 @@ public class RocketActions {
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private final RocketAction exportOBJAction;
+	private final RocketAction exportThreeMFAction;
 	private final RocketAction exportSVGAction;
 	private final RocketAction toggleVisibilityAction;
 	private final RocketAction toggleVisibilityContextMenuAction;
@@ -135,6 +136,7 @@ public class RocketActions {
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
 		this.exportOBJAction = new ExportOBJAction();
+		this.exportThreeMFAction = new ExportThreeMFAction();
 		this.exportSVGAction = new ExportSVGAction();
 		this.toggleVisibilityAction = new ToggleVisibilityAction();
 		this.toggleVisibilityContextMenuAction = new ContextMenuToggleVisibilityAction();
@@ -188,6 +190,7 @@ public class RocketActions {
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
 		exportOBJAction.clipboardChanged();
+		exportThreeMFAction.clipboardChanged();
 		exportSVGAction.clipboardChanged();
 		toggleVisibilityAction.clipboardChanged();
 		toggleVisibilityContextMenuAction.clipboardChanged();
@@ -244,6 +247,10 @@ public class RocketActions {
 
 	public Action getExportOBJAction() {
 		return exportOBJAction;
+	}
+
+	public Action getExportThreeMFAction() {
+		return exportThreeMFAction;
 	}
 
 	public Action getExportSVGAction() {
@@ -1331,6 +1338,29 @@ public class RocketActions {
 				}
 			}
 			return false;
+		}
+	}
+
+	private class ExportThreeMFAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		ExportThreeMFAction() {
+			putValue(NAME, trans.get("RocketActions.ExportThreeMFAct.ExportThreeMF"));
+			putValue(SMALL_ICON, Icons.EXPORT_3D);
+			putValue(SHORT_DESCRIPTION, trans.get("RocketActions.ExportThreeMFAct.ttip.ExportThreeMF"));
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			if (!selectionModel.getSelectedComponents().isEmpty()) {
+				parentFrame.exportThreeMFAction();
+			}
+		}
+
+		@Override
+		public void clipboardChanged() {
+			setEnabled(ExportOBJAction.containsMassiveComponent(selectionModel.getSelectedComponents()));
 		}
 	}
 
