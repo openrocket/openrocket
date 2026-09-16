@@ -401,6 +401,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		public CoordinateIF windVelocity = new Coordinate(Double.NaN, Double.NaN, Double.NaN);
 		public double gravity = Double.NaN;
 		public double thrustForce = Double.NaN;
+		public double thrustCorrection = Double.NaN;
 		public double dragForce = Double.NaN;
 		public double lateralPitchRate = Double.NaN;
 
@@ -411,6 +412,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			FlightDataBranch dataBranch = status.getFlightDataBranch();
 
 			dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, thrustForce);
+			dataBranch.setValue(FlightDataType.TYPE_THRUST_CORRECTION, thrustCorrection);
 			dataBranch.setValue(FlightDataType.TYPE_GRAVITY, gravity);
 			dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
 
