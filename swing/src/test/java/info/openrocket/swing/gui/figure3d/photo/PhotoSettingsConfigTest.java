@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -80,6 +81,31 @@ class PhotoSettingsConfigTest extends BaseTestCase {
 				assertExhaustScaleEnabled(particleEffectsPanel, true);
 				settings.setSparks(false);
 				assertExhaustScaleEnabled(particleEffectsPanel, false);
+			} finally {
+				config.dispose();
+			}
+		});
+	}
+
+	@Test
+	void sparksCanBeDisabledWhileFlameIsDisabled() throws Exception {
+		SwingUtilities.invokeAndWait(() -> {
+			PhotoSettings settings = new PhotoSettings();
+			settings.setFlame(true);
+			settings.setSparks(true);
+			OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(
+					TestRockets.makeEstesAlphaIII());
+			document.getRocket().setSelectedConfiguration(TestRockets.TEST_FCID_0);
+			PhotoSettingsConfig config = new PhotoSettingsConfig(settings, document);
+			try {
+				JPanel particleEffectsPanel = assertInstanceOf(JPanel.class,
+						effectsPanel(config).getComponent(0));
+				JPanel sparksPanel = titledPanel(particleEffectsPanel, "PhotoSettingsConfig.lbl.sparks");
+				JCheckBox sparksCheck = assertInstanceOf(JCheckBox.class, sparksPanel.getComponent(1));
+
+				settings.setFlame(false);
+
+				assertTrue(sparksCheck.isEnabled());
 			} finally {
 				config.dispose();
 			}
