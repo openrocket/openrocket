@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -32,6 +34,7 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.file.flightpath.FlightPathExportOptions;
 import info.openrocket.core.file.flightpath.FlightPathExportOptions.AltitudeReference;
 import info.openrocket.core.file.flightpath.FlightPathExportOptions.StageTrackStart;
@@ -107,7 +110,7 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		formatPanel.add(formatSelector, "growx");
 		add(formatPanel, "growx");
 
-		this.options = new FlightPathOptionsPanel(isStaged(simulation));
+		this.options = new FlightPathOptionsPanel(isStaged(simulation), stageNames(simulation));
 		options.load(prefs);
 		add(options, "growx");
 
@@ -129,6 +132,17 @@ public class SimulationFlightPathExportPanel extends JPanel {
 	 */
 	private static boolean isStaged(Simulation simulation) {
 		return simulation.hasSimulationData() && simulation.getSimulatedData().getBranchCount() > 1;
+	}
+
+	/** One name per flight-data branch, in order, or empty when the simulation has not been run. */
+	private static List<String> stageNames(Simulation simulation) {
+		List<String> names = new ArrayList<>();
+		if (simulation.hasSimulationData()) {
+			for (FlightDataBranch branch : simulation.getSimulatedData().getBranches()) {
+				names.add(branch.getName());
+			}
+		}
+		return names;
 	}
 
 	/**
@@ -209,7 +223,7 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		Window parent = SwingUtilities.getWindowAncestor(this);
 		if (!SwingWorkerDialog.runWorker(parent, trans.get("SimExpPan.flightPath.progress.title"),
 				trans.get("SimExpPan.flightPath.progress.desc") + " " + outFile.getName() + "...", worker)) {
-			// User cancelled the write.
+			// User canceled the write.
 			outFile.delete();
 			return false;
 		}
@@ -257,9 +271,17 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		private final JComboBox<String> altitudeReference = createAltitudeReferenceCombo();
 		private final JComboBox<String> waypointAltitudeReference = createAltitudeReferenceCombo();
 		private final JCheckBox drawShadow = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.drawShadow"));
+		private final JButton stageColors = new JButton(trans.get("SimExpPan.flightPath.lbl.stageColors"));
+		private final JTextField missionName = new JTextField();
+		private final JCheckBox missionOnWaypoints =
+				new JCheckBox(trans.get("SimExpPan.flightPath.lbl.missionWaypoints"));
+		/** Track colors the user picked, keyed by stage index. Empty means the built-in palette. */
+		private final Map<Integer, Integer> branchColors = new LinkedHashMap<>();
+		private final List<String> stageNames;
 
-		FlightPathOptionsPanel(boolean staged) {
+		FlightPathOptionsPanel(boolean staged, List<String> stageNames) {
 			super(new MigLayout("ins 0, fillx, wrap", "[grow]"));
+			this.stageNames = stageNames;
 
 			// Each box is a single growing column, and every row inside it is a nested panel with
 			// its own simple grid. Spanning controls across columns of one big grid instead lets
@@ -274,6 +296,20 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			units.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.distance")), textWidth());
 			units.add(distanceUnit, "growx");
 			add(units, "growx");
+
+			// What this flight is called in the exported file. Its own box because it names the
+			// document, the folders and the tracks, not just one part of the geometry.
+			JPanel mission = new JPanel(new MigLayout("ins 5, fillx", "[][grow]para[]"));
+			mission.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.mission")));
+			JLabel missionLabel = new JLabel(trans.get("SimExpPan.flightPath.lbl.mission"));
+			String missionTtip = trans.get("SimExpPan.flightPath.mission.ttip");
+			missionLabel.setToolTipText(missionTtip);
+			missionName.setToolTipText(missionTtip);
+			missionOnWaypoints.setToolTipText(trans.get("SimExpPan.flightPath.missionWaypoints.ttip"));
+			mission.add(missionLabel, textWidth());
+			mission.add(missionName, "growx");
+			mission.add(missionOnWaypoints, textWidth());
+			add(mission, "growx");
 
 			// Where the geometry sits on the map. The unit pickers are deliberately not in here:
 			// they choose how numbers are written, not where anything is placed.
@@ -337,26 +373,41 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			markerRow.add(waypointLabels, textWidth());
 			colorPins.setToolTipText(trans.get("SimExpPan.flightPath.colorPins.ttip"));
 			markerRow.add(colorPins, textWidth());
-			wp.add(markerRow, "gaptop para");
+			wp.add(markerRow);
 			add(wp, "growx");
 
 			JPanel path = new JPanel(new MigLayout("ins 5, fillx, wrap", "[grow]"));
 			path.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.flightPath.border.path")));
-			JPanel geometryRow = new JPanel(new MigLayout("ins 0", "[]para[]"));
+			// A staged flight needs one swatch per stage, which is a variable-length list this box
+			// has no room to grow, so the choosing happens in a dialog of its own.
+			stageColors.setToolTipText(trans.get("SimExpPan.flightPath.stageColors.ttip"));
+			stageColors.setEnabled(!stageNames.isEmpty());
+			stageColors.addActionListener(e -> {
+				FlightPathColorDialog dialog = new FlightPathColorDialog(
+						SwingUtilities.getWindowAncestor(this), stageNames, branchColors);
+				dialog.setVisible(true);
+				Map<Integer, Integer> chosen = dialog.getResult();
+				if (chosen != null) {
+					branchColors.clear();
+					branchColors.putAll(chosen);
+				}
+			});
+
+			// What gets drawn, and how much of it.
+			JPanel geometryRow = new JPanel(new MigLayout("ins 0", "[]para[]para[][]"));
 			geometryRow.add(flightPath, textWidth());
 			geometryRow.add(groundTrack, textWidth());
+			geometryRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.stride")), textWidth());
+			geometryRow.add(stride);
 			path.add(geometryRow);
 
-			JPanel strideRow = new JPanel(new MigLayout("ins 0", "[][]"));
-			strideRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.stride")), textWidth());
-			strideRow.add(stride);
-			path.add(strideRow);
-
-			// Only a staged flight has a shared ascent to draw once or once per stage.
-			JPanel stageRow = new JPanel(new MigLayout("ins 0, fillx", "[][grow]"));
+			// How the stages are drawn. Only a staged flight has a shared ascent to draw once or
+			// once per stage, so the picker is disabled for a single-stage one.
 			JLabel stageTrackLabel = new JLabel(trans.get("SimExpPan.flightPath.lbl.stageTracks"));
+			JPanel stageRow = new JPanel(new MigLayout("ins 0, fillx", "[][grow]para[]"));
 			stageRow.add(stageTrackLabel, textWidth());
 			stageRow.add(stageTrackStart, "growx");
+			stageRow.add(stageColors);
 			if (!staged) {
 				stageTrackLabel.setEnabled(false);
 				stageTrackStart.setEnabled(false);
@@ -382,6 +433,12 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			o.setAltitudeReference(selected(altitudeReference));
 			o.setWaypointAltitudeReference(selected(waypointAltitudeReference));
 			o.setDrawShadow(drawShadow.isSelected() && drawShadow.isEnabled());
+			o.setMissionName(missionName.getText());
+			o.setLabelWaypointsWithMission(missionOnWaypoints.isSelected());
+			o.clearBranchColors();
+			for (Map.Entry<Integer, Integer> e : branchColors.entrySet()) {
+				o.setBranchColor(e.getKey(), e.getValue());
+			}
 			o.setShowWaypointLabels(waypointLabels.isSelected());
 			o.setColorWaypointPins(colorPins.isSelected());
 			return o;
@@ -402,6 +459,9 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			waypointAltitudeReference.setSelectedIndex(
 					altitudeReferenceOrdinal(p.get("waypointAltitudeReference", null)));
 			drawShadow.setSelected(p.getBoolean("drawShadow", false));
+			// The mission name itself is deliberately not restored: a stale one would quietly
+			// mislabel the next file. Whether it reaches the waypoints is a preference, so it is.
+			missionOnWaypoints.setSelected(p.getBoolean("labelWaypointsWithMission", false));
 			drawShadow.setEnabled(selected(altitudeReference) != AltitudeReference.CLAMPED
 					|| selected(waypointAltitudeReference) != AltitudeReference.CLAMPED);
 			waypointLabels.setSelected(p.getBoolean("showWaypointLabels", true));
@@ -446,6 +506,7 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			p.put("altitudeReference", selected(altitudeReference).name());
 			p.put("waypointAltitudeReference", selected(waypointAltitudeReference).name());
 			p.putBoolean("drawShadow", drawShadow.isSelected());
+			p.putBoolean("labelWaypointsWithMission", missionOnWaypoints.isSelected());
 			p.putBoolean("showWaypointLabels", waypointLabels.isSelected());
 			p.putBoolean("colorWaypointPins", colorPins.isSelected());
 		}

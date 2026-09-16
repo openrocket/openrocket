@@ -1,6 +1,8 @@
 package info.openrocket.core.file.flightpath;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import info.openrocket.core.unit.Unit;
@@ -104,7 +106,10 @@ public class FlightPathExportOptions {
 	private StageTrackStart stageTrackStart = StageTrackStart.SEPARATION;
 	private AltitudeReference altitudeReference = AltitudeReference.AUTOMATIC;
 	private AltitudeReference waypointAltitudeReference = AltitudeReference.AUTOMATIC;
+	private final Map<Integer, Integer> branchColors = new HashMap<>();
 	private boolean drawShadow = false;
+	private String missionName = "";
+	private boolean labelWaypointsWithMission = false;
 	private boolean showWaypointLabels = true;
 	private boolean colorWaypointPins = true;
 
@@ -199,6 +204,69 @@ public class FlightPathExportOptions {
 	 * under a pin, and it is how you read where a point in the air sits on the map. Meaningless
 	 * once the geometry is already lying on the ground, so it is ignored for a clamped reference.
 	 */
+	/**
+	 * The color to draw a stage's track in, as RRGGBB, or {@code null} to use the built-in palette
+	 * entry for that stage.
+	 *
+	 * <p>Keyed by the stage's position in the flight data rather than by its name, because two
+	 * stages of one rocket can carry the same name and would otherwise share a color. The ground
+	 * track and the waypoint pins are derived from this rather than chosen separately, so a stage
+	 * reads as one thing on the map instead of three unrelated ones.
+	 *
+	 * @param index the stage's position in the flight data, counting from zero
+	 */
+	public Integer getBranchColor(int index) {
+		return branchColors.get(index);
+	}
+
+	/** Override a stage's track color, or pass {@code null} to go back to the palette. */
+	public void setBranchColor(int index, Integer rgb) {
+		if (rgb == null) {
+			branchColors.remove(index);
+		} else {
+			branchColors.put(index, rgb & 0xFFFFFF);
+		}
+	}
+
+	/** Drop every override, so every stage goes back to its palette entry. */
+	public void clearBranchColors() {
+		branchColors.clear();
+	}
+
+	/**
+	 * A name for this flight, put in front of the exported document, folder and track names.
+	 *
+	 * <p>Without one, two files loaded into the same viewer collide: the rocket's stages are both
+	 * called "Sustainer", both tracks are called "Sustainer flight path", and two designs that each
+	 * have a "Simulation 1" are indistinguishable at the top of the tree. A mission name makes each
+	 * file say which flight it is.
+	 *
+	 * <p>Empty by default, and not remembered between exports - a stale one silently mislabeling
+	 * the next file is worse than typing it again.
+	 */
+	public String getMissionName() {
+		return missionName;
+	}
+
+	public void setMissionName(String missionName) {
+		this.missionName = (missionName == null) ? "" : missionName.trim();
+	}
+
+	/**
+	 * Whether the mission name is also put in front of every waypoint name.
+	 *
+	 * <p>Off by default. A near-vertical flight already packs its markers into a small patch of
+	 * screen, which is why their names can be switched off entirely; making every one longer makes
+	 * that worse. Worth turning on when the markers of two flights genuinely overlap on the map.
+	 */
+	public boolean isLabelWaypointsWithMission() {
+		return labelWaypointsWithMission;
+	}
+
+	public void setLabelWaypointsWithMission(boolean labelWaypointsWithMission) {
+		this.labelWaypointsWithMission = labelWaypointsWithMission;
+	}
+
 	public boolean isDrawShadow() {
 		return drawShadow;
 	}

@@ -434,6 +434,80 @@ public class FlightPathExportTest extends BaseTestCase {
 				countOccurrences(kml, "<extrude>1</extrude>"), kml);
 	}
 
+	/**
+	 * A mission name names the document, the folders and the tracks, so two files opened together
+	 * can be told apart in the tree. It stays off the waypoint markers unless asked for, because a
+	 * near-vertical flight already packs those together.
+	 */
+	@Test
+	public void aMissionNameNamesTheDocumentFoldersAndTracks() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setMissionName("Sod Blaster");
+		String kml = stagedKml(options);
+
+		assertTrue(kml.contains("<name>Sod Blaster KML test</name>"), kml);
+		assertTrue(kml.contains("<name>Sod Blaster Sustainer</name>"), kml);
+		assertTrue(kml.contains("<name>Sod Blaster Booster</name>"), kml);
+		assertTrue(kml.contains("<name>Sod Blaster Sustainer flight path</name>"), kml);
+		assertTrue(kml.contains("<name>Sod Blaster Booster ground track</name>"), kml);
+
+		// The markers keep their stage-qualified names and nothing more.
+		assertTrue(kml.contains("<name>Sustainer Apogee</name>"), kml);
+		assertFalse(kml.contains("<name>Sod Blaster Sustainer Apogee</name>"), kml);
+	}
+
+	/** Asked for, the mission name reaches the markers as well. */
+	@Test
+	public void theMissionNameCanReachTheWaypointsToo() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setMissionName("Sod Blaster");
+		options.setLabelWaypointsWithMission(true);
+
+		String kml = stagedKml(options);
+		assertTrue(kml.contains("<name>Sod Blaster Sustainer Apogee</name>"), kml);
+		assertTrue(kml.contains("<name>Sod Blaster Booster Landing</name>"), kml);
+	}
+
+	/**
+	 * A mission named after the thing it is already prefixing is not doubled up, so naming a
+	 * mission after the rocket does not produce "Sustainer Sustainer Apogee".
+	 */
+	@Test
+	public void aMissionNameIsNotRepeatedWhenItAlreadyLeadsTheName() {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setMissionName("Sustainer");
+		options.setLabelWaypointsWithMission(true);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), options).build();
+		assertEquals("Sustainer", model.branches.get(0).name);
+		assertEquals("Sustainer Apogee", waypointOfType(model.branches.get(0), "apogee").qualifiedLabel);
+	}
+
+	/** With no mission name the export is named exactly as it was before the option existed. */
+	@Test
+	public void noMissionNameLeavesEveryNameAlone() throws Exception {
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), new FlightPathExportOptions()).build();
+
+		assertEquals("", model.missionName);
+		assertEquals("KML test", model.title);
+		assertEquals("Sustainer", model.branches.get(0).name);
+		assertEquals("Sustainer Apogee", waypointOfType(model.branches.get(0), "apogee").qualifiedLabel);
+	}
+
+	/** Blank input is treated as no mission at all, rather than prefixing a space. */
+	@Test
+	public void aBlankMissionNameIsNoMissionName() {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setMissionName("   ");
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), options).build();
+		assertEquals("", model.missionName);
+		assertEquals("Sustainer", model.branches.get(0).name);
+	}
+
 	/** Pin tinting needs an icon off the network, so it can be turned off. */
 	@Test
 	public void waypointPinColorsCanBeTurnedOff() throws Exception {
@@ -467,6 +541,41 @@ public class FlightPathExportTest extends BaseTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		new FlightPathExporter(buildSimulation(), buildStagedFlightData(), options).export(template, out);
 		return out.toString(StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * A stage's track color can be overridden. The ground track and the pins are derived from it
+	 * rather than chosen separately, so a stage still reads as one thing on the map.
+	 */
+	@Test
+	public void aStageTrackColorCanBeOverridden() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setBranchColor(0, 0x112233);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), options).build();
+		assertEquals("112233", model.branches.get(0).colorRgb);
+		// Untouched stages keep their palette entry.
+		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultBranchColor(1)),
+				model.branches.get(1).colorRgb);
+
+		String kml = stagedKml(options);
+		// KML is aabbggrr, so 0x112233 is the track at ff332211 and the ground track darkened.
+		assertTrue(kml.contains("<color>ff332211</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>d0160f07</color>"), kml);
+		// The pin is tinted with the same track color.
+		assertTrue(kml.contains("<Style id=\"waypoint0\">"), kml);
+	}
+
+	/** With nothing overridden the export is exactly what the palette gives. */
+	@Test
+	public void stageColorsFallBackToThePalette() {
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), new FlightPathExportOptions()).build();
+		for (FlightPathModel.Branch branch : model.branches) {
+			assertEquals(String.format("%06x", FlightPathModelBuilder.defaultBranchColor(branch.index)),
+					branch.colorRgb);
+		}
 	}
 
 	/** Each stage gets its own line color so the tracks can be told apart on the map. */

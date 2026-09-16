@@ -38,6 +38,16 @@ public class FlightPathModelBuilder {
 	};
 
 	/**
+	 * The palette color a stage gets when nothing overrides it. Exposed so a chooser can show what
+	 * it would export before the user changes anything.
+	 *
+	 * @param index the stage's position in the flight data, counting from zero
+	 */
+	public static int defaultBranchColor(int index) {
+		return BRANCH_COLORS[Math.floorMod(index, BRANCH_COLORS.length)];
+	}
+
+	/**
 	 * Coordinates written into the exported file when the simulation carries no launch position:
 	 * the Kennedy Space Center. Both coordinates at zero is OpenRocket's "not set" rather than a
 	 * real position in the Gulf of Guinea, and dropping a flight on Null Island tells the reader
@@ -132,7 +142,8 @@ public class FlightPathModelBuilder {
 	public FlightPathModel build() {
 		FlightPathModel model = new FlightPathModel();
 
-		model.title = simulation.getName();
+		model.missionName = options.getMissionName();
+		model.title = withMission(simulation.getName());
 		model.simulationName = simulation.getName();
 		model.rocketName = safe(simulation.getRocket().getName());
 		try {
@@ -176,7 +187,8 @@ public class FlightPathModelBuilder {
 				FlightPathModel.Branch b = buildBranch(branch, primary);
 				if (b != null) {
 					b.index = model.branches.size();
-					int rgb = BRANCH_COLORS[b.index % BRANCH_COLORS.length];
+					Integer chosen = options.getBranchColor(b.index);
+					int rgb = (chosen != null) ? chosen : defaultBranchColor(b.index);
 					b.colorRgb = String.format(Locale.US, "%06x", rgb);
 					b.pathColorKml = kmlColor(rgb, 0xFF);
 					b.groundColorKml = kmlColor(darken(rgb, GROUND_TRACK_DARKEN), GROUND_TRACK_ALPHA);
@@ -213,9 +225,12 @@ public class FlightPathModelBuilder {
 		final int start = startIndex(branch, time, n, primary);
 
 		FlightPathModel.Branch modelBranch = new FlightPathModel.Branch();
-		modelBranch.name = branch.getName();
+		// The stage's own name qualifies the waypoint labels, while the branch's display name also
+		// carries the mission. Keeping them apart is what lets the mission stay off the markers.
+		String stageName = branch.getName();
+		modelBranch.name = withMission(stageName);
 
-		Ctx ctx = new Ctx(time, alt, lat, lon, x, y, xy, n, modelBranch.name, primary);
+		Ctx ctx = new Ctx(time, alt, lat, lon, x, y, xy, n, stageName, primary);
 
 		// Leaving the pad is something the whole vehicle does, not any one stage, so it is not
 		// qualified with a stage name the way the per-stage waypoints are.
@@ -316,7 +331,8 @@ public class FlightPathModelBuilder {
 		w.type = type;
 		w.label = label;
 		w.branchName = safe(ctx.branchName);
-		w.qualifiedLabel = qualify(qualifier, label);
+		String qualified = qualify(qualifier, label);
+		w.qualifiedLabel = options.isLabelWaypointsWithMission() ? withMission(qualified) : qualified;
 		w.device = device == null ? "" : device;
 
 		double altAgl = ctx.alt.get(i);
@@ -413,6 +429,22 @@ public class FlightPathModelBuilder {
 	 * name the stage (recovery devices are typically called "Booster Chute", "Sustainer Main")
 	 * are left alone rather than doubled up.
 	 */
+	/**
+	 * Put the mission name in front of something, unless there is no mission or the text already
+	 * begins with it. The second case matters because a mission named after the rocket would
+	 * otherwise read "Sod Blaster Sod Blaster Sustainer".
+	 */
+	private String withMission(String text) {
+		String mission = options.getMissionName();
+		if (mission == null || mission.isEmpty() || text == null) {
+			return safe(text);
+		}
+		if (text.toLowerCase(Locale.ROOT).startsWith(mission.toLowerCase(Locale.ROOT))) {
+			return text;
+		}
+		return mission + " " + text;
+	}
+
 	private String qualify(String qualifier, String label) {
 		if (!qualifyLabels || qualifier == null || qualifier.isEmpty() || label == null)
 			return safe(label);

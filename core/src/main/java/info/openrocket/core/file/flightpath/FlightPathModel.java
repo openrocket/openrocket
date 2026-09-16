@@ -19,6 +19,11 @@ public class FlightPathModel {
 	public String title = "";
 	public String rocketName = "";
 	public String simulationName = "";
+	/**
+	 * The user's name for this flight, already folded into {@link #title} and into each branch's
+	 * name. Exposed on its own so a template can place it somewhere else instead.
+	 */
+	public String missionName = "";
 	public String motor = "";
 	public String configuration = "";
 

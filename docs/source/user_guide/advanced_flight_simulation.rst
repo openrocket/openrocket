@@ -324,13 +324,13 @@ geographic track that can be opened in mapping tools such as Google Earth. This 
 from the :guilabel:`3D Path` tab of the simulation edit dialog.
 
 OpenRocket does not need a GPS log for this. A simulation already records how far the rocket
-has travelled from the pad at every time step, and the export turns that into coordinates
+has traveled from the pad at every time step, and the export turns that into coordinates
 starting from the launch site. The exported track therefore reflects the wind drift and the
 drift of separated stages.
 
 .. note::
 
-   The coordinates are rebuilt from the distance travelled rather than read from the
+   The coordinates are rebuilt from the distance traveled rather than read from the
    simulation's own latitude and longitude columns. Those are stored in a saved file rounded
    to three decimal places, which in degrees is about 94 m: a whole flight collapses onto two
    or three positions and the track comes out as a staircase of right angles. The same
@@ -385,6 +385,11 @@ Options
      - The units used for the altitude and distance values that appear in labels and in
        the waypoint CSV. Coordinate altitudes are always written in meters, as KML and GPX
        require.
+   * - Mission / Name
+     - A name for this flight, put in front of the exported document, folder and track
+       names. See `Naming a flight`_.
+   * - Prefix waypoints
+     - Also put the mission name in front of every waypoint name.
    * - Presets
      - Three one-click placements -- **Drift cast**, **Flight path** and **Landing plots** --
        which set the controls below rather than acting behind them, so the panel always shows what
@@ -422,8 +427,37 @@ Options
    * - Stage tracks
      - Where each stage's track begins on a staged flight. See `Staged flights`_. Disabled
        for a single-stage flight, which has nothing to divide up.
+   * - Stage colors...
+     - Opens a dialog for picking each stage's track color. See `Stage colors`_.
 
-The selected format and options are remembered for the next export.
+The selected format and options are remembered for the next export. The mission name and the
+stage colors are the two exceptions: both describe one particular export rather than how you
+like the exporter set up, and a remembered one would quietly mislabel or miscolor the next
+file.
+
+Naming a flight
+---------------
+
+Everything in an exported file is named after the simulation and the rocket's stages, which is
+enough while one file is open on its own. Open several together and the names collide: every
+two-stage design has a folder called *Sustainer* and a track called *Sustainer flight path*, and
+two different rockets can each have a *Simulation 1* at the top of the tree. There is then no way
+to tell which track belongs to which design.
+
+The :guilabel:`Name` field in the :guilabel:`Mission` box fixes that. Whatever you type is put
+in front of the document name, the stage folders and the tracks, so a mission named *Sod
+Blaster* exports *Sod Blaster Simulation 1* containing *Sod Blaster Sustainer* and *Sod Blaster
+Booster*. Load half a dozen of these into one Google Earth session and each flight is
+identifiable in the tree and switchable on its own.
+
+The waypoint markers are left alone by default, because a near-vertical flight already packs them
+into a small patch of screen and longer names overlap more. :guilabel:`Prefix waypoints` extends
+the naming to them as well, for when the markers of two flights genuinely sit on top of each other
+on the map.
+
+A name that already begins with the mission name is not prefixed twice, so naming a mission after
+the rocket does not produce *Sod Blaster Sod Blaster Sustainer*. An empty mission name -- the
+default -- names everything exactly as it was named before the option existed.
 
 Altitude reference
 ------------------
@@ -496,7 +530,7 @@ Staged flights
 --------------
 
 A staged flight produces one branch of flight data per stage, and the export gives each one
-its own folder, its own track color, and its own set of waypoints.
+its own folder, its own track color (see `Stage colors`_), and its own set of waypoints.
 
 Because every stage reaches its own apogee and its own landing, waypoint names are prefixed
 with the stage they belong to -- *Sustainer Apogee*, *Booster Landing* -- so that the
@@ -532,6 +566,28 @@ decides what to do with that:
    named something like *Sustainer Apogee* with only one half translated. Translating the
    whole phrase would need a format string for every label; it has not been done because
    these strings are currently only supplied in English.
+
+Stage colors
+------------
+
+Each stage is drawn in its own color, taken from a fixed palette of ten that repeats if a design
+somehow has more. One color does the whole stage: the flight path line is drawn in it, the ground
+track in a darkened shade of it, and the waypoint pins are tinted with it when
+:guilabel:`Color pins by stage` is on. That is what lets a track be attributed at a glance -- a
+bright line is in the air, the dark line beneath it is the same stage on the ground, and the
+markers along both belong to it.
+
+:guilabel:`Stage colors...` opens a dialog for overriding them, one swatch per stage. This is a
+separate dialog rather than a row of controls in the tab because the number of stages varies with
+the design and the tab has no room to grow. :guilabel:`Reset to defaults` puts every stage back on
+the palette color, and :guilabel:`Cancel` leaves the previous choice alone.
+
+The colors apply to the export you are about to write and are not remembered, so the next export
+starts from the palette again. Pick them when you need two files to stay apart in the same viewer
+-- a mission name separates them in the tree, and different colors separate them on the map.
+
+A single-stage flight has one color to set, which is worth doing for the same reason: two
+single-stage flights exported with the palette default are both blue.
 
 Output formats
 --------------
