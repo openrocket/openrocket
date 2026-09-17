@@ -211,6 +211,13 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
             thrust += currentMotorState.getThrust( status.getSimulationTime() );
         }
 
+		/**
+		 * Standard thrust curves provide motor thrust at standard pressure (101.325 kPa).  According to the rocket
+		 * thrust equation, total thrust is given by F0 + (Pe - P0)A where F0 is the thrust at standard pressure,
+		 * Pe is the standard pressure, P0 is the current atmospheric pressure, and A is the area of the motor nozzle.
+		 * (see https://www.grc.nasa.gov/www/k-12/airplane/rockth.html for further explanation)
+		 * This altitude correction is applied here.
+		 */
 		store.thrustCorrection = 0;
 		if (thrust > 0)  {
 			double area = store.flightConditions.getThrustingNozzleExitArea();
