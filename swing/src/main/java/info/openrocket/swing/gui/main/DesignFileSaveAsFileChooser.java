@@ -13,6 +13,7 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.StorageOptions.FileType;
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
+import info.openrocket.core.file.threemf.export.ThreeMFExportOptions;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -22,6 +23,7 @@ import info.openrocket.core.util.FileUtils;
 
 import info.openrocket.swing.gui.choosers.OBJOptionChooser;
 import info.openrocket.swing.gui.choosers.StorageOptionChooser;
+import info.openrocket.swing.gui.choosers.ThreeMFOptionChooser;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -92,6 +94,14 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 				}
 
 				break;
+			case THREE_MF:
+				defaultFilename = FileHelper.forceExtension(defaultFilename, "3mf");
+				this.setDialogTitle(trans.get("saveAs.threemf.title"));
+				ThreeMFExportOptions threeMFOptions = prefs.loadThreeMFExportOptions();
+				this.setAccessory(new ThreeMFOptionChooser(threeMFOptions));
+				this.addChoosableFileFilter(FileHelper.THREE_MF_FILTER);
+				this.setFileFilter(FileHelper.THREE_MF_FILTER);
+				break;
 		}
 		
 		final RememberFilenamePropertyListener listener = new RememberFilenamePropertyListener();
@@ -104,6 +114,14 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 		if (defaultFilename != null) {
 			this.setSelectedFile(defaultFilename);
 		}
+	}
+
+	@Override
+	public void approveSelection() {
+		if (getAccessory() instanceof ThreeMFOptionChooser chooser && !chooser.validateOptions()) {
+			return;
+		}
+		super.approveSelection();
 	}
 }
 
@@ -148,5 +166,4 @@ class RememberFilenamePropertyListener implements PropertyChangeListener {
 		}
 	}
 }
-
 

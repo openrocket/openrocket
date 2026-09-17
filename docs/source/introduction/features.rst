@@ -25,7 +25,7 @@ General
 
 * Export OpenRocket design file to other simulation programs (RockSim, RASAero II)
 
-* Export component(s) to OBJ file for 3D printing
+* Export component(s) to OBJ or an arranged multi-object 3MF package for 3D printing
 
 * Extensible with custom simulation listeners, expressions, and plugins
 
