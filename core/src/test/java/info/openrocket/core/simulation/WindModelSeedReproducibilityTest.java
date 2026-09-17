@@ -119,6 +119,45 @@ public class WindModelSeedReproducibilityTest extends BaseTestCase {
 		}
 	}
 
+	@Test
+	public void testClonedWindModelsDoNotShareListeners() {
+		PinkNoiseWindModel average = averageModel();
+		int[] averageEvents = { 0 };
+		average.addChangeListener(event -> averageEvents[0]++);
+		PinkNoiseWindModel averageClone = average.clone();
+		averageClone.setDirection(1.25);
+		assertEquals(0, averageEvents[0], "editing a clone must not notify the original average model");
+
+		MultiLevelPinkNoiseWindModel multiLevel = multiLevelModel();
+		int[] multiLevelEvents = { 0 };
+		multiLevel.addChangeListener(event -> multiLevelEvents[0]++);
+		MultiLevelPinkNoiseWindModel multiLevelClone = multiLevel.clone();
+		multiLevelClone.getLevels().get(0).setDirection(1.25);
+		assertEquals(0, multiLevelEvents[0], "editing a clone must not notify the original multi-level model");
+	}
+
+	@Test
+	public void testClonedSimulationOptionsForwardWindChangesToTheCopy() {
+		SimulationOptions original = new SimulationOptions();
+		int[] originalEvents = { 0 };
+		original.addChangeListener(event -> originalEvents[0]++);
+
+		SimulationOptions copy = original.clone();
+		int[] copyEvents = { 0 };
+		copy.addChangeListener(event -> copyEvents[0]++);
+
+		PinkNoiseWindModel averageCopy = copy.getAverageWindModel();
+		averageCopy.setDirection(averageCopy.getDirection() + 0.25);
+		assertEquals(1, copyEvents[0], "average-wind edits must notify cloned options");
+		assertEquals(0, originalEvents[0], "average-wind edits must not notify original options");
+
+		MultiLevelPinkNoiseWindModel multiLevelCopy = copy.getMultiLevelWindModel();
+		MultiLevelPinkNoiseWindModel.LevelWindModel level = multiLevelCopy.getLevels().get(0);
+		level.setDirection(level.getDirection() + 0.25);
+		assertEquals(2, copyEvents[0], "multi-level wind edits must notify cloned options");
+		assertEquals(0, originalEvents[0], "multi-level wind edits must not notify original options");
+	}
+
 	/** Wind speed sampled over the first seconds of a flight. */
 	private double[] sample(WindModel model) {
 		final double[] out = new double[40];

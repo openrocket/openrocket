@@ -8,6 +8,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -36,11 +37,25 @@ public class CheckTreeManager extends MouseAdapter implements TreeSelectionListe
         tree.setCellRenderer(new CheckTreeCellRenderer((DefaultTreeCellRenderer)tree.getCellRenderer(), selectionModel));
         tree.addMouseListener(this);
         selectionModel.addTreeSelectionListener(this);
+		initializeSelections(new TreePath(tree.getModel().getRoot()));
         
         for (int x = 0; x < tree.getRowCount(); x++) {
             tree.getSelectionModel().setSelectionPath(tree.getPathForRow(x));
         }
     }
+
+	private void initializeSelections(TreePath path) {
+		Object node = path.getLastPathComponent();
+		if (node instanceof DefaultMutableTreeNode mutableNode
+				&& mutableNode.getUserObject() instanceof CheckBoxNode checkBoxNode
+				&& checkBoxNode.isSelected()) {
+			selectionModel.addSelectionPath(path);
+		}
+		int childCount = tree.getModel().getChildCount(node);
+		for (int index = 0; index < childCount; index++) {
+			initializeSelections(path.pathByAddingChild(tree.getModel().getChild(node, index)));
+		}
+	}
 
     public void addTreeSelectionListener (TreeSelectionListener tsl) {
         selectionModel.addTreeSelectionListener(tsl);

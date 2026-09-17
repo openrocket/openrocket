@@ -10,6 +10,10 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Coordinate;
 
 public class AirStart extends AbstractSimulationExtension {
+	@Override
+	public boolean isMonteCarloSafe() {
+		return true;
+	}
 
 	@Override
 	public void initialize(SimulationConditions conditions) throws SimulationException {
