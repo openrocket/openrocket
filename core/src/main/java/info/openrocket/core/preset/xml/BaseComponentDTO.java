@@ -9,15 +9,20 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import info.openrocket.core.material.MaterialGroup;
-import jakarta.xml.bind.DatatypeConverter;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlInlineBinaryData;
-import jakarta.xml.bind.annotation.XmlValue;
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.material.Material;
@@ -30,24 +35,38 @@ import info.openrocket.core.unit.UnitGroup;
 /**
  * Base class for the external representation of all component presets.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+		@JsonSubTypes.Type(value = BodyTubeDTO.class, name = "BodyTube"),
+		@JsonSubTypes.Type(value = TubeCouplerDTO.class, name = "TubeCoupler"),
+		@JsonSubTypes.Type(value = NoseConeDTO.class, name = "NoseCone"),
+		@JsonSubTypes.Type(value = TransitionDTO.class, name = "Transition"),
+		@JsonSubTypes.Type(value = BulkHeadDTO.class, name = "BulkHead"),
+		@JsonSubTypes.Type(value = CenteringRingDTO.class, name = "CenteringRing"),
+		@JsonSubTypes.Type(value = EngineBlockDTO.class, name = "EngineBlock"),
+		@JsonSubTypes.Type(value = LaunchLugDTO.class, name = "LaunchLug"),
+		@JsonSubTypes.Type(value = RailButtonDTO.class, name = "RailButton"),
+		@JsonSubTypes.Type(value = StreamerDTO.class, name = "Streamer"),
+		@JsonSubTypes.Type(value = ParachuteDTO.class, name = "Parachute")})
 public abstract class BaseComponentDTO {
 
-	@XmlElement(name = "Manufacturer")
+	@JacksonXmlProperty(localName = "Manufacturer")
 	private String manufacturer;
-	@XmlElement(name = "PartNumber")
+	@JacksonXmlProperty(localName = "PartNumber")
 	private String partNo;
-	@XmlElement(name = "Description")
+	@JacksonXmlProperty(localName = "Description")
 	private String description;
-	@XmlElement(name = "Material")
+	@JacksonXmlProperty(localName = "Material")
 	private AnnotatedMaterialDTO material;
-	@XmlElement(name = "Mass")
+	@JacksonXmlProperty(localName = "Mass")
 	private AnnotatedMassDTO mass;
-	@XmlElement(name = "Filled")
+	@JacksonXmlProperty(localName = "Filled")
 	private Boolean filled;
-	@XmlInlineBinaryData
-	@XmlJavaTypeAdapter(Base64Adapter.class)
-	@XmlElement(name = "Thumbnail")
+	@JsonSerialize(using = Base64Serializer.class)
+	@JsonDeserialize(using = Base64Deserializer.class)
+	@JacksonXmlProperty(localName = "Thumbnail")
 	private byte[] image;
 
 	/**
@@ -125,6 +144,7 @@ public abstract class BaseComponentDTO {
 		mass = theMass;
 	}
 
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	public void setMass(final double theMass) {
 		mass = new AnnotatedMassDTO(theMass);
 	}
@@ -145,6 +165,7 @@ public abstract class BaseComponentDTO {
 		image = theImage;
 	}
 
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	public BufferedImage getImage() throws IOException {
 		if (image != null) {
 			return ImageIO.read(new ByteArrayInputStream(image));
@@ -152,6 +173,7 @@ public abstract class BaseComponentDTO {
 		return null;
 	}
 
+	@com.fasterxml.jackson.annotation.JsonIgnore
 	public void setImage(BufferedImage theImage) throws IOException {
 		if (theImage != null) {
 			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -220,11 +242,11 @@ public abstract class BaseComponentDTO {
 	}
 
 	static class AnnotatedMaterialDTO {
-		@XmlAttribute(name = "Type")
+		@JacksonXmlProperty(isAttribute = true, localName = "Type")
 		private String type;
-		@XmlValue
+		@JacksonXmlText
 		private String material;
-		@XmlAttribute(name = "Group")
+		@JacksonXmlProperty(isAttribute = true, localName = "Group")
 		private String materialGroup;
 
 		AnnotatedMaterialDTO() {
@@ -236,6 +258,17 @@ public abstract class BaseComponentDTO {
 			materialGroup = theMaterial.getGroup().getDatabaseString();
 		}
 
+		@JacksonXmlProperty(isAttribute = true, localName = "Type")
+		public void setType(String type) {
+			this.type = type;
+		}
+
+		@JacksonXmlProperty(isAttribute = true, localName = "Group")
+		public void setGroup(String materialGroup) {
+			this.materialGroup = materialGroup;
+		}
+
+		@com.fasterxml.jackson.annotation.JsonIgnore
 		public Material.Type getORMaterialType() {
 			if ("BULK".equals(type)) {
 				return Material.Type.BULK;
@@ -249,9 +282,9 @@ public abstract class BaseComponentDTO {
 	}
 
 	static class AnnotatedLengthDTO {
-		@XmlAttribute(name = "Unit", required = false)
-		private final String unitName;
-		@XmlValue
+		@JacksonXmlProperty(isAttribute = true, localName = "Unit")
+		private String unitName;
+		@JacksonXmlText
 		private double length;
 
 		AnnotatedLengthDTO() {
@@ -263,15 +296,20 @@ public abstract class BaseComponentDTO {
 			this.length = length;
 		}
 
+		@JacksonXmlProperty(isAttribute = true, localName = "Unit")
+		public void setUnit(String unitName) {
+			this.unitName = unitName;
+		}
+
 		public double getValue() {
 			return UnitGroup.UNITS_LENGTH.getUnit(unitName).fromUnit(length);
 		}
 	}
 
 	static class AnnotatedMassDTO {
-		@XmlAttribute(name = "Unit", required = false)
-		private final String unitName;
-		@XmlValue
+		@JacksonXmlProperty(isAttribute = true, localName = "Unit")
+		private String unitName;
+		@JacksonXmlText
 		private double mass;
 
 		AnnotatedMassDTO() {
@@ -283,26 +321,43 @@ public abstract class BaseComponentDTO {
 			this.mass = mass;
 		}
 
+		@JacksonXmlProperty(isAttribute = true, localName = "Unit")
+		public void setUnit(String unitName) {
+			this.unitName = unitName;
+		}
+
 		public double getValue() {
 			return UnitGroup.UNITS_MASS.getUnit(unitName).fromUnit(mass);
 		}
 	}
 
-	static class Base64Adapter extends XmlAdapter<String, byte[]> {
-		@Override
-		public byte[] unmarshal(String s) {
-			if (s == null) {
-				return null;
-			}
-			return DatatypeConverter.parseBase64Binary(s);
+	static class Base64Serializer extends StdSerializer<byte[]> {
+		public Base64Serializer() {
+			super(byte[].class);
 		}
 
 		@Override
-		public String marshal(byte[] bytes) {
-			if (bytes == null) {
+		public void serialize(byte[] value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+			if (value == null) {
+				gen.writeNull();
+				return;
+			}
+			gen.writeString(java.util.Base64.getEncoder().encodeToString(value));
+		}
+	}
+
+	static class Base64Deserializer extends StdDeserializer<byte[]> {
+		public Base64Deserializer() {
+			super(byte[].class);
+		}
+
+		@Override
+		public byte[] deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+			String s = p.getText();
+			if (s == null) {
 				return null;
 			}
-			return DatatypeConverter.printBase64Binary(bytes);
+			return java.util.Base64.getDecoder().decode(s);
 		}
 	}
 }

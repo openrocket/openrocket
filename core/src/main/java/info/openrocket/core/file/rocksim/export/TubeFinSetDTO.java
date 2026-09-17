@@ -3,25 +3,22 @@ package info.openrocket.core.file.rocksim.export;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This class models an XML element for a Rocksim TubeFinSet.
  */
-@XmlRootElement(name = RockSimCommonConstants.TUBE_FIN_SET)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.TUBE_FIN_SET)
 public class TubeFinSetDTO extends BasePartDTO {
 
-    @XmlElement(name = RockSimCommonConstants.OD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.OD)
     private double od = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.ID)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ID)
     private double id = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.TUBE_COUNT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TUBE_COUNT)
     private int tubeCount = 0;
-    @XmlElement(name = RockSimCommonConstants.MAX_TUBES_ALLOWED)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.MAX_TUBES_ALLOWED)
     private int maxTubeCount = 0;
 
     /**

@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RingComponentExporter extends RocketComponentExporter<RingComponent> {
-    public RingComponentExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+    public RingComponentExporter(@Nonnull DefaultObj obj, FlightConfiguration config, @Nonnull CoordTransform transformer,
                                  RingComponent component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
                                  WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);

@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
@@ -13,7 +13,7 @@ import info.openrocket.core.rocketcomponent.LaunchLug;
 import info.openrocket.core.util.CoordinateIF;
 
 public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
-    public LaunchLugExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+    public LaunchLugExporter(@Nonnull DefaultObj obj, FlightConfiguration config, @Nonnull CoordTransform transformer,
                              LaunchLug component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }

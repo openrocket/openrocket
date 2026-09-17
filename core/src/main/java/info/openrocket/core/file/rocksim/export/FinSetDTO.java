@@ -8,43 +8,40 @@ import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * This class models XML elements for Rocksim finsets.
  */
-@XmlRootElement(name = RockSimCommonConstants.FIN_SET)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.FIN_SET)
 public class FinSetDTO extends BasePartDTO {
 
-    @XmlElement(name = RockSimCommonConstants.FIN_COUNT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.FIN_COUNT)
     private int finCount = 0;
-    @XmlElement(name = RockSimCommonConstants.ROOT_CHORD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ROOT_CHORD)
     private double rootChord = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.TIP_CHORD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TIP_CHORD)
     private double tipChord = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SEMI_SPAN)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SEMI_SPAN)
     private double semiSpan = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SWEEP_DISTANCE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SWEEP_DISTANCE)
     private double sweepDistance = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.THICKNESS)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.THICKNESS)
     private double thickness = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SHAPE_CODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SHAPE_CODE)
     private int shapeCode = 0;
-    @XmlElement(name = RockSimCommonConstants.TIP_SHAPE_CODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TIP_SHAPE_CODE)
     private int tipShapeCode = 0;
-    @XmlElement(name = RockSimCommonConstants.TAB_LENGTH)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TAB_LENGTH)
     private double tabLength = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.TAB_DEPTH)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TAB_DEPTH)
     private double tabDepth = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.TAB_OFFSET)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.TAB_OFFSET)
     private double tabOffset = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.SWEEP_MODE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.SWEEP_MODE)
     private int sweepMode = 1;
-    @XmlElement(name = RockSimCommonConstants.CANT_ANGLE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.CANT_ANGLE)
     private double cantAngle = 0.0d;
 
     /**

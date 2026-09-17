@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.xml.bind.JAXBException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class OpenRocketComponentLoader implements Loader<ComponentPreset> {
 			List<ComponentPreset> presets = dto.asComponentPresets();
 			log.debug("ComponentPreset file " + filename + " contained " + presets.size() + " presets");
 			return presets;
-		} catch (JAXBException | InvalidComponentPresetException e) {
+		} catch (InvalidComponentPresetException e) {
 			throw new IOException("Unable to parse component preset file: " + filename, e);
 		}
 
