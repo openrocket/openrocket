@@ -4,7 +4,7 @@ import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.core.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 
-import java.awt.Color;
+import info.openrocket.core.util.ORColor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +25,7 @@ class OpenRocketDocumentPreferencesTest extends BaseTestCase {
 		});
 
 		assertTrue(document.isSaved());
-		preferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, Color.BLUE);
+		preferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, new ORColor(0, 0, 255));
 
 		assertFalse(document.isSaved());
 		assertEquals(1, changeEvents.get());
