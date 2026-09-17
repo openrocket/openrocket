@@ -54,6 +54,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
     // Widgets
     private final JButton opt3DPrint;
     private final JButton optRend;
+    private final JButton optBlender;
     private final JLabel componentsLabel;
     private final JCheckBox exportChildren;
     private final JCheckBox exportAllInstances;
@@ -112,7 +113,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
                 optimizeSettingsFor3DPrinting();
 
                 // Highlight the button to show that it is selected
-                highlightButton(opt3DPrint, optRend);
+                highlightButton(opt3DPrint, optRend, optBlender);
 
                 // Shhhh...
                 totallyNormalCounter = temp + 1;
@@ -131,11 +132,26 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
                 optimizeSettingsForRendering();
 
                 // Highlight the button to show that it is selected
-                highlightButton(optRend, opt3DPrint);
+                highlightButton(optRend, opt3DPrint, optBlender);
             }
         });
         destroyTheMagic(optRend);
-        this.add(optRend, "wrap");
+        this.add(optRend);
+
+        //// Blender
+        this.optBlender = new JButton(trans.get("OBJOptionChooser.btn.optBlender"));
+        this.optBlender.setToolTipText(trans.get("OBJOptionChooser.btn.optBlender.ttip"));
+        this.optBlender.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                optimizeSettingsForBlender();
+
+                // Highlight the button to show that it is selected
+                highlightButton(optBlender, opt3DPrint, optRend);
+            }
+        });
+        destroyTheMagic(optBlender);
+        this.add(optBlender, "wrap");
 
         this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
@@ -227,6 +243,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
         this.sRGB = new JCheckBox(trans.get("OBJOptionChooser.checkbox.sRGB"));
         this.sRGB.setToolTipText(trans.get("OBJOptionChooser.checkbox.sRGB.ttip"));
         destroyTheMagic(sRGB);
+        addOptimizationListener(sRGB);
         advancedOptionsPanel.add(sRGB, "spanx, wrap");
 
         //// Triangulate
@@ -354,13 +371,15 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
     }
 
     /**
-     * Highlight the given button and un-highlight the other button.
+     * Highlight the given button and un-highlight the other buttons.
      * @param highlightButton The button to highlight
-     * @param loserButton The button to un-highlight
+     * @param loserButtons The buttons to un-highlight
      */
-    private void highlightButton(JButton highlightButton, JButton loserButton) {
+    private void highlightButton(JButton highlightButton, JButton... loserButtons) {
         highlightButton.setBorder(BorderFactory.createLineBorder(darkWarningColor));
-        loserButton.setBorder(UIManager.getBorder("Button.border"));
+        for (JButton loserButton : loserButtons) {
+            loserButton.setBorder(UIManager.getBorder("Button.border"));
+        }
     }
 
     private void updateComponentsLabel(List<RocketComponent> components) {
@@ -493,7 +512,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
                 options.getLOD() == ObjUtils.LevelOfDetail.HIGH_QUALITY && options.isRemoveOffset() && options.getScaling() == 1000;
     }
 
-    private void optimizeSettingsForRendering() {
+    private OBJExportOptions optimizeSettingsForRendering() {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
 
@@ -504,6 +523,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
         options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
 
         loadOptions(options);
+        return options;
     }
 
     /**
@@ -514,6 +534,25 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
     private boolean isOptimizedForRendering(OBJExportOptions options) {
         return options.isExportMotors() && options.isExportAppearance() && !options.isTriangulate() &&
                 options.getLOD() == ObjUtils.LevelOfDetail.NORMAL_QUALITY && options.getScaling() == 20;
+    }
+
+    private void optimizeSettingsForBlender() {
+        OBJExportOptions options = optimizeSettingsForRendering();
+
+        applyBlenderOverrides(options);
+
+        loadOptions(options);
+    }
+
+    static void applyBlenderOverrides(OBJExportOptions options) {
+        options.setUseSRGB(true);
+        options.setScaling(1);
+    }
+
+    static boolean isOptimizedForBlender(OBJExportOptions options) {
+        return options.isExportMotors() && options.isExportAppearance() && options.isUseSRGB() &&
+                !options.isTriangulate() && options.getLOD() == ObjUtils.LevelOfDetail.NORMAL_QUALITY &&
+                options.getScaling() == 1;
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
@@ -565,12 +604,15 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
         if (isOptimizedFor3DPrinting(options)) {
-            highlightButton(opt3DPrint, optRend);
+            highlightButton(opt3DPrint, optRend, optBlender);
+        } else if (isOptimizedForBlender(options)) {
+            highlightButton(optBlender, opt3DPrint, optRend);
         } else if (isOptimizedForRendering(options)) {
-            highlightButton(optRend, opt3DPrint);
+            highlightButton(optRend, opt3DPrint, optBlender);
         } else {
             opt3DPrint.setBorder(UIManager.getBorder("Button.border"));
             optRend.setBorder(UIManager.getBorder("Button.border"));
+            optBlender.setBorder(UIManager.getBorder("Button.border"));
         }
     }
 
