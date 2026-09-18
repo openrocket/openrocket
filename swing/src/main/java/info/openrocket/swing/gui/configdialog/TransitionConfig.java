@@ -90,7 +90,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
 			register(shapeModel);
 
-			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
+			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel(0.1));
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
 			panel.add(shapeSpinner, "growx");
 			order.add(((SpinnerEditor) shapeSpinner.getEditor()).getTextField());
