@@ -38,6 +38,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 	private ConfigHandler configHandler;
 	private FlightDataHandler dataHandler;
 	private SimulationPlotAppearanceHandler plotAppearanceHandler;
+	private LandingDispersionSettingsHandler landingDispersionSettingsHandler;
 
 	private final List<SimulationExtension> extensions = new ArrayList<>();
 
@@ -69,6 +70,9 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		} else if (element.equals("plotappearance")) {
 			plotAppearanceHandler = new SimulationPlotAppearanceHandler();
 			return plotAppearanceHandler;
+		} else if (element.equals("landingdispersion")) {
+			landingDispersionSettingsHandler = new LandingDispersionSettingsHandler(attributes, warnings);
+			return landingDispersionSettingsHandler;
 		} else {
 			warnings.add("Unknown element '" + element + "', ignoring.");
 			return null;
@@ -161,6 +165,9 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
 				options, extensions, data, plotAppearances);
 		simulation.setFlightConfigurationId(idToSet);
+		if (landingDispersionSettingsHandler != null) {
+			simulation.setLandingDispersionSettings(landingDispersionSettingsHandler.getSettings());
+		}
 
 		doc.addSimulation(simulation);
 	}

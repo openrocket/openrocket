@@ -11,6 +11,20 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.Config;
 
 public interface SimulationExtension {
+	/**
+	 * Return whether this extension is safe to execute repeatedly and concurrently
+	 * as part of a Monte Carlo analysis. A safe extension must confine mutations to
+	 * the copied simulation and must not perform external side effects such as file,
+	 * console, network, or user-interface output.
+	 * <p>
+	 * Extensions default to unsafe so custom code must explicitly opt in after
+	 * verifying those guarantees.
+	 *
+	 * @return {@code true} if this extension may run in a Monte Carlo ensemble
+	 */
+	default boolean isMonteCarloSafe() {
+		return false;
+	}
 
 	/**
 	 * Return the simulation extension ID that is used when storing this
