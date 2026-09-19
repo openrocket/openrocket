@@ -48,6 +48,35 @@ public class FlightPathModelBuilder {
 	}
 
 	/**
+	 * Per-branch ground-track colors. A separate palette from {@link #BRANCH_COLORS} rather than a
+	 * shade of it: seen from straight overhead a ground track sits directly under its flight path,
+	 * so entry <em>i</em> here is picked to contrast with entry <em>i</em> there. They are also
+	 * saturated enough to hold up over aerial imagery, which is what a ground track is read against.
+	 */
+	private static final int[] GROUND_COLORS = {
+			0xFF2D55, 0x00B3A4, 0x8E44AD, 0x2ECC40, 0xE01B84,
+			0xD35400, 0x1ABC9C, 0x2E86C1, 0x27AE60, 0xE74C3C,
+	};
+
+	/**
+	 * The ground-track color a stage gets when nothing overrides it, from a palette of its own.
+	 *
+	 * @param index the stage's position in the flight data, counting from zero
+	 */
+	public static int defaultGroundColor(int index) {
+		return GROUND_COLORS[Math.floorMod(index, GROUND_COLORS.length)];
+	}
+
+	/**
+	 * The waypoint-pin color a stage gets when nothing overrides it: its palette entry.
+	 *
+	 * @param index the stage's position in the flight data, counting from zero
+	 */
+	public static int defaultPinColor(int index) {
+		return defaultBranchColor(index);
+	}
+
+	/**
 	 * Coordinates written into the exported file when the simulation carries no launch position:
 	 * the Kennedy Space Center. Both coordinates at zero is OpenRocket's "not set" rather than a
 	 * real position in the Gulf of Guinea, and dropping a flight on Null Island tells the reader
@@ -58,15 +87,6 @@ public class FlightPathModelBuilder {
 	 */
 	public static final double EXPORT_FALLBACK_LATITUDE = 28.61;
 	public static final double EXPORT_FALLBACK_LONGITUDE = -80.6;
-
-	/**
-	 * Ground tracks keep their branch's hue so you can still tell the stages apart on the map, but
-	 * are darkened hard against the flight path's full-strength color. Hue alone does not separate
-	 * them: looking straight down, a ground track sits right under its flight path, and two lines
-	 * of the same color read as one.
-	 */
-	private static final double GROUND_TRACK_DARKEN = 0.45;
-	private static final int GROUND_TRACK_ALPHA = 0xD0;
 
 	private final Simulation simulation;
 	private final FlightData data;
@@ -187,11 +207,18 @@ public class FlightPathModelBuilder {
 				FlightPathModel.Branch b = buildBranch(branch, primary);
 				if (b != null) {
 					b.index = model.branches.size();
-					Integer chosen = options.getBranchColor(b.index);
-					int rgb = (chosen != null) ? chosen : defaultBranchColor(b.index);
+					// Each of the three is a color in its own right: it is either the one the user
+					// picked or this stage's default, and nothing is computed from the others.
+					int rgb = color(options.getBranchColor(b.index), defaultBranchColor(b.index));
+					int groundRgb = color(options.getBranchGroundColor(b.index), defaultGroundColor(b.index));
+					int pinRgb = color(options.getBranchPinColor(b.index), defaultPinColor(b.index));
+
 					b.colorRgb = String.format(Locale.US, "%06x", rgb);
+					b.groundColorRgb = String.format(Locale.US, "%06x", groundRgb);
+					b.pinColorRgb = String.format(Locale.US, "%06x", pinRgb);
 					b.pathColorKml = kmlColor(rgb, 0xFF);
-					b.groundColorKml = kmlColor(darken(rgb, GROUND_TRACK_DARKEN), GROUND_TRACK_ALPHA);
+					b.groundColorKml = kmlColor(groundRgb, 0xFF);
+					b.pinColorKml = kmlColor(pinRgb, 0xFF);
 
 					model.branches.add(b);
 					primary = false;
@@ -534,12 +561,9 @@ public class FlightPathModelBuilder {
 		return options.getWaypointAltitudeReference().resolve(launchAltitude);
 	}
 
-	/** Scale every channel of an RRGGBB color towards black. */
-	private static int darken(int rgb, double factor) {
-		int r = (int) (((rgb >> 16) & 0xFF) * factor);
-		int g = (int) (((rgb >> 8) & 0xFF) * factor);
-		int b = (int) ((rgb & 0xFF) * factor);
-		return (r << 16) | (g << 8) | b;
+	/** The color the user picked, or this stage's default when they have not picked one. */
+	private static int color(Integer chosen, int fallback) {
+		return (chosen != null) ? chosen : fallback;
 	}
 
 	private static String safe(String s) {

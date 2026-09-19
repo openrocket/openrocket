@@ -84,14 +84,27 @@ public class FlightPathModel {
 		/** Zero-based position in {@link FlightPathModel#branches}, for building unique style ids. */
 		public int index;
 		/**
-		 * This branch's color as RRGGBB, so each stage's track is distinguishable. Taken from
-		 * the same palette the plot window uses, so a stage keeps its color between the two.
+		 * This branch's flight-path color as RRGGBB, so each stage's track is distinguishable.
+		 * Taken from the same palette the plot window uses, so a stage keeps its color between
+		 * the two.
 		 */
 		public String colorRgb = "";
+		/**
+		 * This branch's ground-track color as RRGGBB, a color in its own right rather than something
+		 * computed from {@link #colorRgb}. Defaults to the stage's entry in a ground-track palette.
+		 */
+		public String groundColorRgb = "";
+		/**
+		 * This branch's waypoint-pin color as RRGGBB, again independent of {@link #colorRgb}.
+		 * Defaults to the stage's palette entry.
+		 */
+		public String pinColorRgb = "";
 		/** {@link #colorRgb} as a KML aabbggrr literal, opaque, for the flight-path line. */
 		public String pathColorKml = "";
-		/** {@link #colorRgb} as a KML aabbggrr literal, translucent, for the ground track. */
+		/** {@link #groundColorRgb} as a KML aabbggrr literal, opaque, for the ground track. */
 		public String groundColorKml = "";
+		/** {@link #pinColorRgb} as a KML aabbggrr literal, opaque, for the waypoint pins. */
+		public String pinColorKml = "";
 		public List<Waypoint> waypoints = new ArrayList<>();
 		public List<PathPoint> path = new ArrayList<>();
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -275,8 +276,20 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		private final JTextField missionName = new JTextField();
 		private final JCheckBox missionOnWaypoints =
 				new JCheckBox(trans.get("SimExpPan.flightPath.lbl.missionWaypoints"));
-		/** Track colors the user picked, keyed by stage index. Empty means the built-in palette. */
+		/**
+		 * Flight-path colors the user picked, keyed by stage index. Empty means the built-in palette.
+		 */
 		private final Map<Integer, Integer> branchColors = new LinkedHashMap<>();
+		/**
+		 * Ground-track colors the user picked, keyed by stage index. Empty means the stage's entry
+		 * in the built-in ground-track palette.
+		 */
+		private final Map<Integer, Integer> branchGroundColors = new LinkedHashMap<>();
+		/**
+		 * Waypoint-pin colors the user picked, keyed by stage index. Empty means the built-in
+		 * default, the palette entry.
+		 */
+		private final Map<Integer, Integer> branchPinColors = new LinkedHashMap<>();
 		private final List<String> stageNames;
 
 		FlightPathOptionsPanel(boolean staged, List<String> stageNames) {
@@ -384,12 +397,14 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			stageColors.setEnabled(!stageNames.isEmpty());
 			stageColors.addActionListener(e -> {
 				FlightPathColorDialog dialog = new FlightPathColorDialog(
-						SwingUtilities.getWindowAncestor(this), stageNames, branchColors);
+						SwingUtilities.getWindowAncestor(this), stageNames,
+						branchColors, branchGroundColors, branchPinColors);
 				dialog.setVisible(true);
-				Map<Integer, Integer> chosen = dialog.getResult();
+				FlightPathColorDialog.Result chosen = dialog.getResult();
 				if (chosen != null) {
-					branchColors.clear();
-					branchColors.putAll(chosen);
+					replace(branchColors, chosen.getPathColors());
+					replace(branchGroundColors, chosen.getGroundColors());
+					replace(branchPinColors, chosen.getPinColors());
 				}
 			});
 
@@ -439,6 +454,12 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			for (Map.Entry<Integer, Integer> e : branchColors.entrySet()) {
 				o.setBranchColor(e.getKey(), e.getValue());
 			}
+			for (Map.Entry<Integer, Integer> e : branchGroundColors.entrySet()) {
+				o.setBranchGroundColor(e.getKey(), e.getValue());
+			}
+			for (Map.Entry<Integer, Integer> e : branchPinColors.entrySet()) {
+				o.setBranchPinColor(e.getKey(), e.getValue());
+			}
 			o.setShowWaypointLabels(waypointLabels.isSelected());
 			o.setColorWaypointPins(colorPins.isSelected());
 			return o;
@@ -466,6 +487,58 @@ public class SimulationFlightPathExportPanel extends JPanel {
 					|| selected(waypointAltitudeReference) != AltitudeReference.CLAMPED);
 			waypointLabels.setSelected(p.getBoolean("showWaypointLabels", true));
 			colorPins.setSelected(p.getBoolean("colorWaypointPins", true));
+			decodeColors(p.get("stagePathColors", null), branchColors);
+			decodeColors(p.get("stageGroundColors", null), branchGroundColors);
+			decodeColors(p.get("stagePinColors", null), branchPinColors);
+		}
+
+		/** Swap a color map's contents for another one's, keeping the field final. */
+		private static void replace(Map<Integer, Integer> target, Map<Integer, Integer> source) {
+			target.clear();
+			target.putAll(source);
+		}
+
+		/**
+		 * Colors as "index=rrggbb" pairs for a preference value, holding only the stages that have
+		 * been moved off their default.
+		 */
+		private static String encodeColors(Map<Integer, Integer> colors) {
+			StringBuilder sb = new StringBuilder();
+			for (Map.Entry<Integer, Integer> e : colors.entrySet()) {
+				if (sb.length() > 0) {
+					sb.append(',');
+				}
+				sb.append(e.getKey()).append('=').append(String.format(Locale.US, "%06x", e.getValue() & 0xFFFFFF));
+			}
+
+			return sb.toString();
+		}
+
+		/**
+		 * Read back what {@link #encodeColors(Map)} wrote, replacing the map's contents. A pair that
+		 * does not parse is skipped rather than failing the load: a preference value is editable by
+		 * hand and by an older or newer build, and a bad one should cost a color, not the whole tab.
+		 */
+		private static void decodeColors(String value, Map<Integer, Integer> into) {
+			into.clear();
+			if (value == null || value.isEmpty()) {
+				return;
+			}
+			for (String pair : value.split(",")) {
+				int eq = pair.indexOf('=');
+				if (eq <= 0) {
+					continue;
+				}
+				try {
+					int index = Integer.parseInt(pair.substring(0, eq).trim());
+					int rgb = Integer.parseInt(pair.substring(eq + 1).trim(), 16);
+					if (index >= 0) {
+						into.put(index, rgb & 0xFFFFFF);
+					}
+				} catch (NumberFormatException ignore) {
+					// Skip the pair and keep the rest.
+				}
+			}
 		}
 
 		/** Preferences hold the enum name; fall back to the default on anything unrecognized. */
@@ -509,6 +582,9 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			p.putBoolean("labelWaypointsWithMission", missionOnWaypoints.isSelected());
 			p.putBoolean("showWaypointLabels", waypointLabels.isSelected());
 			p.putBoolean("colorWaypointPins", colorPins.isSelected());
+			p.put("stagePathColors", encodeColors(branchColors));
+			p.put("stageGroundColors", encodeColors(branchGroundColors));
+			p.put("stagePinColors", encodeColors(branchPinColors));
 		}
 
 		/** One of the two altitude-reference pickers: the track's, and the pins'. */

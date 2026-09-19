@@ -418,9 +418,8 @@ Options
    * - Flight path line
      - Include the airborne path.
    * - Ground track
-     - Include the path projected straight down onto the ground. It is drawn in a darkened
-       shade of its stage's color, so a bright line is always in the air and a dark one is
-       always on the ground.
+     - Include the path projected straight down onto the ground. Its color is set per stage,
+       see `Stage colors`_.
    * - Keep every Nth point
      - Thins the path line by keeping only every Nth simulation step. Use this to reduce
        the file size of long flights. The waypoint markers are not affected.
@@ -428,12 +427,12 @@ Options
      - Where each stage's track begins on a staged flight. See `Staged flights`_. Disabled
        for a single-stage flight, which has nothing to divide up.
    * - Stage colors...
-     - Opens a dialog for picking each stage's track color. See `Stage colors`_.
+     - Opens a dialog for picking each stage's flight path, ground track and pin colors.
+       See `Stage colors`_.
 
-The selected format and options are remembered for the next export. The mission name and the
-stage colors are the two exceptions: both describe one particular export rather than how you
-like the exporter set up, and a remembered one would quietly mislabel or miscolor the next
-file.
+The selected format and options are remembered for the next export, the stage colors among them.
+The mission name is the exception: it describes one particular flight rather than how you like the
+exporter set up, and a remembered one would quietly mislabel the next file.
 
 Naming a flight
 ---------------
@@ -530,7 +529,7 @@ Staged flights
 --------------
 
 A staged flight produces one branch of flight data per stage, and the export gives each one
-its own folder, its own track color (see `Stage colors`_), and its own set of waypoints.
+its own folder, its own set of colors (see `Stage colors`_), and its own set of waypoints.
 
 Because every stage reaches its own apogee and its own landing, waypoint names are prefixed
 with the stage they belong to -- *Sustainer Apogee*, *Booster Landing* -- so that the
@@ -570,24 +569,31 @@ decides what to do with that:
 Stage colors
 ------------
 
-Each stage is drawn in its own color, taken from a fixed palette of ten that repeats if a design
-somehow has more. One color does the whole stage: the flight path line is drawn in it, the ground
-track in a darkened shade of it, and the waypoint pins are tinted with it when
-:guilabel:`Color pins by stage` is on. That is what lets a track be attributed at a glance -- a
-bright line is in the air, the dark line beneath it is the same stage on the ground, and the
-markers along both belong to it.
+Each stage has three colors: the flight path line, the ground track, and the waypoint pins when
+:guilabel:`Color pins by stage` is on. They are set independently and each is exported exactly as
+you picked it -- nothing is computed from anything else, and changing one never moves another.
 
-:guilabel:`Stage colors...` opens a dialog for overriding them, one swatch per stage. This is a
-separate dialog rather than a row of controls in the tab because the number of stages varies with
-the design and the tab has no room to grow. :guilabel:`Reset to defaults` puts every stage back on
-the palette color, and :guilabel:`Cancel` leaves the previous choice alone.
+Left alone, the flight path and the pins take the stage's entry from a fixed palette of ten that
+repeats if a design somehow has more, chosen so the stages of a staged flight stay apart from one
+another. The ground track has a palette of its own, entry for entry contrasting with the flight path
+it runs under and saturated enough to hold up over aerial imagery.
 
-The colors apply to the export you are about to write and are not remembered, so the next export
-starts from the palette again. Pick them when you need two files to stay apart in the same viewer
--- a mission name separates them in the tree, and different colors separate them on the map.
+:guilabel:`Stage colors...` opens a dialog with three swatches per stage: :guilabel:`Flight path`,
+:guilabel:`Ground track` and :guilabel:`Pin`. This is a separate dialog rather than a row of
+controls in the tab because the number of stages varies with the design and the tab has no room to
+grow. :guilabel:`Reset to defaults` puts all three colors of every stage back, and
+:guilabel:`Cancel` leaves the previous choice alone.
 
-A single-stage flight has one color to set, which is worth doing for the same reason: two
-single-stage flights exported with the palette default are both blue.
+One thing worth knowing when you pick them: seen from straight overhead a ground track sits directly
+under its flight path, so if you give a stage the same color for both, the two lines read as one.
+That is the only reason the two defaults differ; nothing stops you setting them the same.
+
+The colors are remembered for the next export, keyed by the stage's position in the flight. Pick
+them when you need two files to stay apart in the same viewer -- a mission name separates them in
+the tree, and different colors separate them on the map.
+
+A single-stage flight has one row of swatches to set, which is worth doing for the same reason: two
+single-stage flights exported with the defaults come out in identical colors.
 
 Output formats
 --------------
@@ -785,11 +791,11 @@ Inside ``{{#branches}}``:
    * - ``{{index}}``
      - The stage's position in the list, counting from zero. Useful for building unique
        style ids, as the built-in KML template does.
-   * - ``{{colorRgb}}``
-     - The stage's color as ``rrggbb``.
-   * - ``{{pathColorKml}}`` / ``{{groundColorKml}}``
-     - The same color as KML ``aabbggrr`` literals, full strength for the flight path and
-       darkened for the ground track.
+   * - ``{{colorRgb}}`` / ``{{groundColorRgb}}`` / ``{{pinColorRgb}}``
+     - The stage's flight path, ground track and pin colors as ``rrggbb``. Three independent
+       colors, each either picked by the user or this stage's default (see `Stage colors`_).
+   * - ``{{pathColorKml}}`` / ``{{groundColorKml}}`` / ``{{pinColorKml}}``
+     - The same three colors as opaque KML ``aabbggrr`` literals.
    * - ``{{#hasPath}}`` / ``{{#hasWaypoints}}``
      - Section tags that are true when the stage has any path points or waypoints.
    * - ``{{#waypoints}} ... {{/waypoints}}``

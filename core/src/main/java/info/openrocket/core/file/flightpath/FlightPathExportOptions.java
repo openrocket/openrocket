@@ -107,6 +107,8 @@ public class FlightPathExportOptions {
 	private AltitudeReference altitudeReference = AltitudeReference.AUTOMATIC;
 	private AltitudeReference waypointAltitudeReference = AltitudeReference.AUTOMATIC;
 	private final Map<Integer, Integer> branchColors = new HashMap<>();
+	private final Map<Integer, Integer> branchGroundColors = new HashMap<>();
+	private final Map<Integer, Integer> branchPinColors = new HashMap<>();
 	private boolean drawShadow = false;
 	private String missionName = "";
 	private boolean labelWaypointsWithMission = false;
@@ -205,13 +207,15 @@ public class FlightPathExportOptions {
 	 * once the geometry is already lying on the ground, so it is ignored for a clamped reference.
 	 */
 	/**
-	 * The color to draw a stage's track in, as RRGGBB, or {@code null} to use the built-in palette
-	 * entry for that stage.
+	 * The color to draw a stage's flight path in, as RRGGBB, or {@code null} to use the built-in
+	 * palette entry for that stage.
 	 *
 	 * <p>Keyed by the stage's position in the flight data rather than by its name, because two
-	 * stages of one rocket can carry the same name and would otherwise share a color. The ground
-	 * track and the waypoint pins are derived from this rather than chosen separately, so a stage
-	 * reads as one thing on the map instead of three unrelated ones.
+	 * stages of one rocket can carry the same name and would otherwise share a color.
+	 *
+	 * <p>This is the flight-path line only. The ground track and the waypoint pins have defaults and
+	 * overrides of their own, through {@link #setBranchGroundColor(int, Integer)} and
+	 * {@link #setBranchPinColor(int, Integer)}, and nothing here changes either of them.
 	 *
 	 * @param index the stage's position in the flight data, counting from zero
 	 */
@@ -219,7 +223,7 @@ public class FlightPathExportOptions {
 		return branchColors.get(index);
 	}
 
-	/** Override a stage's track color, or pass {@code null} to go back to the palette. */
+	/** Override a stage's flight-path color, or pass {@code null} to go back to the palette. */
 	public void setBranchColor(int index, Integer rgb) {
 		if (rgb == null) {
 			branchColors.remove(index);
@@ -228,9 +232,50 @@ public class FlightPathExportOptions {
 		}
 	}
 
-	/** Drop every override, so every stage goes back to its palette entry. */
+	/**
+	 * The color to draw a stage's ground track in, as RRGGBB, or {@code null} to use the built-in
+	 * default for that stage, which comes from a ground-track palette of its own.
+	 *
+	 * @param index the stage's position in the flight data, counting from zero
+	 */
+	public Integer getBranchGroundColor(int index) {
+		return branchGroundColors.get(index);
+	}
+
+	/** Override a stage's ground-track color, or pass {@code null} to go back to the default. */
+	public void setBranchGroundColor(int index, Integer rgb) {
+		if (rgb == null) {
+			branchGroundColors.remove(index);
+		} else {
+			branchGroundColors.put(index, rgb & 0xFFFFFF);
+		}
+	}
+
+	/**
+	 * The color to tint a stage's waypoint pins with, as RRGGBB, or {@code null} to use the built-in
+	 * default for that stage, which is its palette entry. Only used when
+	 * {@link #isColorWaypointPins()} is set.
+	 *
+	 * @param index the stage's position in the flight data, counting from zero
+	 */
+	public Integer getBranchPinColor(int index) {
+		return branchPinColors.get(index);
+	}
+
+	/** Override a stage's pin color, or pass {@code null} to go back to the default. */
+	public void setBranchPinColor(int index, Integer rgb) {
+		if (rgb == null) {
+			branchPinColors.remove(index);
+		} else {
+			branchPinColors.put(index, rgb & 0xFFFFFF);
+		}
+	}
+
+	/** Drop every override of all three kinds, so every stage goes back to its built-in defaults. */
 	public void clearBranchColors() {
 		branchColors.clear();
+		branchGroundColors.clear();
+		branchPinColors.clear();
 	}
 
 	/**

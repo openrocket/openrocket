@@ -3,6 +3,7 @@ package info.openrocket.core.file.flightpath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -544,8 +545,9 @@ public class FlightPathExportTest extends BaseTestCase {
 	}
 
 	/**
-	 * A stage's track color can be overridden. The ground track and the pins are derived from it
-	 * rather than chosen separately, so a stage still reads as one thing on the map.
+	 * A stage's flight-path color can be overridden without disturbing its other two. The three are
+	 * set independently, so changing the line in the air leaves the ground track and the pins where
+	 * their defaults put them.
 	 */
 	@Test
 	public void aStageTrackColorCanBeOverridden() throws Exception {
@@ -555,16 +557,95 @@ public class FlightPathExportTest extends BaseTestCase {
 		FlightPathModel model = new FlightPathModelBuilder(
 				buildSimulation(), buildStagedFlightData(), options).build();
 		assertEquals("112233", model.branches.get(0).colorRgb);
+		// The other two stay on their defaults rather than following the new path color.
+		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultGroundColor(0)),
+				model.branches.get(0).groundColorRgb);
+		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultPinColor(0)),
+				model.branches.get(0).pinColorRgb);
 		// Untouched stages keep their palette entry.
 		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultBranchColor(1)),
 				model.branches.get(1).colorRgb);
 
 		String kml = stagedKml(options);
-		// KML is aabbggrr, so 0x112233 is the track at ff332211 and the ground track darkened.
-		assertTrue(kml.contains("<color>ff332211</color>"), kml);
-		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>d0160f07</color>"), kml);
-		// The pin is tinted with the same track color.
+		// KML is aabbggrr, so 0x112233 is the flight path at ff332211.
+		assertTrue(kml.contains("<Style id=\"flightPath0\"><LineStyle><color>ff332211</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>ff552dff</color>"), kml);
 		assertTrue(kml.contains("<Style id=\"waypoint0\">"), kml);
+	}
+
+	/** A stage's ground track can be given a color of its own, and it is exported exactly as picked. */
+	@Test
+	public void aStageGroundTrackColorCanBeSetOnItsOwn() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setBranchGroundColor(0, 0x00FF00);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), options).build();
+		assertEquals("00ff00", model.branches.get(0).groundColorRgb);
+		// The flight path and the pins are left where they were.
+		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultBranchColor(0)),
+				model.branches.get(0).colorRgb);
+		assertEquals(model.branches.get(0).colorRgb, model.branches.get(0).pinColorRgb);
+		// A stage left alone keeps its default ground track.
+		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultGroundColor(1)),
+				model.branches.get(1).groundColorRgb);
+
+		String kml = stagedKml(options);
+		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>ff00ff00</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"flightPath0\"><LineStyle><color>ffbd7200</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"groundTrack1\"><LineStyle><color>ffa4b300</color>"), kml);
+	}
+
+	/**
+	 * A stage's waypoint pins can be given a color of their own, so the markers can be made to
+	 * stand out against a track they would otherwise disappear into.
+	 */
+	@Test
+	public void aStagePinColorCanBeSetOnItsOwn() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setBranchPinColor(0, 0xFFFF00);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildStagedFlightData(), options).build();
+		assertEquals("ffff00", model.branches.get(0).pinColorRgb);
+		// Neither track moved, and a stage left alone still takes its pins from its flight path.
+		assertEquals(String.format("%06x", FlightPathModelBuilder.defaultBranchColor(0)),
+				model.branches.get(0).colorRgb);
+		assertEquals(model.branches.get(1).colorRgb, model.branches.get(1).pinColorRgb);
+
+		String kml = stagedKml(options);
+		// 0xFFFF00 as aabbggrr is ff00ffff, and it appears on the pin and nowhere else.
+		assertTrue(kml.contains("<color>ff00ffff</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"flightPath0\"><LineStyle><color>ffbd7200</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>ff552dff</color>"), kml);
+	}
+
+	/** All three colors of one stage can be set at once, and none of them bleeds into another. */
+	@Test
+	public void aStageCanCarryThreeIndependentColors() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setBranchColor(0, 0x112233);
+		options.setBranchGroundColor(0, 0x445566);
+		options.setBranchPinColor(0, 0x778899);
+
+		String kml = stagedKml(options);
+		assertTrue(kml.contains("<Style id=\"flightPath0\"><LineStyle><color>ff332211</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>ff665544</color>"), kml);
+		assertTrue(kml.contains("<color>ff998877</color>"), kml);
+	}
+
+	/** Clearing the overrides puts all three colors of every stage back to the palette. */
+	@Test
+	public void clearingStageColorsDropsEveryOverride() {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setBranchColor(0, 0x112233);
+		options.setBranchGroundColor(0, 0x445566);
+		options.setBranchPinColor(0, 0x778899);
+		options.clearBranchColors();
+
+		assertNull(options.getBranchColor(0));
+		assertNull(options.getBranchGroundColor(0));
+		assertNull(options.getBranchPinColor(0));
 	}
 
 	/** With nothing overridden the export is exactly what the palette gives. */
@@ -593,10 +674,10 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertTrue(kml.contains("<styleUrl>#flightPath0</styleUrl>"), kml);
 		assertTrue(kml.contains("<styleUrl>#flightPath1</styleUrl>"), kml);
 
-		// Ground tracks keep their branch's hue but are darkened hard, so a bright line is always
-		// in the air and a dark one is always on the ground.
-		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>d0553300</color>"), kml);
-		assertTrue(kml.contains("<Style id=\"groundTrack1\"><LineStyle><color>d00b2561</color>"), kml);
+		// Ground tracks come from a palette of their own, picked to contrast with the flight path
+		// each one runs under.
+		assertTrue(kml.contains("<Style id=\"groundTrack0\"><LineStyle><color>ff552dff</color>"), kml);
+		assertTrue(kml.contains("<Style id=\"groundTrack1\"><LineStyle><color>ffa4b300</color>"), kml);
 		assertTrue(kml.contains("<styleUrl>#groundTrack1</styleUrl>"), kml);
 
 		FlightPathModel model = new FlightPathModelBuilder(
