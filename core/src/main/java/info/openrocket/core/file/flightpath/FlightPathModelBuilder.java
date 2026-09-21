@@ -179,6 +179,8 @@ public class FlightPathModelBuilder {
 
 		model.altitudeUnit = altUnit.getUnit();
 		model.distanceUnit = distUnit.getUnit();
+		model.velocityUnit = UnitGroup.UNITS_VELOCITY.getDefaultUnit().getUnit();
+		model.accelerationUnit = UnitGroup.UNITS_ACCELERATION.getDefaultUnit().getUnit();
 		model.includeFlightPath = options.isIncludeFlightPath();
 		model.includeGroundTrack = options.isIncludeGroundTrack();
 		model.kmlAltitudeMode = altitudeReference().getKmlAltitudeMode();
@@ -191,6 +193,7 @@ public class FlightPathModelBuilder {
 		model.tessellatePath = altitudeReference() == FlightPathExportOptions.AltitudeReference.CLAMPED;
 		model.showWaypointLabels = options.isShowWaypointLabels();
 		model.colorWaypointPins = options.isColorWaypointPins();
+		model.includeDescriptions = options.isIncludeDescriptions();
 
 		if (data != null) {
 			// Summary values. Altitude uses the chosen altitude unit; velocity and
@@ -199,6 +202,8 @@ public class FlightPathModelBuilder {
 			model.maxVelocity = UnitGroup.UNITS_VELOCITY.getDefaultUnit().toString(data.getMaxVelocity());
 			model.maxAcceleration = UnitGroup.UNITS_ACCELERATION.getDefaultUnit()
 					.toString(data.getMaxAcceleration());
+			model.timeToApogee = seconds(data.getTimeToApogee());
+			model.flightTime = seconds(data.getFlightTime());
 
 			qualifyLabels = data.getBranchCount() > 1;
 
@@ -224,6 +229,11 @@ public class FlightPathModelBuilder {
 					primary = false;
 				}
 			}
+
+			double maxRange = 0;
+			for (FlightPathModel.Branch b : model.branches)
+				maxRange = Math.max(maxRange, b.maxRangeMeters);
+			model.maxRange = distUnit.toString(maxRange);
 		}
 
 		return model;
@@ -282,6 +292,27 @@ public class FlightPathModelBuilder {
 		}
 
 		modelBranch.waypoints.sort((p, q) -> Double.compare(p.time, q.time));
+
+		// The range is scanned over the whole branch, shared ascent included: the stack's excursion
+		// counts against every stage that was part of it, and the summary is a safety figure.
+		double maxRange = 0;
+		for (int i = 0; i < n; i++)
+			maxRange = Math.max(maxRange, ctx.distance(i));
+		modelBranch.maxRangeMeters = maxRange;
+		modelBranch.maxRange = distUnit.toString(maxRange);
+
+		// Where the stage came down is recorded whether or not a landing pin was asked for, since
+		// the summary wants it either way.
+		for (FlightEvent event : branch.getEvents()) {
+			if (event.getType() != FlightEvent.Type.GROUND_HIT)
+				continue;
+			int idx = indexOfTime(time, event.getTime(), n);
+			modelBranch.hasLanding = true;
+			modelBranch.landingDistance = distUnit.toString(ctx.distance(idx));
+			modelBranch.landingBearing = String.format(Locale.US, "%.0f", ctx.bearing(idx));
+			modelBranch.landingTime = seconds(time.get(idx));
+			break;
+		}
 
 		if (options.isIncludeFlightPath() || options.isIncludeGroundTrack()) {
 			int stride = options.getPathStride();
@@ -568,6 +599,11 @@ public class FlightPathModelBuilder {
 
 	private static String safe(String s) {
 		return s == null ? "" : s;
+	}
+
+	/** A time in seconds to one decimal, or empty for a value the flight never reached. */
+	private static String seconds(double t) {
+		return Double.isNaN(t) ? "" : String.format(Locale.US, "%.1f", t);
 	}
 
 	private static int min(int... values) {

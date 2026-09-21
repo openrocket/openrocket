@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.simulation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -25,7 +27,9 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicRadioButtonUI;
@@ -109,6 +113,101 @@ public class SimulationFlightPathExportPanelTest extends BaseTestCase {
 
 		assertEquals(List.of(), truncated,
 				"every label must be laid out wide enough to draw in full");
+	}
+
+	/**
+	 * The panel starts in the Flight path placement, and says so. The preset buttons are toggles
+	 * in a group, so the one matching the controls is the one highlighted.
+	 */
+	@Test
+	public void theFlightPathPlacementIsSelectedToStartWith() {
+		SimulationFlightPathExportPanel panel = buildPanel();
+
+		assertTrue(presetButton(panel, "Flight path").isSelected(),
+				"the flight path placement should be the one the panel starts in");
+		assertFalse(presetButton(panel, "Landing plots").isSelected());
+		assertTrue(checkBox(panel, "Flight path line").isSelected());
+		assertTrue(checkBox(panel, "Ground track").isSelected());
+	}
+
+	/**
+	 * A curtain dropped from the whole length of an arcing track reads as a wall rather than as a
+	 * position, so no placement turns it on.
+	 */
+	@Test
+	public void noPlacementDrawsTheShadow() {
+		SimulationFlightPathExportPanel panel = buildPanel();
+		JCheckBox shadow = checkBox(panel, "Draw shadow down to the ground");
+		assertFalse(shadow.isSelected(), "the shadow should be off to start with");
+
+		for (String preset : new String[] { "Drift cast", "Flight path", "Landing plots" }) {
+			presetButton(panel, preset).doClick();
+			assertFalse(shadow.isSelected(), preset + " should not turn the shadow on");
+		}
+	}
+
+	/** A highlight that survived a manual edit would be claiming something no longer true. */
+	@Test
+	public void changingAControlByHandClearsThePlacementHighlight() {
+		SimulationFlightPathExportPanel panel = buildPanel();
+		assertTrue(presetButton(panel, "Flight path").isSelected());
+
+		checkBox(panel, "Ground track").doClick();
+		assertFalse(presetButton(panel, "Flight path").isSelected(),
+				"the controls no longer say what the placement says");
+
+		// And putting it back finds the placement again.
+		checkBox(panel, "Ground track").doClick();
+		assertTrue(presetButton(panel, "Flight path").isSelected());
+	}
+
+	/** The balloons are on out of the box, and they are not tied to any placement. */
+	@Test
+	public void summaryBalloonsAreOnByDefaultAndPresetsLeaveThemAlone() {
+		SimulationFlightPathExportPanel panel = buildPanel();
+		JCheckBox balloons = checkBox(panel, "Summary balloons");
+		assertTrue(balloons.isSelected());
+
+		balloons.doClick();
+		presetButton(panel, "Drift cast").doClick();
+		assertFalse(balloons.isSelected(), "a placement should not reach the balloons");
+	}
+
+	private static SimulationFlightPathExportPanel buildPanel() {
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		Simulation simulation = new Simulation(document, document.getRocket());
+		return new SimulationFlightPathExportPanel(simulation);
+	}
+
+	/** A preset toggle, found by its label. Check boxes are toggles too, so they are excluded. */
+	private static JToggleButton presetButton(Container root, String text) {
+		for (Component c : descendants(root)) {
+			if (c instanceof JToggleButton && !(c instanceof JCheckBox)
+					&& text.equals(((JToggleButton) c).getText())) {
+				return (JToggleButton) c;
+			}
+		}
+		throw new AssertionError("no preset button labeled " + text);
+	}
+
+	private static JCheckBox checkBox(Container root, String text) {
+		for (Component c : descendants(root)) {
+			if (c instanceof JCheckBox && text.equals(((JCheckBox) c).getText())) {
+				return (JCheckBox) c;
+			}
+		}
+		throw new AssertionError("no check box labeled " + text);
+	}
+
+	private static List<Component> descendants(Container container) {
+		List<Component> found = new ArrayList<>();
+		for (Component child : container.getComponents()) {
+			found.add(child);
+			if (child instanceof Container) {
+				found.addAll(descendants((Container) child));
+			}
+		}
+		return found;
 	}
 
 	private static void layoutDeep(Container container) {

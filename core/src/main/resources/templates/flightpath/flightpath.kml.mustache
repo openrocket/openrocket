@@ -3,6 +3,20 @@
 	<Document>
 		<name>{{title}}</name>
 		<open>1</open>
+{{#includeDescriptions}}
+		<Snippet maxLines="0"/>
+		<description>&lt;b&gt;Rocket:&lt;/b&gt; {{rocketName}}&lt;br/&gt;
+{{#configuration}}&lt;b&gt;Configuration:&lt;/b&gt; {{configuration}}&lt;br/&gt;
+{{/configuration}}&lt;b&gt;Launch site:&lt;/b&gt; {{launchLatitude}}, {{launchLongitude}}{{#launchAltitudeMeters}} at {{launchAltitudeMeters}} m above sea level{{/launchAltitudeMeters}}&lt;br/&gt;
+&lt;b&gt;Max altitude:&lt;/b&gt; {{maxAltitude}} {{altitudeUnit}}&lt;br/&gt;
+&lt;b&gt;Max velocity:&lt;/b&gt; {{maxVelocity}} {{velocityUnit}}&lt;br/&gt;
+&lt;b&gt;Max acceleration:&lt;/b&gt; {{maxAcceleration}} {{accelerationUnit}}&lt;br/&gt;
+&lt;b&gt;Max range:&lt;/b&gt; {{maxRange}} {{distanceUnit}} from the pad&lt;br/&gt;
+{{#timeToApogee}}&lt;b&gt;Time to apogee:&lt;/b&gt; {{timeToApogee}} s&lt;br/&gt;
+{{/timeToApogee}}{{#flightTime}}&lt;b&gt;Flight time:&lt;/b&gt; {{flightTime}} s&lt;br/&gt;
+{{/flightTime}}{{#branches}}{{#hasLanding}}&lt;b&gt;{{name}} landing:&lt;/b&gt; {{landingDistance}} {{distanceUnit}} at {{landingBearing}}° from the pad, {{landingTime}} s after liftoff&lt;br/&gt;
+{{/hasLanding}}{{/branches}}</description>
+{{/includeDescriptions}}
 {{#branches}}
 		<Style id="flightPath{{index}}"><LineStyle><color>{{pathColorKml}}</color><width>3</width></LineStyle></Style>
 		<Style id="groundTrack{{index}}"><LineStyle><color>{{groundColorKml}}</color><width>2</width></LineStyle></Style>
@@ -22,9 +36,21 @@
 {{#branches}}
 		<Folder>
 			<name>{{name}}</name>
+{{#includeDescriptions}}
+			<Snippet maxLines="0"/>
+			<description>&lt;b&gt;Max range:&lt;/b&gt; {{maxRange}} {{distanceUnit}} from the pad{{#hasLanding}}&lt;br/&gt;
+&lt;b&gt;Landing:&lt;/b&gt; {{landingDistance}} {{distanceUnit}} at {{landingBearing}}° from the pad, {{landingTime}} s after liftoff{{/hasLanding}}</description>
+{{/includeDescriptions}}
 {{#waypoints}}
 			<Placemark>
 				<name>{{qualifiedLabel}}</name>
+{{#includeDescriptions}}
+				<Snippet maxLines="0"/>
+				<description>&lt;b&gt;Time:&lt;/b&gt; {{timeStr}} s after liftoff&lt;br/&gt;
+&lt;b&gt;Altitude:&lt;/b&gt; {{altitude}} {{altitudeUnit}} above the pad{{#launchAltitudeMeters}}, {{altitudeMsl}} {{altitudeUnit}} above sea level{{/launchAltitudeMeters}}&lt;br/&gt;
+&lt;b&gt;Position:&lt;/b&gt; {{distance}} {{distanceUnit}} at {{bearing}}° from the pad{{#device}}&lt;br/&gt;
+&lt;b&gt;Device:&lt;/b&gt; {{device}}{{/device}}</description>
+{{/includeDescriptions}}
 				<styleUrl>#waypoint{{index}}</styleUrl>
 				<Point>
 {{#extrudeWaypoints}}					<extrude>1</extrude>

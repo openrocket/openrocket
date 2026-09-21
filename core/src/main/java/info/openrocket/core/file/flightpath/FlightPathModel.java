@@ -35,6 +35,9 @@ public class FlightPathModel {
 	// Units (display labels for the values below)
 	public String altitudeUnit = "";
 	public String distanceUnit = "";
+	/** Labels for {@link #maxVelocity} and {@link #maxAcceleration}, which have no unit option of their own. */
+	public String velocityUnit = "";
+	public String accelerationUnit = "";
 
 	// Geometry toggles, mirrored from the export options so templates can gate output.
 	public boolean includeFlightPath = true;
@@ -70,11 +73,29 @@ public class FlightPathModel {
 	 * servers, so it can be turned off for a file that has to render without a network.
 	 */
 	public boolean colorWaypointPins = true;
+	/**
+	 * Whether the document, the stage folders and the waypoints carry a description. Google Earth
+	 * shows one in a balloon when the feature is clicked.
+	 */
+	public boolean includeDescriptions = true;
 
 	// Summary values (in display units, preformatted)
 	public String maxAltitude = "";
 	public String maxVelocity = "";
 	public String maxAcceleration = "";
+	/**
+	 * Seconds from liftoff to the highest point, to one decimal. A flight cut short by its time
+	 * limit reports its last point rather than nothing, since that is where it was highest.
+	 */
+	public String timeToApogee = "";
+	/** Seconds from liftoff to the end of the flight, to one decimal. */
+	public String flightTime = "";
+	/**
+	 * The farthest any stage got from the pad, horizontally, in the distance unit. This is the
+	 * figure a range safety officer wants, and it is not the landing distance: a flight can drift
+	 * out and back under the chute.
+	 */
+	public String maxRange = "";
 
 	public List<Branch> branches = new ArrayList<>();
 
@@ -105,6 +126,19 @@ public class FlightPathModel {
 		public String groundColorKml = "";
 		/** {@link #pinColorRgb} as a KML aabbggrr literal, opaque, for the waypoint pins. */
 		public String pinColorKml = "";
+		/** The farthest this stage got from the pad, horizontally, in meters and in the distance unit. */
+		public double maxRangeMeters;
+		public String maxRange = "";
+		/**
+		 * Where this stage came down, as a distance and compass bearing from the pad, in the
+		 * distance unit and whole degrees. Only meaningful when {@link #hasLanding} is true: a
+		 * simulation cut short by its time limit records no ground hit.
+		 */
+		public boolean hasLanding = false;
+		public String landingDistance = "";
+		public String landingBearing = "";
+		/** Seconds from liftoff to this stage's ground hit, to one decimal. */
+		public String landingTime = "";
 		public List<Waypoint> waypoints = new ArrayList<>();
 		public List<PathPoint> path = new ArrayList<>();
 

@@ -393,14 +393,17 @@ Options
    * - Presets
      - Three one-click placements -- **Drift cast**, **Flight path** and **Landing plots** --
        which set the controls below rather than acting behind them, so the panel always shows what
-       the file will contain and a preset can be taken as a starting point.
+       the file will contain and a preset can be taken as a starting point. The one matching the
+       current controls is highlighted, and the highlight clears as soon as you change a control
+       by hand.
    * - Track altitude from / Waypoint altitude from
      - What the exported altitudes are measured from, set separately for the path and the markers.
        See `Altitude reference`_.
    * - Draw shadow down to the ground
      - Adds a curtain under the track and a plumb line under each marker, so you can read where a
-       point in the air sits on the map. Disabled once both are clamped, since there is nothing
-       left to draw.
+       point in the air sits on the map. Off by default and set by no preset, since over a whole
+       flight path the curtain reads as a wall. Disabled once both are clamped, since there is
+       nothing left to draw.
    * - Waypoints
      - Which points of interest to mark: pad, liftoff, burnout, apogee, ejection, landing,
        maximum velocity, and maximum acceleration. Every recovery device that deploys
@@ -410,6 +413,9 @@ Options
      - Draw each marker's name next to it. A near-vertical flight packs its waypoints into
        a small patch of screen and the names then overlap each other, so clearing this
        exports bare markers that show their name when clicked.
+   * - Summary balloons
+     - Gives the document, each stage folder and each waypoint a description, which Google Earth
+       shows in a balloon when the feature is clicked. On by default, and no preset changes it.
    * - Color pins by stage
      - Tint each stage's markers to match its track, so a marker can be attributed at a
        glance. This uses a pin image fetched from Google's servers the first time the file
@@ -517,13 +523,18 @@ The three preset buttons set the placement controls in one click:
        the ground track again.
    * - Flight path
      - The flight suspended in the air where it belongs, both tracks drawn, every waypoint marked,
-       with shadows down to the ground so each point can still be placed on the map.
+       and no shadow. This is where the panel starts, so these are also the export's defaults.
    * - Landing plots
      - The landing marker alone, on the ground, with no tracks at all.
 
 Each preset states the whole set of controls rather than only some of them, so clicking one
 always leaves the panel in a fully determined state and any preset can be reached from any
 other. That includes the waypoint selection: a preset will replace one you picked by hand.
+
+None of them turns on the shadow. A curtain dropped from the whole length of an arcing flight
+path reads as a solid wall rather than as a position, and it buries the flight it is meant to
+explain. Turn it on by hand when you want it, which is usually when the question is where one
+particular point sits on the map.
 
 Staged flights
 --------------
@@ -610,6 +621,18 @@ terrain, and a placemark for every selected waypoint. Each stage gets its own li
 taken from the same palette the plot window uses, so a stage keeps its color whether you
 look at it in a graph or on a map. This is the best choice for viewing the flight in 3D.
 See `Viewing the track in Google Earth`_ for how to open it.
+
+The numbers behind the picture are in the balloons. Click the document at the top of the
+places tree for the flight summary: rocket, configuration, launch site, peak altitude,
+velocity and acceleration, maximum range from the pad, time to apogee, flight time, and where
+each stage came down. Click a stage's folder for its own range and landing, and click any
+waypoint for its time since liftoff, its altitude, its distance and bearing from the pad, and
+for an ejection the device that deployed.
+
+In Google Earth Pro a balloon opens when you click a marker in the 3D view, and the document
+and folder descriptions open when you click their names in the Places panel. In Google Earth
+for web, click the item in the project panel on the left. Clear :guilabel:`Summary balloons` in
+the :guilabel:`Waypoints` box to export without any of them.
 
 The altitudes are written either as heights above the terrain or as heights above sea level,
 depending on the `Altitude reference`_ setting.
@@ -758,8 +781,16 @@ Top level:
      - Launch site altitude above sea level, in meters.
    * - ``{{altitudeUnit}}`` / ``{{distanceUnit}}``
      - The selected unit labels, for example ``ft`` or ``m``.
+   * - ``{{velocityUnit}}`` / ``{{accelerationUnit}}``
+     - The unit labels for the peak velocity and acceleration, which have no unit option of
+       their own.
    * - ``{{maxAltitude}}`` / ``{{maxVelocity}}`` / ``{{maxAcceleration}}``
      - The flight's peak values, formatted for display.
+   * - ``{{maxRange}}``
+     - The farthest any stage got from the pad, horizontally, in the distance unit. Not the
+       landing distance: a flight can drift out and back under the chute.
+   * - ``{{timeToApogee}}`` / ``{{flightTime}}``
+     - Seconds from liftoff to the highest point and to the end of the flight, to one decimal.
    * - ``{{#includeFlightPath}}`` / ``{{#includeGroundTrack}}``
      - Section tags that are true when that option is selected.
    * - ``{{#showWaypointLabels}}`` / ``{{#colorWaypointPins}}``
@@ -796,6 +827,14 @@ Inside ``{{#branches}}``:
        colors, each either picked by the user or this stage's default (see `Stage colors`_).
    * - ``{{pathColorKml}}`` / ``{{groundColorKml}}`` / ``{{pinColorKml}}``
      - The same three colors as opaque KML ``aabbggrr`` literals.
+   * - ``{{maxRange}}`` / ``{{maxRangeMeters}}``
+     - The farthest this stage got from the pad, in the distance unit and in meters.
+   * - ``{{#hasLanding}}``
+     - Section tag that is true when the stage recorded a ground hit. A simulation cut short by
+       its time limit has none.
+   * - ``{{landingDistance}}`` / ``{{landingBearing}}`` / ``{{landingTime}}``
+     - Where the stage came down: distance from the pad in the distance unit, compass bearing
+       in whole degrees, and seconds after liftoff. Empty without a landing.
    * - ``{{#hasPath}}`` / ``{{#hasWaypoints}}``
      - Section tags that are true when the stage has any path points or waypoints.
    * - ``{{#waypoints}} ... {{/waypoints}}``
@@ -865,6 +904,18 @@ Inside ``{{#path}}``:
 Tokens from an outer level are still visible on an inner level, so inside
 ``{{#waypoints}}`` you can still use ``{{rocketName}}``, ``{{altitudeUnit}}`` or the
 stage's ``{{index}}``.
+
+Any value can also be used as a section. An empty string and a zero count as false, so
+``{{#configuration}}...{{/configuration}}`` renders only when there is a configuration name,
+and ``{{#launchAltitudeMeters}}...{{/launchAltitudeMeters}}`` only when the launch altitude was
+set. The built-in KML template uses this to leave out the lines it has nothing to say on.
+
+Substituted values are escaped for the output format: for XML and KML that means ``&`` becomes
+``&amp;``, and for CSV that a quote is doubled. Anything you type in the template itself is
+written out as-is. That matters for a KML ``<description>``, whose contents are HTML: write the
+markup pre-escaped, as ``&lt;b&gt;`` rather than ``<b>``, the way the built-in template does, and
+a rocket named ``Bill & Ted`` reaches the balloon intact. Wrapping the description in ``CDATA``
+instead would show the escaped form of that name to the reader.
 
 .. note::
 

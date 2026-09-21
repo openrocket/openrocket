@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -28,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -261,6 +263,9 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		private final JComboBox<Unit> altitudeUnit = createUnitCombo();
 		private final JComboBox<Unit> distanceUnit = createUnitCombo();
 		private final Map<Waypoint, JCheckBox> waypointBoxes = new EnumMap<>(Waypoint.class);
+		private final Map<Preset, JToggleButton> presetButtons = new EnumMap<>(Preset.class);
+		/** Holds at most one preset selected, and none when the controls match no preset. */
+		private final ButtonGroup presetGroup = new ButtonGroup();
 		private final JCheckBox flightPath = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.flightPath"));
 		private final JCheckBox groundTrack = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.groundTrack"));
 		private final JSpinner stride = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
@@ -269,6 +274,8 @@ public class SimulationFlightPathExportPanel extends JPanel {
 				trans.get("SimExpPan.flightPath.stageTracks.pad") });
 		private final JCheckBox waypointLabels = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.waypointLabels"));
 		private final JCheckBox colorPins = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.colorPins"));
+		private final JCheckBox descriptions =
+				new JCheckBox(trans.get("SimExpPan.flightPath.lbl.descriptions"));
 		private final JComboBox<String> altitudeReference = createAltitudeReferenceCombo();
 		private final JComboBox<String> waypointAltitudeReference = createAltitudeReferenceCombo();
 		private final JCheckBox drawShadow = new JCheckBox(trans.get("SimExpPan.flightPath.lbl.drawShadow"));
@@ -341,18 +348,32 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			// contain is always what the panel shows, and one can be taken as a starting point.
 			// They sit directly above the controls they move, so the effect of a click is visible
 			// in the same glance.
+			// They are toggles in a group so the panel says which placement it is currently in, and
+			// the group is cleared the moment a control is moved by hand, since the state is then
+			// no preset's. That keeps the highlight honest rather than leaving a stale claim.
 			JPanel presetRow = new JPanel(new MigLayout("ins 0", "[]rel[]rel[]"));
 			presetRow.add(new JLabel(trans.get("SimExpPan.flightPath.lbl.presets")), textWidth());
 			for (Preset preset : Preset.values()) {
-				JButton button = new JButton(trans.get(preset.labelKey()));
+				JToggleButton button = new JToggleButton(trans.get(preset.labelKey()));
 				button.setToolTipText(trans.get(preset.tooltipKey()));
 				button.addActionListener(e -> {
 					preset.applyTo(this);
 					shadowEnabler.actionPerformed(e);
+					syncPresetSelection();
 				});
+				presetButtons.put(preset, button);
+				presetGroup.add(button);
 				presetRow.add(button);
 			}
 			placements.add(presetRow);
+
+			// Every control a preset covers re-checks the highlight when it changes.
+			ActionListener presetWatcher = e -> syncPresetSelection();
+			altitudeReference.addActionListener(presetWatcher);
+			waypointAltitudeReference.addActionListener(presetWatcher);
+			flightPath.addActionListener(presetWatcher);
+			groundTrack.addActionListener(presetWatcher);
+			drawShadow.addActionListener(presetWatcher);
 
 			// The two altitude references each keep a row: their choices are whole phrases. The
 			// track's and the pins' are set separately because a flight is worth seeing suspended
@@ -373,6 +394,7 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			int col = 0;
 			for (Waypoint w : Waypoint.values()) {
 				JCheckBox box = new JCheckBox(waypointLabel(w));
+				box.addActionListener(presetWatcher);
 				waypointBoxes.put(w, box);
 				boolean endOfRow = (col % WAYPOINT_COLUMNS == WAYPOINT_COLUMNS - 1);
 				waypointGrid.add(box, endOfRow ? textWidth() + ", wrap" : textWidth());
@@ -381,11 +403,15 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			wp.add(waypointGrid);
 
 			// The two marker options are a pair, so they sit side by side rather than stacked.
-			JPanel markerRow = new JPanel(new MigLayout("ins 0", "[]para[]"));
+			JPanel markerRow = new JPanel(new MigLayout("ins 0", "[]para[]para[]"));
 			waypointLabels.setToolTipText(trans.get("SimExpPan.flightPath.waypointLabels.ttip"));
 			markerRow.add(waypointLabels, textWidth());
 			colorPins.setToolTipText(trans.get("SimExpPan.flightPath.colorPins.ttip"));
 			markerRow.add(colorPins, textWidth());
+			// Not only a marker option, since the same switch covers the document and the stage
+			// folders, but this row is where the rest of "what you get when you click" lives.
+			descriptions.setToolTipText(trans.get("SimExpPan.flightPath.descriptions.ttip"));
+			markerRow.add(descriptions, textWidth());
 			wp.add(markerRow);
 			add(wp, "growx");
 
@@ -462,6 +488,7 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			}
 			o.setShowWaypointLabels(waypointLabels.isSelected());
 			o.setColorWaypointPins(colorPins.isSelected());
+			o.setIncludeDescriptions(descriptions.isSelected());
 			return o;
 		}
 
@@ -487,9 +514,26 @@ public class SimulationFlightPathExportPanel extends JPanel {
 					|| selected(waypointAltitudeReference) != AltitudeReference.CLAMPED);
 			waypointLabels.setSelected(p.getBoolean("showWaypointLabels", true));
 			colorPins.setSelected(p.getBoolean("colorWaypointPins", true));
+			descriptions.setSelected(p.getBoolean("includeDescriptions", true));
 			decodeColors(p.get("stagePathColors", null), branchColors);
 			decodeColors(p.get("stageGroundColors", null), branchGroundColors);
 			decodeColors(p.get("stagePinColors", null), branchPinColors);
+			syncPresetSelection();
+		}
+
+		/**
+		 * Highlight the preset the controls currently spell out, or clear the highlight when they
+		 * spell out none. Called after loading preferences, after a preset is clicked, and
+		 * whenever a control a preset covers is changed by hand.
+		 */
+		private void syncPresetSelection() {
+			for (Map.Entry<Preset, JToggleButton> e : presetButtons.entrySet()) {
+				if (e.getKey().matches(this)) {
+					presetGroup.setSelected(e.getValue().getModel(), true);
+					return;
+				}
+			}
+			presetGroup.clearSelection();
 		}
 
 		/** Swap a color map's contents for another one's, keeping the field final. */
@@ -582,6 +626,7 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			p.putBoolean("labelWaypointsWithMission", missionOnWaypoints.isSelected());
 			p.putBoolean("showWaypointLabels", waypointLabels.isSelected());
 			p.putBoolean("colorWaypointPins", colorPins.isSelected());
+			p.putBoolean("includeDescriptions", descriptions.isSelected());
 			p.put("stagePathColors", encodeColors(branchColors));
 			p.put("stageGroundColors", encodeColors(branchGroundColors));
 			p.put("stagePinColors", encodeColors(branchPinColors));
@@ -623,11 +668,17 @@ public class SimulationFlightPathExportPanel extends JPanel {
 			DRIFT_CAST("driftCast", AltitudeReference.CLAMPED, AltitudeReference.CLAMPED,
 					false, true, false, EnumSet.allOf(Waypoint.class)),
 			/**
-			 * How high it went: suspended in the air where it belongs, with shadows so you can
-			 * still read where each point sits on the map.
+			 * How high it went: suspended in the air where it belongs.
+			 *
+			 * <p>No shadow. A curtain dropped from the whole length of an arcing track reads as a
+			 * solid wall rather than as a position, which buries the flight it is meant to
+			 * explain. The checkbox below is still there for anyone who wants it.
+			 *
+			 * <p>This is also the placement a fresh panel starts in, so these values are the
+			 * export's defaults and need to match the fallbacks in {@link #load(Preferences)}.
 			 */
 			FLIGHT_PATH("flightPath", AltitudeReference.AUTOMATIC, AltitudeReference.AUTOMATIC,
-					true, true, true, EnumSet.allOf(Waypoint.class)),
+					true, true, false, EnumSet.allOf(Waypoint.class)),
 			/** Where it comes down, and nothing else. */
 			LANDING("landing", AltitudeReference.CLAMPED, AltitudeReference.CLAMPED,
 					false, false, false, EnumSet.of(Waypoint.LANDING));
@@ -665,6 +716,23 @@ public class SimulationFlightPathExportPanel extends JPanel {
 
 			String tooltipKey() {
 				return "SimExpPan.flightPath.preset." + id + ".ttip";
+			}
+
+			/** Whether the panel's controls currently say exactly what this preset says. */
+			boolean matches(FlightPathOptionsPanel panel) {
+				if (selected(panel.altitudeReference) != trackReference
+						|| selected(panel.waypointAltitudeReference) != waypointReference
+						|| panel.flightPath.isSelected() != flightPath
+						|| panel.groundTrack.isSelected() != groundTrack
+						|| panel.drawShadow.isSelected() != shadow) {
+					return false;
+				}
+				for (Map.Entry<Waypoint, JCheckBox> e : panel.waypointBoxes.entrySet()) {
+					if (e.getValue().isSelected() != waypoints.contains(e.getKey())) {
+						return false;
+					}
+				}
+				return true;
 			}
 
 			void applyTo(FlightPathOptionsPanel panel) {

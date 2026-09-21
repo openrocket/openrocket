@@ -66,9 +66,14 @@ public class FlightPathExporter {
 	public void export(FlightPathTemplate template, OutputStream stream) throws IOException {
 		FlightPathModel model = new FlightPathModelBuilder(simulation, data, options).build();
 
+		// An empty string and a zero count as false, so a template can wrap an optional value in a
+		// section and have the whole line disappear when there is nothing to say: a flight with no
+		// apogee, a launch altitude that was never set.
 		Mustache.Compiler compiler = Mustache.compiler()
 				.defaultValue("")
 				.nullValue("")
+				.emptyStringIsFalse(true)
+				.zeroIsFalse(true)
 				.withEscaper(escaperFor(template.getExtension()));
 
 		String rendered = compiler.compile(template.getSource()).execute(model);

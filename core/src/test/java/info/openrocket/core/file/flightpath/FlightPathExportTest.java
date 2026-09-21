@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,7 +30,10 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.util.BaseTestCase;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 public class FlightPathExportTest extends BaseTestCase {
 
@@ -212,6 +216,164 @@ public class FlightPathExportTest extends BaseTestCase {
 	}
 
 	@Test
+	public void summaryIncludesTimingRangeAndLanding() {
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildFlightData(), new FlightPathExportOptions()).build();
+
+		assertEquals("2.0", model.timeToApogee);
+		assertEquals("3.0", model.flightTime);
+		// The fixture drifts to 120 m east by landing, and that is also the farthest it gets.
+		assertTrue(model.maxRange.startsWith("120"), model.maxRange);
+
+		FlightPathModel.Branch branch = model.branches.get(0);
+		assertTrue(branch.hasLanding);
+		assertEquals(120.0, branch.maxRangeMeters, 1e-9);
+		assertTrue(branch.landingDistance.startsWith("120"), branch.landingDistance);
+		assertEquals("90", branch.landingBearing);
+		assertEquals("3.0", branch.landingTime);
+	}
+
+	/**
+	 * The farthest point from the pad is not necessarily where the rocket lands: it can drift out
+	 * under the chute and back again.
+	 */
+	@Test
+	public void maxRangeIsTheFarthestPointNotTheLandingPoint() {
+		FlightDataBranch branch = new FlightDataBranch("Sustainer",
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE,
+				FlightDataType.TYPE_LATITUDE, FlightDataType.TYPE_LONGITUDE,
+				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y,
+				FlightDataType.TYPE_VELOCITY_TOTAL, FlightDataType.TYPE_ACCELERATION_TOTAL);
+		addPoint(branch, 30.6146, -97.4966, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		addPoint(branch, 30.6146, -97.4966, 2.0, 250.0, 0.0, 300.0, 20.0, -9.0); // 300 m north
+		addPoint(branch, 30.6146, -97.4966, 4.0, 0.0, 0.0, 50.0, 5.0, 0.0);      // back to 50 m
+		branch.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, 2.0));
+		branch.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, 4.0));
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), new FlightData(branch), new FlightPathExportOptions()).build();
+
+		assertTrue(model.maxRange.startsWith("300"), model.maxRange);
+		assertTrue(model.branches.get(0).landingDistance.startsWith("50"), model.branches.get(0).landingDistance);
+		assertEquals("0", model.branches.get(0).landingBearing);
+	}
+
+	/** A simulation that hit its time limit never came down, and the summary must not pretend it did. */
+	@Test
+	public void aFlightCutShortHasNoLanding() throws Exception {
+		FlightDataBranch branch = new FlightDataBranch("Sustainer",
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE,
+				FlightDataType.TYPE_LATITUDE, FlightDataType.TYPE_LONGITUDE,
+				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y,
+				FlightDataType.TYPE_VELOCITY_TOTAL, FlightDataType.TYPE_ACCELERATION_TOTAL);
+		addPoint(branch, 30.6146, -97.4966, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		addPoint(branch, 30.6146, -97.4966, 1.0, 100.0, 10.0, 0.0, 80.0, 50.0);
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), new FlightData(branch), new FlightPathExportOptions()).build();
+		FlightPathModel.Branch b = model.branches.get(0);
+		assertFalse(b.hasLanding);
+		assertEquals("", b.landingDistance);
+		// The flight was still climbing when it was cut off, so its highest point is its last one.
+		assertEquals("1.0", model.timeToApogee);
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		new FlightPathExporter(buildSimulation(), new FlightData(branch), new FlightPathExportOptions())
+				.export(template("kml"), out);
+		String kml = out.toString(StandardCharsets.UTF_8);
+		assertFalse(kml.contains("landing:&lt;/b&gt;"), kml);
+		assertFalse(kml.contains("Landing:&lt;/b&gt;"), kml);
+	}
+
+	/**
+	 * Google Earth shows a placemark's description in a balloon when it is clicked, which is
+	 * where the numbers behind the picture belong: the document carries the flight summary, each
+	 * stage's folder its range and landing, and each pin its own time, altitude and offset.
+	 */
+	@Test
+	public void kmlCarriesTheFlightSummaryInBalloons() throws Exception {
+		String kml = render("kml", new FlightPathExportOptions());
+
+		// Document balloon.
+		assertTrue(kml.contains("&lt;b&gt;Rocket:&lt;/b&gt; LPV2&lt;br/&gt;"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Launch site:&lt;/b&gt; 30.6146, -97.4966 at 200.0 m above sea level&lt;br/&gt;"),
+				kml);
+		assertTrue(kml.contains("&lt;b&gt;Max altitude:&lt;/b&gt; 250"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Max range:&lt;/b&gt; 120"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Time to apogee:&lt;/b&gt; 2.0 s&lt;br/&gt;"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Flight time:&lt;/b&gt; 3.0 s&lt;br/&gt;"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Sustainer landing:&lt;/b&gt; 120"), kml);
+		assertTrue(kml.contains("at 90\u00b0 from the pad, 3.0 s after liftoff"), kml);
+
+		// Stage folder balloon.
+		assertTrue(kml.contains("&lt;b&gt;Landing:&lt;/b&gt; 120"), kml);
+
+		// The apogee pin: 250 m up, 100 m due east, and the chute that came out there.
+		assertTrue(kml.contains("&lt;b&gt;Time:&lt;/b&gt; 2.00 s after liftoff&lt;br/&gt;"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Altitude:&lt;/b&gt; 250"), kml);
+		assertTrue(kml.contains("above the pad, 450"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Position:&lt;/b&gt; 100"), kml);
+		// Two fragments, because the line between them carries the template's own line ending.
+		assertTrue(kml.contains("at 90\u00b0 from the pad&lt;br/&gt;"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Device:&lt;/b&gt; Main</description>"), kml);
+
+		// Descriptions must not spill into the places tree under every name.
+		assertTrue(kml.contains("<Snippet maxLines=\"0\"/>"), kml);
+	}
+
+	/**
+	 * The balloon markup is written pre-escaped rather than wrapped in CDATA, so that a name
+	 * carrying an ampersand reaches the balloon as the user typed it instead of as "&amp;amp;".
+	 * The document stays well-formed either way, which is what the parse checks.
+	 */
+	@Test
+	public void aNameWithMarkupCharactersSurvivesIntoTheBalloon() throws Exception {
+		Simulation simulation = buildSimulation();
+		simulation.getRocket().setName("Bill & Ted's <Excellent> Rocket");
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		new FlightPathExporter(simulation, buildFlightData(), new FlightPathExportOptions())
+				.export(template("kml"), out);
+		String kml = out.toString(StandardCharsets.UTF_8);
+
+		// Escaped once in the file, so an XML parser hands the balloon back the original text.
+		assertTrue(kml.contains("Bill &amp; Ted&apos;s &lt;Excellent&gt; Rocket"), kml);
+
+		Document parsed = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+				.parse(new ByteArrayInputStream(kml.getBytes(StandardCharsets.UTF_8)));
+		String description = parsed.getElementsByTagName("description").item(0).getTextContent();
+		assertTrue(description.contains("<b>Rocket:</b> Bill & Ted's <Excellent> Rocket"), description);
+	}
+
+	/** The balloons are a switch, for a file going somewhere they would only get in the way. */
+	@Test
+	public void balloonsCanBeTurnedOff() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setIncludeDescriptions(false);
+		String kml = render("kml", options);
+
+		assertFalse(kml.contains("<description>"), kml);
+		assertFalse(kml.contains("<Snippet"), kml);
+		// Everything else is still there.
+		assertTrue(kml.contains("<name>Apogee</name>"), kml);
+		assertTrue(kml.contains("<LineString>"), kml);
+	}
+
+	/** Without a launch altitude, "above sea level" would just repeat the height above the pad. */
+	@Test
+	public void balloonsSkipSeaLevelWhenTheSimulationHasNoLaunchAltitude() throws Exception {
+		Simulation simulation = buildSimulation();
+		simulation.getOptions().setLaunchAltitude(0.0);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		new FlightPathExporter(simulation, buildFlightData(), new FlightPathExportOptions())
+				.export(template("kml"), out);
+		String kml = out.toString(StandardCharsets.UTF_8);
+
+		assertFalse(kml.contains("above sea level"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Launch site:&lt;/b&gt; 30.6146, -97.4966&lt;br/&gt;"), kml);
+	}
+
+	@Test
 	public void gpxTemplateProducesWaypointsAndTrack() throws Exception {
 		String gpx = render("gpx", new FlightPathExportOptions());
 
@@ -254,8 +416,9 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertFalse(kml.contains("<name>Burnout</name>"), kml);
 
 		// Recovery pins are named for the event, not the component, and still take the stage prefix.
+		// The component still names the pin's balloon, which is why this looks at the name element.
 		assertTrue(kml.contains("<name>Booster Ejection</name>"), kml);
-		assertFalse(kml.contains("Booster Chute"), kml);
+		assertFalse(kml.contains("<name>Booster Chute</name>"), kml);
 	}
 
 	/**

@@ -114,6 +114,7 @@ public class FlightPathExportOptions {
 	private boolean labelWaypointsWithMission = false;
 	private boolean showWaypointLabels = true;
 	private boolean colorWaypointPins = true;
+	private boolean includeDescriptions = true;
 
 	public Unit getAltitudeUnit() {
 		return altitudeUnit;
@@ -334,5 +335,22 @@ public class FlightPathExportOptions {
 
 	public void setColorWaypointPins(boolean colorWaypointPins) {
 		this.colorWaypointPins = colorWaypointPins;
+	}
+
+	/**
+	 * Whether each exported feature carries a description: the flight summary on the document, a
+	 * stage's range and landing on its folder, and a waypoint's own time, altitude and offset on
+	 * its marker. Google Earth shows these in a balloon when the feature is clicked.
+	 *
+	 * <p>On by default. Worth clearing for a file that is going somewhere the descriptions would
+	 * only get in the way, such as a viewer that prints them into the list rather than into a
+	 * balloon, or a track being handed to something that reads the geometry and nothing else.
+	 */
+	public boolean isIncludeDescriptions() {
+		return includeDescriptions;
+	}
+
+	public void setIncludeDescriptions(boolean includeDescriptions) {
+		this.includeDescriptions = includeDescriptions;
 	}
 }
