@@ -335,7 +335,7 @@ class AerodynamicLookupDialog extends JDialog {
 
 	private void applyAndClose() {
 		// Validate and apply drag lookup if modified
-		List<String> dragCsvRows = null;
+		List<String> dragCsvRows = options.getDragLookupCsvRows();
 		if (dragModified && dragCsv != null) {
 			try {
 				String editedText = dragExampleArea.getText();
@@ -351,7 +351,6 @@ class AerodynamicLookupDialog extends JDialog {
 				MachAoALookup table = CsvMachAoALookup.parse(dataLines, DRAG_VALUE_COLUMNS, separator);
 				dragTable = table;
 				dragCsvRows = allLines; // Store all lines including comments
-				dragModified = false;
 			} catch (Exception ex) {
 				showLookupError(dragCsv, ex);
 				return; // Don't close dialog on error
@@ -359,7 +358,7 @@ class AerodynamicLookupDialog extends JDialog {
 		}
 		
 		// Validate and apply stability lookup if modified
-		List<String> stabilityCsvRows = null;
+		List<String> stabilityCsvRows = options.getStabilityLookupCsvRows();
 		if (stabilityModified && stabilityCsv != null) {
 			try {
 				String editedText = stabilityExampleArea.getText();
@@ -375,7 +374,6 @@ class AerodynamicLookupDialog extends JDialog {
 				MachAoALookup table = CsvMachAoALookup.parse(dataLines, STABILITY_VALUE_COLUMNS, separator);
 				stabilityTable = table;
 				stabilityCsvRows = allLines; // Store all lines including comments
-				stabilityModified = false;
 			} catch (Exception ex) {
 				showLookupError(stabilityCsv, ex);
 				return; // Don't close dialog on error
@@ -395,6 +393,8 @@ class AerodynamicLookupDialog extends JDialog {
 			options.setStabilityLookup(stabilityCsv, stabilityTable, stabilityCsvRows);
 		}
 
+		dragModified = false;
+		stabilityModified = false;
 		dispose();
 	}
 
