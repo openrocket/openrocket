@@ -488,13 +488,8 @@ class AerodynamicLookupDialog extends JDialog {
 					lines = Files.readAllLines(csvPath);
 				}
 				
-				// Display all lines (including comments) - limit to first 20 lines for display
-				// Preserve comments and empty lines for user editing
-				List<String> displayLines = lines.stream()
-						.limit(20) // Limit to first 20 lines for display
-						.collect(Collectors.toList());
-				String loadedData = String.join("\n", displayLines);
-				
+				// The editable text is the complete table, including comments and empty lines.
+				String loadedData = String.join("\n", lines);
 				// Set text without triggering modification (listener is removed)
 				exampleArea.setText(loadedData);
 				exampleArea.setEditable(true);
