@@ -783,16 +783,20 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 		}
 
-		if (!Objects.equals(this.dragLookupCsvPath, src.dragLookupCsvPath) || this.dragLookupTable != src.dragLookupTable) {
+		if (!Objects.equals(this.dragLookupCsvPath, src.dragLookupCsvPath) || this.dragLookupTable != src.dragLookupTable ||
+				!Objects.equals(this.dragLookupCsvRows, src.dragLookupCsvRows)) {
 			isChanged = true;
 			this.dragLookupCsvPath = src.dragLookupCsvPath;
 			this.dragLookupTable = src.dragLookupTable;
+			this.dragLookupCsvRows = src.dragLookupCsvRows != null ? new ArrayList<>(src.dragLookupCsvRows) : null;
 		}
 		if (!Objects.equals(this.stabilityLookupCsvPath, src.stabilityLookupCsvPath) ||
-				this.stabilityLookupTable != src.stabilityLookupTable) {
+				this.stabilityLookupTable != src.stabilityLookupTable ||
+				!Objects.equals(this.stabilityLookupCsvRows, src.stabilityLookupCsvRows)) {
 			isChanged = true;
 			this.stabilityLookupCsvPath = src.stabilityLookupCsvPath;
 			this.stabilityLookupTable = src.stabilityLookupTable;
+			this.stabilityLookupCsvRows = src.stabilityLookupCsvRows != null ? new ArrayList<>(src.stabilityLookupCsvRows) : null;
 		}
 
 		if (this.recoverySpeedWarning != src.recoverySpeedWarning) {
