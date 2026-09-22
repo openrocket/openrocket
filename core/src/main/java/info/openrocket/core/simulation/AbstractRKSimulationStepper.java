@@ -199,6 +199,8 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
                                      DataStore store) throws SimulationException {
         double thrust;
 
+		store.thrustCorrection = 0;
+		
         // Pre-listeners
         thrust = SimulationListenerHelper.firePreThrustCalculation(status);
         if (!Double.isNaN(thrust)) {
@@ -218,7 +220,6 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
 		 * (see https://www.grc.nasa.gov/www/k-12/airplane/rockth.html for further explanation)
 		 * This altitude correction is applied here.
 		 */
-		store.thrustCorrection = 0;
 		if (thrust > 0)  {
 			double area = store.flightConditions.getThrustingNozzleExitArea();
 			if (area > 0) {

@@ -361,6 +361,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.rocketMass = structureMassData.add(store.motorMass);
 		store.gravity = modelGravity(status);
 		store.thrustForce = 0.0;
+		store.thrustCorrection = 0.0;
 		store.dragForce = 0.0;
 		store.coriolisAcceleration = Coordinate.ZERO;
 
