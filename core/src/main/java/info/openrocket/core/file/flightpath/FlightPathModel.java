@@ -30,6 +30,13 @@ public class FlightPathModel {
 	// Launch site
 	public double launchLatitude;
 	public double launchLongitude;
+	/**
+	 * The same coordinates at a fixed six decimal places. The raw doubles print whatever they
+	 * happen to need, so one file says -80.6 and the next says -97.4966, which reads as though the
+	 * two were known to different accuracies.
+	 */
+	public String launchLatitudeStr = "";
+	public String launchLongitudeStr = "";
 	public double launchAltitudeMeters;
 
 	// Units (display labels for the values below)
@@ -137,6 +144,12 @@ public class FlightPathModel {
 		public boolean hasLanding = false;
 		public String landingDistance = "";
 		public String landingBearing = "";
+		/**
+		 * Where the stage came down, as coordinates rather than as an offset from the pad. A
+		 * distance and a bearing place the landing on a map; these are what you walk to.
+		 */
+		public String landingLatitude = "";
+		public String landingLongitude = "";
 		/** Seconds from liftoff to this stage's ground hit, to one decimal. */
 		public String landingTime = "";
 		public List<Waypoint> waypoints = new ArrayList<>();

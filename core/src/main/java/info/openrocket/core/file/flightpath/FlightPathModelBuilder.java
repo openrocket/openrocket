@@ -175,6 +175,8 @@ public class FlightPathModelBuilder {
 		}
 		model.launchLatitude = originLatitude;
 		model.launchLongitude = originLongitude;
+		model.launchLatitudeStr = degrees(originLatitude);
+		model.launchLongitudeStr = degrees(originLongitude);
 		model.launchAltitudeMeters = launchAltitude;
 
 		model.altitudeUnit = altUnit.getUnit();
@@ -310,6 +312,8 @@ public class FlightPathModelBuilder {
 			modelBranch.hasLanding = true;
 			modelBranch.landingDistance = distUnit.toString(ctx.distance(idx));
 			modelBranch.landingBearing = String.format(Locale.US, "%.0f", ctx.bearing(idx));
+			modelBranch.landingLatitude = degrees(latitude(ctx, idx));
+			modelBranch.landingLongitude = degrees(longitude(ctx, idx));
 			modelBranch.landingTime = seconds(time.get(idx));
 			break;
 		}
@@ -356,13 +360,14 @@ public class FlightPathModelBuilder {
 				break;
 			case RECOVERY_DEVICE_DEPLOYMENT:
 				if (options.hasWaypoint(Waypoint.RECOVERY)) {
-					// The deploying component's name is kept on the waypoint for templates that want
-					// it, but is not what the pin is called: the map only needs to say a chute came
-					// out here, not which one.
+					// Named for the event, like every other pin, but qualified with the device that
+					// deployed. A dual-deployment flight sets off two of these hundreds of meters
+					// apart, and without the device both markers read "Ejection" and cannot be told
+					// apart on the map without clicking each one.
 					RocketComponent source = event.getSource();
+					String device = (source != null) ? safe(source.getName()) : "";
 					modelBranch.waypoints.add(waypoint(ctx, idx, "recovery",
-							trans.get("FlightPathExport.waypoint.recovery"),
-							(source != null) ? safe(source.getName()) : ""));
+							prefix(device, trans.get("FlightPathExport.waypoint.recovery")), device));
 				}
 				break;
 			case GROUND_HIT:
@@ -504,7 +509,19 @@ public class FlightPathModelBuilder {
 	}
 
 	private String qualify(String qualifier, String label) {
-		if (!qualifyLabels || qualifier == null || qualifier.isEmpty() || label == null)
+		return qualifyLabels ? prefix(qualifier, label) : safe(label);
+	}
+
+	/**
+	 * Put a qualifier in front of a label, unless there is no qualifier or the label already
+	 * begins with it. That last case is what keeps a booster's "Booster Chute" from becoming
+	 * "Booster Booster Chute Ejection" once the stage name is applied as well.
+	 *
+	 * <p>The qualifier keeps the label's own capitalization rather than lowercasing it, which
+	 * would be wrong in languages that capitalize the noun.
+	 */
+	private static String prefix(String qualifier, String label) {
+		if (qualifier == null || qualifier.isEmpty() || label == null)
 			return safe(label);
 
 		if (label.toLowerCase(Locale.ROOT).startsWith(qualifier.toLowerCase(Locale.ROOT)))
@@ -599,6 +616,11 @@ public class FlightPathModelBuilder {
 
 	private static String safe(String s) {
 		return s == null ? "" : s;
+	}
+
+	/** A coordinate at a fixed six decimal places, which is about a tenth of a meter. */
+	private static String degrees(double value) {
+		return String.format(Locale.US, "%.6f", value);
 	}
 
 	/** A time in seconds to one decimal, or empty for a value the flight never reached. */

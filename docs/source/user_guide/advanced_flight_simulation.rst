@@ -407,8 +407,10 @@ Options
    * - Waypoints
      - Which points of interest to mark: pad, liftoff, burnout, apogee, ejection, landing,
        maximum velocity, and maximum acceleration. Every recovery device that deploys
-       produces its own marker, all of them named *Ejection*; the deploying component's
-       name is available to templates but is not shown on the map.
+       produces its own marker, named for the event and for the device that deployed, as in
+       *Drogue Ejection* and *Main Ejection*. A dual-deployment flight sets off two of these
+       hundreds of meters apart, and without the device both would read *Ejection* and could
+       not be told apart on the map.
    * - Show waypoint names
      - Draw each marker's name next to it. A near-vertical flight packs its waypoints into
        a small patch of screen and the names then overlap each other, so clearing this
@@ -626,8 +628,13 @@ The numbers behind the picture are in the balloons. Click the document at the to
 places tree for the flight summary: rocket, configuration, launch site, peak altitude,
 velocity and acceleration, maximum range from the pad, time to apogee, flight time, and where
 each stage came down. Click a stage's folder for its own range and landing, and click any
-waypoint for its time since liftoff, its altitude, its distance and bearing from the pad, and
-for an ejection the device that deployed.
+waypoint for its time since liftoff, its altitude, its distance and bearing from the pad, its
+coordinates, and for an ejection the device that deployed.
+
+Every coordinate pair is written latitude first and says so, because KML's own coordinates run
+the other way and a bare pair in a KML file can reasonably be read backwards. Each landing is
+given as coordinates as well as as a distance and bearing, since the bearing places it on the
+map and the coordinates are what you put into a handheld receiver to go and find it.
 
 In Google Earth Pro a balloon opens when you click a marker in the 3D view, and the document
 and folder descriptions open when you click their names in the Places panel. In Google Earth
@@ -776,7 +783,11 @@ Top level:
    * - ``{{motor}}`` / ``{{configuration}}``
      - The flight configuration description.
    * - ``{{launchLatitude}}`` / ``{{launchLongitude}}``
-     - Launch site coordinates, in degrees.
+     - Launch site coordinates, in degrees, at full precision.
+   * - ``{{launchLatitudeStr}}`` / ``{{launchLongitudeStr}}``
+     - The same coordinates rounded to six decimal places, which is about a tenth of a meter.
+       Prefer these for anything a reader will see: the raw values print whatever digits they
+       happen to need, so one file says ``-80.6`` where another says ``-97.4966``.
    * - ``{{launchAltitudeMeters}}``
      - Launch site altitude above sea level, in meters.
    * - ``{{altitudeUnit}}`` / ``{{distanceUnit}}``
@@ -835,6 +846,8 @@ Inside ``{{#branches}}``:
    * - ``{{landingDistance}}`` / ``{{landingBearing}}`` / ``{{landingTime}}``
      - Where the stage came down: distance from the pad in the distance unit, compass bearing
        in whole degrees, and seconds after liftoff. Empty without a landing.
+   * - ``{{landingLatitude}}`` / ``{{landingLongitude}}``
+     - The same landing as coordinates, rounded to six decimal places. Empty without a landing.
    * - ``{{#hasPath}}`` / ``{{#hasWaypoints}}``
      - Section tags that are true when the stage has any path points or waypoints.
    * - ``{{#waypoints}} ... {{/waypoints}}``

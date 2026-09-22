@@ -147,8 +147,8 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertTrue(kml.contains(",250.0</coordinates>"), kml);
 		assertTrue(kml.contains("<altitudeMode>relativeToGround</altitudeMode>"), kml);
 		assertTrue(kml.contains("<altitudeMode>clampToGround</altitudeMode>"), kml);
-		// The pin says a chute came out, not which one; the component name stays in the model.
-		assertTrue(kml.contains("<name>Ejection</name>"), kml);
+		// The pin says a chute came out and which one, so two deployments can be told apart.
+		assertTrue(kml.contains("<name>Main Ejection</name>"), kml);
 		assertFalse(kml.contains("<name>Main</name>"), kml);
 	}
 
@@ -258,6 +258,64 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertEquals("0", model.branches.get(0).landingBearing);
 	}
 
+	/**
+	 * Dual deployment sets off two recovery events on one stage, hundreds of meters apart. Named
+	 * for the event alone both markers read "Ejection" and cannot be told apart on the map, which
+	 * is where the names are drawn.
+	 */
+	@Test
+	public void twoDeploymentsOnOneStageGetDistinctNames() {
+		FlightDataBranch branch = new FlightDataBranch("Sustainer",
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE,
+				FlightDataType.TYPE_LATITUDE, FlightDataType.TYPE_LONGITUDE,
+				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y,
+				FlightDataType.TYPE_VELOCITY_TOTAL, FlightDataType.TYPE_ACCELERATION_TOTAL);
+		addPoint(branch, 30.6146, -97.4966, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		addPoint(branch, 30.6146, -97.4966, 2.0, 1000.0, 50.0, 0.0, 20.0, -9.0);
+		addPoint(branch, 30.6146, -97.4966, 5.0, 300.0, 200.0, 0.0, 20.0, 0.0);
+		addPoint(branch, 30.6146, -97.4966, 8.0, 0.0, 400.0, 0.0, 5.0, 0.0);
+
+		Parachute drogue = new Parachute();
+		drogue.setName("Drogue");
+		Parachute main = new Parachute();
+		main.setName("Main");
+		branch.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, 2.0));
+		branch.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.0, drogue));
+		branch.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 5.0, main));
+		branch.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, 8.0));
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), new FlightData(branch), new FlightPathExportOptions()).build();
+
+		List<String> names = new ArrayList<>();
+		for (FlightPathModel.Waypoint w : model.branches.get(0).waypoints) {
+			if (w.type.equals("recovery")) {
+				names.add(w.qualifiedLabel);
+			}
+		}
+		assertEquals(List.of("Drogue Ejection", "Main Ejection"), names);
+	}
+
+	/** A deployment with no component behind it still gets the plain event name. */
+	@Test
+	public void aDeploymentWithNoDeviceKeepsThePlainName() {
+		FlightDataBranch branch = new FlightDataBranch("Sustainer",
+				FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE,
+				FlightDataType.TYPE_LATITUDE, FlightDataType.TYPE_LONGITUDE,
+				FlightDataType.TYPE_POSITION_X, FlightDataType.TYPE_POSITION_Y,
+				FlightDataType.TYPE_VELOCITY_TOTAL, FlightDataType.TYPE_ACCELERATION_TOTAL);
+		addPoint(branch, 30.6146, -97.4966, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		addPoint(branch, 30.6146, -97.4966, 2.0, 250.0, 100.0, 0.0, 20.0, -9.0);
+		branch.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.0));
+
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), new FlightData(branch), new FlightPathExportOptions()).build();
+
+		FlightPathModel.Waypoint w = waypointOfType(model.branches.get(0), "recovery");
+		assertEquals("Ejection", w.qualifiedLabel);
+		assertEquals("", w.device);
+	}
+
 	/** A simulation that hit its time limit never came down, and the summary must not pretend it did. */
 	@Test
 	public void aFlightCutShortHasNoLanding() throws Exception {
@@ -296,23 +354,26 @@ public class FlightPathExportTest extends BaseTestCase {
 
 		// Document balloon.
 		assertTrue(kml.contains("&lt;b&gt;Rocket:&lt;/b&gt; LPV2&lt;br/&gt;"), kml);
-		assertTrue(kml.contains("&lt;b&gt;Launch site:&lt;/b&gt; 30.6146, -97.4966 at 200.0 m above sea level&lt;br/&gt;"),
+		assertTrue(kml.contains("&lt;b&gt;Launch site:&lt;/b&gt; 30.614600, -97.496600 (lat, lon), 200.0 m above sea level&lt;br/&gt;"),
 				kml);
 		assertTrue(kml.contains("&lt;b&gt;Max altitude:&lt;/b&gt; 250"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Max range:&lt;/b&gt; 120"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Time to apogee:&lt;/b&gt; 2.0 s&lt;br/&gt;"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Flight time:&lt;/b&gt; 3.0 s&lt;br/&gt;"), kml);
-		assertTrue(kml.contains("&lt;b&gt;Sustainer landing:&lt;/b&gt; 120"), kml);
-		assertTrue(kml.contains("at 90\u00b0 from the pad, 3.0 s after liftoff"), kml);
+		// The landing leads with the coordinate, which is the part you walk to.
+		assertTrue(kml.contains("&lt;b&gt;Sustainer landing:&lt;/b&gt; 30.614600, -97.495349 (lat, lon); 120"),
+				kml);
+		assertTrue(kml.contains("at 90\u00b0 from the pad; 3.0 s after liftoff"), kml);
 
 		// Stage folder balloon.
-		assertTrue(kml.contains("&lt;b&gt;Landing:&lt;/b&gt; 120"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Landing:&lt;/b&gt; 30.614600, -97.495349 (lat, lon); 120"), kml);
 
 		// The apogee pin: 250 m up, 100 m due east, and the chute that came out there.
 		assertTrue(kml.contains("&lt;b&gt;Time:&lt;/b&gt; 2.00 s after liftoff&lt;br/&gt;"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Altitude:&lt;/b&gt; 250"), kml);
 		assertTrue(kml.contains("above the pad, 450"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Position:&lt;/b&gt; 100"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Coordinates:&lt;/b&gt; 30.614600, -97.495557 (lat, lon)"), kml);
 		// Two fragments, because the line between them carries the template's own line ending.
 		assertTrue(kml.contains("at 90\u00b0 from the pad&lt;br/&gt;"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Device:&lt;/b&gt; Main</description>"), kml);
@@ -345,6 +406,33 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertTrue(description.contains("<b>Rocket:</b> Bill & Ted's <Excellent> Rocket"), description);
 	}
 
+	/**
+	 * Every coordinate pair in a balloon says which order it is in. KML's own coordinates are
+	 * longitude first, so a bare pair in a KML file has a real reason to be read backwards, and
+	 * at most launch sites both readings are plausible places.
+	 */
+	@Test
+	public void everyCoordinatePairSaysWhichOrderItIsIn() throws Exception {
+		String kml = render("kml", new FlightPathExportOptions());
+
+		int pairs = countOccurrences(kml, "(lat, lon)");
+		// One launch site, one landing in the summary, one on the folder, and one per waypoint.
+		assertEquals(3 + countOccurrences(kml, "&lt;b&gt;Coordinates:&lt;/b&gt;"), pairs, kml);
+		assertTrue(pairs > 3, "the waypoints should carry coordinates too");
+	}
+
+	/** Raw doubles print whatever they need, so one file says -80.6 and the next -97.4966. */
+	@Test
+	public void coordinatesAreWrittenToAFixedPrecision() {
+		FlightPathModel model = new FlightPathModelBuilder(
+				buildSimulation(), buildFlightData(), new FlightPathExportOptions()).build();
+
+		assertEquals("30.614600", model.launchLatitudeStr);
+		assertEquals("-97.496600", model.launchLongitudeStr);
+		assertEquals("30.614600", model.branches.get(0).landingLatitude);
+		assertEquals("-97.495349", model.branches.get(0).landingLongitude);
+	}
+
 	/** The balloons are a switch, for a file going somewhere they would only get in the way. */
 	@Test
 	public void balloonsCanBeTurnedOff() throws Exception {
@@ -370,7 +458,7 @@ public class FlightPathExportTest extends BaseTestCase {
 		String kml = out.toString(StandardCharsets.UTF_8);
 
 		assertFalse(kml.contains("above sea level"), kml);
-		assertTrue(kml.contains("&lt;b&gt;Launch site:&lt;/b&gt; 30.6146, -97.4966&lt;br/&gt;"), kml);
+		assertTrue(kml.contains("&lt;b&gt;Launch site:&lt;/b&gt; 30.614600, -97.496600 (lat, lon)&lt;br/&gt;"), kml);
 	}
 
 	@Test
@@ -415,9 +503,9 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertTrue(kml.contains("<name>Sustainer Burnout</name>"), kml);
 		assertFalse(kml.contains("<name>Burnout</name>"), kml);
 
-		// Recovery pins are named for the event, not the component, and still take the stage prefix.
-		// The component still names the pin's balloon, which is why this looks at the name element.
-		assertTrue(kml.contains("<name>Booster Ejection</name>"), kml);
+		// A recovery pin carries the event, the device that deployed, and the stage prefix. The
+		// device here is already called "Booster Chute", so the stage prefix is not applied twice.
+		assertTrue(kml.contains("<name>Booster Chute Ejection</name>"), kml);
 		assertFalse(kml.contains("<name>Booster Chute</name>"), kml);
 	}
 
