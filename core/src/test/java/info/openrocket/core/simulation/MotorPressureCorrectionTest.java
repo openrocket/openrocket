@@ -149,7 +149,11 @@ public class MotorPressureCorrectionTest {
 
 		// at time2, motor2 has burned out
 		simulationStatus.setSimulationTime(time2);
-		((List<MotorClusterState>) (simulationStatus.getMotors())).get(1).burnOut(time2);
+		for (MotorClusterState motorClusterState : (List<MotorClusterState>)simulationStatus.getMotors()) {
+		 	if (MathUtil.equals(motorClusterState.getThrust(time2), 0)) {
+				motorClusterState.burnOut(time2);
+			}
+		}
 		
 		try {
 			stepper.calculateFlightConditions(simulationStatus, stepper.store);
