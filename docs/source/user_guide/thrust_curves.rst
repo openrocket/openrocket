@@ -50,14 +50,25 @@ calculated as follows:
 The thrust correction is performed in accordance with the rocket
 thrust equation, as presented in
 `https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rocket-thrust/
-<https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rocket-thrust/>`_.
+<https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/rocket-thrust/>`_,
 
 F = ṁV\ :sub:`e` + (p\ :sub:`e` - p\ :sub:`0`)A\ :sub:`e`
 
-The values in the thrust curve are simply the ṁV\ :sub:`e` term, while
-the second term is the difference between standard pressure (p\
-:sub:`e`) and the current atmospheric pressure (p\ :sub:`0`),
-multiplied by the sum of the nozzle exit areas of all the active
-motors. If a motor's nozzle exit diameter is unknown, entering a value
-of 0 will result in no altitude correction (except in very high altitude
-flights, this will not result in a significant error).
+where
+
+* F is the total thrust,
+* ṁ V\ :sub:`e` is the momentum thrust, and
+* (p\ :sub:`e` - p\ :sub:`0`)A\ :sub:`e` is the pressure thrust,
+  given by the difference between the nozzle exit pressure
+  (p\ :sub:`e`) and the ambient pressure (p\ :sub:`0`), multiplied by
+  the nozzle exit area A\ :sub:`e`
+
+Published thrust curve values of F are for thrust at standard
+pressure, so p\ :sub:`0` = 101,325 Pa.  For thrust at a different
+ambient pressure p\ :sub:`a`, a correction of
+(p\ :sub:`0` - p\ :sub:`a`)A\ :sub:`e` is applied to the published
+thrust values.
+
+If a motor's nozzle exit diameter is unknown, entering a value of 0
+will result in no altitude correction (this will not result in a
+significant error, except in very high altitude flights).

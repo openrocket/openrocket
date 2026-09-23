@@ -215,9 +215,9 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
 
 		/**
 		 * Standard thrust curves provide motor thrust at standard pressure (101.325 kPa).  According to the rocket
-		 * thrust equation, total thrust is given by F0 + (Pe - P0)A where F0 is the thrust at standard pressure,
-		 * Pe is the standard pressure, P0 is the current atmospheric pressure, and A is the area of the motor nozzle.
-		 * (see https://www.grc.nasa.gov/www/k-12/airplane/rockth.html for further explanation)
+		 * thrust equation, total thrust is given by F0 + (P0 - Pa)A where F0 is the thrust at standard pressure,
+		 * P0 is the standard pressure, Pa is the current atmospheric pressure, and A is the area of the motor nozzle.
+		 * (see https://openrocket.readthedocs.io/en/latest/user_guide/thrust_curves.html for further explanation)
 		 * This altitude correction is applied here.
 		 */
 		if (thrust > 0)  {
