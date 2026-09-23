@@ -41,6 +41,13 @@ public class MotorPressureCorrectionTest {
 		final double time2 = 3;             // motor2 burns out here
 		final double pressureDifference = 1000;
 
+		// calculate expected results
+		final double nozzle1Area = Math.PI * Math.pow(nozzle1Diameter/2, 2);
+		final double thrust1Correction = nozzle1Area * pressureDifference;
+		
+		final double nozzle2Area = Math.PI * Math.pow(nozzle2Diameter/2, 2);
+		final double thrust2Correction = nozzle2Area * pressureDifference;
+
 		// Just enough rocket to test
 		Rocket rocket = new Rocket();
 		
@@ -55,6 +62,7 @@ public class MotorPressureCorrectionTest {
 		bodyTube1.setMotorMount(true);
 		MotorConfiguration motor1Configuration = new MotorConfiguration(bodyTube1, flightConfiguration.getId());
 
+		// motor1 has a larger nozzle, and burns longer
 		ThrustCurveMotor motor1 = new ThrustCurveMotor.Builder()
 			.setDiameter(motorDiameter)
 			.setLength(motorLength)
@@ -77,6 +85,7 @@ public class MotorPressureCorrectionTest {
 		bodyTube2.setMotorMount(true);
 		MotorConfiguration motor2Configuration = new MotorConfiguration(bodyTube2, flightConfiguration.getId());
 
+		// motor2 burns shorter, and has a smaller nozzle
 		ThrustCurveMotor motor2 = new ThrustCurveMotor.Builder()
 			.setDiameter(motorDiameter)
 			.setLength(motorLength)
@@ -92,32 +101,26 @@ public class MotorPressureCorrectionTest {
 		motor2Configuration.setNozzleExitDiameter(nozzle2Diameter);
 		flightConfiguration.addMotor(motor2Configuration);
 
+		// set up simulation stepper so we can calculate thrust
 		Simulation simulation = new Simulation(rocket);
 		SimulationConditions simulationConditions = simulation.getOptions().toSimulationConditions();
 		SimulationStatus simulationStatus = new SimulationStatus(flightConfiguration, simulationConditions);
 
-		for (MotorClusterState motorClusterState : (List<MotorClusterState>)simulationStatus.getMotors()) {
-			motorClusterState.ignite(0);
-		}
-
 		RK4SimulationStepper stepper = new RK4SimulationStepper();
 		stepper.store = new RK4SimulationStepper.DataStore();
 		stepper.store.flightConditions = new FlightConditions(flightConfiguration);
-
-		// calculate expected results
-		final double nozzle1Area = Math.PI * Math.pow(nozzle1Diameter/2, 2);
-		final double thrust1Correction = nozzle1Area * pressureDifference;
+		final double STANDARD_PRESSURE = stepper.store.flightConditions.getAtmosphericConditions().STANDARD_PRESSURE;
 		
-		final double nozzle2Area = Math.PI * Math.pow(nozzle2Diameter/2, 2);
-		final double thrust2Correction = nozzle2Area * pressureDifference;
-
 		// at time 1, both motors are active
 		simulationStatus.setSimulationTime(time1);
+		for (MotorClusterState motorClusterState : (List<MotorClusterState>)simulationStatus.getMotors()) {
+			motorClusterState.ignite(0);
+		}
 		
 		try {
 			// At standard pressure, thrust should simply be the value from the thrustcurve
-			stepper.store.flightConditions.getAtmosphericConditions().setPressure(stepper.store.flightConditions.getAtmosphericConditions().STANDARD_PRESSURE);
 			stepper.calculateFlightConditions(simulationStatus, stepper.store);
+			stepper.store.flightConditions.getAtmosphericConditions().setPressure(STANDARD_PRESSURE);
 
 			assertEquals(nozzle1Area + nozzle2Area,
 						 stepper.store.flightConditions.getThrustingNozzleExitArea(),
@@ -135,8 +138,8 @@ public class MotorPressureCorrectionTest {
 
 		try {
 			// Test correction with both motors active
-			stepper.store.flightConditions.getAtmosphericConditions().setPressure(stepper.store.flightConditions.getAtmosphericConditions().STANDARD_PRESSURE - pressureDifference);
 			stepper.calculateFlightConditions(simulationStatus, stepper.store);
+			stepper.store.flightConditions.getAtmosphericConditions().setPressure(STANDARD_PRESSURE - pressureDifference);
 
 			assertEquals(motor1.getThrust(time1) + motor2.getThrust(time1) + thrust1Correction + thrust2Correction,
 						 stepper.calculateThrust(simulationStatus, stepper.store),
@@ -156,7 +159,9 @@ public class MotorPressureCorrectionTest {
 		}
 		
 		try {
+			// Test correction with only motor 1 active
 			stepper.calculateFlightConditions(simulationStatus, stepper.store);
+			stepper.store.flightConditions.getAtmosphericConditions().setPressure(STANDARD_PRESSURE - pressureDifference);
 
 			// Check nozzle area
 			assertEquals(nozzle1Area,
@@ -172,9 +177,5 @@ public class MotorPressureCorrectionTest {
         } catch (SimulationException e) {
             fail("Exception thrown testing corrected thrust both motors: " + e);
         }
-
-		
-
-		
 	}
 }
