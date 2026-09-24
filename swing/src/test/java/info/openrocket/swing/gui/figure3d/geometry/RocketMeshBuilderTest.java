@@ -4,16 +4,23 @@ import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.core.util.Transformation;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.util.BaseTestCase;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -130,6 +137,45 @@ class RocketMeshBuilderTest extends BaseTestCase {
 		assertEquals(Set.of(RenderingConstants.SURFACE_ID_OUTSIDE), referencedSurfaceIds(primary.mesh()));
 		assertEquals(Set.of(RenderingConstants.SURFACE_ID_RIGHT, RenderingConstants.SURFACE_ID_EDGE),
 				referencedSurfaceIds(secondary.mesh()));
+	}
+
+	@Test
+	void cantedFinModelMatricesMatchTheFinSetGeometry() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet finSet = rocket.getAllChildren().stream()
+				.filter(TrapezoidFinSet.class::isInstance)
+				.map(TrapezoidFinSet.class::cast)
+				.findFirst()
+				.orElseThrow();
+		finSet.setCantAngle(Math.toRadians(10));
+
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket, new RenderingConfiguration());
+		List<RocketSceneSnapshot.ComponentInstance> finInstances = snapshot.getComponentInstances().stream()
+				.filter(instance -> instance.component() == finSet)
+				.toList();
+		List<InstanceContext> contexts = rocket.getSelectedConfiguration().getActiveInstances().get(finSet);
+		assertEquals(contexts.size(), finInstances.size());
+
+		double halfThickness = finSet.getThickness() / 2;
+		List<CoordinateIF> finPoints = List.of(
+				new Coordinate(0, 0, 0),
+				new Coordinate(finSet.getLength(), 0, halfThickness),
+				new Coordinate(finSet.getLength() / 2, finSet.getSpan(), -halfThickness));
+		for (int i = 0; i < contexts.size(); i++) {
+			Transformation expectedTransform = contexts.get(i).transform
+					.applyTransformation(finSet.getCantRotation());
+			Matrix4f modelMatrix = finInstances.get(i).modelMatrix();
+			for (CoordinateIF point : finPoints) {
+				CoordinateIF expected = expectedTransform.transform(point);
+				// The engine frame is OpenRocket's frame with Z flipped
+				Vector3f actual = modelMatrix.transformPosition(
+						new Vector3f((float) point.getX(), (float) point.getY(), (float) -point.getZ()));
+				float scale = RenderingConstants.WORLD_SCALE;
+				assertEquals(expected.getX() * scale, actual.x, 1.0e-5f);
+				assertEquals(expected.getY() * scale, actual.y, 1.0e-5f);
+				assertEquals(-expected.getZ() * scale, actual.z, 1.0e-5f);
+			}
+		}
 	}
 
 	@Test
