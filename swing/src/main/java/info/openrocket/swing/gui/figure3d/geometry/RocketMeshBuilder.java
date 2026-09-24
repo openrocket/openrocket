@@ -458,6 +458,11 @@ public final class RocketMeshBuilder {
 				.rotateX(-(float)ang.getX())
 				.rotateY(-(float)ang.getY())
 				.rotateZ(-(float)ang.getZ());
+		if (component instanceof FinSet finSet) {
+			// The instance location already includes the offset from canting about the mid-chord,
+			// so the fin only needs to be rotated about its own root leading edge here.
+			rotationMatrix.rotateY(-(float) finSet.getCantAngle());
+		}
 
 		return new Matrix4f()
 				.translate(positionInEngineCS)
