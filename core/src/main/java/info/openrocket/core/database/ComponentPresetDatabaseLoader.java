@@ -1,16 +1,11 @@
 package info.openrocket.core.database;
 
-import java.awt.Dialog;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Collection;
-
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
@@ -100,7 +95,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 			presetCount += presets.size();
 		} catch (IOException e) {
 			log.warn("Error loading user-defined component preset file " + file, e);
-			showLoadingErrorDialog(file.getPath(), e.getMessage());
+			notifyLoadingError(file.getPath(), e.getMessage());
 		}
 	}
 
@@ -127,32 +122,25 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 				presetCount += presets.size();
 			} catch (IOException e) {
 				log.warn("Error loading user-defined component preset file " + f.getU(), e);
-				showLoadingErrorDialog(f.getU().getPath(), e.getMessage());
+				notifyLoadingError(f.getU().getPath(), e.getMessage());
 			}
 		}
 	}
 
 	/**
-	 * Shows a warning dialog when a component preset file fails to load.
+	 * Reports a warning to the registered error handler when a component preset file
+	 * fails to load.  In headless use (no handler registered) the failure has already
+	 * been logged by the caller and loading simply continues.
 	 *
 	 * @param filePath     the path of the file that failed to load
 	 * @param errorMessage the error message from the exception
 	 */
-	private void showLoadingErrorDialog(String filePath, String errorMessage) {
+	private void notifyLoadingError(String filePath, String errorMessage) {
 		Translator trans = Application.getTranslator();
-		String message = "<html><body><p style='width: 400px;'><i>" + errorMessage +
-				"</i>.<br><br>" + MessageFormat.format(trans.get("ComponentDbLoaderDlg.message1"), filePath) +
-				"<br>" + trans.get("ComponentDbLoaderDlg.message2") + "</p></body></html>";
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-				JDialog dialog = pane.createDialog(null, trans.get("ComponentDbLoaderDlg.title"));
-				dialog.setModalityType(Dialog.ModalityType.MODELESS);
-				dialog.setAlwaysOnTop(true);
-				dialog.setVisible(true);
-			}
-		});
+		String message = errorMessage + ".\n\n" +
+				MessageFormat.format(trans.get("ComponentDbLoaderDlg.message1"), filePath) + "\n" +
+				trans.get("ComponentDbLoaderDlg.message2");
+		reportLoadingError(trans.get("ComponentDbLoaderDlg.title"), message);
 	}
 
 	/**

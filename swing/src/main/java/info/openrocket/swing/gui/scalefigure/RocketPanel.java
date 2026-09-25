@@ -1957,7 +1957,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
 
 		// Update 2D view background: document preference -> SwingPreferences default -> theme default (null)
-		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
+		Color docColor2D = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null));
 		Color defaultColor2D = swingPrefs.getDefault2DBackgroundColor();
 		Color color2D = docColor2D != null ? docColor2D :
 			(defaultColor2D != null ? defaultColor2D : null);
@@ -1966,7 +1966,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 
 		// Update 3D view background: document preference -> SwingPreferences default -> theme default (null)
-		Color docColor3D = docPrefs.getColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, null);
+		Color docColor3D = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, null));
 		Color defaultColor3D = swingPrefs.getDefault3DBackgroundColor();
 		Color color3D = docColor3D != null ? docColor3D :
 			(defaultColor3D != null ? defaultColor3D : null);
@@ -1985,13 +1985,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (extraText != null) {
 			// Get 2D text color: document preference -> SwingPreferences default -> theme default (null)
-			Color doc2DTextColor = docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
+			Color doc2DTextColor = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null));
 			Color default2DTextColor = swingPrefs.getDefault2DTextColor();
 			Color textColor2D = doc2DTextColor != null ? doc2DTextColor :
 				(default2DTextColor != null ? default2DTextColor : null);
 
 			// Get 3D text color: document preference -> SwingPreferences default -> theme default (null)
-			Color doc3DTextColor = docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
+			Color doc3DTextColor = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null));
 			Color default3DTextColor = swingPrefs.getDefault3DTextColor();
 			Color textColor3D = doc3DTextColor != null ? doc3DTextColor :
 				(default3DTextColor != null ? default3DTextColor : null);
@@ -2235,7 +2235,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Apply custom background color to preview figure
 		DocumentPreferences docPrefs = document.getDocumentPreferences();
 		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
-		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
+		Color docColor2D = ColorConversion.toAwtColor(docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null));
 		Color defaultColor2D = swingPrefs.getDefault2DBackgroundColor();
 		Color color2D = docColor2D != null ? docColor2D :
 			(defaultColor2D != null ? defaultColor2D : null);

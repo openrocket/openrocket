@@ -14,7 +14,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.awt.Color;
+import info.openrocket.core.util.ORColor;
 import java.io.File;
 import java.util.Locale;
 
@@ -86,7 +86,7 @@ public class SVGBuilder {
 	 * @param strokeWidth the width of the path stroke (in millimeters)
 	 * @param lineCap      the line cap style of the path
 	 */
-	public void addPath(CoordinateIF[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth,
+	public void addPath(CoordinateIF[] coordinates, double xPos, double yPos, ORColor fill, ORColor stroke, double strokeWidth,
 						LineCap lineCap) {
 		final Element path = this.doc.createElement("path");
 		final StringBuilder dAttribute = new StringBuilder();
@@ -118,22 +118,22 @@ public class SVGBuilder {
 		svgRoot.appendChild(path);
 	}
 
-	public void addPath(CoordinateIF[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth) {
+	public void addPath(CoordinateIF[] coordinates, double xPos, double yPos, ORColor fill, ORColor stroke, double strokeWidth) {
 		addPath(coordinates, xPos, yPos, fill, stroke, strokeWidth, LineCap.SQUARE);
 	}
 
-	public void addPath(CoordinateIF[] coordinates, Color fill, Color stroke, double strokeWidth, LineCap lineCap) {
+	public void addPath(CoordinateIF[] coordinates, ORColor fill, ORColor stroke, double strokeWidth, LineCap lineCap) {
 		addPath(coordinates, 0, 0, fill, stroke, strokeWidth, lineCap);
 	}
 
-	public void addPath(CoordinateIF[] coordinates, Color fill, Color stroke, double strokeWidth) {
+	public void addPath(CoordinateIF[] coordinates, ORColor fill, ORColor stroke, double strokeWidth) {
 		addPath(coordinates, fill, stroke, strokeWidth, LineCap.SQUARE);
 	}
 
 	/**
 	 * Adds a circle element.
 	 */
-	public void addCircle(double centerX, double centerY, double radius, Color fill, Color stroke, double strokeWidth) {
+	public void addCircle(double centerX, double centerY, double radius, ORColor fill, ORColor stroke, double strokeWidth) {
 		Element circle = doc.createElement("circle");
 
 		double cx = toSvgUnits(centerX + originX);
@@ -157,7 +157,7 @@ public class SVGBuilder {
 	 * Adds a donut/annulus using the even-odd fill rule.
 	 */
 	public void addAnnulus(double centerX, double centerY, double outerRadius, double innerRadius,
-						   Color fill, Color stroke, double strokeWidth) {
+						   ORColor fill, ORColor stroke, double strokeWidth) {
 		if (innerRadius <= 0) {
 			addCircle(centerX, centerY, outerRadius, fill, stroke, strokeWidth);
 			return;
@@ -189,7 +189,7 @@ public class SVGBuilder {
 	/**
 	 * Adds a straight line guide.
 	 */
-	public void addLine(double startX, double startY, double endX, double endY, Color stroke, double strokeWidth,
+	public void addLine(double startX, double startY, double endX, double endY, ORColor stroke, double strokeWidth,
 						LineCap lineCap) {
 		Element line = doc.createElement("line");
 
@@ -212,7 +212,7 @@ public class SVGBuilder {
 		svgRoot.appendChild(line);
 	}
 
-	public void addLine(double startX, double startY, double endX, double endY, Color stroke, double strokeWidth) {
+	public void addLine(double startX, double startY, double endX, double endY, ORColor stroke, double strokeWidth) {
 		addLine(startX, startY, endX, endY, stroke, strokeWidth, LineCap.BUTT);
 	}
 
@@ -220,7 +220,7 @@ public class SVGBuilder {
 	 * Convenience helper to draw a crosshair centered at {@code (centerX, centerY)}.
 	 */
 	public void addCrosshair(double centerX, double centerY, double armHalfWidth, double armHalfHeight,
-							 Color stroke, double strokeWidth) {
+							 ORColor stroke, double strokeWidth) {
 		addLine(centerX - armHalfWidth, centerY, centerX + armHalfWidth, centerY, stroke, strokeWidth, LineCap.SQUARE);
 		addLine(centerX, centerY - armHalfHeight, centerX, centerY + armHalfHeight, stroke, strokeWidth, LineCap.SQUARE);
 	}
@@ -235,7 +235,7 @@ public class SVGBuilder {
 	 * @param fill the text color, or null for black
 	 * @param anchor the text anchor position ("start", "middle", "end")
 	 */
-	public void addText(double x, double y, String text, double fontSize, Color fill, String anchor) {
+	public void addText(double x, double y, String text, double fontSize, ORColor fill, String anchor) {
 		Element textElement = doc.createElement("text");
 		
 		double svgX = toSvgUnits(x + originX);
@@ -269,7 +269,7 @@ public class SVGBuilder {
 		textElement.setAttribute("x", formatDouble(svgX));
 		textElement.setAttribute("y", formatDouble(svgY));
 		textElement.setAttribute("font-size", formatDouble(fontSize));
-		textElement.setAttribute("fill", colorToString(fill != null ? fill : Color.BLACK));
+		textElement.setAttribute("fill", colorToString(fill != null ? fill : ORColor.BLACK));
 		if (anchor != null && !anchor.isEmpty()) {
 			textElement.setAttribute("text-anchor", anchor);
 		}
@@ -280,7 +280,7 @@ public class SVGBuilder {
 	/**
 	 * Adds a text element with default anchor "middle" (centered horizontally).
 	 */
-	public void addText(double x, double y, String text, double fontSize, Color fill) {
+	public void addText(double x, double y, String text, double fontSize, ORColor fill) {
 		addText(x, y, text, fontSize, fill, "middle");
 	}
 
@@ -349,7 +349,7 @@ public class SVGBuilder {
 	 * @param color the color to convert
 	 * @return the string representation of the color
 	 */
-	private String colorToString(Color color) {
+	private String colorToString(ORColor color) {
 		return color == null ?
 				"none" :
 				String.format("rgb(%d,%d,%d)", color.getRed(), color.getGreen(), color.getBlue());
@@ -359,7 +359,7 @@ public class SVGBuilder {
 		return meters * OR_UNIT_TO_SVG_UNIT;
 	}
 
-	private void trackStrokeWidth(Color stroke, double strokeWidth) {
+	private void trackStrokeWidth(ORColor stroke, double strokeWidth) {
 		if (stroke != null && strokeWidth > maxStrokeWidth) {
 			maxStrokeWidth = strokeWidth;
 		}
@@ -409,7 +409,7 @@ public class SVGBuilder {
 				new Coordinate(0.01, 0),
 				new Coordinate(0, 0)};
 
-		svgBuilder.addPath(coordinates, null, Color.BLACK, 0.1);
+		svgBuilder.addPath(coordinates, null, ORColor.BLACK, 0.1);
 		svgBuilder.writeToFile(new File("<your_path_here>/test.svg"));
 	}
 }

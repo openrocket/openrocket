@@ -40,9 +40,14 @@ public class GuiModule extends AbstractModule {
 	
 	private final ComponentPresetDatabaseLoader presetLoader = new ComponentPresetDatabaseLoader();
 	private final MotorDatabaseLoader motorLoader = new MotorDatabaseLoader();
-	
-	
+
+
 	public GuiModule() {
+		// The core loaders are headless; the Swing front-end supplies the dialog UI for
+		// user-facing loading failures.
+		SwingDatabaseLoadingErrorHandler errorHandler = new SwingDatabaseLoadingErrorHandler();
+		presetLoader.setErrorHandler(errorHandler);
+		motorLoader.setErrorHandler(errorHandler);
 	}
 	
 	@Override
