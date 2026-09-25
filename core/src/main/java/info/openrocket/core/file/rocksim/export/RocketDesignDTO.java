@@ -1,8 +1,6 @@
 package info.openrocket.core.file.rocksim.export;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * This class models a Rocksim XML element for a rocket design container. It's
@@ -10,69 +8,68 @@ import jakarta.xml.bind.annotation.XmlElement;
  * a bunch of boilerplate XML that does not change, coupled with the stage DTOs
  * that are part of the rocket design.
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class RocketDesignDTO {
 
-    @XmlElement(name = "Name")
+    @JacksonXmlProperty(localName = "Name")
     private String name;
-    @XmlElement(name = "StageCount")
+    @JacksonXmlProperty(localName = "StageCount")
     private int stageCount = 1;
-    @XmlElement(name = "DisplayFlags")
+    @JacksonXmlProperty(localName = "DisplayFlags")
     private final int displayFlags = 7;
-    @XmlElement(name = "ViewType")
+    @JacksonXmlProperty(localName = "ViewType")
     private final int viewType = 0;
-    @XmlElement(name = "ViewStageCount")
+    @JacksonXmlProperty(localName = "ViewStageCount")
     private final int viewStageCount = 3;
-    @XmlElement(name = "ViewTypeEdit")
+    @JacksonXmlProperty(localName = "ViewTypeEdit")
     private final int viewTypeEdit = 0;
-    @XmlElement(name = "ViewStageCountEdit")
+    @JacksonXmlProperty(localName = "ViewStageCountEdit")
     private final int viewStageCountEdit = 3;
-    @XmlElement(name = "ZoomFactor")
+    @JacksonXmlProperty(localName = "ZoomFactor")
     private final double zoomFactor = 0.0d;
-    @XmlElement(name = "ZoomFactorEdit")
+    @JacksonXmlProperty(localName = "ZoomFactorEdit")
     private final double zoomFactorEdit = 0.0d;
-    @XmlElement(name = "ScrollPosX")
+    @JacksonXmlProperty(localName = "ScrollPosX")
     private final int scrollPosX = 0;
-    @XmlElement(name = "ScrollPosY")
+    @JacksonXmlProperty(localName = "ScrollPosY")
     private final int scrollPosY = 0;
-    @XmlElement(name = "ScrollPosXEdit")
+    @JacksonXmlProperty(localName = "ScrollPosXEdit")
     private final int scrollPosXEdit = 0;
-    @XmlElement(name = "ScrollPosYEdit")
+    @JacksonXmlProperty(localName = "ScrollPosYEdit")
     private final int scrollPosYEdit = 0;
-    @XmlElement(name = "ThreeDFlags")
+    @JacksonXmlProperty(localName = "ThreeDFlags")
     private final int threeDFlags = 0;
-    @XmlElement(name = "ThreeDFlagsEdit")
+    @JacksonXmlProperty(localName = "ThreeDFlagsEdit")
     private final int threeDFlagsEdit = 0;
-    @XmlElement(name = "LastSerialNumber")
+    @JacksonXmlProperty(localName = "LastSerialNumber")
     private int lastSerialNumber = -1;
-    @XmlElement(name = "Stage3Mass")
+    @JacksonXmlProperty(localName = "Stage3Mass")
     private double stage3Mass = 0.0d;
-    @XmlElement(name = "Stage2Mass")
+    @JacksonXmlProperty(localName = "Stage2Mass")
     private double stage2Mass = 0.0d;
-    @XmlElement(name = "Stage1Mass")
+    @JacksonXmlProperty(localName = "Stage1Mass")
     private double stage1Mass = 0.0d;
-    @XmlElement(name = "Stage3CG")
+    @JacksonXmlProperty(localName = "Stage3CG")
     private double stage3CG = 0.0d;
-    @XmlElement(name = "Stage2CGAlone")
+    @JacksonXmlProperty(localName = "Stage2CGAlone")
     private double stage2CGAlone = 0.0d;
-    @XmlElement(name = "Stage1CGAlone")
+    @JacksonXmlProperty(localName = "Stage1CGAlone")
     private double stage1CGAlone = 0.0d;
-    @XmlElement(name = "Stage321CG")
+    @JacksonXmlProperty(localName = "Stage321CG")
     private double stage321CG = 0.0d;
-    @XmlElement(name = "Stage32CG")
+    @JacksonXmlProperty(localName = "Stage32CG")
     private double stage32CG = 0.0d;
 
-    @XmlElement(name = "CPCalcFlags")
+    @JacksonXmlProperty(localName = "CPCalcFlags")
     private final int cpCalcFlags = 1;
-    @XmlElement(name = "CPSimFlags")
+    @JacksonXmlProperty(localName = "CPSimFlags")
     private final int cpSimFlags = 1;
-    @XmlElement(name = "UseKnownMass")
+    @JacksonXmlProperty(localName = "UseKnownMass")
     private int useKnownMass = 0;
-    @XmlElement(name = "Stage3Parts")
+    @JacksonXmlProperty(localName = "Stage3Parts")
     private StageDTO stage3 = new StageDTO();
-    @XmlElement(name = "Stage2Parts", required = true, nillable = false)
+    @JacksonXmlProperty(localName = "Stage2Parts")
     private StageDTO stage2 = new StageDTO();
-    @XmlElement(name = "Stage1Parts", required = false, nillable = false)
+    @JacksonXmlProperty(localName = "Stage1Parts")
     private StageDTO stage1 = new StageDTO();
 
     /**

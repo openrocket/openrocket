@@ -10,33 +10,31 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 
-@XmlRootElement(name = RASAeroCommonConstants.LAUNCH_SITE)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.LAUNCH_SITE)
 public class LaunchSiteDTO {
 
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_ALTITUDE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_ALTITUDE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double altitude = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_PRESSURE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_PRESSURE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double pressure = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_ROD_ANGLE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_ROD_ANGLE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double rodAngle = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_ROD_LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_ROD_LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double rodLength = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_TEMPERATURE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_TEMPERATURE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double temperature = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_WIND_SPEED)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_WIND_SPEED)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double windSpeed = 0.0d;
 
     /**

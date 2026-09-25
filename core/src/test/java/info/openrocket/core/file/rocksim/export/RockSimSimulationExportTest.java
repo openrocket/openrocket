@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,8 +39,7 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Unmarshaller;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -170,9 +168,8 @@ public class RockSimSimulationExportTest extends RockSimTestBase {
 		assertNotNull(result);
 		assertTrue(result.contains("<SimulationResultsList>"));
 
-		JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
-		Unmarshaller unmarshaller = binder.createUnmarshaller();
-		return (RockSimDocumentDTO) unmarshaller.unmarshal(new StringReader(result));
+		XmlMapper xmlMapper = new XmlMapper();
+		return xmlMapper.readValue(result, RockSimDocumentDTO.class);
 	}
 
 	private BodyTube makeBodyTube(String name) {

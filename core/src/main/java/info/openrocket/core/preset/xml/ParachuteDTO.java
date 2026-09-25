@@ -6,35 +6,33 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPresetFactory;
 import info.openrocket.core.preset.InvalidComponentPresetException;
 import info.openrocket.core.preset.TypedPropertyMap;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import java.util.List;
 
 /**
  * Streamer preset XML handler.
  */
-@XmlRootElement(name = "Parachute")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = "Parachute")
 public class ParachuteDTO extends BaseComponentDTO {
 
-	@XmlElement(name = "Diameter")
+	@JacksonXmlProperty(localName = "Diameter")
 	private AnnotatedLengthDTO diameter;
-	@XmlElement(name = "Sides")
+	@JacksonXmlProperty(localName = "Sides")
 	private Integer sides;
-	@XmlElement(name = "PackedDiameter")
+	@JacksonXmlProperty(localName = "PackedDiameter")
 	private AnnotatedLengthDTO PackedDiameter;
-	@XmlElement(name = "PackedLength")
+	@JacksonXmlProperty(localName = "PackedLength")
 	private AnnotatedLengthDTO PackedLength;
-	@XmlElement(name = "DragCoefficient")
+	@JacksonXmlProperty(localName = "DragCoefficient")
 	private AnnotatedLengthDTO dragCoefficient;
-	@XmlElement(name = "LineCount")
+	@JacksonXmlProperty(localName = "LineCount")
 	private Integer lineCount;
-	@XmlElement(name = "LineLength")
+	@JacksonXmlProperty(localName = "LineLength")
 	private AnnotatedLengthDTO lineLength;
 
-	@XmlElement(name = "LineMaterial")
+	@JacksonXmlProperty(localName = "LineMaterial")
 	private AnnotatedMaterialDTO lineMaterial;
 
 	/**
@@ -51,6 +49,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 		this.diameter = diameter;
 	}
 
+	@JsonIgnore
 	public void setDiameter(double diameter) {
 		this.diameter = new AnnotatedLengthDTO(diameter);
 	}
@@ -71,6 +70,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 		this.PackedDiameter = PackedDiameter;
 	}
 
+	@JsonIgnore
 	public void setPackedDiameter(double PackedDiameter) {
 		this.PackedDiameter = new AnnotatedLengthDTO(PackedDiameter);
 	}
@@ -83,6 +83,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 		this.PackedLength = PackedLength;
 	}
 
+	@JsonIgnore
 	public void setPackedLength(double PackedLength) {
 		this.PackedLength = new AnnotatedLengthDTO(PackedLength);
 	}
@@ -95,6 +96,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 		this.dragCoefficient = DragCoefficient;
 	}
 
+	@JsonIgnore
 	public void setDragCoefficient(double DragCoefficient) {
 		this.dragCoefficient = new AnnotatedLengthDTO(DragCoefficient);
 	}
@@ -115,6 +117,7 @@ public class ParachuteDTO extends BaseComponentDTO {
 		this.lineLength = lineLength;
 	}
 
+	@JsonIgnore
 	public void setLineLength(double lineLength) {
 		this.lineLength = new AnnotatedLengthDTO(lineLength);
 	}

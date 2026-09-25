@@ -14,10 +14,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
-import jakarta.xml.bind.annotation.XmlTransient;
-
 public interface BodyTubeDTOAdapter {
-    @XmlTransient
     Translator trans = Application.getTranslator();
 
     default void applyBodyTubeSettings(BodyTube bodyTube, WarningSet warnings, ErrorSet errors)

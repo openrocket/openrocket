@@ -7,76 +7,55 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.BodyTube;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.XmlType;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 
-@XmlRootElement(name = RASAeroCommonConstants.BODY_TUBE)
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {
-        "partType",
-        "length",
-        "diameter",
-        "launchLugDiameter",
-        "launchLugLength",
-        "railGuideDiameter",
-        "railGuideHeight",
-        "launchShoeArea",
-        "location",
-        "color",
-        "boattailLength",
-        "boattailRearDiameter",
-        "boattailOffset",
-        "overhang",
-        "fin"
-})
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.BODY_TUBE)
 public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double launchLugDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_LUG_LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double launchLugLength = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RAIL_GUIDE_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double railGuideDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_HEIGHT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.RAIL_GUIDE_HEIGHT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double railGuideHeight = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.LAUNCH_SHOE_AREA)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LAUNCH_SHOE_AREA)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double launchShoeArea = 0.0d; // Currently not available in OR
 
-    @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOATTAIL_LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double boattailLength = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double boattailRearDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOATTAIL_OFFSET)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOATTAIL_OFFSET)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double boattailOffset = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.OVERHANG)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.OVERHANG)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double overhang = 0.0d;
 
-    @XmlElementRef(name = RASAeroCommonConstants.FIN, type = FinDTO.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FIN)
     private FinDTO fin;
 
-    @XmlTransient
+    @JsonIgnore
     private final WarningSet warnings;
-    @XmlTransient
+    @JsonIgnore
     private final ErrorSet errors;
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     /**

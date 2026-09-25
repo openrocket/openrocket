@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.shapes;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.DefaultObjFace;
@@ -17,7 +17,7 @@ public class PolygonExporter {
      * @param pointLocationsY The y locations of the points --> NOTE: points should follow a clockwise direction
      * @param thickness The thickness of the polygon
      */
-    public static void addPolygonMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+    public static void addPolygonMesh(@Nonnull DefaultObj obj, @Nonnull CoordTransform transformer, String groupName,
                                       float[] pointLocationsX, float[] pointLocationsY, float thickness) {
         verifyPoints(pointLocationsX, pointLocationsY);
 

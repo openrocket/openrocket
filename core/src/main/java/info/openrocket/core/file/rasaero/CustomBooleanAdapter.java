@@ -1,19 +1,39 @@
 package info.openrocket.core.file.rasaero;
 
-import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class CustomBooleanAdapter extends XmlAdapter<String, Boolean> {
+import java.io.IOException;
 
-    @Override
-    public Boolean unmarshal(String s) throws Exception {
-        return "true".equalsIgnoreCase(s);
+public class CustomBooleanAdapter {
+
+    public static class Serializer extends StdSerializer<Boolean> {
+        public Serializer() {
+            super(Boolean.class);
+        }
+
+        @Override
+        public void serialize(Boolean value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            if (value == null) {
+                gen.writeNull();
+                return;
+            }
+            gen.writeString(value ? "True" : "False");
+        }
     }
 
-    @Override
-    public String marshal(Boolean b) throws Exception {
-        if (b) {
-            return "True";
+    public static class Deserializer extends StdDeserializer<Boolean> {
+        public Deserializer() {
+            super(Boolean.class);
         }
-        return "False";
+
+        @Override
+        public Boolean deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+            return "true".equalsIgnoreCase(p.getText());
+        }
     }
 }

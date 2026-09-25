@@ -8,13 +8,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.StringReader;
-import java.io.StringWriter;
 
 /**
  */
@@ -39,18 +37,13 @@ public class BaseComponentDTOTest {
         BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream("/test_image.png"));
         dto.setImage(image);
 
-        JAXBContext binder = JAXBContext.newInstance(OpenRocketComponentDTO.class);
-        Marshaller marshaller = binder.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        StringWriter sw = new StringWriter();
+        XmlMapper xmlMapper = (XmlMapper) new XmlMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
         // Serialize the dto to XML
-        marshaller.marshal(dto, sw);
-        String xml = sw.toString();
+        String xml = xmlMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
 
         // Read the XML back to create the dto again
-        Unmarshaller unmarshaller = binder.createUnmarshaller();
-        BodyTubeDTO redone = (BodyTubeDTO) unmarshaller.unmarshal(new StringReader(xml));
+        BodyTubeDTO redone = xmlMapper.readValue(new StringReader(xml), BodyTubeDTO.class);
 
         // Compare the image.
         Assertions.assertArrayEquals(((DataBufferByte) image.getData().getDataBuffer()).getData(),
