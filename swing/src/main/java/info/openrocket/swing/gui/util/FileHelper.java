@@ -53,6 +53,10 @@ public final class FileHelper {
 	public static final FileFilter WAVEFRONT_OBJ_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.WAVEFRONT_OBJ_FILTER"), ".obj");
 
+	/** File filter for 3MF print packages (*.3mf) */
+	public static final FileFilter THREE_MF_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.THREE_MF_FILTER"), ".3mf");
+
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), ".orc", ".orc.gz");

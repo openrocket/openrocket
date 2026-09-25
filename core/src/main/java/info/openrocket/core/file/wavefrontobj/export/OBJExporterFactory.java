@@ -240,14 +240,14 @@ public class OBJExporterFactory {
     }
 
     @SuppressWarnings("unchecked") // This is safe because of the structure we set up.
-    private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
-                                                             T component, String groupName, List<DefaultMtl> materials,
-                                                             ObjUtils.LevelOfDetail LOD, OBJExportOptions options,
-                                                             WarningSet warnings) {
+    public static <T extends RocketComponent> RocketComponentExporter<T> createComponentExporter(
+                                                             DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
+                                                             T component, String groupName, ObjUtils.LevelOfDetail LOD,
+                                                             boolean exportAllInstances, WarningSet warnings) {
         ExporterFactory<T> factory = null;
         Class<?> currentClass = component.getClass();
 
-        // Need to iterate over superclasses to find the correct exporter (otherwise e.g. a NoseCone would not work for the TransitionExporter)
+        // Iterate over superclasses so subclasses such as NoseCone use their registered base exporter.
         while (RocketComponent.class.isAssignableFrom(currentClass) && factory == null) {
             factory = (ExporterFactory<T>) EXPORTER_MAP.get(currentClass);
             currentClass = currentClass.getSuperclass();
@@ -257,6 +257,13 @@ public class OBJExporterFactory {
             throw new IllegalArgumentException("Unsupported component type: " + component.getClass().getName());
         }
 
+        return factory.create(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
+    }
+
+    private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
+                                                             T component, String groupName, List<DefaultMtl> materials,
+                                                             ObjUtils.LevelOfDetail LOD, OBJExportOptions options,
+                                                             WarningSet warnings) {
         // Export material
         if (options.isExportAppearance()) {
             String materialName = "mat_" + groupName;
@@ -272,8 +279,8 @@ public class OBJExporterFactory {
         }
 
         // Export component
-        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD,
-                options.isExportAllInstances(), warnings);
+        final RocketComponentExporter<T> exporter = createComponentExporter(obj, config, transformer, component, groupName,
+                LOD, options.isExportAllInstances(), warnings);
         exporter.addToObj();
 
         // Export motor

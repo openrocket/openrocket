@@ -254,6 +254,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		menu.add(new JMenuItem(actions.getScaleAction()));
 		menu.addSeparator();
 		menu.add(new JMenuItem(actions.getExportOBJAction()));
+		menu.add(new JMenuItem(actions.getExportThreeMFAction()));
 		menu.add(new JMenuItem(actions.getExportSVGAction()));
 
 		return menu;
