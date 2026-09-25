@@ -30,18 +30,18 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 
 public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
-	
+
 	private static final long serialVersionUID = 3423905472892675964L;
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private static final int OPTION_SIMULATION_COMMENTS = 0;
 	private static final int OPTION_FIELD_DESCRIPTIONS = 1;
 	private static final int OPTION_FLIGHT_EVENTS = 2;
 
 	private final Simulation simulation;
 	private FlightDataBranch branch;
-	
-	
+
+
 	private SimulationExportPanel(Simulation simulation, FlightDataBranch branch, FlightDataType[] types,
 								  boolean[] selected, CsvOptionPanel csvOptions, Component... extraComponents) {
 		super(types, selected, csvOptions, false, extraComponents);
@@ -108,20 +108,20 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		
+
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return false;
-		
+
 		File file = chooser.getSelectedFile();
 		if (file == null)
 			return false;
-		
+
 		file = FileHelper.forceExtension(file, "csv");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return false;
 		}
-		
-		
+
+
 		String commentChar = csvOptions.getCommentCharacter();
 		String fieldSep = csvOptions.getFieldSeparator();
 		int decimalPlaces = csvOptions.getDecimalPlaces();
@@ -130,7 +130,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 		boolean fieldComment = csvOptions.getSelectionOption(OPTION_FIELD_DESCRIPTIONS);
 		boolean eventComment = csvOptions.getSelectionOption(OPTION_FLIGHT_EVENTS);
 		csvOptions.storePreferences();
-		
+
 		// Store preferences and export
 		int n = 0;
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
@@ -139,8 +139,8 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 			if (selected[i])
 				n++;
 		}
-		
-		
+
+
 		FlightDataType[] fieldTypes = new FlightDataType[n];
 		Unit[] fieldUnits = new Unit[n];
 		int pos = 0;
@@ -151,7 +151,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 				pos++;
 			}
 		}
-		
+
 		if (fieldSep.equals(SPACE)) {
 			fieldSep = " ";
 		} else if (fieldSep.equals(TAB)) {
@@ -162,7 +162,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 		SaveCSVWorker.exportSimulationData(file, simulation, branch, fieldTypes, fieldUnits, fieldSep, decimalPlaces,
 				isExponentialNotation, commentChar, simulationComment, fieldComment, eventComment,
 				SwingUtilities.getWindowAncestor(this));
-		
+
 		return true;
 	}
 

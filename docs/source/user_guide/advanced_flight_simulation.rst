@@ -314,3 +314,641 @@ for your exported data.
 
    The Export data window.
 
+----
+
+Exporting the 3D flight path
+============================
+
+In addition to the CSV data export, OpenRocket can export the flight's path as a
+geographic track that can be opened in mapping tools such as Google Earth. This is done
+from the :guilabel:`3D Path` tab of the simulation edit dialog.
+
+OpenRocket does not need a GPS log for this. A simulation already records how far the rocket
+has traveled from the pad at every time step, and the export turns that into coordinates
+starting from the launch site. The exported track therefore reflects the wind drift and the
+drift of separated stages.
+
+.. note::
+
+   The coordinates are rebuilt from the distance traveled rather than read from the
+   simulation's own latitude and longitude columns. Those are stored in a saved file rounded
+   to three decimal places, which in degrees is about 94 m: a whole flight collapses onto two
+   or three positions and the track comes out as a staircase of right angles. The same
+   rounding applied to a distance in meters leaves it accurate to a millimeter. This matters
+   because a simulation loaded from a file counts as up to date and is never re-run, so its
+   stored data is what gets exported.
+
+Because the track is built from the launch coordinates, set a launch latitude and longitude
+on the :guilabel:`Launch conditions` tab first. If both are left at zero -- which is
+OpenRocket's "not set" rather than a real position in the Gulf of Guinea -- the exported file
+falls back to the Kennedy Space Center (28.61, -80.6), and the tab warns you before writing it.
+A single zero is a real coordinate, so a site on the equator or the prime meridian is exported
+where you put it. This affects the exported file only: the simulation's own launch position is
+never changed, and the shape of the flight is exported correctly either way.
+
+It is worth setting the launch **altitude** on the same tab as well. OpenRocket leaves it at
+zero by default, which is wrong for most launch sites and affects both the simulation itself
+and where the track is drawn. See `Altitude reference`_.
+
+Exporting a flight path
+-----------------------
+
+#. Run the simulation so that it has flight data.
+#. On the :guilabel:`Launch conditions` tab, set the launch site latitude and longitude.
+#. Open the simulation and select the :guilabel:`3D Path` tab.
+#. Choose an output format, adjust the options described below, and click
+   :guilabel:`Export`.
+#. Choose where to save the file. For KML, open the resulting file in Google Earth
+   (see `Viewing the track in Google Earth`_).
+
+.. figure:: /img/user_guide/advanced_flight_simulation/ThreeDPathExport.png
+   :width: 800 px
+   :align: center
+   :figclass: or-image-border
+   :alt: The 3D Path export tab.
+
+   The 3D Path export tab.
+
+Options
+-------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Option
+     - Description
+   * - Format
+     - The output format. The built-in choices are **KML (Google Earth)**, **Waypoint
+       CSV** and **GPX track**, followed by any custom templates you have installed.
+   * - Altitude / Distance units
+     - The units used for the altitude and distance values that appear in labels and in
+       the waypoint CSV. Coordinate altitudes are always written in meters, as KML and GPX
+       require.
+   * - Mission / Name
+     - A name for this flight, put in front of the exported document, folder and track
+       names. See `Naming a flight`_.
+   * - Prefix waypoints
+     - Also put the mission name in front of every waypoint name.
+   * - Presets
+     - Three one-click placements -- **Drift cast**, **Flight path** and **Landing plots** --
+       which set the controls below rather than acting behind them, so the panel always shows what
+       the file will contain and a preset can be taken as a starting point. The one matching the
+       current controls is highlighted, and the highlight clears as soon as you change a control
+       by hand.
+   * - Track altitude from / Waypoint altitude from
+     - What the exported altitudes are measured from, set separately for the path and the markers.
+       See `Altitude reference`_.
+   * - Draw shadow down to the ground
+     - Adds a curtain under the track and a plumb line under each marker, so you can read where a
+       point in the air sits on the map. Off by default and set by no preset, since over a whole
+       flight path the curtain reads as a wall. Disabled once both are clamped, since there is
+       nothing left to draw.
+   * - Waypoints
+     - Which points of interest to mark: pad, liftoff, burnout, apogee, ejection, landing,
+       maximum velocity, and maximum acceleration. Every recovery device that deploys
+       produces its own marker, named for the event and for the device that deployed, as in
+       *Drogue Ejection* and *Main Ejection*. A dual-deployment flight sets off two of these
+       hundreds of meters apart, and without the device both would read *Ejection* and could
+       not be told apart on the map.
+   * - Show waypoint names
+     - Draw each marker's name next to it. A near-vertical flight packs its waypoints into
+       a small patch of screen and the names then overlap each other, so clearing this
+       exports bare markers that show their name when clicked.
+   * - Summary balloons
+     - Gives the document, each stage folder and each waypoint a description, which Google Earth
+       shows in a balloon when the feature is clicked. On by default, and no preset changes it.
+   * - Color pins by stage
+     - Tint each stage's markers to match its track, so a marker can be attributed at a
+       glance. This uses a pin image fetched from Google's servers the first time the file
+       is opened; clear it for a file that has to render without a network, and the markers
+       fall back to the viewer's default.
+   * - Flight path line
+     - Include the airborne path.
+   * - Ground track
+     - Include the path projected straight down onto the ground. Its color is set per stage,
+       see `Stage colors`_.
+   * - Keep every Nth point
+     - Thins the path line by keeping only every Nth simulation step. Use this to reduce
+       the file size of long flights. The waypoint markers are not affected.
+   * - Stage tracks
+     - Where each stage's track begins on a staged flight. See `Staged flights`_. Disabled
+       for a single-stage flight, which has nothing to divide up.
+   * - Stage colors...
+     - Opens a dialog for picking each stage's flight path, ground track and pin colors.
+       See `Stage colors`_.
+
+The selected format and options are remembered for the next export, the stage colors among them.
+The mission name is the exception: it describes one particular flight rather than how you like the
+exporter set up, and a remembered one would quietly mislabel the next file.
+
+Naming a flight
+---------------
+
+Everything in an exported file is named after the simulation and the rocket's stages, which is
+enough while one file is open on its own. Open several together and the names collide: every
+two-stage design has a folder called *Sustainer* and a track called *Sustainer flight path*, and
+two different rockets can each have a *Simulation 1* at the top of the tree. There is then no way
+to tell which track belongs to which design.
+
+The :guilabel:`Name` field in the :guilabel:`Mission` box fixes that. Whatever you type is put
+in front of the document name, the stage folders and the tracks, so a mission named *Sod
+Blaster* exports *Sod Blaster Simulation 1* containing *Sod Blaster Sustainer* and *Sod Blaster
+Booster*. Load half a dozen of these into one Google Earth session and each flight is
+identifiable in the tree and switchable on its own.
+
+The waypoint markers are left alone by default, because a near-vertical flight already packs them
+into a small patch of screen and longer names overlap more. :guilabel:`Prefix waypoints` extends
+the naming to them as well, for when the markers of two flights genuinely sit on top of each other
+on the map.
+
+A name that already begins with the mission name is not prefixed twice, so naming a mission after
+the rocket does not produce *Sod Blaster Sod Blaster Sustainer*. An empty mission name -- the
+default -- names everything exactly as it was named before the option existed.
+
+Altitude reference
+------------------
+
+The :guilabel:`Track altitude from` and :guilabel:`Waypoint altitude from` settings decide
+whether the exported altitudes are heights above the terrain, heights above sea level, or
+ignored entirely. This matters more than it sounds, because OpenRocket's launch altitude
+defaults to zero:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Setting
+     - Description
+   * - Automatic
+     - The default. Uses sea level when the launch conditions carry a launch altitude, and
+       heights above the terrain when it is left at zero.
+   * - Above ground
+     - Hangs the track off the terrain. Correct whatever the launch altitude says, but each
+       point is measured from the ground directly beneath it, so a flight that drifts over
+       broken terrain has its path bent to follow the ground profile.
+   * - Above sea level
+     - Places the track at its true elevation, which is the geometrically faithful
+       trajectory. It needs a real launch altitude to be set.
+   * - Clamped to the ground
+     - Ignores the altitudes and lays the geometry flat on the terrain. This is the one to pick
+       when the question is what the rocket drifts *over* rather than how high it went. A clamped
+       track is tessellated, so it drapes over hills instead of cutting through them.
+
+The track and the waypoints are set separately because they want different answers. A flight is
+worth seeing suspended in the air, while the markers that label it are easier to read against the
+ground they sit over -- so a common pairing is the track above sea level with the markers clamped.
+
+.. warning::
+
+   Exporting above sea level with the launch altitude left at zero draws the flight
+   underground. A launch site 1200 m above sea level reports a 700 m flight as 700 m above
+   *sea level*, which is 500 m below the terrain -- Google Earth then shows nothing at all.
+   The **Automatic** setting avoids this, but the real fix is to set the launch altitude on
+   the :guilabel:`Launch conditions` tab, since air density affects the simulated altitudes
+   and velocities too.
+
+Placements
+----------
+
+The three preset buttons set the placement controls in one click:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Preset
+     - What it sets
+   * - Drift cast
+     - Everything flat on the terrain, ground track only, every waypoint marked -- for reading the
+       hazards under the drift. The airborne line is dropped because, clamped, it would only trace
+       the ground track again.
+   * - Flight path
+     - The flight suspended in the air where it belongs, both tracks drawn, every waypoint marked,
+       and no shadow. This is where the panel starts, so these are also the export's defaults.
+   * - Landing plots
+     - The landing marker alone, on the ground, with no tracks at all.
+
+Each preset states the whole set of controls rather than only some of them, so clicking one
+always leaves the panel in a fully determined state and any preset can be reached from any
+other. That includes the waypoint selection: a preset will replace one you picked by hand.
+
+None of them turns on the shadow. A curtain dropped from the whole length of an arcing flight
+path reads as a solid wall rather than as a position, and it buries the flight it is meant to
+explain. Turn it on by hand when you want it, which is usually when the question is where one
+particular point sits on the map.
+
+Staged flights
+--------------
+
+A staged flight produces one branch of flight data per stage, and the export gives each one
+its own folder, its own set of colors (see `Stage colors`_), and its own set of waypoints.
+
+Because every stage reaches its own apogee and its own landing, waypoint names are prefixed
+with the stage they belong to -- *Sustainer Apogee*, *Booster Landing* -- so that the
+markers can be told apart. A name that already begins with the stage name is left alone
+rather than doubled up. Burnout is named for the stage whose motor burned out rather than
+the branch it appears in: until separation the stages fly as one stack, so a booster's
+burnout is recorded in the sustainer's data as well, and naming it after the branch would
+give the sustainer two markers both called *Sustainer Burnout*.
+
+Every stage's data also repeats the ascent the stages flew bolted together, because a branch
+created at separation starts as a copy of its parent. The :guilabel:`Stage tracks` setting
+decides what to do with that:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Setting
+     - Description
+   * - Start at separation
+     - The default. Each stage's track begins where it left the stack, so the shared ascent
+       is drawn once and each stage's maximum velocity and acceleration are its own.
+   * - Start on the pad
+     - Every stage's track runs from the pad to its landing, so each reads as a complete
+       flight. The shared ascent is then drawn once per stage, and a spent booster reports
+       the whole stack's peak velocity and acceleration, reached while it was still attached.
+
+.. note::
+
+   Waypoint names are translated, but the stage prefix is not: it is the stage's name from
+   your design, which OpenRocket only translates for its own default names. On a localized
+   installation the two halves can therefore come from different languages, giving a marker
+   named something like *Sustainer Apogee* with only one half translated. Translating the
+   whole phrase would need a format string for every label; it has not been done because
+   these strings are currently only supplied in English.
+
+Stage colors
+------------
+
+Each stage has three colors: the flight path line, the ground track, and the waypoint pins when
+:guilabel:`Color pins by stage` is on. They are set independently and each is exported exactly as
+you picked it -- nothing is computed from anything else, and changing one never moves another.
+
+Left alone, the flight path and the pins take the stage's entry from a fixed palette of ten that
+repeats if a design somehow has more, chosen so the stages of a staged flight stay apart from one
+another. The ground track has a palette of its own, entry for entry contrasting with the flight path
+it runs under and saturated enough to hold up over aerial imagery.
+
+:guilabel:`Stage colors...` opens a dialog with three swatches per stage: :guilabel:`Flight path`,
+:guilabel:`Ground track` and :guilabel:`Pin`. This is a separate dialog rather than a row of
+controls in the tab because the number of stages varies with the design and the tab has no room to
+grow. :guilabel:`Reset to defaults` puts all three colors of every stage back, and
+:guilabel:`Cancel` leaves the previous choice alone.
+
+One thing worth knowing when you pick them: seen from straight overhead a ground track sits directly
+under its flight path, so if you give a stage the same color for both, the two lines read as one.
+That is the only reason the two defaults differ; nothing stops you setting them the same.
+
+The colors are remembered for the next export, keyed by the stage's position in the flight. Pick
+them when you need two files to stay apart in the same viewer -- a mission name separates them in
+the tree, and different colors separate them on the map.
+
+A single-stage flight has one row of swatches to set, which is worth doing for the same reason: two
+single-stage flights exported with the defaults come out in identical colors.
+
+Output formats
+--------------
+
+OpenRocket includes three built-in formats. Each one is produced from a template, so you
+can also add your own (see `Creating your own templates`_).
+
+KML (Google Earth)
+~~~~~~~~~~~~~~~~~~~
+
+KML is the format used by Google Earth. The exported document contains one folder per
+stage, and within each: the airborne flight path, the ground track projected onto the
+terrain, and a placemark for every selected waypoint. Each stage gets its own line color,
+taken from the same palette the plot window uses, so a stage keeps its color whether you
+look at it in a graph or on a map. This is the best choice for viewing the flight in 3D.
+See `Viewing the track in Google Earth`_ for how to open it.
+
+The numbers behind the picture are in the balloons. Click the document at the top of the
+places tree for the flight summary: rocket, configuration, launch site, peak altitude,
+velocity and acceleration, maximum range from the pad, time to apogee, flight time, and where
+each stage came down. Click a stage's folder for its own range and landing, and click any
+waypoint for its time since liftoff, its altitude, its distance and bearing from the pad, its
+coordinates, and for an ejection the device that deployed.
+
+Every coordinate pair is written latitude first and says so, because KML's own coordinates run
+the other way and a bare pair in a KML file can reasonably be read backwards. Each landing is
+given as coordinates as well as as a distance and bearing, since the bearing places it on the
+map and the coordinates are what you put into a handheld receiver to go and find it.
+
+In Google Earth Pro a balloon opens when you click a marker in the 3D view, and the document
+and folder descriptions open when you click their names in the Places panel. In Google Earth
+for web, click the item in the project panel on the left. Clear :guilabel:`Summary balloons` in
+the :guilabel:`Waypoints` box to export without any of them.
+
+The altitudes are written either as heights above the terrain or as heights above sea level,
+depending on the `Altitude reference`_ setting.
+
+Waypoint CSV
+~~~~~~~~~~~~
+
+The waypoint CSV lists only the selected points of interest, one per row, in the column
+layout used by Google My Maps: altitude, latitude, longitude, label, symbol, color, label
+color, and a descriptive name. Unlike KML it does not include the continuous path, which
+makes it a compact way to plot just the pad, apogee, recovery, and landing points on a map.
+
+To plot it in Google My Maps:
+
+#. Open `mymaps.google.com <https://mymaps.google.com>`_ and click
+   :guilabel:`Create a new map`.
+#. Under the map's layer click :guilabel:`Import`, and select the exported ``.csv`` file.
+#. When prompted, choose the ``latitude`` and ``longitude`` columns to position the
+   markers, and the ``name`` column for their titles.
+
+.. figure:: /img/user_guide/advanced_flight_simulation/ThreeDPathWaypointsCSV.png
+   :width: 800 px
+   :align: center
+   :figclass: or-image-border
+   :alt: Waypoints imported into Google My Maps.
+
+   Waypoints imported into Google My Maps.
+
+GPX track
+~~~~~~~~~
+
+GPX is a widely supported format for GPS tracks and waypoints. The exported file contains a
+waypoint for each selected point of interest and a track for each stage. Use it to load the
+flight into GPS software and other mapping tools that accept GPX; Google Earth can open GPX
+files as well.
+
+Viewing the track in Google Earth
+---------------------------------
+
+The KML file can be opened in either the web or the desktop version of Google Earth. Since
+the Google Earth Pro desktop application is being retired after 25 June 2027, the web
+version is described first.
+
+Google Earth for web
+~~~~~~~~~~~~~~~~~~~~~~
+
+Google Earth for web runs in a browser at `earth.google.com <https://earth.google.com>`_
+and needs no installation.
+
+#. Open `earth.google.com <https://earth.google.com>`_ and, if prompted, choose to
+   :guilabel:`Launch Earth`.
+#. In the left toolbar, click :guilabel:`Projects` (the bookmark icon).
+#. Click :guilabel:`New project` (or :guilabel:`Open`), then choose
+   :guilabel:`Import KML file from computer`.
+#. Select the ``.kml`` file you exported from OpenRocket.
+
+Google Earth flies to the launch site and shows the flight path, ground track, and
+waypoints. Click a waypoint to see its label, and use the project panel on the left to
+turn individual parts of the track on and off.
+
+.. figure:: /img/user_guide/advanced_flight_simulation/ThreeDPathGoogleEarthWeb.png
+   :width: 800 px
+   :align: center
+   :figclass: or-image-border
+   :alt: A flight path shown in Google Earth for web.
+
+   A flight path shown in Google Earth for web.
+
+Google Earth Pro (desktop)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you still have the Google Earth Pro desktop application installed, you can open the file
+directly:
+
+#. Double-click the exported ``.kml`` file, or in Google Earth Pro choose
+   :menuselection:`File --> Open` and select it.
+#. The track appears under :guilabel:`Places` in the left panel, where you can expand it to
+   toggle the flight path, ground track, and individual waypoints.
+
+Creating your own templates
+===========================
+
+Every output format is produced from a `Mustache <https://mustache.github.io/>`_
+template. The three built-in formats are templates that ship with OpenRocket, and you can
+add your own to produce a different layout, a different KML style, or an entirely
+different file format.
+
+Where templates go
+------------------
+
+Place template files in an ``ExportTemplates`` folder inside your OpenRocket user
+directory. Create the folder if it does not exist:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 80
+
+   * - Platform
+     - Folder
+   * - Windows
+     - ``%APPDATA%\OpenRocket\ExportTemplates``
+   * - macOS
+     - ``~/Library/Application Support/OpenRocket/ExportTemplates``
+   * - Linux
+     - ``~/.openrocket/ExportTemplates``
+
+Any file in that folder appears in the :guilabel:`Format` dropdown the next time you open
+the :guilabel:`3D Path` tab.
+
+Naming a template
+-----------------
+
+Name your file ``<name>.<ext>.mustache``. The middle part sets both the output file
+extension and how the text is escaped:
+
+- ``my-track.kml.mustache`` writes a ``.kml`` file with XML escaping.
+- ``club-waypoints.csv.mustache`` writes a ``.csv`` file with CSV quoting.
+- ``notes.txt.mustache`` writes a ``.txt`` file with no escaping.
+
+The ``<name>`` part is what shows in the dropdown.
+
+The data available to a template
+--------------------------------
+
+A template is filled from a model describing the flight. The top level holds summary
+information and a list of ``branches`` (one per stage). Each branch holds a list of
+``waypoints`` and a list of ``path`` points.
+
+Top level:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{title}}``
+     - The simulation name.
+   * - ``{{rocketName}}``
+     - The rocket name.
+   * - ``{{motor}}`` / ``{{configuration}}``
+     - The flight configuration description.
+   * - ``{{launchLatitude}}`` / ``{{launchLongitude}}``
+     - Launch site coordinates, in degrees, at full precision.
+   * - ``{{launchLatitudeStr}}`` / ``{{launchLongitudeStr}}``
+     - The same coordinates rounded to six decimal places, which is about a tenth of a meter.
+       Prefer these for anything a reader will see: the raw values print whatever digits they
+       happen to need, so one file says ``-80.6`` where another says ``-97.4966``.
+   * - ``{{launchAltitudeMeters}}``
+     - Launch site altitude above sea level, in meters.
+   * - ``{{altitudeUnit}}`` / ``{{distanceUnit}}``
+     - The selected unit labels, for example ``ft`` or ``m``.
+   * - ``{{velocityUnit}}`` / ``{{accelerationUnit}}``
+     - The unit labels for the peak velocity and acceleration, which have no unit option of
+       their own.
+   * - ``{{maxAltitude}}`` / ``{{maxVelocity}}`` / ``{{maxAcceleration}}``
+     - The flight's peak values, formatted for display.
+   * - ``{{maxRange}}``
+     - The farthest any stage got from the pad, horizontally, in the distance unit. Not the
+       landing distance: a flight can drift out and back under the chute.
+   * - ``{{timeToApogee}}`` / ``{{flightTime}}``
+     - Seconds from liftoff to the highest point and to the end of the flight, to one decimal.
+   * - ``{{#includeFlightPath}}`` / ``{{#includeGroundTrack}}``
+     - Section tags that are true when that option is selected.
+   * - ``{{#showWaypointLabels}}`` / ``{{#colorWaypointPins}}``
+     - Section tags for the two marker options. Use ``{{^showWaypointLabels}}`` to emit
+       something only when names are switched off.
+   * - ``{{kmlAltitudeMode}}`` / ``{{kmlWaypointAltitudeMode}}``
+     - The KML ``<altitudeMode>`` matching the chosen altitude reference for the path and for the
+       waypoints: ``relativeToGround``, ``absolute`` or ``clampToGround``. Pair each with the
+       matching ``{{altitudeKmlMeters}}``.
+   * - ``{{#extrudePath}}`` / ``{{#extrudeWaypoints}}``
+     - Section tags that are true when the shadow should be drawn. They are sections rather than
+       values so a template written before they existed renders nothing for them instead of an
+       empty element.
+   * - ``{{#tessellatePath}}``
+     - Section tag that is true when the track is clamped and so needs tessellating.
+   * - ``{{#branches}} ... {{/branches}}``
+     - Repeats once per stage.
+
+Inside ``{{#branches}}``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{name}}``
+     - The stage name.
+   * - ``{{index}}``
+     - The stage's position in the list, counting from zero. Useful for building unique
+       style ids, as the built-in KML template does.
+   * - ``{{colorRgb}}`` / ``{{groundColorRgb}}`` / ``{{pinColorRgb}}``
+     - The stage's flight path, ground track and pin colors as ``rrggbb``. Three independent
+       colors, each either picked by the user or this stage's default (see `Stage colors`_).
+   * - ``{{pathColorKml}}`` / ``{{groundColorKml}}`` / ``{{pinColorKml}}``
+     - The same three colors as opaque KML ``aabbggrr`` literals.
+   * - ``{{maxRange}}`` / ``{{maxRangeMeters}}``
+     - The farthest this stage got from the pad, in the distance unit and in meters.
+   * - ``{{#hasLanding}}``
+     - Section tag that is true when the stage recorded a ground hit. A simulation cut short by
+       its time limit has none.
+   * - ``{{landingDistance}}`` / ``{{landingBearing}}`` / ``{{landingTime}}``
+     - Where the stage came down: distance from the pad in the distance unit, compass bearing
+       in whole degrees, and seconds after liftoff. Empty without a landing.
+   * - ``{{landingLatitude}}`` / ``{{landingLongitude}}``
+     - The same landing as coordinates, rounded to six decimal places. Empty without a landing.
+   * - ``{{#hasPath}}`` / ``{{#hasWaypoints}}``
+     - Section tags that are true when the stage has any path points or waypoints.
+   * - ``{{#waypoints}} ... {{/waypoints}}``
+     - Repeats once per selected point of interest.
+   * - ``{{#path}} ... {{/path}}``
+     - Repeats once per (thinned) flight-path point.
+
+Inside ``{{#waypoints}}``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{type}}``
+     - A short key: ``pad``, ``liftoff``, ``burnout``, ``apogee``, ``recovery``,
+       ``landing``, ``maxvelocity`` or ``maxacceleration``.
+   * - ``{{label}}``
+     - The human-readable label on its own, for example ``Apogee``.
+   * - ``{{qualifiedLabel}}``
+     - The label prefixed with its stage on a staged flight, for example
+       ``Booster Apogee``. Identical to ``{{label}}`` for a single-stage flight. This is
+       what the built-in templates put on the map; see `Staged flights`_.
+   * - ``{{branchName}}``
+     - The stage this waypoint belongs to.
+   * - ``{{device}}``
+     - The recovery device name for an ejection, or empty for other waypoints. The built-in
+       templates do not show it.
+   * - ``{{latitude}}`` / ``{{longitude}}``
+     - Coordinates in degrees, full precision.
+   * - ``{{latitudeStr}}`` / ``{{longitudeStr}}``
+     - The same coordinates rounded to six decimal places.
+   * - ``{{altitudeMslMeters}}`` / ``{{altitudeAglMeters}}``
+     - Altitude above sea level, and above the ground, in meters.
+   * - ``{{altitudeKmlMeters}}``
+     - Whichever of the two matches the chosen altitude reference. Use this with
+       ``{{kmlAltitudeMode}}`` for KML coordinates.
+   * - ``{{altitude}}`` / ``{{altitudeMsl}}``
+     - Altitude above the pad, and above sea level, formatted in the selected unit.
+   * - ``{{distance}}``
+     - Horizontal distance from the pad, in the selected unit.
+   * - ``{{bearing}}``
+     - Compass bearing from the pad, in whole degrees.
+   * - ``{{time}}`` / ``{{timeStr}}``
+     - Time since launch, in seconds.
+
+Inside ``{{#path}}``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Token
+     - Meaning
+   * - ``{{latitude}}`` / ``{{longitude}}``
+     - Coordinates in degrees.
+   * - ``{{altitudeMslMeters}}`` / ``{{altitudeAglMeters}}``
+     - Altitude above sea level, and above the ground, in meters.
+   * - ``{{altitudeKmlMeters}}``
+     - Whichever of the two matches the chosen altitude reference.
+   * - ``{{altitude}}``
+     - Altitude above the pad, formatted in the selected unit.
+   * - ``{{time}}`` / ``{{timeStr}}``
+     - Time since launch, in seconds.
+
+Tokens from an outer level are still visible on an inner level, so inside
+``{{#waypoints}}`` you can still use ``{{rocketName}}``, ``{{altitudeUnit}}`` or the
+stage's ``{{index}}``.
+
+Any value can also be used as a section. An empty string and a zero count as false, so
+``{{#configuration}}...{{/configuration}}`` renders only when there is a configuration name,
+and ``{{#launchAltitudeMeters}}...{{/launchAltitudeMeters}}`` only when the launch altitude was
+set. The built-in KML template uses this to leave out the lines it has nothing to say on.
+
+Substituted values are escaped for the output format: for XML and KML that means ``&`` becomes
+``&amp;``, and for CSV that a quote is doubled. Anything you type in the template itself is
+written out as-is. That matters for a KML ``<description>``, whose contents are HTML: write the
+markup pre-escaped, as ``&lt;b&gt;`` rather than ``<b>``, the way the built-in template does, and
+a rocket named ``Bill & Ted`` reaches the balloon intact. Wrapping the description in ``CDATA``
+instead would show the escaped form of that name to the reader.
+
+.. note::
+
+   KML and GPX expect coordinates in the order **longitude, latitude, altitude**. For KML,
+   use ``{{altitudeKmlMeters}}`` together with ``{{kmlAltitudeMode}}`` so the file follows
+   the `Altitude reference`_ setting. GPX elevations are defined as height above sea level
+   with no relative-to-terrain equivalent, so use ``{{altitudeMslMeters}}`` there.
+
+Example
+-------
+
+The built-in waypoint CSV template is a good starting point. It writes a header row and
+then one row per waypoint:
+
+.. code-block:: none
+
+   "altitude({{altitudeUnit}})","latitude","longitude","label","symbol","color","label_color","name"
+   {{#branches}}{{#waypoints}}"{{altitude}}","{{latitudeStr}}","{{longitudeStr}}","{{type}}","pushpin","yellow","white","{{rocketName}} {{motor}} {{qualifiedLabel}} - {{altitude}} {{altitudeUnit}} - {{distance}} {{distanceUnit}} @ {{bearing}} deg"
+   {{/waypoints}}{{/branches}}
+
+Saving that as ``club-waypoints.csv.mustache`` in the ``ExportTemplates`` folder makes it
+available as a format called *club-waypoints*.
+
