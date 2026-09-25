@@ -3,6 +3,7 @@ package info.openrocket.core.masscalc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -32,6 +33,7 @@ import info.openrocket.core.util.Coordinate;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationConditions;
 import info.openrocket.core.simulation.SimulationStatus;
@@ -180,6 +182,47 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(actualMOIlong, overrideMOIlong, EPSILON, "Alpha III Longitudinal MOI calculated incorrectly: ");
 	}
 
+	/**
+	 * A mass override that covers all subcomponents must scale the moment of
+	 * inertia to the overridden mass.  Regression test for the bug where only the
+	 * mass was replaced while the inertia stayed at the geometric value, so the
+	 * roll/pitch inertia was identical no matter what mass you pinned the stage to.
+	 */
+	@Test
+	public void testSubcomponentMassOverrideScalesInertia() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		config.setAllStages();
+
+		// Baseline: geometric mass and inertia of the un-overridden rocket.
+		final RigidBody baseline = MassCalculator.calculateStructure(config);
+		final double geometricMass = baseline.getMass();
+		final double baselineRot = baseline.getRotationalInertia();
+		final double baselineLong = baseline.getLongitudinalInertia();
+
+		// Pin the whole (single) stage's mass, covering its subcomponents.
+		final AxialStage sustainer = rocket.getStage(0);
+		sustainer.setSubcomponentsOverriddenMass(true);
+		sustainer.setMassOverridden(true);
+
+		// Keeping the geometric distribution, mass X carries X/m times the inertia.
+		// (Before the fix the two inertia asserts failed for every factor != 1.)
+		for (double factor : new double[] { 1.0, 1.8, 3.6, 9.1 }) {
+			sustainer.setOverrideMass(geometricMass * factor);
+			final RigidBody pinned = MassCalculator.calculateStructure(config);
+			final double expMass = geometricMass * factor;
+			final double expRot  = baselineRot * factor;
+			final double expLong = baselineLong * factor;
+			assertEquals(expMass, pinned.getMass(), Math.abs(expMass) * 1e-6,
+					"overridden total mass wrong at factor " + factor);
+			assertEquals(expRot, pinned.getRotationalInertia(), Math.abs(expRot) * 1e-6,
+					"rotational (roll) inertia must scale with the overridden mass, factor " + factor);
+			assertEquals(expLong, pinned.getLongitudinalInertia(), Math.abs(expLong) * 1e-6,
+					"longitudinal inertia must scale with the overridden mass, factor " + factor);
+		}
+	}
+
 	@Test
 	public void testAlphaIIILaunchMass() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -210,6 +253,25 @@ public class MassCalculatorTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testAlphaIIIStageAnalysisIncludesMotorMass() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		AxialStage stage = (AxialStage) rocket.getChild(0);
+
+		Map<Integer, CMAnalysisEntry> analysis = MassCalculator.getCMAnalysis(config);
+		CMAnalysisEntry rocketEntry = analysis.get(rocket.hashCode());
+		CMAnalysisEntry stageEntry = analysis.get(stage.hashCode());
+
+		// A one-stage rocket provides an exact aggregate check: both rows represent the same launch mass.
+		assertEquals(rocketEntry.totalCM.getWeight(), stageEntry.totalCM.getWeight(), EPSILON,
+				"Stage aggregate mass should include its configured motor and propellant");
+		assertEquals(rocketEntry.totalCM.getX(), stageEntry.totalCM.getX(), EPSILON,
+				"Stage aggregate CG should include its configured motor and propellant");
+		assertEquals(stageEntry.totalCM.getWeight(), stageEntry.eachMass, EPSILON,
+				"A single stage instance should have the same instance and aggregate mass");
+	}
+
+	@Test
 	public void testAlphaIIIMotorMass() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -235,6 +297,23 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expCM, actualMotorData.cm, "Simple Rocket CM is incorrect: ");
 	}
 
+	@Test
+	public void testMotorMassSkipsNonMotorTreeTraversal() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		BodyTube body = (BodyTube) rocket.getChild(0).getChild(1);
+		CountingMassComponent nonMotorComponent = new CountingMassComponent();
+		body.addChild(nonMotorComponent);
+
+		// Component events may update the instance map while the test rocket is assembled.
+		nonMotorComponent.resetInstanceLocationCalls();
+		RigidBody motorData = MassCalculator.calculateMotor(config);
+
+		assertEquals(0, nonMotorComponent.getInstanceLocationCalls(),
+				"Motor mass calculation should not traverse non-motor components");
+		assertEquals(0.0164, motorData.getMass(), EPSILON,
+				"Skipping unrelated components must preserve the active motor mass");
+	}
 
 	@Test
 	public void testAlphaIIIMotorSimulationMass() {
@@ -276,6 +355,44 @@ public class MassCalculatorTest extends BaseTestCase {
 			double expMass = activeMotor.getTotalMass(simTime - ignitionTime);
 			assertEquals(expMass, actualMotorData.getMass(), EPSILON, " Motor Mass " + desig + " is incorrect: ");
 		}
+	}
+
+	@Test
+	public void testSimulationMotorMassUsesEachMountIgnitionTime() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube body = (BodyTube) rocket.getChild(0).getChild(1);
+		InnerTube firstMount = (InnerTube) body.getChild(2);
+		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0, false);
+		FlightConfigurationId fcid = config.getFlightConfigurationID();
+		Motor sharedMotor = firstMount.getMotorConfig(fcid).getMotor();
+
+		InnerTube secondMount = new InnerTube();
+		secondMount.setLength(firstMount.getLength());
+		secondMount.setMotorMount(true);
+		body.addChild(secondMount);
+		MotorConfiguration secondConfig = new MotorConfiguration(secondMount, fcid);
+		secondConfig.setMotor(sharedMotor);
+		secondMount.setMotorConfig(secondConfig, fcid);
+		config.update();
+
+		SimulationStatus status = new SimulationStatus(config, new SimulationConditions());
+		MotorClusterState firstState = status.getMotors().stream()
+				.filter(state -> state.getMount() == firstMount)
+				.findFirst()
+				.orElseThrow();
+		MotorClusterState secondState = status.getMotors().stream()
+				.filter(state -> state.getMount() == secondMount)
+				.findFirst()
+				.orElseThrow();
+
+		firstState.ignite(0.0);
+		secondState.ignite(1.0);
+		status.setSimulationTime(1.5);
+
+		double expectedMass = sharedMotor.getTotalMass(1.5) + sharedMotor.getTotalMass(0.5);
+		RigidBody motorData = MassCalculator.calculateMotor(status);
+		assertEquals(expectedMass, motorData.getMass(), EPSILON,
+				"Each motor mount must use its own ignition time");
 	}
 	
 	@Test
@@ -1120,12 +1237,15 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expCM.getZ(), boosterSetCM.getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, boosterSetCM, " Booster Launch CM is incorrect: ");
 
-		// Validate MOI
-		double expMOI_axial = 0.005873702474290652;
+		// Validate MOI.  Because the 0.5 kg mass override covers the booster's
+		// subcomponents, the geometric inertia is rescaled to the overridden mass
+		// (scale = overrideMass / geometricMass); the values below reflect the
+		// mass-consistent inertia rather than the geometric-mass inertia.
+		double expMOI_axial = 0.004843421529808234;
 		double boosterMOI_xx = burnout.getRotationalInertia();
 		assertEquals(expMOI_axial, boosterMOI_xx, EPSILON, " Booster x-axis MOI is incorrect: ");
 
-		double expMOI_tr = 17.78089035006232;
+		double expMOI_tr = 14.662020679052493;
 		double boosterMOI_tr = burnout.getLongitudinalInertia();
 		assertEquals(expMOI_tr, boosterMOI_tr, EPSILON, " Booster transverse MOI is incorrect: ");
 	}
@@ -1466,5 +1586,26 @@ public class MassCalculatorTest extends BaseTestCase {
 				"Mass should be fully restored after re-enabling all stages");
 		assertEquals(cmxAll, restored.getCM().getX(), EPSILON,
 				"CG should be fully restored after re-enabling all stages");
+	}
+
+	/**
+	 * Records calls made by the former recursive motor-mass tree walk.
+	 */
+	private static class CountingMassComponent extends MassComponent {
+		private int instanceLocationCalls;
+
+		@Override
+		public CoordinateIF[] getInstanceLocations() {
+			instanceLocationCalls++;
+			return super.getInstanceLocations();
+		}
+
+		private int getInstanceLocationCalls() {
+			return instanceLocationCalls;
+		}
+
+		private void resetInstanceLocationCalls() {
+			instanceLocationCalls = 0;
+		}
 	}
 }

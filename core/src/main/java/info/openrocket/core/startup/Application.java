@@ -25,7 +25,7 @@ public final class Application {
 
 	// Supported Java Runtime Environment versions in which OR is allowed to run
 	// (e.g. '17' for Java 17)
-	public static int[] SUPPORTED_JRE_VERSIONS = { 17 };
+	public static int[] SUPPORTED_JRE_VERSIONS = { 17, 21 };
 
 	/**
 	 * Return whether to use additional safety code checks.

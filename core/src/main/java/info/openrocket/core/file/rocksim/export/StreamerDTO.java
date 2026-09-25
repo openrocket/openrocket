@@ -33,7 +33,20 @@ public class StreamerDTO extends BasePartDTO {
      * @param theORStreamer the OR streamer component
      */
     public StreamerDTO(Streamer theORStreamer) {
+		this(theORStreamer, null);
+	}
+
+	/**
+	 * Copy constructor used while exporting simulations with deployment events.
+	 *
+	 * @param theORStreamer the OR streamer component
+	 * @param context       per-export component serial mapping
+	 */
+	public StreamerDTO(Streamer theORStreamer, RockSimExportContext context) {
         super(theORStreamer);
+		if (context != null) {
+			context.registerRecoveryDevice(theORStreamer, getSerialNumber());
+		}
         setWidth(theORStreamer.getStripWidth() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setDragCoefficient(theORStreamer.getCD());
     }

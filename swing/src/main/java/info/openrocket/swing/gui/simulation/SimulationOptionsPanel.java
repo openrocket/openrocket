@@ -7,6 +7,8 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
@@ -14,8 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import info.openrocket.core.rocketcomponent.RocketComponent;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -29,6 +34,12 @@ import javax.swing.JSpinner;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.JTextField;
+import javax.swing.MenuElement;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import info.openrocket.core.aerodynamics.lookup.MachAoALookup;
 import info.openrocket.core.document.OpenRocketDocument;
@@ -54,6 +65,7 @@ import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.util.FlatLafOutlines;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.theme.UITheme;
@@ -86,6 +98,10 @@ class SimulationOptionsPanel extends JPanel {
 	private UnitSelector gravityUnit;
 	private BasicSlider gravitySlider;
 	private JLabel gravityLabel;
+	private final JCheckBox fixedRandomSeedCheckBox;
+	private final JTextField randomSeedField;
+	private final FlatLafOutlines.Validator randomSeedValidator;
+	private boolean updatingRandomSeedControls;
 
 	private static Color textColor;
 	private static Color dimTextColor;
@@ -170,7 +186,7 @@ class SimulationOptionsPanel extends JPanel {
 		configureImmediateTooltipDelay(aerodynamicLookupSummaryIconLabel);
 		subsub.add(aerodynamicLookupSummaryIconLabel, "gapleft rel, wrap para");
 
-		sub.add(subsub, "spanx, wrap para");
+		sub.add(subsub, "spanx, growx, wmin 0, wrap para");
 
 		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
@@ -303,6 +319,74 @@ class SimulationOptionsPanel extends JPanel {
 		unit.setToolTipText(tip);
 		subsub.add(unit, "wrap");
 
+		// // Fixed random seed:
+		tip = trans.get("simedtdlg.checkbox.ttip.FixedRandomSeed");
+		fixedRandomSeedCheckBox = new JCheckBox(trans.get("simedtdlg.checkbox.FixedRandomSeed"),
+				conditions.isRandomSeedFixed());
+		fixedRandomSeedCheckBox.setToolTipText(tip);
+		subsub.add(fixedRandomSeedCheckBox, "gaptop para, gapright para");
+
+		randomSeedField = new JTextField(12);
+		randomSeedField.setToolTipText(trans.get("simedtdlg.lbl.ttip.RandomSeed"));
+		updateRandomSeedControlsFromOptions();
+		subsub.add(randomSeedField, "w 130lp!, spanx, wrap");
+
+		randomSeedValidator = FlatLafOutlines.validator(randomSeedField)
+				.errorIf(() -> fixedRandomSeedCheckBox.isSelected()
+						&& parseRandomSeed(randomSeedField.getText()) == null,
+						() -> trans.get("simedtdlg.error.RandomSeed"))
+				.showMessagePopup(2500);
+		randomSeedValidator.update();
+
+		fixedRandomSeedCheckBox.addActionListener(e -> {
+			if (updatingRandomSeedControls) {
+				return;
+			}
+
+			updatingRandomSeedControls = true;
+			if (fixedRandomSeedCheckBox.isSelected()) {
+				// Start each newly enabled fixed-seed session with a usable value that the user can override.
+				conditions.randomizeSeed();
+				randomSeedField.setText(Integer.toString(conditions.getRandomSeed()));
+				randomSeedField.setEnabled(true);
+				conditions.setRandomSeedFixed(true);
+			} else {
+				conditions.setRandomSeedFixed(false);
+				randomSeedField.setText("");
+				randomSeedField.setEnabled(false);
+			}
+			updatingRandomSeedControls = false;
+			randomSeedValidator.update();
+		});
+
+		randomSeedField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent event) {
+				updateRandomSeedFromField();
+				randomSeedValidator.update();
+			}
+		});
+		randomSeedField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent event) {
+				if (!event.isTemporary()) {
+					replaceInvalidRandomSeed();
+				}
+			}
+		});
+
 		// Reset to default button
 		JButton resetBtn = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		// Reset the time step to its default value (
@@ -323,6 +407,14 @@ class SimulationOptionsPanel extends JPanel {
 				conditions.setGeodeticComputation(preferences.getEnum(
 						ApplicationPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));
+				if (preferences.isRandomSeedFixed()) {
+					conditions.setRandomSeed(preferences.getRandomSeed());
+					conditions.setRandomSeedFixed(true);
+				} else {
+					conditions.setRandomSeedFixed(false);
+				}
+				updateRandomSeedControlsFromOptions();
+				randomSeedValidator.update();
 			}
 		});
 
@@ -335,14 +427,19 @@ class SimulationOptionsPanel extends JPanel {
 				preferences.setTimeStep(conditions.getTimeStep());
 				preferences.setMaxSimulationTime(conditions.getMaxSimulationTime());
 				preferences.setGeodeticComputation(conditions.getGeodeticComputation());
+				prepareForSimulation();
+				if (conditions.isRandomSeedFixed()) {
+					preferences.setRandomSeed(conditions.getRandomSeed());
+				}
+				preferences.setRandomSeedFixed(conditions.isRandomSeedFixed());
 			}
 		});
 
 		sub.add(resetBtn, "align left, split 2");
 		sub.add(saveBtn, "wrap");
-
-
-
+		
+		
+		
 		//// Simulation extensions
 		sub = new JPanel(new MigLayout("fillx, gap 0 0"));
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.SimExt")));
@@ -376,6 +473,85 @@ class SimulationOptionsPanel extends JPanel {
 		options.addChangeListener(e -> SwingUtilities.invokeLater(this::updateLookupSummary));
 		updateLookupSummary();
 
+	}
+
+	/**
+	 * Resolves the seed controls before a simulation starts. An empty or invalid fixed seed falls back to the normal
+	 * per-run random seed behavior.
+	 */
+	void prepareForSimulation() {
+		boolean useFixedSeed = applyRandomSeedInput(options, fixedRandomSeedCheckBox.isSelected(),
+				randomSeedField.getText());
+
+		updatingRandomSeedControls = true;
+		fixedRandomSeedCheckBox.setSelected(useFixedSeed);
+		randomSeedField.setEnabled(useFixedSeed);
+		if (!useFixedSeed) {
+			randomSeedField.setText("");
+		}
+		updatingRandomSeedControls = false;
+		randomSeedValidator.update();
+	}
+
+	/**
+	 * Applies a final seed field value and reports whether fixed-seed mode remains enabled.
+	 *
+	 * @param options simulation options to update
+	 * @param fixedSeedRequested whether the fixed-seed checkbox is selected
+	 * @param seedText contents of the random seed field
+	 * @return {@code true} if a valid fixed seed was applied
+	 */
+	static boolean applyRandomSeedInput(SimulationOptions options, boolean fixedSeedRequested, String seedText) {
+		Integer seed = fixedSeedRequested ? parseRandomSeed(seedText) : null;
+		if (seed == null) {
+			options.setRandomSeedFixed(false);
+			return false;
+		}
+
+		options.setRandomSeed(seed);
+		options.setRandomSeedFixed(true);
+		return true;
+	}
+
+	private void updateRandomSeedFromField() {
+		if (updatingRandomSeedControls || !fixedRandomSeedCheckBox.isSelected()) {
+			return;
+		}
+		Integer seed = parseRandomSeed(randomSeedField.getText());
+		if (seed != null) {
+			options.setRandomSeed(seed);
+		}
+	}
+
+	/**
+	 * Replaces an invalid committed edit with a fresh seed while preserving fixed-seed mode.
+	 */
+	private void replaceInvalidRandomSeed() {
+		if (!fixedRandomSeedCheckBox.isSelected() || parseRandomSeed(randomSeedField.getText()) != null) {
+			return;
+		}
+
+		options.randomizeSeed();
+		updatingRandomSeedControls = true;
+		randomSeedField.setText(Integer.toString(options.getRandomSeed()));
+		updatingRandomSeedControls = false;
+		randomSeedValidator.update();
+	}
+
+	private void updateRandomSeedControlsFromOptions() {
+		updatingRandomSeedControls = true;
+		fixedRandomSeedCheckBox.setSelected(options.isRandomSeedFixed());
+		randomSeedField.setEnabled(options.isRandomSeedFixed());
+		randomSeedField.setText(options.isRandomSeedFixed() ? Integer.toString(options.getRandomSeed()) : "");
+		updatingRandomSeedControls = false;
+	}
+
+	private static Integer parseRandomSeed(String seedText) {
+		try {
+			return Integer.valueOf(seedText.trim());
+		} catch (NumberFormatException exception) {
+			return null;
+		}
 	}
 
 	private static void initColors() {
@@ -574,7 +750,6 @@ class SimulationOptionsPanel extends JPanel {
 		this.revalidate();
 		this.repaint();
 	}
-
 
 	private class SimulationExtensionPanel extends JPanel {
 

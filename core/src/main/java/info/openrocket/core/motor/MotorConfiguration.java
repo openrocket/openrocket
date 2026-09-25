@@ -16,8 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A single motor configuration. This includes the selected motor
- * and the ejection charge delay.
+ * A single motor configuration. This includes the selected motor,
+ * ejection charge delay, and optional nozzle exit diameter.
  */
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 
@@ -29,6 +29,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 	private Motor motor = null;
 	private double ejectionDelay = 0.0;
+	private double nozzleExitDiameter = 0.0;
 
 	private boolean ignitionOveride = false;
 	private double ignitionDelay = 0.0;
@@ -60,6 +61,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		if (null != _source) {
 			motor = _source.motor;
 			ejectionDelay = _source.ejectionDelay;
+			nozzleExitDiameter = _source.nozzleExitDiameter;
 			ignitionOveride = _source.ignitionOveride;
 			ignitionEvent = _source.getIgnitionEvent();
 			ignitionDelay = _source.getIgnitionDelay();
@@ -91,6 +93,11 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	}
 
 	public void setMotor(Motor motor) {
+		if (this.motor != motor) {
+			// Nozzle geometry belongs to the selected motor, so a replacement motor
+			// must not inherit a diameter entered for the previous one.
+			this.nozzleExitDiameter = 0.0;
+		}
 		this.motor = motor;
 
 		for (MotorConfiguration listener : configListeners) {
@@ -115,6 +122,38 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 		for (MotorConfiguration listener : configListeners) {
 			listener.setEjectionDelay(delay);
+		}
+	}
+
+	/**
+	 * Return the user-supplied nozzle exit diameter.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when it is unknown
+	 */
+	public double getNozzleExitDiameter() {
+		return nozzleExitDiameter;
+	}
+
+	/**
+	 * Set the nozzle exit diameter used by powered base-drag calculations.
+	 * A value of zero means that the diameter is unknown and disables the
+	 * correction for this motor configuration.
+	 *
+	 * @param diameter nozzle exit diameter in metres
+	 * @throws IllegalArgumentException if the diameter is negative, not finite,
+	 *                                  or larger than the selected motor casing
+	 */
+	public void setNozzleExitDiameter(double diameter) {
+		if (!Double.isFinite(diameter) || diameter < 0) {
+			throw new IllegalArgumentException("Nozzle exit diameter must be finite and non-negative");
+		}
+		if (motor != null && diameter > motor.getDiameter()) {
+			throw new IllegalArgumentException("Nozzle exit diameter must not exceed the motor diameter");
+		}
+
+		this.nozzleExitDiameter = diameter;
+		for (MotorConfiguration listener : configListeners) {
+			listener.setNozzleExitDiameter(diameter);
 		}
 	}
 
@@ -236,6 +275,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		MotorConfiguration clone = new MotorConfiguration(this.mount, this.fcid);
 		clone.motor = this.motor;
 		clone.ejectionDelay = this.ejectionDelay;
+		clone.nozzleExitDiameter = this.nozzleExitDiameter;
 		clone.ignitionOveride = this.ignitionOveride;
 		clone.ignitionDelay = this.ignitionDelay;
 		clone.ignitionEvent = this.ignitionEvent;
@@ -247,6 +287,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		MotorConfiguration clone = new MotorConfiguration(this.mount, copyId);
 		clone.motor = this.motor;
 		clone.ejectionDelay = this.ejectionDelay;
+		clone.nozzleExitDiameter = this.nozzleExitDiameter;
 		clone.ignitionOveride = this.ignitionOveride;
 		clone.ignitionDelay = this.ignitionDelay;
 		clone.ignitionEvent = this.ignitionEvent;
@@ -259,6 +300,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 		this.motor = configuration.motor;
 		this.ejectionDelay = configuration.ejectionDelay;
+		this.nozzleExitDiameter = configuration.nozzleExitDiameter;
 		this.ignitionOveride = configuration.ignitionOveride;
 		this.ignitionDelay = configuration.ignitionDelay;
 		this.ignitionEvent = configuration.ignitionEvent;

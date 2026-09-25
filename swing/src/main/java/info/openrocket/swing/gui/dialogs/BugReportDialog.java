@@ -24,14 +24,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
-import com.jogamp.opengl.JoglVersion;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.JarUtil;
+import org.lwjgl.Version;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.figure3d.rendering.GLContextDiagnostics;
+import info.openrocket.swing.gui.figure3d.rendering.GpuMemoryProfile;
 import info.openrocket.swing.gui.components.URLLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -231,7 +233,9 @@ public class BugReportDialog extends JDialog {
 		sbTemp.append("User-defined thrust curves location: " + preferences.getUserThrustCurveFilesAsString() + "\n");
 		sbTemp.append("User-defined component presets location: " + preferences.getUserComponentPresetFilesAsString() + "\n");
 		sbTemp.append("LAF: " + UIManager.getLookAndFeel().getClass().getName() + "\n");
-		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
+		sbTemp.append("3D renderer library: LWJGL " + Version.getVersion() + "\n");
+		sbTemp.append("3D graphics context: " + GLContextDiagnostics.describeForBugReport() + "\n");
+		sbTemp.append("3D graphics device: " + GpuMemoryProfile.describeForBugReport() + "\n");
 		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
 		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
 		List<String> arguments = runtimeMxBean.getInputArguments();

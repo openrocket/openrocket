@@ -244,6 +244,13 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			trans.get("FlightDataType.TYPE_THRUST_FORCE"), "Ft",
 			UnitGroup.UNITS_FORCE,
 			FlightDataTypeGroup.THRUST_AND_DRAG, 0);
+
+	//// Thrust correction for air pressure
+	public static final FlightDataType TYPE_THRUST_CORRECTION = newType("thrust_correction",
+			trans.get("FlightDataType.TYPE_THRUST_CORRECTION"), "Fta",
+			UnitGroup.UNITS_FORCE,
+			FlightDataTypeGroup.THRUST_AND_DRAG, 0);
+
 	//// Thrust-to-weight ratio
 	public static final FlightDataType TYPE_THRUST_WEIGHT_RATIO = newType("thrust_weight_ratio",
 			trans.get("FlightDataType.TYPE_THRUST_WEIGHT_RATIO"), "Twr", UnitGroup.UNITS_COEFFICIENT,

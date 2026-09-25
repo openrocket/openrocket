@@ -118,6 +118,15 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		return selectionPanel.getSelectedDelay();
 	}
 
+	/**
+	 * Return the nozzle exit diameter entered for the selected motor.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when unknown
+	 */
+	public double getSelectedNozzleExitDiameter() {
+		return selectionPanel.getSelectedNozzleExitDiameter();
+	}
+
 	public void open() {
 		// Update the motor selection based on the motor table value that was already selected in a previous session.
 		selectionPanel.selectMotorFromTable();

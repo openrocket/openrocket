@@ -16,6 +16,26 @@ to publish installers for the following platforms.
 * Joe Pfeiffer
 * Sibo Van Gool
 
+# Windows code signing with SignPath
+
+The current install4j project builds unsigned Windows installers. Release
+installers are built and signed by the GitHub Actions workflow
+`.github/workflows/sign-windows.yml`; the Windows certificate and private key
+are not stored in this repository or in GitHub.
+
+Before the first signing build, configure the SignPath project, trusted
+GitHub build system, artifact configuration, signing policy, CI user, and API
+token. Also configure the required GitHub Actions secrets and variables. The
+complete setup and release procedure is documented in the
+[Building and Releasing guide](https://openrocket.readthedocs.io/en/latest/dev_guide/building_releasing.html#windows-code-signing-with-signpath).
+
+For a release, run the **Sign Windows installers** workflow from the approved
+release branch. A SignPath approver must verify the repository, commit, and
+workflow-run origin before approving the request. Publish only the
+`openrocket-windows-signed-<run number>` artifact. The similarly named
+`openrocket-windows-unsigned-<run number>` artifact is only SignPath input and
+must never be released.
+
 # Instructions on updating the macOS drag-and-drop installer
 
 Either run "update_ds_store.sh" or follow the instructions below.

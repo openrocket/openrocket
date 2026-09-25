@@ -123,7 +123,7 @@ public class CADataBranch extends DataBranch<CADataType> {
 
 	public List<Double> getClone(CADataType type, RocketComponent component) {
 		if (type instanceof CADomainDataType) {
-			return super.getClone(type);
+			return super.get(type);
 		}
 
 		Map<RocketComponent, ArrayList<Double>> typeMap = componentValues.get(type);
@@ -137,7 +137,7 @@ public class CADataBranch extends DataBranch<CADataType> {
 
 	public List<Double> get(CADataType type, RocketComponent component) {
 		if (type instanceof CADomainDataType) {
-			return super.get(type);
+			return super.getView(type);
 		}
 
 		Map<RocketComponent, ArrayList<Double>> typeMap = componentValues.get(type);

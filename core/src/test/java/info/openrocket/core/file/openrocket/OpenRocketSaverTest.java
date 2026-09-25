@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -17,15 +18,20 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import info.openrocket.core.ServicesForTesting;
 import info.openrocket.core.database.ComponentPresetDao;
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
+import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.PlotAppearance;
@@ -34,6 +40,9 @@ import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationOptions;
+import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
+import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.GeneralRocketSaver;
@@ -46,6 +55,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -55,7 +65,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.extension.impl.ScriptingExtension;
 import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
@@ -244,6 +254,22 @@ public class OpenRocketSaverTest {
 	}
 
 	@Test
+	public void testAppearanceTextureOpacityRoundTrip() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withAppearance();
+		BodyTube bodyTube = (BodyTube) rocketDoc.getRocket().getStage(0).getChild(0);
+		bodyTube.setAppearance(new Appearance(new ORColor(100, 25, 50, 128), 1, null, true));
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		BodyTube loadedBodyTube = (BodyTube) rocketDocLoaded.getRocket().getStage(0).getChild(0);
+		Appearance loadedAppearance = loadedBodyTube.getAppearance();
+
+		assertNotNull(loadedAppearance);
+		assertEquals(128, loadedAppearance.getPaint().getAlpha());
+		assertTrue(loadedAppearance.isOpacityAffectsTexture());
+	}
+
+	@Test
 	public void testUntrustedScriptDisabledOnLoad() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
 		StorageOptions options = new StorageOptions();
@@ -371,6 +397,33 @@ public class OpenRocketSaverTest {
 		assertEquals(280.0, loadedSim.getOptions().getLaunchTemperature(), 1e-12);
 		assertEquals(95000.0, loadedSim.getOptions().getLaunchPressure(), 1e-9);
 	}
+
+	@Test
+	public void testFixedRandomSeedSavedAndLoaded() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+
+		Simulation fixedSeedSimulation = new Simulation(rocket);
+		fixedSeedSimulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		fixedSeedSimulation.getOptions().setRandomSeed(-123456789);
+		fixedSeedSimulation.getOptions().setRandomSeedFixed(true);
+		rocketDoc.addSimulation(fixedSeedSimulation);
+
+		Simulation randomSeedSimulation = new Simulation(rocket);
+		randomSeedSimulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		randomSeedSimulation.getOptions().setRandomSeed(987654321);
+		rocketDoc.addSimulation(randomSeedSimulation);
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument loadedDocument = loadRocket(file.getPath());
+
+		Simulation loadedFixedSeedSimulation = loadedDocument.getSimulations().get(0);
+		assertTrue(loadedFixedSeedSimulation.getOptions().isRandomSeedFixed());
+		assertEquals(-123456789, loadedFixedSeedSimulation.getOptions().getRandomSeed());
+
+		Simulation loadedRandomSeedSimulation = loadedDocument.getSimulations().get(1);
+		assertFalse(loadedRandomSeedSimulation.getOptions().isRandomSeedFixed());
+	}
 	
 	////////////////////////////////
 	// Tests for File Version 1.11 //
@@ -380,6 +433,77 @@ public class OpenRocketSaverTest {
 	public void testFileVersion111_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
 		assertEquals(111, getCalculatedFileVersion(rocketDoc));
+	}
+
+	@Test
+	public void testMotorConfigurationNozzleExitDiameter() {
+		InnerTube mount = new InnerTube();
+		FlightConfigurationId fcid = new FlightConfigurationId();
+		MotorConfiguration configuration = new MotorConfiguration(mount, fcid);
+		ThrustCurveMotor motor = createEmbeddedTestMotor("");
+
+		assertEquals(0.0, configuration.getNozzleExitDiameter());
+		configuration.setMotor(motor);
+		configuration.setNozzleExitDiameter(0.006);
+		assertEquals(0.006, configuration.getNozzleExitDiameter());
+		assertEquals(0.006, configuration.clone().getNozzleExitDiameter());
+		assertEquals(0.006, configuration.copy(new FlightConfigurationId()).getNozzleExitDiameter());
+		assertThrows(IllegalArgumentException.class, () -> configuration.setNozzleExitDiameter(-0.001));
+		assertThrows(IllegalArgumentException.class,
+				() -> configuration.setNozzleExitDiameter(motor.getDiameter() + 0.001));
+
+		configuration.setMotor(createEmbeddedTestMotor("replacement"));
+		assertEquals(0.0, configuration.getNozzleExitDiameter(),
+				"Selecting another motor must clear nozzle geometry from the previous motor");
+	}
+
+	@Test
+	public void testLandingDispersionSettingsRemainAbsentUntilConfigured() throws IOException {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		document.addSimulation(simulation);
+
+		assertNull(simulation.getLandingDispersionSettings());
+		assertEquals(111, getCalculatedFileVersion(document));
+
+		File file = saveRocket(document, new StorageOptions());
+		assertFalse(Files.readString(file.toPath()).contains("<landingdispersion"));
+		assertNull(loadRocket(file.getPath()).getSimulations().get(0).getLandingDispersionSettings());
+	}
+
+	@Test
+	public void testLandingDispersionSettingsSavedAndLoaded() throws IOException {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		MonteCarloSettings settings = MonteCarloSettings.builder()
+				.runCount(750)
+				.seed(-123456789)
+				.threadCount(3)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.UNIFORM, 1.25)
+				.uncertainty(MonteCarloParameter.AIR_DENSITY, MonteCarloDistribution.LOG_NORMAL, 0.015)
+				.uncertainty(MonteCarloParameter.LAUNCH_GUIDE_DIRECTION,
+						MonteCarloDistribution.NORMAL, Math.toRadians(4.5))
+				.build();
+		simulation.setLandingDispersionSettings(settings);
+		document.addSimulation(simulation);
+
+		assertEquals(111, getCalculatedFileVersion(document));
+		File file = saveRocket(document, new StorageOptions());
+		String xml = Files.readString(file.toPath());
+		assertTrue(xml.contains("<openrocket version=\"1.11\""));
+		assertTrue(xml.contains("<landingdispersion runs=\"750\" seed=\"-123456789\">"));
+		assertTrue(xml.contains("parameter=\"airdensity\" distribution=\"lognormal\""));
+
+		MonteCarloSettings loaded = loadRocket(file.getPath()).getSimulations().get(0)
+				.getLandingDispersionSettings();
+		assertNotNull(loaded);
+		assertEquals(settings.getRunCount(), loaded.getRunCount());
+		assertEquals(settings.getSeed(), loaded.getSeed());
+		assertEquals(settings.getUncertainties(), loaded.getUncertainties());
 	}
 
 	@Test
@@ -401,24 +525,15 @@ public class OpenRocketSaverTest {
 		rocket.createFlightConfiguration(fcid);
 		rocket.setSelectedConfiguration(fcid);
 
-		ThrustCurveMotor motor = new ThrustCurveMotor.Builder()
-				.setManufacturer(Manufacturer.getManufacturer("Custom"))
-				.setDesignation("F12X")
-				.setDescription("Desc")
-				.setCaseInfo("info")
-				.setMotorType(Motor.Type.UNKNOWN)
-				.setStandardDelays(new double[] { 0, 3, 5, Motor.PLUGGED_DELAY })
-				.setDiameter(0.024)
-				.setLength(0.07)
-				.setTimePoints(new double[] { 0, 1, 2 })
-				.setThrustPoints(new double[] { 0, 1, 0 })
-				.setCGPoints(new CoordinateIF[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
-				.setDigest("digestA")
-				.build();
+		ThrustCurveMotor prototype = createEmbeddedTestMotor("");
+		String motorDigest = createRaspStyleDigest(prototype);
+		ThrustCurveMotor motor = createEmbeddedTestMotor(motorDigest);
 
 		MotorConfiguration motorConfig = new MotorConfiguration(innerTube, fcid);
+		assertEquals(0.0, motorConfig.getNozzleExitDiameter());
 		motorConfig.setMotor(motor);
 		motorConfig.setEjectionDelay(5);
+		motorConfig.setNozzleExitDiameter(0.006);
 		innerTube.setMotorConfig(motorConfig, fcid);
 
 		rocket.enableEvents();
@@ -431,16 +546,18 @@ public class OpenRocketSaverTest {
 
 		// Verify the .ork zip contains a thrustcurves/<digest>.rse entry
 		boolean foundRseEntry = false;
-		try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file)) {
-			java.util.zip.ZipEntry rseEntry = zipFile.getEntry("thrustcurves/digestA.rse");
-			assertNotNull(rseEntry, "Expected thrustcurves/digestA.rse entry in .ork zip");
+		try (ZipFile zipFile = new ZipFile(file)) {
+			String entryName = "thrustcurves/" + motorDigest + ".rse";
+			ZipEntry rseEntry = zipFile.getEntry(entryName);
+			assertNotNull(rseEntry, "Expected " + entryName + " entry in .ork zip");
 			foundRseEntry = true;
 
 			// Verify the .rse file is parseable
 			try (InputStream rseStream = zipFile.getInputStream(rseEntry)) {
 				GeneralMotorLoader loader = new GeneralMotorLoader();
-				List<ThrustCurveMotor.Builder> motors = loader.load(rseStream, "digestA.rse");
+				List<ThrustCurveMotor.Builder> motors = loader.load(rseStream, motorDigest + ".rse");
 				assertFalse(motors.isEmpty(), "Expected at least one motor from .rse file");
+				assertEquals(Motor.Type.UNKNOWN, motors.get(0).build().getMotorType());
 			}
 		}
 		assertTrue(foundRseEntry);
@@ -451,8 +568,8 @@ public class OpenRocketSaverTest {
 		FlightConfigurationId loadedFcid = loadedRocket.getSelectedConfiguration().getFlightConfigurationID();
 
 		MotorMount motorMount = null;
-		for (java.util.Iterator<info.openrocket.core.rocketcomponent.RocketComponent> it = loadedRocket.iterator(true); it.hasNext();) {
-			info.openrocket.core.rocketcomponent.RocketComponent c = it.next();
+		for (Iterator<RocketComponent> it = loadedRocket.iterator(true); it.hasNext();) {
+			RocketComponent c = it.next();
 			if (c instanceof MotorMount mount && mount.isMotorMount()) {
 				motorMount = mount;
 				break;
@@ -462,6 +579,7 @@ public class OpenRocketSaverTest {
 
 		MotorConfiguration loadedMotorConfig = motorMount.getMotorConfig(loadedFcid);
 		assertNotNull(loadedMotorConfig);
+		assertEquals(0.006, loadedMotorConfig.getNozzleExitDiameter());
 		Motor loadedMotor = loadedMotorConfig.getMotor();
 		assertNotNull(loadedMotor, "Expected motor to be loaded from embedded .rse file");
 		assertTrue(loadedMotor instanceof ThrustCurveMotor);
@@ -469,6 +587,8 @@ public class OpenRocketSaverTest {
 		// Verify thrust curve data round-tripped correctly
 		ThrustCurveMotor loadedTCM = (ThrustCurveMotor) loadedMotor;
 		assertEquals(motor.getDesignation(), loadedTCM.getDesignation());
+		assertEquals(motor.getMotorType(), loadedTCM.getMotorType());
+		assertEquals(motor.getDigest(), loadedTCM.getDigest());
 		assertEquals(3, loadedTCM.getTimePoints().length);
 	}
 	
@@ -671,7 +791,7 @@ public class OpenRocketSaverTest {
 		FlightDataBranch loadedBranch = loadedData.getBranch(0);
 		assertNotNull(loadedBranch);
 
-		List<Double> times = loadedBranch.get(FlightDataType.TYPE_TIME);
+		List<Double> times = loadedBranch.getView(FlightDataType.TYPE_TIME);
 		assertNotNull(times);
 		assertFalse(times.isEmpty());
 
@@ -754,6 +874,40 @@ public class OpenRocketSaverTest {
 			fail("IOException: " + e);
 		}
 		throw new RuntimeException("Could not load motor");
+	}
+
+	/**
+	 * Build the custom motor used to exercise embedded RSE fallback.  Estes has a
+	 * known SINGLE default, making an explicitly UNKNOWN type observable on load.
+	 */
+	private static ThrustCurveMotor createEmbeddedTestMotor(String digest) {
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
+				.setDesignation("F12X")
+				.setDescription("Desc")
+				.setCaseInfo("info")
+				.setMotorType(Motor.Type.UNKNOWN)
+				.setStandardDelays(new double[] { 0, 3, 5, Motor.PLUGGED_DELAY })
+				.setDiameter(0.024)
+				.setLength(0.07)
+				.setTimePoints(new double[] { 0, 1, 2 })
+				.setThrustPoints(new double[] { 0, 1, 0 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.035, 0, 0, 0.100),
+						new Coordinate(0.033, 0, 0, 0.070),
+						new Coordinate(0.031, 0, 0, 0.040)
+				})
+				.setDigest(digest)
+				.build();
+	}
+
+	/** Create the digest that would have been assigned by a RASP motor loader. */
+	private static String createRaspStyleDigest(ThrustCurveMotor motor) {
+		MotorDigest digest = new MotorDigest();
+		digest.update(MotorDigest.DataType.TIME_ARRAY, motor.getTimePoints());
+		digest.update(MotorDigest.DataType.MASS_SPECIFIC, motor.getLaunchMass(), motor.getBurnoutMass());
+		digest.update(MotorDigest.DataType.FORCE_PER_TIME, motor.getThrustPoints());
+		return digest.getDigest();
 	}
 	
 	public static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {

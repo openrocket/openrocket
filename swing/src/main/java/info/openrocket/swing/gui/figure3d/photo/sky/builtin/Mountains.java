@@ -1,20 +1,18 @@
 package info.openrocket.swing.gui.figure3d.photo.sky.builtin;
 
-import info.openrocket.swing.gui.figure3d.photo.sky.Sky.Credit;
-import info.openrocket.swing.gui.figure3d.photo.sky.SkyBox;
+import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
 
-public class Mountains extends SkyBox implements Credit {
+public class Mountains extends Sky implements Sky.Credit {
 	public static final Mountains instance = new Mountains();
-	
+
 	private Mountains() {
-		super(Mountains.class.getResource("/datafiles/sky/box/").toString());
 	}
-	
+
 	@Override
 	public String getCredit() {
 		return "Rendering by Bill Kuker.\nCC0 Public Domain.";
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Mountains";

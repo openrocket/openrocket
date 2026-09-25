@@ -11,6 +11,9 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
+import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.TestRockets;
@@ -76,6 +79,43 @@ public class SimulationTest extends BaseTestCase {
 		// Verify copy is independent
 		copy.setName("Modified Copy");
 		assertNotEquals(simulation.getName(), copy.getName());
+	}
+
+	@Test
+	public void testLandingDispersionSettingsAreOptionalAndCopied() {
+		assertNull(simulation.getLandingDispersionSettings());
+
+		MonteCarloSettings settings = MonteCarloSettings.builder()
+				.runCount(250)
+				.seed(12345)
+				.threadCount(2)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.UNIFORM, 1.5)
+				.build();
+		simulation.setLandingDispersionSettings(settings);
+
+		assertSame(settings, simulation.getLandingDispersionSettings());
+		assertEquals(settings, simulation.copy().getLandingDispersionSettings());
+		assertEquals(settings, simulation.clone().getLandingDispersionSettings());
+		assertEquals(settings, simulation.duplicateSimulation(rocket.copyWithOriginalID())
+				.getLandingDispersionSettings());
+		assertEquals(settings, simulation.duplicateForIndependentSimulation()
+				.getLandingDispersionSettings());
+
+		Simulation loaded = new Simulation(rocket);
+		loaded.loadFrom(simulation);
+		assertEquals(settings, loaded.getLandingDispersionSettings());
+
+		Simulation different = simulation.copy();
+		different.setLandingDispersionSettings(MonteCarloSettings.builder()
+				.runCount(250)
+				.seed(54321)
+				.threadCount(2)
+				.uncertainty(MonteCarloParameter.WIND_SPEED, MonteCarloDistribution.UNIFORM, 1.5)
+				.build());
+		assertNotEquals(simulation, different);
+
+		simulation.setLandingDispersionSettings(null);
+		assertNull(simulation.getLandingDispersionSettings());
 	}
 
 	@Test
@@ -188,8 +228,8 @@ public class SimulationTest extends BaseTestCase {
 		FlightData flightData =  simulation.getSimulatedData();
 		FlightDataBranch branch = flightData.getBranch(0);
 
-		List<Double> altitudeData = branch.get(FlightDataType.TYPE_ALTITUDE);
-		List<Double> altitudeASLData = branch.get(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
+		List<Double> altitudeData = branch.getView(FlightDataType.TYPE_ALTITUDE);
+		List<Double> altitudeASLData = branch.getView(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
 
 		assertNotNull(altitudeData);
 		assertNotNull(altitudeASLData);
@@ -221,8 +261,8 @@ public class SimulationTest extends BaseTestCase {
 		FlightData flightData =  simulation.getSimulatedData();
 		FlightDataBranch branch = flightData.getBranch(0);
 
-		List<Double> altitudeData = branch.get(FlightDataType.TYPE_ALTITUDE);
-		List<Double> altitudeASLData = branch.get(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
+		List<Double> altitudeData = branch.getView(FlightDataType.TYPE_ALTITUDE);
+		List<Double> altitudeASLData = branch.getView(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
 
 		assertNotNull(altitudeData);
 		assertNotNull(altitudeASLData);

@@ -133,6 +133,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		private final double initMass;
 		private final double propMass;
 		private final Motor.Type type;
+		private final boolean explicitlyUnknownType;
 		private boolean calculateMass = false;
 		private boolean calculateCG = false;
 
@@ -232,6 +233,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 
 			// Motor type
 			str = attributes.get("Type");
+			explicitlyUnknownType = "unknown".equalsIgnoreCase(str);
 			if ("single-use".equalsIgnoreCase(str)) {
 				type = Motor.Type.SINGLE;
 			} else if ("hybrid".equalsIgnoreCase(str)) {
@@ -364,9 +366,11 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			try {
 				Manufacturer m = Manufacturer.getManufacturer(manufacturer);
 				Motor.Type t = type;
-				if (t == Motor.Type.UNKNOWN) {
+				// Preserve an explicit unknown type.  Manufacturer inference remains useful
+				// for older RSE files that omit the type or contain an unrecognized value.
+				if (t == Motor.Type.UNKNOWN && !explicitlyUnknownType) {
 					t = m.getMotorType();
-				} else {
+				} else if (t != Motor.Type.UNKNOWN) {
 					if (m.getMotorType() != Motor.Type.UNKNOWN && m.getMotorType() != t) {
 						log.warn("Loaded motor type inconsistent with manufacturer," +
 								" loaded type=" + t + " manufacturer=" + m +

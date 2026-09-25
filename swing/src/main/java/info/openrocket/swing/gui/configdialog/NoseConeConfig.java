@@ -82,7 +82,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			final DoubleModel parameterModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
 			register(parameterModel);
 
-			this.shapeSpinner = new JSpinner(parameterModel.getSpinnerModel());
+			this.shapeSpinner = new JSpinner(parameterModel.getSpinnerModel(0.1));
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
 			panel.add(shapeSpinner, "growx");
 			order.add(((SpinnerEditor) shapeSpinner.getEditor()).getTextField());

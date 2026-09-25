@@ -22,6 +22,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		super.loadFromPreset(preset);
+		
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			this.outerRadius = preset.get(ComponentPreset.OUTER_DIAMETER) / 2.0;
 			this.outerRadiusAutomatic = false;

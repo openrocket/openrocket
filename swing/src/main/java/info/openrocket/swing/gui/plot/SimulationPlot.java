@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.plot;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -255,9 +254,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(branch);
 
-		final List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		final List<Double> time = dataBranch.getView(FlightDataType.TYPE_TIME);
 		String tName = FlightDataType.TYPE_TIME.getName();
-		final List<Double> domain = dataBranch.get(config.getDomainAxisType());
+		final List<Double> domain = dataBranch.getView(config.getDomainAxisType());
 		LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
 		String xName = config.getDomainAxisType().getName();
 
@@ -287,7 +286,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				int dataTypeIdx = series.getDataIdx();
 				FlightDataType type = config.getType(dataTypeIdx);
 				String yName = type.toString();
-				final List<Double> range = dataBranch.get(type);
+				final List<Double> range = dataBranch.getView(type);
 				LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
 				
 				for (int i = 0; i < eventSets.size(); i++) {

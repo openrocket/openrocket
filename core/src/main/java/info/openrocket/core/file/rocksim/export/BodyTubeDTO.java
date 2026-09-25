@@ -76,6 +76,16 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
      * @param theORInnerTube an OR inner tube; used by subclasses
      */
     protected BodyTubeDTO(InnerTube theORInnerTube) {
+        this(theORInnerTube, null);
+    }
+
+    /**
+     * Copy constructor used while exporting a complete document.
+     *
+     * @param theORInnerTube an OR inner tube; used by subclasses
+     * @param context        per-export motor-mount mapping state
+     */
+    protected BodyTubeDTO(InnerTube theORInnerTube, RockSimExportContext context) {
         super(theORInnerTube);
     }
 
@@ -85,6 +95,16 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
      * @param theORBodyTube an OR body tube
      */
     protected BodyTubeDTO(BodyTube theORBodyTube) {
+        this(theORBodyTube, null);
+    }
+
+    /**
+     * Copy constructor used while exporting a complete document.
+     *
+     * @param theORBodyTube an OR body tube
+     * @param context       per-export motor-mount mapping state
+     */
+    protected BodyTubeDTO(BodyTube theORBodyTube, RockSimExportContext context) {
         super(theORBodyTube);
 
         setEngineOverhang(theORBodyTube.getMotorOverhang() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -93,23 +113,27 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
         setMotorDia((theORBodyTube.getMotorMountDiameter() / 2) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setMotorMount(theORBodyTube.isMotorMount());
 
+        if (context != null && theORBodyTube.isMotorMount()) {
+            context.registerMotorMount(theORBodyTube, getSerialNumber());
+        }
+
         List<RocketComponent> children = theORBodyTube.getChildren();
 		for (RocketComponent rocketComponent : children) {
 			if (rocketComponent instanceof InnerTube) {
 				final InnerTube innerTube = (InnerTube) rocketComponent;
-				final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
+				final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this, context);
 				//Only add the inner tube if it is NOT a cluster.
 				if (innerTube.getInstanceCount() == 1) {
 					addAttachedPart(innerBodyTubeDTO);
 				}
 			} else if (rocketComponent instanceof BodyTube) {
-				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponent));
+				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponent, context));
 			} else if (rocketComponent instanceof Transition) {
-				addAttachedPart(new TransitionDTO((Transition) rocketComponent));
+				addAttachedPart(new TransitionDTO((Transition) rocketComponent, context));
 			} else if (rocketComponent instanceof EngineBlock) {
 				addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponent));
 			} else if (rocketComponent instanceof TubeCoupler) {
-				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponent, this));
+				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponent, this, context));
 			} else if (rocketComponent instanceof CenteringRing) {
 				addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponent));
 			} else if (rocketComponent instanceof Bulkhead) {
@@ -117,9 +141,9 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 			} else if (rocketComponent instanceof LaunchLug) {
 				addAttachedPart(new LaunchLugDTO((LaunchLug) rocketComponent));
 			} else if (rocketComponent instanceof Streamer) {
-				addAttachedPart(new StreamerDTO((Streamer) rocketComponent));
+				addAttachedPart(new StreamerDTO((Streamer) rocketComponent, context));
 			} else if (rocketComponent instanceof Parachute) {
-				addAttachedPart(new ParachuteDTO((Parachute) rocketComponent));
+				addAttachedPart(new ParachuteDTO((Parachute) rocketComponent, context));
 			} else if (rocketComponent instanceof MassObject) {
 				addAttachedPart(new MassObjectDTO((MassObject) rocketComponent));
 			} else if (rocketComponent instanceof FreeformFinSet) {
@@ -129,11 +153,12 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 			} else if (rocketComponent instanceof TubeFinSet) {
 				addAttachedPart(new TubeFinSetDTO((TubeFinSet) rocketComponent));
 			} else if (rocketComponent instanceof PodSet) {
-				for (PodSetDTO podSetDTO : PodSetDTO.generatePodSetDTOs((PodSet) rocketComponent)) {
+				for (PodSetDTO podSetDTO : PodSetDTO.generatePodSetDTOs((PodSet) rocketComponent, context)) {
 					addAttachedPart(podSetDTO);
 				}
 			} else if (rocketComponent instanceof ParallelStage) {
-				for (ParallelStageDTO parallelStageDTO : ParallelStageDTO.generateParallelStageDTOs((ParallelStage) rocketComponent)) {
+				for (ParallelStageDTO parallelStageDTO :
+						ParallelStageDTO.generateParallelStageDTOs((ParallelStage) rocketComponent, context)) {
 					addAttachedPart(parallelStageDTO);
 				}
 			}

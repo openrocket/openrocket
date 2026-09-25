@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -50,6 +51,7 @@ import javax.swing.table.TableRowSorter;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.MotorDatabaseMetadataIO;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.jfree.chart.ChartColor;
@@ -67,11 +69,15 @@ import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.utils.MotorCorrelation;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.SpinnerEditor;
+import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.dialogs.motor.CloseableDialog;
 import info.openrocket.swing.gui.dialogs.motor.MotorSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -109,6 +115,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final DefaultComboBoxModel<MotorHolder> curveSelectionModel;
 	private final JLabel ejectionChargeDelayLabel;
 	private final JComboBox<String> delayBox;
+	private final JLabel nozzleExitDiameterLabel;
+	private final JSpinner nozzleExitDiameterSpinner;
+	private final UnitSelector nozzleExitDiameterUnitSelector;
+	private final DoubleModel maximumNozzleExitDiameterModel;
+	private final DoubleModel nozzleExitDiameterModel;
 	private final JLabel nrOfMotorsLabel;
 	private final JLabel motorDbVersionLabel;
 
@@ -118,6 +129,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotor selectedMotor;
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
+	private double nozzleExitDiameter;
 
 	private static Color dimTextColor;
 
@@ -140,6 +152,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		model = new ThrustCurveMotorDatabaseModel(database);
 		rowFilter = new MotorRowFilter(model);
 		motorInformationPanel = new MotorInformationPanel();
+		maximumNozzleExitDiameterModel = new DoubleModel(0);
+		nozzleExitDiameterModel = new DoubleModel(this, "NozzleExitDiameter", UnitGroup.UNITS_LENGTH,
+				0, maximumNozzleExitDiameterModel);
 
 		//// MotorFilter
 		{
@@ -224,10 +239,24 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					setDelays(false);
 				}
 			});
-			panel.add(delayBox, "growx,wrap");
+			panel.add(delayBox, "growx, wrap");
 			//// (or type in desired delay in seconds)
-			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "skip, wrap");
+			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "spanx, skip, wrap");
 			setDelays(false);
+		}
+
+		// Nozzle exit diameter
+		{
+			nozzleExitDiameterLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Nozzleexitdiameter"));
+			panel.add(nozzleExitDiameterLabel);
+
+			nozzleExitDiameterSpinner = new EditableSpinner(nozzleExitDiameterModel.getSpinnerModel(0.1));
+			panel.add(nozzleExitDiameterSpinner, "split 2, growx");
+
+			nozzleExitDiameterUnitSelector = new UnitSelector(nozzleExitDiameterModel);
+			panel.add(nozzleExitDiameterUnitSelector, "wrap");
+			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Nozzleexitdiameter.desc"), -3),
+					"skip, spanx, growx, wrap");
 		}
 
 		//// Hide very similar thrust curves
@@ -464,6 +493,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
+		maximumNozzleExitDiameterModel.setValue(0);
+		nozzleExitDiameterModel.setValue(0);
 		ThrustCurveMotor motorToSelect = null;
 		if ( curMotorInstance.hasMotor()){ 
 			motorToSelect = (ThrustCurveMotor) curMotorInstance.getMotor();
@@ -483,6 +514,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 
 			select(motorToSelect);
+			nozzleExitDiameterModel.setValue(curMotorInstance.getNozzleExitDiameter());
 
 		}
 		motorFilterPanel.setMotorMount(mountToEdit);
@@ -498,6 +530,29 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	@Override
 	public double getSelectedDelay() {
 		return selectedDelay;
+	}
+
+	@Override
+	public double getSelectedNozzleExitDiameter() {
+		return nozzleExitDiameter;
+	}
+
+	/**
+	 * Bean accessor used by the nozzle diameter input model.
+	 *
+	 * @return nozzle exit diameter in metres
+	 */
+	public double getNozzleExitDiameter() {
+		return nozzleExitDiameter;
+	}
+
+	/**
+	 * Bean mutator used by the nozzle diameter input model.
+	 *
+	 * @param diameter nozzle exit diameter in metres
+	 */
+	public void setNozzleExitDiameter(double diameter) {
+		nozzleExitDiameter = diameter;
 	}
 
 
@@ -550,6 +605,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		selectedMotor = motor;
 		selectedMotorSet = set;
+		maximumNozzleExitDiameterModel.setValue(motor.getDiameter());
+		nozzleExitDiameterModel.setValue(0);
 		updateData();
 		if (updateDelays) {
 			setDelays(true);
@@ -567,6 +624,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel.setEnabled(false);
 			ejectionChargeDelayLabel.setEnabled(false);
 			delayBox.setEnabled(false);
+			nozzleExitDiameterLabel.setEnabled(false);
+			nozzleExitDiameterSpinner.setEnabled(false);
+			nozzleExitDiameterUnitSelector.setEnabled(false);
 			motorInformationPanel.clearData();
 			table.clearSelection();
 			return;
@@ -574,6 +634,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		ejectionChargeDelayLabel.setEnabled(true);
 		delayBox.setEnabled(true);
+		nozzleExitDiameterLabel.setEnabled(true);
+		nozzleExitDiameterSpinner.setEnabled(true);
+		nozzleExitDiameterUnitSelector.setEnabled(true);
 
 		// Check which thrust curves to display
 		List<ThrustCurveMotor> motors = getFilteredCurves();

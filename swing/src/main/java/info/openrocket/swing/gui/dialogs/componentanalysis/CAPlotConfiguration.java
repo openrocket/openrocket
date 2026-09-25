@@ -53,6 +53,12 @@ public class CAPlotConfiguration extends PlotConfiguration<CADataType, CADataBra
 		plotDataComponents.add(null);
 	}
 
+	@Override
+	public void removePlotDataType(int index) {
+		super.removePlotDataType(index);
+		plotDataComponents.remove(index);
+	}
+
 	public List<RocketComponent> getComponents(int index) {
 		return plotDataComponents.get(index);
 	}

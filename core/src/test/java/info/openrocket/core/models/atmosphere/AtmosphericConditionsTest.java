@@ -1,12 +1,16 @@
 package info.openrocket.core.models.atmosphere;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import static org.junit.jupiter.api.Assertions.*;
-
 
 public class AtmosphericConditionsTest {
 	private AtmosphericConditions conditions;
@@ -75,6 +79,21 @@ public class AtmosphericConditionsTest {
 		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
 		AtmosphericConditions wet = new AtmosphericConditions(288.15, 101325.0, 1.0);
 		assertTrue(wet.getDensity() < dry.getDensity());
+	}
+
+	@Test
+	@DisplayName("Humidity should be part of atmospheric equality and hashing")
+	void testHumidityAffectsEqualityAndHashCode() {
+		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions dryCopy = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions humid = new AtmosphericConditions(288.15, 101325.0, 1.0);
+
+		assertTrue(dry.equals(dryCopy));
+		assertEquals(dry.hashCode(), dryCopy.hashCode());
+		assertFalse(dry.equals(humid),
+				"Atmospheric conditions with different humidity should not compare equal");
+		assertNotEquals(dry.hashCode(), humid.hashCode(),
+				"Relative humidity should contribute to the atmospheric hash code");
 	}
 
 	@Test

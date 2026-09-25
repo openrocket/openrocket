@@ -730,8 +730,8 @@ After splitting the fins, **SAVE AND REOPEN THE DESIGN FILE**, then view in **3D
 Viewing in Photo Studio
 =======================
 
-So, what will this bird look like in flight? For that, we can use the **Photo Studio** tool. However, to get a representative
-representation, you need to add a motor first.
+So, what will this bird look like in flight? For that, we can use the **Photo Studio** tool. Add a motor first if you want
+the preview to include exhaust effects.
 
 Selecting a Motor
 -----------------
@@ -787,9 +787,8 @@ and even add some cool effects.
 
    The rocket inside **Photo Studio**.
 
-So why did you to add a motor before going to Photo Studio? Because,
-**you can't activate the flame effect in Photo Studio if your rocket does not have a motor**, and the flame effect is
-arguably the coolest part of Photo Studio! Go to the :guilabel:`Effects` tab and enable the :guilabel:`Flame` effect.
+Why add a motor before going to Photo Studio? Exhaust effects are rendered only for motors in the selected flight
+configuration. Go to the :guilabel:`Effects` tab and enable the :guilabel:`Flame` effect.
 
 .. figure:: /img/setup/getting_started/12.12.03.Rocket_Build.Photo_Studio.png
    :width: 85%

@@ -297,6 +297,14 @@ public class Icons {
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
 					0x006cb6, "OR.icons.plot"
 			));
+	public static final Icon SIM_DISPERSION = loadSvgIcon(
+			"pix/icons/lucide/dispersion.svg",
+			"Landing dispersion",
+			Map.of(
+					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
+					0x006cb6, "OR.icons.dispersion.ellipse",
+					0xff0101, "OR.icons.dispersion.mean"
+			));
 
 	public static final Icon HELP_ABOUT = loadIcon(
 			"pix/icons/lucide/info.svg",
@@ -351,6 +359,12 @@ public class Icons {
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
 					0x2d2dbd, "OR.icons.zoomFit"
+			));
+	public static final Icon PAN_VIEW = loadSvgIcon(
+			"pix/icons/lucide/move.svg",
+			"Pan view",
+			Map.of(
+					SVG_THEME_COLOR_RGB, "OR.colors.purple"
 			));
 
 	public static final Icon RULER = loadIcon(

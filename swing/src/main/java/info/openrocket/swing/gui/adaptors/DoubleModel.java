@@ -67,6 +67,26 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	public class ValueSpinnerModel extends AbstractSpinnerModel implements Invalidatable {
 		
 		private ExpressionParser parser = new ExpressionParser();
+		private final double stepSize;
+
+		/**
+		 * Create a spinner model that uses the increment defined by the selected unit.
+		 */
+		public ValueSpinnerModel() {
+			this.stepSize = Double.NaN;
+		}
+
+		/**
+		 * Create a spinner model with a fixed increment in the selected display unit.
+		 *
+		 * @param stepSize spinner increment in the currently selected unit
+		 */
+		private ValueSpinnerModel(double stepSize) {
+			if (!Double.isFinite(stepSize) || stepSize <= 0) {
+				throw new IllegalArgumentException("Spinner step size must be finite and positive");
+			}
+			this.stepSize = stepSize;
+		}
 		
 		@Override
 		public Object getValue() {
@@ -125,7 +145,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			double max = inverted ? currentUnit.toUnit(minValue) : currentUnit.toUnit(maxValue);
 			if (MathUtil.equals(d, max))
 				return null;
-			d = currentUnit.getNextValue(d);
+			d = Double.isNaN(stepSize) ? currentUnit.getNextValue(d) : d + stepSize;
 			if (d > max)
 				d = max;
 			return d;
@@ -138,7 +158,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			double min = inverted ? currentUnit.toUnit(maxValue) : currentUnit.toUnit(minValue);
 			if (MathUtil.equals(d, min))
 				return null;
-			d = currentUnit.getPreviousValue(d);
+			d = Double.isNaN(stepSize) ? currentUnit.getPreviousValue(d) : d - stepSize;
 			if (d < min)
 				d = min;
 			return d;
@@ -168,6 +188,18 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 */
 	public SpinnerModel getSpinnerModel() {
 		return new ValueSpinnerModel();
+	}
+
+	/**
+	 * Returns a new SpinnerModel that increments by the specified amount in the
+	 * currently selected display unit.  The same numeric increment is retained when
+	 * the user selects another unit.
+	 *
+	 * @param stepSize spinner increment in the currently selected unit
+	 * @return a compatibility layer for a SpinnerModel
+	 */
+	public SpinnerModel getSpinnerModel(double stepSize) {
+		return new ValueSpinnerModel(stepSize);
 	}
 	
 	////////////  JSlider model  ////////////

@@ -1,6 +1,8 @@
 package info.openrocket.core.unit;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import info.openrocket.core.util.Chars;
 
@@ -84,9 +86,8 @@ public abstract class Unit {
 
 	// TODO: Should this use grouping separator ("#,##0.##")?
 
-	private static final DecimalFormat intFormat = new DecimalFormat("#");
-	private static final DecimalFormat decFormat = new DecimalFormat("0.0##");
-	private static final DecimalFormat expFormat = new DecimalFormat("0.00E0");
+	private static final ThreadLocal<LocaleDecimalFormats> LOCAL_FORMATS =
+			ThreadLocal.withInitial(Unit::createLocaleDecimalFormats);
 
 	/**
 	 * Format the given value (in SI units) to a string representation of the value
@@ -101,12 +102,13 @@ public abstract class Unit {
 			return "N/A";
 
 		double val = toUnit(value);
+		LocaleDecimalFormats formats = getLocaleDecimalFormats();
 
 		if (Math.abs(val) > 1.0E6) {
-			return expFormat.format(val);
+			return formats.exponentialFormat.format(val);
 		}
 		if (Math.abs(val) >= 100) {
-			return intFormat.format(val);
+			return formats.integerFormat.format(val);
 		}
 		if (Math.abs(val) <= 0.0005) {
 			return "0";
@@ -115,9 +117,54 @@ public abstract class Unit {
 		val = roundForDecimalFormat(val);
 		// Check for approximate integer
 		if (Math.abs(val - Math.floor(val)) < 0.0001) {
-			return intFormat.format(val);
+			return formats.integerFormat.format(val);
 		}
-		return decFormat.format(val);
+		return formats.decimalFormat.format(val);
+	}
+
+	/**
+	 * Return thread-confined formatters for the current default formatting locale.
+	 *
+	 * <p>{@link DecimalFormat} captures the locale at construction time and is not
+	 * thread-safe. Recreate the current thread's formatters when its locale changes.</p>
+	 *
+	 * @return formatters matching the current locale
+	 */
+	private static LocaleDecimalFormats getLocaleDecimalFormats() {
+		Locale currentLocale = Locale.getDefault(Locale.Category.FORMAT);
+		LocaleDecimalFormats formats = LOCAL_FORMATS.get();
+		if (!formats.locale.equals(currentLocale)) {
+			formats = createLocaleDecimalFormats();
+			LOCAL_FORMATS.set(formats);
+		}
+		return formats;
+	}
+
+	private static LocaleDecimalFormats createLocaleDecimalFormats() {
+		Locale locale = Locale.getDefault(Locale.Category.FORMAT);
+		DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(locale);
+		return new LocaleDecimalFormats(locale,
+				new DecimalFormat("#", symbols),
+				new DecimalFormat("0.0##", symbols),
+				new DecimalFormat("0.00E0", symbols));
+	}
+
+	/**
+	 * Locale and its associated thread-confined number formatters.
+	 */
+	private static final class LocaleDecimalFormats {
+		private final Locale locale;
+		private final DecimalFormat integerFormat;
+		private final DecimalFormat decimalFormat;
+		private final DecimalFormat exponentialFormat;
+
+		private LocaleDecimalFormats(Locale locale, DecimalFormat integerFormat, DecimalFormat decimalFormat,
+				DecimalFormat exponentialFormat) {
+			this.locale = locale;
+			this.integerFormat = integerFormat;
+			this.decimalFormat = decimalFormat;
+			this.exponentialFormat = exponentialFormat;
+		}
 	}
 
 	protected double roundForDecimalFormat(double val) {

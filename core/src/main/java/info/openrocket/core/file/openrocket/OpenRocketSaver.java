@@ -41,6 +41,9 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.extension.SimulationExtension;
+import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
+import info.openrocket.core.simulation.montecarlo.UncertaintySpec;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Config;
@@ -379,6 +382,9 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchlongitude", cond.getLaunchLongitude());
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
 		writeElement("simulationsteppermethod", cond.getSimulationStepperMethodChoice().name().toLowerCase(Locale.ENGLISH));
+		if (cond.isRandomSeedFixed()) {
+			writeElement("randomseed", cond.getRandomSeed());
+		}
 
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");
@@ -405,6 +411,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
+		writeElement("recoveryspeedwarning", cond.getRecoverySpeedWarning());
+		writeElement("drogueLowspeedwarning", cond.getDrogueLowSpeedWarning());
+		writeElement("recoverydroguemainhighspeedwarning", cond.getRecoveryDrogueMainHighSpeedWarning());
+		writeElement("recoverydroguemainlowspeedwarning", cond.getRecoveryDrogueMainLowSpeedWarning());
 		if (cond.getDragLookupCsvPath() != null || cond.getDragLookupTable() != null) {
 			writeCsvLookup("draglookup", cond.getDragLookupCsvPath(), cond.getDragLookupCsvRows());
 		}
@@ -414,6 +424,8 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		indent--;
 		writeln("</conditions>");
+
+		saveLandingDispersionSettings(simulation.getLandingDispersionSettings());
 
 		Map<String, PlotAppearance> plotAppearances = simulation.getPlotAppearances();
 		if (!plotAppearances.isEmpty()) {
@@ -507,8 +519,8 @@ public class OpenRocketSaver extends RocketSaver {
 					writeElement("parameter", ((Warning.LargeAOA) w).getAOA());
 				}
 
-				if (w instanceof Warning.HighSpeedDeployment) {
-					writeElement("parameter", ((Warning.HighSpeedDeployment) w).getSpeed());
+				if (w instanceof Warning.RecoveryHighSpeedDeployment) {
+					writeElement("parameter", ((Warning.RecoveryHighSpeedDeployment) w).getSpeed());
 				}
 
 				// We write the whole string content for backwards compatibility with old versions
@@ -631,6 +643,27 @@ public class OpenRocketSaver extends RocketSaver {
 			log.error("Unknown configuration value type {}  value={}", value.getClass(), value);
 		}
 	}
+
+	private void saveLandingDispersionSettings(MonteCarloSettings settings) throws IOException {
+		if (settings == null) {
+			return;
+		}
+
+		writeln("<landingdispersion runs=\"" + settings.getRunCount() + "\" seed=\""
+				+ settings.getSeed() + "\">");
+		indent++;
+		for (MonteCarloParameter parameter : MonteCarloParameter.values()) {
+			UncertaintySpec uncertainty = settings.getUncertainties().get(parameter);
+			if (uncertainty == null) {
+				continue;
+			}
+			writeln("<uncertainty parameter=\"" + enumToXMLName(parameter)
+					+ "\" distribution=\"" + enumToXMLName(uncertainty.distribution())
+					+ "\" spread=\"" + Double.toString(uncertainty.spread()) + "\"/>");
+		}
+		indent--;
+		writeln("</landingdispersion>");
+	}
 	
 	private void saveFlightDataBranch(FlightDataBranch branch)
 			throws IOException {
@@ -647,7 +680,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Retrieve the data from the branch
 		List<List<Double>> data = new ArrayList<>(types.length);
 		for (FlightDataType type : types) {
-			data.add(branch.getClone(type));
+			data.add(branch.get(type));
 		}
 		
 		// Build the <databranch> tag
@@ -739,7 +772,7 @@ public class OpenRocketSaver extends RocketSaver {
 		if (types.length == 0)
 			return 0;
 		
-		final List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> timeData = branch.getView(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
 			// If time data not available, store all points
 			return branch.getLength();

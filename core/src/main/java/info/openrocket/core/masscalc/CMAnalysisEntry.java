@@ -38,4 +38,17 @@ public class CMAnalysisEntry {
             this.totalCM = totalCM.average(newCM);
         }
     }
+
+    /**
+     * Add a mass contribution to an assembly row and update its per-instance mass.
+     * Assembly analysis is calculated in separate structure and motor passes, so
+     * both contributions must be combined before the row can report launch mass.
+     *
+     * @param aggregateCM center of mass for all active instances in this pass
+     * @param instanceCount number of active assembly instances represented by the row
+     */
+    public void updateAssemblyMass(final CoordinateIF aggregateCM, final int instanceCount) {
+        updateAverageCM(aggregateCM);
+        eachMass = totalCM.getWeight() / instanceCount;
+    }
 }

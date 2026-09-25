@@ -84,6 +84,9 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	public AxialStage getStage();
 
 	// duplicate of RocketComponent
+	public ComponentAssembly getAssembly();
+
+	// duplicate of RocketComponent
 	public CoordinateIF[] getComponentLocations();
 
 	/**

@@ -63,6 +63,7 @@ public class ServicesForTesting extends AbstractModule {
 
 	}
 
+	@com.google.inject.Singleton
 	public static class PreferencesForTesting extends SwingPreferences {
 
 		private static final Preferences ROOT = new InMemoryPreferences(null, "");

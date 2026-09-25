@@ -208,15 +208,35 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
 
       Set the module SDK to JDK |java_vers|.
 
+   - Under :menuselection:`Settings --> Build, Execution, Deployment --> Build Tools --> Gradle`, set the \
+     *Gradle JVM* to the same JDK |java_vers|.
+
+   .. note::
+
+      The repository does not track which JDK you use. Only shared project configuration lives in \
+      :file:`.idea` (the run configurations, the inspection profile and the file encodings); the project SDK, \
+      the module SDKs and the Gradle JVM are all local settings, so you are free to point them at whichever \
+      JDK |java_vers| installation you have. Which Java release the code is *compiled* against is decided by \
+      the Gradle build (``standardJavaRelease(17)`` in :file:`build.gradle`), not by the IDE.
+
 5. **Run the Application**
    By default, IntelliJ should be set up with 3 run configurations:
 
-   - ``SwingStartup``: Run the application directly from within IntelliJ. You will user this configuration most of the time. \
-     You can also run IntelliJ in debug mode by clicking the green bug icon next to the play button.
+   - ``SwingStartup``: Run the application from within IntelliJ. You will use this configuration most of the time. \
+     You can also run it in debug mode by clicking the green bug icon next to the play button. The configuration \
+     invokes the Gradle ``run`` task, so the IDE launches OpenRocket exactly the way ``./gradlew run`` does.
 
    - ``openrocket-jar``: Run all the unit tests and build the application as a JAR file.
 
    - ``openrocket-test``: Only run the unit tests.
+
+   .. note::
+
+      OpenRocket is built as a set of Java modules (JPMS), and the build applies a ``--patch-module`` \
+      workaround for :file:`core/libs/script-api-1.0.jar`, which carries an old copy of the ``javax.script`` \
+      packages. A plain IntelliJ *Application* run configuration does not apply that patch and fails at \
+      startup with ``Module script.api contains package javax.script``. Launch the application through \
+      Gradle rather than through a hand-made *Application* configuration.
 
    .. figure:: /img/dev_guide/development_setup/run_configurations.png
       :align: center
@@ -266,3 +286,16 @@ Troubleshooting
 
    - Ensure that you have loaded the project from Gradle when you first opened the project in IntelliJ (step 3 in the
      :ref:`IntelliJ setup <setup_intellij>`).
+
+4. **Error occurred during initialization of boot layer — java.lang.module.ResolutionException: Module script.api
+   contains package javax.script**
+
+   This happens when the application is started through an IntelliJ *Application* run configuration instead of \
+   through Gradle. See the note in step 5 of the :ref:`IntelliJ setup <setup_intellij>`: use the ``SwingStartup`` \
+   configuration (or ``./gradlew run``), which applies the ``--patch-module`` workaround the modular build needs.
+
+5. **An IDE settings file keeps showing up as modified**
+
+   Only the run configurations, the inspection profile, the file encodings and the project name are tracked in \
+   :file:`.idea`; everything else is ignored on purpose, because it is local IDE state. If a file that *should* be \
+   ignored keeps reappearing, check that it is not still tracked with ``git ls-files .idea``.

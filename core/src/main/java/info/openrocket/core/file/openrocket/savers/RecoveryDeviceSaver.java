@@ -22,6 +22,9 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		else
 			elements.add("<cd>" + dev.getCD() + "</cd>");
 		elements.add(materialParam(dev.getMaterial()));
+		if (dev.isDrogue()) {
+			elements.add("<isdrogue>true</isdrogue>");
+		}
 
 		// NOTE: Default config must be BEFORE overridden config for proper backward
 		// compatibility later on

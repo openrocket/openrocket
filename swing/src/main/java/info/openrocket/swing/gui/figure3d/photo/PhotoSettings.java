@@ -1,33 +1,41 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
-import info.openrocket.swing.gui.figure3d.photo.exhaust.FlameRenderer.FlameSettings;
 import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
 import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.MathUtil;
 
-public class PhotoSettings extends AbstractChangeSource implements FlameSettings {
+public class PhotoSettings extends AbstractChangeSource {
+	public enum BackgroundType {
+		SOLID_COLOR, GRADIENT, TEXTURE
+	}
+
 	private double roll = 3.14;
 	private double yaw = 0;
 	private double pitch = 2.05;
 	private double advance = 0;
-	
+
 	private double viewAlt = -0.23;
 	private double viewAz = 2.08;
-	private double viewDistance = 0.44;
-	private double fov = 1.4;
-	
+	private double viewDistance = 0.80;
+	private double fov = Math.toRadians(50.0);
+
 	private double lightAlt = 0.35;
 	private double lightAz = -1;
+	private double lightStrength = 0.8;
 	private ORColor sunlight = new ORColor(255, 255, 255);
-	private double ambiance = 0.3f;
-	
+	private double ambiance = 0.1;
+
+	private BackgroundType backgroundType = BackgroundType.TEXTURE;
 	private ORColor skyColor = new ORColor(55, 95, 155);
 	private double skyColorOpacity = 1.0;
+	private ORColor gradientTopColor = new ORColor(81, 126, 193);
+	private ORColor gradientBottomColor = new ORColor(32, 42, 58);
 	
 	
 	private boolean motionBlurred = false;
+	private double motionBlurAmount = 5.0;
 	private boolean flame = false;
 	private ORColor flameColor = new ORColor(255, 100, 50);
 	private boolean smoke = false;
@@ -36,7 +44,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
 	
-	private double sparkConcentration = 0.2;
+	private double sparkConcentration = 0.5;
 	private double sparkWeight = 0;
 	
 	private Sky sky = Mountains.instance;
@@ -82,21 +90,30 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 	
 	public void setViewAltAz(double viewAlt, double viewAz){
-		this.viewAz = viewAz;
-		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
+		this.viewAz = MathUtil.reduce2Pi(viewAz);
+		this.viewAlt = MathUtil.reducePi(viewAlt);
 		fireChangeEvent();
 	}
+
+	public void setView(double viewAlt, double viewAz, double viewDistance, double fov) {
+		this.viewAz = MathUtil.reduce2Pi(viewAz);
+		this.viewAlt = MathUtil.reducePi(viewAlt);
+		this.viewDistance = Math.max(viewDistance, 0);
+		this.fov = MathUtil.clamp(fov, 0, Math.PI);
+		fireChangeEvent();
+	}
+
 	public void setViewAlt(double viewAlt) {
-		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
+		this.viewAlt = MathUtil.reducePi(viewAlt);
 		fireChangeEvent();
 	}
-	
+
 	public double getViewAz() {
 		return viewAz;
 	}
 	
 	public void setViewAz(double viewAz) {
-		this.viewAz = viewAz;
+		this.viewAz = MathUtil.reduce2Pi(viewAz);
 		fireChangeEvent();
 	}
 	
@@ -117,7 +134,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		this.fov = MathUtil.clamp(fov, 0, Math.PI);
 		fireChangeEvent();
 	}
-	
+
 	public double getLightAlt() {
 		return lightAlt;
 	}
@@ -135,7 +152,22 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		this.lightAz = lightAz;
 		fireChangeEvent();
 	}
-	
+
+	public void setLight(double lightAlt, double lightAz) {
+		this.lightAlt = lightAlt;
+		this.lightAz = lightAz;
+		fireChangeEvent();
+	}
+
+	public double getLightStrength() {
+		return lightStrength;
+	}
+
+	public void setLightStrength(double lightStrength) {
+		this.lightStrength = MathUtil.clamp(lightStrength, 0, 2);
+		fireChangeEvent();
+	}
+
 	public boolean isMotionBlurred() {
 		return motionBlurred;
 	}
@@ -144,7 +176,16 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		this.motionBlurred = motionBlurred;
 		fireChangeEvent();
 	}
-	
+
+	public double getMotionBlurAmount() {
+		return motionBlurAmount;
+	}
+
+	public void setMotionBlurAmount(double motionBlurAmount) {
+		this.motionBlurAmount = MathUtil.clamp(motionBlurAmount, 0, 20);
+		fireChangeEvent();
+	}
+
 	public boolean isFlame() {
 		return flame;
 	}
@@ -198,6 +239,33 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	public void setSkyColorOpacity(double skyColorOpacity) {
 		this.skyColorOpacity = skyColorOpacity;
 		skyColor.setAlpha((int) (skyColorOpacity * 255));
+		fireChangeEvent();
+	}
+
+	public BackgroundType getBackgroundType() {
+		return backgroundType;
+	}
+
+	public void setBackgroundType(BackgroundType backgroundType) {
+		this.backgroundType = backgroundType;
+		fireChangeEvent();
+	}
+
+	public ORColor getGradientTopColor() {
+		return gradientTopColor;
+	}
+
+	public void setGradientTopColor(ORColor gradientTopColor) {
+		this.gradientTopColor = gradientTopColor;
+		fireChangeEvent();
+	}
+
+	public ORColor getGradientBottomColor() {
+		return gradientBottomColor;
+	}
+
+	public void setGradientBottomColor(ORColor gradientBottomColor) {
+		this.gradientBottomColor = gradientBottomColor;
 		fireChangeEvent();
 	}
 
@@ -285,5 +353,24 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	public void setSparkWeight(double sparkWeight) {
 		this.sparkWeight = sparkWeight;
 		fireChangeEvent();
+	}
+
+	// Allows callers which update several properties together to defer rendering
+	// until the complete batch has been applied.
+	private boolean adjusting = false;
+
+	public boolean isAdjusting() {
+		return adjusting;
+	}
+
+	/**
+	 * Call with {@code true} before a batch and {@code false} after its final update.
+	 * Ending the batch fires one change event so the deferred render runs.
+	 */
+	public void setAdjusting(boolean adjusting) {
+		this.adjusting = adjusting;
+		if (!adjusting) {
+			fireChangeEvent();
+		}
 	}
 }

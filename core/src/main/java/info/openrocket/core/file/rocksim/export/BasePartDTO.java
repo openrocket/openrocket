@@ -378,6 +378,16 @@ public abstract class BasePartDTO {
         color = theColor;
     }
 
+    /**
+     * Return the serial number used to reference this component elsewhere in a
+     * RockSim file.
+     *
+     * @return the RockSim component serial number
+     */
+    public int getSerialNumber() {
+        return serialNumber;
+    }
+
     public static int getCurrentSerialNumber() {
         return currentSerialNumber - 1;
     }
@@ -386,7 +396,8 @@ public abstract class BasePartDTO {
      * Reset the serial number, which needs to happen after each file save.
      */
     public static void resetCurrentSerialNumber() {
-        currentSerialNumber = 0;
+        // Zero means "no associated component" in RockSim references.
+        currentSerialNumber = 1;
     }
 
     private static String formatRgb(ORColor color) {

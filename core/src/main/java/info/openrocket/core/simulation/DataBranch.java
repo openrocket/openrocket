@@ -119,7 +119,7 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 * @return		a list of the variable values, or <code>null</code> if
 	 * 				the variable type hasn't been added to this branch.
 	 */
-	public List<Double> getClone(T type) {
+	public List<Double> get(T type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null)
 			return null;
@@ -133,7 +133,7 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 * @return		an unmodifiable list backed by the internal storage, or null if
 	 * 				the variable type hasn't been added to this branch.
 	 */
-	public List<Double> get(T type) {
+	public List<Double> getView(T type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null) {
 			return null;

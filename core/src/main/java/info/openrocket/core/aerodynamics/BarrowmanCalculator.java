@@ -100,7 +100,70 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			finalMap.put(comp, forces);
 		}
 
+		aggregateAssemblyDrag(configuration, conditions, finalMap);
+
 		return finalMap;
+	}
+
+	/**
+	 * Aggregates finalized per-component drag into per-instance stage and pod-set values.
+	 * The rocket entry remains the calculator's authoritative total because it can include
+	 * global corrections which cannot be assigned to one component assembly.
+	 */
+	private void aggregateAssemblyDrag(FlightConfiguration configuration, FlightConditions conditions,
+			Map<RocketComponent, AerodynamicForces> forceMap) {
+		InstanceMap activeInstances = configuration.getActiveInstances();
+		for (Map.Entry<RocketComponent, AerodynamicForces> assemblyEntry : forceMap.entrySet()) {
+			RocketComponent assembly = assemblyEntry.getKey();
+			AerodynamicForces assemblyForce = assemblyEntry.getValue();
+			int assemblyInstanceCount = activeInstances.count(assembly);
+			if (!(assembly instanceof ComponentAssembly) || assembly == configuration.getRocket() ||
+					assemblyForce == null || assemblyInstanceCount == 0) {
+				continue;
+			}
+
+			double pressureCD = 0;
+			double baseCD = 0;
+			double frictionCD = 0;
+			double overrideCD = 0;
+
+			for (Map.Entry<RocketComponent, AerodynamicForces> componentEntry : forceMap.entrySet()) {
+				RocketComponent component = componentEntry.getKey();
+				AerodynamicForces componentForce = componentEntry.getValue();
+				if (!component.isAerodynamic() || componentForce == null || !assembly.isAncestor(component)) {
+					continue;
+				}
+
+				double instanceRatio = (double) activeInstances.count(component) / assemblyInstanceCount;
+				pressureCD += componentForce.getPressureCD() * instanceRatio;
+				baseCD += componentForce.getBaseCD() * instanceRatio;
+				frictionCD += componentForce.getFrictionCD() * instanceRatio;
+				if (component.isCDOverridden() && !component.isCDOverriddenByAncestor()) {
+					overrideCD += component.getOverrideCD() * instanceRatio;
+				}
+			}
+
+			// An assembly override has no inherent pressure, base, or friction component,
+			// but it contributes to the selected assembly's total CD.
+			for (RocketComponent overriddenAssembly : forceMap.keySet()) {
+				if (!(overriddenAssembly instanceof ComponentAssembly) ||
+						!overriddenAssembly.isCDOverridden() || overriddenAssembly.isCDOverriddenByAncestor() ||
+						(assembly != overriddenAssembly && !assembly.isAncestor(overriddenAssembly))) {
+					continue;
+				}
+
+				double instanceRatio = (double) activeInstances.count(overriddenAssembly) / assemblyInstanceCount;
+				overrideCD += overriddenAssembly.getOverrideCD() * instanceRatio;
+			}
+
+			double totalCD = pressureCD + baseCD + frictionCD + overrideCD;
+			assemblyForce.setPressureCD(pressureCD);
+			assemblyForce.setBaseCD(baseCD);
+			assemblyForce.setFrictionCD(frictionCD);
+			assemblyForce.setOverrideCD(overrideCD);
+			assemblyForce.setCD(totalCD);
+			assemblyForce.setCDaxial(dragCalculator.toAxialDrag(conditions, totalCD));
+		}
 	}
 
 	@Override

@@ -22,6 +22,10 @@ public class CustomFocusTraversalPolicy extends FocusTraversalPolicy {
     }
 
     public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
+        if (order.isEmpty()) {
+            return aComponent;
+        }
+
         // Get the next component
         int idx = (order.indexOf(aComponent) + 1) % order.size();
 
@@ -38,13 +42,17 @@ public class CustomFocusTraversalPolicy extends FocusTraversalPolicy {
     }
 
     public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
+        if (order.isEmpty()) {
+            return aComponent;
+        }
+
         int idx = order.indexOf(aComponent) - 1;
         if (idx < 0) {
             idx = order.size() - 1;
         }
         int count = 0;
         while (!order.get(idx).isEnabled() || !order.get(idx).isShowing() || !order.get(idx).isVisible()) {
-            idx = (idx - 1) % order.size();
+            idx = Math.floorMod(idx - 1, order.size());
             count++;
             if (count == order.size())
                 return aComponent;
@@ -57,6 +65,10 @@ public class CustomFocusTraversalPolicy extends FocusTraversalPolicy {
     }
 
     public Component getLastComponent(Container focusCycleRoot) {
+        if (order.isEmpty()) {
+            return null;
+        }
+
         int idx = order.size() - 1;
         if ((order.get(idx).isEnabled() && order.get(idx).isShowing() && order.get(idx).isVisible())) {
             return order.get(idx);
@@ -65,6 +77,10 @@ public class CustomFocusTraversalPolicy extends FocusTraversalPolicy {
     }
 
     public Component getFirstComponent(Container focusCycleRoot) {
+        if (order.isEmpty()) {
+            return null;
+        }
+
         int idx = 0;
         if ((order.get(idx).isEnabled() && order.get(idx).isShowing() && order.get(idx).isVisible())) {
             return order.get(idx);

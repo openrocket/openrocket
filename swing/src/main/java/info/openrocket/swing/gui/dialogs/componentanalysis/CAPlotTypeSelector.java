@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CADataTypeGroup;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
@@ -83,7 +84,8 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 				CADataType type = (CADataType) typeSelector.getSelectedItem();
 				List<RocketComponent> componentsForType = parent.getComponentsForType(type);
 				setComponentsForType(type, componentsForType);
-				updateSelectedComponents(null, componentsForType, configuration, plotIndex);
+				updateSelectedComponents(CAPlotTypeSelector.this.selectedComponents, componentsForType,
+						configuration, plotIndex);
 			}
 		});
 	}
@@ -97,13 +99,42 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 
 	private void updateSelectedComponents(List<RocketComponent> components, List<RocketComponent> componentsForType,
 										  CAPlotConfiguration configuration, int plotIndex) {
-		components = (components != null && !components.isEmpty()) ? components : componentsForType.subList(0, 1);
+		components = retainValidComponentsOrRocket(components, componentsForType);
 		this.selectedComponents.clear();
 		this.selectedComponents.addAll(components);
 
 		updateSelectedComponentsLabel(this.selectedComponents);
 		configuration.setPlotDataComponents(plotIndex, this.selectedComponents);
 		notifyComponentSelectionListeners();
+	}
+
+	/**
+	 * Retain selected components supported by a new data type.  If none remain,
+	 * select the rocket-level result, which is available for every analysis type.
+	 */
+	static List<RocketComponent> retainValidComponentsOrRocket(List<RocketComponent> selectedComponents,
+														 List<RocketComponent> componentsForType) {
+		List<RocketComponent> retained = new ArrayList<>();
+		if (selectedComponents != null) {
+			for (RocketComponent component : selectedComponents) {
+				if (componentsForType.contains(component)) {
+					retained.add(component);
+				}
+			}
+		}
+
+		if (!retained.isEmpty()) {
+			return retained;
+		}
+
+		for (RocketComponent component : componentsForType) {
+			if (component instanceof Rocket) {
+				return List.of(component);
+			}
+		}
+
+		// Defensive fallback for custom data types which do not provide a rocket total.
+		return componentsForType.subList(0, 1);
 	}
 
 	private void updateSelectedComponentsLabel(List<RocketComponent> components) {

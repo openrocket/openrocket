@@ -335,7 +335,7 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 	protected void addSelectionListeners(S selector, final int idx) {
 		// Type
 		selector.addTypeSelectionListener(e -> {
-			if (modifying > 0) return;
+			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) return;
 			T selectedType = selector.getSelectedType();
 			configuration.setPlotDataType(idx, selectedType);
 			selector.setUnitGroup(selectedType.getUnitGroup());
@@ -345,13 +345,13 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 
 		// Unit
 		selector.addUnitSelectionListener(e -> {
-			if (modifying > 0) return;
+			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) return;
 			configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
 		});
 
 		// Axis
 		selector.addAxisSelectionListener(e -> {
-			if (modifying > 0) return;
+			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) return;
 			configuration.setPlotDataAxis(idx, selector.getSelectedAxis());
 		});
 

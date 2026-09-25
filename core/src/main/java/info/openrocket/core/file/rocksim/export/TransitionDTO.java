@@ -43,7 +43,17 @@ public class TransitionDTO extends AbstractTransitionDTO {
      * @param theORTransition the OR transition
      */
     public TransitionDTO(Transition theORTransition) {
-        super(theORTransition);
+        this(theORTransition, null);
+    }
+
+    /**
+     * Copy constructor used while exporting a complete document.
+     *
+     * @param theORTransition the OR transition
+     * @param context         per-export motor-mount mapping state
+     */
+    public TransitionDTO(Transition theORTransition, RockSimExportContext context) {
+        super(theORTransition, context);
         setFrontDia(theORTransition.getForeRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setRearDia(theORTransition.getAftRadius() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setFrontShoulderDia(

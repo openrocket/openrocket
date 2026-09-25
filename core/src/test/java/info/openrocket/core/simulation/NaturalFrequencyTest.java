@@ -50,8 +50,8 @@ public class NaturalFrequencyTest extends BaseTestCase {
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
 		assertNotNull(branch);
 
-		List<Double> omegaN = branch.get(FlightDataType.TYPE_NATURAL_FREQUENCY);
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
+		List<Double> omegaN = branch.getView(FlightDataType.TYPE_NATURAL_FREQUENCY);
+		List<Double> time = branch.getView(FlightDataType.TYPE_TIME);
 
 		assertNotNull(omegaN);
 		assertNotNull(time);

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.JDialog;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -22,8 +23,11 @@ import javax.swing.SwingWorker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.awt.Component;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Startup-time motor database update checker that can optionally install the latest remote motor database.
@@ -77,10 +81,14 @@ public abstract class MotorDatabaseUpdateChecker {
 		TaskResult<MotorDatabaseMetadata> remoteResult = runWithProgressDialog(
 				trans.get("MotorDbUpdate.Checking.title"),
 				trans.get("MotorDbUpdate.Checking.message"),
-				updater::fetchRemoteMetadata);
+				updater::fetchRemoteMetadata,
+				updater::cancelCurrentOperation);
 
 		MotorDatabaseMetadata remote = remoteResult.value;
 		if (remote == null) {
+			if (remoteResult.cancelled) {
+				return;
+			}
 			// If metadata cannot be downloaded/validated/parsed, we cannot safely offer an update.
 			// For user-initiated checks, show the failure message (and the underlying exception if present).
 			if (userInitiated) {
@@ -215,13 +223,17 @@ public abstract class MotorDatabaseUpdateChecker {
 				() -> {
 					updater.installRemoteDatabase(motorLibraryDir, remote);
 					return Boolean.TRUE;
-				});
+				},
+				updater::cancelCurrentOperation);
 
 		// An unattended auto-install at startup should not interrupt the user with result dialogs;
 		// the outcome is logged instead. Manual checks and explicit "Install" clicks always report back.
 		boolean reportResult = userInitiated || !autoInstall;
 
 		if (installedResult.value == null || !installedResult.value) {
+			if (installedResult.cancelled) {
+				return;
+			}
 			// Unable to download and install the motor database update.
 			if (!reportResult) {
 				log.warn("Automatic motor database update to version {} failed", remoteVersion);
@@ -255,10 +267,12 @@ public abstract class MotorDatabaseUpdateChecker {
 	private static final class TaskResult<T> {
 		private final T value;
 		private final Throwable error;
+		private final boolean cancelled;
 
-		private TaskResult(T value, Throwable error) {
+		private TaskResult(T value, Throwable error, boolean cancelled) {
 			this.value = value;
 			this.error = error;
+			this.cancelled = cancelled;
 		}
 	}
 
@@ -268,9 +282,11 @@ public abstract class MotorDatabaseUpdateChecker {
 	 * @param title   the dialog title
 	 * @param message the dialog message
 	 * @param task    the task to run
-	 * @return the result of the task, or null if an error occurred
+	 * @param cancelAction action that disconnects any blocking external work
+	 * @return the task value together with its failure or cancellation state
 	 */
-	private static <T> TaskResult<T> runWithProgressDialog(String title, String message, WorkerTask<T> task) {
+	private static <T> TaskResult<T> runWithProgressDialog(String title, String message, WorkerTask<T> task,
+			Runnable cancelAction) {
 		final ProgressDialog dialog = new ProgressDialog(title, message);
 		final SwingWorker<T, Void> worker = new SwingWorker<>() {
 			@Override
@@ -283,17 +299,24 @@ public abstract class MotorDatabaseUpdateChecker {
 				dialog.setVisible(false);
 			}
 		};
+		dialog.setCancelAction(() -> {
+			worker.cancel(true);
+			cancelAction.run();
+		});
 
 		worker.execute();
 		dialog.setVisible(true);
 
 		try {
-			return new TaskResult<>(worker.get(), null);
+			return new TaskResult<>(worker.get(), null, false);
+		} catch (CancellationException e) {
+			log.info("Motor database update check/download cancelled by user");
+			return new TaskResult<>(null, null, true);
 		} catch (Exception e) {
 			Throwable t = unwrapWorkerException(e);
 			log.info("Motor database update check/download failed: {}", t.getMessage());
 			log.debug("Motor database update check/download failed", t);
-			return new TaskResult<>(null, t);
+			return new TaskResult<>(null, t, false);
 		} finally {
 			dialog.dispose();
 		}
@@ -318,6 +341,9 @@ public abstract class MotorDatabaseUpdateChecker {
 	}
 
 	private static class ProgressDialog extends JDialog {
+		private Runnable cancelAction = () -> {
+		};
+
 		ProgressDialog(String title, String message) {
 			super(null, title, ModalityType.DOCUMENT_MODAL);
 
@@ -326,13 +352,27 @@ public abstract class MotorDatabaseUpdateChecker {
 
 			JProgressBar progress = new JProgressBar();
 			progress.setIndeterminate(true);
-			panel.add(progress, "growx");
+			panel.add(progress, "growx, wrap para");
+
+			JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
+			cancelButton.addActionListener(event -> cancelAction.run());
+			panel.add(cancelButton, "right");
 
 			this.add(panel);
 			this.pack();
 			this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+			this.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent event) {
+					cancelAction.run();
+				}
+			});
 			this.setLocationByPlatform(true);
 			GUIUtil.setWindowIcons(this);
+		}
+
+		private void setCancelAction(Runnable cancelAction) {
+			this.cancelAction = cancelAction;
 		}
 	}
 }

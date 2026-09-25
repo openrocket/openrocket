@@ -383,18 +383,12 @@ User-defined materials are displayed in normal text.
    Editing materials will not affect existing rocket designs.
 
 
+.. _graphics_preferences:
+
 Graphics
 --------
 
-The **Graphics** tab allows you to set the graphics settings for OpenRocket.
-
-.. figure:: /img/setup/preferences/Prefs-Graphics.png
-   :alt: Graphics tab in the Preferences dialog
-   :figclass: or-figclass, or-image-border
-   :figwidth: 65 %
-   :align: center
-
-   :guilabel:`Graphics` tab in the Preferences dialog
+The **Graphics** tab sets the default graphics options for OpenRocket.
 
 - **Graphics Editor**: Select which graphics editor you want to use to edit textures in OpenRocket (if you click the
   :guilabel:`Edit` button next to the Texture dropdown in the :guilabel:`Appearance` tab of the component configuration window).
@@ -407,17 +401,23 @@ The **Graphics** tab allows you to set the graphics settings for OpenRocket.
     button to select the executable file.
 - **3D Graphics**
 
-  - :guilabel:`Enable 3D Graphics`: If enabled, 3D rendering is supported in OpenRocket. If disabled, you can not use any
-    3D features inside OpenRocket.
-  - :guilabel:`Enable Anti-aliasing`: If enabled, OpenRocket will use anti-aliasing to smooth the edges of 3D graphics.
-  - :guilabel:`Use Off-screen Rendering`: If enabled, OpenRocket will render 3D graphics off-screen. This can improve performance
-    on some systems, but may cause issues on others.
-
-    .. tip::
-       If you experience issues with 3D graphics, try toggling this option (enable it if is was disabled, or vice versa).
+  - :guilabel:`Enable 3D Graphics`: Enable the 3D design views and Photo Studio.
+  - :guilabel:`Level of detail`: Choose the default balance between rendering quality and performance. Among other
+    effects, this controls MSAA sample count, shadow resolution, particle density, and surface detail.
+  - :guilabel:`Enable multisample anti-aliasing (MSAA)`: Smooth geometry edges while rendering the main scene.
+    Low quality always uses no samples; medium and high quality request progressively more samples.
+  - :guilabel:`Enable Anti-aliasing (FXAA)`: Apply a final screen-space anti-aliasing pass. FXAA can be used with or
+    without MSAA.
+  - :guilabel:`Enable shadows`: Render shadows cast by the rocket and its components.
+  - :guilabel:`Enable ambient occlusion`: Add screen-space shading where surfaces meet or are close together.
+  - :guilabel:`Disable shadows and post-processing during 3D interaction`: Temporarily skip costly effects while
+    dragging, scrolling, or resizing, then restore them when interaction stops.
+  - :guilabel:`Enable surface roughness`: Add procedural surface detail based on each component's finish.
+  - :guilabel:`3D drag sensitivity`: Control how quickly dragging rotates the rocket or camera.
 
   .. note::
-     The effects will take place the next time you open a window.
+     Most defaults take effect the next time a 3D view is opened. MSAA, interaction-effect reduction, and drag
+     sensitivity are also applied to views that are already open.
 
 .. _resetting_prefs:
 

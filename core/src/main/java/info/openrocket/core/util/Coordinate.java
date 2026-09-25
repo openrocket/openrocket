@@ -201,7 +201,9 @@ public final class Coordinate implements CoordinateIF {
 	}
 	
 	/**
-	 * Cross product of two Coordinates taken as vectors
+	 * Cross product of two Coordinates taken as vectors.
+	 *
+	 * @return a new unweighted cross product
 	 */
 	public static CoordinateIF cross(CoordinateIF a, CoordinateIF b) {
 		return new Coordinate(a.getY() * b.getZ() - a.getZ() * b.getY(), a.getZ() * b.getX() -

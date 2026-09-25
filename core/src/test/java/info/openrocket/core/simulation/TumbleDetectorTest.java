@@ -18,6 +18,8 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Tests for kinematic tumble detection.
@@ -169,9 +171,10 @@ public class TumbleDetectorTest extends BaseTestCase {
 	 * {@code setRandomSeed} does not re-seed it, so turbulent runs are not
 	 * reproducible.
 	 */
-	@Test
-	public void testSteadyCrosswindDoesNotAbort() throws SimulationException {
-		final Simulation simulation = crosswindSimulation(TestRockets.makeEstesAlphaIII(), 6.0);
+	@ParameterizedTest(name = "{0}")
+	@EnumSource(SimulationStepperMethod.class)
+	public void testSteadyCrosswindDoesNotAbort(SimulationStepperMethod method) throws SimulationException {
+		final Simulation simulation = crosswindSimulation(TestRockets.makeEstesAlphaIII(), 6.0, method);
 		simulation.simulate(DeterministicWind.steady(6.0));
 
 		final FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
@@ -190,14 +193,15 @@ public class TumbleDetectorTest extends BaseTestCase {
 	 * The recovered flights must be healthy ones, not aborts traded for nonsense
 	 * trajectories: the 6 m/s flight must reach an apogee close to the still-air one.
 	 */
-	@Test
-	public void testRecoveredFlightReachesExpectedApogee() throws SimulationException {
-		final Simulation calm = crosswindSimulation(TestRockets.makeEstesAlphaIII(), 0.0);
+	@ParameterizedTest(name = "{0}")
+	@EnumSource(SimulationStepperMethod.class)
+	public void testRecoveredFlightReachesExpectedApogee(SimulationStepperMethod method) throws SimulationException {
+		final Simulation calm = crosswindSimulation(TestRockets.makeEstesAlphaIII(), 0.0, method);
 		calm.simulate(DeterministicWind.steady(0.0));
 		final double calmApogee = calm.getSimulatedData().getBranch(0)
 				.getMaximum(FlightDataType.TYPE_ALTITUDE);
 
-		final Simulation windy = crosswindSimulation(TestRockets.makeEstesAlphaIII(), 6.0);
+		final Simulation windy = crosswindSimulation(TestRockets.makeEstesAlphaIII(), 6.0, method);
 		windy.simulate(DeterministicWind.steady(6.0));
 		final double windyApogee = windy.getSimulatedData().getBranch(0)
 				.getMaximum(FlightDataType.TYPE_ALTITUDE);
@@ -211,12 +215,13 @@ public class TumbleDetectorTest extends BaseTestCase {
 	 * The complementary guarantee: removing the fins makes the rocket genuinely
 	 * unstable, and that must still be detected.
 	 */
-	@Test
-	public void testUnstableRocketIsStillDetected() throws SimulationException {
+	@ParameterizedTest(name = "{0}")
+	@EnumSource(SimulationStepperMethod.class)
+	public void testUnstableRocketIsStillDetected(SimulationStepperMethod method) throws SimulationException {
 		final Rocket rocket = TestRockets.makeEstesAlphaIII();
 		removeFins(rocket);
 
-		final Simulation simulation = crosswindSimulation(rocket, 2.0);
+		final Simulation simulation = crosswindSimulation(rocket, 2.0, method);
 		simulation.simulate(DeterministicWind.steady(2.0));
 
 		final FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
@@ -236,11 +241,12 @@ public class TumbleDetectorTest extends BaseTestCase {
 		assertTrue(detected, "a finless rocket must still be detected as tumbling");
 	}
 
-	private Simulation crosswindSimulation(Rocket rocket, double windSpeed) {
+	private Simulation crosswindSimulation(Rocket rocket, double windSpeed, SimulationStepperMethod method) {
 		final Simulation simulation = new Simulation(rocket);
 		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
 		simulation.getOptions().setISAAtmosphere(true);
 		simulation.getOptions().setTimeStep(0.05);
+		simulation.getOptions().setSimulationStepperMethodChoice(method);
 		simulation.getOptions().setLaunchRodLength(1.0);
 		simulation.getOptions().setWindSpeedAverage(windSpeed);
 		simulation.getOptions().setWindTurbulenceIntensity(0.0);

@@ -150,11 +150,8 @@ public final class MutableCoordinate implements CoordinateIF {
 
 	@Override
 	public CoordinateIF sub(CoordinateIF other) {
-		this.x -= other.getX();
-		this.y -= other.getY();
-		this.z -= other.getZ();
-		this.weight -= other.getWeight();
-		return this;
+		// Coordinate subtraction deliberately ignores the argument's weight.
+		return sub(other.getX(), other.getY(), other.getZ());
 	}
 
 	@Override
@@ -191,15 +188,17 @@ public final class MutableCoordinate implements CoordinateIF {
 		this.x = newX;
 		this.y = newY;
 		this.z = newZ;
-		// Weight is unchanged
+		// Cross products are unweighted, matching the legacy Coordinate behavior.
+		this.weight = 0;
 		return this;
 	}
 
 	/**
-	 * Cross product of two Coordinates taken as vectors
+	 * Calculate the cross product without mutating either argument.
+	 *
+	 * @return a new mutable, unweighted cross product
 	 */
 	public static CoordinateIF cross(CoordinateIF a, CoordinateIF b) {
-		// I know this isn't mutable, but I don't know which coordinate to modify
 		return new MutableCoordinate(a.getY() * b.getZ() - a.getZ() * b.getY(), a.getZ() * b.getX() -
 				a.getX() * b.getZ(), a.getX() * b.getY() - a.getY() * b.getX());
 	}

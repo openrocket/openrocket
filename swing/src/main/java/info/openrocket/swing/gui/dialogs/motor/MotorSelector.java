@@ -19,6 +19,13 @@ public interface MotorSelector {
 	 * @return		the currently selected ejection charge delay.
 	 */
 	public double getSelectedDelay();
+
+	/**
+	 * Return the nozzle exit diameter entered for the selected motor.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when unknown
+	 */
+	public double getSelectedNozzleExitDiameter();
 	
 	/**
 	 * Return the component that should have the default focus in this motor selector panel.
