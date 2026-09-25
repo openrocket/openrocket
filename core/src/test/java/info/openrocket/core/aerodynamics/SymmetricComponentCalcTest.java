@@ -145,4 +145,74 @@ public class SymmetricComponentCalcTest {
 		}
 	}
 
+	/**
+	 * A stubby stored-table nose (fineness ratio below the 1.8 cutoff) whose table
+	 * is zero at drag divergence skips the subsonic power-law fit, so without the
+	 * floor its subsonic pressure drag would be ~0. The floor lifts the whole
+	 * subsonic range to a fixed fraction of this model's cone value.
+	 */
+	@Test
+	public void testStubbyNoseSubsonicFloor() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		NoseCone nose = (NoseCone) rocket.getChild(0).getChild(0);
+		// Von Karman (HAACK, parameter 0): its table is 0 at drag divergence, so the
+		// subsonic fit is skipped and the floor is the only subsonic source.
+		nose.setShapeType(Transition.Shape.HAACK);
+		nose.setShapeParameter(0.0);
+		// fineness ratio = length / (2 * aftRadius) = 0.5
+		nose.setLength(nose.getAftRadius());
+		SymmetricComponentCalc calcObj = new SymmetricComponentCalc(nose);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setAOA(0.0);
+		WarningSet warnings = new WarningSet();
+
+		double frontalArea = Math.PI * nose.getAftRadius() * nose.getAftRadius();
+
+		// floor = STUBBY_NOSE_ROUNDNESS * cone * taper at fineness ratio 0.5:
+		// cone = 0.8/(1+4*0.5^2) = 0.4, taper = 1-(0.5/1.8)^2, roundness = 1/3.
+		double expectedFloor = 0.12304526748971193;
+
+		// Below the leading tabulated Mach (0.9) the whole subsonic range sits at the floor.
+		for (double m : new double[] { 0.0, 0.3, 0.6 }) {
+			conditions.setMach(m);
+			double testcd = calcObj.calculatePressureCD(conditions, 0.0, 0.0, warnings) *
+					conditions.getRefArea() / frontalArea;
+			assertEquals(expectedFloor, testcd, EPSILON,
+					"SymmetricComponentCalc produces bad stubby-nose floor Cd at m=" + m);
+		}
+	}
+
+	/**
+	 * At or above the fineness-ratio cutoff (1.8) the stubby-nose floor must not be
+	 * applied: a slender von Karman nose whose table is zero at drag divergence
+	 * keeps its ~0 subsonic pressure drag.
+	 */
+	@Test
+	public void testTallNoseNoSubsonicFloor() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		NoseCone nose = (NoseCone) rocket.getChild(0).getChild(0);
+		nose.setShapeType(Transition.Shape.HAACK);
+		nose.setShapeParameter(0.0);
+		// fineness ratio = length / (2 * aftRadius) = 2.0, above the 1.8 cutoff
+		nose.setLength(nose.getAftRadius() * 4.0);
+		SymmetricComponentCalc calcObj = new SymmetricComponentCalc(nose);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setAOA(0.0);
+		WarningSet warnings = new WarningSet();
+
+		double frontalArea = Math.PI * nose.getAftRadius() * nose.getAftRadius();
+
+		for (double m : new double[] { 0.0, 0.3, 0.6 }) {
+			conditions.setMach(m);
+			double testcd = calcObj.calculatePressureCD(conditions, 0.0, 0.0, warnings) *
+					conditions.getRefArea() / frontalArea;
+			assertEquals(0.0, testcd, EPSILON,
+					"SymmetricComponentCalc applied floor to a tall nose at m=" + m);
+		}
+	}
+
 }
