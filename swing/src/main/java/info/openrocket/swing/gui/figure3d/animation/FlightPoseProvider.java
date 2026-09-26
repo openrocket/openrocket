@@ -11,12 +11,15 @@ import java.util.List;
 /**
  * Samples a {@link FlightDataBranch} as an engine-space position and orientation.
  * Position uses east, north, and altitude data; orientation uses elevation and
- * azimuth when available and otherwise follows the sampled velocity. The roll about the
- * long axis is the integral of the recorded roll rate, starting from zero at the first
- * sample (the data holds no absolute roll angle).
+ * azimuth when available and otherwise follows the sampled velocity. When the roll angle is
+ * recorded, the rocket is turned about its long axis by it while standing upright, then tilted
+ * straight to where it points, which is how the simulator defines that angle.
  */
 public final class FlightPoseProvider implements PoseProvider {
 	private static final Vector3f LOCAL_NOSE_AXIS = new Vector3f(-1, 0, 0);
+	private static final Vector3f UP = new Vector3f(0, 1, 0);
+	// Stands the unposed rocket, which lies along the X axis, upright.
+	private static final Quaternionf STAND_UPRIGHT = new Quaternionf().rotateTo(LOCAL_NOSE_AXIS, UP);
 
 	private final double[] t;
 	private final double[] east, north, alt;
@@ -36,7 +39,7 @@ public final class FlightPoseProvider implements PoseProvider {
 	}
 
 	/**
-	 * Reads a branch's time, position and (when recorded) attitude and roll rate.
+	 * Reads a branch's time, position and (when recorded) attitude.
 	 *
 	 * @throws IllegalArgumentException if the branch lacks time, lateral position or altitude data
 	 */
@@ -74,13 +77,13 @@ public final class FlightPoseProvider implements PoseProvider {
 		// Optional orientation
 		List<Double> thetaL = branch.get(FlightDataType.TYPE_ORIENTATION_THETA); // elevation: 0 = horizontal, pi/2 = up
 		List<Double> phiL   = branch.get(FlightDataType.TYPE_ORIENTATION_PHI);   // 0 = north, positive toward east
-		List<Double> rollRateL = branch.get(FlightDataType.TYPE_ROLL_RATE);     // rad/s about the long axis
+		List<Double> rollL  = branch.get(FlightDataType.TYPE_ORIENTATION_ROLL);  // about the long axis
 
 		// Length align (defensive)
 		int n = minLen(tL, eastL, northL, altL);
 		if (thetaL != null) n = Math.min(n, thetaL.size());
 		if (phiL   != null) n = Math.min(n, phiL.size());
-		if (rollRateL != null && rollRateL.size() < n) rollRateL = null;
+		if (rollL  != null && rollL.size() < n) rollL = null;
 
 		double[] times = toPrimitive(tL, n);
 		return new FlightPoseProvider(
@@ -90,7 +93,7 @@ public final class FlightPoseProvider implements PoseProvider {
 				toPrimitive(altL, n),
 				(thetaL != null ? toPrimitive(thetaL, n) : null),
 				(phiL   != null ? unwrapAngles(toPrimitive(phiL, n)) : null),
-				(rollRateL != null ? integrateRollRate(times, toPrimitive(rollRateL, n)) : null)
+				(rollL  != null ? unwrapAngles(toPrimitive(rollL, n)) : null)
 		);
 	}
 
@@ -112,7 +115,7 @@ public final class FlightPoseProvider implements PoseProvider {
 					(float) Math.sin(th),
 					-horizontal * (float) Math.cos(ph))
 					.normalize();
-			return withRoll(new Quaternionf().rotateTo(LOCAL_NOSE_AXIS, dir), time);
+			return pointAt(dir, time);
 		}
 
 		// Fallback: face the velocity (central difference of position)
@@ -120,17 +123,19 @@ public final class FlightPoseProvider implements PoseProvider {
 		Vector3f p0 = getPosition(Math.max(getStartTime(), time - eps));
 		Vector3f p1 = getPosition(Math.min(getEndTime(),   time + eps));
 		Vector3f v = p1.sub(p0, new Vector3f());
-		if (v.lengthSquared() < 1e-12f) return withRoll(new Quaternionf(), time); // no rotation
+		if (v.lengthSquared() < 1e-12f) return new Quaternionf(); // no rotation
 		v.normalize();
-		return withRoll(new Quaternionf().rotateTo(LOCAL_NOSE_AXIS, v), time);
+		return pointAt(v, time);
 	}
 
-	/** Applies the roll about the rocket's own long axis before pointing that axis. */
-	private Quaternionf withRoll(Quaternionf pointing, double time) {
+	/** Points the nose along the given direction, applying the recorded roll if there is one. */
+	private Quaternionf pointAt(Vector3f direction, double time) {
 		if (rollAngle == null) {
-			return pointing;
+			return new Quaternionf().rotateTo(LOCAL_NOSE_AXIS, direction);
 		}
-		return pointing.rotateX(sample(t, rollAngle, time));
+		return new Quaternionf().rotateTo(UP, direction)
+				.rotateY(sample(t, rollAngle, time))
+				.mul(STAND_UPRIGHT);
 	}
 
 	@Override
@@ -169,22 +174,7 @@ public final class FlightPoseProvider implements PoseProvider {
 		return out;
 	}
 
-	/** Trapezoidal integral of the roll rate; missing rates count as no spin. */
-	static double[] integrateRollRate(double[] times, double[] rollRates) {
-		double[] angles = new double[times.length];
-		for (int i = 1; i < times.length; i++) {
-			double dt = times[i] - times[i - 1];
-			double average = 0.5 * (finiteOrZero(rollRates[i - 1]) + finiteOrZero(rollRates[i]));
-			angles[i] = angles[i - 1] + (Double.isFinite(dt) && dt > 0.0 ? average * dt : 0.0);
-		}
-		return angles;
-	}
-
-	private static double finiteOrZero(double value) {
-		return Double.isFinite(value) ? value : 0.0;
-	}
-
-	/** Keeps interpolation on the shortest path across the 0/2-pi azimuth boundary. */
+	/** Keeps interpolation on the shortest path across the wrap-around of an angle. */
 	private static double[] unwrapAngles(double[] angles) {
 		double[] result = angles.clone();
 		double previous = Double.NaN;

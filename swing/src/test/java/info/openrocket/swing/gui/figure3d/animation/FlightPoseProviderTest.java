@@ -173,7 +173,7 @@ class FlightPoseProviderTest {
 	}
 
 	@Test
-	void rollsAboutTheLongAxisByTheIntegratedRollRate() {
+	void rollsAboutTheLongAxisByTheRecordedRollAngle() {
 		FlightDataBranch branch = new FlightDataBranch("spinning",
 				FlightDataType.TYPE_TIME,
 				FlightDataType.TYPE_POSITION_X,
@@ -181,36 +181,27 @@ class FlightPoseProviderTest {
 				FlightDataType.TYPE_ALTITUDE,
 				FlightDataType.TYPE_ORIENTATION_THETA,
 				FlightDataType.TYPE_ORIENTATION_PHI,
-				FlightDataType.TYPE_ROLL_RATE);
-		// Vertical flight spinning up linearly from 0 to 2 rad/s over 2 s: the angle is t^2 / 2.
-		for (double time : new double[] { 0.0, 1.0, 2.0 }) {
-			addPoint(branch, time, 0.0, 0.0, time);
+				FlightDataType.TYPE_ORIENTATION_ROLL);
+		// Vertical flight; the recorded angle wraps from +3 to -3 rad, a short step of 2π - 6.
+		double[] rolls = { 0.0, 3.0, -3.0 };
+		for (int i = 0; i < rolls.length; i++) {
+			addPoint(branch, i, 0.0, 0.0, i);
 			addOrientation(branch, Math.PI / 2.0, 0.0);
-			branch.setValue(FlightDataType.TYPE_ROLL_RATE, time);
+			branch.setValue(FlightDataType.TYPE_ORIENTATION_ROLL, rolls[i]);
 		}
 		FlightPoseProvider provider = FlightPoseProvider.fromFlightDataBranch(branch);
 
 		Vector3f fin = new Vector3f(0.0f, 1.0f, 0.0f);
 		Vector3f startFin = provider.getOrientation(0.0).transform(new Vector3f(fin));
-		Vector3f laterFin = provider.getOrientation(2.0).transform(new Vector3f(fin));
-		Vector3f nose = provider.getOrientation(2.0).transform(new Vector3f(-1.0f, 0.0f, 0.0f));
+		Vector3f rolledFin = provider.getOrientation(1.0).transform(new Vector3f(fin));
+		Vector3f wrappedFin = provider.getOrientation(1.5).transform(new Vector3f(fin));
+		Vector3f nose = provider.getOrientation(1.0).transform(new Vector3f(-1.0f, 0.0f, 0.0f));
 
 		assertEquals(1.0f, nose.y, 1e-5, "Rolling must not tip the nose");
-		assertEquals(0.0f, startFin.y, 1e-5);
-		assertEquals(0.0f, laterFin.y, 1e-5, "The fin stays perpendicular to the long axis");
-		// Trapezoid over the linear rate is exact: 0.5 + 1.5 = 2 rad.
-		assertEquals(2.0, startFin.angle(laterFin), 1e-4);
-	}
-
-	@Test
-	void missingRollRatesCountAsNoSpin() {
-		double[] angles = FlightPoseProvider.integrateRollRate(new double[] { 0.0, 1.0, 2.0, 3.0 },
-				new double[] { 1.0, Double.NaN, 1.0, 1.0 });
-
-		assertEquals(0.0, angles[0]);
-		assertEquals(0.5, angles[1], 1e-12);
-		assertEquals(1.0, angles[2], 1e-12);
-		assertEquals(2.0, angles[3], 1e-12);
+		assertEquals(0.0f, rolledFin.y, 1e-5, "The fin stays perpendicular to the long axis");
+		assertEquals(3.0, startFin.angle(rolledFin), 1e-4);
+		// Halfway across the wrap the rocket is at π, not swung back through 0.
+		assertEquals(Math.PI, startFin.angle(wrappedFin), 1e-3);
 	}
 
 	private static FlightDataBranch branchWithOrientation() {
