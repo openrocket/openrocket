@@ -182,7 +182,7 @@ class FlightPoseProviderTest {
 				FlightDataType.TYPE_ORIENTATION_THETA,
 				FlightDataType.TYPE_ORIENTATION_PHI,
 				FlightDataType.TYPE_ORIENTATION_ROLL);
-		// Vertical flight; the recorded angle wraps from +3 to -3 rad, a short step of 2π - 6.
+		// Vertical flight; the recorded angle wraps from +3 to -3 rad, a short step of 2 pi - 6.
 		double[] rolls = { 0.0, 3.0, -3.0 };
 		for (int i = 0; i < rolls.length; i++) {
 			addPoint(branch, i, 0.0, 0.0, i);
@@ -200,7 +200,7 @@ class FlightPoseProviderTest {
 		assertEquals(1.0f, nose.y, 1e-5, "Rolling must not tip the nose");
 		assertEquals(0.0f, rolledFin.y, 1e-5, "The fin stays perpendicular to the long axis");
 		assertEquals(3.0, startFin.angle(rolledFin), 1e-4);
-		// Halfway across the wrap the rocket is at π, not swung back through 0.
+		// Halfway across the wrap the rocket is at pi, not swung back through 0.
 		assertEquals(Math.PI, startFin.angle(wrappedFin), 1e-3);
 	}
 

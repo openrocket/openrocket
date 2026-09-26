@@ -69,7 +69,7 @@ public class RollAngleTest extends BaseTestCase {
 				continue;
 			}
 			double step = roll.get(i) - roll.get(i - 1);
-			// The angle is recorded within ±π; take each step the short way round.
+			// The angle is recorded within +/- pi; take each step the short way round.
 			angleChange += step - 2.0 * Math.PI * Math.rint(step / (2.0 * Math.PI));
 			integratedRate += 0.5 * (rollRate.get(i) + rollRate.get(i - 1)) * (time.get(i) - time.get(i - 1));
 		}

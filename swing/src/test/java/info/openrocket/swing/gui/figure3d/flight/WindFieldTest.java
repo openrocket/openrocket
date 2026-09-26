@@ -35,7 +35,7 @@ class WindFieldTest {
 		WindField west = wind(6.0, Math.toRadians(270.0));
 		assertEquals(6.0, west.speedAt(0.0), 1e-9);
 		assertEquals(Math.toRadians(270.0), west.directionAt(0.0), 1e-9);
-		assertEquals(0.0, wind(3.0, 0.0).directionAt(0.0), 1e-9, "North must read 0, not 2π or -0");
+		assertEquals(0.0, wind(3.0, 0.0).directionAt(0.0), 1e-9, "North must read 0, not 2 pi or -0");
 	}
 
 	@Test

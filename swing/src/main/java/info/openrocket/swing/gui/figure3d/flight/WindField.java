@@ -78,7 +78,7 @@ final class WindField {
 
 	/**
 	 * The direction the wind blows from at the given flight time, in radians clockwise from north
-	 * within [0, 2π), as the simulator records it. Meaningless when the air is calm.
+	 * within [0, 2 pi), as the simulator records it. Meaningless when the air is calm.
 	 */
 	double directionAt(double time) {
 		double e = TimeSeries.interpolate(times, east, time);
