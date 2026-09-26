@@ -442,37 +442,42 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		// Component name
 		componentNameField.setText(component.getName());
 
-		// Info label
-		StringBuilder sb = new StringBuilder();
-
-		if (allSameType && component.getPresetComponent() != null) {
-			ComponentPreset preset = component.getPresetComponent();
-			sb.append(preset.getManufacturer() + " " + preset.getPartNo() + "      ");
-		}
-
 		List<RocketComponent> listeners = component.getConfigListeners();
-		if (allMassive && (listeners == null || listeners.size() == 0)) {	// TODO: support aggregate mass display for current component and listeners?
-			sb.append(trans.get("RocketCompCfg.lbl.Componentmass") + " ");
-			sb.append(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
-					component.getComponentMass()));
-			
-			String overridetext = null;
-			if (component.isMassOverridden()) {
-				overridetext = trans.get("RocketCompCfg.lbl.overriddento") + " " + UnitGroup.UNITS_MASS.getDefaultUnit().
-						toStringUnit(component.getOverrideMass()) + ")";
+
+		// Info label
+		// (infoLabel and multiCompEditLabel are created by addButtons(); subclasses may override
+		//  that method without creating them, so both must be null-checked here)
+		if (infoLabel != null) {
+			StringBuilder sb = new StringBuilder();
+
+			if (allSameType && component.getPresetComponent() != null) {
+				ComponentPreset preset = component.getPresetComponent();
+				sb.append(preset.getManufacturer() + " " + preset.getPartNo() + "      ");
 			}
 
-			if (component.getMassOverriddenBy() != null) {
-				overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + component.getMassOverriddenBy().getName() + ")";
+			if (allMassive && (listeners == null || listeners.size() == 0)) {	// TODO: support aggregate mass display for current component and listeners?
+				sb.append(trans.get("RocketCompCfg.lbl.Componentmass") + " ");
+				sb.append(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
+						component.getComponentMass()));
+
+				String overridetext = null;
+				if (component.isMassOverridden()) {
+					overridetext = trans.get("RocketCompCfg.lbl.overriddento") + " " + UnitGroup.UNITS_MASS.getDefaultUnit().
+							toStringUnit(component.getOverrideMass()) + ")";
+				}
+
+				if (component.getMassOverriddenBy() != null) {
+					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + component.getMassOverriddenBy().getName() + ")";
+				}
+
+				if (overridetext != null) {
+					sb.append(" " + overridetext);
+				}
+
+				infoLabel.setText(sb.toString());
+			} else {
+				infoLabel.setText("");
 			}
-			
-			if (overridetext != null) {
-				sb.append(" " + overridetext);
-			}
-			
-			infoLabel.setText(sb.toString());
-		} else {
-			infoLabel.setText("");
 		}
 
 		// Multi-comp edit label
@@ -482,25 +487,29 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 				infoBtn.setVisible(false);
 			}
 
-			multiCompEditLabel.setText(trans.get("ComponentCfgDlg.MultiComponentEdit"));
+			if (multiCompEditLabel != null) {
+				multiCompEditLabel.setText(trans.get("ComponentCfgDlg.MultiComponentEdit"));
 
-			StringBuilder components = new StringBuilder(trans.get("ComponentCfgDlg.MultiComponentEdit.ttip"));
-			components.append(component.getName()).append(", ");
-			for (int i = 0; i < listeners.size(); i++) {
-				if (i < listeners.size() - 1) {
-					components.append(listeners.get(i).getName()).append(", ");
-				} else {
-					components.append(listeners.get(i).getName());
+				StringBuilder components = new StringBuilder(trans.get("ComponentCfgDlg.MultiComponentEdit.ttip"));
+				components.append(component.getName()).append(", ");
+				for (int i = 0; i < listeners.size(); i++) {
+					if (i < listeners.size() - 1) {
+						components.append(listeners.get(i).getName()).append(", ");
+					} else {
+						components.append(listeners.get(i).getName());
+					}
 				}
+				multiCompEditLabel.setToolTipText(components.toString());
 			}
-			multiCompEditLabel.setToolTipText(components.toString());
 		} else {
 			if (infoBtn != null) {
 				componentInfo.setVisible(false);
 				infoBtn.setSelected(true);
 				infoBtn.setVisible(true);
 			}
-			multiCompEditLabel.setText("");
+			if (multiCompEditLabel != null) {
+				multiCompEditLabel.setText("");
+			}
 		}
 	}
 
