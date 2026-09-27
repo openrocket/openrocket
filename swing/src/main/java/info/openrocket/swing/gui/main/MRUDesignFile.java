@@ -8,6 +8,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implements a most-recently-used list backed by preferences.  This is modified/adapted from an example on the
@@ -112,28 +113,18 @@ public class MRUDesignFile {
     }
 
     /**
-     * Clear all existing MRU references in the preferences backing store.
-     */
-    private void clear() {
-        ApplicationPreferences prefs = getPreferences();
-
-        for (int i = 0; i < MAX_SIZE; i++) {
-            prefs.putString(MRU_FILE_LIST_PROPERTY + i, null);
-        }
-    }
-
-    /**
      * Store the MRU list into the preferences backing store.
      */
     protected void store() {
         ApplicationPreferences prefs = getPreferences();
 
-        // clear the backing store
-        clear();
-
-        for (int i = 0; i < mruFileList.size(); i++) {
-            String str = mruFileList.get(i);
-            prefs.putString(MRU_FILE_LIST_PROPERTY + i, str);
+        // Only write the entries that changed; a preference write takes about a millisecond on some platforms
+        for (int i = 0; i < MAX_SIZE; i++) {
+            String key = MRU_FILE_LIST_PROPERTY + i;
+            String str = i < mruFileList.size() ? mruFileList.get(i) : null;
+            if (!Objects.equals(str, prefs.getString(key, null))) {
+                prefs.putString(key, str);
+            }
         }
     }
 

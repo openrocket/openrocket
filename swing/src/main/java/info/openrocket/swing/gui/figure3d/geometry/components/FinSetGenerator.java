@@ -14,10 +14,10 @@ import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettin
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
+import org.locationtech.jts.triangulate.polygon.ConstrainedDelaunayTriangulator;
+import org.locationtech.jts.triangulate.tri.Tri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1031,34 +1031,30 @@ public class FinSetGenerator {
 		jtsCoords[polygonPoints.length] = new org.locationtech.jts.geom.Coordinate(polygonPoints[0].getX(), polygonPoints[0].getY());
 
 		Polygon polygon = geometryFactory.createPolygon(jtsCoords);
-		DelaunayTriangulationBuilder builder = new DelaunayTriangulationBuilder();
-		builder.setSites(polygon);
-
-		Geometry triangles = builder.getTriangles(geometryFactory);
+		// The fin perimeter must be a triangulation constraint. An unconstrained Delaunay
+		// mesh fills the convex hull and can bridge across indentations in freeform fins.
+		List<Tri> triangles = new ConstrainedDelaunayTriangulator(polygon).getTriangles();
 		IntList indices = new IntList();
 		int droppedTriangles = 0;
 
-		for (int i = 0; i < triangles.getNumGeometries(); i++) {
-			Polygon tri = (Polygon) triangles.getGeometryN(i);
-			if (polygon.contains(tri.getInteriorPoint())) {
-				org.locationtech.jts.geom.Coordinate[] triCoords = tri.getCoordinates();
-				int[] mappedIndices = new int[3];
-				boolean mapped = true;
-				for (int j = 0; j < 3; j++) {
-					Integer mappedIndex = coordIndexMap.get(quantizedCoordinateKey(triCoords[j].x, triCoords[j].y));
-					if (mappedIndex == null) {
-						mapped = false;
-						break;
-					}
-					mappedIndices[j] = mappedIndex;
+		for (Tri triangle : triangles) {
+			int[] mappedIndices = new int[3];
+			boolean mapped = true;
+			for (int i = 0; i < 3; i++) {
+				org.locationtech.jts.geom.Coordinate coordinate = triangle.getCoordinate(i);
+				Integer mappedIndex = coordIndexMap.get(quantizedCoordinateKey(coordinate.x, coordinate.y));
+				if (mappedIndex == null) {
+					mapped = false;
+					break;
 				}
-				if (mapped) {
-					indices.add(mappedIndices[0]);
-					indices.add(mappedIndices[1]);
-					indices.add(mappedIndices[2]);
-				} else {
-					droppedTriangles++;
-				}
+				mappedIndices[i] = mappedIndex;
+			}
+			if (mapped) {
+				indices.add(mappedIndices[0]);
+				indices.add(mappedIndices[2]);
+				indices.add(mappedIndices[1]);
+			} else {
+				droppedTriangles++;
 			}
 		}
 		if (droppedTriangles > 0) {

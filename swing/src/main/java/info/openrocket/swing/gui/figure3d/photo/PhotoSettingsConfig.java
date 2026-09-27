@@ -388,7 +388,6 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				BooleanModel sparksModel = track(new BooleanModel(p, "Sparks"));
 				JCheckBox sparksCheck = new JCheckBox(sparksModel);
 				sparksPanel.add(sparksCheck, "wrap");
-				fireModel.addEnableComponent(sparksCheck);
 
 				/// Sparks concentration
 				JLabel sparkConcentrationLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkConcentration"));

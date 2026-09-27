@@ -3,6 +3,8 @@ package info.openrocket.core.motor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import info.openrocket.core.motor.Manufacturer;
+import info.openrocket.core.motor.Motor;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;

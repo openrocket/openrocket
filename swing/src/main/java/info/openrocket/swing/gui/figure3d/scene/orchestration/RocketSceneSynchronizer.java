@@ -271,6 +271,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			return;
 		}
 		applyRebuildSnapshot(snapshot, pendingCameraUpdateBehavior.getAndSet(CameraUpdateBehavior.NONE));
+		scene3DOrchestrator.notifyRocketSceneRebuilt();
 	}
 
 	/**

@@ -51,8 +51,9 @@ public abstract class PreferencesImporter {
         try (FileInputStream fis = new FileInputStream(importFile)) {
             Preferences.importPreferences(fis);
 
-            // Ensure units are updated
+            // Ensure units and component colors are updated
             ((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
+            ((SwingPreferences) Application.getPreferences()).clearDefaultColorCache();
 
             log.info("Preferences imported successfully.");
             return true;

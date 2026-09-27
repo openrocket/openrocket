@@ -3,10 +3,17 @@ package info.openrocket.core.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
 
 public class Reflection {
+
+	// Class lookups by name, including misses, for construct(). The aerodynamic calculators rebuild their
+	// component calculation objects after every design change, and a failed Class.forName() is expensive.
+	private static final Map<String, Optional<Class<?>>> constructClasses = new ConcurrentHashMap<>();
 
 	/**
 	 * Simple wrapper class that converts the Method.invoke() exceptions into
@@ -150,8 +157,13 @@ public class Reflection {
 				name = name.substring(name.lastIndexOf(".") + 1);
 			name = pack + "." + name + suffix;
 
+			Class<?> c = constructClasses.computeIfAbsent(name, Reflection::findClass).orElse(null);
+			if (c == null) {
+				currentclass = currentclass.getSuperclass();
+				continue;
+			}
+
 			try {
-				Class<?> c = Class.forName(name);
 				Class<?>[] paramClasses = new Class<?>[params.length];
 				for (int i = 0; i < params.length; i++) {
 					paramClasses[i] = params[i].getClass();
@@ -169,7 +181,6 @@ public class Reflection {
 					// Matching constructor found
 					return constructor.newInstance(params);
 				}
-			} catch (ClassNotFoundException ignore) {
 			} catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
 				throw new BugException("Construction of " + name + " failed", e);
 			} catch (InvocationTargetException e) {
@@ -180,5 +191,13 @@ public class Reflection {
 		}
 		throw new BugException("Suitable constructor for component " + component +
 				" not found");
+	}
+
+	private static Optional<Class<?>> findClass(String name) {
+		try {
+			return Optional.of(Class.forName(name));
+		} catch (ClassNotFoundException e) {
+			return Optional.empty();
+		}
 	}
 }

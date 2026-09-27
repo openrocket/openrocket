@@ -538,6 +538,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
 		orchestrator.getCameraController().addCameraChangeListener(cameraChangeListener);
+		orchestrator.setRocketSceneRebuiltCallback(this::applySettings);
 		Scene scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().addLightChangeListener(lightChangeListener);
@@ -588,10 +589,10 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			applyLighting(scene, config);
 			if (camera != null) {
 				if (cameraSettingsChanged) {
-					applyCamera(camera);
+					applyCamera(orchestrator, camera);
 					rememberCameraSettings();
 				} else if (currentCameraState != null) {
-					restoreCamera(camera, currentCameraState);
+					restoreCamera(orchestrator, camera, currentCameraState);
 				}
 			}
 			if (rebuild || isRocketTransformRequired(scene)) {
@@ -610,6 +611,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 		orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
+		orchestrator.setRocketSceneRebuiltCallback(null);
 		Scene scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().removeLightChangeListener(lightChangeListener);
@@ -643,7 +645,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		scene.setRocketRotationPivotOverride(0.0f, 0.0f, 0.0f);
 	}
 
-	private void applyCamera(Camera camera) {
+	private void applyCamera(Scene3DOrchestrator orchestrator, Camera camera) {
 		configurePhotoCamera(camera);
 		// PhotoStudio model transforms already recenter the rocket around world origin.
 		// Keep camera orbit pivot locked to origin to match legacy JOGL behavior.
@@ -654,19 +656,23 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		camera.setAngleY((float) settings.getViewAlt());
 		camera.setFieldOfView(settings.getFov());
 		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
+		// Photo Studio owns an explicit persisted distance; resizing must not replace it
+		// with the shared design view's fit-to-window distance.
+		orchestrator.getCameraController().setZoomFitting(false);
 		// Use the orbit-up vector so dragging past ±90° altitude doesn't snap the view.
 		// (forceFixedUp=true would use a fixed world-up that becomes degenerate at the poles.)
 		camera.setForceFixedUp(false);
 		camera.update();
 	}
 
-	private void restoreCamera(Camera camera, CameraState state) {
+	private void restoreCamera(Scene3DOrchestrator orchestrator, Camera camera, CameraState state) {
 		configurePhotoCamera(camera);
 		camera.setCenterOfInterest(state.centerOfInterest);
 		camera.setAngleX(state.angleX);
 		camera.setAngleY(state.angleY);
 		camera.setFieldOfView(state.fieldOfView);
 		camera.setDistance(state.distance);
+		orchestrator.getCameraController().setZoomFitting(false);
 		camera.setForceFixedUp(false);
 		camera.update();
 	}
@@ -1086,17 +1092,17 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	 *
 	 * <p>Inverse of the applyLighting() formula:
 	 * <pre>
-	 *   direction = (-cos(alt)*cos(az),  -sin(alt),  cos(alt)*sin(az))
+	 *   direction = (cos(alt)*cos(az),  -sin(alt),  cos(alt)*sin(az))
 	 * </pre>
 	 * Recovery:
 	 * <pre>
 	 *   alt = asin(-direction.y)
-	 *   az  = atan2(direction.z, -direction.x)
+	 *   az  = atan2(direction.z, direction.x)
 	 * </pre>
 	 */
 	private void syncSettingsFromLightDirection(float dx, float dy, float dz) {
 		double lightAlt = Math.asin(MathUtil.clamp(-dy, -1.0, 1.0));
-		double lightAz = MathUtil.reduce2Pi(Math.atan2(dz, -dx));
+		double lightAz = lightAzimuthFromDirection(dx, dz);
 
 		if (MathUtil.equals(lightAlt, settings.getLightAlt(), CAMERA_SETTINGS_EPSILON)
 				&& MathUtil.equals(lightAz, settings.getLightAz(), CAMERA_SETTINGS_EPSILON)) {
@@ -1109,6 +1115,11 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		} finally {
 			suppressLightToSettingsSync.set(false);
 		}
+	}
+
+	/** Returns the azimuth represented by a directional light's X/Z components. */
+	static double lightAzimuthFromDirection(float dx, float dz) {
+		return MathUtil.reduce2Pi(Math.atan2(dz, dx));
 	}
 
 	private static boolean isTrackedDragButton(int button) {

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,16 @@ public class FinSetCalcTest {
 		double calculateFinCNa(FlightConditions conditions) {
 			return calculateFinCNa1(conditions);
 		}
+
+		/** Return the isolated-fin CP before fin-body interference is applied. */
+		double calculateIsolatedCP(FlightConditions conditions) {
+			return macLead + calculateCPPos(conditions) * macLength;
+		}
+
+		double calculateUncorrectedRollForcing(FlightConditions conditions, FinSet fins) {
+			return (macSpan + fins.getBodyRadius()) * calculateFinCNa1(conditions)
+					* fins.getCantAngle() / conditions.getRefLength();
+		}
 	}
 
 	@BeforeAll
@@ -61,16 +72,20 @@ public class FinSetCalcTest {
 		// }
 	}
 
-	private AerodynamicForces sumFins(TrapezoidFinSet fins, Rocket rocket) {
+	private AerodynamicForces sumFins(FinSet fins, Rocket rocket) {
 		return sumFins(fins, rocket, Double.NaN);
 	}
 
-	private AerodynamicForces sumFins(TrapezoidFinSet fins, Rocket rocket, double mach) {
+	private AerodynamicForces sumFins(FinSet fins, Rocket rocket, double mach) {
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
 		if (!Double.isNaN(mach)) {
 			conditions.setMach(mach);
 		}
+		return sumFins(fins, conditions);
+	}
+
+	private AerodynamicForces sumFins(FinSet fins, FlightConditions conditions) {
 		WarningSet warnings = new WarningSet();
 		AerodynamicForces assemblyForces = new AerodynamicForces().zero();
 		AerodynamicForces componentForces = new AerodynamicForces();
@@ -86,6 +101,105 @@ public class FinSetCalcTest {
 		}
 
 		return assemblyForces;
+	}
+
+	/** Calculate the isolated-fin CP for tests of the underlying fin formula. */
+	private double isolatedFinCP(FinSet fins, Rocket rocket, double mach) {
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(mach);
+		return new TestableFinSetCalc(fins).calculateIsolatedCP(conditions);
+	}
+
+	/**
+	 * Cant is a wing-incidence case and must use equation 19's lowercase
+	 * interference factor rather than equation 14's angle-of-attack factor.
+	 */
+	@Test
+	public void testCantDrivenRollUsesWingIncidenceFactor() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCantAngle(0.05);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(2.0);
+		conditions.setAOA(0.0);
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.94, forces.getCrollForce() / uncorrectedRollForcing, 0.01);
+	}
+
+	/**
+	 * A constant-chord fin above the report's beta*A=2 selection boundary must
+	 * use chart 3 in the actual force calculation, not only in the chart helper.
+	 */
+	@Test
+	public void testRectangularSupersonicCantDrivenRollUsesChartThree() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setTipChord(fins.getRootChord());
+		fins.setSweep(0.0);
+		fins.setHeight(4.0 * fins.getBodyRadius());
+		fins.setCantAngle(0.05);
+		double aspectRatio = 2.0 * Math.pow(fins.getSpan(), 2) / fins.getPlanformArea();
+		double beta = 2.25 / aspectRatio;
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(Math.sqrt(1.0 + beta * beta));
+		conditions.setAOA(0.0);
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.884, forces.getCrollForce() / uncorrectedRollForcing, 0.006);
+	}
+
+	/**
+	 * Equation 19 depends only on radius/semispan, so unsupported planforms must
+	 * not jump back to the historical {@code 1 + tau} roll multiplier.
+	 */
+	@Test
+	public void testFreeformCantDrivenRollUsesWingIncidenceFactor() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet trapezoidFins =
+				(TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		FreeformFinSet fins = FreeformFinSet.convertFinSet(trapezoidFins);
+		fins.setCantAngle(0.05);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(2.0);
+		conditions.setAOA(0.0);
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.94, forces.getCrollForce() / uncorrectedRollForcing, 0.01);
+	}
+
+	/**
+	 * The small-angle body-load model is faired out with angle of attack, but
+	 * fin incidence is still governed by equation 19 until the existing
+	 * post-stall roll reduction begins.
+	 */
+	@Test
+	public void testCantDrivenRollDoesNotIncreaseBeforeStall() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCantAngle(0.05);
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(2.0);
+		conditions.setAOA(Math.toRadians(15.0));
+
+		AerodynamicForces forces = sumFins(fins, conditions);
+		TestableFinSetCalc calculator = new TestableFinSetCalc(fins);
+		double uncorrectedRollForcing = fins.getFinCount()
+				* calculator.calculateUncorrectedRollForcing(conditions, fins);
+
+		assertEquals(0.94, forces.getCrollForce() / uncorrectedRollForcing, 0.01);
 	}
 
 	/**
@@ -146,7 +260,7 @@ public class FinSetCalcTest {
 		AerodynamicForces forces = sumFins(fins, rocket);
 
 		double exp_cna_fins = 28.82053382;
-		double exp_cpx_fins = 0.0193484;
+		double exp_cpx_fins = 0.018588118711734096;
 
 		assertEquals(exp_cna_fins, forces.getCP().getWeight(), EPSILON, " FinSetCalc produces bad CNa: ");
 		assertEquals(exp_cpx_fins, forces.getCP().getX(), EPSILON, " FinSetCalc produces bad C_p.x: ");
@@ -171,7 +285,7 @@ public class FinSetCalcTest {
 		AerodynamicForces forces = sumFins(fins, rocket);
 
 		double exp_cna_fins = 38.42737843;
-		double exp_cpx_fins = 0.0193484;
+		double exp_cpx_fins = 0.0185881187117341;
 
 		assertEquals(exp_cna_fins, forces.getCP().getWeight(), EPSILON, " FinSetCalc produces bad CNa: ");
 		assertEquals(exp_cpx_fins, forces.getCP().getX(), EPSILON, " FinSetCalc produces bad C_p.x: ");
@@ -193,8 +307,7 @@ public class FinSetCalcTest {
 
 		double previous = Double.NaN;
 		for (double mach = 0.5; mach <= 5.5; mach += 0.01) {
-			AerodynamicForces forces = sumFins(fins, rocket, mach);
-			double cpx = forces.getCP().getX();
+			double cpx = isolatedFinCP(fins, rocket, mach);
 
 			assertTrue(Double.isFinite(cpx), "CP x should stay finite at mach " + mach);
 
@@ -210,10 +323,10 @@ public class FinSetCalcTest {
 			previous = cpx;
 		}
 
-		double quarterChordCP = sumFins(fins, rocket, 0.5).getCP().getX();
-		assertEquals(quarterChordCP, sumFins(fins, rocket, 4.0).getCP().getX(), EPSILON,
+		double quarterChordCP = isolatedFinCP(fins, rocket, 0.5);
+		assertEquals(quarterChordCP, isolatedFinCP(fins, rocket, 4.0), EPSILON,
 				"The low-aspect-ratio fallback should avoid the invalid source branch");
-		assertTrue(sumFins(fins, rocket, 5.2).getCP().getX() > quarterChordCP,
+		assertTrue(isolatedFinCP(fins, rocket, 5.2) > quarterChordCP,
 				"The CP should join the source curve after ar*beta exceeds one");
 	}
 
@@ -231,7 +344,7 @@ public class FinSetCalcTest {
 
 		double previous = Double.NEGATIVE_INFINITY;
 		for (double mach = 2.0; mach <= 4.0; mach += 0.1) {
-			double cpx = sumFins(fins, rocket, mach).getCP().getX();
+			double cpx = isolatedFinCP(fins, rocket, mach);
 			double arBeta = 2.5 * Math.sqrt(mach * mach - 1);
 			double expectedRelativeCP = (arBeta - 0.67) / (2 * arBeta - 1);
 
@@ -258,9 +371,9 @@ public class FinSetCalcTest {
 		fins.setTipChord(0.05);
 		fins.setSweep(0.0);
 
-		double subsonicCP = sumFins(fins, rocket, 0.5).getCP().getX();
-		double transonicCP = sumFins(fins, rocket, 1.5).getCP().getX();
-		double supersonicCP = sumFins(fins, rocket, 2.0).getCP().getX();
+		double subsonicCP = isolatedFinCP(fins, rocket, 0.5);
+		double transonicCP = isolatedFinCP(fins, rocket, 1.5);
+		double supersonicCP = isolatedFinCP(fins, rocket, 2.0);
 
 		assertTrue(transonicCP > subsonicCP,
 				"The transonic CP should leave the quarter chord without a flat output clamp");
@@ -269,7 +382,7 @@ public class FinSetCalcTest {
 
 		double previous = subsonicCP;
 		for (double mach = 0.51; mach < 2.0; mach += 0.01) {
-			double cpx = sumFins(fins, rocket, mach).getCP().getX();
+			double cpx = isolatedFinCP(fins, rocket, mach);
 			assertTrue(cpx >= previous - 1.0e-12,
 					"The transonic CP moved forward at mach " + mach);
 			previous = cpx;
@@ -278,8 +391,8 @@ public class FinSetCalcTest {
 		// The shape-preserving curve matches both the value and first derivative of
 		// the supersonic curve at Mach 2.
 		double step = 1.0e-4;
-		double leftSlope = (supersonicCP - sumFins(fins, rocket, 2.0 - step).getCP().getX()) / step;
-		double rightSlope = (sumFins(fins, rocket, 2.0 + step).getCP().getX() - supersonicCP) / step;
+		double leftSlope = (supersonicCP - isolatedFinCP(fins, rocket, 2.0 - step)) / step;
+		double rightSlope = (isolatedFinCP(fins, rocket, 2.0 + step) - supersonicCP) / step;
 		assertEquals(leftSlope, rightSlope, 1.0e-5,
 				"The CP slope should be continuous at Mach 2");
 	}
@@ -297,7 +410,7 @@ public class FinSetCalcTest {
 		for (double aspectRatio = 0.1; aspectRatio <= 1.0; aspectRatio += 0.002) {
 			// For an unswept rectangular fin, AR = 2*height/chord.
 			fins.setHeight(aspectRatio * fins.getRootChord() / 2);
-			double cpx = sumFins(fins, rocket, 1.5).getCP().getX();
+			double cpx = isolatedFinCP(fins, rocket, 1.5);
 
 			assertTrue(Double.isFinite(cpx), "CP should be finite at AR " + aspectRatio);
 			if (!Double.isNaN(previous)) {

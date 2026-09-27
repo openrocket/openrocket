@@ -14,6 +14,10 @@ import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
  */
 @Deprecated
 public class DampingMoment extends AbstractSimulationExtension {
+	@Override
+	public boolean isMonteCarloSafe() {
+		return true;
+	}
 
 	@Override
 	public List<FlightDataType> getFlightDataTypes() {

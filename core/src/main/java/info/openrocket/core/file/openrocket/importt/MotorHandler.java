@@ -51,8 +51,9 @@ class MotorHandler extends AbstractElementHandler {
 	 * <p>
 	 * Preference order:
 	 * <ol>
-	 *   <li>Lookup via {@link DocumentLoadingContext#getMotorFinder()} (typically the motor database).</li>
+	 *   <li>A database motor with a compatible digest, or any database match if no digest was saved.</li>
 	 *   <li>Embedded .rse file in the {@code thrustcurves/} directory of the .ork zip archive.</li>
+	 *   <li>An approximate database match if the embedded curve is unavailable.</li>
 	 * </ol>
 	 *
 	 * @param warnings warnings sink
@@ -63,7 +64,8 @@ class MotorHandler extends AbstractElementHandler {
 		WarningSet databaseWarnings = new WarningSet();
 		Motor databaseMotor = context.getMotorFinder().findMotor(type, manufacturer, designation, Double.NaN, Double.NaN, digest,
 				databaseWarnings);
-		if (databaseMotor != null) {
+		if (databaseMotor != null && (digest == null || digest.isEmpty()
+				|| MotorDigest.isDigestCompatible(databaseMotor, digest))) {
 			warnings.addAll(databaseWarnings);
 			return databaseMotor;
 		}
@@ -76,9 +78,9 @@ class MotorHandler extends AbstractElementHandler {
 			}
 		}
 
-		// Nothing worked: surface any database lookup warnings (e.g. missing motor).
+		// Retain the approximate database fallback for files without a usable embedded curve.
 		warnings.addAll(databaseWarnings);
-		return null;
+		return databaseMotor;
 	}
 
 	/**

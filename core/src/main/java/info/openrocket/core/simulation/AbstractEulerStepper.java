@@ -12,6 +12,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.WorldCoordinate;
@@ -188,7 +189,9 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		forces.setFrictionCD(0);
 		forces.setPressureCD(cd);
 		forces.setBaseCD(0);
-		store.forces = forces;
+
+		// Allow listeners to adjust recovery and tumble aerodynamics as they can in RK4/RK6.
+		store.forces = SimulationListenerHelper.firePostAerodynamicCalculation(status, forces);
 
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		

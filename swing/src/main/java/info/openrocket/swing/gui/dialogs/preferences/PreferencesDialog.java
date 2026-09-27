@@ -52,10 +52,11 @@ public class PreferencesDialog extends JDialog {
 	public final static int TAB_UI = 1;
 	public final static int TAB_DESIGN = 2;
 	public final static int TAB_SIMULATION = 3;
-	public final static int TAB_LAUNCH = 4;
-	public final static int TAB_UNITS = 5;
-	public final static int TAB_MATERIALS = 6;
-	public final static int TAB_GRAPHICS = 7;
+	public final static int TAB_WARNINGS = 4;
+	public final static int TAB_LAUNCH = 5;
+	public final static int TAB_UNITS = 6;
+	public final static int TAB_MATERIALS = 7;
+	public final static int TAB_GRAPHICS = 8;
 
 	private PreferencesDialog(BasicFrame parent, int selectedTab) {
 		// // Preferences
@@ -89,6 +90,10 @@ public class PreferencesDialog extends JDialog {
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Simulation"), null,
 				this.simulationPanel,
 				trans.get("pref.dlg.tab.Simulation"), TAB_SIMULATION);
+		// Warning threshold defaults
+		tabbedPane.insertTab(trans.get("SimulationConfigDialog.tab.Warnings"), null,
+				new WarningsPreferencesPanel(),
+				trans.get("SimulationConfigDialog.tab.Warnings"), TAB_WARNINGS);
 		// Launch options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Launch"), null,
 				new LaunchPreferencesPanel(), trans.get("pref.dlg.tab.Launch"), TAB_LAUNCH);
