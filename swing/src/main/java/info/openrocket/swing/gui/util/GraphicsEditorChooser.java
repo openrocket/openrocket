@@ -2,11 +2,15 @@ package info.openrocket.swing.gui.util;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileView;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.startup.Application;
 
 /**
@@ -18,7 +22,8 @@ public final class GraphicsEditorChooser {
 	}
 
 	public static Optional<String> chooseEditor(Component parentComponent) {
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = SystemInfo.getPlatform() == Platform.MAC_OS
+				? createMacApplicationChooser() : new JFileChooser();
 		File initialDirectory = determineInitialDirectory();
 		if (initialDirectory != null) {
 			chooser.setCurrentDirectory(initialDirectory);
@@ -33,6 +38,49 @@ public final class GraphicsEditorChooser {
 		}
 
 		return Optional.empty();
+	}
+
+	/**
+	 * Create a file chooser in which macOS application bundles can be selected like files.
+	 * Directory selection is enabled so the Open button accepts a selected bundle; any other selected
+	 * directory is opened instead of approved, matching the native file dialog.
+	 */
+	static JFileChooser createMacApplicationChooser() {
+		JFileChooser chooser = new JFileChooser() {
+			@Override
+			public void approveSelection() {
+				File selected = getSelectedFile();
+				if (selected != null && selected.isDirectory() && !isMacApplicationBundle(selected)) {
+					setCurrentDirectory(selected);
+					if (getUI() instanceof BasicFileChooserUI ui) {
+						ui.setFileName(null);
+					}
+					return;
+				}
+				super.approveSelection();
+			}
+		};
+		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		chooser.setFileView(createMacApplicationFileView());
+		return chooser;
+	}
+
+	/**
+	 * Create a file view that exposes macOS application bundles as selectable files.
+	 * Swing otherwise treats these directories as folders and opens them in the chooser.
+	 */
+	static FileView createMacApplicationFileView() {
+		return new FileView() {
+			@Override
+			public Boolean isTraversable(File file) {
+				return isMacApplicationBundle(file) ? Boolean.FALSE : null;
+			}
+		};
+	}
+
+	private static boolean isMacApplicationBundle(File file) {
+		return file != null && file.isDirectory()
+				&& file.getName().toLowerCase(Locale.ROOT).endsWith(".app");
 	}
 
 	/**
