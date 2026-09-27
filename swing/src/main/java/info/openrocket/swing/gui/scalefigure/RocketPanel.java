@@ -555,15 +555,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		is3d = true;
 		go2D();
 
-		rkt.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				updateExtras();
-				updateFigures();
-				scrollPane.componentResized(null);    // Triggers a resize so that when the rocket becomes smaller, the scrollPane updates its size
-			}
-		});
-
+		// A single listener, so that each rocket change recomputes the CP/CG and redraws the figures only once
 		rkt.addComponentChangeListener(new ComponentChangeListener() {
 			@Override
 			public void componentChanged(ComponentChangeEvent e) {
@@ -574,6 +566,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 					}
 				}
 				updateFigures();
+				scrollPane.componentResized(null);    // Triggers a resize so that when the rocket becomes smaller, the scrollPane updates its size
 			}
 		});
 
@@ -819,14 +812,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 */
 	private void createPanel() {
 		final Rocket rkt = document.getRocket();
-
-		rkt.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject eo) {
-				updateExtras();
-				updateFigures();
-			}
-		});
 
 		setLayout(new MigLayout("", "[shrink][grow]", "[shrink 0][grow][shrink 0]"));
 
