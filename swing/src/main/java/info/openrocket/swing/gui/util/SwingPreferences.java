@@ -199,8 +199,23 @@ public class SwingPreferences extends ApplicationPreferences {
 	 * Store the current OpenRocket version into the preferences to allow for preferences migration.
 	 */
 	private void storeVersion() {
-		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
-		cacheKeyAdded(PREFNODE, "OpenRocketVersion");
+		if (putIfChanged(PREFNODE, "OpenRocketVersion", BuildProperties.getVersion())) {
+			cacheKeyAdded(PREFNODE, "OpenRocketVersion");
+		}
+	}
+
+	/**
+	 * Store a value unless it is already stored. Writing to the preference store is slow on some platforms
+	 * (about a millisecond on macOS), even when the value does not change, while reading is cheap.
+	 *
+	 * @return true if the value was written
+	 */
+	private static boolean putIfChanged(Preferences node, String key, String value) {
+		if (value.equals(node.get(key, null))) {
+			return false;
+		}
+		node.put(key, value);
+		return true;
 	}
 
 	/**
@@ -618,8 +633,10 @@ public class SwingPreferences extends ApplicationPreferences {
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
-		getWindowsPreferences().put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
-		storeVersion();
+		// Called for every window move event, which includes showing a window at its stored position
+		if (putIfChanged(getWindowsPreferences(), "position." + c.getCanonicalName(), "" + p.x + "," + p.y)) {
+			storeVersion();
+		}
 	}
 
 	/**
@@ -670,13 +687,15 @@ public class SwingPreferences extends ApplicationPreferences {
 	}
 	
 	public void setWindowSize(Class<?> c, Dimension d) {
-		getWindowsPreferences().put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
-		storeVersion();
+		if (putIfChanged(getWindowsPreferences(), "size." + c.getCanonicalName(), "" + d.width + "," + d.height)) {
+			storeVersion();
+		}
 	}
 	
 	public void setWindowMaximized(Class<?> c) {
-		getWindowsPreferences().put("size." + c.getCanonicalName(), "max");
-		storeVersion();
+		if (putIfChanged(getWindowsPreferences(), "size." + c.getCanonicalName(), "max")) {
+			storeVersion();
+		}
 	}
 
 	public Integer getTableColumnWidth(String keyName, int columnIdx) {
