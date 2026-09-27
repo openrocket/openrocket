@@ -48,6 +48,9 @@ import java.util.List;
  */
 public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
+    // Initial share of the width given to the component tree, and the largest share it may take to fit its contents
+    private static final double MIN_INITIAL_TREE_FRACTION = 0.4;
+    private static final double MAX_INITIAL_TREE_FRACTION = 0.7;
     private final Component tree;
 
     public DesignPanel(final BasicFrame parent, final OpenRocketDocument document, final ComponentTree tree) {
@@ -224,6 +227,28 @@ public class DesignPanel extends JSplitPane {
         panel.add(scroll, "grow");
 
         this.setRightComponent(panel);
+    }
+
+    /**
+     * Set the initial divider location so that the component tree shows its full component names where possible.
+     * Must be called after the panel has been laid out.
+     */
+    public void setInitialDividerLocation() {
+        int treeWidth = getInsets().left + getLeftComponent().getPreferredSize().width;
+        setDividerLocation(getInitialDividerLocation(getWidth(), treeWidth));
+    }
+
+    /**
+     * Returns the initial divider location: at least MIN_INITIAL_TREE_FRACTION of the width, widened to fit the
+     * tree's preferred width, but never more than MAX_INITIAL_TREE_FRACTION so the component buttons remain usable.
+     * @param width the width of the split pane
+     * @param treeWidth the preferred width of the component tree panel
+     * @return the divider location
+     */
+    static int getInitialDividerLocation(int width, int treeWidth) {
+        int minLocation = (int) (width * MIN_INITIAL_TREE_FRACTION);
+        int maxLocation = (int) (width * MAX_INITIAL_TREE_FRACTION);
+        return Math.max(minLocation, Math.min(treeWidth, maxLocation));
     }
 
     /**
