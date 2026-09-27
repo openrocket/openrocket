@@ -18,6 +18,7 @@ import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrato
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -32,7 +33,7 @@ public class HUDPanel extends JPanel {
 
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
-	private Scene3DOrchestrator scene3DOrchestrator;
+	private volatile Scene3DOrchestrator scene3DOrchestrator;
 	private final RocketInfo rocketInfo;
 	private volatile boolean panModeEnabled;
 
@@ -82,20 +83,7 @@ public class HUDPanel extends JPanel {
 			return;
 		}
 
-		rocketChangeListener = e -> {
-			refreshRocketInfo();
-
-			// Rate limit repaints to avoid excessive updates
-			long currentTime = System.currentTimeMillis();
-			if (currentTime - lastRepaintTime >= MIN_REPAINT_INTERVAL) {
-				needsRepaint = true;
-				lastRepaintTime = currentTime;
-				// Notify GL panel if set
-				if (hudUpdateListener != null) {
-					hudUpdateListener.markHudForUpdate();
-				}
-			}
-		};
+		rocketChangeListener = e -> onRocketChanged(false);
 
 		documentChangeListener = event -> rocketChangeListener.stateChanged(event);
 		componentChangeListener = e -> {
@@ -112,8 +100,37 @@ public class HUDPanel extends JPanel {
 		// Only listen for significant component changes
 		rocket.addComponentChangeListener(componentChangeListener);
 
-		refreshRocketInfo();
+		onRocketChanged(true);
 		needsRepaint = true;
+	}
+
+	/**
+	 * Recomputes the rocket information on the EDT. Simulation workers fire document events and the GL thread
+	 * attaches the scene from their own threads, while the aerodynamic calculator is shared and not thread-safe.
+	 *
+	 * @param forceRepaint whether to request a HUD repaint regardless of the rate limit
+	 */
+	private void onRocketChanged(boolean forceRepaint) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> onRocketChanged(forceRepaint));
+			return;
+		}
+		if (scene3DOrchestrator == null) {
+			return;
+		}
+
+		refreshRocketInfo();
+
+		// Rate limit repaints to avoid excessive updates
+		long currentTime = System.currentTimeMillis();
+		if (forceRepaint || currentTime - lastRepaintTime >= MIN_REPAINT_INTERVAL) {
+			needsRepaint = true;
+			lastRepaintTime = currentTime;
+			// Notify GL panel if set
+			if (hudUpdateListener != null) {
+				hudUpdateListener.markHudForUpdate();
+			}
+		}
 	}
 
 	private void detachListeners() {
