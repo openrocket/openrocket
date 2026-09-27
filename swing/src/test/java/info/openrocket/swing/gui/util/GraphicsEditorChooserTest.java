@@ -88,7 +88,8 @@ class GraphicsEditorChooserTest {
 		clickOpen(chooser);
 
 		assertNull(command.get());
-		assertEquals(ordinaryDirectory, chooser.getCurrentDirectory());
+		// Compare canonical files because Windows may report the temp directory as an 8.3 short path
+		assertEquals(ordinaryDirectory.getCanonicalFile(), chooser.getCurrentDirectory().getCanonicalFile());
 	}
 
 	private static void clickOpen(JFileChooser chooser) {
