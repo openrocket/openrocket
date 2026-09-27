@@ -462,6 +462,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		}
 		renderingEnabled = true;
 		glFailureLogged = false;
+		hudPanel.setActive(true);
 		SwingUtilities.invokeLater(() -> {
 			if (!renderingEnabled || disposed) {
 				return;
@@ -490,6 +491,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	 */
 	public void stopRendering() {
 		renderingEnabled = false;
+		hudPanel.setActive(false);
 		RENDER_SCHEDULER.unregister(this);
 	}
 

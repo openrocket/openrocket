@@ -7,8 +7,6 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.events.DocumentChangeListener;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.ComponentChangeListener;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
@@ -38,9 +36,10 @@ public class HUDPanel extends JPanel {
 	private volatile boolean panModeEnabled;
 
 	private volatile boolean needsRepaint = true;
+	private volatile boolean active = true;
+	private volatile boolean rocketInfoStale = false;
 	private StateChangeListener rocketChangeListener;
 	private DocumentChangeListener documentChangeListener;
-	private ComponentChangeListener componentChangeListener;
 
 	// Rate limiting for change events
 	private long lastRepaintTime = 0;
@@ -83,22 +82,14 @@ public class HUDPanel extends JPanel {
 			return;
 		}
 
-		rocketChangeListener = e -> onRocketChanged(false);
-
-		documentChangeListener = event -> rocketChangeListener.stateChanged(event);
-		componentChangeListener = e -> {
-			if (e.getType() != ComponentChangeEvent.MASS_CHANGE) {
-				rocketChangeListener.stateChanged(e);
-			}
-		};
-
-		rocket.addChangeListener(rocketChangeListener);
+		// The document forwards every rocket change, so listening to both would refresh twice per change
 		if (document != null) {
+			documentChangeListener = event -> onRocketChanged(false);
 			document.addDocumentChangeListener(documentChangeListener);
+		} else {
+			rocketChangeListener = e -> onRocketChanged(false);
+			rocket.addChangeListener(rocketChangeListener);
 		}
-
-		// Only listen for significant component changes
-		rocket.addComponentChangeListener(componentChangeListener);
 
 		onRocketChanged(true);
 		needsRepaint = true;
@@ -118,7 +109,12 @@ public class HUDPanel extends JPanel {
 		if (scene3DOrchestrator == null) {
 			return;
 		}
+		if (!active) {
+			rocketInfoStale = true;
+			return;
+		}
 
+		rocketInfoStale = false;
 		refreshRocketInfo();
 
 		// Rate limit repaints to avoid excessive updates
@@ -142,9 +138,18 @@ public class HUDPanel extends JPanel {
 			document.removeDocumentChangeListener(documentChangeListener);
 			documentChangeListener = null;
 		}
-		if (componentChangeListener != null) {
-			rocket.removeComponentChangeListener(componentChangeListener);
-			componentChangeListener = null;
+	}
+
+	/**
+	 * Resumes or pauses the rocket information updates. While the 3D view is hidden, rocket changes only mark the
+	 * information as stale, so that editing in the 2D view does not also pay for the HUD's CP calculation.
+	 *
+	 * @param active whether the HUD is shown
+	 */
+	public void setActive(boolean active) {
+		this.active = active;
+		if (active && rocketInfoStale) {
+			onRocketChanged(true);
 		}
 	}
 
