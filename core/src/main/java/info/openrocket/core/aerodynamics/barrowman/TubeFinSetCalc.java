@@ -155,7 +155,6 @@ public class TubeFinSetCalc extends TubeCalc {
 		}
 
 		// Calculate CNa
-		log.debug("body radius " + bodyRadius + ", ref area " + conditions.getRefArea());
 		final double cna = cnaconst / conditions.getRefArea();
 
 		// Calculate CP position
@@ -198,8 +197,6 @@ public class TubeFinSetCalc extends TubeCalc {
 		//		}
 		forces.setCside(0);
 		forces.setCyaw(0);
-
-		log.debug(forces.toString());
 	}
 
 	/**
