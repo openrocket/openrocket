@@ -16,7 +16,8 @@ public class AnnotationFinderImpl implements AnnotationFinder {
 	@Override
 	public List<Class<?>> findAnnotatedTypes(Class<? extends Annotation> annotation) {
 		List<Class<?>> classes;
-		try (ScanResult scanResult = new ClassGraph().enableAllInfo().scan()) {
+		// Only class and annotation info is needed; field and method info make the startup scan about twice as slow
+		try (ScanResult scanResult = new ClassGraph().enableClassInfo().enableAnnotationInfo().scan()) {
 			classes = new ArrayList<>(scanResult.getClassesWithAnnotation(annotation.getName()).loadClasses());
 		}
 		return classes;
