@@ -13,12 +13,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.prefs.BackingStoreException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -73,46 +76,50 @@ public class PreferencesDialog extends JDialog {
 				"[grow][]"));
 
 		JTabbedPane tabbedPane = new JTabbedPane();
+		// Scroll the tabs horizontally instead of wrapping them into multiple rows when the dialog is too narrow
+		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		panel.add(tabbedPane, "grow, wrap");
 
 		// General options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.General"), null,
-				new GeneralPreferencesPanel(this),
+				createTabScrollPane(new GeneralPreferencesPanel(this)),
 				trans.get("pref.dlg.tab.General.ttip"), TAB_GENERAL);
 		// File options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Files"), null,
-				new FilesPreferencesPanel(this),
+				createTabScrollPane(new FilesPreferencesPanel(this)),
 				trans.get("pref.dlg.tab.Files.ttip"), TAB_FILES);
 		// UI options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.UI"), null,
-				new UIPreferencesPanel(this),
+				createTabScrollPane(new UIPreferencesPanel(this)),
 				trans.get("pref.dlg.tab.UI.ttip"), TAB_UI);
 		// Designer options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Design"), null,
-				new DesignPreferencesPanel(), trans.get("pref.dlg.tab.Design"), TAB_DESIGN);
+				createTabScrollPane(new DesignPreferencesPanel()),
+				trans.get("pref.dlg.tab.Design"), TAB_DESIGN);
 		// Simulation options
 		this.simulationPanel = new SimulationPreferencesPanel();
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Simulation"), null,
-				this.simulationPanel,
+				createTabScrollPane(this.simulationPanel),
 				trans.get("pref.dlg.tab.Simulation"), TAB_SIMULATION);
 		// Warning threshold defaults
 		tabbedPane.insertTab(trans.get("SimulationConfigDialog.tab.Warnings"), null,
-				new WarningsPreferencesPanel(),
+				createTabScrollPane(new WarningsPreferencesPanel()),
 				trans.get("SimulationConfigDialog.tab.Warnings"), TAB_WARNINGS);
 		// Launch options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Launch"), null,
-				new LaunchPreferencesPanel(), trans.get("pref.dlg.tab.Launch"), TAB_LAUNCH);
+				createTabScrollPane(new LaunchPreferencesPanel()),
+				trans.get("pref.dlg.tab.Launch"), TAB_LAUNCH);
 		// Units and Default units
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Units"), null,
-				new UnitsPreferencesPanel(this),
+				createTabScrollPane(new UnitsPreferencesPanel(this)),
 				trans.get("pref.dlg.tab.Defaultunits"), TAB_UNITS);
 		// Materials and Custom materials
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Materials"), null,
-				new MaterialEditPanel(parent.getRocketPanel().getDocument()),
+				createTabScrollPane(new MaterialEditPanel(parent.getRocketPanel().getDocument())),
 				trans.get("pref.dlg.tab.Custommaterials"), TAB_MATERIALS);
 		// Graphics selection
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.Graphics"), null,
-				new GraphicsPreferencesPanel(this),
+				createTabScrollPane(new GraphicsPreferencesPanel(this)),
 				trans.get("pref.dlg.tab.Graphics"), TAB_GRAPHICS);
 
 		// Default Colors Preferences
@@ -206,6 +213,18 @@ public class PreferencesDialog extends JDialog {
 
 	public BasicFrame getParentFrame() {
 		return parentFrame;
+	}
+
+	/**
+	 * Wraps a tab's content in a scroll pane, so the content can be scrolled instead of being cut off when
+	 * the dialog is smaller than the content.
+	 */
+	private static JScrollPane createTabScrollPane(JComponent content) {
+		JScrollPane scrollPane = new JScrollPane(content);
+		scrollPane.setBorder(BorderFactory.createEmptyBorder());
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		return scrollPane;
 	}
 
 	private void closeDialog(boolean storeChanges) {
