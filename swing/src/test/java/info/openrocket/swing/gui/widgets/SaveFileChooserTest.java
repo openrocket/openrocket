@@ -72,7 +72,8 @@ public class SaveFileChooserTest extends BaseTestCase {
 	 */
 	@Test
 	public void testMultipleTargetsSelectDirectory() {
-		File directory = tempDirectory.resolve("export?").toFile();
+		// java.io.File accepts the name on Windows, where Path.resolve rejects the illegal character
+		File directory = new File(tempDirectory.toFile(), "export?");
 		SaveFileChooser chooser = new SaveFileChooser();
 		RecordingApproveContext context = new RecordingApproveContext();
 
