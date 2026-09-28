@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.SaveSimulationDataMode;
 import info.openrocket.core.document.StorageOptions.FileType;
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.l10n.Translator;
@@ -45,8 +46,10 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			case OPENROCKET:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"ork");
 				this.setDialogTitle(trans.get("saveAs.openrocket.title"));
-				StorageOptionChooser storageChooser = new StorageOptionChooser(document, document.getDefaultStorageOptions());
-				this.setOptionsPanel(storageChooser);
+				// Without a fixed choice in the preferences, ask which simulated data to store
+				if (prefs.getSaveSimulationDataMode() == SaveSimulationDataMode.ASK) {
+					this.setOptionsPanel(new StorageOptionChooser(document, document.getDefaultStorageOptions()));
+				}
 				this.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 				break;

@@ -27,6 +27,7 @@ import info.openrocket.swing.startup.MotorDatabaseUpdateChecker;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
+import info.openrocket.core.document.SaveSimulationDataMode;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -295,6 +296,15 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(openRecentOnStartupBox,"spanx, wrap");
+
+		//// Simulation data to store when saving
+		this.add(new JLabel(trans.get("pref.dlg.lbl.SaveSimulationData")), "spanx, split 2, gapright rel");
+		final JComboBox<SaveSimulationDataMode> saveSimulationDataCombo = new JComboBox<>(SaveSimulationDataMode.values());
+		saveSimulationDataCombo.setToolTipText(trans.get("pref.dlg.lbl.SaveSimulationData.ttip"));
+		saveSimulationDataCombo.setSelectedItem(preferences.getSaveSimulationDataMode());
+		saveSimulationDataCombo.addActionListener(e -> preferences.setSaveSimulationDataMode(
+				(SaveSimulationDataMode) saveSimulationDataCombo.getSelectedItem()));
+		this.add(saveSimulationDataCombo, "wrap");
 
 		//// Save RASAero Format warning dialog
 		final JCheckBox rasaeroWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RASAeroWarning"));

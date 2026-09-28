@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,6 +17,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.SaveSimulationDataMode;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.l10n.Translator;
@@ -37,13 +39,15 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 	private JSpinner timeSpinner;
 
 	private JLabel infoLabel;
+
+	private final JCheckBox alwaysUseBox;
 	
 	
 	private boolean artificialEvent = false;
 	private static final Translator trans = Application.getTranslator();
 	
 	public StorageOptionChooser(OpenRocketDocument doc, StorageOptions opts) {
-		super(new MigLayout());
+		super(new MigLayout("ins 0"));
 		
 		this.document = doc;
 		
@@ -56,11 +60,12 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 		};
 		
 
+		JPanel optionsPanel = new JPanel(new MigLayout());
 		ButtonGroup buttonGroup = new ButtonGroup();
 		String tip;
 		
 		//// Simulated data to store:
-		this.add(new JLabel(trans.get("StorageOptChooser.lbl.Simdatatostore")), "spanx, wrap unrel");
+		optionsPanel.add(new JLabel(trans.get("StorageOptChooser.lbl.Simdatatostore")), "spanx, wrap unrel");
 
 		//// All simulated data
 		allButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Allsimdata"));
@@ -70,7 +75,7 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 				trans.get("StorageOptChooser.lbl.longA2"));
 		buttonGroup.add(allButton);
 		allButton.addActionListener(actionUpdater);
-		this.add(allButton, "spanx, wrap rel");
+		optionsPanel.add(allButton, "spanx, wrap rel");
 				
 		//// Only summary data
 		noneButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Onlysummarydata"));
@@ -80,18 +85,24 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 				trans.get("StorageOptChooser.lbl.longC2"));
 		buttonGroup.add(noneButton);
 		noneButton.addActionListener(actionUpdater);
-		this.add(noneButton, "spanx, wrap 20lp");
+		optionsPanel.add(noneButton, "spanx, wrap 20lp");
 		
 		// File size info label
 		infoLabel = new JLabel("");
 		infoLabel.setToolTipText(trans.get("StorageOptChooser.lbl.longD1"));
-		this.add(infoLabel, "spanx");
+		optionsPanel.add(infoLabel, "spanx");
 		
 		
-		this.setBorder(BorderFactory.createCompoundBorder(
+		optionsPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(0, 10, 0, 0),
 				//// Save options
 				BorderFactory.createTitledBorder(trans.get("StorageOptChooser.ttip.Saveopt"))));
+		this.add(optionsPanel, "growx, wrap");
+
+		//// Always use this choice
+		alwaysUseBox = new JCheckBox(trans.get("StorageOptChooser.checkbox.alwaysUse"));
+		alwaysUseBox.setToolTipText(trans.get("StorageOptChooser.checkbox.alwaysUse.ttip"));
+		this.add(alwaysUseBox, "gapleft 10px");
 		
 		loadOptions(opts);
 	}
@@ -115,6 +126,17 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 		opts.setExplicitlySet(true);
 	}
 
+	/**
+	 * Stores the selected choice as the choice to use for all saves, if the user asked to always use it.
+	 *
+	 * @param preferences the application preferences
+	 */
+	public void storePreferences(ApplicationPreferences preferences) {
+		if (alwaysUseBox.isSelected()) {
+			preferences.setSaveSimulationDataMode(SaveSimulationDataMode.of(allButton.isSelected()));
+		}
+	}
+
 	private void updateInfoLabel() {
 		if (allButton.isSelected()) {
 			infoLabel.setText(trans.get("StorageOptChooser.lbl.info1"));
@@ -135,6 +157,12 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 	 */
 	public static boolean verifyStorageOptions(OpenRocketDocument document, JFrame parent) {
 		StorageOptions options = document.getDefaultStorageOptions();
+		ApplicationPreferences preferences = Application.getPreferences();
+
+		if (preferences.getSaveSimulationDataMode().applyTo(options)) {
+			// User has chosen to always store the same data
+			return true;
+		}
 		
 		if (options.isExplicitlySet()) {
 			// User has explicitly set the values, save as is
@@ -183,11 +211,13 @@ public class StorageOptionChooser extends JPanel implements OptionChooser {
 		}
 		
 		chooser.storeOptions(options);
+		chooser.storePreferences(preferences);
 		return true;
 	}
 
 	@Override
 	public void storeOptions(OpenRocketDocument document, ApplicationPreferences preferences) {
 		this.storeOptions(document.getDefaultStorageOptions());
+		this.storePreferences(preferences);
 	}
 }
