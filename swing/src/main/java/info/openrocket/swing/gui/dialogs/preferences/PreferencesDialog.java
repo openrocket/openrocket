@@ -49,14 +49,15 @@ public class PreferencesDialog extends JDialog {
 	private SimulationPreferencesPanel simulationPanel = null;
 
 	public final static int TAB_GENERAL = 0;
-	public final static int TAB_UI = 1;
-	public final static int TAB_DESIGN = 2;
-	public final static int TAB_SIMULATION = 3;
-	public final static int TAB_WARNINGS = 4;
-	public final static int TAB_LAUNCH = 5;
-	public final static int TAB_UNITS = 6;
-	public final static int TAB_MATERIALS = 7;
-	public final static int TAB_GRAPHICS = 8;
+	public final static int TAB_FILES = 1;
+	public final static int TAB_UI = 2;
+	public final static int TAB_DESIGN = 3;
+	public final static int TAB_SIMULATION = 4;
+	public final static int TAB_WARNINGS = 5;
+	public final static int TAB_LAUNCH = 6;
+	public final static int TAB_UNITS = 7;
+	public final static int TAB_MATERIALS = 8;
+	public final static int TAB_GRAPHICS = 9;
 
 	private PreferencesDialog(BasicFrame parent, int selectedTab) {
 		// // Preferences
@@ -78,6 +79,10 @@ public class PreferencesDialog extends JDialog {
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.General"), null,
 				new GeneralPreferencesPanel(this),
 				trans.get("pref.dlg.tab.General.ttip"), TAB_GENERAL);
+		// File options
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Files"), null,
+				new FilesPreferencesPanel(this),
+				trans.get("pref.dlg.tab.Files.ttip"), TAB_FILES);
 		// UI options
 		tabbedPane.insertTab(trans.get("pref.dlg.tab.UI"), null,
 				new UIPreferencesPanel(this),
