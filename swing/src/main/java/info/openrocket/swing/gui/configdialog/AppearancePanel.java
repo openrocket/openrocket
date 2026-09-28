@@ -235,7 +235,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	 * @param order component traversal order object of the component config dialog
 	 */
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c, final JDialog parent, List<Component> order) {
-		super(new MigLayout("fillx", "[grow]"));
+		super(new MigLayout("fillx, ins rel", "[grow]"));
 
 		this.order = order;
 		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
@@ -338,7 +338,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		final JButton saveAsDefault;
 
 		// 2D Figure Style Section
-		final JPanel panel = new JPanel(new MigLayout("fillx, ins unrel unrel rel unrel", "[150][grow][150][grow]"));
+		final JPanel panel = new JPanel(new MigLayout("fillx, ins 0 rel 0 rel", "[150][grow][150][grow]"));
 		final TitledBorder border = BorderFactory.createTitledBorder(trans.get("AppearanceCfg.TitledBorder.2DFigureStyle"));
 		panel.setBorder(border);
 		add(panel, "growx, pushx, wrap");
@@ -423,7 +423,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	private void add3DFigureWidgets(OpenRocketDocument document, RocketComponent c, JDialog parent,
 									List<Component> order, boolean allInsideColor) {
 		// 3D Figure Style Section
-		final JPanel panel = new JPanel(new MigLayout("fillx, ins unrel unrel rel unrel", "[150][grow][150][grow]"));
+		final JPanel panel = new JPanel(new MigLayout("fillx, ins 0 rel 0 rel", "[150][grow][150][grow]"));
 		final TitledBorder border = BorderFactory.createTitledBorder(trans.get("AppearanceCfg.TitledBorder.3DAppearance"));
 		panel.setBorder(border);
 		add(panel, "growx, pushx, wrap");
