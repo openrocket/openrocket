@@ -15,7 +15,6 @@ import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -230,11 +229,11 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 			}
 		}
 
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION)
 			return false;
 
 		File file = chooser.getSelectedFile();
@@ -242,7 +241,7 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 			return false;
 
 		file = FileHelper.forceExtension(file, "csv");
-		if (!FileHelper.confirmWrite(file, this)) {
+		if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 			return false;
 		}
 

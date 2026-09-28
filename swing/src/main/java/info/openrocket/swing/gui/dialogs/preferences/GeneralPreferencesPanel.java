@@ -13,7 +13,6 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,7 +27,6 @@ import info.openrocket.swing.startup.MotorDatabaseUpdateChecker;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
-import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -43,6 +41,11 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.widgets.DropdownButton;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
+
+import com.formdev.flatlaf.util.SystemFileChooser.FileFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 
 
 @SuppressWarnings("serial")
@@ -123,45 +126,15 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(field, "w 100px, gapright unrel, spanx, growx, split");
 		
 		//// Add button
-		JButton button = new JButton(trans.get("pref.dlg.but.add"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setAcceptAllFileFilterUsed(false);
-				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-				SimpleFileFilter filter =
-						new SimpleFileFilter(
-								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
-								trans.get("pref.dlg.Allthrustcurvefiles"),
-								true, "eng", "rse", "zip", "db");
-				chooser.addChoosableFileFilter(filter);
+		JButton button = createAddPathsButton(field, "Adding user thrust curve: ",
+				//// All thrust curve files (*.eng; *.rse; *.zip; *.db)
+				new FileNameExtensionFilter(trans.get("pref.dlg.Allthrustcurvefiles"), "eng", "rse", "zip", "db"),
 				//// RASP motor files (*.eng)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RASPfiles"),
-						true, "eng"));
+				new FileNameExtensionFilter(trans.get("pref.dlg.RASPfiles"), "eng"),
 				//// RockSim engine files (*.rse)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RockSimfiles"),
-						true, "rse"));
+				new FileNameExtensionFilter(trans.get("pref.dlg.RockSimfiles"), "rse"),
 				//// ZIP archives (*.zip)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ZIParchives"),
-						true, "zip"));
-				chooser.setFileFilter(filter);
-				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				
-				//// Add
-				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					log.info(Markers.USER_MARKER, "Adding user thrust curve: " + chooser.getSelectedFile());
-					String text = field.getText().trim();
-					if (text.length() > 0) {
-						text += ";";
-					}
-					text += chooser.getSelectedFile().getAbsolutePath();
-					field.setText(text);
-					Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
-				}
-			}
-		});
+				new FileNameExtensionFilter(trans.get("pref.dlg.ZIParchives"), "zip"));
 		this.add(button, "gapright unrel");
 		
 		//// Reset button
@@ -219,38 +192,9 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(fieldCompPres, "w 100px, gapright unrel, spanx, growx, split");
 
 		//// Add button
-		button = new JButton(trans.get("pref.dlg.but.add"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-				chooser.setAcceptAllFileFilterUsed(false);
-				SimpleFileFilter filter =
-						new SimpleFileFilter(
-								trans.get("pref.dlg.AllComponentPresetfiles"),
-								true, "orc");
-				chooser.addChoosableFileFilter(filter);
+		button = createAddPathsButton(fieldCompPres, "Adding component preset file: ",
 				//// OpenRocket component files (*.orc)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ORCfiles"),
-						true, "orc"));
-				chooser.setFileFilter(filter);
-				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-
-				//// Add
-				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					log.info(Markers.USER_MARKER, "Adding component preset file: " + chooser.getSelectedFile());
-					String text = fieldCompPres.getText().trim();
-					if (text.length() > 0) {
-						text += ";";
-					}
-					text += chooser.getSelectedFile().getAbsolutePath();
-					fieldCompPres.setText(text);
-					Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
-				}
-			}
-		});
+				new FileNameExtensionFilter(trans.get("pref.dlg.ORCfiles"), "orc"));
 		this.add(button, "gapright unrel");
 
 		//// Reset button
@@ -464,5 +408,60 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		buttonPanel.add(resetAllPreferences, "pushx, right, gaptop 20lp, wrap");
 
 		this.add(buttonPanel, "spanx, growx, pushy, bottom, wrap");
+	}
+
+	/**
+	 * Create an "Add" button that lets the user select files or a folder, and appends the selected paths to
+	 * the semicolon-separated list in the text field.
+	 *
+	 * @param field the text field containing the list of paths
+	 * @param logMessage the log message prefix for each added path
+	 * @param filters the file filters for selecting files; the first one is selected by default
+	 * @return the button
+	 */
+	private JButton createAddPathsButton(JTextField field, String logMessage, FileFilter... filters) {
+		DropdownButton button = new DropdownButton(trans.get("pref.dlg.but.add"));
+
+		//// Files...
+		button.addMenuItem(trans.get("pref.dlg.but.addFiles"), e -> {
+			NativeFileChooser chooser = new NativeFileChooser();
+			chooser.setAcceptAllFileFilterUsed(false);
+			for (FileFilter filter : filters) {
+				chooser.addChoosableFileFilter(filter);
+			}
+			chooser.setFileFilter(filters[0]);
+			chooser.setMultiSelectionEnabled(true);
+			addSelectedPaths(chooser, field, logMessage);
+		});
+
+		//// Folder...
+		button.addMenuItem(trans.get("pref.dlg.but.addFolder"), e -> {
+			NativeFileChooser chooser = new NativeFileChooser();
+			chooser.setFileSelectionMode(NativeFileChooser.DIRECTORIES_ONLY);
+			addSelectedPaths(chooser, field, logMessage);
+		});
+
+		return button;
+	}
+
+	private void addSelectedPaths(NativeFileChooser chooser, JTextField field, String logMessage) {
+		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
+
+		//// Add
+		int returnVal = chooser.showDialog(this, trans.get("pref.dlg.Add"));
+		if (returnVal != NativeFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		StringBuilder text = new StringBuilder(field.getText().trim());
+		for (File file : chooser.getSelectedFiles()) {
+			log.info(Markers.USER_MARKER, logMessage + file);
+			if (text.length() > 0) {
+				text.append(';');
+			}
+			text.append(file.getAbsolutePath());
+		}
+		field.setText(text.toString());
+		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
 	}
 }

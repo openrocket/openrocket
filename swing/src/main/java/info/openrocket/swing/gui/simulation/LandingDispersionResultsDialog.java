@@ -33,7 +33,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -843,7 +842,7 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	}
 
 	private void exportPlot() {
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setDialogTitle(trans.get("LandingDispersionResultsDlg.exportPlot.title"));
 		chooser.setFileFilter(FileHelper.PNG_FILTER);
 		chooser.setAcceptAllFileFilterUsed(false);
@@ -856,12 +855,12 @@ public final class LandingDispersionResultsDialog extends JDialog {
 				: body == null ? simulationName + "-landing-dispersion"
 						: simulationName + "-" + body.branchName() + "-landing-dispersion";
 		chooser.setSelectedFile(new File(safeFileName(plotName) + ".png"));
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION) {
 			return;
 		}
 
 		File file = FileHelper.forceExtension(chooser.getSelectedFile(), "png");
-		if (!FileHelper.confirmWrite(file, this)) {
+		if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 			return;
 		}
 
@@ -894,19 +893,19 @@ public final class LandingDispersionResultsDialog extends JDialog {
 	}
 
 	private void exportCsv() {
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setDialogTitle(trans.get("LandingDispersionResultsDlg.export.title"));
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		String safeName = safeFileName(simulationName);
 		chooser.setSelectedFile(new File(safeName + "-monte-carlo.csv"));
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION) {
 			return;
 		}
 
 		File file = FileHelper.forceExtension(chooser.getSelectedFile(), "csv");
-		if (!FileHelper.confirmWrite(file, this)) {
+		if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 			return;
 		}
 

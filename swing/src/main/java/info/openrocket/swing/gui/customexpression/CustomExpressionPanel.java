@@ -11,12 +11,11 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -30,6 +29,7 @@ import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.RocketLoadException;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
@@ -87,7 +87,7 @@ public class CustomExpressionPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Create a file chooser
-				final JFileChooser fc = new JFileChooser();
+				final NativeFileChooser fc = new NativeFileChooser();
 				if (doc.getFile() != null) {
 					fc.setCurrentDirectory(doc.getFile().getParentFile());
 				}
@@ -95,7 +95,7 @@ public class CustomExpressionPanel extends JPanel {
 				fc.setAcceptAllFileFilterUsed(false);
 				
 				int returnVal = fc.showOpenDialog(CustomExpressionPanel.this);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
+				if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 					File importFile = fc.getSelectedFile();
 					log.info("User selected a file to import expressions from " + fc.getSelectedFile().toString());
 					

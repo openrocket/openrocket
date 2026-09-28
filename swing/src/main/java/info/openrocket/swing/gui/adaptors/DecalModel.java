@@ -17,7 +17,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 
 import info.openrocket.core.appearance.Appearance;
@@ -37,6 +36,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 public class DecalModel extends AbstractListModel<DecalImage> implements ComboBoxModel<DecalImage> {
 	private static final long serialVersionUID = -3922419344990421156L;
@@ -111,11 +111,11 @@ public class DecalModel extends AbstractListModel<DecalImage> implements ComboBo
 			public void run() {
 				File current = lastImageDir;
 
-				JFileChooser fc = new JFileChooser(current);
+				NativeFileChooser fc = new NativeFileChooser(current);
 				fc.setFileFilter(FileHelper.getImageFileFilter());
 				fc.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 				int action = fc.showOpenDialog(SwingUtilities.getWindowAncestor(parent));
-				if (action == JFileChooser.APPROVE_OPTION) {
+				if (action == NativeFileChooser.APPROVE_OPTION) {
 					Application.getPreferences().setDefaultDirectory(fc.getCurrentDirectory());
 					File file = fc.getSelectedFile();
 					lastImageDir = file.getParentFile();

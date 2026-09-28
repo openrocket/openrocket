@@ -49,7 +49,6 @@ import java.util.Set;
 
 public class OBJOptionChooser extends JPanel implements OptionChooser {
     private static final Translator trans = Application.getTranslator();
-    private final JComponent parent;
 
     // Widgets
     private final JButton opt3DPrint;
@@ -83,10 +82,8 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
         initColors();
     }
 
-    public OBJOptionChooser(JComponent parent, OBJExportOptions opts, List<RocketComponent> selectedComponents, Rocket rocket) {
+    public OBJOptionChooser(OBJExportOptions opts, List<RocketComponent> selectedComponents, Rocket rocket) {
         super(new MigLayout("hidemode 3"));
-
-        this.parent = parent;
 
         this.selectedComponents = selectedComponents;
         this.rocket = rocket;
@@ -603,16 +600,16 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
 
     private void youMayIgnoreThisCode() {
         if (totallyNormalCounter == 4) {
-            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg"),
+            JOptionPane.showMessageDialog(this, trans.get("OBJOptionChooser.easterEgg.msg"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
         } else if (totallyNormalCounter == 15) {
-            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg2"),
+            JOptionPane.showMessageDialog(this, trans.get("OBJOptionChooser.easterEgg.msg2"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
         } else if (totallyNormalCounter == 25) {
-            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg3"),
+            JOptionPane.showMessageDialog(this, trans.get("OBJOptionChooser.easterEgg.msg3"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
         } else if (totallyNormalCounter == 40) {
-            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg4"),
+            JOptionPane.showMessageDialog(this, trans.get("OBJOptionChooser.easterEgg.msg4"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
             totallyNormalCounter = 0;
         }
