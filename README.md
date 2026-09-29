@@ -152,6 +152,66 @@ You can view the full list of contributors [here](https://github.com/openrocket/
 Crowdin translators:
 
 <!-- CROWDIN-CONTRIBUTORS-START -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/sibo.vangool"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/13388561/medium/a0b098faad64d4bda30be68206e5a4a8_default.png" />
+          <br />
+          <sub><b>Sibo Van Gool</b></sub>
+          <br />
+          <sub><b>(sibo.vangool)</b></sub></a>
+        <br />
+        <sub><b>164104 words</b></sub>
+        <br /><sub><b><code title="Arabic">ar</code></b>, <b><code title="Chinese Simplified">zh-CN</code></b>, <b><code title="Czech">cs</code></b>, <b><code title="Dutch">nl</code></b>, <b><code title="French">fr</code></b>, <b><code title="Italian">it</code></b>, <b><code title="Japanese">ja</code></b>, <b><code title="Polish">pl</code></b>, <b><code title="Portuguese">pt-PT</code></b>, <b><code title="Russian">ru</code></b>, <b><code title="Spanish">es-ES</code></b>, <b><code title="Turkish">tr</code></b>, <b><code title="Ukrainian">uk</code></b></sub>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/3Dmachine"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/14111187/medium/fe245408c845d689664e2daace62d768_default.png" />
+          <br />
+          <sub><b>3Dmachine</b></sub></a>
+        <br />
+        <sub><b>29030 words</b></sub>
+        <br /><sub><b><code title="French">fr</code></b>, <b><code title="Spanish">es-ES</code></b></sub>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/guvendaghan01"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17816801/medium/aea8419d4c08c5191c4a1bd5c123ccf9.jpeg" />
+          <br />
+          <sub><b>Yüksel Dağhan Güven</b></sub>
+          <br />
+          <sub><b>(guvendaghan01)</b></sub></a>
+        <br />
+        <sub><b>3355 words</b></sub>
+        <br /><sub><b><code title="Turkish">tr</code></b></sub>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/Fabosch"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17817441/medium/1c11aab50580e920465faba3b24fb172_default.png" />
+          <br />
+          <sub><b>Fabosch</b></sub></a>
+        <br />
+        <sub><b>1752 words</b></sub>
+        <br /><sub><b><code title="Czech">cs</code></b></sub>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/guneyozsan"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17797515/medium/f4204daa851d133bd1e5f7aae165b85c_default.png" />
+          <br />
+          <sub><b>guneyozsan</b></sub></a>
+        <br />
+        <sub><b>908 words</b></sub>
+        <br /><sub><b><code title="Turkish">tr</code></b></sub>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/hakucin"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17681278/medium/86142d38b4b112b5280a97ac36d31726.png" />
+          <br />
+          <sub><b>Hello.1234a</b></sub>
+          <br />
+          <sub><b>(hakucin)</b></sub></a>
+        <br />
+        <sub><b>136 words</b></sub>
+        <br /><sub><b><code title="Japanese">ja</code></b></sub>
+      </td>
+    </tr>
+  </tbody>
+</table><a href="https://crowdin.com/project/openrocket" target="_blank">Translate in Crowdin 🚀</a>
 <!-- CROWDIN-CONTRIBUTORS-END -->
 
 Want to help us translate OpenRocket into your language? Join our [Crowdin project](https://crowdin.com/project/openrocket) and contribute!
