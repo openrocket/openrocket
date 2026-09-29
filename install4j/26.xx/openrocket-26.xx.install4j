@@ -76,14 +76,14 @@
         <file path="../../swing/build/resources/main/pix/icon/icon-256.png" />
       </iconImageFiles>
       <macStaticAssociations>
-        <fileAssociation extension="ork" description="OpenRocket Design" iconFile="../../swing/src/main/resources/pix/icon/icon-macos.icns" role="editor" />
+        <fileAssociation extension="ork" description="OpenRocket Design" iconFile="../../swing/src/main/resources/pix/icon/macos-squircle.icns" role="editor" />
       </macStaticAssociations>
     </launcher>
   </launchers>
   <installerGui>
     <laf type="native" />
     <applications>
-      <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" customIcnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns" customIcoFile="../../swing/build/resources/main/pix/icon/icon-windows.ico">
+      <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" customIcnsFile="../../swing/build/resources/main/pix/icon/macos-squircle.icns" customIcoFile="../../swing/build/resources/main/pix/icon/icon-windows.ico">
         <serializedBean>
           <property name="customIconImageFiles">
             <add>
