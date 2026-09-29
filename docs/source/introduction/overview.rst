@@ -37,7 +37,14 @@ The program can be roughly divided into two sections:
   not available (`help needed <https://openrocket.info/contribute.html>`__).
 
 
-For more information about OpenRocket's features and a few screenshots you can have a look `here <https://openrocket.info/features.html>`__.
+.. figure:: /img/showcase/rocket-gallery.jpg
+   :alt: Atemis, Vortikon, parallel boosters, and a tube-fin rocket rendered in OpenRocket.
+   :width: 100%
+   :align: center
+
+   Four different designs rendered with Photo Studio. See the :doc:`gallery` for individual images, a rotating model, and interface themes.
+
+For more information about OpenRocket's features, visit the `features page <https://openrocket.info/features.html>`__.
 
 How this Documentation is Organized
 ===================================

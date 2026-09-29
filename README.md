@@ -13,7 +13,17 @@
 
 OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
 
+![Four designs rendered in OpenRocket: Atemis, Vortikon, a parallel-booster rocket, and a tube-fin rocket](docs/source/img/showcase/rocket-gallery.jpg)
+
+Explore scale models, detailed decals, pods, staging, and unusual fin shapes. [Browse the gallery](docs/source/introduction/gallery.rst) or [watch Vortikon rotate](docs/source/_static/media/vortikon-rotation.mp4).
+
 --------
+
+## 💾 Installers
+
+You can find the OpenRocket installers [here](https://openrocket.info/downloads.html).
+
+Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
 ## 🛠️ Design, Visualize, and Analyze
 
@@ -21,10 +31,14 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
    ![Three-stage rocket - 2D](.github/OpenRocket_home_2D.png)
 
 2. **Visualize** your masterpiece in 3D:
-   ![Three-stage rocket - 3D](.github/OpenRocket_home_3D.png)
+   ![Three-stage rocket - 3D Finished view](.github/OpenRocket_home_3D.png)
 
 3. **Plot & Analyze** your simulation results for precision and improvements:
-   ![Three-stage rocket - Simulation plot](.github/OpenRocket_sim.png)
+   ![Three-stage rocket - sustainer altitude and vertical velocity during ascent](.github/OpenRocket_sim.png)
+
+### Choose your theme
+
+![The same three-stage rocket shown in OpenRocket's Light, Dark, and Dark High Contrast themes](docs/source/img/showcase/themes.gif)
 
 ## 🌟 Features
 
@@ -40,20 +54,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 
 📖 Read more on [our website](https://openrocket.info/).
 
-## 💾 Installers
-
-You can find the OpenRocket installers [here](https://openrocket.info/downloads.html).
-
-Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
-
-### Code signing policy
-
-Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
-
-- Committers and reviewers: [OpenRocket organization members](https://github.com/orgs/openrocket/people)
-- Approvers: [OpenRocket organization owners](https://github.com/orgs/openrocket/people?query=role%3Aowner)
-
-OpenRocket does not collect telemetry or upload rocket designs. It makes network requests for user-facing functions such as checking for application and motor-database updates, opening online resources, and submitting a bug report when requested by the user. Update checks can be disabled in the application preferences.
+OpenRocket does not collect telemetry or upload rocket designs. It makes network requests for user-facing functions such as checking for application and motor-database updates, opening online resources, and submitting a bug report when requested by the user. Internet access can be disabled in the application preferences.
 
 ## 📖 Documentation
 
@@ -65,7 +66,7 @@ You can find our documentation on [ReadTheDocs](https://openrocket.readthedocs.i
 
 The easiest way to get familiar with OpenRocket is to open one of our in-program example designs:
 
-![Get started with the example designs](.github/getting-started.png)
+<img src=".github/getting-started.png" alt="OpenRocket workspace with File → Open example expanded" width="800">
 
 Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, and more. Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
@@ -129,11 +130,13 @@ Help us soar higher! Whether it's implementing features, writing documentation, 
 - [Daniel Williams](https://github.com/teyrana) - Pod support, maintainer
 - [Joe Pfeiffer](https://github.com/JoePfeiffer) - Maintainer
 - [Billy Olsen](https://github.com/wolsen) - Maintainer
-- [Sibo Van Gool](https://github.com/SiboVG) - RASAero file format, 3D OBJ export, dark theme, maintainer
+- [Sibo Van Gool](https://github.com/SiboVG) - RASAero file format, 3D OBJ export, dark theme, LWJGL 3D engine, maintainer
 - [Neil Weinstock](https://github.com/neilweinstock) - Tester, icons, forum support
 - [H. Craig Miller](https://github.com/hcraigmiller) - Tester
 
 You can view the full list of contributors [here](https://github.com/openrocket/openrocket/graphs/contributors).
+
+Windows code signing provided by [SignPath.io](https://about.signpath.io/).
 
 ### 🌍Translators
 - Tripoli France
