@@ -17,6 +17,7 @@ import com.google.inject.util.Modules;
 import info.openrocket.core.ServicesForTesting;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
+import info.openrocket.core.file.threemf.export.ThreeMFExportOptions;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.PluginModule;
@@ -129,6 +130,29 @@ public class ApplicationPreferencesTest {
 
         assertTrue(prefs.getCheckUpdates());
         assertTrue(prefs.getCheckMotorDatabaseUpdates());
+    }
+
+    @Test
+    @DisplayName("3MF export preferences use an independent node and round-trip")
+    public void testThreeMFExportOptionsRoundTrip() {
+        ThreeMFExportOptions options = new ThreeMFExportOptions();
+        options.setExportChildren(false);
+        options.setAutoOrient(false);
+        options.setBuildWidth(180.5);
+        options.setBuildDepth(190.5);
+        options.setBuildHeight(200.5);
+        options.setPartSpacing(3.5);
+
+        prefs.saveThreeMFExportOptions(options);
+        ThreeMFExportOptions loaded = prefs.loadThreeMFExportOptions();
+
+        assertFalse(loaded.isExportChildren());
+        assertFalse(loaded.isAutoOrient());
+        assertEquals(180.5, loaded.getBuildWidth(), EPSILON);
+        assertEquals(190.5, loaded.getBuildDepth(), EPSILON);
+        assertEquals(200.5, loaded.getBuildHeight(), EPSILON);
+        assertEquals(3.5, loaded.getPartSpacing(), EPSILON);
+        assertFalse(prefs.getPreferences().node("OBJExportOptions").getBoolean("AutoOrient", false));
     }
 
     private static class PreferencesModule extends AbstractModule {

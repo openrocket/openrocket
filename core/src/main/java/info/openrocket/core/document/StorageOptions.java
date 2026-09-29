@@ -8,7 +8,8 @@ public class StorageOptions implements Cloneable {
 		OPENROCKET,
 		ROCKSIM,
 		RASAERO,
-		WAVEFRONT_OBJ
+		WAVEFRONT_OBJ,
+		THREE_MF
 	}
 
 	private FileType fileType = FileType.OPENROCKET;

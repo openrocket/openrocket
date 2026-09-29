@@ -29,6 +29,7 @@ open module info.openrocket.core {
 	requires org.objectweb.asm.commons;
 	requires java.management;
 	requires java.sql;
+	requires java.xml;
 
 	// TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;
@@ -58,6 +59,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.file.simplesax;
 	exports info.openrocket.core.file.wavefrontobj;
 	exports info.openrocket.core.file.wavefrontobj.export;
+	exports info.openrocket.core.file.threemf.export;
 	exports info.openrocket.core.file.svg.export;
 	exports info.openrocket.core.formatting;
 	exports info.openrocket.core.gui.util;

@@ -16,6 +16,7 @@ import info.openrocket.core.file.wavefrontobj.Axis;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
+import info.openrocket.core.file.threemf.export.ThreeMFExportOptions;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.models.atmosphere.AtmosphericModel;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
@@ -206,6 +207,15 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String OBJ_ORIG_X_OFFS = "OrigXOffs";
 	private static final String OBJ_ORIG_Y_OFFS = "OrigYOffs";
 	private static final String OBJ_ORIG_Z_OFFS = "OrigZOffs";
+
+	// 3MF print package export options
+	private static final String THREE_MF_EXPORT_OPTIONS_NODE = "ThreeMFExportOptions";
+	private static final String THREE_MF_EXPORT_CHILDREN = "ExportChildren";
+	private static final String THREE_MF_AUTO_ORIENT = "AutoOrient";
+	private static final String THREE_MF_BUILD_WIDTH = "BuildWidth";
+	private static final String THREE_MF_BUILD_DEPTH = "BuildDepth";
+	private static final String THREE_MF_BUILD_HEIGHT = "BuildHeight";
+	private static final String THREE_MF_PART_SPACING = "PartSpacing";
 
 	// SVG export options
 	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
@@ -1579,6 +1589,32 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		CoordTransform transform = new CoordTransform(xAxis, yAxis, zAxis, origXOffs, origYOffs, origZOffs);
 		options.setTransformer(transform);
 
+		return options;
+	}
+
+	public void saveThreeMFExportOptions(ThreeMFExportOptions options) {
+		java.util.prefs.Preferences node = getPreferences().node(THREE_MF_EXPORT_OPTIONS_NODE);
+		node.putBoolean(THREE_MF_EXPORT_CHILDREN, options.isExportChildren());
+		node.putBoolean(THREE_MF_AUTO_ORIENT, options.isAutoOrient());
+		node.putDouble(THREE_MF_BUILD_WIDTH, options.getBuildWidth());
+		node.putDouble(THREE_MF_BUILD_DEPTH, options.getBuildDepth());
+		node.putDouble(THREE_MF_BUILD_HEIGHT, options.getBuildHeight());
+		node.putDouble(THREE_MF_PART_SPACING, options.getPartSpacing());
+	}
+
+	public ThreeMFExportOptions loadThreeMFExportOptions() {
+		java.util.prefs.Preferences node = getPreferences().node(THREE_MF_EXPORT_OPTIONS_NODE);
+		ThreeMFExportOptions options = new ThreeMFExportOptions();
+		options.setExportChildren(node.getBoolean(THREE_MF_EXPORT_CHILDREN, true));
+		options.setAutoOrient(node.getBoolean(THREE_MF_AUTO_ORIENT, true));
+		options.setBuildWidth(node.getDouble(
+				THREE_MF_BUILD_WIDTH, ThreeMFExportOptions.DEFAULT_BUILD_WIDTH));
+		options.setBuildDepth(node.getDouble(
+				THREE_MF_BUILD_DEPTH, ThreeMFExportOptions.DEFAULT_BUILD_DEPTH));
+		options.setBuildHeight(node.getDouble(
+				THREE_MF_BUILD_HEIGHT, ThreeMFExportOptions.DEFAULT_BUILD_HEIGHT));
+		options.setPartSpacing(node.getDouble(
+				THREE_MF_PART_SPACING, ThreeMFExportOptions.DEFAULT_PART_SPACING));
 		return options;
 	}
 

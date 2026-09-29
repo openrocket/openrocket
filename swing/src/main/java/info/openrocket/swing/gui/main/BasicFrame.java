@@ -75,6 +75,8 @@ import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.file.wavefrontobj.export.OBJExporterFactory;
+import info.openrocket.core.file.threemf.export.ThreeMFExportOptions;
+import info.openrocket.core.file.threemf.export.ThreeMFExporterFactory;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.appearance.DecalImage;
@@ -292,6 +294,7 @@ private static final Translator trans = Application.getTranslator();
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getExportOBJAction());
+			popupMenu.add(actions.getExportThreeMFAction());
 			popupMenu.add(actions.getExportSVGAction());
 
 			popupMenu.addPopupMenuListener(new PopupMenuListener() {
@@ -595,6 +598,17 @@ private static final Translator trans = Application.getTranslator();
 			}
 		});
 		exportSubMenu.add(exportOBJ);
+
+		////// 		Export 3MF print package
+		JMenuItem exportThreeMF = new JMenuItem(trans.get("main.menu.file.exportAs.ThreeMF"));
+		exportThreeMF.setIcon(Icons.deriveMenuIcon(Icons.EXPORT_3D));
+		exportThreeMF.getAccessibleContext().setAccessibleDescription(
+				trans.get("main.menu.file.exportAs.ThreeMF.desc"));
+		exportThreeMF.addActionListener(e -> exportThreeMFAction());
+		exportThreeMF.setEnabled(getSelectedComponents() != null && !getSelectedComponents().isEmpty());
+		selectionModel.addDocumentSelectionListener(changeType -> exportThreeMF.setEnabled(
+				getSelectedComponents() != null && !getSelectedComponents().isEmpty()));
+		exportSubMenu.add(exportThreeMF);
 
 		//////		Export SVG profiles
 		JMenuItem exportSvgProfiles = new JMenuItem(trans.get("main.menu.file.exportAs.SVGProfiles"));
@@ -2012,6 +2026,41 @@ private static final Translator trans = Application.getTranslator();
 
 		return true;
 	}
+
+	////	BEGIN 3MF Print Package Export Action
+	public boolean exportThreeMFAction() {
+		try {
+			File file = openFileSaveAsDialog(FileType.THREE_MF, getSelectedComponents());
+			if (file == null) {
+				return false;
+			}
+			file = FileHelper.forceExtension(file, "3mf");
+			if (!FileHelper.confirmWrite(file, BasicFrame.this)) {
+				return false;
+			}
+
+			ThreeMFExportOptions options = prefs.loadThreeMFExportOptions();
+			WarningSet warnings = new WarningSet();
+			ThreeMFExporterFactory exporter = new ThreeMFExporterFactory(
+					getSelectedComponents(), rocket.getSelectedConfiguration(), file, options, warnings);
+			boolean written = exporter.doExport();
+			if (!warnings.isEmpty()) {
+				WarningDialog.showWarnings(this,
+						trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+						trans.get("BasicFrame.WarningDialog.saving.title"), warnings);
+			}
+			return written;
+		} catch (IOException | RuntimeException exception) {
+			log.error("Could not export 3MF print package", exception);
+			JOptionPane.showMessageDialog(this,
+					String.format(trans.get("BasicFrame.ThreeMFExport.error"), exception.getMessage()),
+					trans.get("BasicFrame.ThreeMFExport.error.title"), JOptionPane.ERROR_MESSAGE);
+			return false;
+		} finally {
+			restoreFocus();
+		}
+	}
+	////	END 3MF Print Package Export Action
 
 	/**
 	 * Export SVG profiles. If components are provided, exports only those components;

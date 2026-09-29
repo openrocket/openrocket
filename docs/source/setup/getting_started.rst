@@ -286,7 +286,24 @@ OpenRocket currently includes the following example designs:
    - **Three-stage rocket**: A three-stage rocket design
    - **TARC payload rocket**: Demonstrates payload and booster sections with individual recovery systems deployed by motor ejection.
      TARC = Team America Rocketry Challenge
-   - **3D Printable Nose Cone and Fins**: A rocket design to test exporting the nose cone and fins to an OBJ file for 3D printing.
+   - **3D Printable Nose Cone and Fins**: A rocket design to test exporting the nose cone and fins for 3D printing.
+
+3D print package export
+-----------------------
+
+Select the components to print, then choose **File > Export as > 3D Print Package
+(.3mf)**.  OpenRocket creates one independently editable object for every active
+component instance, automatically gives common rocket parts a stable print
+orientation, and arranges them using the build volume and spacing in the export
+options.  For example, a three-fin set becomes three separate objects without
+changing the rocket design.
+
+The exported layout is a starting point.  Before printing, use your slicer to
+verify wall thickness, fit clearances, material, supports, and the layer direction
+needed for adequate strength.  The generic 3MF package does not contain printer,
+nozzle, material, support, layer-height, or G-code settings.  Parts that exceed the
+configured build volume remain in the package outside the build-plate boundary and
+are reported as export warnings.
 - "Advanced" designs
    - **Airstart timing**: Demonstrates the effect of different airstart timings on overall altitude.
    - **Base drag hack (short-wide)**: Demonstrates the application of the "base drag" hack to adjust the center of pressure

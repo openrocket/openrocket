@@ -26,6 +26,7 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
     protected final CoordTransform transformer;
     protected final boolean exportAllInstances;
     protected final WarningSet warnings;
+    private InstanceContext instanceContextOverride;
 
     /**
      * Wavefront OBJ exporter for a rocket component.
@@ -51,7 +52,26 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
 
     public abstract void addToObj();
 
+    /**
+     * Add only the specified physical component instance to the target mesh.
+     * This is used by exporters that need one independently printable object per
+     * instance while retaining the existing component mesh implementations.
+     *
+     * @param context instance transform to export
+     */
+    public final void addInstanceToObj(InstanceContext context) {
+        this.instanceContextOverride = context;
+        try {
+            addToObj();
+        } finally {
+            this.instanceContextOverride = null;
+        }
+    }
+
     protected List<InstanceContext> getInstanceContexts() {
+        if (instanceContextOverride != null) {
+            return List.of(instanceContextOverride);
+        }
         List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts(component);
         return (exportAllInstances || contexts.isEmpty()) ? contexts : contexts.subList(0, 1);
     }
