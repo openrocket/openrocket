@@ -149,6 +149,11 @@ You can view the full list of contributors [here](https://github.com/openrocket/
 - taotieren Simplified Chinese
 - Yüksel Dağhan Güven
 
+Crowdin translators:
+
+<!-- CROWDIN-CONTRIBUTORS-START -->
+<!-- CROWDIN-CONTRIBUTORS-END -->
+
 Want to help us translate OpenRocket into your language? Join our [Crowdin project](https://crowdin.com/project/openrocket) and contribute!
 
 ## 📜 License
