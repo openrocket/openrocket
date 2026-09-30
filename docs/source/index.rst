@@ -12,6 +12,7 @@ Welcome to OpenRocket's documentation!
    :caption: Introduction
 
    introduction/overview
+   introduction/gallery
    introduction/features
    introduction/contribute
    introduction/FAQ

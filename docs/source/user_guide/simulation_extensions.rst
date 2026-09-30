@@ -534,6 +534,7 @@ The surrounding Dialog window and the **Close** button are provided by the syste
 ----
 
 .. _adding:
+
 Adding an Extension to a Simulation
 ===================================
 
@@ -581,5 +582,3 @@ it, obtain information about it, or remove it from the simulation:
    :alt: Air-start extension pane
 
    Air-start extension pane.
-
-----

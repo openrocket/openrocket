@@ -75,6 +75,8 @@ The **General** tab contains general settings for the OpenRocket application.
 
 - :guilabel:`UI Theme`: Select the theme you want the OpenRocket GUI to be displayed in.
 
+  In the current development version, this setting is on the :guilabel:`UI` tab. The previews below show that version; see the :doc:`animated comparison </introduction/gallery>` to compare all three appearances in the same workspace.
+
   Currently supported themes:
    - ``Auto (detect)`` - OpenRocket will use the theme set in your operating system.
    - ``Light (default)`` - A light theme (the "original" OpenRocket theme).
