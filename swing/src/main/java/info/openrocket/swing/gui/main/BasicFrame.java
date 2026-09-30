@@ -2194,6 +2194,10 @@ private static final Translator trans = Application.getTranslator();
 		// Select the rocket in the component tree to indicate to users that they can edit the rocket info by editing the rocket
 		setSelectedComponent(rocket);
 
+		// Mark the current state so that the dialog's Cancel button has something to restore. This has to happen
+		// before the dialog is shown, because the dialog is modal and setVisible() blocks until it is closed.
+		document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + rocket.getComponentName());
+
 		// Open the save rocket info
 		JDialog dialog = new JDialog();
 		SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
