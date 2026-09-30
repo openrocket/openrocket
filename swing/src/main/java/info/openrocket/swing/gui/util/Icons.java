@@ -614,7 +614,12 @@ public class Icons {
 	 */
 	private static Icon loadSvgIcon(String file, String name, Map<Integer, String> colorKeys, double scaleMultiplier) {
 		if (!hasResource(file)) {
-			Application.getExceptionHandler().handleErrorCondition("Image file " + file + " not found, ignoring.");
+			String message = "Image file " + file + " not found, ignoring.";
+			if (Application.getExceptionHandler() != null) {
+				Application.getExceptionHandler().handleErrorCondition(message);
+			} else {
+				log.error(message);
+			}
 			return null;
 		}
 
