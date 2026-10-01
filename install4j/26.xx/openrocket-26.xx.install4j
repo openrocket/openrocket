@@ -14,7 +14,7 @@
         <entry>jna-*</entry>
         <entry>swt-*</entry>
         <entry>javafx-*</entry>
-        <entry>OpenRocket-26.xx.jar</entry>
+        <entry>OpenRocket-*.jar</entry>
       </macSearchedJars>
     </codeSigning>
     <jreBundles jdkProviderId="Liberica" release="17/17.0.20.1+1">
@@ -707,6 +707,9 @@ return console.askYesNo(message, true);
   </installerGui>
   <mediaSets>
     <windows name="windows x86_64" id="60" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Windows-x86_64" architecture="64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-windows-x64.jar" />
+      </variables>
       <jreBundle>
         <modules>
           <module name="java.scripting" />
@@ -714,6 +717,9 @@ return console.askYesNo(message, true);
       </jreBundle>
     </windows>
     <windows name="windows Arm64" id="248" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Windows-Arm64" architecture="arm64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-windows-arm64.jar" />
+      </variables>
       <jreBundle>
         <modules>
           <module name="java.scripting" />
@@ -721,17 +727,29 @@ return console.askYesNo(message, true);
       </jreBundle>
     </windows>
     <unixInstaller name="linux x86_64" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-x86_64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-linux-x64.jar" />
+      </variables>
       <jreBundle includedJre="linux-amd64-17.0.13" />
     </unixInstaller>
     <unixInstaller name="linux Arm64" id="244" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-Arm64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-linux-arm64.jar" />
+      </variables>
       <jreBundle platform="linux-aarch64" />
     </unixInstaller>
     <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-macOS-Intel" architecture="amd64" dmgStylingMode="custom" useBackgroundImage="true" backgroundImageFile="macOS_resources/macOS_installer_background.png" bundleX="137" bundleY="148" windowHeight="300" launcherId="59">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-macos-x64.jar" />
+      </variables>
       <topLevelFiles>
         <symlink name="Applications" useIconLocation="true" iconX="467" iconY="167" target="/Applications" />
       </topLevelFiles>
     </macosArchive>
     <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-macOS-AppleSilicon" dmgStylingMode="custom" useBackgroundImage="true" backgroundImageFile="macOS_resources/macOS_installer_background.png" bundleX="137" bundleY="148" windowHeight="300" launcherId="59">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-macos-arm64.jar" />
+      </variables>
       <topLevelFiles>
         <symlink name="Applications" useIconLocation="true" iconX="467" iconY="147" target="/Applications" />
       </topLevelFiles>

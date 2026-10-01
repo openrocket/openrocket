@@ -92,15 +92,19 @@ parts:
           ;;
       esac
 
-      # Build
-      ./gradlew --no-daemon -g "$GRADLE_USER_HOME" --console=plain --stacktrace --info clean shadowJar
+      BV="$(grep -E '^build\.version=' core/src/main/resources/build.properties | cut -d= -f2)"
+      case "$ARCH" in
+        amd64) JAR_TASK=shadowJarLinuxX64; JAR="build/libs/OpenRocket-$BV-linux-x64.jar" ;;
+        arm64) JAR_TASK=shadowJarLinuxArm64; JAR="build/libs/OpenRocket-$BV-linux-arm64.jar" ;;
+        *) JAR_TASK=shadowJar; JAR="build/libs/OpenRocket-$BV.jar" ;;
+      esac
 
-      # Pick jar
-      JAR="$(ls -1 build/libs/OpenRocket-*.jar | head -n1)"
+      # Build the matching Linux JAR, or the universal JAR for other Snap architectures.
+      ./gradlew --no-daemon -g "$GRADLE_USER_HOME" --console=plain --stacktrace --info clean "$JAR_TASK"
+
       install -Dm644 "$JAR" "$CRAFT_PART_INSTALL/OpenRocket.jar"
 
       # Set the version
-      BV="$(grep -E '^build\.version=' core/src/main/resources/build.properties | cut -d= -f2)"
       HASH="$(git rev-parse --short=7 HEAD 2>/dev/null || echo 0000000)"
 
       if printf '%s' "$BV" | grep -q -- '-SNAPSHOT$'; then
