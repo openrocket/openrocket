@@ -348,6 +348,9 @@ tasks.named('shadowJar', ShadowJar) {
     configurations = [project.configurations.runtimeClasspath,
                       project.configurations.allPlatformNatives]
 
+    // Android native libraries are not used by the desktop distribution.
+    exclude 'org/sqlite/native/Linux-Android/**'
+
     // The license dialog links to this file inside the JAR
     from(rootProject.file('LICENSE.TXT'))
 
