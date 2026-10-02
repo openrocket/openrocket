@@ -430,6 +430,11 @@ public class ShadowPass implements RenderPass {
 
 	@Override
 	public void cleanup() {
+		releaseShadowMap();
+		depthShader.cleanup();
+	}
+
+	private void releaseShadowMap() {
 		if (depthMapFbo != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.FRAMEBUFFER, depthMapFbo);
 			glDeleteFramebuffers(depthMapFbo);
@@ -468,7 +473,7 @@ public class ShadowPass implements RenderPass {
 	}
 
 	private void initializeFramebuffer() {
-		cleanup();
+		releaseShadowMap();
 
 		depthMapFbo = glGenFramebuffers();
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.FRAMEBUFFER, depthMapFbo, "shadow map fbo");
