@@ -45,6 +45,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
       - name: Execute Gradle build
         run: ${{ matrix.gradle_command }} ${{ matrix.gradle_tasks }}
+      - name: Smoke-test packaged distribution JARs
+        run: ${{ matrix.gradle_command }} distributionSmokeTest
       # If wanting to serialize all the engines during build
       #        run: ./gradlew serializeEnginesDist build dist
       - name: Upload build reports

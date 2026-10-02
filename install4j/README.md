@@ -6,9 +6,28 @@ with its own commit history in the openrocket repository.
 The [OpenRocket](http://www.openrocket.info) project will do its best
 to publish installers for the following platforms.
 
-* Windows, 64-bit
+* Windows, 64-bit (x64 & ARM64)
 * macOS, 64-bit (Intel & Apple Silicon)
-* Linux, 64-bit
+* Linux, 64-bit (x64 & ARM64)
+
+# Building installer JARs
+
+Run `./gradlew verifyDistributionJars distributionSmokeTest` before building
+installers. This creates and verifies the universal JAR and all six platform
+JARs in `build/libs`, then smoke-tests the universal JAR and the variant matching
+the current JVM's OS and architecture. Each media definition in the current
+install4j project selects `OpenRocket-<version>-<platform>.jar` automatically;
+the launcher uses the same filename. Set install4j's application version to
+`build.version`, or pass `--release=<version>` to `install4jc`.
+
+For a single platform, use a task such as `shadowJarWindowsX64` or
+`shadowJarMacosArm64`. Publish `OpenRocket-<version>.jar` as the standalone
+cross-platform download. The platform variants are installer inputs. The
+[Building and Releasing guide](../docs/source/dev_guide/building_releasing.rst)
+lists all tasks, platforms and media IDs, including testing on other architectures.
+
+Installer icons are shared in `resources/icons`; editable branding artwork is
+kept in `../artwork`.
 
 # Maintainers
 * Neil Weinstock 
