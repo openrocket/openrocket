@@ -613,22 +613,62 @@ macOS QuickLook Extension
 -------------------------
 
 The macOS installers include a QuickLook extension that allows users to preview ``.ork`` files directly in Finder
-(via spacebar or the preview pane). This extension is built and signed separately from the main install4j build,
-then merged into the final macOS DMG.
+(via spacebar or the preview pane). install4j cannot build or sign this extension, so it is built and signed separately
+and merged into each macOS DMG afterwards.
 
-The source code and full instructions for the QuickLook extension are maintained in a separate repository:
+The source code of the extension is maintained in a separate repository:
 `openrocket/macOS-QuickLook-extension <https://github.com/openrocket/macOS-QuickLook-extension>`__.
 
-After building the macOS DMG with install4j, follow the steps in that repository's README to:
+Building the macOS installers with GitHub Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Build the QuickLook extension using Xcode.
-2. Sign and notarize the extension with your Apple Developer ID.
-3. Inject the signed extension into the install4j DMG using the ``runit`` script.
+The **Build macOS installers** workflow (:file:`.github/workflows/build-macos.yml`) builds, signs, and notarizes both macOS
+DMGs (Apple Silicon and Intel), including the QuickLook extension. It builds the Java installers with install4j, builds the
+extension with Xcode, merges the two with :file:`.github/scripts/add-macos-quicklook.sh`, and then notarizes and staples
+the result. The finished DMGs are uploaded as the ``openrocket-macos-<run number>`` workflow artifact.
+
+Before the first run, configure the following in the GitHub repository (preferably on an environment named
+``macos-signing`` with required reviewers and a branch restriction):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Name
+     - Value
+   * - ``INSTALL4J_LICENSE_KEY`` *(secret)*
+     - The install4j license key (shared with the Windows workflow).
+   * - ``MACOS_CERTIFICATE_P12_BASE64`` *(secret)*
+     - The **Developer ID Application** certificate and private key as a base64-encoded ``.p12`` file
+       (``base64 -i OpenRocket_macOS.p12 | pbcopy``).
+   * - ``MACOS_CERTIFICATE_PASSWORD`` *(secret)*
+     - The password of that ``.p12`` file.
+   * - ``APPLE_API_KEY_P8`` *(secret)*
+     - The full contents of the App Store Connect API key (``AuthKey_<key id>.p8``) used for notarization.
+   * - ``APPLE_API_KEY_ID`` *(variable)*
+     - The key ID of that API key (the ``KEY_ID`` variable in the install4j project).
+   * - ``APPLE_API_ISSUER_ID`` *(variable)*
+     - The issuer ID of the App Store Connect team (the ``ISSUER_ID`` variable in the install4j project).
+
+To run it, open :menuselection:`GitHub --> Actions --> Build macOS installers`, select :guilabel:`Run workflow`, and select the
+release branch. The ``quicklook_ref`` input is the commit of the QuickLook extension repository to build; update its
+default whenever the extension changes, and always use a full commit SHA because this code runs with the signing
+certificate available.
+
+.. note::
+   The workflow runs on the ``macos-26`` image because the extension project targets the macOS 26 SDK.
+
+Building the macOS installers manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you cannot use GitHub Actions, build the DMGs with install4j as described above and follow the steps in the
+`extension repository README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__ to build, sign, notarize,
+and inject the extension using the ``runit`` script.
 
 .. note::
    The QuickLook extension requires a **Developer ID Application** certificate and an **App-Specific Password**
-   for notarization. See the `macOS-QuickLook-extension README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__
-   for the full setup guide, including Apple Developer account configuration and Info.plist requirements.
+   (or App Store Connect API key) for notarization. See the extension README for the full setup guide, including Apple
+   Developer account configuration and Info.plist requirements.
 
 .. warning::
    The install4j project must declare the ``info.openrocket.ork`` UTI (Uniform Type Identifier) in the macOS
@@ -697,8 +737,10 @@ with the new results) to ensure that they are up-to-date with the latest changes
 
 9. **Add the macOS QuickLook extension** to the macOS DMG installers.
 
-   Follow the instructions in the `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__
-   to build, sign, notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
+   Run the **Build macOS installers** GitHub workflow (see above). It builds both macOS DMGs and includes the
+   QuickLook extension, so no separate step is needed. If you build the DMGs locally instead, follow the instructions in the
+   `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__ to build, sign,
+   notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
 
 10. **Test the installers** to ensure that they work correctly.
 
