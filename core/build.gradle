@@ -62,6 +62,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.19.0'
     implementation 'com.google.inject:guice:7.0.0'
     implementation 'com.opencsv:opencsv:5.12.0'
+    implementation 'com.samskivert:jmustache:1.16'
     implementation 'org.graalvm.sdk:graal-sdk:23.0.3'
     implementation 'org.graalvm.js:js-scriptengine:23.0.3'
     implementation 'org.graalvm.js:js:23.0.3'
