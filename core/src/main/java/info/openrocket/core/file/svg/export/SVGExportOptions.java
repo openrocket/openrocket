@@ -1,7 +1,8 @@
 package info.openrocket.core.file.svg.export;
 
-import java.awt.Color;
 import java.util.Objects;
+
+import info.openrocket.core.util.ORColor;
 
 /**
  * Immutable container describing how SVG outlines should be rendered.
@@ -9,36 +10,36 @@ import java.util.Objects;
  * extended later (fill colors, dash styles, etc.).
  */
 public class SVGExportOptions {
-	private final Color strokeColor;
+	private final ORColor strokeColor;
 	private final double strokeWidthMm;
 	private final boolean drawCrosshair;
-	private final Color crosshairColor;
+	private final ORColor crosshairColor;
 	private final double crosshairSizeMm;
 	private final boolean showLabels;
-	private final Color labelColor;
+	private final ORColor labelColor;
 	private final double partSpacingM;
 
-	public SVGExportOptions(Color strokeColor, double strokeWidthMm) {
+	public SVGExportOptions(ORColor strokeColor, double strokeWidthMm) {
 		this(strokeColor, strokeWidthMm, true, strokeColor, 2.0, true, strokeColor, 0.01);
 	}
 
-	public SVGExportOptions(Color strokeColor, double strokeWidthMm, boolean drawCrosshair) {
+	public SVGExportOptions(ORColor strokeColor, double strokeWidthMm, boolean drawCrosshair) {
 		this(strokeColor, strokeWidthMm, drawCrosshair, strokeColor, 2.0, true, strokeColor, 0.01);
 	}
 
-	public SVGExportOptions(Color strokeColor, double strokeWidthMm, boolean drawCrosshair, Color crosshairColor) {
+	public SVGExportOptions(ORColor strokeColor, double strokeWidthMm, boolean drawCrosshair, ORColor crosshairColor) {
 		this(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, 2.0, true, strokeColor, 0.01);
 	}
 
-	public SVGExportOptions(Color strokeColor, double strokeWidthMm, boolean drawCrosshair, Color crosshairColor, double crosshairSizeMm, boolean showLabels) {
+	public SVGExportOptions(ORColor strokeColor, double strokeWidthMm, boolean drawCrosshair, ORColor crosshairColor, double crosshairSizeMm, boolean showLabels) {
 		this(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, strokeColor, 0.01);
 	}
 
-	public SVGExportOptions(Color strokeColor, double strokeWidthMm, boolean drawCrosshair, Color crosshairColor, double crosshairSizeMm, boolean showLabels, Color labelColor) {
+	public SVGExportOptions(ORColor strokeColor, double strokeWidthMm, boolean drawCrosshair, ORColor crosshairColor, double crosshairSizeMm, boolean showLabels, ORColor labelColor) {
 		this(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, labelColor, 0.01);
 	}
 
-	public SVGExportOptions(Color strokeColor, double strokeWidthMm, boolean drawCrosshair, Color crosshairColor, double crosshairSizeMm, boolean showLabels, Color labelColor, double partSpacingM) {
+	public SVGExportOptions(ORColor strokeColor, double strokeWidthMm, boolean drawCrosshair, ORColor crosshairColor, double crosshairSizeMm, boolean showLabels, ORColor labelColor, double partSpacingM) {
 		this.strokeColor = Objects.requireNonNull(strokeColor, "strokeColor");
 		this.strokeWidthMm = strokeWidthMm;
 		this.drawCrosshair = drawCrosshair;
@@ -49,7 +50,7 @@ public class SVGExportOptions {
 		this.partSpacingM = partSpacingM;
 	}
 
-	public Color getStrokeColor() {
+	public ORColor getStrokeColor() {
 		return strokeColor;
 	}
 
@@ -61,7 +62,7 @@ public class SVGExportOptions {
 		return drawCrosshair;
 	}
 
-	public Color getCrosshairColor() {
+	public ORColor getCrosshairColor() {
 		return crosshairColor;
 	}
 
@@ -73,11 +74,11 @@ public class SVGExportOptions {
 		return showLabels;
 	}
 
-	public Color getLabelColor() {
+	public ORColor getLabelColor() {
 		return labelColor;
 	}
 
-	public SVGExportOptions withStrokeColor(Color color) {
+	public SVGExportOptions withStrokeColor(ORColor color) {
 		return new SVGExportOptions(color, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, labelColor, partSpacingM);
 	}
 
@@ -89,7 +90,7 @@ public class SVGExportOptions {
 		return new SVGExportOptions(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, labelColor, partSpacingM);
 	}
 
-	public SVGExportOptions withCrosshairColor(Color color) {
+	public SVGExportOptions withCrosshairColor(ORColor color) {
 		return new SVGExportOptions(strokeColor, strokeWidthMm, drawCrosshair, color, crosshairSizeMm, showLabels, labelColor, partSpacingM);
 	}
 
@@ -101,7 +102,7 @@ public class SVGExportOptions {
 		return new SVGExportOptions(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, labelColor, partSpacingM);
 	}
 
-	public SVGExportOptions withLabelColor(Color color) {
+	public SVGExportOptions withLabelColor(ORColor color) {
 		return new SVGExportOptions(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, color, partSpacingM);
 	}
 
@@ -113,4 +114,3 @@ public class SVGExportOptions {
 		return new SVGExportOptions(strokeColor, strokeWidthMm, drawCrosshair, crosshairColor, crosshairSizeMm, showLabels, labelColor, partSpacingM);
 	}
 }
-

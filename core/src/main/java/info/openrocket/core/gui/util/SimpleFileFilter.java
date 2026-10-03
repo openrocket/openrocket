@@ -3,16 +3,14 @@ package info.openrocket.core.gui.util;
 import java.io.File;
 import java.util.Locale;
 
-import javax.swing.filechooser.FileFilter;
-
 /**
- * A FileFilter similar to FileNameExtensionFilter except that
- * it allows multipart extensions (.ork.gz), and also implements
- * the java.io.FileFilter interface.
- * 
+ * A {@link java.io.FileFilter} similar to FileNameExtensionFilter except that
+ * it allows multipart extensions (.ork.gz).  It is headless (no Swing dependency);
+ * the Swing file-chooser wrapper lives in {@code SwingFileFilter} in the swing module.
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SimpleFileFilter extends FileFilter implements java.io.FileFilter {
+public class SimpleFileFilter implements java.io.FileFilter {
 
 	private final String description;
 	private final boolean acceptDir;
@@ -71,7 +69,6 @@ public class SimpleFileFilter extends FileFilter implements java.io.FileFilter {
 		return false;
 	}
 
-	@Override
 	public String getDescription() {
 		return description;
 	}

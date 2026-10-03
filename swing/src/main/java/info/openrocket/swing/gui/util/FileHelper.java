@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.util;
 
-import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
@@ -34,48 +33,48 @@ public final class FileHelper {
 
 	/** File filter for any rocket designs (*.ork, *.rkt, *.CDX1) */
 	public static final FileFilter ALL_DESIGNS_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.ALL_DESIGNS_FILTER"),
+			new SwingFileFilter(trans.get("FileHelper.ALL_DESIGNS_FILTER"),
 					".ork", ".ork.gz", ".rkt", ".rkt.gz", ".CDX1", ".CDX1.gz");
 
 	/** File filter for OpenRocket designs (*.ork) */
 	public static final FileFilter OPENROCKET_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.OPENROCKET_DESIGN_FILTER"), ".ork", ".ork.gz");
+			new SwingFileFilter(trans.get("FileHelper.OPENROCKET_DESIGN_FILTER"), ".ork", ".ork.gz");
 
 	/** File filter for RockSim designs (*.rkt) */
 	public static final FileFilter ROCKSIM_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), ".rkt", ".rkt.gz");
+			new SwingFileFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), ".rkt", ".rkt.gz");
 
 	/** File filter for RASAero II designs (*.CDX1) */
 	public static final FileFilter RASAERO_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
+			new SwingFileFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
 
 	/** File filter for RASAero II designs (*.CDX1) */
 	public static final FileFilter WAVEFRONT_OBJ_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.WAVEFRONT_OBJ_FILTER"), ".obj");
+			new SwingFileFilter(trans.get("FileHelper.WAVEFRONT_OBJ_FILTER"), ".obj");
 
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), ".orc", ".orc.gz");
+			new SwingFileFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), ".orc", ".orc.gz");
 
 	/** File filter for PDF files (*.pdf) */
 	public static final FileFilter PDF_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.PDF_FILTER"), ".pdf");
+			new SwingFileFilter(trans.get("FileHelper.PDF_FILTER"), ".pdf");
 
 	/** File filter for CSV files (*.csv) */
 	public static final FileFilter CSV_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.CSV_FILTER"), ".csv");
+			new SwingFileFilter(trans.get("FileHelper.CSV_FILTER"), ".csv");
 
 	/** File filter for PNG files (*.png) */
 	public static final FileFilter PNG_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.PNG_FILTER"), ".png");
+			new SwingFileFilter(trans.get("FileHelper.PNG_FILTER"), ".png");
 
 	/** File filter for CSV files (*.csv) */
 	public static final FileFilter SVG_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.SVG_FILTER"), ".svg");
+			new SwingFileFilter(trans.get("FileHelper.SVG_FILTER"), ".svg");
 
 	/** File filter for XML files (*.xml) */
 	public static final FileFilter XML_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.XML_FILTER"), ".xml");
+			new SwingFileFilter(trans.get("FileHelper.XML_FILTER"), ".xml");
 
 
 
@@ -103,7 +102,7 @@ public final class FileHelper {
 		}
 		sb.append(")");
 
-		return new SimpleFileFilter(sb.toString(), extensions);
+		return new SwingFileFilter(sb.toString(), extensions);
 	}
 
 

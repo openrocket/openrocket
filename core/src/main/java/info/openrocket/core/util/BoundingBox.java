@@ -1,6 +1,5 @@
 package info.openrocket.core.util;
 
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -107,14 +106,6 @@ public class BoundingBox {
 		return this;
 	}
 
-	public BoundingBox update(Rectangle2D rect) {
-		update_x_min(rect.getMinX());
-		update_y_min(rect.getMinY());
-		update_x_max(rect.getMaxX());
-		update_y_max(rect.getMaxY());
-		return this;
-	}
-
 	public BoundingBox update(final CoordinateIF[] list) {
 		for (CoordinateIF c : list) {
 			update(c);
@@ -156,10 +147,6 @@ public class BoundingBox {
 		toReturn.add(this.max);
 		toReturn.add(this.min);
 		return toReturn;
-	}
-
-	public Rectangle2D toRectangle() {
-		return new Rectangle2D.Double(min.getX(), min.getY(), (max.getX() - min.getX()), (max.getY() - min.getY()));
 	}
 
 	public double getWidth() {

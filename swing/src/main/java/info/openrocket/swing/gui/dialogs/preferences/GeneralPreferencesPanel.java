@@ -28,7 +28,7 @@ import info.openrocket.swing.startup.MotorDatabaseUpdateChecker;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
-import info.openrocket.core.gui.util.SimpleFileFilter;
+import info.openrocket.swing.gui.util.SwingFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -130,20 +130,20 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setAcceptAllFileFilterUsed(false);
 				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-				SimpleFileFilter filter =
-						new SimpleFileFilter(
+				SwingFileFilter filter =
+						new SwingFileFilter(
 								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
 								trans.get("pref.dlg.Allthrustcurvefiles"),
 								true, "eng", "rse", "zip", "db");
 				chooser.addChoosableFileFilter(filter);
 				//// RASP motor files (*.eng)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RASPfiles"),
+				chooser.addChoosableFileFilter(new SwingFileFilter(trans.get("pref.dlg.RASPfiles"),
 						true, "eng"));
 				//// RockSim engine files (*.rse)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RockSimfiles"),
+				chooser.addChoosableFileFilter(new SwingFileFilter(trans.get("pref.dlg.RockSimfiles"),
 						true, "rse"));
 				//// ZIP archives (*.zip)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ZIParchives"),
+				chooser.addChoosableFileFilter(new SwingFileFilter(trans.get("pref.dlg.ZIParchives"),
 						true, "zip"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -226,13 +226,13 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 				chooser.setAcceptAllFileFilterUsed(false);
-				SimpleFileFilter filter =
-						new SimpleFileFilter(
+				SwingFileFilter filter =
+						new SwingFileFilter(
 								trans.get("pref.dlg.AllComponentPresetfiles"),
 								true, "orc");
 				chooser.addChoosableFileFilter(filter);
 				//// OpenRocket component files (*.orc)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ORCfiles"),
+				chooser.addChoosableFileFilter(new SwingFileFilter(trans.get("pref.dlg.ORCfiles"),
 						true, "orc"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
