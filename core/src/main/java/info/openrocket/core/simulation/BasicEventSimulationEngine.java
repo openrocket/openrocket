@@ -754,9 +754,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Inhibit if we've deployed a parachute or we're on the ground
 				if ((currentStatus.getDeployedRecoveryDevices().size() > 0) || currentStatus.isLanded())
 					break;
-				
-				final boolean tooMuchThrust = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
-				if (tooMuchThrust) {
+
+				// If this stage is currently under thrust we're about to start skywriting and the
+				// sim no longer has anything useful to tell us so we abort; otherwise we switch to
+				// the tumble stepper
+				if ((currentStepper instanceof AbstractRKSimulationStepper) &&
+					((AbstractRKSimulationStepper) currentStepper).calculateThrust(currentStatus) > THRUST_TUMBLE_CONDITION) {
 					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 				} else {
 					currentStepper = tumbleStepper;
