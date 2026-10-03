@@ -110,6 +110,13 @@ ditto "$PLUGINS_SRC" "$APP/Contents/$(basename "$PLUGINS_SRC")"
 # Adding files to a signed bundle breaks its seal, so sign the app again. Nested code (launcher, JRE, native libraries)
 # keeps the signatures install4j gave it; only the outer bundle is re-sealed, so --deep is deliberately not used.
 log "Re-signing the application bundle"
+# install4j puts vmoptions.txt directly in Contents/, which codesign treats as a nested code location. install4j's own
+# signer seals it as a plain resource, but codesign refuses to seal the bundle unless that file is signed itself (the
+# signature of a non-Mach-O file is stored in its extended attributes).
+find "$APP/Contents" -maxdepth 1 -type f ! -name Info.plist ! -name PkgInfo -print0 |
+  while IFS= read -r -d '' file; do
+    codesign --force --timestamp --sign "$SIGN_IDENTITY" ${KEYCHAIN_ARGS[@]+"${KEYCHAIN_ARGS[@]}"} "$file"
+  done
 codesign --force --timestamp --options runtime \
   --preserve-metadata=identifier,entitlements,flags,runtime \
   --sign "$SIGN_IDENTITY" ${KEYCHAIN_ARGS[@]+"${KEYCHAIN_ARGS[@]}"} "$APP"
