@@ -1,10 +1,15 @@
 package info.openrocket.swing.gui.figure3d.scene.orchestration;
 
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.figure3d.animation.PlaybackClock;
 import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
+import info.openrocket.swing.gui.figure3d.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.geometry.RocketSceneSnapshot;
 import info.openrocket.swing.gui.figure3d.math.DefaultRaycaster;
 import info.openrocket.swing.gui.figure3d.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.input.InputState;
@@ -22,7 +27,12 @@ import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
+import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.DoubleConsumer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,8 +53,19 @@ public class Scene3DOrchestrator {
 	private volatile Runnable glTaskQueuedCallback;
 	private volatile Runnable rocketSceneRebuiltCallback;
 
+	/** Rocket-local motor nozzle geometry captured with the rendered rocket snapshot. */
+	public record MotorExhaustMount(RocketComponent mountComponent, Vector3f nozzlePosition,
+			Vector3f exhaustDirection) {
+		public MotorExhaustMount {
+			nozzlePosition = new Vector3f(nozzlePosition);
+			exhaustDirection = new Vector3f(exhaustDirection);
+		}
+	}
+
 	private long lastFrameTime;
 	private volatile PlaybackClock playbackClock = null;
+	private volatile DoubleConsumer flightFrameListener = null;
+	private final FlightCameraRig flightCamera;
 
 	/**
 	 * Updates the orchestrator's knowledge of the window and framebuffer dimensions.
@@ -61,16 +82,11 @@ public class Scene3DOrchestrator {
 	 */
 	public void resize(int newWindowWidth, int newWindowHeight,
 			int newFramebufferWidth, int newFramebufferHeight) {
-		boolean wasZoomFitting = cameraController.isZoomFitting();
-
 		// Update viewport dimensions
 		viewport.update(newWindowWidth, newWindowHeight, newFramebufferWidth, newFramebufferHeight);
 
 		// Propagate resize event to relevant components
 		cameraController.resize(viewport.getAspectRatio());
-		if (wasZoomFitting) {
-			cameraController.focusOnRocket();
-		}
 		inputHandler.updateDimensions(viewport);
 		renderer.resize(viewport.getFramebufferWidth(), viewport.getFramebufferHeight());
 		renderer.setDisplayScale(getDisplayScale());
@@ -151,27 +167,40 @@ public class Scene3DOrchestrator {
 	 * Runs one frame of non-render updates before the caller renders the scene.
 	 */
 	public void update() {
+		flightCamera.beginFrame();
 		runPendingGlTasks();
 		long currentFrameTime = System.nanoTime();
 		float deltaTime = (currentFrameTime - lastFrameTime) / 1e9f;
 		lastFrameTime = currentFrameTime;
 
 		// Process all input events
+		if (playbackClock != null) {
+			flightCamera.beforeInput();
+		}
 		inputHandler.processInput();
 
 		// Update camera and scene
 		cameraController.update();
-		scene.updateParticles(deltaTime);
 
 		// --- Simulation playback (if bound) ---
 		if (playbackClock != null) {
 			playbackClock.update(deltaTime);
 			double t = playbackClock.getTime();
+			scene.setAnimationTimeSeconds(t);
 			for (var obj : scene.getObjects()) {
 				if (obj.hasPoseProvider()) {
 					obj.applyPoseAtTime(t);
 				}
 			}
+			flightCamera.update(t, playbackClock.getStart(), deltaTime);
+			DoubleConsumer frameListener = flightFrameListener;
+			if (frameListener != null) {
+				frameListener.accept(t);
+			}
+		}
+
+		if (deltaTime > 0.0f) {
+			scene.updateParticles(deltaTime);
 		}
 	}
 
@@ -304,6 +333,12 @@ public class Scene3DOrchestrator {
 	 */
 	public static Scene3DOrchestrator create(Rocket rocket, int windowWidth, int windowHeight,
 			int framebufferWidth, int framebufferHeight) throws Exception {
+		return create(rocket, windowWidth, windowHeight, framebufferWidth, framebufferHeight, null);
+	}
+
+	public static Scene3DOrchestrator create(Rocket rocket, int windowWidth, int windowHeight,
+			int framebufferWidth, int framebufferHeight, FlightConfigurationId renderedConfigurationId)
+			throws Exception {
 		ViewportDimensions viewport = new ViewportDimensions(
 				windowWidth, windowHeight, framebufferWidth, framebufferHeight);
 		Camera camera = Camera.builder()
@@ -319,7 +354,7 @@ public class Scene3DOrchestrator {
 				Application.getPreferences());
 
 		Scene scene = new Scene(rocket, camera, config);
-		return new Scene3DOrchestrator(rocket, viewport, camera, scene, config);
+		return new Scene3DOrchestrator(rocket, viewport, camera, scene, config, renderedConfigurationId);
 	}
 
 	/**
@@ -333,7 +368,7 @@ public class Scene3DOrchestrator {
 	 * @throws Exception if the renderer cannot be initialized
 	 */
 	private Scene3DOrchestrator(Rocket rocket, ViewportDimensions viewport, Camera camera, Scene scene,
-			RenderingConfiguration config) throws Exception {
+			RenderingConfiguration config, FlightConfigurationId renderedConfigurationId) throws Exception {
 		// 1. Initialize core components
 		this.viewport = viewport;
 		this.scene = scene;
@@ -348,8 +383,10 @@ public class Scene3DOrchestrator {
 		this.renderer.setDisplayScale(getDisplayScale());
 
 		// 3. Initialize controllers
-		this.cameraController = new CameraController(rocket, camera, scene, renderingConfiguration);
+		this.cameraController = new CameraController(rocket, camera, scene, renderingConfiguration,
+				renderedConfigurationId);
 		this.cameraController.initialize(rocket, viewport.getAspectRatio());
+		this.flightCamera = new FlightCameraRig(cameraController);
 		this.cameraController.addCameraChangeListener(ignored -> {
 			LightController lightController = this.scene.getLightController();
 			if (!lightController.areVisualizersVisible()) {
@@ -364,28 +401,108 @@ public class Scene3DOrchestrator {
 				renderingConfiguration);
 		this.inputHandler.updateDimensions(viewport);
 
-		this.rocketSynchronizer = new RocketSceneSynchronizer(this, this.scene, rocket);
+		this.rocketSynchronizer = renderedConfigurationId == null
+				? new RocketSceneSynchronizer(this, this.scene, rocket)
+				: new RocketSceneSynchronizer(this, this.scene, rocket,
+						() -> RocketMeshBuilder.buildSnapshot(rocket, renderingConfiguration,
+								renderedConfigurationId));
 		this.lastFrameTime = System.nanoTime();
 	}
 
 	// ---------- Simulation control helpers ----------
 
-	/** Bind a pose to all rocket component objects and initialize the playback clock. */
-	public void bindFlightPoseToRocket(PoseProvider provider) {
-		if (provider == null) {
-			throw new IllegalArgumentException("pose provider null");
+	/**
+	 * Binds replay providers by stage so separated stages can follow their own
+	 * simulation branches.
+	 */
+	public void bindFlightPosesToRocket(Map<AxialStage, PoseProvider> providersByStage, PoseProvider primaryProvider,
+			double startTime, double endTime) {
+		if (providersByStage == null || providersByStage.isEmpty()) {
+			throw new IllegalArgumentException("providersByStage is empty");
 		}
+		if (primaryProvider == null) {
+			throw new IllegalArgumentException("primaryProvider is null");
+		}
+
 		enqueueGlTask(() -> {
 			for (var obj : scene.getObjects()) {
-				if (obj.getRocketComponent() != null) {
-					obj.setPoseProvider(provider);
+				RocketComponent component = obj.getRocketComponent();
+				if (component == null) {
+					continue;
 				}
+				// Fall back to the primary (sustainer) trajectory when a component's stage has
+				// no dedicated branch, so every rocket object flies with the rocket instead of
+				// being stranded at the launch pad while the follow camera chases the rocket up.
+				obj.setPoseProvider(providerOrPrimary(component, providersByStage, primaryProvider));
 			}
 		});
-		this.playbackClock = new PlaybackClock(provider.getStartTime(), provider.getEndTime());
+		flightCamera.setTrackProvider(primaryProvider);
+		this.playbackClock = new PlaybackClock(startTime, endTime);
+	}
+
+	private static PoseProvider providerOrPrimary(RocketComponent component,
+			Map<AxialStage, PoseProvider> providersByStage, PoseProvider primaryProvider) {
+		PoseProvider provider = providerForComponent(component, providersByStage);
+		return provider != null ? provider : primaryProvider;
+	}
+
+	private static PoseProvider providerForComponent(RocketComponent component,
+			Map<AxialStage, PoseProvider> providersByStage) {
+		AxialStage stage = stageForComponent(component);
+		return stage != null ? providersByStage.get(stage) : null;
+	}
+
+	private static AxialStage stageForComponent(RocketComponent component) {
+		if (component == null) {
+			return null;
+		}
+		try {
+			return component instanceof AxialStage stage ? stage : component.getStage();
+		} catch (IllegalStateException e) {
+			return null;
+		}
 	}
 
 	public PlaybackClock getPlaybackClock() {
 		return playbackClock;
+	}
+
+	/** Returns the actual rendered nozzle position and direction for each emitting motor instance. */
+	public List<MotorExhaustMount> getMotorExhaustMounts() {
+		return createMotorExhaustMounts(rocketSynchronizer.getMotorEmitterPlans());
+	}
+
+	static List<MotorExhaustMount> createMotorExhaustMounts(
+			List<RocketSceneSnapshot.ParticleEmitterPlan> plans) {
+		List<MotorExhaustMount> mounts = new ArrayList<>();
+		for (RocketSceneSnapshot.ParticleEmitterPlan plan : plans) {
+			Vector3f direction = new Vector3f(1.0f, 0.0f, 0.0f);
+			plan.motorRotationMatrix().transformDirection(direction);
+			direction.normalize();
+			Vector3f nozzle = new Vector3f(plan.motorCenterEngineCS())
+					.add(new Vector3f(direction).mul((float) plan.motor().getLength() * plan.worldScale() * 0.5f));
+			mounts.add(new MotorExhaustMount(plan.mountComponent(), nozzle, direction));
+		}
+		return List.copyOf(mounts);
+	}
+
+	/** The replay's camera behaviors (follow, pad, whole-flight framing and their transitions). */
+	public FlightCameraRig getFlightCamera() {
+		return flightCamera;
+	}
+
+	/** Allows ordinary pan gestures in free/follow views and blocks every pan path at the pad. */
+	public void setFlightPanEnabled(boolean enabled) {
+		cameraController.setPanEnabled(enabled);
+	}
+
+	/** Applies a wheel-sized zoom step on the render thread. */
+	public void zoomFlightCamera(float scrollAmount) {
+		enqueueGlTask(() -> cameraController.handleScroll(scrollAmount));
+	}
+
+	/** Invoked on the render thread each playback frame with the current playback time. */
+	public void setFlightFrameListener(DoubleConsumer listener) {
+		this.flightFrameListener = listener;
 	}
 }

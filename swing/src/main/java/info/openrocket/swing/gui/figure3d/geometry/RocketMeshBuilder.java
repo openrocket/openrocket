@@ -110,7 +110,14 @@ public final class RocketMeshBuilder {
 	 * are allocated. Pair with {@link #prepareSnapshot} on the GL thread.</p>
 	 */
 	public static RocketSceneSnapshot buildSnapshot(Rocket rocket, RenderingConfiguration config) {
-		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
+		return buildSnapshot(rocket, config, null);
+	}
+
+	/** Builds a snapshot for a specific configuration without changing the UI selection. */
+	public static RocketSceneSnapshot buildSnapshot(Rocket rocket, RenderingConfiguration config,
+			FlightConfigurationId configurationId) {
+		FlightConfiguration flightConfig = configurationId != null
+				? rocket.getFlightConfiguration(configurationId) : rocket.getSelectedConfiguration();
 		InstanceMap lowestMotorInstances = flightConfig.getLowestMotorInstances();
 		List<RocketSceneSnapshot.ComponentInstance> componentInstances = new ArrayList<>();
 		List<RocketSceneSnapshot.MotorInstance> motorInstances = new ArrayList<>();
@@ -362,7 +369,7 @@ public final class RocketMeshBuilder {
 		RocketSceneSnapshot.ParticleEmitterPlan emitterPlan = null;
 		if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
 			emitterPlan = new RocketSceneSnapshot.ParticleEmitterPlan(
-					new Vector3f(positionInEngineCS), rotationMatrix, motor, worldScale);
+					mount, new Vector3f(positionInEngineCS), rotationMatrix, motor, worldScale);
 		}
 
 		return new RocketSceneSnapshot.MotorInstance(mount, motorMesh, motor, modelMatrix, emitterPlan);
@@ -375,12 +382,13 @@ public final class RocketMeshBuilder {
 		Motor motor = plan.motor();
 		Matrix4f rotationMatrix = plan.motorRotationMatrix();
 		float worldScale = plan.worldScale();
-		addParticles(emitterConsumer, worldScale, positionInEngineCS, motor, rotationMatrix, config);
+		addParticles(emitterConsumer, worldScale, positionInEngineCS, motor, rotationMatrix, config,
+				plan.mountComponent());
 	}
 
 	private static void addParticles(Consumer<ParticleEmitter> emitterConsumer, float worldScale,
 			Vector3f positionInEngineCS, Motor motor,
-			Matrix4f rotationMatrix, RenderingConfiguration config) {
+			Matrix4f rotationMatrix, RenderingConfiguration config, RocketComponent mountComponent) {
 		VisualEffectsSettings settings = config.getVisualEffects();
 
 		// Skip particle creation if particle effects are disabled globally
@@ -388,7 +396,7 @@ public final class RocketMeshBuilder {
 			return;
 		}
 
-		Vector3f motorCenter = new Vector3f(positionInEngineCS).add((float) motor.getLength(), 0f, 0f);
+		Vector3f motorCenter = new Vector3f(positionInEngineCS);
 		Vector3f exhaustDirection = new Vector3f(1, 0, 0);
 		rotationMatrix.transformDirection(exhaustDirection);
 
@@ -403,6 +411,7 @@ public final class RocketMeshBuilder {
 			ParticleEmitter sparkEmitter = new SparkEmitter(emitterPosition, new Vector3f(exhaustDirection),
 					SparkSettings.intense(config, settings.getExhaustScale(),
 							settings.getSparkConcentration(), settings.getSparkWeight()));
+			sparkEmitter.setRocketComponent(mountComponent);
 			if (time != null) {
 				sparkEmitter.captureStaticParticles(time);
 			}
@@ -416,6 +425,7 @@ public final class RocketMeshBuilder {
 			ParticleEmitter smokeEmitter = new SmokeEmitter(smokePosition, new Vector3f(exhaustDirection),
 					SmokeSettings.medium(config, settings.getSmokeColor(),
 							settings.getSmokeOpacity(), settings.getExhaustScale()));
+			smokeEmitter.setRocketComponent(mountComponent);
 			if (time != null) {
 				smokeEmitter.captureStaticParticles(time);
 			}
@@ -427,6 +437,7 @@ public final class RocketMeshBuilder {
 			ParticleEmitter flameEmitter = new FlameEmitter(emitterPosition, new Vector3f(exhaustDirection),
 					FlameSettings.normal(config, settings.getFlameColor(),
 							settings.getExhaustScale(), settings.getFlameAspectRatio()));
+			flameEmitter.setRocketComponent(mountComponent);
 			if (time != null) {
 				flameEmitter.captureStaticParticles(time);
 			}

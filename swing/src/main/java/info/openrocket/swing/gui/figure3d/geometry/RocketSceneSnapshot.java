@@ -59,6 +59,7 @@ public final class RocketSceneSnapshot {
 	 * which are evaluated at apply time so live UI toggles take effect.
 	 */
 	public record ParticleEmitterPlan(
+			RocketComponent mountComponent,
 			Vector3f motorCenterEngineCS,
 			Matrix4f motorRotationMatrix,
 			Motor motor,

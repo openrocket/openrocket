@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.particles;
 
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import org.joml.Vector3f;
 
@@ -20,6 +21,7 @@ public abstract class ParticleEmitter {
 	protected final ParticleSettings settings;
 
 	protected boolean isStaticMode;
+	private RocketComponent rocketComponent;
 	protected float staticCaptureTime;
 	protected float currentTime;
 	protected final long baseSeed;
@@ -87,6 +89,14 @@ public abstract class ParticleEmitter {
 
 	public void setDirection(Vector3f direction) {
 		this.direction.set(direction);
+	}
+
+	public void setRocketComponent(RocketComponent rocketComponent) {
+		this.rocketComponent = rocketComponent;
+	}
+
+	public RocketComponent getRocketComponent() {
+		return rocketComponent;
 	}
 
 	protected float nextRandomFloat() {

@@ -51,6 +51,7 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.scalefigure.caliper.CaliperManager;
+import info.openrocket.swing.gui.widgets.SingleRowScrollPane;
 import info.openrocket.swing.gui.widgets.ThemedToggleButton;
 import info.openrocket.swing.gui.scalefigure.caliper.snap.CaliperSnapTarget;
 import info.openrocket.swing.gui.util.ColorConversion;

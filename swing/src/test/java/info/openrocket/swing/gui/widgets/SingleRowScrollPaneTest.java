@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.scalefigure;
+package info.openrocket.swing.gui.widgets;
 
 import info.openrocket.swing.util.BaseTestCase;
 import net.miginfocom.swing.MigLayout;

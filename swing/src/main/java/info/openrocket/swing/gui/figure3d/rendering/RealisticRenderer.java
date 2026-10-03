@@ -39,6 +39,8 @@ import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 
 /**
  * Main OpenGL 3.1 renderer for a figure3d scene.
@@ -101,6 +103,7 @@ public class RealisticRenderer implements GLRenderer {
 	private final GeometryPass geometryPass;
 	private final List<ScreenTexturePass> postProcessingPasses = new ArrayList<>();
 	private final MotionBlurPass motionBlurPass;
+	private volatile FrameOverlay frameOverlay;
 	private volatile boolean interactionMode = false;
 
 	/**
@@ -184,6 +187,11 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	@Override
+	public void setFrameOverlay(FrameOverlay overlay) {
+		this.frameOverlay = overlay;
+	}
+
+	@Override
 	public void render(SceneView scene, boolean renderBackground) {
 		// Some renderers and presentation paths bind textures directly instead of going
 		// through TextureStateManager. Reset the cache at the start of each frame so the
@@ -220,6 +228,14 @@ public class RealisticRenderer implements GLRenderer {
 		// 2. Run the post-processing chain
 		int finalTexture = runPostProcessingChain(scene, cameraViewMatrix, cameraProjectionMatrix);
 		resolveFinalTexture(finalTexture);
+
+		FrameOverlay overlay = frameOverlay;
+		if (overlay != null && resolvedTextureId != 0) {
+			glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.getFramebufferId());
+			glViewport(0, 0, screenWidth, screenHeight);
+			overlay.render(cameraViewMatrix, screenWidth, screenHeight);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 
 		GLErrors.debugCheck("frame render");
 	}
@@ -469,6 +485,11 @@ public class RealisticRenderer implements GLRenderer {
 
 	@Override
 	public void cleanup() {
+		FrameOverlay overlay = frameOverlay;
+		frameOverlay = null;
+		if (overlay != null) {
+			overlay.cleanup();
+		}
 		particleRenderer.cleanup();
 		flameRenderer.cleanup();
 		volumetricSmokeRenderer.cleanup();

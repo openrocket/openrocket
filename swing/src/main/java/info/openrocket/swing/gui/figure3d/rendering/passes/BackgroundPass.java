@@ -48,6 +48,7 @@ import static org.lwjgl.opengl.GL33.glGenBuffers;
 import static org.lwjgl.opengl.GL33.glGenVertexArrays;
 import static org.lwjgl.opengl.GL33.glUniform1f;
 import static org.lwjgl.opengl.GL33.glUniform1i;
+import static org.lwjgl.opengl.GL33.glUniform2f;
 import static org.lwjgl.opengl.GL33.glUniform3f;
 import static org.lwjgl.opengl.GL33.glVertexAttribPointer;
 
@@ -73,8 +74,12 @@ public class BackgroundPass implements RenderPass {
 	private final TextureBinder textureStateManager;
 	private final Matrix3f skyboxViewRotation = new Matrix3f();
 	private final Matrix4f skyboxViewMatrix = new Matrix4f();
+	private final Matrix3f gradientViewToWorld = new Matrix3f();
 	private final int gradientTopColorLocation;
 	private final int gradientBottomColorLocation;
+	private final int gradientWorldAlignedLocation;
+	private final int gradientViewToWorldLocation;
+	private final int gradientInverseProjectionScaleLocation;
 	private final int imageSamplerLocation;
 	private final int skyboxViewLocation;
 	private final int skyboxProjectionLocation;
@@ -105,6 +110,9 @@ public class BackgroundPass implements RenderPass {
 		this.textureStateManager = textureStateManager;
 		gradientTopColorLocation = gradientShader.requireUniformLocation("topColor");
 		gradientBottomColorLocation = gradientShader.requireUniformLocation("bottomColor");
+		gradientWorldAlignedLocation = gradientShader.requireUniformLocation("worldAligned");
+		gradientViewToWorldLocation = gradientShader.requireUniformLocation("viewToWorld");
+		gradientInverseProjectionScaleLocation = gradientShader.requireUniformLocation("inverseProjectionScale");
 		imageSamplerLocation = imageShader.requireUniformLocation("backgroundImage");
 		skyboxViewLocation = skyboxShader.requireUniformLocation("view");
 		skyboxProjectionLocation = skyboxShader.requireUniformLocation("projection");
@@ -162,7 +170,7 @@ public class BackgroundPass implements RenderPass {
 
 	@Override
 	public void render(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
-		renderBackground(scene, scene.getBackground());
+		renderBackground(scene, scene.getBackground(), viewMatrix, projectionMatrix);
 	}
 
 	/**
@@ -175,7 +183,8 @@ public class BackgroundPass implements RenderPass {
 	 * @param scene The scene containing camera and other rendering context
 	 * @param background The background object to render
 	 */
-	private void renderBackground(SceneView scene, Background background) {
+	private void renderBackground(SceneView scene, Background background,
+			Matrix4f viewMatrix, Matrix4f projectionMatrix) {
 		if (background instanceof SolidColorBackground solidBackground) {
 			Vector4f color = solidBackground.getColor();
 			// If background has transparency, blend it over a checkerboard
@@ -203,6 +212,11 @@ public class BackgroundPass implements RenderPass {
 			Vector3f bottomColor = gradientBackground.getBottomColor();
 			glUniform3f(gradientTopColorLocation, topColor.x, topColor.y, topColor.z);
 			glUniform3f(gradientBottomColorLocation, bottomColor.x, bottomColor.y, bottomColor.z);
+			glUniform1i(gradientWorldAlignedLocation, gradientBackground.isWorldAligned() ? 1 : 0);
+			gradientViewToWorld.set(viewMatrix).invert();
+			gradientShader.setUniformMatrix3f(gradientViewToWorldLocation, gradientViewToWorld);
+			glUniform2f(gradientInverseProjectionScaleLocation,
+					1.0f / projectionMatrix.m00(), 1.0f / projectionMatrix.m11());
 			glBindVertexArray(gradientVao);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glBindVertexArray(0);
