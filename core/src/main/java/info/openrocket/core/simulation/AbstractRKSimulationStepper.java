@@ -195,8 +195,7 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
      * @param store                     the simulation calculation DataStore (contains acceleration, atmosphere)
      * @return                          the average thrust during the time step.
      */
-    protected double calculateThrust(SimulationStatus status,
-                                     DataStore store) throws SimulationException {
+    protected double calculateThrust(SimulationStatus status) throws SimulationException {
         double thrust;
 
 		store.thrustCorrection = 0;
@@ -274,7 +273,7 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
         double fN = store.forces.getCN() * dynP * refArea;
         double fSide = store.forces.getCside() * dynP * refArea;
 
-        store.thrustForce = calculateThrust(status, store);
+        store.thrustForce = calculateThrust(status);
         double forceZ =  store.thrustForce - store.dragForce;
 
         linearAcceleration = new MutableCoordinate(-fN / store.rocketMass.getMass(),
