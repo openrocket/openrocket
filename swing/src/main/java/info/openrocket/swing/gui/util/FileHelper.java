@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.util;
 
-import info.openrocket.core.gui.util.SimpleFileFilter;
+import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
@@ -8,7 +9,10 @@ import info.openrocket.core.startup.Application;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
+
+import com.formdev.flatlaf.util.SystemFileChooser.FileFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.PatternFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,48 +38,48 @@ public final class FileHelper {
 
 	/** File filter for any rocket designs (*.ork, *.rkt, *.CDX1) */
 	public static final FileFilter ALL_DESIGNS_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.ALL_DESIGNS_FILTER"),
-					".ork", ".ork.gz", ".rkt", ".rkt.gz", ".CDX1", ".CDX1.gz");
+			createFilter(trans.get("FileHelper.ALL_DESIGNS_FILTER"),
+					"ork", "ork.gz", "rkt", "rkt.gz", "CDX1", "CDX1.gz");
 
 	/** File filter for OpenRocket designs (*.ork) */
 	public static final FileFilter OPENROCKET_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.OPENROCKET_DESIGN_FILTER"), ".ork", ".ork.gz");
+			createFilter(trans.get("FileHelper.OPENROCKET_DESIGN_FILTER"), "ork", "ork.gz");
 
 	/** File filter for RockSim designs (*.rkt) */
 	public static final FileFilter ROCKSIM_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), ".rkt", ".rkt.gz");
+			createFilter(trans.get("FileHelper.ROCKSIM_DESIGN_FILTER"), "rkt", "rkt.gz");
 
 	/** File filter for RASAero II designs (*.CDX1) */
 	public static final FileFilter RASAERO_DESIGN_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
+			createFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), "CDX1", "CDX1.gz");
 
 	/** File filter for RASAero II designs (*.CDX1) */
 	public static final FileFilter WAVEFRONT_OBJ_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.WAVEFRONT_OBJ_FILTER"), ".obj");
+			createFilter(trans.get("FileHelper.WAVEFRONT_OBJ_FILTER"), "obj");
 
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), ".orc", ".orc.gz");
+			createFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), "orc", "orc.gz");
 
 	/** File filter for PDF files (*.pdf) */
 	public static final FileFilter PDF_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.PDF_FILTER"), ".pdf");
+			createFilter(trans.get("FileHelper.PDF_FILTER"), "pdf");
 
 	/** File filter for CSV files (*.csv) */
 	public static final FileFilter CSV_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.CSV_FILTER"), ".csv");
+			createFilter(trans.get("FileHelper.CSV_FILTER"), "csv");
 
 	/** File filter for PNG files (*.png) */
 	public static final FileFilter PNG_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.PNG_FILTER"), ".png");
+			createFilter(trans.get("FileHelper.PNG_FILTER"), "png");
 
 	/** File filter for CSV files (*.csv) */
 	public static final FileFilter SVG_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.SVG_FILTER"), ".svg");
+			createFilter(trans.get("FileHelper.SVG_FILTER"), "svg");
 
 	/** File filter for XML files (*.xml) */
 	public static final FileFilter XML_FILTER =
-			new SimpleFileFilter(trans.get("FileHelper.XML_FILTER"), ".xml");
+			createFilter(trans.get("FileHelper.XML_FILTER"), "xml");
 
 
 
@@ -103,7 +107,31 @@ public final class FileHelper {
 		}
 		sb.append(")");
 
-		return new SimpleFileFilter(sb.toString(), extensions);
+		return createFilter(sb.toString(), extensions);
+	}
+
+	/**
+	 * Create a file filter for the native file chooser.
+	 * <p>
+	 * Extension filters cannot match multipart extensions such as "ork.gz", so filters containing them are
+	 * created as pattern filters. macOS does not support pattern filters, so there the multipart extensions
+	 * are left out and those files can only be picked with the "All Files" filter.
+	 *
+	 * @param description	the description of the filter
+	 * @param extensions	the extensions to accept, without preceding dot
+	 * @return				the file filter
+	 */
+	public static FileFilter createFilter(String description, String... extensions) {
+		boolean hasMultipartExtension = Arrays.stream(extensions).anyMatch(ext -> ext.indexOf('.') >= 0);
+		if (!hasMultipartExtension) {
+			return new FileNameExtensionFilter(description, extensions);
+		}
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+			return new FileNameExtensionFilter(description,
+					Arrays.stream(extensions).filter(ext -> ext.indexOf('.') < 0).toArray(String[]::new));
+		}
+		return new PatternFilter(description,
+				Arrays.stream(extensions).map(ext -> "*." + ext).toArray(String[]::new));
 	}
 
 
@@ -182,6 +210,24 @@ public final class FileHelper {
 			log.info(Markers.USER_MARKER, "User decided to overwrite the file");
 		}
 		return true;
+	}
+
+
+	/**
+	 * Confirm that it is allowed to write to a file that was chosen in a save dialog.  The save dialog already
+	 * asked whether the selected file may be overwritten, so the confirmation dialog is only shown if the file
+	 * that is going to be written differs from the selection, e.g. because an extension was appended.
+	 *
+	 * @param file			the file that is going to be written.
+	 * @param selectedFile	the file selected in the save dialog.
+	 * @param parent		the parent component for the dialog.
+	 * @return				<code>true</code> to write, <code>false</code> to abort.
+	 */
+	public static boolean confirmWrite(File file, File selectedFile, Component parent) {
+		if (file.equals(selectedFile)) {
+			return true;
+		}
+		return confirmWrite(file, parent);
 	}
 
 

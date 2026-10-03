@@ -18,7 +18,6 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -457,7 +456,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			return false;
 		}
 		
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.PDF_FILTER);
 		
 		// Select initial directory
@@ -472,10 +471,10 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		
 		int returnVal = chooser.showSaveDialog(this);
 		File file = chooser.getSelectedFile();
-		if (returnVal == JFileChooser.APPROVE_OPTION && file != null) {
+		if (returnVal == SaveFileChooser.APPROVE_OPTION && file != null) {
 			
 			file = FileHelper.forceExtension(file, "pdf");
-			if (!FileHelper.confirmWrite(file, this)) {
+			if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 				return false;
 			}
 			

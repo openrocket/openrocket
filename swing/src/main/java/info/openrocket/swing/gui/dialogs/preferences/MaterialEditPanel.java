@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.dialogs.preferences;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -177,6 +178,9 @@ public class MaterialEditPanel extends JPanel {
 		model.setColumnWidths(table.getColumnModel());
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(Object.class, new MaterialCellRenderer());
+		// Show about 10 rows by default instead of the default 400 px, which made this tab set the dialog height
+		table.setPreferredScrollableViewportSize(new Dimension(
+				table.getPreferredScrollableViewportSize().width, 10 * table.getRowHeight()));
 		this.add(new JScrollPane(table), "spanx, grow 100, wrap");
 		
 

@@ -40,7 +40,6 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -62,12 +61,13 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import com.formdev.flatlaf.util.SystemFileChooser.FileFilter;
+
 import info.openrocket.swing.gui.choosers.OptionChooser;
 import info.openrocket.swing.gui.choosers.StorageOptionChooser;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
@@ -135,6 +135,7 @@ import info.openrocket.swing.gui.util.OpenFileWorker;
 import info.openrocket.swing.gui.util.SaveFileWorker;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.URLUtil;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import info.openrocket.swing.utils.ComponentPresetEditor;
 import info.openrocket.swing.gui.figureelements.BananaForScale;
 import org.slf4j.Logger;
@@ -1463,17 +1464,17 @@ private static final Translator trans = Application.getTranslator();
 	 * @param filter the file filter to use, or null for no filter. E.g. use "RockSim" for RockSim files.
 	 */
 	public static void openAction(Window parent, FileFilter filter) {
-		JFileChooser chooser = new JFileChooser();
+		NativeFileChooser chooser = new NativeFileChooser();
 
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 		chooser.addChoosableFileFilter(filter);
 		chooser.setFileFilter(filter);
 
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		int option = chooser.showOpenDialog(parent);
-		if (option != JFileChooser.APPROVE_OPTION) {
+		if (option != NativeFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "Decided not to open files, option=" + option);
 			return;
 		}
@@ -1723,11 +1724,11 @@ private static final Translator trans = Application.getTranslator();
 
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
-		if (option != JFileChooser.APPROVE_OPTION) {
+		if (option != NativeFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return null;
 		}
-		if(chooser.getAccessory() instanceof OptionChooser optionChooser){
+		if(chooser.getOptionsPanel() instanceof OptionChooser optionChooser){
 			optionChooser.storeOptions(document,prefs);
 		}
 
@@ -1762,13 +1763,13 @@ private static final Translator trans = Application.getTranslator();
 
 	public boolean exportRASAeroAction() {
 		try {
-			File file = openFileSaveAsDialog(FileType.RASAERO);
-			if (file == null) {
+			File selectedFile = openFileSaveAsDialog(FileType.RASAERO);
+			if (selectedFile == null) {
 				return false;
 			}
 
-			file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
-			if (FileHelper.confirmWrite(file, BasicFrame.this)) {
+			File file = FileHelper.forceExtension(selectedFile, RASAeroCommonConstants.FILE_EXTENSION);
+			if (FileHelper.confirmWrite(file, selectedFile, BasicFrame.this)) {
 				boolean result = saveAsRASAero(file);
 				if (!result) {
 					file.delete();
@@ -1877,13 +1878,13 @@ private static final Translator trans = Application.getTranslator();
 	*/
 	public boolean exportRockSimAction() {
 		try {
-			File file = openFileSaveAsDialog(FileType.ROCKSIM);
-			if (file == null) {
+			File selectedFile = openFileSaveAsDialog(FileType.ROCKSIM);
+			if (selectedFile == null) {
 				return false;
 			}
 
-			file = FileHelper.forceExtension(file, "rkt");
-			if (FileHelper.confirmWrite(file, BasicFrame.this)) {
+			File file = FileHelper.forceExtension(selectedFile, "rkt");
+			if (FileHelper.confirmWrite(file, selectedFile, BasicFrame.this)) {
 				return saveAsRockSim(file);
 			}
 			return false;
@@ -1966,15 +1967,15 @@ private static final Translator trans = Application.getTranslator();
 	 */
 	public boolean exportWavefrontOBJAction() {
 		try {
-			File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
-			if (file == null) {
+			File selectedFile = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
+			if (selectedFile == null) {
 				return false;
 			}
 
-			file = FileHelper.forceExtension(file, "obj");
+			File file = FileHelper.forceExtension(selectedFile, "obj");
 			OBJExportOptions options = document.getDefaultOBJOptions();
 			boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
-			if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
+			if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, selectedFile, BasicFrame.this)) {		// No overwrite warning for separate files
 				return saveAsWavefrontOBJ(file);
 			}
 			return false;
@@ -2044,7 +2045,7 @@ private static final Translator trans = Application.getTranslator();
 			SVGExportOptions options = optionsDialog.getExportOptions();
 
 			// Now show file chooser
-			JFileChooser chooser = new JFileChooser();
+			NativeFileChooser chooser = new NativeFileChooser();
 			chooser.setFileFilter(FileHelper.SVG_FILTER);
 
 			SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
@@ -2085,12 +2086,12 @@ private static final Translator trans = Application.getTranslator();
 			File parentDir = defaultDir != null ? defaultDir : new File(System.getProperty("user.home", "."));
 			chooser.setSelectedFile(new File(parentDir, defaultName + fileSuffix));
 
-			if (chooser.showSaveDialog(BasicFrame.this) != JFileChooser.APPROVE_OPTION) {
+			if (chooser.showSaveDialog(BasicFrame.this) != NativeFileChooser.APPROVE_OPTION) {
 				return;
 			}
 
 			File target = FileHelper.forceExtension(chooser.getSelectedFile(), "svg");
-			if (!FileHelper.confirmWrite(target, BasicFrame.this)) {
+			if (!FileHelper.confirmWrite(target, chooser.getSelectedFile(), BasicFrame.this)) {
 				return;
 			}
 
@@ -2169,13 +2170,13 @@ private static final Translator trans = Application.getTranslator();
 			// Open dialog for saving rocket info
 			showSaveRocketInfoDialog();
 
-			File file = openFileSaveAsDialog(FileType.OPENROCKET);
-			if (file == null) {
+			File selectedFile = openFileSaveAsDialog(FileType.OPENROCKET);
+			if (selectedFile == null) {
 				return false;
 			}
 
-			file = FileHelper.forceExtension(file, "ork");
-			boolean result = FileHelper.confirmWrite(file, BasicFrame.this) && saveAsOpenRocket(file);
+			File file = FileHelper.forceExtension(selectedFile, "ork");
+			boolean result = FileHelper.confirmWrite(file, selectedFile, BasicFrame.this) && saveAsOpenRocket(file);
 			if (result) {
 				MRUDesignFile opts = MRUDesignFile.getInstance();
 				opts.addFile(file.getAbsolutePath());

@@ -11,13 +11,13 @@ import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -248,17 +248,17 @@ public class MultiLevelWindEditDialog extends JDialog {
 		prefs.putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, settingsDialog.getSeparator());
 
 		// Now open file chooser to select the CSV file
-		JFileChooser fileChooser = new JFileChooser();
+		NativeFileChooser fileChooser = new NativeFileChooser();
 		fileChooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		fileChooser.setDialogTitle(trans.get("WindProfileEditorDlg.dlg.importLevels.title"));
 
 		fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
 		fileChooser.setFileFilter(FileHelper.CSV_FILTER);
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		fileChooser.setMultiSelectionEnabled(false);
 
 		int returnVal = fileChooser.showOpenDialog(this);
-		if (returnVal != JFileChooser.APPROVE_OPTION) {
+		if (returnVal != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 
