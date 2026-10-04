@@ -103,7 +103,7 @@ public class TestRockets {
 	}
 
 	// Minimal motor without any useful numbers data
-	private static ThrustCurveMotor getTestMotor() {
+	public static ThrustCurveMotor getTestMotor() {
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("A"))
 				.setDesignation("F12X")
@@ -122,7 +122,7 @@ public class TestRockets {
 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without
 	// updating tests).
-	private static Motor generateMotor_A8_18mm() {
+	public static Motor generateMotor_A8_18mm() {
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("A8")
@@ -142,7 +142,7 @@ public class TestRockets {
 	}
 	
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	private static Motor generateMotor_A10_13mm(){
+	public static Motor generateMotor_A10_13mm(){
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("A10")
@@ -165,7 +165,7 @@ public class TestRockets {
 	}
 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
-	private static Motor generateMotor_B4_18mm(){
+	public static Motor generateMotor_B4_18mm(){
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("B4")
@@ -186,7 +186,7 @@ public class TestRockets {
 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without
 	// updating tests).
-	private static Motor generateMotor_C6_18mm() {
+	public static Motor generateMotor_C6_18mm() {
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("C6")
@@ -210,7 +210,7 @@ public class TestRockets {
 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without
 	// updating tests).
-	private static Motor generateMotor_D21_18mm() {
+	public static Motor generateMotor_D21_18mm() {
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("D21")
@@ -231,7 +231,7 @@ public class TestRockets {
 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without
 	// updating tests).
-	private static Motor generateMotor_M1350_75mm() {
+	public static Motor generateMotor_M1350_75mm() {
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("M1350")
@@ -252,7 +252,7 @@ public class TestRockets {
 
 	// This function is used for unit, integration tests, DO NOT CHANGE (without
 	// updating tests).
-	private static Motor generateMotor_G77_29mm() {
+	public static Motor generateMotor_G77_29mm() {
 		return new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("G77")
