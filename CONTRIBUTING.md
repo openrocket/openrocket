@@ -130,13 +130,13 @@ git config --global commit.gpgsign true
 You can also [sign commits with an SSH key](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) instead of GPG. After the public key is on your account, signed commits show as Verified on GitHub.
 
 ### Pull requests
-Right, you've dug into the codebase, found that one nasty line that caused all your troubles and fixed it. It is now time to push your **feature branch** (not `unstable`) and create a pull request from that branch to `openrocket/openrocket:unstable`. As your PR (Pull Request) text, it is good to have the following structure:
+Open your PR from a **feature branch** against `openrocket/openrocket:unstable`. Keep it focused on one problem and leave unrelated cleanup for separate work. Check existing issues and PRs to avoid duplicates, and discuss new features or broad changes before implementing them.
 
-1. Explain briefly which issue that you are trying to solve, e.g. 'This PR solves #123 in which buttons were displayed as red instead of blue' 
-2. Next explain what the underlying issue was, e.g. 'The problem was that by default Java swing displays buttons as red.' 
-3. Next is how you fixed the issue, e.g. 'Fixed it by overriding the default button color to blue' 
+Use the [PR template](.github/pull_request_template.md): a specific title, a `# Description` heading with a short summary of what changed and why, then `# Testing` with the checks you actually ran and their results. After the summary, add `Closes #123` if the PR fully resolves that open issue, or `Related to #123` if it does not. Omit the issue line when there is no relevant issue. Aim for under 200 words for routine changes; add detail when reviewers need it to assess correctness or risk. If you could not test the change, say why.
 
-You can take a look at example PR [#979](https://github.com/openrocket/openrocket/pull/979).
+Use normal paragraphs and let the editor wrap lines naturally. Avoid forced line breaks, stacks of subheadings, boilerplate checklists, and file-by-file summaries of the diff. Include screenshots for visible UI changes where useful.
+
+If you use AI tools, follow the [LLM contribution guidelines](AGENTS.md). You must understand and review every change, verify the output, and be able to respond to review yourself. Include `# AI assistance` whenever AI was used, including for the PR description: name the actual model(s), for example "GPT 6 astra", and briefly explain their role and how the output was verified. The AI drafting the PR must fill this in; if the exact model is unavailable, state that instead of guessing. Remove this section if no AI was used. Maintainers may close PRs that are unfocused, contain unverified claims, or that the author cannot explain. Please address the stated concerns before resubmitting.
 
 ## Translation
 Both the OpenRocket software and the end-user documentation site are multilingual. The job of a translator is to maintain the existing languages, or to make a new translation of an unlisted language. During the development sometimes new translation keys get added in the English language that are not simultaneously translated to other languages. The translator must therefore check which translation keys are still missing in his/her/their language.

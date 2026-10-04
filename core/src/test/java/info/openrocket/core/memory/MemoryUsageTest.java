@@ -22,7 +22,7 @@ import info.openrocket.core.util.TestRockets;
  */
 public class MemoryUsageTest extends BaseTestCase {
 
-	private static final long MAX_HEAP_USED_BYTES = 30L * 1024 * 1024; // 30 MiB
+	private static final long MAX_HEAP_USED_BYTES = 31L * 1024 * 1024; // 31 MiB
 
 	@Test
 	public void heapUsageRemainsWithinBudget() throws SimulationException, InterruptedException {

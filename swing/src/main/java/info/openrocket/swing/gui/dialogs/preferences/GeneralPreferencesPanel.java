@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,36 +12,27 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
-import info.openrocket.core.startup.Application;
 import info.openrocket.swing.startup.MotorDatabaseUpdateChecker;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
-import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
-import info.openrocket.core.logging.Markers;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
 
-import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
-import info.openrocket.swing.gui.theme.UITheme;
 
 
 @SuppressWarnings("serial")
@@ -87,188 +77,6 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 
 		this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
-		//// User-defined thrust curves:
-		this.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
-		final JTextField field = new JTextField();
-		String str = preferences.getUserThrustCurveFilesAsString();
-		field.setText(str);
-		field.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				changed();
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				changed();
-			}
-			
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				changed();
-			}
-			
-			private void changed() {
-				String text = field.getText();
-				List<File> list = new ArrayList<>();
-				for (String s : text.split(";")) {
-					s = s.trim();
-					if (s.length() > 0) {
-						list.add(new File(s));
-					}
-				}
-				preferences.setUserThrustCurveFiles(list);
-			}
-		});
-		this.add(field, "w 100px, gapright unrel, spanx, growx, split");
-		
-		//// Add button
-		JButton button = new JButton(trans.get("pref.dlg.but.add"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setAcceptAllFileFilterUsed(false);
-				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-				SimpleFileFilter filter =
-						new SimpleFileFilter(
-								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
-								trans.get("pref.dlg.Allthrustcurvefiles"),
-								true, "eng", "rse", "zip", "db");
-				chooser.addChoosableFileFilter(filter);
-				//// RASP motor files (*.eng)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RASPfiles"),
-						true, "eng"));
-				//// RockSim engine files (*.rse)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RockSimfiles"),
-						true, "rse"));
-				//// ZIP archives (*.zip)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ZIParchives"),
-						true, "zip"));
-				chooser.setFileFilter(filter);
-				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				
-				//// Add
-				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					log.info(Markers.USER_MARKER, "Adding user thrust curve: " + chooser.getSelectedFile());
-					String text = field.getText().trim();
-					if (text.length() > 0) {
-						text += ";";
-					}
-					text += chooser.getSelectedFile().getAbsolutePath();
-					field.setText(text);
-					Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
-				}
-			}
-		});
-		this.add(button, "gapright unrel");
-		
-		//// Reset button
-		button = new JButton(trans.get("pref.dlg.but.reset"));
-		
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// First one sets to the default, but does not un-set the pref
-				field.setText(preferences.getDefaultUserThrustCurveFile().getAbsolutePath());
-				preferences.setUserThrustCurveFiles(null);
-			}
-		});
-		this.add(button, "wrap");
-		
-		//// Add directories, RASP motor files (*.eng), RockSim engine files (*.rse) or ZIP archives separated by a semicolon (;) to load external thrust curves.  Changes will take effect the next time you start OpenRocket.
-		DescriptionArea desc = new DescriptionArea(trans.get("pref.dlg.DescriptionArea.Adddirectories"), 3, -1.5f, false);
-		desc.setBackground(UITheme.getColor(UITheme.Keys.BACKGROUND));
-		desc.setForeground(UITheme.getColor(UITheme.Keys.TEXT));
-		this.add(desc, "spanx, growx, wrap unrel");
-
-		//// User-defined component presets:
-		this.add(new JLabel(trans.get("pref.dlg.lbl.User-definedComponentPreset")), "spanx, wrap");
-		final JTextField fieldCompPres = new JTextField();
-		str = preferences.getUserComponentPresetFilesAsString();
-		fieldCompPres.setText(str);
-		fieldCompPres.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				changed();
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				changed();
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				changed();
-			}
-
-			private void changed() {
-				String text = fieldCompPres.getText();
-				List<File> list = new ArrayList<>();
-				for (String s : text.split(";")) {
-					s = s.trim();
-					if (s.length() > 0) {
-						list.add(new File(s));
-					}
-				}
-				preferences.setUserComponentPresetFiles(list);
-			}
-		});
-		this.add(fieldCompPres, "w 100px, gapright unrel, spanx, growx, split");
-
-		//// Add button
-		button = new JButton(trans.get("pref.dlg.but.add"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-				chooser.setAcceptAllFileFilterUsed(false);
-				SimpleFileFilter filter =
-						new SimpleFileFilter(
-								trans.get("pref.dlg.AllComponentPresetfiles"),
-								true, "orc");
-				chooser.addChoosableFileFilter(filter);
-				//// OpenRocket component files (*.orc)
-				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ORCfiles"),
-						true, "orc"));
-				chooser.setFileFilter(filter);
-				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-
-				//// Add
-				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					log.info(Markers.USER_MARKER, "Adding component preset file: " + chooser.getSelectedFile());
-					String text = fieldCompPres.getText().trim();
-					if (text.length() > 0) {
-						text += ";";
-					}
-					text += chooser.getSelectedFile().getAbsolutePath();
-					fieldCompPres.setText(text);
-					Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
-				}
-			}
-		});
-		this.add(button, "gapright unrel");
-
-		//// Reset button
-		button = new JButton(trans.get("pref.dlg.but.reset"));
-
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// First one sets to the default, but does not un-set the pref
-				fieldCompPres.setText(preferences.getDefaultUserComponentFile().getAbsolutePath());
-				preferences.setUserComponentPresetFiles(null);
-			}
-		});
-		this.add(button, "wrap");
-
-		this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
-
-
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
 				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
@@ -282,7 +90,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(softwareUpdateBox);
 		
 		//// Check now button
-		button = new JButton(trans.get("pref.dlg.but.checknow"));
+		JButton button = new JButton(trans.get("pref.dlg.but.checknow"));
 		//// Check for software updates now
 		button.setToolTipText(trans.get("pref.dlg.ttip.Checkupdatesnow"));
 		button.addActionListener(new ActionListener() {
@@ -340,39 +148,6 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(autoInstallMotorDatabaseUpdateBox, "gapleft para, wrap");
-
-		//// Open most recent file on startup
-		final JCheckBox openRecentOnStartupBox = new JCheckBox(trans.get("pref.dlg.but.openlast"));
-		openRecentOnStartupBox.setSelected(preferences.isAutoOpenLastDesignOnStartupEnabled());
-		openRecentOnStartupBox.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setAutoOpenLastDesignOnStartup(openRecentOnStartupBox.isSelected());
-			}
-		});
-		this.add(openRecentOnStartupBox,"spanx, wrap");
-
-		//// Save RASAero Format warning dialog
-		final JCheckBox rasaeroWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RASAeroWarning"));
-		rasaeroWarningDialogBox.setSelected(preferences.getShowRASAeroFormatWarning());
-		rasaeroWarningDialogBox.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setShowRASAeroFormatWarning(rasaeroWarningDialogBox.isSelected());
-			}
-		});
-		this.add(rasaeroWarningDialogBox,"spanx, wrap");
-		
-		//// Save RockSim Format warning dialog
-		final JCheckBox rocksimWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RockSimWarning"));
-		rocksimWarningDialogBox.setSelected(preferences.getShowRockSimFormatWarning());
-		rocksimWarningDialogBox.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setShowRockSimFormatWarning(rocksimWarningDialogBox.isSelected());
-			}
-		});
-		this.add(rocksimWarningDialogBox,"spanx, wrap");
 
 		//// Show confirmation dialog when discarding preferences
 		final JCheckBox prefsDiscardBox = new JCheckBox(trans.get("pref.dlg.checkbox.ShowDiscardPreferencesConfirmation"));

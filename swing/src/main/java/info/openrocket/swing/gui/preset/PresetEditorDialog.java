@@ -34,14 +34,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -65,6 +64,7 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 /**
  * Preset editor for creating new preset components.
@@ -207,7 +207,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	private ImageIcon pcImage;
 	private final JButton pcImageBtn;
 	
-	private final JFileChooser imageChooser = createImageChooser();
+	private final NativeFileChooser imageChooser = createImageChooser();
 	
 	private final JPanel componentOverlayPanel;
 	
@@ -386,7 +386,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						ncImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						ncImageBtn.setIcon(ncImage);
@@ -513,7 +513,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						trImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						trImageBtn.setIcon(trImage);
@@ -591,7 +591,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						btImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						btImageBtn.setIcon(btImage);
@@ -669,7 +669,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						tcImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						tcImageBtn.setIcon(tcImage);
@@ -740,7 +740,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						bhImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						bhImageBtn.setIcon(bhImage);
@@ -819,7 +819,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						crImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						crImageBtn.setIcon(crImage);
@@ -897,7 +897,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						ebImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						ebImageBtn.setIcon(ebImage);
@@ -975,7 +975,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						llImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						llImageBtn.setIcon(llImage);
@@ -1072,7 +1072,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						rbImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						rbImageBtn.setIcon(rbImage);
@@ -1150,7 +1150,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						stImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						stImageBtn.setIcon(stImage);
@@ -1242,7 +1242,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				public void actionPerformed(final ActionEvent e) {
 					int returnVal = imageChooser.showOpenDialog(PresetEditorDialog.this);
 					
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
+					if (returnVal == NativeFileChooser.APPROVE_OPTION) {
 						File file = imageChooser.getSelectedFile();
 						pcImage = scaleImage(new ImageIcon(file.getAbsolutePath()).getImage(), 155);
 						pcImageBtn.setIcon(pcImage);
@@ -1318,12 +1318,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	 *
 	 * @return a file chooser that looks for image files
 	 */
-	private JFileChooser createImageChooser() {
-		final JFileChooser chooser = new JFileChooser();
+	private NativeFileChooser createImageChooser() {
+		final NativeFileChooser chooser = new NativeFileChooser();
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		ImagePreviewPanel preview = new ImagePreviewPanel();
-		chooser.setAccessory(preview);
-		chooser.addPropertyChangeListener(preview);
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"));
 		return chooser;

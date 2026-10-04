@@ -79,9 +79,9 @@ jobs:
 
           "value=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Build OpenRocket distribution JAR
+      - name: Build and smoke-test Windows distribution JARs
         shell: pwsh
-        run: .\gradlew.bat shadowJar --no-daemon
+        run: .\gradlew.bat shadowJarWindowsX64 shadowJarWindowsArm64 distributionSmokeTest --no-daemon
 
       - name: Install install4j
         id: install4j
@@ -130,8 +130,6 @@ jobs:
             '--build-ids=60,248'
             "--release=$env:OPENROCKET_VERSION"
             "--destination=$mediaDirectory"
-            '-D'
-            "JAR_NAME=OpenRocket-$env:OPENROCKET_VERSION.jar"
             'install4j/26.xx/openrocket-26.xx.install4j'
           )
 

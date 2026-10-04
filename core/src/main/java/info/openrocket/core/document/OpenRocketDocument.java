@@ -725,7 +725,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		
+		modID = new ModID();
+
 		if (!e.isUndoChange()) {
 			if (undoPosition < undoHistory.size() - 1) {
 				log.info("Rocket changed while in undo history, removing redo information for " + this +
@@ -742,6 +743,10 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 
 	@Override
 	public void stateChanged(EventObject e) {
+		// The rocket notifies this document through both listener interfaces; componentChanged() handles its events
+		if (e instanceof ComponentChangeEvent) {
+			return;
+		}
 		modID = new ModID();
 		if (!inUndoRedo && (e.getSource() instanceof Simulation)) {
 			boolean simulationsEqual = simulations.equals(undoSimulationHistory.get(undoPosition));

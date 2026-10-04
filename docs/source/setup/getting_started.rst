@@ -22,17 +22,17 @@ The User interface
 
 The OpenRocket user interface is divided horizontally into four sections:
 
-- :guilabel:`Main Menu` (green)
-- :guilabel:`Task Tabs` (black)
-- :guilabel:`Rocket Design`, :guilabel:`Motors & Configuration`, and :guilabel:`Flight Simulation Pane` (red)
-- :guilabel:`Rocket Views Pane` (blue)
+- :guilabel:`Main Menu`
+- :guilabel:`Task Tabs`
+- :guilabel:`Rocket Design`, :guilabel:`Motors & Configuration`, and :guilabel:`Flight Simulations` pane
+- :guilabel:`Rocket Views Pane`
 
 .. figure:: /img/setup/getting_started/2023.01.Guide.User_Interface.png
    :width: 95%
    :align: center
    :figclass: or-image-border
 
-   UI of OpenRocket divided into four
+   The current development interface, with the menu and task tabs at the top, the design pane in the middle, and the rocket view below. The introductory screenshots on this page use the bundled A simple model rocket example.
 
 Main Menu
 ---------
@@ -45,7 +45,7 @@ File
 ^^^^
 
 .. figure:: /img/setup/getting_started/02.04.01.File_Menu.png
-   :width: 35%
+   :width: 95%
    :align: center
    :figclass: or-image-border
 
@@ -74,7 +74,7 @@ Edit
 ^^^^
 
 .. figure:: /img/setup/getting_started/OR.Guide.User_Interface.04.02.File.png
-   :width: 35%
+   :width: 95%
    :align: center
    :figclass: or-image-border
 
@@ -91,7 +91,7 @@ Tools
 ^^^^^
 
 .. figure:: /img/setup/getting_started/OR.Guide.User_Interface.04.03.File.png
-   :width: 35%
+   :width: 95%
    :align: center
    :figclass: or-image-border
 
@@ -108,7 +108,7 @@ Help
 ^^^^
 
 .. figure:: /img/setup/getting_started/OR.Guide.User_Interface.04.04.File.png
-   :width: 25%
+   :width: 95%
    :align: center
    :figclass: or-image-border
 
@@ -269,6 +269,8 @@ you become familiar with the OpenRocket user interface and generally accepted ro
 looking at how an example is assembled, making changes to the example, and understanding how to simulate flights.
 
 The example designs are found here:
+
+Select :menuselection:`File --> Open example` to open this list:
 
 .. figure:: /img/setup/getting_started/2023.01.Open_Example.png
    :width: 95%

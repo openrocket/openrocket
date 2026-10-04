@@ -114,7 +114,19 @@ Here are some of the most important Gradle tasks for OpenRocket:
 
    *  - root (*info.openrocket*)
       - ``dist``
-      - Creates a distributable JAR file of OpenRocket (a combination of the *core* and *swing* JAR) at :file:`openrocket/build/libs/OpenRocket-<build-version>.jar`.
+      - Runs ``check`` and builds and verifies the universal JAR and all six platform JARs in :file:`openrocket/build/libs`.
+
+   *  - root (*info.openrocket*)
+      - ``distributionJars``
+      - Builds the universal JAR and all six platform JARs without running checks.
+
+   *  - root (*info.openrocket*)
+      - ``verifyDistributionJars``
+      - Builds all distribution JARs and verifies native selection, manifests, and preservation of classes, resources, service descriptors and licenses.
+
+   *  - root (*info.openrocket*)
+      - ``distributionSmokeTest``
+      - Runs packaged SQLite, JavaScript, internationalization and native-loading checks against the universal JAR and the current platform JAR.
 
    *  - core
       - ``publishToMavenLocal``
@@ -135,6 +147,57 @@ Here are some of the most important Gradle tasks for OpenRocket:
    *  - core
       - ``submoduleUpdate``
       - Updates the submodule dependencies of the *core* module.
+
+Desktop Distribution JARs
+-------------------------
+
+``shadowJar`` creates :file:`build/libs/OpenRocket-<version>.jar`, the standalone cross-platform download. Installer JARs
+are named :file:`build/libs/OpenRocket-<version>-<platform>.jar`. They retain the universal JAR's Java classes, application
+resources, service descriptors and licenses, with only native libraries for the selected OS and architecture. Linux
+variants include both glibc and musl SQLite libraries. Android SQLite libraries are excluded from all desktop distributions.
+
+.. list-table:: Installer JARs
+   :widths: 30 50 20
+   :header-rows: 1
+
+   *  - Platform classifier
+      - Gradle task
+      - install4j media ID
+   *  - ``windows-x64``
+      - ``shadowJarWindowsX64``
+      - 60
+   *  - ``windows-arm64``
+      - ``shadowJarWindowsArm64``
+      - 248
+   *  - ``macos-x64``
+      - ``shadowJarMacosX64``
+      - 213
+   *  - ``macos-arm64``
+      - ``shadowJarMacosArm64``
+      - 240
+   *  - ``linux-x64``
+      - ``shadowJarLinuxX64``
+      - 168
+   *  - ``linux-arm64``
+      - ``shadowJarLinuxArm64``
+      - 244
+
+Run ``./gradlew verifyDistributionJars distributionSmokeTest`` to build and validate the distribution artifacts. The smoke
+tests run with just the packaged JAR and their test harness on the classpath, so development dependencies cannot hide
+missing packaged classes or natives. They open the bundled motor database, invoke JavaScript callbacks and locale
+formatting, and load SQLite, JNA, FlatLaf and LWJGL native libraries without opening a GUI.
+
+CI builds and verifies all seven JARs on Linux and uploads them in the existing build artifact. Linux, Windows and macOS
+jobs smoke-test their own platform variants. Before a release, run ``distributionSmokeTest`` on each supported OS and
+architecture with a matching 64-bit JDK 17, then exercise 3D rendering and scripting in the installed application. An
+explicit ``-PdistributionTarget=<platform>`` selects a different variant but requires a matching host and JVM; it does not
+emulate another platform.
+
+The install4j media definitions override ``JAR_NAME`` for each platform, and both the distribution file and launcher
+classpath use that value. Set install4j's application version to ``build.version`` or pass ``--release=<version>`` to the
+compiler. The Windows signing workflow builds both Windows variants and smoke-tests the runner's variant before packaging.
+Publish the universal JAR as the standalone download and use the platform JARs when building installers.
+Snap builds also select the Linux variant on amd64 and arm64, while other Snap architectures keep using the universal JAR.
 
 Thrust Curve Motor Database
 ===========================
@@ -527,7 +590,9 @@ Linux does not require code signing.
 Creating the Installers
 -----------------------
 
-First you need to build the project using Gradle (see above). This will create the JAR file that will be used to create the installers.
+First run ``./gradlew dist distributionSmokeTest`` (see above). This builds and verifies all installer JARs as well as the
+universal JAR. Set install4j's application version to the same value as ``build.version``; each media definition then selects
+its matching platform JAR automatically.
 
 Then, open install4j (requires a license) and load the project file *openrocket/install4j/<build-version>/openrocket-<build-version>.install4j*
 from the repository. Go to the :menuselection:`Build` tab and click on the :guilabel:`Start Build` button. This will create the installers in
@@ -548,22 +613,62 @@ macOS QuickLook Extension
 -------------------------
 
 The macOS installers include a QuickLook extension that allows users to preview ``.ork`` files directly in Finder
-(via spacebar or the preview pane). This extension is built and signed separately from the main install4j build,
-then merged into the final macOS DMG.
+(via spacebar or the preview pane). install4j cannot build or sign this extension, so it is built and signed separately
+and merged into each macOS DMG afterwards.
 
-The source code and full instructions for the QuickLook extension are maintained in a separate repository:
+The source code of the extension is maintained in a separate repository:
 `openrocket/macOS-QuickLook-extension <https://github.com/openrocket/macOS-QuickLook-extension>`__.
 
-After building the macOS DMG with install4j, follow the steps in that repository's README to:
+Building the macOS installers with GitHub Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Build the QuickLook extension using Xcode.
-2. Sign and notarize the extension with your Apple Developer ID.
-3. Inject the signed extension into the install4j DMG using the ``runit`` script.
+The **Build macOS installers** workflow (:file:`.github/workflows/build-macos.yml`) builds, signs, and notarizes both macOS
+DMGs (Apple Silicon and Intel), including the QuickLook extension. It builds the Java installers with install4j, builds the
+extension with Xcode, merges the two with :file:`.github/scripts/add-macos-quicklook.sh`, and then notarizes and staples
+the result. The finished DMGs are uploaded as the ``openrocket-macos-<run number>`` workflow artifact.
+
+Before the first run, configure the following in the GitHub repository (preferably on an environment named
+``macos-signing`` with required reviewers and a branch restriction):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Name
+     - Value
+   * - ``INSTALL4J_LICENSE_KEY`` *(secret)*
+     - The install4j license key (shared with the Windows workflow).
+   * - ``MACOS_CERTIFICATE_P12_BASE64`` *(secret)*
+     - The **Developer ID Application** certificate and private key as a base64-encoded ``.p12`` file
+       (``base64 -i OpenRocket_macOS.p12 | pbcopy``).
+   * - ``MACOS_CERTIFICATE_PASSWORD`` *(secret)*
+     - The password of that ``.p12`` file.
+   * - ``APPLE_API_KEY_P8`` *(secret)*
+     - The full contents of the App Store Connect API key (``AuthKey_<key id>.p8``) used for notarization.
+   * - ``APPLE_API_KEY_ID`` *(variable)*
+     - The key ID of that API key (the ``KEY_ID`` variable in the install4j project).
+   * - ``APPLE_API_ISSUER_ID`` *(variable)*
+     - The issuer ID of the App Store Connect team (the ``ISSUER_ID`` variable in the install4j project).
+
+To run it, open :menuselection:`GitHub --> Actions --> Build macOS installers`, select :guilabel:`Run workflow`, and select the
+release branch. The ``quicklook_ref`` input is the commit of the QuickLook extension repository to build; update its
+default whenever the extension changes, and always use a full commit SHA because this code runs with the signing
+certificate available.
+
+.. note::
+   The workflow runs on the ``macos-26`` image because the extension project targets the macOS 26 SDK.
+
+Building the macOS installers manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you cannot use GitHub Actions, build the DMGs with install4j as described above and follow the steps in the
+`extension repository README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__ to build, sign, notarize,
+and inject the extension using the ``runit`` script.
 
 .. note::
    The QuickLook extension requires a **Developer ID Application** certificate and an **App-Specific Password**
-   for notarization. See the `macOS-QuickLook-extension README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__
-   for the full setup guide, including Apple Developer account configuration and Info.plist requirements.
+   (or App Store Connect API key) for notarization. See the extension README for the full setup guide, including Apple
+   Developer account configuration and Info.plist requirements.
 
 .. warning::
    The install4j project must declare the ``info.openrocket.ork`` UTI (Uniform Type Identifier) in the macOS
@@ -605,9 +710,11 @@ with the new results) to ensure that they are up-to-date with the latest changes
    For instance, if the beta testing started in September 2023 with version number ``23.09.beta.01``, the final release should have version number ``23.09``,
    even if the final release is in November 2023. This is to ensure consistency in the version numbering and to link the beta release(s) to the final release.
 
-5. **Build the project JAR file** using Gradle (see above).
+5. **Build and verify the distribution JARs** using ``./gradlew dist distributionSmokeTest`` (see above).
 
-6. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under :menuselection:`Help --> About`.
+6. **Test the distribution JARs** on their matching OS and architecture. Run ``distributionSmokeTest`` on each supported
+   platform, then check that the application starts, 3D rendering and scripting work, and the new version number is applied
+   to the splash screen and under :menuselection:`Help --> About`.
 
 7. **Publish the Maven Central library artifacts**.
 
@@ -630,8 +737,10 @@ with the new results) to ensure that they are up-to-date with the latest changes
 
 9. **Add the macOS QuickLook extension** to the macOS DMG installers.
 
-   Follow the instructions in the `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__
-   to build, sign, notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
+   Run the **Build macOS installers** GitHub workflow (see above). It builds both macOS DMGs and includes the
+   QuickLook extension, so no separate step is needed. If you build the DMGs locally instead, follow the instructions in the
+   `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__ to build, sign,
+   notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
 
 10. **Test the installers** to ensure that they work correctly.
 
@@ -665,7 +774,8 @@ with the new results) to ensure that they are up-to-date with the latest changes
     If you want to credit the developers who contributed to the release, you can tag them anywhere in the release text using the `@username` syntax.
     They will then be automatically displayed in the contributors list on the release page.
 
-    Finally, upload all the packaged installers and the JAR file to the release. For Windows, use only the installers from the
+    Finally, upload all the packaged installers and the universal ``OpenRocket-<version>.jar`` to the release. The platform
+    JARs are installer inputs. For Windows, use only the installers from the
     successful ``openrocket-windows-signed-*`` workflow artifact. The source code (zip and tar.gz) is automatically appended
     to each release, you do not need to upload it manually.
 

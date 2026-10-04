@@ -10,12 +10,12 @@ import info.openrocket.swing.gui.components.FieldSeparatorComboBox;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,7 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Window;
@@ -228,9 +228,9 @@ class AerodynamicLookupDialog extends JDialog {
 
 
 	private void chooseDragLookup() {
-		JFileChooser chooser = createCsvFileChooser(dragCsv);
+		NativeFileChooser chooser = createCsvFileChooser(dragCsv);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showOpenDialog(this) != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
@@ -250,9 +250,9 @@ class AerodynamicLookupDialog extends JDialog {
 	}
 
 	private void chooseStabilityLookup() {
-		JFileChooser chooser = createCsvFileChooser(stabilityCsv);
+		NativeFileChooser chooser = createCsvFileChooser(stabilityCsv);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showOpenDialog(this) != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
@@ -335,7 +335,7 @@ class AerodynamicLookupDialog extends JDialog {
 
 	private void applyAndClose() {
 		// Validate and apply drag lookup if modified
-		List<String> dragCsvRows = null;
+		List<String> dragCsvRows = options.getDragLookupCsvRows();
 		if (dragModified && dragCsv != null) {
 			try {
 				String editedText = dragExampleArea.getText();
@@ -351,7 +351,6 @@ class AerodynamicLookupDialog extends JDialog {
 				MachAoALookup table = CsvMachAoALookup.parse(dataLines, DRAG_VALUE_COLUMNS, separator);
 				dragTable = table;
 				dragCsvRows = allLines; // Store all lines including comments
-				dragModified = false;
 			} catch (Exception ex) {
 				showLookupError(dragCsv, ex);
 				return; // Don't close dialog on error
@@ -359,7 +358,7 @@ class AerodynamicLookupDialog extends JDialog {
 		}
 		
 		// Validate and apply stability lookup if modified
-		List<String> stabilityCsvRows = null;
+		List<String> stabilityCsvRows = options.getStabilityLookupCsvRows();
 		if (stabilityModified && stabilityCsv != null) {
 			try {
 				String editedText = stabilityExampleArea.getText();
@@ -375,7 +374,6 @@ class AerodynamicLookupDialog extends JDialog {
 				MachAoALookup table = CsvMachAoALookup.parse(dataLines, STABILITY_VALUE_COLUMNS, separator);
 				stabilityTable = table;
 				stabilityCsvRows = allLines; // Store all lines including comments
-				stabilityModified = false;
 			} catch (Exception ex) {
 				showLookupError(stabilityCsv, ex);
 				return; // Don't close dialog on error
@@ -395,6 +393,8 @@ class AerodynamicLookupDialog extends JDialog {
 			options.setStabilityLookup(stabilityCsv, stabilityTable, stabilityCsvRows);
 		}
 
+		dragModified = false;
+		stabilityModified = false;
 		dispose();
 	}
 
@@ -488,13 +488,8 @@ class AerodynamicLookupDialog extends JDialog {
 					lines = Files.readAllLines(csvPath);
 				}
 				
-				// Display all lines (including comments) - limit to first 20 lines for display
-				// Preserve comments and empty lines for user editing
-				List<String> displayLines = lines.stream()
-						.limit(20) // Limit to first 20 lines for display
-						.collect(Collectors.toList());
-				String loadedData = String.join("\n", displayLines);
-				
+				// The editable text is the complete table, including comments and empty lines.
+				String loadedData = String.join("\n", lines);
 				// Set text without triggering modification (listener is removed)
 				exampleArea.setText(loadedData);
 				exampleArea.setEditable(true);
@@ -607,13 +602,13 @@ class AerodynamicLookupDialog extends JDialog {
 		exampleBorder.setTitle(trans.get("AerodynamicLookupDialog.lbl.formatHint"));
 	}
 
-	private JFileChooser createCsvFileChooser(Path currentPath) {
-		JFileChooser chooser = new JFileChooser();
+	private NativeFileChooser createCsvFileChooser(Path currentPath) {
+		NativeFileChooser chooser = new NativeFileChooser();
 		chooser.setDialogTitle(trans.get("AerodynamicLookupDialog.title.choose"));
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				trans.get("AerodynamicLookupDialog.csvFilter"), "csv", "txt", "dat");
 		chooser.setFileFilter(filter);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		if (currentPath != null) {
 			java.io.File currentFile = currentPath.toFile();
 			if (currentFile.getParentFile() != null) {

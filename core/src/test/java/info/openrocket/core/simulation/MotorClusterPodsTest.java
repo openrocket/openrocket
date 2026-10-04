@@ -1,7 +1,9 @@
 package info.openrocket.core.simulation;
 
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.MotorConfiguration;
@@ -12,7 +14,6 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
-import org.junit.jupiter.api.Test;
 
 public class MotorClusterPodsTest extends BaseTestCase {
 	private static final double C6_NOZZLE_EXIT_DIAMETER = 0.010;
@@ -28,23 +29,26 @@ public class MotorClusterPodsTest extends BaseTestCase {
 		}
 		
 		RK4SimulationStepper stepper = new RK4SimulationStepper();
+		stepper.store = new RK4SimulationStepper.DataStore();
+		stepper.store.flightConditions = new FlightConditions(config);
+		
 		status.setSimulationTime(0.4);
 		// Thrust of a single C6 at time 0.4 is 5 (from TestRockets.java, not actual thrustcurve)
 		double c6Thrust = 5.0;
 		
 		// Two motors in sustainer
 		config.setOnlyStage(0);
-		double thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
+		double thrust = stepper.calculateThrust(status, stepper.store);
 		assertEquals(2.0 * c6Thrust, thrust, MathUtil.EPSILON, "Sustainer thrust incorrect");
 
 		// Three side boosters with four motors in each
 		config.setOnlyStage(1);
-		thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
+		thrust = stepper.calculateThrust(status, stepper.store);
 		assertEquals(12.0 * c6Thrust, thrust, MathUtil.EPSILON, "side booster thrust incorrect");
 
 		// All 14 motors now
 		config.setAllStages();
-		thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
+		thrust = stepper.calculateThrust(status, stepper.store);
 		assertEquals(14.0 * c6Thrust, thrust, MathUtil.EPSILON, "Total thrust incorrect");
 	}
 

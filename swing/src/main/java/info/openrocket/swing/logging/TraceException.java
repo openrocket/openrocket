@@ -16,7 +16,7 @@ package info.openrocket.swing.logging;
  */
 class TraceException {
 	
-	private static final String STANDARD_PACKAGE_PREFIX = "info.openrocket.swing.";
+	private static final String STANDARD_PACKAGE_PREFIX = "info.openrocket.";
 	private static final String EXCLUDED_PACKAGE_PREFIX = "info.openrocket.swing.logging";
 	
 	private final Throwable t;

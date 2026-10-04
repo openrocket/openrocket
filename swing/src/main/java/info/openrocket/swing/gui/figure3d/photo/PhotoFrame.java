@@ -23,21 +23,19 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileFilter;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.RocketLoadException;
-import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.plugin.PluginModule;
@@ -53,6 +51,7 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.startup.GuiModule;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,16 +215,16 @@ public class PhotoFrame extends JFrame {
 	private void openDesign() {
 		log.info(Markers.USER_MARKER, "Open... selected");
 
-		JFileChooser chooser = new JFileChooser();
+		NativeFileChooser chooser = new NativeFileChooser();
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 		chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 		chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
 		chooser.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 		chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 
-		if (chooser.showOpenDialog(PhotoFrame.this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showOpenDialog(PhotoFrame.this) != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 
@@ -258,15 +257,15 @@ public class PhotoFrame extends JFrame {
 		}
 		log.info("Got image {} to save...", image);
 
-		final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"), ".png");
-		final JFileChooser chooser = new SaveFileChooser();
+		final FileFilter png = FileHelper.createFilter(trans.get("PhotoFrame.fileFilter.png"), "png");
+		final SaveFileChooser chooser = new SaveFileChooser();
 		chooser.addChoosableFileFilter(png);
 		chooser.setFileFilter(png);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 
 		final int option = chooser.showSaveDialog(PhotoFrame.this);
-		if (option != JFileChooser.APPROVE_OPTION) {
+		if (option != NativeFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return;
 		}
@@ -280,7 +279,7 @@ public class PhotoFrame extends JFrame {
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
 		log.info(Markers.USER_MARKER, "User chose to save image as {}", file);
 
-		if (FileHelper.confirmWrite(file, PhotoFrame.this)) {
+		if (FileHelper.confirmWrite(file, chooser.getSelectedFile(), PhotoFrame.this)) {
 			try {
 				ImageIO.write(image, "png", file);
 			} catch (IOException e) {

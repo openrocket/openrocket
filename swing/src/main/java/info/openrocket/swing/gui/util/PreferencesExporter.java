@@ -1,13 +1,11 @@
 package info.openrocket.swing.gui.util;
 
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 
 import info.openrocket.swing.gui.components.PreferencesOptionPanel;
 import info.openrocket.swing.gui.main.MRUDesignFile;
-import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.swing.JFileChooser;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -25,7 +22,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.awt.Dimension;
 import java.awt.Window;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,24 +44,16 @@ public abstract class PreferencesExporter {
     private static final List<String> nodesToIgnore = new ArrayList<>();        // ApplicationPreferences nodes that should not be exported
 
     public static boolean exportPreferences(Window parent, Preferences preferences) {
-        JFileChooser chooser = new SaveFileChooser();
+        SaveFileChooser chooser = new SaveFileChooser();
         chooser.setDialogTitle(trans.get("PreferencesExporter.chooser.title"));
         chooser.setAcceptAllFileFilterUsed(false);
         chooser.setFileFilter(FileHelper.XML_FILTER);
         chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
         PreferencesOptionPanel options = new PreferencesOptionPanel();
-        chooser.setAccessory(options);
-
-        // TODO: update this dynamically instead of hard-coded values
-        // The macOS file chooser has an issue where it does not update its size when the accessory is added.
-        if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
-            Dimension currentSize = chooser.getPreferredSize();
-            Dimension newSize = new Dimension((int) (1.35 * currentSize.width), (int) (1.2 * currentSize.height));
-            chooser.setPreferredSize(newSize);
-        }
+        chooser.setOptionsPanel(options);
 
         //// Ensures No Problems When Choosing File
-        if (chooser.showSaveDialog(parent) != JFileChooser.APPROVE_OPTION) {
+        if (chooser.showSaveDialog(parent) != SaveFileChooser.APPROVE_OPTION) {
             log.info("Cancelled export of preferences.");
             return false;
         }
@@ -79,7 +67,7 @@ public abstract class PreferencesExporter {
         }
 
         final File newFile = FileHelper.forceExtension(file, "xml");
-        if (!FileHelper.confirmWrite(newFile, parent)) {
+        if (!FileHelper.confirmWrite(newFile, file, parent)) {
             log.info("Cancelled export of preferences.");
             return false;
         }
