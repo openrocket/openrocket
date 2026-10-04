@@ -221,6 +221,10 @@ Pins default to the flight path color.
 KML color literals are `aabbggrr`: alpha first and the channels in the opposite order to the
 usual web notation.
 
+A waypoint style is written only when it has something in it: a tinted pin, or a hidden label.
+With plain pins and visible labels the stage gets no `<Style>` and its pins no `<styleUrl>`,
+rather than an empty style that every pin points at.
+
 ---
 
 ## Balloons
@@ -361,9 +365,9 @@ skipped while the rest still load.
 ### What the other two templates emit
 
 The **waypoint CSV** is three lines of template. It emits one quoted row per waypoint in a
-Google My Maps shape, with `symbol`, `color` and `label_color` hard-coded to `pushpin`, `yellow`
-and `white`, and a composed `name` column carrying the rocket, configuration, label, altitude,
-distance and bearing. It uses the fixed six-decimal coordinate strings. It contains no continuous
+Google My Maps shape, with `symbol` and `label_color` hard-coded to `pushpin` and `white`, `color`
+set to the stage's pin color as `#rrggbb` (or `yellow` when pin coloring is off), and a
+composed `name` column carrying the rocket, configuration, label, altitude, distance and bearing. It uses the fixed six-decimal coordinate strings. It contains no continuous
 path, which is what makes it small enough to hand round.
 
 The **GPX track** emits a flat list of `<wpt>` elements across all branches, since GPX has no
@@ -462,7 +466,7 @@ the panel shows.
 
 ## Testing
 
-`FlightPathExportTest` holds 55 tests over the core pipeline, and
+`FlightPathExportTest` holds 56 tests over the core pipeline, and
 `SimulationFlightPathExportPanelTest` holds 5 over the panel. Between them they cover template
 discovery, all three output shapes, both altitude references and their automatic resolution,
 tessellation and the shadow, staged flights and the shared-ascent trim, path striding, the

@@ -19,6 +19,7 @@
 {{#branches}}
 		<Style id="flightPath{{index}}"><LineStyle><color>{{pathColorKml}}</color><width>3</width></LineStyle></Style>
 		<Style id="groundTrack{{index}}"><LineStyle><color>{{groundColorKml}}</color><width>2</width></LineStyle></Style>
+{{#hasWaypointStyle}}
 		<Style id="waypoint{{index}}">
 {{#colorWaypointPins}}
 			<IconStyle>
@@ -31,6 +32,7 @@
 			<LabelStyle><scale>0</scale></LabelStyle>
 {{/showWaypointLabels}}
 		</Style>
+{{/hasWaypointStyle}}
 {{/branches}}
 {{#branches}}
 		<Folder>
@@ -49,7 +51,9 @@
 &lt;b&gt;Coordinates:&lt;/b&gt; {{latitudeStr}}, {{longitudeStr}} (lat, lon){{#device}}&lt;br/&gt;
 &lt;b&gt;Device:&lt;/b&gt; {{device}}{{/device}}</description>
 {{/includeDescriptions}}
+{{#hasWaypointStyle}}
 				<styleUrl>#waypoint{{index}}</styleUrl>
+{{/hasWaypointStyle}}
 				<Point>
 {{#extrudeWaypoints}}					<extrude>1</extrude>
 {{/extrudeWaypoints}}					<altitudeMode>{{kmlWaypointAltitudeMode}}</altitudeMode>

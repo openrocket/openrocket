@@ -422,7 +422,8 @@ Options
      - Tint each stage's markers to match its track, so a marker can be attributed at a
        glance. This uses a pin image fetched from Google's servers the first time the file
        is opened; clear it for a file that has to render without a network, and the markers
-       fall back to the viewer's default.
+       fall back to the viewer's default. The waypoint CSV follows the same setting, writing
+       each stage's pin color in its ``color`` column, or ``yellow`` when this is cleared.
    * - Flight path line
      - Include the airborne path.
    * - Ground track
@@ -808,6 +809,9 @@ Top level:
    * - ``{{#showWaypointLabels}}`` / ``{{#colorWaypointPins}}``
      - Section tags for the two marker options. Use ``{{^showWaypointLabels}}`` to emit
        something only when names are switched off.
+   * - ``{{#hasWaypointStyle}}``
+     - True when either marker option needs a style: pins are tinted or names are hidden. The
+       built-in KML template uses it to leave out an empty waypoint style.
    * - ``{{kmlAltitudeMode}}`` / ``{{kmlWaypointAltitudeMode}}``
      - The KML ``<altitudeMode>`` matching the chosen altitude reference for the path and for the
        waypoints: ``relativeToGround``, ``absolute`` or ``clampToGround``. Pair each with the
@@ -947,7 +951,7 @@ then one row per waypoint:
 .. code-block:: none
 
    "altitude({{altitudeUnit}})","latitude","longitude","label","symbol","color","label_color","name"
-   {{#branches}}{{#waypoints}}"{{altitude}}","{{latitudeStr}}","{{longitudeStr}}","{{type}}","pushpin","yellow","white","{{rocketName}} {{motor}} {{qualifiedLabel}} - {{altitude}} {{altitudeUnit}} - {{distance}} {{distanceUnit}} @ {{bearing}} deg"
+   {{#branches}}{{#waypoints}}"{{altitude}}","{{latitudeStr}}","{{longitudeStr}}","{{type}}","pushpin","{{#colorWaypointPins}}#{{pinColorRgb}}{{/colorWaypointPins}}{{^colorWaypointPins}}yellow{{/colorWaypointPins}}","white","{{rocketName}} {{motor}} {{qualifiedLabel}} - {{altitude}} {{altitudeUnit}} - {{distance}} {{distanceUnit}} @ {{bearing}} deg"
    {{/waypoints}}{{/branches}}
 
 Saving that as ``club-waypoints.csv.mustache`` in the ``ExportTemplates`` folder makes it

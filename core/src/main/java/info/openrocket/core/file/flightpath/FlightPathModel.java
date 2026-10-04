@@ -106,6 +106,14 @@ public class FlightPathModel {
 
 	public List<Branch> branches = new ArrayList<>();
 
+	/**
+	 * Convenience for templates: true when a waypoint style would have anything in it. With plain
+	 * pins and visible labels there is nothing to say, and the style and its references are left out.
+	 */
+	public boolean hasWaypointStyle() {
+		return colorWaypointPins || !showWaypointLabels;
+	}
+
 	/** A single flight branch (stage / booster), with its waypoints and sampled path. */
 	public static class Branch {
 		public String name = "";

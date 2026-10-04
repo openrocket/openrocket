@@ -771,6 +771,24 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertFalse(kml.contains("pushpin"), kml);
 		// The pins still exist, they just use the viewer's default marker.
 		assertTrue(kml.contains("<name>Sustainer Apogee</name>"), kml);
+		// With labels shown as well the style would be empty, so neither it nor a reference is written.
+		assertFalse(kml.contains("<Style id=\"waypoint"), kml);
+		assertFalse(kml.contains("<styleUrl>#waypoint"), kml);
+	}
+
+	/** The CSV pins carry the same per-stage color as the KML ones, and fall back to yellow when that is off. */
+	@Test
+	public void waypointCsvPinsUseTheStagePinColor() throws Exception {
+		FlightPathExportOptions options = new FlightPathExportOptions();
+		options.setBranchPinColor(0, 0x112233);
+		String csv = render("waypoints-csv", options);
+		assertTrue(csv.contains("\"pushpin\",\"#112233\",\"white\""), csv);
+		assertFalse(csv.contains("yellow"), csv);
+
+		options.setColorWaypointPins(false);
+		csv = render("waypoints-csv", options);
+		assertTrue(csv.contains("\"pushpin\",\"yellow\",\"white\""), csv);
+		assertFalse(csv.contains("#112233"), csv);
 	}
 
 	/** Labels can be switched off, leaving markers that name themselves when clicked. */
