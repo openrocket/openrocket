@@ -23,7 +23,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,7 +33,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileFilter;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.simulation.FlightDataBranch;
@@ -45,7 +43,6 @@ import info.openrocket.core.file.flightpath.FlightPathExportOptions.Waypoint;
 import info.openrocket.core.file.flightpath.FlightPathExporter;
 import info.openrocket.core.file.flightpath.FlightPathTemplate;
 import info.openrocket.core.file.flightpath.FlightPathTemplateRepository;
-import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
@@ -170,14 +167,12 @@ public class SimulationFlightPathExportPanel extends JPanel {
 		FlightPathTemplate template = templates.get(idx);
 		String ext = template.getExtension();
 
-		FileFilter filter = new SimpleFileFilter(
-				template.getDisplayName() + " (*." + ext + ")", "." + ext);
-
-		JFileChooser chooser = new SaveFileChooser();
-		chooser.setFileFilter(filter);
+		SaveFileChooser chooser = new SaveFileChooser();
+		chooser.setFileFilter(FileHelper.createFilter(
+				template.getDisplayName() + " (*." + ext + ")", ext));
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION)
 			return false;
 
 		File file = chooser.getSelectedFile();
