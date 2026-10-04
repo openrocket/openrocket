@@ -637,9 +637,10 @@ given as coordinates as well as as a distance and bearing, since the bearing pla
 map and the coordinates are what you put into a handheld receiver to go and find it.
 
 In Google Earth Pro a balloon opens when you click a marker in the 3D view, and the document
-and folder descriptions open when you click their names in the Places panel. In Google Earth
-for web, click the item in the project panel on the left. Clear :guilabel:`Summary balloons` in
-the :guilabel:`Waypoints` box to export without any of them.
+and folder descriptions open when you click their names in the Places panel. Google Earth for
+web does not show balloons; the description is only visible there as raw HTML in a placemark's
+edit dialog. Clear :guilabel:`Summary balloons` in the :guilabel:`Waypoints` box to export
+without any of them.
 
 The altitudes are written either as heights above the terrain or as heights above sea level,
 depending on the `Altitude reference`_ setting.
