@@ -378,8 +378,8 @@ public class FlightPathExportTest extends BaseTestCase {
 		assertTrue(kml.contains("at 90\u00b0 from the pad&lt;br/&gt;"), kml);
 		assertTrue(kml.contains("&lt;b&gt;Device:&lt;/b&gt; Main</description>"), kml);
 
-		// Descriptions must not spill into the places tree under every name.
-		assertTrue(kml.contains("<Snippet maxLines=\"0\"/>"), kml);
+		// Google Earth for web rejects Snippet's maxLines attribute as unsupported.
+		assertFalse(kml.contains("<Snippet"), kml);
 	}
 
 	/**

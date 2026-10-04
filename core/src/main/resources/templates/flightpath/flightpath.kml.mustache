@@ -4,7 +4,6 @@
 		<name>{{title}}</name>
 		<open>1</open>
 {{#includeDescriptions}}
-		<Snippet maxLines="0"/>
 		<description>&lt;b&gt;Rocket:&lt;/b&gt; {{rocketName}}&lt;br/&gt;
 {{#configuration}}&lt;b&gt;Configuration:&lt;/b&gt; {{configuration}}&lt;br/&gt;
 {{/configuration}}&lt;b&gt;Launch site:&lt;/b&gt; {{launchLatitudeStr}}, {{launchLongitudeStr}} (lat, lon){{#launchAltitudeMeters}}, {{launchAltitudeMeters}} m above sea level{{/launchAltitudeMeters}}&lt;br/&gt;
@@ -37,7 +36,6 @@
 		<Folder>
 			<name>{{name}}</name>
 {{#includeDescriptions}}
-			<Snippet maxLines="0"/>
 			<description>&lt;b&gt;Max range:&lt;/b&gt; {{maxRange}} {{distanceUnit}} from the pad{{#hasLanding}}&lt;br/&gt;
 &lt;b&gt;Landing:&lt;/b&gt; {{landingLatitude}}, {{landingLongitude}} (lat, lon); {{landingDistance}} {{distanceUnit}} at {{landingBearing}}° from the pad; {{landingTime}} s after liftoff{{/hasLanding}}</description>
 {{/includeDescriptions}}
@@ -45,7 +43,6 @@
 			<Placemark>
 				<name>{{qualifiedLabel}}</name>
 {{#includeDescriptions}}
-				<Snippet maxLines="0"/>
 				<description>&lt;b&gt;Time:&lt;/b&gt; {{timeStr}} s after liftoff&lt;br/&gt;
 &lt;b&gt;Altitude:&lt;/b&gt; {{altitude}} {{altitudeUnit}} above the pad{{#launchAltitudeMeters}}, {{altitudeMsl}} {{altitudeUnit}} above sea level{{/launchAltitudeMeters}}&lt;br/&gt;
 &lt;b&gt;Position:&lt;/b&gt; {{distance}} {{distanceUnit}} at {{bearing}}° from the pad&lt;br/&gt;
