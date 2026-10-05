@@ -730,7 +730,7 @@ return console.askYesNo(message, true);
       <variables>
         <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-linux-x64.jar" />
       </variables>
-      <jreBundle includedJre="linux-amd64-17.0.13" />
+      <jreBundle platform="linux-amd64" />
     </unixInstaller>
     <unixInstaller name="linux Arm64" id="244" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-Arm64">
       <variables>
