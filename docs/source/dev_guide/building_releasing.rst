@@ -587,6 +587,14 @@ be notarized. Luckily, install4j takes care of this. More information on the cod
 
 Linux does not require code signing.
 
+Building the Linux installers with GitHub Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The **Build Linux installers** workflow (:file:`.github/workflows/build-linux.yml`) builds both Linux installers (x86_64 and
+ARM64) with install4j and uploads them, together with a ``SHA256SUMS.txt`` file, as the ``openrocket-linux-<run number>``
+workflow artifact. It only needs the ``INSTALL4J_LICENSE_KEY`` secret. To run it, open
+:menuselection:`GitHub --> Actions --> Build Linux installers`, select :guilabel:`Run workflow`, and select the release branch.
+
 Creating the Installers
 -----------------------
 
@@ -729,6 +737,8 @@ with the new results) to ensure that they are up-to-date with the latest changes
    .. warning::
       Build and sign the Windows installers with the ``Sign Windows installers`` GitHub Actions workflow. Download only its
       ``openrocket-windows-signed-*`` artifact; never release the unsigned SignPath input artifact.
+
+      Build the Linux installers with the ``Build Linux installers`` GitHub Actions workflow.
 
       When building the macOS installers in install4j, make sure macOS code signing and notarization are enabled.
 
