@@ -16,6 +16,8 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
@@ -36,6 +38,12 @@ public final class WeatherHelpButton extends JButton {
 	private JWindow popup;
 	private Point predictionOrigin;
 	private boolean above;
+	private final WindowAdapter ownerFocus = new WindowAdapter() {
+		@Override
+		public void windowDeactivated(WindowEvent event) {
+			closePopup();
+		}
+	};
 
 	public WeatherHelpButton(String accessibleName, Supplier<? extends JComponent> content) {
 		this.content = content;
@@ -67,8 +75,17 @@ public final class WeatherHelpButton extends JButton {
 	}
 
 	private void showPopup() {
-		if (!isShowing() || popup != null) return;
-		popup = new JWindow(SwingUtilities.getWindowAncestor(this));
+		if (!isShowing()) return;
+		var owner = SwingUtilities.getWindowAncestor(this);
+		if (owner == null || !owner.isActive()) return;
+		if (popup != null) {
+			popup.toFront();
+			return;
+		}
+		popup = new JWindow(owner);
+		popup.setFocusableWindowState(false);
+		popup.setAutoRequestFocus(false);
+		popup.getOwner().addWindowListener(ownerFocus);
 		Color border = UIManager.getColor("Component.borderColor");
 		Color outline = border == null ? Color.GRAY : border;
 		Color fill = UIManager.getColor("Panel.background");
@@ -132,6 +149,7 @@ public final class WeatherHelpButton extends JButton {
 	private void closePopup() {
 		if (popup == null) return;
 		Toolkit.getDefaultToolkit().removeAWTEventListener(dismiss);
+		popup.getOwner().removeWindowListener(ownerFocus);
 		popup.dispose();
 		popup = null;
 	}

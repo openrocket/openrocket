@@ -502,7 +502,6 @@ public final class WeatherConditionsController {
 				dialog.dispose();
 			});
 			helpContent.add(forceRefresh, BorderLayout.SOUTH);
-			help.addActionListener(event -> forceRefresh.requestFocusInWindow());
 			long secondsUntilRefresh = Math.max(0,
 					fetchResult.refreshAvailableAt().getEpochSecond() - Instant.now().getEpochSecond());
 			long minutesUntilRefresh = Math.max(1, (secondsUntilRefresh + 59) / 60);
