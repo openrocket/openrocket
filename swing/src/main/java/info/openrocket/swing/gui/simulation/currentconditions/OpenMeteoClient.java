@@ -115,7 +115,7 @@ public class OpenMeteoClient {
 					+ "&current=" + currentVariables()
 					+ "&wind_speed_unit=ms&timeformat=iso8601&timezone=GMT&forecast_days=1");
 			CurrentConditions conditions = fetch(uri, latitude, longitude, false);
-			Instant expiresAt = currentExpiration(Instant.now());
+			Instant expiresAt = conditions.validAt().plusSeconds(CURRENT_INTERVAL_SECONDS);
 			Instant fetchedAt = Instant.now();
 			cache(cacheKey, conditions, expiresAt, fetchedAt);
 			return new FetchResult(conditions, false, expiresAt, forceRefreshAvailableAt(cacheKey), fetchedAt);
@@ -302,12 +302,6 @@ public class OpenMeteoClient {
 				conditions.elevation(), conditions.validAt(),
 				conditions.temperature(), conditions.pressure(), conditions.relativeHumidity(), conditions.windGust(),
 				conditions.windLayers());
-	}
-
-	private static Instant currentExpiration(Instant now) {
-		long nextInterval = (Math.floorDiv(now.getEpochSecond(), CURRENT_INTERVAL_SECONDS) + 1)
-				* CURRENT_INTERVAL_SECONDS;
-		return Instant.ofEpochSecond(nextInterval + FORECAST_PROPAGATION_SECONDS);
 	}
 
 	private static Instant forecastExpiration(Instant now) {

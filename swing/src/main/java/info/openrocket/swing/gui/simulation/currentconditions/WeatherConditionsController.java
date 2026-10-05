@@ -140,7 +140,7 @@ public final class WeatherConditionsController {
 			details += "<br>" + trans.get(source.kind().equals("current")
 					? "simedtdlg.lbl.weatherSource.refreshDue" : "simedtdlg.lbl.weatherSource.past");
 		}
-		if (source.isEdited(options)) details += "<br>" + trans.get("simedtdlg.lbl.weatherSource.edited");
+		if (source.changedByUser()) details += "<br>" + trans.get("simedtdlg.lbl.weatherSource.edited");
 		if (source.isSiteMoved(options)) details += "<br>" + trans.get("simedtdlg.lbl.weatherSource.siteMoved");
 		String fields = source.groups().stream().map(group -> group.equals("wind") ? trans.get("simedtdlg.lbl.Wind") : trans.get("simedtdlg.checkbox.weather"
 				+ Character.toUpperCase(group.charAt(0)) + group.substring(1))).collect(Collectors.joining(", "));
@@ -348,7 +348,7 @@ public final class WeatherConditionsController {
 									kind.equals("current") ? lookup.fetchResult().refreshAvailableAt() : lookup.conditions().validAt(),
 									timezoneOf(lookup.location()).getId(),
 									lookup.conditions().latitude(), lookup.conditions().longitude(), lookup.conditions().elevation(),
-									groups, WeatherSource.snapshot(options, groups)));
+									groups, false));
 						}
 					}
 				} catch (InterruptedException e) {

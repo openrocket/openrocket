@@ -9,6 +9,8 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +39,8 @@ class OpenMeteoClientTest {
 		server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
 		server.createContext("/forecast", exchange -> {
 			requests.incrementAndGet();
-			byte[] body = RESPONSE.getBytes(StandardCharsets.UTF_8);
+			String currentTime = LocalDateTime.now(ZoneOffset.UTC).withSecond(0).withNano(0).toString();
+			byte[] body = RESPONSE.replace("2026-08-11T21:45", currentTime).getBytes(StandardCharsets.UTF_8);
 			exchange.getResponseHeaders().add("Content-Type", "application/json");
 			exchange.sendResponseHeaders(200, body.length);
 			try (var response = exchange.getResponseBody()) {

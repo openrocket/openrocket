@@ -126,9 +126,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 
 	public SimulationOptions() {
 		averageWindModel = new PinkNoiseWindModel(randomSeed);
-		averageWindModel.addChangeListener(e -> fireChangeEvent());
+		averageWindModel.addChangeListener(e -> fireWeatherChangeEvent());
 		multiLevelPinkNoiseWindModel = new MultiLevelPinkNoiseWindModel();
-		multiLevelPinkNoiseWindModel.addChangeListener(e -> fireChangeEvent());
+		multiLevelPinkNoiseWindModel.addChangeListener(e -> fireWeatherChangeEvent());
 	}
 
 	public WeatherSource getWeatherSource() {
@@ -203,7 +203,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	public void setWindModelType(WindModelType windModelType) {
 		if (this.windModelType != windModelType) {
 			this.windModelType = windModelType;
-			fireChangeEvent();
+			fireWeatherChangeEvent();
 		}
 	}
 
@@ -312,7 +312,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	public double getLaunchLatitude() {
@@ -324,7 +324,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (MathUtil.equals(this.launchLatitude, launchLatitude))
 			return;
 		this.launchLatitude = launchLatitude;
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	public double getLaunchLongitude() {
@@ -336,7 +336,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (MathUtil.equals(this.launchLongitude, launchLongitude))
 			return;
 		this.launchLongitude = launchLongitude;
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	public GeodeticComputationStrategy getGeodeticComputation() {
@@ -383,7 +383,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	public double getLaunchTemperature() {
@@ -394,7 +394,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (MathUtil.equals(this.launchTemperature, launchTemperature))
 			return;
 		this.launchTemperature = launchTemperature;
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	public double getLaunchPressure() {
@@ -405,7 +405,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (MathUtil.equals(this.launchPressure, launchPressure))
 			return;
 		this.launchPressure = launchPressure;
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	public double getLaunchRelativeHumidity() {
@@ -416,7 +416,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (MathUtil.equals(this.launchRelativeHumidity, launchHumidity))
 			return;
 		this.launchRelativeHumidity = launchHumidity;
-		fireChangeEvent();
+		fireWeatherChangeEvent();
 	}
 
 	/**
@@ -673,6 +673,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			// Deep clone the wind models
 			copy.averageWindModel = this.averageWindModel.clone();
 			copy.multiLevelPinkNoiseWindModel = this.multiLevelPinkNoiseWindModel.clone();
+			copy.averageWindModel.addChangeListener(e -> copy.fireWeatherChangeEvent());
+			copy.multiLevelPinkNoiseWindModel.addChangeListener(e -> copy.fireWeatherChangeEvent());
 
 			copy.windModelType = this.windModelType;
 			copy.dragLookupCsvPath = this.dragLookupCsvPath;
@@ -838,6 +840,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			if (multiLevelWindChanged) {
 				this.multiLevelPinkNoiseWindModel.fireChangeEvent();
 			}
+			weatherSource = src.weatherSource;
 			fireChangeEvent();
 		}
 	}
@@ -902,6 +905,13 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	}
 
 	private final EventObject event = new EventObject(this);
+
+	private void fireWeatherChangeEvent() {
+		if (weatherSource != null && !weatherSource.changedByUser()) {
+			weatherSource = weatherSource.withUserChanges();
+		}
+		fireChangeEvent();
+	}
 
 	private void fireChangeEvent() {
 

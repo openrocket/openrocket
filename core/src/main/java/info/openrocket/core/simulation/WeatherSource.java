@@ -5,20 +5,22 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
-import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.util.MathUtil;
 
-/** The source of applied weather, with a baseline for detecting subsequent edits. */
+/** The source of applied weather and whether the user subsequently changed it. */
 public record WeatherSource(String provider, String endpoint, String kind, Instant validAt, Instant fetchedAt, Instant expiresAt,
 		String timezone, double latitude, double longitude, double elevation, List<String> groups,
-		String baseline) {
+		boolean changedByUser) {
 	public WeatherSource {
 		Objects.requireNonNull(provider);
 		Objects.requireNonNull(endpoint);
 		Objects.requireNonNull(kind);
 		Objects.requireNonNull(validAt);
 		Objects.requireNonNull(fetchedAt);
-		if (expiresAt == null) expiresAt = kind.equals("current") ? fetchedAt.plusSeconds(900) : validAt;
+		// Current conditions cover the 15-minute interval starting at their valid time.
+		// Recompute this on load too, correcting older files with a delayed expiration.
+		if (kind.equals("current")) expiresAt = validAt.plusSeconds(900);
+		else if (expiresAt == null) expiresAt = validAt;
 		ZoneId.of(timezone);
 		if (!Double.isFinite(latitude) || Math.abs(latitude) > 90
 				|| !Double.isFinite(longitude) || Math.abs(longitude) > 180 || !Double.isFinite(elevation)) {
@@ -31,11 +33,11 @@ public record WeatherSource(String provider, String endpoint, String kind, Insta
 						.containsAll(groups)) {
 			throw new IllegalArgumentException("Unsupported weather source");
 		}
-		Objects.requireNonNull(baseline);
 	}
 
-	public boolean isEdited(SimulationOptions options) {
-		return !baseline.equals(snapshot(options, groups));
+	public WeatherSource withUserChanges() {
+		return new WeatherSource(provider, endpoint, kind, validAt, fetchedAt, expiresAt, timezone,
+				latitude, longitude, elevation, groups, true);
 	}
 
 	public boolean isExpired(Instant now) {
@@ -47,39 +49,4 @@ public record WeatherSource(String provider, String endpoint, String kind, Insta
 				|| !MathUtil.equals(longitude, options.getLaunchLongitude());
 	}
 
-	/** Use the persisted units and values so a save/load does not itself count as an edit. */
-	public static String snapshot(SimulationOptions options, List<String> groups) {
-		StringBuilder result = new StringBuilder();
-		for (String group : groups) {
-			result.append(group).append(':');
-			switch (group) {
-				case "latitude" -> result.append(options.getLaunchLatitude());
-				case "longitude" -> result.append(options.getLaunchLongitude());
-				case "elevation" -> result.append(options.getLaunchAltitude());
-				case "temperature" -> result.append(options.isISAAtmosphere()).append(',')
-						.append(options.getLaunchTemperature());
-				case "pressure" -> result.append(options.isISAAtmosphere()).append(',')
-						.append(options.getLaunchPressure());
-				case "humidity" -> result.append(options.isISAAtmosphere()).append(',')
-						.append(options.getLaunchRelativeHumidity());
-				case "wind", "turbulence" -> {
-					result.append(options.getWindModelType()).append(',');
-					if (options.getWindModelType() == WindModelType.AVERAGE) {
-						var wind = options.getAverageWindModel();
-						result.append(wind.getAverage()).append(',').append(wind.getDirection()).append(',')
-								.append(wind.getStandardDeviation());
-					} else {
-						result.append(options.getMultiLevelWindModel().getAltitudeReference()).append(',');
-						for (var level : options.getMultiLevelWindModel().getLevels()) {
-							result.append(level.getAltitude()).append(',').append(level.getSpeed()).append(',')
-									.append(level.getDirection()).append(',').append(level.getStandardDeviation()).append(';');
-						}
-					}
-				}
-				default -> throw new IllegalArgumentException("Unknown applied weather field: " + group);
-			}
-			result.append('|');
-		}
-		return result.toString();
-	}
 }

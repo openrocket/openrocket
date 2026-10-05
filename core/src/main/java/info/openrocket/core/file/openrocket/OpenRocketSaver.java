@@ -341,18 +341,23 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		var source = cond.getWeatherSource();
 		if (source != null) {
-			writeln("<weathersource provider=\"" + TextUtil.escapeXML(source.provider())
-					+ "\" endpoint=\"" + TextUtil.escapeXML(source.endpoint())
-					+ "\" kind=\"" + TextUtil.escapeXML(source.kind())
-					+ "\" valid=\"" + source.validAt() + "\" fetched=\"" + source.fetchedAt()
-					+ "\" expires=\"" + source.expiresAt()
-					+ "\" timezone=\"" + TextUtil.escapeXML(source.timezone())
-					+ "\" latitude=\"" + source.latitude() + "\" longitude=\"" + source.longitude()
-					+ "\" elevation=\"" + source.elevation()
-					+ "\" groups=\"" + String.join(" ", source.groups())
-					+ "\" elevationapplied=\"" + source.groups().contains("elevation")
-					+ "\" edited=\"" + source.isEdited(cond)
-					+ "\" baseline=\"" + TextUtil.escapeXML(source.baseline()) + "\"/>");
+			writeln("<weathersource>");
+			indent++;
+			writeElement("provider", source.provider());
+			writeElement("endpoint", source.endpoint());
+			writeElement("kind", source.kind());
+			writeElement("valid", source.validAt());
+			writeElement("fetched", source.fetchedAt());
+			writeElement("expires", source.expiresAt());
+			writeElement("timezone", source.timezone());
+			writeElement("latitude", source.latitude());
+			writeElement("longitude", source.longitude());
+			writeElement("elevation", source.elevation());
+			writeElement("groups", String.join(" ", source.groups()));
+			writeElement("elevationapplied", source.groups().contains("elevation"));
+			writeElement("changedbyuser", source.changedByUser());
+			indent--;
+			writeln("</weathersource>");
 		}
 		writeElement("configid", simulation.getId().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());

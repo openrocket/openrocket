@@ -2,7 +2,7 @@ package info.openrocket.core.file.openrocket.importt;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import info.openrocket.core.simulation.WeatherSource;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,6 +16,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.SimulationStepperMethod;
+import info.openrocket.core.simulation.WeatherSource;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
 class SimulationConditionsHandler extends AbstractElementHandler {
@@ -24,6 +25,8 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 	private final SimulationOptions options;
 	private AtmosphereHandler atmosphereHandler;
 	private WindHandler windHandler;
+	private HashMap<String, String> weatherSourceValues;
+	private WeatherSource loadedWeatherSource;
 	private GravityHandler gravityHandler;
 	private CsvLookupHandler dragLookupHandler;
 	private CsvLookupHandler stabilityLookupHandler;
@@ -36,13 +39,28 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 	}
 
 	public SimulationOptions getConditions() {
+		// Attach the source after loading all conditions, so loading is not a user edit.
+		options.setWeatherSource(loadedWeatherSource);
 		return options;
 	}
 
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-		if (element.equals("wind")) {
+		if (element.equals("weathersource")) {
+			weatherSourceValues = new HashMap<>(attributes);
+			return new AbstractElementHandler() {
+				@Override
+				public ElementHandler openElement(String name, HashMap<String, String> attrs, WarningSet warnings) {
+					return PlainTextHandler.INSTANCE;
+				}
+
+				@Override
+				public void closeElement(String name, HashMap<String, String> attrs, String content, WarningSet warnings) {
+					weatherSourceValues.put(name, content.trim());
+				}
+			};
+		} else if (element.equals("wind")) {
 			windHandler = new WindHandler(attributes.get("model"), options, attributes);
 			return windHandler;
 		} else if (element.equals("atmosphere")) {
@@ -73,13 +91,15 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 
 		switch (element) {
 			case "weathersource" -> {
+				var values = weatherSourceValues;
 				try {
-					options.setWeatherSource(new WeatherSource(attributes.get("provider"), attributes.get("endpoint"),
-							attributes.get("kind"), Instant.parse(attributes.get("valid")), Instant.parse(attributes.get("fetched")),
-							attributes.containsKey("expires") ? Instant.parse(attributes.get("expires")) : null,
-							attributes.get("timezone"), Double.parseDouble(attributes.get("latitude")),
-							Double.parseDouble(attributes.get("longitude")), Double.parseDouble(attributes.get("elevation")),
-							List.of(attributes.get("groups").split(" ")), attributes.get("baseline")));
+					loadedWeatherSource = new WeatherSource(values.get("provider"), values.get("endpoint"),
+							values.get("kind"), Instant.parse(values.get("valid")), Instant.parse(values.get("fetched")),
+							values.containsKey("expires") ? Instant.parse(values.get("expires")) : null,
+							values.get("timezone"), Double.parseDouble(values.get("latitude")),
+							Double.parseDouble(values.get("longitude")), Double.parseDouble(values.get("elevation")),
+							List.of(values.get("groups").split(" ")),
+							Boolean.parseBoolean(values.getOrDefault("changedbyuser", values.get("edited"))));
 				} catch (RuntimeException ex) {
 					warnings.add("Invalid weather source, ignoring.");
 				}
