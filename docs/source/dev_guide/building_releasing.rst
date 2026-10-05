@@ -469,11 +469,19 @@ Windows installers are built and signed by the ``Build and sign Windows installe
 :file:`.github/workflows/build-windows.yml`. The workflow:
 
 1. builds the OpenRocket distribution JAR from the selected commit;
-2. downloads the pinned install4j 12.0.3 archive and verifies its SHA-256 checksum;
-3. builds the x86-64 and Arm64 installers with install4j code signing disabled;
-4. uploads both unsigned installers as one GitHub workflow artifact;
-5. submits that artifact to SignPath and waits for approval and signing;
-6. verifies both returned Authenticode signatures and uploads the signed installers as a separate workflow artifact.
+2. builds the Explorer thumbnail handler (``OrkThumbnailHandler.dll``) from the
+   `openrocket/Windows-ork-Preview <https://github.com/openrocket/Windows-ork-Preview>`__ commit pinned by
+   ``WINDOWS_ORK_PREVIEW_REF`` in the workflow, submits it to SignPath, and verifies the returned signature;
+3. downloads the pinned install4j 12.0.3 archive and verifies its SHA-256 checksum;
+4. builds the x86-64 and Arm64 installers with install4j code signing disabled, including the signed thumbnail handler;
+5. uploads both unsigned installers as one GitHub workflow artifact;
+6. submits that artifact to SignPath and waits for approval and signing;
+7. verifies both returned Authenticode signatures and uploads the signed installers as a separate workflow artifact.
+
+Each run therefore makes two SignPath signing requests, and each needs its own approval. Only the thumbnail handler is
+signed: ``SharpShell.dll``, the upstream library it depends on, is shipped unsigned as distributed on NuGet, because the
+SignPath Foundation only allows signing binaries built from OpenRocket's own source code. To update the thumbnail handler,
+change ``WINDOWS_ORK_PREVIEW_REF`` to the new full commit SHA.
 
 This arrangement lets SignPath verify the GitHub repository, commit, workflow, and GitHub-hosted runner that produced the
 artifact. Never publish the ``openrocket-windows-unsigned-*`` workflow artifact. It is retained only long enough for SignPath
@@ -524,6 +532,28 @@ OpenRocket project's overview page. Return to the project overview before perfor
 
    SignPath recommends generating a configuration by uploading an unsigned sample first. If you do that, compare the
    generated configuration with the restrictions above and make sure it signs only the two OpenRocket installer files.
+
+   Create a second configuration with a slug such as ``windows-shell-extension`` for the thumbnail handler. Its upload is a
+   ZIP containing only ``OrkThumbnailHandler.dll``, whose product version is the OpenRocket version:
+
+   .. code-block:: xml
+
+      <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+        <parameters>
+          <parameter name="version" required="true" />
+        </parameters>
+        <zip-file>
+          <pe-file-set company-name="OpenRocket"
+                       original-filename="${file.name}"
+                       product-name="OpenRocket"
+                       product-version="${version}">
+            <include path="OrkThumbnailHandler.dll" min-matches="1" max-matches="1" />
+            <for-each>
+              <authenticode-sign />
+            </for-each>
+          </pe-file-set>
+        </zip-file>
+      </artifact-configuration>
 4. Open the ``release-signing`` signing policy. Select the OpenRocket release certificate, require a manual approval, allow
    only the dedicated CI user to submit, assign the OpenRocket approvers, enable trusted-build-system and origin
    verification, and restrict the origin to the protected release branch. The repository URL comes from the project
@@ -555,6 +585,8 @@ In :menuselection:`GitHub repository --> Settings --> Secrets and variables --> 
       - Release signing policy slug.
    *  - Variable ``SIGNPATH_ARTIFACT_CONFIGURATION_SLUG``
       - Windows installer artifact configuration slug.
+   *  - Variable ``SIGNPATH_SHELL_EXTENSION_ARTIFACT_CONFIGURATION_SLUG``
+      - Thumbnail handler artifact configuration slug.
 
 The SignPath API token and install4j license are secrets. IDs and slugs are identifiers and should be repository variables,
 which makes configuration errors easier to diagnose without exposing credentials.
@@ -566,7 +598,8 @@ Running and validating a Windows signing build
    commit into the branch allowed by the SignPath signing policy.
 2. Open :menuselection:`GitHub --> Actions --> Build and sign Windows installers`, select :guilabel:`Run workflow`, and select that
    branch. Do not approve a request built from an unexpected repository, branch, commit, or workflow run.
-3. An approver reviews the verified origin and artifact details in SignPath, then approves the signing request.
+3. An approver reviews the verified origin and artifact details in SignPath, then approves the signing requests: first the
+   thumbnail handler, then the installers.
 4. After the workflow succeeds, download ``openrocket-windows-signed-<run number>`` from the workflow run. Those are the
    Windows release installers. The workflow rejects missing or invalid Authenticode signatures before uploading them.
 5. Test both architectures as appropriate and regenerate any release checksums from the signed files. Checksums produced by
@@ -576,7 +609,8 @@ Running and validating a Windows signing build
    SignPath signs the two outer install4j installer executables. SignPath treats PE files as non-composite artifacts, so this
    workflow does not deep-sign the install4j launcher embedded inside each installer. Signing the installed launcher as well
    would require an install4j-compatible SignPath crypto provider or a package format that SignPath supports for deep signing.
-   The outer signature is the one Windows evaluates when a downloaded installer is launched.
+   The outer signature is the one Windows evaluates when a downloaded installer is launched. The thumbnail handler is the
+   exception: it is loaded into Explorer, so it is signed separately before install4j packages it.
 
 For Microsoft Defender SmartScreen submission instructions, see the
 `install4j README <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
@@ -616,6 +650,11 @@ the *openrocket/install4j/<build-version>/media/* directory.
 The current install4j project deliberately has Windows code signing disabled because SignPath signs Windows installers after
 the GitHub build. For local development builds, enable ``Disable code signing`` and ``Disable notarization`` in the
 install4j :menuselection:`Build` tab when the macOS credentials are unavailable.
+
+The Windows installers include the Explorer thumbnail handler from :file:`build/windows-shell-extension`. For a local
+Windows build, build `Windows-ork-Preview <https://github.com/openrocket/Windows-ork-Preview>`__ and copy
+``OrkThumbnailHandler.dll`` and ``SharpShell.dll`` into that directory first; otherwise install4j only warns and the
+installers are built without thumbnail previews.
 
 macOS QuickLook Extension
 -------------------------

@@ -31,7 +31,7 @@
     </mountPoints>
     <entries>
       <fileEntry mountPoint="252" file="${compiler:JAR_FILE_LOCATION}" />
-      <dirEntry mountPoint="254" file="./Windows_resources" entryMode="subdir" subDirectory="shell-extension" />
+      <dirEntry mountPoint="254" file="../../build/windows-shell-extension" entryMode="subdir" subDirectory="shell-extension" />
     </entries>
   </files>
   <launchers>
