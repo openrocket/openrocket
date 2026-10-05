@@ -602,8 +602,9 @@ Running and validating a Windows signing build
    thumbnail handler, then the installers.
 4. After the workflow succeeds, download ``openrocket-windows-signed-<run number>`` from the workflow run. Those are the
    Windows release installers. The workflow rejects missing or invalid Authenticode signatures before uploading them.
-5. Test both architectures as appropriate and regenerate any release checksums from the signed files. Checksums produced by
-   install4j before signing are no longer valid after SignPath adds the signatures.
+5. Test both architectures as appropriate. Use the ``SHA256SUMS.txt`` in that artifact for release checksums; it is computed
+   from the signed files. Checksums produced by install4j before signing are no longer valid after SignPath adds the
+   signatures.
 
 .. note::
    SignPath signs the two outer install4j installer executables. SignPath treats PE files as non-composite artifacts, so this

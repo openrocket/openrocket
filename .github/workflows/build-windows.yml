@@ -266,10 +266,25 @@ jobs:
         shell: pwsh
         run: ./.github/scripts/verify-authenticode.ps1 -Path 'install4j/26.xx/signed-media' -Filter '*.exe' -ExpectedCount 2
 
+      - name: Compute checksums of the signed installers
+        shell: pwsh
+        run: |
+          New-Item -Path 'dist' -ItemType Directory -Force | Out-Null
+          Get-ChildItem -Path 'install4j/26.xx/signed-media' -Filter '*.exe' -File -Recurse | Copy-Item -Destination 'dist/'
+
+          # Same format as sha256sum, so the file can be checked with `sha256sum -c`.
+          $lines = Get-ChildItem -Path 'dist' -Filter '*.exe' -File | Sort-Object Name | ForEach-Object {
+            "$((Get-FileHash -Path $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $($_.Name)"
+          }
+          [System.IO.File]::WriteAllText("$PWD/dist/SHA256SUMS.txt", ($lines -join "`n") + "`n")
+          Get-Content -Path 'dist/SHA256SUMS.txt'
+
       - name: Upload signed Windows installers
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: openrocket-windows-signed-${{ github.run_number }}
-          path: install4j/26.xx/signed-media/**/*.exe
+          path: |
+            dist/*.exe
+            dist/SHA256SUMS.txt
           compression-level: 0
           if-no-files-found: error
