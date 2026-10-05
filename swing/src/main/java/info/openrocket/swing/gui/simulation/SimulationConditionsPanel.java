@@ -19,7 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -53,6 +52,7 @@ import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.simulation.currentconditions.WeatherConditionsController;
+import info.openrocket.swing.gui.simulation.currentconditions.WeatherHelpButton;
 
 public class SimulationConditionsPanel extends JPanel implements Scrollable {
 	private static final Translator trans = Application.getTranslator();
@@ -818,24 +818,19 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 		currentConditions.setToolTipText(trans.get("simedtdlg.but.currentConditions.ttip"));
 		currentConditions.addActionListener(e -> weatherConditions.request(currentConditions, options, this));
 		buttons.add(currentConditions);
-		JButton weatherInfo = new JButton("?");
-		weatherInfo.getAccessibleContext().setAccessibleName(trans.get("simedtdlg.lbl.weatherSource.help"));
-		weatherInfo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-		weatherInfo.putClientProperty("JButton.buttonType", "roundRect");
-		weatherInfo.putClientProperty("FlatLaf.style", "arc: 999");
-		weatherInfo.addActionListener(e -> {
-			JPopupMenu popup = new JPopupMenu();
-			JLabel details = new JLabel(weatherConditions.sourceDetails(options));
-			details.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
-			popup.add(details);
-			popup.show(weatherInfo, 0, -popup.getPreferredSize().height);
+		WeatherHelpButton weatherInfo = new WeatherHelpButton(trans.get("simedtdlg.lbl.weatherSource.help"), () -> {
+			JLabel details = new JLabel(weatherConditions.sourceDetails(options)
+					.replace("<html>", "<html><div style='width: 360px'>").replace("</html>", "</div></html>"));
+			details.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+			details.setOpaque(false);
+			return details;
 		});
 		buttons.add(weatherInfo, "w 22lp!, h 22lp!");
 		Runnable updateWeatherStatus = () -> {
 			if (currentConditions.isEnabled()) {
 				currentConditions.setText(WeatherConditionsController.weatherButtonText(options));
 			}
-			weatherInfo.setToolTipText(weatherConditions.sourceDetails(options));
+			weatherInfo.getAccessibleContext().setAccessibleDescription(weatherConditions.sourceDetails(options));
 		};
 		options.addChangeListener(e -> updateWeatherStatus.run());
 		weatherStatusTimer = new Timer(1000, e -> updateWeatherStatus.run());

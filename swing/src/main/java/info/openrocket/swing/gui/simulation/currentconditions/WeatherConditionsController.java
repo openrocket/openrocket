@@ -1,32 +1,16 @@
 package info.openrocket.swing.gui.simulation.currentconditions;
 
-import java.awt.AWTEvent;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.event.AWTEventListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -53,10 +37,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
@@ -500,36 +482,12 @@ public final class WeatherConditionsController {
 		if (fetchResult.cached()) {
 			JPanel cacheHeader = new JPanel(new MigLayout("insets 0", "[][]"));
 			cacheHeader.add(new JLabel("<html><b>" + trans.get("simedtdlg.lbl.usingCachedWeather") + "</b></html>"));
-			JButton help = new JButton() {
-				@Override
-				protected void paintComponent(Graphics graphics) {
-					super.paintComponent(graphics);
-					Graphics copy = graphics.create();
-					FontMetrics metrics = copy.getFontMetrics(getFont());
-					int x = (getWidth() - metrics.stringWidth("?")) / 2;
-					int y = (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
-					copy.setColor(getForeground());
-					copy.setFont(getFont());
-					copy.drawString("?", x, y);
-					copy.dispose();
-				}
-			};
-			help.getAccessibleContext().setAccessibleName(trans.get("simedtdlg.lbl.usingCachedWeather"));
-			help.setMargin(new java.awt.Insets(0, 0, 0, 0));
-			help.setFocusable(false);
-			help.setFocusPainted(false);
-			help.putClientProperty("JButton.buttonType", "roundRect");
-			help.putClientProperty("FlatLaf.style", "arc: 999");
 			JPanel helpContent = new JPanel(new BorderLayout(0, 10));
-			Color calloutBorder = UIManager.getColor("Component.borderColor");
-			if (calloutBorder == null) {
-				calloutBorder = Color.GRAY;
-			}
 			helpContent.setOpaque(false);
 			helpContent.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
 			helpContent.add(new JLabel(trans.get("simedtdlg.ttip.cachedWeather")), BorderLayout.CENTER);
+			WeatherHelpButton help = new WeatherHelpButton(trans.get("simedtdlg.lbl.usingCachedWeather"), () -> helpContent);
 			cacheHeader.add(help, "w 22lp!, h 22lp!");
-			JWindow helpPopup = new JWindow(dialog);
 			JButton forceRefresh = new JButton(trans.get("simedtdlg.but.forceRefreshWeather"));
 			forceRefresh.addActionListener(e -> {
 				Instant availableAt = fetchResult.forceRefreshAvailableAt();
@@ -541,91 +499,10 @@ public final class WeatherConditionsController {
 					return;
 				}
 				result[0] = WeatherPreviewAction.FORCE_REFRESH;
-				helpPopup.dispose();
 				dialog.dispose();
 			});
 			helpContent.add(forceRefresh, BorderLayout.SOUTH);
-			Color calloutFill = UIManager.getColor("Panel.background");
-			Color calloutOutline = calloutBorder;
-			JPanel popupContent = new JPanel(new BorderLayout()) {
-				@Override
-				protected void paintComponent(Graphics graphics) {
-					Graphics2D graphics2D = (Graphics2D) graphics.create();
-					graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-							RenderingHints.VALUE_ANTIALIAS_ON);
-					double bodyTop = 9;
-					Area callout = new Area(new RoundRectangle2D.Double(0.5, bodyTop, getWidth() - 1.0,
-							getHeight() - bodyTop - 0.5, 14, 14));
-					Path2D tail = new Path2D.Double();
-					tail.moveTo(1.5, bodyTop + 2);
-					tail.quadTo(7, 7, 11, 0.8);
-					tail.quadTo(15, 7, 22, bodyTop + 2);
-					tail.closePath();
-					callout.add(new Area(tail));
-					graphics2D.setColor(calloutFill);
-					graphics2D.fill(callout);
-					graphics2D.setColor(calloutOutline);
-					graphics2D.draw(callout);
-					graphics2D.dispose();
-				}
-			};
-			popupContent.setOpaque(false);
-			popupContent.setBorder(BorderFactory.createEmptyBorder(10, 1, 1, 1));
-			popupContent.add(helpContent, BorderLayout.CENTER);
-			helpPopup.setBackground(new Color(0, 0, 0, 0));
-			helpPopup.setContentPane(popupContent);
-			Point[] predictionOrigin = { null };
-			Runnable showHelpPopup = () -> {
-				if (!helpPopup.isVisible()) {
-					predictionOrigin[0] = topCenterOnScreen(help);
-					helpPopup.pack();
-					Point anchor = help.getLocationOnScreen();
-					helpPopup.setLocation(anchor.x + help.getWidth() / 2 - 11,
-							anchor.y + help.getHeight() - 1);
-					helpPopup.setVisible(true);
-				}
-			};
-			help.addActionListener(event -> {
-				showHelpPopup.run();
-				forceRefresh.requestFocusInWindow();
-			});
-			AWTEventListener dismissHelpPopup = event -> {
-				if (!(event instanceof MouseEvent mouseEvent) || !helpPopup.isVisible()
-						|| !(mouseEvent.getSource() instanceof Component source)) {
-					return;
-				}
-				boolean insideHelp = source == help || SwingUtilities.isDescendingFrom(source, help);
-				boolean insidePopup = source == helpPopup || SwingUtilities.isDescendingFrom(source, helpPopup);
-				if (insideHelp) {
-					predictionOrigin[0] = topCenterOnScreen(help);
-					return;
-				}
-				if (insidePopup) {
-					return;
-				}
-				if (mouseEvent.getID() != MouseEvent.MOUSE_PRESSED && predictionOrigin[0] != null
-						&& isInPredictionCone(mouseEvent.getLocationOnScreen(), predictionOrigin[0],
-							helpPopup.getBounds())) {
-					return;
-				}
-				helpPopup.setVisible(false);
-				predictionOrigin[0] = null;
-			};
-			Toolkit.getDefaultToolkit().addAWTEventListener(dismissHelpPopup,
-					AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
-			dialog.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent event) {
-					Toolkit.getDefaultToolkit().removeAWTEventListener(dismissHelpPopup);
-					helpPopup.dispose();
-				}
-			});
-			help.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseEntered(MouseEvent event) {
-					showHelpPopup.run();
-				}
-			});
+			help.addActionListener(event -> forceRefresh.requestFocusInWindow());
 			long secondsUntilRefresh = Math.max(0,
 					fetchResult.refreshAvailableAt().getEpochSecond() - Instant.now().getEpochSecond());
 			long minutesUntilRefresh = Math.max(1, (secondsUntilRefresh + 59) / 60);
@@ -676,22 +553,6 @@ public final class WeatherConditionsController {
 		dialog.setLocationRelativeTo(owner);
 		dialog.setVisible(true);
 		return result[0];
-	}
-
-	private static Point topCenterOnScreen(Component component) {
-		Point location = component.getLocationOnScreen();
-		return new Point(location.x + component.getWidth() / 2, location.y);
-	}
-
-	private static boolean isInPredictionCone(Point pointer, Point origin, Rectangle popupBounds) {
-		int popupBottom = popupBounds.y + popupBounds.height;
-		if (pointer.y < origin.y || pointer.y > popupBottom) {
-			return false;
-		}
-		Polygon cone = new Polygon(
-				new int[] { origin.x, popupBounds.x, popupBounds.x + popupBounds.width },
-				new int[] { origin.y, popupBottom, popupBottom }, 3);
-		return cone.contains(pointer);
 	}
 
 	private WeatherCustomization customizeApplySelection(Window owner, ApplySelection current,
