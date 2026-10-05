@@ -31,6 +31,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
+import info.openrocket.core.simulation.WeatherSource;
 import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.Set;
@@ -330,6 +332,25 @@ public final class WeatherConditionsController {
 					}
 					if (previewResult != null) {
 						applyWeatherConditions(options, previewResult.edits(), previewResult.selection());
+						ApplySelection selection = previewResult.selection();
+						List<String> groups = new ArrayList<>();
+						if (selection.latitude()) groups.add("latitude");
+						if (selection.longitude()) groups.add("longitude");
+						if (selection.elevation()) groups.add("elevation");
+						if (selection.temperature()) groups.add("temperature");
+						if (selection.pressure()) groups.add("pressure");
+						if (selection.humidity()) groups.add("humidity");
+						if (selection.wind()) groups.add("wind");
+						if (selection.turbulence() && !selection.wind()
+								&& previewResult.edits().turbulenceIntensity != null) groups.add("turbulence");
+						if (!groups.isEmpty()) {
+							String kind = !lookup.request().isForecast() ? "current"
+									: lookup.conditions().validAt().isBefore(lookup.fetchResult().fetchedAt()) ? "historical" : "forecast";
+							options.setWeatherSource(new WeatherSource("open-meteo", "forecast", kind,
+									lookup.conditions().validAt(), lookup.fetchResult().fetchedAt(), timezoneOf(lookup.location()).getId(),
+									lookup.conditions().latitude(), lookup.conditions().longitude(), lookup.conditions().elevation(),
+									groups, WeatherSource.snapshot(options, groups)));
+						}
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();

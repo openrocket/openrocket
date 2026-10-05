@@ -82,6 +82,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double launchLongitude = preferences.getLaunchLongitude();
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
+	private WeatherSource weatherSource;
+
 	private boolean useISA = preferences.isISAAtmosphere();
 	private double launchTemperature = preferences.getLaunchTemperature();	// In Kelvin
 	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
@@ -127,6 +129,16 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		averageWindModel.addChangeListener(e -> fireChangeEvent());
 		multiLevelPinkNoiseWindModel = new MultiLevelPinkNoiseWindModel();
 		multiLevelPinkNoiseWindModel.addChangeListener(e -> fireChangeEvent());
+	}
+
+	public WeatherSource getWeatherSource() {
+		return weatherSource;
+	}
+
+	public void setWeatherSource(WeatherSource source) {
+		if (Objects.equals(weatherSource, source)) return;
+		weatherSource = source;
+		fireChangeEvent();
 	}
 
 	public double getLaunchRodLength() {
@@ -684,6 +696,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// only do it if one of the "important" (user specified) parameters has really
 		// changed.
 		boolean isChanged = false;
+		if (!Objects.equals(weatherSource, src.weatherSource)) {
+			weatherSource = src.weatherSource;
+			isChanged = true;
+		}
 		boolean averageWindChanged = false;
 		boolean multiLevelWindChanged = false;
 
@@ -858,6 +874,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.drogueLowSpeedWarning, o.drogueLowSpeedWarning) &&
 				MathUtil.equals(this.recoveryDrogueMainHighSpeedWarning, o.recoveryDrogueMainHighSpeedWarning) &&
 				MathUtil.equals(this.recoveryDrogueMainLowSpeedWarning, o.recoveryDrogueMainLowSpeedWarning) &&
+				Objects.equals(this.weatherSource, o.weatherSource) &&
 				this.randomSeedFixed == o.randomSeedFixed &&
 				(!this.randomSeedFixed || this.randomSeed == o.randomSeed);
 	}

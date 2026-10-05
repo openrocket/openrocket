@@ -1,6 +1,8 @@
 package info.openrocket.core.file.openrocket.importt;
 
 import java.nio.file.Path;
+import java.time.Instant;
+import info.openrocket.core.simulation.WeatherSource;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,6 +72,17 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		}
 
 		switch (element) {
+			case "weathersource" -> {
+				try {
+					options.setWeatherSource(new WeatherSource(attributes.get("provider"), attributes.get("endpoint"),
+							attributes.get("kind"), Instant.parse(attributes.get("valid")), Instant.parse(attributes.get("fetched")),
+							attributes.get("timezone"), Double.parseDouble(attributes.get("latitude")),
+							Double.parseDouble(attributes.get("longitude")), Double.parseDouble(attributes.get("elevation")),
+							List.of(attributes.get("groups").split(" ")), attributes.get("baseline")));
+				} catch (RuntimeException ex) {
+					warnings.add("Invalid weather source, ignoring.");
+				}
+			}
 			case "configid" -> this.idToSet = new FlightConfigurationId(content);
 			case "launchrodlength" -> {
 				if (Double.isNaN(d)) {

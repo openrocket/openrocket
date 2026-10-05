@@ -339,6 +339,20 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<conditions>");
 		indent++;
 		
+		var source = cond.getWeatherSource();
+		if (source != null) {
+			writeln("<weathersource provider=\"" + TextUtil.escapeXML(source.provider())
+					+ "\" endpoint=\"" + TextUtil.escapeXML(source.endpoint())
+					+ "\" kind=\"" + TextUtil.escapeXML(source.kind())
+					+ "\" valid=\"" + source.validAt() + "\" fetched=\"" + source.fetchedAt()
+					+ "\" timezone=\"" + TextUtil.escapeXML(source.timezone())
+					+ "\" latitude=\"" + source.latitude() + "\" longitude=\"" + source.longitude()
+					+ "\" elevation=\"" + source.elevation()
+					+ "\" groups=\"" + String.join(" ", source.groups())
+					+ "\" elevationapplied=\"" + source.groups().contains("elevation")
+					+ "\" edited=\"" + source.isEdited(cond)
+					+ "\" baseline=\"" + TextUtil.escapeXML(source.baseline()) + "\"/>");
+		}
 		writeElement("configid", simulation.getId().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchintowind", cond.getLaunchIntoWind());

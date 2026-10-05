@@ -104,7 +104,7 @@ public class OpenMeteoClient {
 		CachedConditions cached = forceRefresh ? null : getCached(cacheKey);
 		if (cached != null) {
 			return new FetchResult(atRequestedLocation(cached.conditions(), latitude, longitude), true,
-					cached.expiresAt(), forceRefreshAvailableAt(cacheKey));
+					cached.expiresAt(), forceRefreshAvailableAt(cacheKey), cached.fetchedAt());
 		}
 		if (forceRefresh) {
 			checkForceRefresh(cacheKey);
@@ -116,8 +116,9 @@ public class OpenMeteoClient {
 					+ "&wind_speed_unit=ms&timeformat=iso8601&timezone=GMT&forecast_days=1");
 			CurrentConditions conditions = fetch(uri, latitude, longitude, false);
 			Instant expiresAt = currentExpiration(Instant.now());
-			cache(cacheKey, conditions, expiresAt);
-			return new FetchResult(conditions, false, expiresAt, forceRefreshAvailableAt(cacheKey));
+			Instant fetchedAt = Instant.now();
+			cache(cacheKey, conditions, expiresAt, fetchedAt);
+			return new FetchResult(conditions, false, expiresAt, forceRefreshAvailableAt(cacheKey), fetchedAt);
 		});
 	}
 
@@ -145,7 +146,7 @@ public class OpenMeteoClient {
 		CachedConditions cached = forceRefresh ? null : getCached(cacheKey);
 		if (cached != null) {
 			return new FetchResult(atRequestedLocation(cached.conditions(), latitude, longitude), true,
-					cached.expiresAt(), forceRefreshAvailableAt(cacheKey));
+					cached.expiresAt(), forceRefreshAvailableAt(cacheKey), cached.fetchedAt());
 		}
 		if (forceRefresh) {
 			checkForceRefresh(cacheKey);
@@ -162,8 +163,9 @@ public class OpenMeteoClient {
 			CurrentConditions conditions = fetch(uri, latitude, longitude, true);
 			Instant expiresAt = pastConditions ? Instant.now().plusSeconds(PAST_CONDITIONS_CACHE_SECONDS)
 					: forecastExpiration(Instant.now());
-			cache(cacheKey, conditions, expiresAt);
-			return new FetchResult(conditions, false, expiresAt, forceRefreshAvailableAt(cacheKey));
+			Instant fetchedAt = Instant.now();
+			cache(cacheKey, conditions, expiresAt, fetchedAt);
+			return new FetchResult(conditions, false, expiresAt, forceRefreshAvailableAt(cacheKey), fetchedAt);
 		});
 	}
 
@@ -256,12 +258,12 @@ public class OpenMeteoClient {
 		return cached;
 	}
 
-	private static synchronized void cache(WeatherCacheKey key, CurrentConditions conditions, Instant expiresAt) {
+	private static synchronized void cache(WeatherCacheKey key, CurrentConditions conditions, Instant expiresAt, Instant fetchedAt) {
 		WEATHER_CACHE.entrySet().removeIf(entry -> !Instant.now().isBefore(entry.getValue().expiresAt()));
 		if (WEATHER_CACHE.size() >= MAX_CACHE_ENTRIES) {
 			WEATHER_CACHE.remove(WEATHER_CACHE.keySet().iterator().next());
 		}
-		WEATHER_CACHE.put(key, new CachedConditions(conditions, expiresAt));
+		WEATHER_CACHE.put(key, new CachedConditions(conditions, expiresAt, fetchedAt));
 	}
 
 	private static synchronized void checkForceRefresh(WeatherCacheKey key) throws RefreshRateLimitException {
@@ -645,7 +647,7 @@ public class OpenMeteoClient {
 		}
 	}
 
-	private record CachedConditions(CurrentConditions conditions, Instant expiresAt) {
+	private record CachedConditions(CurrentConditions conditions, Instant expiresAt, Instant fetchedAt) {
 	}
 
 	@FunctionalInterface
@@ -654,7 +656,7 @@ public class OpenMeteoClient {
 	}
 
 	public record FetchResult(CurrentConditions conditions, boolean cached, Instant refreshAvailableAt,
-			Instant forceRefreshAvailableAt) {
+			Instant forceRefreshAvailableAt, Instant fetchedAt) {
 	}
 
 	public static class RefreshRateLimitException extends IOException {

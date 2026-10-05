@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.EventObject;
 import java.util.List;
 
@@ -832,7 +834,29 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 		});
 		buttons.add(saveDefaults);
 
-		this.add(buttons, "span, growx");
+		this.add(buttons, "span, growx, wrap");
+		JLabel weatherSource = new JLabel();
+		weatherSource.setFont(weatherSource.getFont().deriveFont(weatherSource.getFont().getSize2D() - 1));
+		Runnable updateSource = () -> {
+			var source = options.getWeatherSource();
+			weatherSource.setVisible(source != null);
+			if (source != null) {
+				var format = DateTimeFormatter.ofPattern("MMM d, yyyy HH:mm z").withZone(ZoneId.of(source.timezone()));
+				String text = String.format(trans.get("simedtdlg.lbl.weatherSource"),
+						trans.get("simedtdlg.lbl.weatherSource." + source.kind()), format.format(source.validAt()),
+						format.format(source.fetchedAt()));
+				if (source.isEdited(options)) text += " · " + trans.get("simedtdlg.lbl.weatherSource.edited");
+				if (source.isSiteMoved(options)) text += " · " + trans.get("simedtdlg.lbl.weatherSource.siteMoved");
+				weatherSource.setText(text);
+				weatherSource.setToolTipText(String.format(trans.get("simedtdlg.lbl.weatherSource.details"),
+						source.validAt(), source.fetchedAt(), String.join(", ", source.groups()), source.latitude(),
+						source.longitude(), source.elevation()));
+			}
+			revalidate();
+		};
+		options.addChangeListener(e -> updateSource.run());
+		updateSource.run();
+		this.add(weatherSource, "span, growx");
 	}
 
 	/**
