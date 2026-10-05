@@ -4,6 +4,7 @@ import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -30,10 +31,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.ArrayList;
-import info.openrocket.core.simulation.WeatherSource;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -65,7 +67,9 @@ import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.models.wind.WindModel.AltitudeReference;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.simulation.SimulationOptions;
+import info.openrocket.core.simulation.WeatherSource;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -84,6 +88,7 @@ public final class WeatherConditionsController {
 	private static final int DIALOG_HORIZONTAL_OVERHEAD = 160;
 	private final WeatherCustomizationPreferences customizationPreferences;
 	private Instant selectedForecastTime;
+	private final Map<UnitGroup, Unit> displayUnits = new HashMap<>();
 	private DeviceLocation selectedWeatherLocation;
 	private ApplySelection savedApplySelection;
 	private Set<Integer> savedExcludedWindLevelIndices;
@@ -109,18 +114,64 @@ public final class WeatherConditionsController {
 		}
 	}
 
-	public void request(JButton button, SimulationOptions options) {
+	public void request(JButton button, SimulationOptions options, JPanel conditionsPanel) {
+		displayUnits.clear();
+		readDisplayUnits(conditionsPanel);
+		if (options.getWeatherSource() != null) {
+			var source = options.getWeatherSource();
+			selectedForecastTime = source.kind().equals("forecast") && !source.isExpired(Instant.now())
+					? source.validAt() : null;
+		}
 		WeatherRequest request = chooseWeatherRequest(panelOwner(button), options);
 		if (request != null) {
 			fetchWeatherConditions(button, options, request);
 		}
 	}
 
+	private void readDisplayUnits(Container container) {
+		for (Component component : container.getComponents()) {
+			if (component instanceof UnitSelector selector) {
+				displayUnits.putIfAbsent(selector.getUnitGroup(), selector.getSelectedUnit());
+			} else if (component instanceof Container child) {
+				readDisplayUnits(child);
+			}
+		}
+	}
+
+	private String formatValue(UnitGroup group, double value) {
+		return displayUnits.getOrDefault(group, group.getDefaultUnit()).toStringUnit(value);
+	}
+
+	public static String weatherButtonText(SimulationOptions options) {
+		var source = options.getWeatherSource();
+		return trans.get(source != null && !source.isExpired(Instant.now())
+				? "simedtdlg.but.updateWeatherConditions" : "simedtdlg.but.currentConditions");
+	}
+
+	public String sourceDetails(SimulationOptions options) {
+		var source = options.getWeatherSource();
+		if (source == null) return trans.get("simedtdlg.ttip.weatherSource.none");
+		String details = String.format(trans.get("simedtdlg.lbl.weatherSource"),
+				formatForecastTime(source.validAt()),
+				formatForecastTime(source.fetchedAt()));
+		if (source.isExpired(Instant.now())) {
+			details += "<br>" + trans.get(source.kind().equals("current")
+					? "simedtdlg.lbl.weatherSource.refreshDue" : "simedtdlg.lbl.weatherSource.past");
+		}
+		if (source.isEdited(options)) details += "<br>" + trans.get("simedtdlg.lbl.weatherSource.edited");
+		if (source.isSiteMoved(options)) details += "<br>" + trans.get("simedtdlg.lbl.weatherSource.siteMoved");
+		String fields = source.groups().stream().map(group -> group.equals("wind") ? trans.get("simedtdlg.lbl.Wind") : trans.get("simedtdlg.checkbox.weather"
+				+ Character.toUpperCase(group.charAt(0)) + group.substring(1))).collect(Collectors.joining(", "));
+		return "<html>" + details + "<br><br>"
+				+ String.format(trans.get("simedtdlg.lbl.weatherSource.details"), fields,
+						source.latitude(), source.longitude(), UnitGroup.UNITS_DISTANCE.toStringUnit(source.elevation()))
+				+ "</html>";
+	}
+
 	private WeatherRequest chooseWeatherRequest(Window owner, SimulationOptions options) {
 		Instant[] forecastTime = { selectedForecastTime };
 		JLabel dateTime = new JLabel(forecastTime[0] == null
-				? trans.get("simedtdlg.lbl.currentTime") : formatForecastTime(forecastTime[0],
-						timezoneOf(selectedWeatherLocation)));
+				? trans.get("simedtdlg.lbl.currentTime") : formatForecastTime(forecastTime[0]));
 		JButton chooseDateTime = new JButton(trans.get("simedtdlg.but.chooseForecastTime"));
 
 		DeviceLocation configuredLocation = new DeviceLocation(options.getLaunchLatitude(), options.getLaunchLongitude(),
@@ -129,23 +180,18 @@ public final class WeatherConditionsController {
 			configuredLocation = configuredLocation.withTimezone(selectedWeatherLocation.timezoneId());
 		}
 		DeviceLocation[] selectedLocation = { configuredLocation };
-		ZoneId[] selectedTimezone = { timezoneOf(configuredLocation) };
+		ZoneId timezone = ZoneId.systemDefault();
 		JLabel locationLabel = new JLabel(formatLocation(configuredLocation));
 		JButton chooseLocation = new JButton(trans.get("simedtdlg.but.chooseWeatherLocation"));
 		JLabel availability = new JLabel();
 		Runnable refreshTimezoneLabels = () -> {
-			ZoneId timezone = selectedTimezone[0];
-			availability.setText(timezone == null
-					? String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailabilityPendingTimezone"),
-							OpenMeteoClient.MAX_PAST_DAYS, OpenMeteoClient.MAX_FORECAST_DAYS)
-					: String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
+			availability.setText(String.format(Locale.ROOT, trans.get("simedtdlg.msg.forecastAvailability"),
 							OpenMeteoClient.MAX_PAST_DAYS, OpenMeteoClient.MAX_FORECAST_DAYS, timezone.getId()));
 			dateTime.setText(forecastTime[0] == null ? trans.get("simedtdlg.lbl.currentTime")
-					: formatForecastTime(forecastTime[0], timezone));
+					: formatForecastTime(forecastTime[0]));
 		};
 		java.util.function.Consumer<DeviceLocation> updateLocation = chosen -> {
 			selectedLocation[0] = chosen;
-			selectedTimezone[0] = timezoneOf(chosen);
 			options.setLaunchLatitude(chosen.latitude());
 			options.setLaunchLongitude(chosen.longitude());
 			locationLabel.setText(formatLocation(chosen));
@@ -158,49 +204,20 @@ public final class WeatherConditionsController {
 			}
 		});
 		chooseDateTime.addActionListener(e -> {
-			Runnable showPicker = () -> {
-				ZoneId timezone = selectedTimezone[0] == null ? ZoneId.systemDefault() : selectedTimezone[0];
-				Instant now = Instant.now();
-				Instant firstHistoricalHour = LocalDate.ofInstant(now, timezone)
-						.minusDays(OpenMeteoClient.MAX_PAST_DAYS).atStartOfDay(timezone).toInstant();
-				Instant lastForecastHour = LocalDate.ofInstant(now, timezone)
-						.plusDays(OpenMeteoClient.MAX_FORECAST_DAYS - 1L).atTime(23, 0).atZone(timezone).toInstant();
-				Instant initial = forecastTime[0] != null && !forecastTime[0].isBefore(firstHistoricalHour)
-						&& !forecastTime[0].isAfter(lastForecastHour) ? forecastTime[0] : null;
-				Window pickerOwner = SwingUtilities.getWindowAncestor(chooseDateTime);
-				ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(
-						pickerOwner == null ? owner : pickerOwner, initial, firstHistoricalHour, lastForecastHour, timezone);
-				if (chosen != null) {
-					forecastTime[0] = chosen.now() ? null : chosen.forecastAt();
-					refreshTimezoneLabels.run();
-				}
-			};
-			if (selectedTimezone[0] != null) {
-				showPicker.run();
-				return;
+			Instant now = Instant.now();
+			Instant firstHistoricalHour = LocalDate.ofInstant(now, timezone)
+					.minusDays(OpenMeteoClient.MAX_PAST_DAYS).atStartOfDay(timezone).toInstant();
+			Instant lastForecastHour = LocalDate.ofInstant(now, timezone)
+					.plusDays(OpenMeteoClient.MAX_FORECAST_DAYS - 1L).atTime(23, 0).atZone(timezone).toInstant();
+			Instant initial = forecastTime[0] != null && !forecastTime[0].isBefore(firstHistoricalHour)
+					&& !forecastTime[0].isAfter(lastForecastHour) ? forecastTime[0] : null;
+			Window pickerOwner = SwingUtilities.getWindowAncestor(chooseDateTime);
+			ForecastDateTimePicker.Selection chosen = ForecastDateTimePicker.show(
+					pickerOwner == null ? owner : pickerOwner, initial, firstHistoricalHour, lastForecastHour, timezone);
+			if (chosen != null) {
+				forecastTime[0] = chosen.now() ? null : chosen.forecastAt();
+				refreshTimezoneLabels.run();
 			}
-			chooseDateTime.setEnabled(false);
-			chooseDateTime.setText(trans.get("simedtdlg.lbl.resolvingTimezone"));
-			DeviceLocation location = selectedLocation[0];
-			new SwingWorker<ZoneId, Void>() {
-				@Override
-				protected ZoneId doInBackground() throws Exception {
-					return new OpenMeteoClient().resolveTimezone(location.latitude(), location.longitude());
-				}
-
-				@Override
-				protected void done() {
-					chooseDateTime.setEnabled(true);
-					chooseDateTime.setText(trans.get("simedtdlg.but.chooseForecastTime"));
-					try {
-						ZoneId timezone = get();
-						updateLocation.accept(location.withTimezone(timezone.getId()));
-						showPicker.run();
-					} catch (Exception exception) {
-						showCurrentConditionsError(chooseDateTime, trans.get("simedtdlg.msg.timezoneLookupFailed"));
-					}
-				}
-			}.execute();
 		});
 		refreshTimezoneLabels.run();
 
@@ -263,16 +280,14 @@ public final class WeatherConditionsController {
 		}
 	}
 
-	private static String formatForecastTime(Instant time, ZoneId timezone) {
-		ZoneId zone = timezone == null ? ZoneId.systemDefault() : timezone;
+	private static String formatForecastTime(Instant time) {
+		ZoneId zone = ZoneId.systemDefault();
 		return DateTimeFormatter.ofPattern("MMM d, uuuu h:mm a z", Locale.getDefault()).withZone(zone).format(time);
 	}
 
 	private static String formatLocation(DeviceLocation location) {
-		String timezone = location.timezoneId() == null || location.timezoneId().isBlank()
-				? "" : " (" + location.timezoneId() + ")";
-		return String.format(Locale.ROOT, "<html>%s:<br>%.5f°, %.5f°%s</html>", escapeHtml(location.source()),
-				location.latitude(), location.longitude(), timezone);
+		return String.format(Locale.ROOT, "<html>%s:<br>%.5f°, %.5f°</html>", escapeHtml(location.source()),
+				location.latitude(), location.longitude());
 	}
 
 	private static String escapeHtml(String value) {
@@ -347,7 +362,9 @@ public final class WeatherConditionsController {
 							String kind = !lookup.request().isForecast() ? "current"
 									: lookup.conditions().validAt().isBefore(lookup.fetchResult().fetchedAt()) ? "historical" : "forecast";
 							options.setWeatherSource(new WeatherSource("open-meteo", "forecast", kind,
-									lookup.conditions().validAt(), lookup.fetchResult().fetchedAt(), timezoneOf(lookup.location()).getId(),
+									lookup.conditions().validAt(), lookup.fetchResult().fetchedAt(),
+									kind.equals("current") ? lookup.fetchResult().refreshAvailableAt() : lookup.conditions().validAt(),
+									timezoneOf(lookup.location()).getId(),
 									lookup.conditions().latitude(), lookup.conditions().longitude(), lookup.conditions().elevation(),
 									groups, WeatherSource.snapshot(options, groups)));
 						}
@@ -358,7 +375,7 @@ public final class WeatherConditionsController {
 				} catch (ExecutionException e) {
 					Throwable cause = e.getCause();
 					if (cause instanceof RefreshRateLimitException rateLimit) {
-						String availableAt = formatWeatherTime(rateLimit.getAvailableAt(), timezoneOf(request.selectedLocation()));
+						String availableAt = formatWeatherTime(rateLimit.getAvailableAt());
 						showCurrentConditionsError(button, String.format(Locale.ROOT,
 								trans.get("simedtdlg.msg.forceRefreshRateLimited"), availableAt));
 					} else if (request.usesDeviceLocation() && cause instanceof LocationException) {
@@ -375,7 +392,7 @@ public final class WeatherConditionsController {
 					}
 				} finally {
 					if (!restarted) {
-						button.setText(trans.get("simedtdlg.but.currentConditions"));
+						button.setText(weatherButtonText(options));
 						button.setEnabled(true);
 					}
 				}
@@ -385,8 +402,8 @@ public final class WeatherConditionsController {
 		worker.execute();
 	}
 
-	private static String formatWeatherTime(Instant time, ZoneId timezone) {
-		ZoneId zone = timezone == null ? ZoneId.systemDefault() : timezone;
+	private static String formatWeatherTime(Instant time) {
+		ZoneId zone = ZoneId.systemDefault();
 		return DateTimeFormatter.ofPattern("MMM d, uuuu h:mm:ss a z", Locale.getDefault())
 				.withZone(zone).format(time);
 	}
@@ -394,13 +411,12 @@ public final class WeatherConditionsController {
 	private WeatherPreviewResult confirmWeatherConditions(Window owner, ConditionsLookup lookup) {
 		CurrentConditions conditions = lookup.conditions();
 		WeatherEdits edits = editsFor(conditions);
-		String preview = trans.get(lookup.request().isForecast()
-				? "simedtdlg.msg.forecastConditionsPreview" : "simedtdlg.msg.currentConditionsPreview");
-		ZoneId timezone = timezoneOf(lookup.location());
+		String preview = trans.get("simedtdlg.msg.currentConditionsPreview");
+		ZoneId timezone = ZoneId.systemDefault();
 		String validAt = DateTimeFormatter.ofPattern("MMM d, uuuu h:mm a z", Locale.getDefault())
-				.withZone(timezone == null ? ZoneId.systemDefault() : timezone).format(conditions.validAt());
+				.withZone(timezone).format(conditions.validAt());
 		String accuracy = Double.isFinite(lookup.location().horizontalAccuracy())
-				? String.format(Locale.ROOT, " (±%.0f m)", lookup.location().horizontalAccuracy()) : "";
+				? " (±" + formatValue(UnitGroup.UNITS_DISTANCE, lookup.location().horizontalAccuracy()) + ")" : "";
 		ApplySelection selection = savedApplySelection;
 		Set<Integer> excludedWindLevelIndices = savedExcludedWindLevelIndices;
 		while (true) {
@@ -411,30 +427,29 @@ public final class WeatherConditionsController {
 			CurrentConditions.WindLayer surfaceWind = displayedWindLayers.get(0);
 			String heading = lookup.fetchResult().cached() ? "" : "<b>" + preview + "</b><br><br>";
 			String windProfile = selectedWindLayers.size() == edits.windLayers.size()
-					? String.format(Locale.ROOT, "%d layers to %.0f m MSL", selectedWindLayers.size(),
-							displayedWindLayers.get(displayedWindLayers.size() - 1).altitude())
-					: String.format(Locale.ROOT, "%d of %d layers to %.0f m MSL", selectedWindLayers.size(),
-							edits.windLayers.size(), displayedWindLayers.get(displayedWindLayers.size() - 1).altitude());
+					? String.format(Locale.ROOT, "%d layers to %s MSL", selectedWindLayers.size(),
+							formatValue(UnitGroup.UNITS_DISTANCE, displayedWindLayers.get(displayedWindLayers.size() - 1).altitude()))
+					: String.format(Locale.ROOT, "%d of %d layers to %s MSL", selectedWindLayers.size(),
+							edits.windLayers.size(), formatValue(UnitGroup.UNITS_DISTANCE, displayedWindLayers.get(displayedWindLayers.size() - 1).altitude()));
 			String summary = String.format(Locale.ROOT, trans.get("simedtdlg.msg.weatherSummary"),
 					heading,
 					formatPreviewField(selection.latitude() && selection.longitude(), String.format(Locale.ROOT,
 							"Location: %.5f°, %.5f°%s", edits.latitude, edits.longitude, accuracy)),
 					formatPreviewField(selection.elevation(),
-							String.format(Locale.ROOT, "Launch elevation: %.0f m MSL", edits.elevation)), validAt,
+							"Launch elevation: " + formatValue(UnitGroup.UNITS_DISTANCE, edits.elevation) + " MSL"), validAt,
 					formatPreviewField(selection.temperature(),
-							String.format(Locale.ROOT, "Temperature: %.1f °C", edits.temperature - 273.15)),
+							"Temperature: " + formatValue(UnitGroup.UNITS_TEMPERATURE, edits.temperature)),
 					formatPreviewField(selection.pressure(),
-							String.format(Locale.ROOT, "Pressure: %.1f hPa", edits.pressure / 100.0)),
+							"Pressure: " + formatValue(UnitGroup.UNITS_PRESSURE, edits.pressure)),
 					formatPreviewField(selection.humidity(),
-							String.format(Locale.ROOT, "Humidity: %.0f%%", edits.relativeHumidity * 100.0)),
+							"Humidity: " + formatValue(UnitGroup.UNITS_RELATIVE, edits.relativeHumidity)),
 					formatPreviewField(selection.wind(), String.format(Locale.ROOT,
-							"Surface wind: %.1f m/s from %.0f°; gusts %.1f m/s", surfaceWind.speed(),
-							Math.toDegrees(surfaceWind.direction()), conditions.windGust())),
+							"Surface wind: %s from %s; gusts %s", formatValue(UnitGroup.UNITS_WINDSPEED, surfaceWind.speed()),
+							formatValue(UnitGroup.UNITS_ANGLE, surfaceWind.direction()), formatValue(UnitGroup.UNITS_WINDSPEED, conditions.windGust()))),
 					formatPreviewField(selection.wind(), "Vertical wind profile: " + windProfile),
 					formatPreviewField(selection.turbulence(), edits.turbulenceIntensity == null
 							? "Turbulence intensity: varies by level"
-							: String.format(Locale.ROOT, "Turbulence intensity: %.0f%%",
-									edits.turbulenceIntensity * 100.0)),
+							: "Turbulence intensity: " + formatValue(UnitGroup.UNITS_RELATIVE, edits.turbulenceIntensity)),
 					trans.get("simedtdlg.msg.weatherAttribution"));
 			WeatherPreviewAction action = showWeatherPreviewDialog(owner, summary, lookup.fetchResult(), timezone);
 			if (action == WeatherPreviewAction.OK) {
@@ -521,7 +536,7 @@ public final class WeatherConditionsController {
 				if (Instant.now().isBefore(availableAt)) {
 					JOptionPane.showMessageDialog(dialog,
 							String.format(Locale.ROOT, trans.get("simedtdlg.msg.forceRefreshRateLimited"),
-									formatWeatherTime(availableAt, timezone)),
+									formatWeatherTime(availableAt)),
 							trans.get("simedtdlg.title.currentConditions"), JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
@@ -701,6 +716,10 @@ public final class WeatherConditionsController {
 		boolean initialMixedTurbulence = currentEdits.turbulenceIntensity == null;
 		DoubleModel turbulenceModel = new DoubleModel(initialMixedTurbulence ? 0 : currentEdits.turbulenceIntensity,
 				UnitGroup.UNITS_RELATIVE, 0, 1);
+		for (DoubleModel model : List.of(latitudeModel, longitudeModel, elevationModel, temperatureModel,
+				pressureModel, humidityModel, turbulenceModel)) {
+			model.setCurrentUnit(displayUnits.getOrDefault(model.getUnitGroup(), model.getUnitGroup().getDefaultUnit()));
+		}
 		JSpinner latitude = unitSpinner(latitudeModel);
 		JSpinner longitude = unitSpinner(longitudeModel);
 		JSpinner elevationValue = unitSpinner(elevationModel);
@@ -838,6 +857,10 @@ public final class WeatherConditionsController {
 		if (action == CustomizationAction.CANCEL) {
 			return new WeatherCustomization(current, currentEdits, currentExcludedWindLevelIndices,
 					CustomizationAction.CANCEL);
+		}
+		for (DoubleModel model : List.of(latitudeModel, longitudeModel, elevationModel, temperatureModel,
+				pressureModel, humidityModel, turbulenceModel)) {
+			displayUnits.put(model.getUnitGroup(), model.getCurrentUnit());
 		}
 		List<CurrentConditions.WindLayer> windLayers = editableWind.getLevels().stream()
 				.map(level -> new CurrentConditions.WindLayer(level.getAltitude(), level.getSpeed(), level.getDirection(),

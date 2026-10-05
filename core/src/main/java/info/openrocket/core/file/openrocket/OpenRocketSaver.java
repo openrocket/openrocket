@@ -345,6 +345,7 @@ public class OpenRocketSaver extends RocketSaver {
 					+ "\" endpoint=\"" + TextUtil.escapeXML(source.endpoint())
 					+ "\" kind=\"" + TextUtil.escapeXML(source.kind())
 					+ "\" valid=\"" + source.validAt() + "\" fetched=\"" + source.fetchedAt()
+					+ "\" expires=\"" + source.expiresAt()
 					+ "\" timezone=\"" + TextUtil.escapeXML(source.timezone())
 					+ "\" latitude=\"" + source.latitude() + "\" longitude=\"" + source.longitude()
 					+ "\" elevation=\"" + source.elevation()

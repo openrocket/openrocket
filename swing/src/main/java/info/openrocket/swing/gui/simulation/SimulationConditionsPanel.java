@@ -10,8 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.EventObject;
 import java.util.List;
 
@@ -21,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -28,6 +27,7 @@ import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.JViewport;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -62,6 +62,7 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 	private static final String FIELD_COLUMNS = "[grow][80lp!][32lp!][72lp!]";
 	private static final int SCROLLBAR_TOLERANCE = 8;
 	private final WeatherConditionsController weatherConditions = new WeatherConditionsController();
+	private Timer weatherStatusTimer;
 
 
 	SimulationConditionsPanel(final Simulation simulation) {
@@ -78,6 +79,7 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 
 	@Override
 	public void removeNotify() {
+		if (weatherStatusTimer != null) weatherStatusTimer.stop();
 		weatherConditions.cancel();
 		super.removeNotify();
 	}
@@ -809,13 +811,35 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 
 
 	private void addDefaultButtons(SimulationOptions options) {
-		JPanel buttons = new JPanel(new MigLayout("insets 0, fillx, gap rel", "[]push[][]"));
+		JPanel buttons = new JPanel(new MigLayout("insets 0, fillx, gap rel", "[][]push[][]"));
 		buttons.setOpaque(false);
 
 		JButton currentConditions = new JButton(trans.get("simedtdlg.but.currentConditions"));
 		currentConditions.setToolTipText(trans.get("simedtdlg.but.currentConditions.ttip"));
-		currentConditions.addActionListener(e -> weatherConditions.request(currentConditions, options));
+		currentConditions.addActionListener(e -> weatherConditions.request(currentConditions, options, this));
 		buttons.add(currentConditions);
+		JButton weatherInfo = new JButton("?");
+		weatherInfo.getAccessibleContext().setAccessibleName(trans.get("simedtdlg.lbl.weatherSource.help"));
+		weatherInfo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		weatherInfo.putClientProperty("JButton.buttonType", "roundRect");
+		weatherInfo.putClientProperty("FlatLaf.style", "arc: 999");
+		weatherInfo.addActionListener(e -> {
+			JPopupMenu popup = new JPopupMenu();
+			JLabel details = new JLabel(weatherConditions.sourceDetails(options));
+			details.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+			popup.add(details);
+			popup.show(weatherInfo, 0, -popup.getPreferredSize().height);
+		});
+		buttons.add(weatherInfo, "w 22lp!, h 22lp!");
+		Runnable updateWeatherStatus = () -> {
+			if (currentConditions.isEnabled()) {
+				currentConditions.setText(WeatherConditionsController.weatherButtonText(options));
+			}
+			weatherInfo.setToolTipText(weatherConditions.sourceDetails(options));
+		};
+		options.addChangeListener(e -> updateWeatherStatus.run());
+		weatherStatusTimer = new Timer(1000, e -> updateWeatherStatus.run());
+		updateWeatherStatus.run();
 
 		// Reset to default
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
@@ -834,29 +858,7 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 		});
 		buttons.add(saveDefaults);
 
-		this.add(buttons, "span, growx, wrap");
-		JLabel weatherSource = new JLabel();
-		weatherSource.setFont(weatherSource.getFont().deriveFont(weatherSource.getFont().getSize2D() - 1));
-		Runnable updateSource = () -> {
-			var source = options.getWeatherSource();
-			weatherSource.setVisible(source != null);
-			if (source != null) {
-				var format = DateTimeFormatter.ofPattern("MMM d, yyyy HH:mm z").withZone(ZoneId.of(source.timezone()));
-				String text = String.format(trans.get("simedtdlg.lbl.weatherSource"),
-						trans.get("simedtdlg.lbl.weatherSource." + source.kind()), format.format(source.validAt()),
-						format.format(source.fetchedAt()));
-				if (source.isEdited(options)) text += " · " + trans.get("simedtdlg.lbl.weatherSource.edited");
-				if (source.isSiteMoved(options)) text += " · " + trans.get("simedtdlg.lbl.weatherSource.siteMoved");
-				weatherSource.setText(text);
-				weatherSource.setToolTipText(String.format(trans.get("simedtdlg.lbl.weatherSource.details"),
-						source.validAt(), source.fetchedAt(), String.join(", ", source.groups()), source.latitude(),
-						source.longitude(), source.elevation()));
-			}
-			revalidate();
-		};
-		options.addChangeListener(e -> updateSource.run());
-		updateSource.run();
-		this.add(weatherSource, "span, growx");
+		this.add(buttons, "span, growx");
 	}
 
 	/**
@@ -886,6 +888,7 @@ public class SimulationConditionsPanel extends JPanel implements Scrollable {
 	@Override
 	public void addNotify() {
 		super.addNotify();
+		if (weatherStatusTimer != null) weatherStatusTimer.start();
 
 		// Now that the panel is added to a container, we can safely get the parent window
 		Window parent = SwingUtilities.getWindowAncestor(this);

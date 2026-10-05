@@ -9,7 +9,7 @@ import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.util.MathUtil;
 
 /** The source of applied weather, with a baseline for detecting subsequent edits. */
-public record WeatherSource(String provider, String endpoint, String kind, Instant validAt, Instant fetchedAt,
+public record WeatherSource(String provider, String endpoint, String kind, Instant validAt, Instant fetchedAt, Instant expiresAt,
 		String timezone, double latitude, double longitude, double elevation, List<String> groups,
 		String baseline) {
 	public WeatherSource {
@@ -18,6 +18,7 @@ public record WeatherSource(String provider, String endpoint, String kind, Insta
 		Objects.requireNonNull(kind);
 		Objects.requireNonNull(validAt);
 		Objects.requireNonNull(fetchedAt);
+		if (expiresAt == null) expiresAt = kind.equals("current") ? fetchedAt.plusSeconds(900) : validAt;
 		ZoneId.of(timezone);
 		if (!Double.isFinite(latitude) || Math.abs(latitude) > 90
 				|| !Double.isFinite(longitude) || Math.abs(longitude) > 180 || !Double.isFinite(elevation)) {
@@ -35,6 +36,10 @@ public record WeatherSource(String provider, String endpoint, String kind, Insta
 
 	public boolean isEdited(SimulationOptions options) {
 		return !baseline.equals(snapshot(options, groups));
+	}
+
+	public boolean isExpired(Instant now) {
+		return !now.isBefore(expiresAt);
 	}
 
 	public boolean isSiteMoved(SimulationOptions options) {

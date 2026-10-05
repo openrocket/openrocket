@@ -76,6 +76,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 				try {
 					options.setWeatherSource(new WeatherSource(attributes.get("provider"), attributes.get("endpoint"),
 							attributes.get("kind"), Instant.parse(attributes.get("valid")), Instant.parse(attributes.get("fetched")),
+							attributes.containsKey("expires") ? Instant.parse(attributes.get("expires")) : null,
 							attributes.get("timezone"), Double.parseDouble(attributes.get("latitude")),
 							Double.parseDouble(attributes.get("longitude")), Double.parseDouble(attributes.get("elevation")),
 							List.of(attributes.get("groups").split(" ")), attributes.get("baseline")));
