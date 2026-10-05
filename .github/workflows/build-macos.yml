@@ -27,8 +27,6 @@ jobs:
     environment: macos-signing
 
     env:
-      INSTALL4J_VERSION: '12.0.3'
-      INSTALL4J_DOWNLOAD_SHA256: '51e02e6e9de3a2892df2de42dd159510344d7d9816fa8d24e9deaba20951af43'
       APPLE_API_KEY_ID: ${{ vars.APPLE_API_KEY_ID }}
       APPLE_API_ISSUER_ID: ${{ vars.APPLE_API_ISSUER_ID }}
 
@@ -183,41 +181,11 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$plugins"/*.appex
           echo "plugins=$plugins" >> "$GITHUB_OUTPUT"
 
-      - name: Install install4j
+      - name: Set up install4j
         id: install4j
-        shell: bash
-        run: |
-          version_for_url=${INSTALL4J_VERSION//./_}
-          dmg="$RUNNER_TEMP/install4j-$INSTALL4J_VERSION.dmg"
-          mount="$RUNNER_TEMP/install4j-mount"
-
-          curl --fail --silent --show-error --location \
-            --output "$dmg" "https://download.ej-technologies.com/install4j/install4j_macos_$version_for_url.dmg"
-          actual=$(shasum -a 256 "$dmg" | awk '{ print $1 }')
-          if [ "$actual" != "$INSTALL4J_DOWNLOAD_SHA256" ]; then
-            echo "::error::install4j archive checksum mismatch: expected $INSTALL4J_DOWNLOAD_SHA256, got $actual."
-            exit 1
-          fi
-
-          mkdir -p "$mount"
-          hdiutil attach "$dmg" -nobrowse -noverify -noautoopen -readonly -mountpoint "$mount" -quiet
-          ditto "$mount/install4j.app" "$RUNNER_TEMP/install4j.app"
-          hdiutil detach "$mount" -quiet
-
-          compiler="$RUNNER_TEMP/install4j.app/Contents/Resources/app/bin/install4jc"
-          if [ ! -x "$compiler" ]; then
-            echo "::error::install4jc was not found in the downloaded install4j image."
-            exit 1
-          fi
-          echo "compiler=$compiler" >> "$GITHUB_OUTPUT"
-
-      - name: Register install4j license
-        shell: bash
-        env:
-          INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
-          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
-        run: |
-          "$INSTALL4J_COMPILER" -L "$INSTALL4J_LICENSE_KEY"
+        uses: ./.github/actions/setup-install4j
+        with:
+          license-key: ${{ secrets.INSTALL4J_LICENSE_KEY }}
 
       - name: Build and sign macOS installers
         shell: bash
@@ -228,8 +196,8 @@ jobs:
           MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
         run: |
           # The install4j project reads its macOS signing certificate from this (git-ignored) location.
-          mkdir -p install4j/26.xx/code_signing install4j/26.xx/media
-          printf '%s' "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode > install4j/26.xx/code_signing/OpenRocket_macOS.p12
+          mkdir -p install4j/code_signing install4j/media
+          printf '%s' "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode > install4j/code_signing/OpenRocket_macOS.p12
 
           # Notarization is skipped here: the DMGs are modified afterwards, so they are notarized once, at the end.
           "$INSTALL4J_COMPILER" \
@@ -237,13 +205,13 @@ jobs:
             --mac-keystore-password="$MACOS_CERTIFICATE_PASSWORD" \
             --build-ids=213,240 \
             --release="$OPENROCKET_VERSION" \
-            --destination="$PWD/install4j/26.xx/media" \
-            install4j/26.xx/openrocket-26.xx.install4j
+            --destination="$PWD/install4j/media" \
+            install4j/openrocket.install4j
 
-          count=$(find install4j/26.xx/media -maxdepth 1 -name '*.dmg' | wc -l | tr -d ' ')
+          count=$(find install4j/media -maxdepth 1 -name '*.dmg' | wc -l | tr -d ' ')
           if [ "$count" -ne 2 ]; then
             echo "::error::Expected two macOS DMGs, found $count."
-            ls -la install4j/26.xx/media
+            ls -la install4j/media
             exit 1
           fi
 
@@ -258,7 +226,7 @@ jobs:
           PLUGINS_DIR: ${{ steps.quicklook.outputs.plugins }}
         run: |
           mkdir -p dist
-          for dmg in install4j/26.xx/media/*.dmg; do
+          for dmg in install4j/media/*.dmg; do
             .github/scripts/add-macos-quicklook.sh "$PLUGINS_DIR" "$dmg" "dist/$(basename "$dmg")"
           done
           (cd dist && shasum -a 256 *.dmg | tee SHA256SUMS.txt)
@@ -285,4 +253,4 @@ jobs:
             security delete-keychain "$KEYCHAIN_PATH" || true
           fi
           rm -f "$NOTARY_KEY_PATH" "$RUNNER_TEMP/certificate.p12"
-          rm -rf install4j/26.xx/code_signing
+          rm -rf install4j/code_signing

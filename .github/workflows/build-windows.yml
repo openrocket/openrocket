@@ -19,8 +19,6 @@ jobs:
     timeout-minutes: 60
 
     env:
-      INSTALL4J_VERSION: '12.0.3'
-      INSTALL4J_DOWNLOAD_SHA256: 'b41678e50f0a68cfd22a10a05bae501ceff90ef7eb15e72a75ea19701159e403'
       # Commit of openrocket/Windows-ork-Preview to build the Explorer thumbnail handler from. It is pinned here, not taken
       # as a workflow input, so that the SignPath approver sees exactly which code is signed in the verified commit.
       WINDOWS_ORK_PREVIEW_REF: 'c5ded736a35dbe87afa8ea0f8e15837344e91dd9'
@@ -157,40 +155,11 @@ jobs:
           Get-ChildItem -Path 'build/windows-shell-extension-signed' -Filter 'OrkThumbnailHandler.dll' -File -Recurse |
             Copy-Item -Destination 'build/windows-shell-extension/'
 
-      - name: Install install4j
+      - name: Set up install4j
         id: install4j
-        shell: pwsh
-        run: |
-          $versionForUrl = $env:INSTALL4J_VERSION.Replace('.', '_')
-          $archive = Join-Path $env:RUNNER_TEMP "install4j-$($env:INSTALL4J_VERSION).zip"
-          $installDirectory = Join-Path $env:RUNNER_TEMP "install4j-$($env:INSTALL4J_VERSION)"
-          $downloadUrl = "https://download.ej-technologies.com/install4j/install4j_windows-x64_$versionForUrl.zip"
-
-          Invoke-WebRequest -Uri $downloadUrl -OutFile $archive
-          $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($actualHash -ne $env:INSTALL4J_DOWNLOAD_SHA256) {
-            throw "install4j archive checksum mismatch: expected $($env:INSTALL4J_DOWNLOAD_SHA256), got $actualHash."
-          }
-
-          Expand-Archive -Path $archive -DestinationPath $installDirectory
-          $compiler = Get-ChildItem -Path $installDirectory -Filter 'install4jc.exe' -File -Recurse |
-            Select-Object -First 1
-          if ($null -eq $compiler) {
-            throw 'install4jc.exe was not found in the downloaded install4j archive.'
-          }
-
-          "compiler=$($compiler.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
-      - name: Register install4j license
-        shell: pwsh
-        env:
-          INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
-          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
-        run: |
-          & $env:INSTALL4J_COMPILER -L $env:INSTALL4J_LICENSE_KEY
-          if ($LASTEXITCODE -ne 0) {
-            throw "install4j license registration failed with code $LASTEXITCODE."
-          }
+        uses: ./.github/actions/setup-install4j
+        with:
+          license-key: ${{ secrets.INSTALL4J_LICENSE_KEY }}
 
       - name: Build unsigned Windows installers
         shell: pwsh
@@ -205,13 +174,13 @@ jobs:
             }
           }
 
-          $mediaDirectory = (New-Item -Path 'install4j/26.xx/media' -ItemType Directory -Force).FullName
+          $mediaDirectory = (New-Item -Path 'install4j/media' -ItemType Directory -Force).FullName
           $arguments = @(
             '--disable-signing'
             '--build-ids=60,248'
             "--release=$env:OPENROCKET_VERSION"
             "--destination=$mediaDirectory"
-            'install4j/26.xx/openrocket-26.xx.install4j'
+            'install4j/openrocket.install4j'
           )
 
           & $env:INSTALL4J_COMPILER @arguments
@@ -219,7 +188,7 @@ jobs:
             throw "install4j exited with code $LASTEXITCODE."
           }
 
-          $installers = @(Get-ChildItem -Path 'install4j/26.xx/media' -Filter '*.exe' -File)
+          $installers = @(Get-ChildItem -Path 'install4j/media' -Filter '*.exe' -File)
           if ($installers.Count -ne 2) {
             throw "Expected two Windows installers, found $($installers.Count)."
           }
@@ -241,7 +210,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: openrocket-windows-unsigned-${{ github.run_number }}
-          path: install4j/26.xx/media/*.exe
+          path: install4j/media/*.exe
           compression-level: 0
           if-no-files-found: error
           retention-days: 7
@@ -258,19 +227,19 @@ jobs:
           github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
           wait-for-completion: true
           wait-for-completion-timeout-in-seconds: 1800
-          output-artifact-directory: ${{ github.workspace }}/install4j/26.xx/signed-media
+          output-artifact-directory: ${{ github.workspace }}/install4j/signed-media
           parameters: |
             version: ${{ toJSON(steps.version.outputs.value) }}
 
       - name: Verify Authenticode signatures
         shell: pwsh
-        run: ./.github/scripts/verify-authenticode.ps1 -Path 'install4j/26.xx/signed-media' -Filter '*.exe' -ExpectedCount 2
+        run: ./.github/scripts/verify-authenticode.ps1 -Path 'install4j/signed-media' -Filter '*.exe' -ExpectedCount 2
 
       - name: Compute checksums of the signed installers
         shell: pwsh
         run: |
           New-Item -Path 'dist' -ItemType Directory -Force | Out-Null
-          Get-ChildItem -Path 'install4j/26.xx/signed-media' -Filter '*.exe' -File -Recurse | Copy-Item -Destination 'dist/'
+          Get-ChildItem -Path 'install4j/signed-media' -Filter '*.exe' -File -Recurse | Copy-Item -Destination 'dist/'
 
           # Same format as sha256sum, so the file can be checked with `sha256sum -c`.
           $lines = Get-ChildItem -Path 'dist' -Filter '*.exe' -File | Sort-Object Name | ForEach-Object {

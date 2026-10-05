@@ -472,7 +472,8 @@ Windows installers are built and signed by the ``Build and sign Windows installe
 2. builds the Explorer thumbnail handler (``OrkThumbnailHandler.dll``) from the
    `openrocket/Windows-ork-Preview <https://github.com/openrocket/Windows-ork-Preview>`__ commit pinned by
    ``WINDOWS_ORK_PREVIEW_REF`` in the workflow, submits it to SignPath, and verifies the returned signature;
-3. downloads the pinned install4j 12.0.3 archive and verifies its SHA-256 checksum;
+3. downloads the install4j version pinned in :file:`.github/actions/setup-install4j/action.yml` and verifies its SHA-256
+   checksum;
 4. builds the x86-64 and Arm64 installers with install4j code signing disabled, including the signed thumbnail handler;
 5. uploads both unsigned installers as one GitHub workflow artifact;
 6. submits that artifact to SignPath and waits for approval and signing;
@@ -637,9 +638,14 @@ First run ``./gradlew dist distributionSmokeTest`` (see above). This builds and 
 universal JAR. Set install4j's application version to the same value as ``build.version``; each media definition then selects
 its matching platform JAR automatically.
 
-Then, open install4j (requires a license) and load the project file *openrocket/install4j/<build-version>/openrocket-<build-version>.install4j*
+Then, open install4j (requires a license) and load the project file *openrocket/install4j/openrocket.install4j*
 from the repository. Go to the :menuselection:`Build` tab and click on the :guilabel:`Start Build` button. This will create the installers in
-the *openrocket/install4j/<build-version>/media/* directory.
+the *openrocket/install4j/media/* directory. Local macOS signing material goes in the git-ignored *openrocket/install4j/code_signing/*
+directory.
+
+The GitHub workflows build with the install4j version pinned in :file:`.github/actions/setup-install4j/action.yml`. When you
+upgrade install4j locally, update that version and its three download checksums as well, so that CI does not build the
+project with an older install4j than the one it was saved with.
 
 .. figure:: /img/dev_guide/building_releasing/install4j_build.png
    :align: center
@@ -781,9 +787,6 @@ with the new results) to ensure that they are up-to-date with the latest changes
       Build the Linux installers with the ``Build Linux installers`` GitHub Actions workflow.
 
       When building the macOS installers in install4j, make sure macOS code signing and notarization are enabled.
-
-      Make sure that `DS_Store <https://github.com/openrocket/openrocket/blob/unstable/install4j/23.09/macOS_resources/DS_Store>`__ for the macOS
-      installer is updated. Instructions can be found `here <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
 
 9. **Add the macOS QuickLook extension** to the macOS DMG installers.
 

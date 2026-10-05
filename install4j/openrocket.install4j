@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="10.0.8" transformSequenceNumber="10">
-  <directoryPresets config="../../core/resources/pix/icon" />
-  <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="23.09" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 11.0">
-    <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="true" windowsPkcs12File="./code_signing/OpenRocket_Windows.pfx" macNotarize="true" appleId="sibo.vangool@hotmail.com" />
-    <jreBundles jdkProviderId="Liberica" release="17/17.0.7+7">
+<install4j version="12.0.3" transformSequenceNumber="12">
+  <directoryPresets config="../../remote/Windows-ork-Preview/src/OrkThumbnailHandler/bin/x64" />
+  <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="26.xx" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
+    <variables>
+      <variable name="ISSUER_ID" value="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" hidden="true" />
+      <variable name="KEY_ID" value="6CY43KJL23" hidden="true" />
+      <variable name="PRIVATE_API_KEY" value="code_signing/AuthKey_6CY43KJL23.p8" hidden="true" />
+      <variable name="JAR_FILE_LOCATION" value="../build/libs/${compiler:JAR_NAME}" />
+      <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}.jar" />
+    </variables>
+    <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="false" macNotarize="true" macApiIssuer="${compiler:ISSUER_ID}" macApiKey="${compiler:KEY_ID}" macApiPrivateKey="${compiler:PRIVATE_API_KEY}">
+      <macSearchedJars>
+        <entry>jna-*</entry>
+        <entry>swt-*</entry>
+        <entry>javafx-*</entry>
+        <entry>OpenRocket-*.jar</entry>
+      </macSearchedJars>
+    </codeSigning>
+    <jreBundles jdkProviderId="Liberica" release="17/17.0.20.1+1">
       <modules>
         <defaultModules set="jre" />
         <module name="java.scripting" />
@@ -12,75 +26,94 @@
   </application>
   <files>
     <mountPoints>
-      <mountPoint id="58" />
+      <mountPoint id="252" location="jar" />
+      <mountPoint id="254" />
     </mountPoints>
     <entries>
-      <fileEntry mountPoint="58" file="../../swing/build/jar/OpenRocket.jar" />
+      <fileEntry mountPoint="252" file="${compiler:JAR_FILE_LOCATION}" />
+      <dirEntry mountPoint="254" file="../build/windows-shell-extension" entryMode="subdir" subDirectory="shell-extension" />
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 23.09" id="59" icnsFile="../../core/resources/pix/icon/icon-macos.icns">
-      <executable name="OpenRocket" iconSet="true" iconFile="../../core/resources/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
-        <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2023 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
+    <launcher name="OpenRocket 26.xx" id="59" icnsFile="resources/icons/macos-squircle.icns">
+      <executable name="OpenRocket" iconSet="true" iconFile="resources/icons/icon-windows.ico" executableDir="." executableMode="gui">
+        <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2026 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
       </executable>
-      <splashScreen show="true" width="662" height="336" bitmapFile="../../core/resources/pix/splashscreen.png">
+      <splashScreen show="true" width="662" height="336" bitmapFile="../swing/build/resources/main/pix/splashscreen.png">
         <text>
           <statusLine x="491" y="200" fontColor="255,255,255" />
           <versionLine x="489" y="143" text="version ${compiler:sys.version}" fontSize="10" fontColor="255,255,255" />
         </text>
       </splashScreen>
-      <java mainClass="info.openrocket.swing.startup.OpenRocket" vmParameters="-Dapple.awt.application.appearance=&quot;system&quot; --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
+      <java mainClass="info.openrocket.swing.startup.OpenRocket" vmParameters="-Dapple.awt.application.appearance=&quot;system&quot; -Dsun.java2d.noddraw=true -Dsun.java2d.d3d=false -Dsun.java2d.ddforcevram=true -Dsun.java2d.ddblit=false -Dswing.useflipBufferStrategy=True -XX:ErrorFile=${installer:sys.userHome}/OpenRocket-crash-%p.log --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
         <classPath>
-          <archive location="OpenRocket.jar" failOnError="false" />
+          <archive location="jar/${compiler:JAR_NAME}" failOnError="false" />
         </classPath>
       </java>
+      <infoPlist>&lt;key&gt;UTExportedTypeDeclarations&lt;/key&gt;
+&lt;array&gt;
+    &lt;dict&gt;
+        &lt;key&gt;UTTypeIdentifier&lt;/key&gt;
+        &lt;string&gt;info.openrocket.ork&lt;/string&gt;
+        &lt;key&gt;UTTypeConformsTo&lt;/key&gt;
+        &lt;array&gt;&lt;string&gt;public.data&lt;/string&gt;&lt;/array&gt;
+        &lt;key&gt;UTTypeDescription&lt;/key&gt;
+        &lt;string&gt;OpenRocket Data File&lt;/string&gt;
+        &lt;key&gt;UTTypeTagSpecification&lt;/key&gt;
+        &lt;dict&gt;
+            &lt;key&gt;public.filename-extension&lt;/key&gt;
+            &lt;array&gt;&lt;string&gt;ork&lt;/string&gt;&lt;/array&gt;
+        &lt;/dict&gt;
+    &lt;/dict&gt;
+&lt;/array&gt;
+</infoPlist>
       <iconImageFiles>
-        <file path="../../core/resources/pix/icon/icon-016.png" />
-        <file path="../../core/resources/pix/icon/icon-032.png" />
-        <file path="../../core/resources/pix/icon/icon-048.png" />
-        <file path="../../core/resources/pix/icon/icon-064.png" />
-        <file path="../../core/resources/pix/icon/icon-128.png" />
-        <file path="../../core/resources/pix/icon/icon-256.png" />
+        <file path="../swing/build/resources/main/pix/icon/icon-016.png" />
+        <file path="resources/icons/icon-032.png" />
+        <file path="../swing/build/resources/main/pix/icon/icon-048.png" />
+        <file path="../swing/build/resources/main/pix/icon/icon-064.png" />
+        <file path="../swing/build/resources/main/pix/icon/icon-128.png" />
+        <file path="../swing/build/resources/main/pix/icon/icon-256.png" />
       </iconImageFiles>
       <macStaticAssociations>
-        <fileAssociation extension="ork" description="OpenRocket Design" iconFile="../../core/resources/pix/icon/icon-macos.icns" role="editor" />
+        <fileAssociation extension="ork" description="OpenRocket Design" iconFile="resources/icons/macos-squircle.icns" role="editor" />
       </macStaticAssociations>
     </launcher>
   </launchers>
   <installerGui>
     <laf type="native" />
     <applications>
-      <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" customIcnsFile="../../core/resources/pix/icon/icon-macos.icns" customIcoFile="../../core/resources/pix/icon/icon-windows.ico">
+      <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" customIcnsFile="resources/icons/macos-squircle.icns" customIcoFile="resources/icons/icon-windows.ico">
         <serializedBean>
           <property name="customIconImageFiles">
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../core/resources/pix/icon/icon-016.png</string>
+                <string>../swing/build/resources/main/pix/icon/icon-016.png</string>
               </object>
             </add>
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../core/resources/pix/icon/icon-032.png</string>
+                <string>resources/icons/icon-032.png</string>
               </object>
             </add>
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../core/resources/pix/icon/icon-048.png</string>
+                <string>../swing/build/resources/main/pix/icon/icon-048.png</string>
               </object>
             </add>
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../core/resources/pix/icon/icon-064.png</string>
+                <string>../swing/build/resources/main/pix/icon/icon-064.png</string>
               </object>
             </add>
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../core/resources/pix/icon/icon-128.png</string>
+                <string>../swing/build/resources/main/pix/icon/icon-128.png</string>
               </object>
             </add>
             <add>
               <object class="com.install4j.api.beans.ExternalFile">
-                <string>../../core/resources/pix/icon/icon-256.png</string>
+                <string>../swing/build/resources/main/pix/icon/icon-256.png</string>
               </object>
             </add>
           </property>
@@ -90,6 +123,7 @@
           <screen id="1" beanClass="com.install4j.runtime.beans.screens.StartupScreen" rollbackBarrierExitCode="0">
             <actions>
               <action id="22" beanClass="com.install4j.runtime.beans.actions.misc.RequestPrivilegesAction" actionElevationType="none" rollbackBarrierExitCode="0" />
+              <action id="253" beanClass="com.install4j.runtime.beans.actions.control.SetInstallationDirectoryAction" actionElevationType="none" />
             </actions>
           </screen>
         </startup>
@@ -102,7 +136,7 @@
                     <element index="0">sys.installationDir</element>
                   </property>
                 </serializedBean>
-                <condition>context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
+                <condition>context.getBooleanVariable("sys.streamlinedInstallation")</condition>
               </action>
             </actions>
             <formComponents>
@@ -123,9 +157,12 @@ return console.askOkCancel(message, true);
                   </property>
                 </serializedBean>
               </formComponent>
-              <formComponent id="5" beanClass="com.install4j.runtime.beans.formcomponents.UpdateAlertComponent" useExternalParametrization="true" externalParametrizationName="Update Alert" externalParametrizationMode="include">
+              <formComponent id="5" beanClass="com.install4j.runtime.beans.formcomponents.StreamlinedInstallationChooserComponent" useExternalParametrization="true" externalParametrizationName="Update Alert" externalParametrizationMode="include">
+                <serializedBean>
+                  <property name="streamlinedInstallationStrategy" type="enum" class="com.install4j.runtime.beans.formcomponents.StreamlinedInstallationStrategy" value="UPDATE_ONLY" />
+                </serializedBean>
                 <externalParametrizationPropertyNames>
-                  <propertyName>updateCheck</propertyName>
+                  <propertyName>streamlinedInstallationStrategy</propertyName>
                 </externalParametrizationPropertyNames>
               </formComponent>
               <formComponent id="6" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" insetTop="20">
@@ -136,7 +173,7 @@ return console.askOkCancel(message, true);
             </formComponents>
           </screen>
           <screen id="8" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" rollbackBarrierExitCode="0">
-            <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
+            <condition>!context.getBooleanVariable("sys.streamlinedInstallation")</condition>
             <formComponents>
               <formComponent id="9" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" insetBottom="25">
                 <serializedBean>
@@ -204,18 +241,26 @@ return console.askOkCancel(message, true);
                 </serializedBean>
                 <visibilityScript>Util.isMacOS()</visibilityScript>
               </formComponent>
+              <formComponent id="261" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                <serializedBean>
+                  <property name="checkboxText" type="string">Register Windows Explorer thumbnail previews for .ork files</property>
+                  <property name="initiallySelected" type="boolean" value="true" />
+                  <property name="variableName" type="string">installThumbnailHandler</property>
+                </serializedBean>
+              </formComponent>
             </formComponents>
           </screen>
           <screen id="15" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true" rollbackBarrierExitCode="0">
             <actions>
-              <action id="17" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit" errorMessage="${i18n:FileCorrupted}" />
-              <action id="18" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+              <action id="17" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask" failureAskRetry="false" errorMessage="${i18n:FileCorrupted}" />
+              <action id="18" beanClass="com.install4j.runtime.beans.actions.desktop.CreateDefaultStartMenuEntriesAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
-                  <property name="uninstallerMenuName" type="string">${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</property>
+                  <property name="folderName" type="string">${installer:sys.programGroupName}</property>
+                  <property name="linkDirectory" type="string">${installer:sys.symlinkDir}</property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
-              <action id="230" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit">
+              <action id="230" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask" failureAskRetry="false">
                 <serializedBean>
                   <property name="entryName" type="string">OpenRocket</property>
                   <property name="file">
@@ -223,20 +268,21 @@ return console.askOkCancel(message, true);
                       <string>OpenRocket</string>
                     </object>
                   </property>
+                  <property name="folderName" type="string">${installer:sys.programGroupName}</property>
                   <property name="icon">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>../../core/resources/pix/icon/icon-windows.ico</string>
+                      <string>resources/icons/icon-windows.ico</string>
                     </object>
                   </property>
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>../../core/resources/pix/icon/icon-048.png</string>
+                      <string>../swing/src/main/resources/pix/icon/icon-048.png</string>
                     </object>
                   </property>
                 </serializedBean>
                 <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
-              <action id="231" beanClass="com.install4j.runtime.beans.actions.desktop.AddToDockAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="askQuit">
+              <action id="231" beanClass="com.install4j.runtime.beans.actions.desktop.AddToDockAction" actionElevationType="none" rollbackBarrierExitCode="0" failureStrategy="ask" failureAskRetry="false">
                 <serializedBean>
                   <property name="executable">
                     <object class="java.io.File">
@@ -246,7 +292,7 @@ return console.askOkCancel(message, true);
                 </serializedBean>
                 <condition>context.getBooleanVariable("addToDockAction")</condition>
               </action>
-              <action id="229" beanClass="com.install4j.runtime.beans.actions.desktop.CreateDesktopLinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit">
+              <action id="229" beanClass="com.install4j.runtime.beans.actions.desktop.CreateDesktopLinkAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask" failureAskRetry="false">
                 <serializedBean>
                   <property name="description" type="string">OpenRocket Model Rocket Simulator</property>
                   <property name="file">
@@ -257,18 +303,18 @@ return console.askOkCancel(message, true);
                   <property name="name" type="string">${compiler:sys.fullName}</property>
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>../../core/resources/pix/icon/icon-064.png</string>
+                      <string>../swing/src/main/resources/pix/icon/icon-064.png</string>
                     </object>
                   </property>
                   <property name="winIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>../../core/resources/pix/icon/icon-windows.ico</string>
+                      <string>resources/icons/icon-windows.ico</string>
                     </object>
                   </property>
                 </serializedBean>
                 <condition>context.getBooleanVariable("createDesktopLinkAction")</condition>
               </action>
-              <action id="233" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="askQuit">
+              <action id="233" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" actionElevationType="elevated" rollbackBarrierExitCode="0" failureStrategy="ask" failureAskRetry="false">
                 <serializedBean>
                   <property name="description" type="string">OpenRocket Design</property>
                   <property name="extension" type="string">ork</property>
@@ -276,13 +322,13 @@ return console.askOkCancel(message, true);
                   <property name="unix" type="boolean" value="true" />
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>../../core/resources/pix/icon/icon-064.png</string>
+                      <string>../swing/src/main/resources/pix/icon/icon-064.png</string>
                     </object>
                   </property>
                   <property name="unixMimeType" type="string">application/x-openrocket</property>
                   <property name="windowsIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>../../core/resources/pix/icon/icon-windows.ico</string>
+                      <string>resources/icons/icon-windows.ico</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -291,6 +337,27 @@ return console.askOkCancel(message, true);
                 <serializedBean>
                   <property name="itemName" type="string">${compiler:sys.fullName} ${compiler:sys.version}</property>
                 </serializedBean>
+              </action>
+              <action id="260" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0" errorMessage="Failed to register the .ork thumbnail preview handler. Explorer thumbnails for .ork files may not be available. OpenRocket will still work normally.">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="2">
+                    <element index="0">/codebase</element>
+                    <element index="1">${installer:sys.installationDir}\shell-extension\OrkThumbnailHandler.dll</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>${installer:sys.windowsDir}/Microsoft.NET/Framework64/v4.0.30319/regasm.exe</string>
+                    </object>
+                  </property>
+                  <property name="keepConsoleWindow" type="boolean" value="true" />
+                  <property name="wait" type="boolean" value="true" />
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>shell-extension</string>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>return ((Boolean)context.getVariable("installThumbnailHandler")).booleanValue();</condition>
               </action>
             </actions>
             <formComponents>
@@ -349,6 +416,25 @@ return console.askYesNo(message, true);
           </screen>
           <screen id="27" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen" rollbackBarrierExitCode="0">
             <actions>
+              <action id="263" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrierExitCode="0" errorMessage="Failed to unregister the .ork thumbnail preview handler.">
+                <serializedBean>
+                  <property name="arguments" type="array" elementType="string" length="2">
+                    <element index="0">/unregister</element>
+                    <element index="1">${installer:sys.installationDir}\shell-extension\OrkThumbnailHandler.dll</element>
+                  </property>
+                  <property name="executable">
+                    <object class="java.io.File">
+                      <string>${installer:sys.windowsDir}/Microsoft.NET/Framework64/v4.0.30319/regasm.exe</string>
+                    </object>
+                  </property>
+                  <property name="wait" type="boolean" value="true" />
+                  <property name="workingDirectory">
+                    <object class="java.io.File">
+                      <string>shell-extension</string>
+                    </object>
+                  </property>
+                </serializedBean>
+              </action>
               <action id="29" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" />
             </actions>
             <formComponents>
@@ -429,20 +515,19 @@ return console.askYesNo(message, true);
               <property name="imageEdgeBackgroundColor">
                 <object class="com.install4j.runtime.beans.LightOrDarkColor">
                   <object class="java.awt.Color">
-                    <int>25</int>
+                    <int>27</int>
                     <int>143</int>
                     <int>220</int>
                     <int>255</int>
                   </object>
                   <object class="java.awt.Color">
                     <int>0</int>
-                    <int>74</int>
-                    <int>151</int>
+                    <int>73</int>
+                    <int>150</int>
                     <int>255</int>
                   </object>
                 </object>
               </property>
-              <property name="imageEdgeBorder" type="boolean" value="true" />
               <property name="imageFile">
                 <object class="com.install4j.api.beans.ExternalFile">
                   <string>${compiler:sys.install4jHome}/resource/styles/wizard.png</string>
@@ -460,9 +545,14 @@ return console.askYesNo(message, true);
             <beans>
               <formComponent id="43" beanClass="com.install4j.runtime.beans.styles.ScreenTitleComponent" insetTop="0">
                 <serializedBean>
-                  <property name="labelFontSizePercent" type="int" value="130" />
-                  <property name="labelFontStyle" type="enum" class="com.install4j.runtime.beans.formcomponents.FontStyle" value="BOLD" />
-                  <property name="labelFontType" type="enum" class="com.install4j.runtime.beans.formcomponents.FontType" value="DERIVED" />
+                  <property name="labelWidgetStyle" id="LabelWidgetStyle0">
+                    <property name="fontDescriptor">
+                      <property name="fontSizePercent" type="int" value="130" />
+                      <property name="fontStyle" type="enum" class="com.install4j.runtime.beans.formcomponents.FontStyle" value="BOLD" />
+                      <property name="fontType" type="enum" class="com.install4j.runtime.beans.formcomponents.FontType" value="DERIVED" />
+                    </property>
+                  </property>
+                  <property name="labelWidgetStyleId" type="null" />
                 </serializedBean>
               </formComponent>
               <formComponent id="44" beanClass="com.install4j.runtime.beans.formcomponents.SeparatorComponent" />
@@ -540,8 +630,13 @@ return console.askYesNo(message, true);
                 <beans>
                   <formComponent name="Title" id="50" beanClass="com.install4j.runtime.beans.styles.ScreenTitleComponent">
                     <serializedBean>
-                      <property name="labelFontStyle" type="enum" class="com.install4j.runtime.beans.formcomponents.FontStyle" value="BOLD" />
-                      <property name="labelFontType" type="enum" class="com.install4j.runtime.beans.formcomponents.FontType" value="DERIVED" />
+                      <property name="labelWidgetStyle" id="LabelWidgetStyle0">
+                        <property name="fontDescriptor">
+                          <property name="fontStyle" type="enum" class="com.install4j.runtime.beans.formcomponents.FontStyle" value="BOLD" />
+                          <property name="fontType" type="enum" class="com.install4j.runtime.beans.formcomponents.FontType" value="DERIVED" />
+                        </property>
+                      </property>
+                      <property name="labelWidgetStyleId" type="null" />
                     </serializedBean>
                   </formComponent>
                   <formComponent name="Subtitle" id="51" beanClass="com.install4j.runtime.beans.styles.ScreenTitleComponent" insetLeft="8">
@@ -606,34 +701,65 @@ return console.askYesNo(message, true);
         </beans>
       </group>
     </styles>
+    <widgetStyles defaultWidgetStyleId="105">
+      <widgetStyle name="Standard" id="105" beanClass="com.install4j.runtime.beans.widgets.WidgetStyleCollection" />
+    </widgetStyles>
   </installerGui>
   <mediaSets>
-    <windows name="Windows" id="60" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-Windows" architecture="64">
+    <windows name="windows x86_64" id="60" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Windows-x86_64" architecture="64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-windows-x64.jar" />
+      </variables>
       <jreBundle>
         <modules>
           <module name="java.scripting" />
         </modules>
       </jreBundle>
     </windows>
-    <unixInstaller name="Unix Installer" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-Linux" />
-    <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS-Intel" launcherId="59">
+    <windows name="windows Arm64" id="248" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Windows-Arm64" architecture="arm64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-windows-arm64.jar" />
+      </variables>
+      <jreBundle>
+        <modules>
+          <module name="java.scripting" />
+        </modules>
+      </jreBundle>
+    </windows>
+    <unixInstaller name="linux x86_64" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-x86_64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-linux-x64.jar" />
+      </variables>
+      <jreBundle platform="linux-amd64" />
+    </unixInstaller>
+    <unixInstaller name="linux Arm64" id="244" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-Arm64">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-linux-arm64.jar" />
+      </variables>
+      <jreBundle platform="linux-aarch64" />
+    </unixInstaller>
+    <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-macOS-Intel" architecture="amd64" dmgStylingMode="custom" useBackgroundImage="true" backgroundImageFile="macOS_resources/macOS_installer_background.png" bundleX="137" bundleY="148" windowHeight="300" launcherId="59">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-macos-x64.jar" />
+      </variables>
       <topLevelFiles>
-        <file name=".DS_Store" file="./macOS_resources/DS_Store" />
-        <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
-        <symlink name="Applications" target="/Applications" />
+        <symlink name="Applications" useIconLocation="true" iconX="467" iconY="167" target="/Applications" />
       </topLevelFiles>
     </macosArchive>
-    <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS-AppleSilicon" architecture="aarch64" launcherId="59">
+    <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-macOS-AppleSilicon" dmgStylingMode="custom" useBackgroundImage="true" backgroundImageFile="macOS_resources/macOS_installer_background.png" bundleX="137" bundleY="148" windowHeight="300" launcherId="59">
+      <variables>
+        <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}-macos-arm64.jar" />
+      </variables>
       <topLevelFiles>
-        <file name=".DS_Store" file="./macOS_resources/DS_Store" />
-        <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
-        <symlink name="Applications" target="/Applications" />
+        <symlink name="Applications" useIconLocation="true" iconX="467" iconY="147" target="/Applications" />
       </topLevelFiles>
     </macosArchive>
   </mediaSets>
   <buildIds>
     <mediaSet refId="60" />
+    <mediaSet refId="248" />
     <mediaSet refId="168" />
+    <mediaSet refId="244" />
     <mediaSet refId="213" />
     <mediaSet refId="240" />
   </buildIds>

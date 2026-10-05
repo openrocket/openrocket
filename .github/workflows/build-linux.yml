@@ -16,10 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
-    env:
-      INSTALL4J_VERSION: '12.0.3'
-      INSTALL4J_DOWNLOAD_SHA256: 'fbd341b993ca97b2e73ee2999a401aa1754a96fb337d95ca6e69d835e45547bb'
-
     steps:
       - name: Validate repository configuration
         shell: bash
@@ -67,36 +63,11 @@ jobs:
           test -f "build/libs/OpenRocket-$OPENROCKET_VERSION-linux-x64.jar"
           test -f "build/libs/OpenRocket-$OPENROCKET_VERSION-linux-arm64.jar"
 
-      - name: Install install4j
+      - name: Set up install4j
         id: install4j
-        shell: bash
-        run: |
-          version_for_url=${INSTALL4J_VERSION//./_}
-          archive="$RUNNER_TEMP/install4j-$INSTALL4J_VERSION.tar.gz"
-
-          curl --fail --silent --show-error --location \
-            --output "$archive" "https://download.ej-technologies.com/install4j/install4j_linux-x64_$version_for_url.tar.gz"
-          actual=$(sha256sum "$archive" | awk '{ print $1 }')
-          if [ "$actual" != "$INSTALL4J_DOWNLOAD_SHA256" ]; then
-            echo "::error::install4j archive checksum mismatch: expected $INSTALL4J_DOWNLOAD_SHA256, got $actual."
-            exit 1
-          fi
-
-          tar -xzf "$archive" -C "$RUNNER_TEMP"
-          compiler="$RUNNER_TEMP/install4j$INSTALL4J_VERSION/bin/install4jc"
-          if [ ! -x "$compiler" ]; then
-            echo "::error::install4jc was not found in the downloaded install4j archive."
-            exit 1
-          fi
-          echo "compiler=$compiler" >> "$GITHUB_OUTPUT"
-
-      - name: Register install4j license
-        shell: bash
-        env:
-          INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
-          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
-        run: |
-          "$INSTALL4J_COMPILER" -L "$INSTALL4J_LICENSE_KEY"
+        uses: ./.github/actions/setup-install4j
+        with:
+          license-key: ${{ secrets.INSTALL4J_LICENSE_KEY }}
 
       - name: Build Linux installers
         shell: bash
@@ -104,22 +75,22 @@ jobs:
           INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
           OPENROCKET_VERSION: ${{ steps.version.outputs.value }}
         run: |
-          mkdir -p install4j/26.xx/media
+          mkdir -p install4j/media
           "$INSTALL4J_COMPILER" \
             --build-ids=168,244 \
             --release="$OPENROCKET_VERSION" \
-            --destination="$PWD/install4j/26.xx/media" \
-            install4j/26.xx/openrocket-26.xx.install4j
+            --destination="$PWD/install4j/media" \
+            install4j/openrocket.install4j
 
-          count=$(find install4j/26.xx/media -maxdepth 1 -name '*.sh' | wc -l)
+          count=$(find install4j/media -maxdepth 1 -name '*.sh' | wc -l)
           if [ "$count" -ne 2 ]; then
             echo "::error::Expected two Linux installers, found $count."
-            ls -la install4j/26.xx/media
+            ls -la install4j/media
             exit 1
           fi
 
           mkdir -p dist
-          cp install4j/26.xx/media/*.sh dist/
+          cp install4j/media/*.sh dist/
           (cd dist && sha256sum *.sh | tee SHA256SUMS.txt)
 
       - name: Upload Linux installers
