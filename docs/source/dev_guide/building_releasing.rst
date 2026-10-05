@@ -465,8 +465,8 @@ SignPath and is not stored in the repository or in GitHub Actions.
 Windows code signing with SignPath
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Windows installers are built and signed by the ``Sign Windows installers`` GitHub Actions workflow in
-:file:`.github/workflows/sign-windows.yml`. The workflow:
+Windows installers are built and signed by the ``Build and sign Windows installers`` GitHub Actions workflow in
+:file:`.github/workflows/build-windows.yml`. The workflow:
 
 1. builds the OpenRocket distribution JAR from the selected commit;
 2. downloads the pinned install4j 12.0.3 archive and verifies its SHA-256 checksum;
@@ -564,7 +564,7 @@ Running and validating a Windows signing build
 
 1. Set ``build.version`` in :file:`core/src/main/resources/build.properties` to the release version and merge the release
    commit into the branch allowed by the SignPath signing policy.
-2. Open :menuselection:`GitHub --> Actions --> Sign Windows installers`, select :guilabel:`Run workflow`, and select that
+2. Open :menuselection:`GitHub --> Actions --> Build and sign Windows installers`, select :guilabel:`Run workflow`, and select that
    branch. Do not approve a request built from an unexpected repository, branch, commit, or workflow run.
 3. An approver reviews the verified origin and artifact details in SignPath, then approves the signing request.
 4. After the workflow succeeds, download ``openrocket-windows-signed-<run number>`` from the workflow run. Those are the
@@ -735,7 +735,7 @@ with the new results) to ensure that they are up-to-date with the latest changes
 8. **Create the packaged installers** (see above).
 
    .. warning::
-      Build and sign the Windows installers with the ``Sign Windows installers`` GitHub Actions workflow. Download only its
+      Build the Windows installers with the ``Build and sign Windows installers`` GitHub Actions workflow. Download only its
       ``openrocket-windows-signed-*`` artifact; never release the unsigned SignPath input artifact.
 
       Build the Linux installers with the ``Build Linux installers`` GitHub Actions workflow.

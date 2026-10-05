@@ -1,4 +1,4 @@
-name: Sign Windows installers
+name: Build and sign Windows installers
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: sign-windows-installers
+  group: build-windows-installers
   cancel-in-progress: false
 
 jobs:

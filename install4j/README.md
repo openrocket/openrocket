@@ -39,7 +39,7 @@ kept in `../artwork`.
 
 The current install4j project builds unsigned Windows installers. Release
 installers are built and signed by the GitHub Actions workflow
-`.github/workflows/sign-windows.yml`; the Windows certificate and private key
+`.github/workflows/build-windows.yml`; the Windows certificate and private key
 are not stored in this repository or in GitHub.
 
 Before the first signing build, configure the SignPath project, trusted
@@ -48,7 +48,7 @@ token. Also configure the required GitHub Actions secrets and variables. The
 complete setup and release procedure is documented in the
 [Building and Releasing guide](https://openrocket.readthedocs.io/en/latest/dev_guide/building_releasing.html#windows-code-signing-with-signpath).
 
-For a release, run the **Sign Windows installers** workflow from the approved
+For a release, run the **Build and sign Windows installers** workflow from the approved
 release branch. A SignPath approver must verify the repository, commit, and
 workflow-run origin before approving the request. Publish only the
 `openrocket-windows-signed-<run number>` artifact. The similarly named
