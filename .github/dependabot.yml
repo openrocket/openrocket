@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Updates the commit SHAs (and version comments) of the actions used in the workflows, as one grouped pull request.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+
+  # Moves the openrocket-database (components) submodule to the latest commit of its default branch.
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: monthly
