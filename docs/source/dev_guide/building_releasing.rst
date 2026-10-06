@@ -145,6 +145,11 @@ Here are some of the most important Gradle tasks for OpenRocket:
       - Same as ``serializeEngines``, but loads the SQLite database file to the distribution directory (:file:`openrocket/build`) so it can be used in the final build.
 
    *  - core
+      - ``updateBundledMotorDatabase``
+      - Replaces the bundled motor database (:file:`initial_motors.db` and :file:`metadata.json`) with the version published
+        at https://openrocket.info/motor-database/ if that one is newer.
+
+   *  - core
       - ``submoduleUpdate``
       - Updates the submodule dependencies of the *core* module.
 
@@ -202,13 +207,16 @@ Snap builds also select the Linux variant on amd64 and arm64, while other Snap a
 Thrust Curve Motor Database
 ===========================
 
-The internal thrust curve motor database is stored as a SQLite file at
-:file:`core/src/main/resources/datafiles/thrustcurves/thrustcurves.db`.
-The ``serializeEngines`` task rebuilds this file by downloading motor data from
-ThrustCurve.org. At runtime OpenRocket prefers the ``.db`` file and will fall
-back to the legacy ``.ser`` file if no SQLite database is found. User-defined
-motor directories can also include ``.db`` files; these are validated for the
-expected schema before loading.
+OpenRocket bundles a SQLite motor database at
+:file:`core/src/main/resources/datafiles/thrustcurves/initial_motors.db`, with its :file:`metadata.json`. It is a snapshot
+of the database published by `openrocket/motor-database <https://github.com/openrocket/motor-database>`__, which
+OpenRocket also downloads at runtime to keep the user's motor database up to date. The ``updateBundledMotorDatabase``
+task refreshes the snapshot, verifying the download the same way the application does. The **Update bundled motor
+database** workflow (:file:`.github/workflows/update-motor-database.yml`) runs that task monthly, runs the core tests,
+and opens a pull request when the snapshot changed. Pull requests opened by GitHub Actions do not start the Build
+workflow; close and reopen the pull request to run it. The workflow needs
+:menuselection:`Settings --> Actions --> General --> Allow GitHub Actions to create and approve pull requests` to be enabled.
+User-defined motor directories can also include ``.db`` files; these are validated for the expected schema before loading.
 
 You can run these tasks from the command line using the Gradle Wrapper scripts. For example for the task ``run``, run the
 following command in the root directory of the OpenRocket repository:
@@ -738,7 +746,10 @@ The release procedure for OpenRocket is as follows:
    This includes new features, bug fixes, and other changes that are part of the release. Make sure to include the version number and the release date.
    Take a look at the previous release notes to see how it should be formatted.
 
-2. Update the component database and thrustcurves by running the gradle tasks ``subModuleUpdate`` and ``serializeEngines`` respectively.
+2. Make sure the component database and the bundled motor database are up to date. Dependabot opens a monthly pull request
+   when the ``openrocket-database`` submodule has new commits, and the **Update bundled motor database** workflow opens a
+   monthly pull request when a newer motor database is published. Merge any open ones, or run the ``submoduleUpdate`` and
+   ``updateBundledMotorDatabase`` Gradle tasks yourself.
 
 3. Rerun all example design files (open the design and overwrite the files at :file:`core/src/main/resources/datafiles/examples`
 with the new results) to ensure that they are up-to-date with the latest changes.

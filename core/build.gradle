@@ -209,6 +209,13 @@ tasks.register('serializeEnginesValidate') {
     }
 }
 
+// Replaces the bundled motor database with the published one (https://openrocket.info/motor-database/) if that is newer.
+tasks.register('updateBundledMotorDatabase', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('info.openrocket.core.database.UpdateBundledMotorDatabase')
+    args = [file('src/main/resources/datafiles/thrustcurves').absolutePath]
+}
+
 tasks.register('copyReadmeMain', Copy) {
     from('../') {
         include 'ReleaseNotes.md'
