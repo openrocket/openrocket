@@ -112,7 +112,7 @@ tasks.register('verifyDistributionJars') {
 
 def compileSmokeTest = tasks.register('compileDistributionSmokeTest', JavaCompile) {
     dependsOn(universalJar)
-    source = fileTree('src/distributionTest/java') { include '**/*.java' }
+    source = fileTree('swing/src/distributionTest/java') { include '**/*.java' }
     classpath = files(universalJar.flatMap { it.archiveFile })
     destinationDirectory = layout.buildDirectory.dir('classes/distributionTest')
     options.release = 17
