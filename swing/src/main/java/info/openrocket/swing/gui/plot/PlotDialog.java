@@ -19,7 +19,6 @@ import org.jfree.chart.JFreeChart;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Window;
@@ -172,13 +171,13 @@ public abstract class PlotDialog<T extends DataType, B extends DataBranch<T>, C 
 	}
 
 	private boolean doPNGExport(ChartPanel chartPanel, JFreeChart chart){
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setFileFilter(FileHelper.PNG_FILTER);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 
 		//// Ensures No Problems When Choosing File
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION)
 			return false;
 
 		File file = chooser.getSelectedFile();
@@ -186,7 +185,7 @@ public abstract class PlotDialog<T extends DataType, B extends DataBranch<T>, C 
 			return false;
 
 		file = FileHelper.forceExtension(file, "png");
-		if (!FileHelper.confirmWrite(file, this)) {
+		if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 			return false;
 		}
 

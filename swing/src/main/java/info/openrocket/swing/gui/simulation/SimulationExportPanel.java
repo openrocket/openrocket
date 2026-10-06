@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -105,11 +104,11 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 
 	@Override
 	public boolean doExport() {
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION)
 			return false;
 		
 		File file = chooser.getSelectedFile();
@@ -117,7 +116,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 			return false;
 		
 		file = FileHelper.forceExtension(file, "csv");
-		if (!FileHelper.confirmWrite(file, this)) {
+		if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 			return false;
 		}
 		

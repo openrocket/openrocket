@@ -348,6 +348,9 @@ tasks.named('shadowJar', ShadowJar) {
     configurations = [project.configurations.runtimeClasspath,
                       project.configurations.allPlatformNatives]
 
+    // Android native libraries are not used by the desktop distribution.
+    exclude 'org/sqlite/native/Linux-Android/**'
+
     // The license dialog links to this file inside the JAR
     from(rootProject.file('LICENSE.TXT'))
 
@@ -385,6 +388,8 @@ tasks.named('shadowJar', ShadowJar) {
     }
 }
 
+apply from: 'gradle/distributions.gradle'
+
 // jacoco aggregate report for all subprojects
 tasks.register('jacocoRootReport', JacocoReport) {
     group = 'verification'
@@ -409,8 +414,8 @@ tasks.register('jacocoRootReport', JacocoReport) {
 // Package the application for distribution.
 tasks.register('dist') {
     group = 'info.openrocket'
-    dependsOn 'check', 'shadowJar'
+    dependsOn 'check', 'verifyDistributionJars'
     doLast {
-        println "Completed the deployable jar in './build/libs"
+        println "Completed the distribution JARs in './build/libs'."
     }
 }

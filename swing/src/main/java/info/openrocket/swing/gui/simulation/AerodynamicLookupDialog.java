@@ -10,12 +10,12 @@ import info.openrocket.swing.gui.components.FieldSeparatorComboBox;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,7 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Window;
@@ -228,9 +228,9 @@ class AerodynamicLookupDialog extends JDialog {
 
 
 	private void chooseDragLookup() {
-		JFileChooser chooser = createCsvFileChooser(dragCsv);
+		NativeFileChooser chooser = createCsvFileChooser(dragCsv);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showOpenDialog(this) != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
@@ -250,9 +250,9 @@ class AerodynamicLookupDialog extends JDialog {
 	}
 
 	private void chooseStabilityLookup() {
-		JFileChooser chooser = createCsvFileChooser(stabilityCsv);
+		NativeFileChooser chooser = createCsvFileChooser(stabilityCsv);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+		if (chooser.showOpenDialog(this) != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 		Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
@@ -602,13 +602,13 @@ class AerodynamicLookupDialog extends JDialog {
 		exampleBorder.setTitle(trans.get("AerodynamicLookupDialog.lbl.formatHint"));
 	}
 
-	private JFileChooser createCsvFileChooser(Path currentPath) {
-		JFileChooser chooser = new JFileChooser();
+	private NativeFileChooser createCsvFileChooser(Path currentPath) {
+		NativeFileChooser chooser = new NativeFileChooser();
 		chooser.setDialogTitle(trans.get("AerodynamicLookupDialog.title.choose"));
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				trans.get("AerodynamicLookupDialog.csvFilter"), "csv", "txt", "dat");
 		chooser.setFileFilter(filter);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		if (currentPath != null) {
 			java.io.File currentFile = currentPath.toFile();
 			if (currentFile.getParentFile() != null) {

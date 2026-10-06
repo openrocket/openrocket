@@ -105,7 +105,6 @@ public class Icons {
 
 	public static final Icon FILE_NEW = loadIcon(
 			"pix/icons/lucide/file-plus-corner.svg",
-			"pix/icons/document-new.png",
 			"New document",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -113,7 +112,6 @@ public class Icons {
 			));
 	public static final Icon FILE_OPEN = loadIcon(
 			"pix/icons/lucide/file.svg",
-			"pix/icons/document-open.png",
 			"Open document");
 	public static final Icon FILE_OPEN_RECENT = loadSvgIcon(
 			"pix/icons/lucide/file-clock.svg",
@@ -124,7 +122,6 @@ public class Icons {
 			));
 	public static final Icon FILE_OPEN_EXAMPLE = loadIcon(
 			"pix/icons/lucide/file-info.svg",
-			"pix/icons/document-open-example.png",
 			"Open example document",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -132,11 +129,9 @@ public class Icons {
 			));
 	public static final Icon FILE_SAVE = loadIcon(
 			"pix/icons/lucide/save.svg",
-			"pix/icons/document-save.png",
 			"Save document");
 	public static final Icon FILE_SAVE_AS = loadIcon(
 			"pix/icons/lucide/save-as.svg",
-			"pix/icons/document-save-as.png",
 			"Save document as",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -144,7 +139,6 @@ public class Icons {
 			));
 	public static final Icon SAVE_DECAL = loadIcon(
 			"pix/icons/lucide/file-image.svg",
-			"pix/icons/Painting-Transparent-PNG_16.png",
 			"Save decal image",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -153,11 +147,9 @@ public class Icons {
 			));
 	public static final Icon FILE_PRINT = loadIcon(
 			"pix/icons/lucide/printer.svg",
-			"pix/icons/print-design.specs.png",
 			"Print specifications");
 	public static final Icon FILE_IMPORT = loadIcon(
 			"pix/icons/lucide/import.svg",
-			"pix/icons/import.png",
 			"Import",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -165,7 +157,6 @@ public class Icons {
 			));
 	public static final Icon FILE_EXPORT = loadIcon(
 			"pix/icons/lucide/export.svg",
-			"pix/icons/export.png",
 			"Export",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -173,13 +164,11 @@ public class Icons {
 			));
 	public static final Icon SIM_TABLE_EXPORT = loadIcon(
 			"pix/icons/lucide/sheet.svg",
-			"pix/icons/sim_table_export.png",
 			"Export simulation table");
 	public static final Icon EXPORT_3D = loadImageIcon("pix/icons/model_export3d.png", "Export 3D");
 	public static final Icon EXPORT_SVG = loadImageIcon("pix/icons/svg-logo.png", "Export SVG");
 	public static final Icon FILE_CLOSE = loadIcon(
 			"pix/icons/lucide/circle-x.svg",
-			"pix/icons/document-close.png",
 			"Close document",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -187,28 +176,24 @@ public class Icons {
 			));
 	public static final Icon FILE_QUIT = loadIcon(
 			"pix/icons/lucide/power.svg",
-			"pix/icons/application-exit.png",
 			"Quit OpenRocket",
 			Map.of(
 					SVG_THEME_COLOR_RGB, "OR.colors.red"
 			));
 	public static final Icon EDIT_UNDO = loadIcon(
 			"pix/icons/lucide/undo.svg",
-			"pix/icons/edit-undo.png",
 			trans.get("Icons.Undo"),
 			Map.of(
 					SVG_THEME_COLOR_RGB, "OR.icons.undo"
 			));
 	public static final Icon EDIT_REDO = loadIcon(
 			"pix/icons/lucide/redo.svg",
-			"pix/icons/edit-redo.png",
 			trans.get("Icons.Redo"),
 			Map.of(
 					SVG_THEME_COLOR_RGB, "OR.icons.redo"
 			));
 	public static final Icon EDIT_EDIT = loadIcon(
 			"pix/icons/lucide/square-pen.svg",
-			"pix/icons/edit-edit.png",
 			"Edit",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -216,7 +201,6 @@ public class Icons {
 			));
 	public static final Icon EDIT_RENAME = loadIcon(
 			"pix/icons/lucide/rename.svg",
-			"pix/icons/edit-rename.png",
 			"Rename",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -224,15 +208,12 @@ public class Icons {
 			));
 	public static final Icon EDIT_CUT = loadIcon(
 			"pix/icons/lucide/scissors.svg",
-			"pix/icons/edit-cut.png",
 			"Cut");
 	public static final Icon EDIT_COPY = loadIcon(
 			"pix/icons/lucide/copy.svg",
-			"pix/icons/edit-copy.png",
 			"Copy");
 	public static final Icon EDIT_PASTE = loadIcon(
 			"pix/icons/lucide/clipboard-paste.svg",
-			"pix/icons/edit-paste.png",
 			"Paste",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -240,7 +221,6 @@ public class Icons {
 			));
 	public static final Icon EDIT_DUPLICATE = loadIcon(
 			"pix/icons/lucide/copy-plus.svg",
-			"pix/icons/edit-duplicate.png",
 			"Duplicate",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -248,12 +228,10 @@ public class Icons {
 			));
 	public static final Icon EDIT_DELETE = loadIcon(
 			"pix/icons/lucide/trash.svg",
-			"pix/icons/edit-delete.png",
 			"Delete",
 			"OR.icons.delete");
 	public static final Icon EDIT_SCALE = loadIcon(
 			"pix/icons/lucide/scaling.svg",
-			"pix/icons/edit-scale.png",
 			"Scale",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -268,7 +246,6 @@ public class Icons {
 			"Open image");
 	public static final Icon IMAGE_EDIT = loadIcon(
 			"pix/icons/lucide/square-pen.svg",
-			"pix/icons/edit-edit.png",
 			"Edit image",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -286,12 +263,10 @@ public class Icons {
 
 	public static final Icon SIM_RUN = loadIcon(
 			"pix/icons/lucide/play-filled.svg",
-			"pix/icons/sim-run.png",
 			"Run",
 			"OR.icons.play");
 	public static final Icon SIM_PLOT = loadIcon(
 			"pix/icons/lucide/chart-spline.svg",
-			"pix/icons/sim-plot.png",
 			"Plot",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -308,37 +283,29 @@ public class Icons {
 
 	public static final Icon HELP_ABOUT = loadIcon(
 			"pix/icons/lucide/info.svg",
-			"pix/icons/help-about.png",
 			"About",
 			"OR.icons.help");
 	public static final Icon HELP_CHECK_FOR_UPDATES = loadIcon(
 			"pix/icons/lucide/refresh-cw.svg",
-			"pix/icons/help-check-for-updates.png",
 			"Check For Updates");
 	public static final Icon HELP_LICENSE = loadIcon(
 			"pix/icons/lucide/scale.svg",
-			"pix/icons/help-license.png",
 			"License");
 	public static final Icon HELP_BUG_REPORT = loadIcon(
 			"pix/icons/lucide/bug.svg",
-			"pix/icons/help-bug.png",
 			"Bug report");
 	public static final Icon HELP_DEBUG_LOG = loadIcon(
 			"pix/icons/lucide/notepad-text.svg",
-			"pix/icons/help-log.png",
 			"Debug log");
 	public static final Icon HELP_TOURS = loadIcon(
 			"pix/icons/lucide/bus.svg",
-			"pix/icons/help-tours.png",
 			"Guided tours");
 	public static final Icon DOCUMENTATION = loadIcon(
 			"pix/icons/lucide/book-open.svg",
-			"pix/icons/documentation.png",
 			"Documentation");
 
 	public static final Icon ZOOM_IN = loadIcon(
 			"pix/icons/lucide/zoom-in.svg",
-			"pix/icons/zoom-in.png",
 			"Zoom in",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -346,7 +313,6 @@ public class Icons {
 			));
 	public static final Icon ZOOM_OUT = loadIcon(
 			"pix/icons/lucide/zoom-out.svg",
-			"pix/icons/zoom-out.png",
 			"Zoom out",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -354,7 +320,6 @@ public class Icons {
 			));
 	public static final Icon ZOOM_RESET = loadIcon(
 			"pix/icons/lucide/zoom-fit.svg",
-			"pix/icons/zoom-reset.png",
 			"Reset Zoom & Pan",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -369,7 +334,6 @@ public class Icons {
 
 	public static final Icon RULER = loadIcon(
 			"pix/icons/lucide/ruler-dimension-line.svg",
-			"pix/icons/ruler.png",
 			"Ruler",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -377,7 +341,6 @@ public class Icons {
 			));
 	public static final Icon SNAP_CLICK = loadIcon(
 			"pix/icons/lucide/magnet-click.svg",
-			"pix/icons/snap-click.png",
 			"Snap",
 			Map.of(
 					0xE86B55, "OR.icons.magnet.red",
@@ -393,12 +356,10 @@ public class Icons {
 
 	public static final Icon PREFERENCES = loadIcon(
 			"pix/icons/lucide/cog.svg",
-			"pix/icons/preferences.png",
 			"Preferences");
 	
 	public static final Icon CONFIGURE = loadIcon(
 			"pix/icons/lucide/file-cog.svg",
-			"pix/icons/configure.png",
 			"Configure",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -406,25 +367,21 @@ public class Icons {
 			));
 	public static final Icon HELP = loadIcon(
 			"pix/icons/lucide/info.svg",
-			"pix/icons/help-about.png",
 			"Help");
 	public static final Icon UP = loadIcon(
 			"pix/icons/lucide/arrow-big-up-dash.svg",
-			"pix/icons/up.png",
 			"Up",
 			Map.of(
 					SVG_THEME_COLOR_RGB, "OR.icons.moveUp"
 			));
 	public static final Icon DOWN = loadIcon(
 			"pix/icons/lucide/arrow-big-down-dash.svg",
-			"pix/icons/down.png",
 			"Down",
 			Map.of(
 					SVG_THEME_COLOR_RGB, "OR.icons.moveDown"
 			));
 	public static final Icon REFRESH = loadIcon(
 			"pix/icons/lucide/refresh-ccw.svg",
-			"pix/icons/refresh.png",
 			"Refresh");
 	public static final Icon RESET = loadSvgIcon(
 			"pix/icons/lucide/rotate-cw.svg",
@@ -439,74 +396,60 @@ public class Icons {
 
 	public static final Icon NOT_FAVORITE = loadIcon(
 			"pix/icons/lucide/star-off.svg",
-			"pix/icons/star_silver.png",
 			"Not favorite");
 	public static final Icon FAVORITE = loadIcon(
 			"pix/icons/lucide/star.svg",
-			"pix/icons/star_gold.png",
 			"Favorite");
 
 	public static final Icon WARNING_LOW = loadIcon(
 			"pix/icons/lucide/info-filled.svg",
-			"pix/icons/warning_low.png",
 			"Informational",
 			"OR.icons.warning.low");
 	public static final Icon WARNING_NORMAL = loadIcon(
 			"pix/icons/lucide/triangle-alert-filled.svg",
-			"pix/icons/warning_normal.png",
 			"Warning",
 			"OR.icons.warning.normal");
 	public static final Icon WARNING_HIGH = loadIcon(
 			"pix/icons/lucide/circle-alert-filled.svg",
-			"pix/icons/warning_high.png",
 			"Critical",
 			"OR.icons.warning.high");
 
 	public static final Icon MASS_OVERRIDE = loadIcon(
 			"pix/icons/lucide/weight.svg",
-			"pix/icons/mass-override_light.png",
 			"Mass Override",
 			"OR.icons.override");
 	public static final Icon MASS_OVERRIDE_SUBCOMPONENT = loadIcon(
 			"pix/icons/lucide/weight.svg",
-			"pix/icons/mass-override-subcomponent_light.png",
 			"Mass Override Subcomponent",
 			"OR.icons.override.subcomponent",
 			0.75);
 	public static final Icon CG_OVERRIDE = loadIcon(
 			"pix/icons/lucide/cg-override.svg",
-			"pix/icons/cg-override_light.png",
 			"CG Override",
 			"OR.icons.override");
 	public static final Icon CG_OVERRIDE_SUBCOMPONENT = loadIcon(
 			"pix/icons/lucide/cg-override.svg",
-			"pix/icons/cg-override-subcomponent_light.png",
 			"CG Override Subcomponent",
 			"OR.icons.override.subcomponent",
 			0.75);
 	public static final Icon CD_OVERRIDE = loadIcon(
 			"pix/icons/lucide/cd-override.svg",
-			"pix/icons/cd-override_light.png",
 			"CD Override",
 			"OR.icons.override");
 	public static final Icon CD_OVERRIDE_SUBCOMPONENT = loadIcon(
 			"pix/icons/lucide/cd-override.svg",
-			"pix/icons/cd-override-subcomponent_light.png",
 			"CD Override Subcomponent",
 			"OR.icons.override.subcomponent",
 			0.75);
 
 	public static final Icon COMPONENT_HIDDEN = loadIcon(
 			"pix/icons/lucide/eye-off.svg",
-			"pix/icons/component-hidden.png",
 			"Component Hidden");
 	public static final Icon COMPONENT_SHOWING = loadIcon(
 			"pix/icons/lucide/eye.svg",
-			"pix/icons/component-showing_light.png",
 			"Component Showing");
 	public static final Icon COMPONENT_DISABLED = loadIcon(
 			"pix/icons/lucide/ban.svg",
-			"pix/icons/component-disabled_light.png",
 			"Component Disabled");
 	public static final Icon COMPONENT_ENABLED = loadSvgIcon(
 			"pix/icons/lucide/circle-check.svg",
@@ -518,7 +461,6 @@ public class Icons {
 
 	public static final Icon LOCKED = loadIcon(
 			"pix/icons/lucide/lock.svg",
-			"pix/icons/locked.png",
 			"Locked",
 			Map.of(
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
@@ -526,7 +468,6 @@ public class Icons {
 			));
 	public static final Icon UNLOCKED = loadIcon(
 			"pix/icons/lucide/lock-open.svg",
-			"pix/icons/unlocked.png",
 			"Unlocked");
 	public static final Icon SCREENSHOT = loadSvgIcon(
 			"pix/icons/lucide/camera.svg",
@@ -600,74 +541,56 @@ public class Icons {
 	}
 
 	/**
-	 * Loads an icon, preferring SVG format if available, otherwise falling back to a raster image.
+	 * Loads an SVG icon with a single color theming key.
 	 * @param svgFile the SVG file path
-	 * @param rasterFile the raster image file path
 	 * @param name the description of the icon
 	 * @param colorKey the UIManager color key for theming (can be null)
-	 * @return the loaded Icon, or null if neither file could be found
+	 * @return the loaded Icon, or null if the SVG file could not be found
 	 */
-	public static Icon loadIcon(String svgFile, String rasterFile, String name, String colorKey) {
-		return loadIcon(svgFile, rasterFile, name, colorKey, 1.0);
+	public static Icon loadIcon(String svgFile, String name, String colorKey) {
+		return loadIcon(svgFile, name, colorKey, 1.0);
 	}
 
 	/**
-	 * Loads an icon, preferring SVG format if available, otherwise falling back to a raster image.
+	 * Loads an SVG icon with a single color theming key and a scale multiplier.
 	 * @param svgFile the SVG file path
-	 * @param rasterFile the raster image file path
 	 * @param name the description of the icon
 	 * @param colorKey the UIManager color key for theming (can be null)
 	 * @param scaleMultiplier multiplier for icon size (1.0 = normal, < 1.0 = smaller, > 1.0 = larger)
-	 * @return the loaded Icon, or null if neither file could be found
+	 * @return the loaded Icon, or null if the SVG file could not be found
 	 */
-	public static Icon loadIcon(String svgFile, String rasterFile, String name, String colorKey, double scaleMultiplier) {
-		if (hasResource(svgFile)) {
-			if (colorKey == null) {
-				return loadSvgIcon(svgFile, name, Collections.emptyMap(), scaleMultiplier);
-			}
-			return loadSvgIcon(svgFile, name, Collections.singletonMap(SVG_THEME_COLOR_RGB, colorKey), scaleMultiplier);
+	public static Icon loadIcon(String svgFile, String name, String colorKey, double scaleMultiplier) {
+		if (colorKey == null) {
+			return loadSvgIcon(svgFile, name, Collections.emptyMap(), scaleMultiplier);
 		}
-		Icon icon = loadImageIcon(rasterFile, name);
-		if (icon != null && scaleMultiplier != 1.0) {
-			return getScaledIcon(icon, scaleMultiplier);
-		}
-		return icon;
+		return loadSvgIcon(svgFile, name, Collections.singletonMap(SVG_THEME_COLOR_RGB, colorKey), scaleMultiplier);
 	}
 
-	public static Icon loadIcon(String svgFile, String rasterFile, String name) {
-		return loadIcon(svgFile, rasterFile, name, SVG_DEFAULT_COLOR_KEY);
+	public static Icon loadIcon(String svgFile, String name) {
+		return loadIcon(svgFile, name, SVG_DEFAULT_COLOR_KEY);
 	}
 
 	/**
-	 * Loads an icon, preferring SVG format if available, otherwise falling back to a raster image.
+	 * Loads an SVG icon with color theming.
 	 * @param svgFile the SVG file path
-	 * @param rasterFile the raster image file path
 	 * @param name the description of the icon
 	 * @param colorKeys map of RGB integer values to UIManager color keys for theming
-	 * @return the loaded Icon, or null if neither file could be found
+	 * @return the loaded Icon, or null if the SVG file could not be found
 	 */
-	public static Icon loadIcon(String svgFile, String rasterFile, String name, Map<Integer, String> colorKeys) {
-		return loadIcon(svgFile, rasterFile, name, colorKeys, 1.0);
+	public static Icon loadIcon(String svgFile, String name, Map<Integer, String> colorKeys) {
+		return loadIcon(svgFile, name, colorKeys, 1.0);
 	}
 
 	/**
-	 * Loads an icon, preferring SVG format if available, otherwise falling back to a raster image.
+	 * Loads an SVG icon with color theming and a scale multiplier.
 	 * @param svgFile the SVG file path
-	 * @param rasterFile the raster image file path
 	 * @param name the description of the icon
 	 * @param colorKeys map of RGB integer values to UIManager color keys for theming
 	 * @param scaleMultiplier multiplier for icon size (1.0 = normal, < 1.0 = smaller, > 1.0 = larger)
-	 * @return the loaded Icon, or null if neither file could be found
+	 * @return the loaded Icon, or null if the SVG file could not be found
 	 */
-	public static Icon loadIcon(String svgFile, String rasterFile, String name, Map<Integer, String> colorKeys, double scaleMultiplier) {
-		if (hasResource(svgFile)) {
-			return loadSvgIcon(svgFile, name, colorKeys != null ? colorKeys : Collections.emptyMap(), scaleMultiplier);
-		}
-		Icon icon = loadImageIcon(rasterFile, name);
-		if (icon != null && scaleMultiplier != 1.0) {
-			return getScaledIcon(icon, scaleMultiplier);
-		}
-		return icon;
+	public static Icon loadIcon(String svgFile, String name, Map<Integer, String> colorKeys, double scaleMultiplier) {
+		return loadSvgIcon(svgFile, name, colorKeys != null ? colorKeys : Collections.emptyMap(), scaleMultiplier);
 	}
 
 	/**
@@ -691,7 +614,12 @@ public class Icons {
 	 */
 	private static Icon loadSvgIcon(String file, String name, Map<Integer, String> colorKeys, double scaleMultiplier) {
 		if (!hasResource(file)) {
-			Application.getExceptionHandler().handleErrorCondition("Image file " + file + " not found, ignoring.");
+			String message = "Image file " + file + " not found, ignoring.";
+			if (Application.getExceptionHandler() != null) {
+				Application.getExceptionHandler().handleErrorCondition(message);
+			} else {
+				log.error(message);
+			}
 			return null;
 		}
 

@@ -36,13 +36,15 @@ When submitting a pull request to the OpenRocket repository, please follow these
 
 1. **Fork the Repository**: Start by forking the OpenRocket repository to your own GitHub account.
 
-2. **Create a Branch**: Create a branch in your fork for your changes. Use a descriptive name that reflects the purpose of your changes.
+2. **Create a Branch**: Create a dedicated contribution branch in your fork for your changes, starting from the latest
+   upstream ``unstable``. Use a descriptive name that reflects the purpose of your changes.
 
 3. **Make Your Changes**: Implement your changes following the coding standards described above.
 
 4. **Test Your Changes**: Make sure your changes work as expected and don't break existing functionality. Run the relevant tests.
 
-5. **Submit a Pull Request**: When you're ready, submit a pull request from your branch to the OpenRocket repository.
+5. **Submit a Pull Request**: When you're ready, submit a pull request with your dedicated branch as the source,
+   ``openrocket/openrocket`` as the base repository, and ``unstable`` as the base branch.
 
 6. **Describe Your Changes**: In the pull request description, provide a clear explanation of what your changes do and why they are needed. Reference any related issues.
 

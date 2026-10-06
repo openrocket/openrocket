@@ -30,7 +30,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -83,6 +82,7 @@ import info.openrocket.swing.gui.util.CustomFinImporter;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.widgets.DropdownButton;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 @SuppressWarnings("serial")
 public class FreeformFinSetConfig extends FinSetConfig {
@@ -343,14 +343,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
 				
-				JFileChooser chooser = new JFileChooser();
+				NativeFileChooser chooser = new NativeFileChooser();
 				chooser.setFileFilter(FileHelper.CSV_FILTER);
 				chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 
-				if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FreeformFinSetConfig.this)){
+				if (NativeFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FreeformFinSetConfig.this)){
 					File selectedFile= chooser.getSelectedFile();
 					selectedFile = FileHelper.forceExtension(selectedFile, "csv");
-					if (!FileHelper.confirmWrite(selectedFile, panel)) {
+					if (!FileHelper.confirmWrite(selectedFile, chooser.getSelectedFile(), panel)) {
 						return;
 					}
 
@@ -505,18 +505,19 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private void importImage() {
 		final FreeformFinSet finset = (FreeformFinSet)component;
 		
-		JFileChooser chooser = new JFileChooser();
+		NativeFileChooser chooser = new NativeFileChooser();
+		chooser.setDialogTitle(trans.get("CustomFinImport.button.label"));
 		chooser.setFileFilter(FileHelper.getImageFileFilter());
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		
-		JPanel desc = new JPanel(new MigLayout("fill, ins 0 para 0 para"));
-		desc.add(new DescriptionArea(trans.get("CustomFinImport.description"), 5, 0), "grow, wmin 100lp");
-		chooser.setAccessory(desc);
+		JPanel desc = new JPanel(new MigLayout("fill, ins 0"));
+		desc.add(new DescriptionArea(trans.get("CustomFinImport.description"), 5, 0), "grow, w 400lp");
+		chooser.setOptionsPanel(desc);
 		
 		int option = chooser.showOpenDialog(this);
 		
-		if (option == JFileChooser.APPROVE_OPTION) {
+		if (option == NativeFileChooser.APPROVE_OPTION) {
 			boolean startedUndo = false;
 			beginFinPointEdit();
 			try {

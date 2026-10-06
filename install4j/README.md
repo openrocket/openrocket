@@ -6,9 +6,31 @@ with its own commit history in the openrocket repository.
 The [OpenRocket](http://www.openrocket.info) project will do its best
 to publish installers for the following platforms.
 
-* Windows, 64-bit
+* Windows, 64-bit (x64 & ARM64)
 * macOS, 64-bit (Intel & Apple Silicon)
-* Linux, 64-bit
+* Linux, 64-bit (x64 & ARM64)
+
+# Building installer JARs
+
+Run `./gradlew verifyDistributionJars distributionSmokeTest` before building
+installers. This creates and verifies the universal JAR and all six platform
+JARs in `build/libs`, then smoke-tests the universal JAR and the variant matching
+the current JVM's OS and architecture. Each media definition in the current
+install4j project selects `OpenRocket-<version>-<platform>.jar` automatically;
+the launcher uses the same filename. Set install4j's application version to
+`build.version`, or pass `--release=<version>` to `install4jc`.
+
+For a single platform, use a task such as `shadowJarWindowsX64` or
+`shadowJarMacosArm64`. Publish `OpenRocket-<version>.jar` as the standalone
+cross-platform download. The platform variants are installer inputs. The
+[Building and Releasing guide](../docs/source/dev_guide/building_releasing.rst)
+lists all tasks, platforms and media IDs, including testing on other architectures.
+
+The install4j project is `openrocket.install4j`. Installer icons are shared in
+`resources/icons`; editable branding artwork is kept in `../artwork`. The GitHub
+workflows build with the install4j version pinned in
+`../.github/actions/setup-install4j/action.yml`; keep it in line with the
+install4j version the project is saved with.
 
 # Maintainers
 * Neil Weinstock 
@@ -20,7 +42,7 @@ to publish installers for the following platforms.
 
 The current install4j project builds unsigned Windows installers. Release
 installers are built and signed by the GitHub Actions workflow
-`.github/workflows/sign-windows.yml`; the Windows certificate and private key
+`.github/workflows/build-windows.yml`; the Windows certificate and private key
 are not stored in this repository or in GitHub.
 
 Before the first signing build, configure the SignPath project, trusted
@@ -29,32 +51,12 @@ token. Also configure the required GitHub Actions secrets and variables. The
 complete setup and release procedure is documented in the
 [Building and Releasing guide](https://openrocket.readthedocs.io/en/latest/dev_guide/building_releasing.html#windows-code-signing-with-signpath).
 
-For a release, run the **Sign Windows installers** workflow from the approved
+For a release, run the **Build and sign Windows installers** workflow from the approved
 release branch. A SignPath approver must verify the repository, commit, and
 workflow-run origin before approving the request. Publish only the
 `openrocket-windows-signed-<run number>` artifact. The similarly named
 `openrocket-windows-unsigned-<run number>` artifact is only SignPath input and
 must never be released.
-
-# Instructions on updating the macOS drag-and-drop installer
-
-Either run "update_ds_store.sh" or follow the instructions below.
-
-This is an example of updating the installer from 22.02 to 23.09.beta.01:
-
-If you use the `macOS_resources/template_dmg_rw.dmg` file, you can skip to step 4
-
-1. Make sure install4j is not opened
-2. Download the OpenRocket-22.02-macOS.dmg file 
-3. Make a read/write .dmg file using the terminal command `hdiutil convert OpenRocket-22.02-macOS.dmg -format UDRW -o 22.02.beta.05_rw.dmg`
-
-4. Enlarge the writable DMG, by first checking the current size: `hdiutil resize template_dmg_rw.dmg`, e.g. you get 430000 in the 'cur' column, then just resize it to e.g. 500000: `hdiutil resize -sectors 500000 template_dmg_rw.dmg`
-5. Mount the DMG: `hdiutil attach template_dmg_rw.dmg`
-6. Open the OpenRocket-disk from your desktop and change the app name from 22.02 to 23.09 
-7. Copy the .DS_Store to `openrocket/install4j/23.09/macOS_resources` by running the command `cp /Volumes/OpenRocket/.DS_Store openrocket/install4j/23.09/macOS_resources/DS_Store`
-8. Eject the OpenRocket DMG disk from your desktop (important step)
-9. (optional) Delete `template_dmg_rw.dmg`
-10. You're all done!
 
 # Whitelisting OpenRocket on Windows
 Even when you've code signed the Windows installer, Microsoft Defender Smart Screen can still give warnings that the installer is from an unknown publisher. This warning will go away after a couple of months or after the installer has been downloaded enough times. However, you can also whitelist the installer by submitting it to Microsoft for malware analysis.

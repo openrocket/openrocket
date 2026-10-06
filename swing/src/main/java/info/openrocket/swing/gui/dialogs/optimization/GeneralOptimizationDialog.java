@@ -32,7 +32,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -52,7 +51,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -83,7 +81,6 @@ import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.TextUtil;
 
-import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1151,20 +1148,12 @@ public class GeneralOptimizationDialog extends JDialog {
 				trans.get("export.header"), trans.get("export.header.ttip"));
 		
 		
-		JFileChooser chooser = new SaveFileChooser();
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
-		chooser.setAccessory(csvOptions);
-
-		// TODO: update this dynamically instead of hard-coded values
-		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
-		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
-			Dimension currentSize = chooser.getPreferredSize();
-			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
-			chooser.setPreferredSize(newSize);
-		}
+		chooser.setOptionsPanel(csvOptions);
 		
-		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+		if (chooser.showSaveDialog(this) != SaveFileChooser.APPROVE_OPTION)
 			return;
 		
 		File file = chooser.getSelectedFile();
@@ -1172,7 +1161,7 @@ public class GeneralOptimizationDialog extends JDialog {
 			return;
 		
 		file = FileHelper.forceExtension(file, "csv");
-		if (!FileHelper.confirmWrite(file, this)) {
+		if (!FileHelper.confirmWrite(file, chooser.getSelectedFile(), this)) {
 			return;
 		}
 		

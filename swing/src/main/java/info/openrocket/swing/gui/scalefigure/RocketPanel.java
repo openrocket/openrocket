@@ -75,7 +75,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -150,6 +149,7 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WARNINGS;
 
@@ -2068,7 +2068,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		}
 
-		JFileChooser fileChooser = new JFileChooser();
+		NativeFileChooser fileChooser = new NativeFileChooser();
 		fileChooser.setDialogTitle(trans.get("RocketPanel.dlg.captureDesignView.title"));
 		fileChooser.setFileFilter(FileHelper.PNG_FILTER);
 		fileChooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
@@ -2086,14 +2086,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		fileChooser.setSelectedFile(new File(rocketName + viewTypeSuffix + ".png"));
 
 		int result = fileChooser.showSaveDialog(this);
-		if (result != JFileChooser.APPROVE_OPTION) {
+		if (result != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
 
 		// Save the image
 		File file = fileChooser.getSelectedFile();
 		file = FileHelper.forceExtension(file, "png");
-		if (FileHelper.confirmWrite(file, RocketPanel.this)) {
+		if (FileHelper.confirmWrite(file, fileChooser.getSelectedFile(), RocketPanel.this)) {
 			Application.getPreferences().setDefaultDirectory(fileChooser.getCurrentDirectory());
 			try {
 				ImageIO.write(image, "png", file);

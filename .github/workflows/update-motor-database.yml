@@ -1,0 +1,89 @@
+name: Update bundled motor database
+
+on:
+  schedule:
+    # Monthly, on the first day of the month.
+    - cron: '17 5 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-motor-database
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update bundled motor database
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      BRANCH: automation/update-motor-database
+      MOTOR_DATABASE_DIR: core/src/main/resources/datafiles/thrustcurves
+
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          submodules: 'recursive'
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      # The download is verified (signature, checksum and database contents) by the same code the application uses.
+      - name: Update the bundled motor database
+        id: update
+        shell: bash
+        run: |
+          ./gradlew :core:updateBundledMotorDatabase --no-daemon
+          if git diff --quiet -- "$MOTOR_DATABASE_DIR"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Pull requests opened with the workflow token do not trigger the Build workflow, so test here first.
+      - name: Run core tests
+        if: steps.update.outputs.changed == 'true'
+        run: ./gradlew :core:test --no-daemon
+
+      - name: Open or update the pull request
+        if: steps.update.outputs.changed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.ref_name }}
+        run: |
+          version=$(sed -n 's/.*"database_version": *\([0-9]*\).*/\1/p' "$MOTOR_DATABASE_DIR/metadata.json")
+          title="Update the bundled motor database to $version"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add "$MOTOR_DATABASE_DIR/initial_motors.db" "$MOTOR_DATABASE_DIR/metadata.json"
+          git commit -m "$title"
+          git push --force origin "$BRANCH"
+
+          existing=$(gh pr list --head "$BRANCH" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title"
+            echo "Updated pull request #$existing."
+          else
+            gh pr create --head "$BRANCH" --base "$BASE_BRANCH" --title "$title" --body "$(cat <<EOF
+          # Description
+          Updates the motor database bundled with OpenRocket (\`initial_motors.db\` and \`metadata.json\`) to the version published at https://openrocket.info/motor-database/ (database_version $version). The download was verified and validated by \`MotorDatabaseRemoteUpdater\`, the same code the application uses for its own motor database updates.
+
+          # Testing
+          The \`:core:test\` suite passed in the [workflow run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) that opened this pull request. Pull requests opened by GitHub Actions do not start the Build workflow; close and reopen this pull request to run it.
+          EOF
+          )"
+          fi
