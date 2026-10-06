@@ -107,11 +107,14 @@ final class OSXSetup {
 			osxDesktop.setQuitHandler(QUIT_HANDLER);
 			osxDesktop.addAppEventListener(APP_REOPENED_HANDLER);
 
-			// Set the dock icon to the largest icon
-			final Image dockIcon = Toolkit.getDefaultToolkit().getImage(
-					SwingStartup.class.getResource(ICON_RSRC));
-			final Taskbar osxTaskbar = Taskbar.getTaskbar();
-			osxTaskbar.setIconImage(dockIcon);
+			// The packaged app bundle provides its own dock icon, so only set one
+			// when running outside the install4j launcher (e.g. from an IDE or jar)
+			if (System.getProperty("install4j.launcherId") == null) {
+				final Image dockIcon = Toolkit.getDefaultToolkit().getImage(
+						SwingStartup.class.getResource(ICON_RSRC));
+				final Taskbar osxTaskbar = Taskbar.getTaskbar();
+				osxTaskbar.setIconImage(dockIcon);
+			}
 
 		} catch (final Throwable t) {
 			// None of the preceding is critical to the app,

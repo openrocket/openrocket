@@ -74,18 +74,19 @@ This way, the GUI can be easily translated into different languages by simply ad
 Crowdin Workflow
 ================
 
-Translations are managed via `Crowdin <https://crowdin.com/project/openrocket>`__, which is integrated with the GitHub
-repository. This automates the translation sync process:
+Translations are managed via `Crowdin <https://crowdin.com/project/openrocket>`__. The **Crowdin Translations** GitHub
+Actions workflow (:file:`.github/workflows/crowdin-translations.yml`) automates the translation sync process:
 
 **Source strings → Crowdin (automatic)**
-   When changes to :file:`messages.properties` are pushed to the ``unstable`` branch, Crowdin automatically detects the new
-   or modified strings and makes them available for translators on the Crowdin platform.
+   When changes to :file:`messages.properties` are pushed to the ``unstable`` branch, the workflow uploads the source file
+   to Crowdin, which makes the new or modified strings available for translators on the Crowdin platform.
 
 **Translations → GitHub (automatic)**
-   Once translators have updated strings in Crowdin, Crowdin periodically opens a pull request to the repository with the
-   updated ``.properties`` files. Maintainers review and merge this PR.
+   Every day, the workflow downloads the translations from Crowdin and, if they changed, opens or updates the
+   "Sync translations from Crowdin" pull request with the updated ``.properties`` files. Maintainers review and merge this
+   PR. Pull requests opened by GitHub Actions do not start the Build workflow; close and reopen the PR to run it.
 
-The configuration for this integration lives in :file:`crowdin.yml` at the root of the repository.
+The file mapping and export settings live in :file:`crowdin.yml` at the root of the repository.
 
 Translating via Crowdin
 -----------------------

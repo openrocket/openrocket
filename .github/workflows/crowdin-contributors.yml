@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Generate Crowdin contributors table
         uses: andrii-bodnar/action-crowdin-contributors@v3
         with:

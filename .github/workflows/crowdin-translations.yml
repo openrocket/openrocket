@@ -1,0 +1,54 @@
+name: Crowdin Translations
+
+on:
+  push:
+    branches:
+      - unstable
+    paths:
+      - core/src/main/resources/l10n/messages.properties
+      - crowdin.yml
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: crowdin-translations
+  cancel-in-progress: false
+
+jobs:
+  crowdin-translations:
+    name: Sync translations
+    if: github.repository == 'openrocket/openrocket'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      # Uploads the English source and downloads the translations, using crowdin.yml. The pull request is opened by the
+      # next step, so that it is created by GitHub Actions like the translator credits pull request.
+      - name: Sync with Crowdin
+        uses: crowdin/github-action@9c23991700c0ec5256fd41089b9d9d7d540e424e # v3.3.0
+        with:
+          upload_sources: true
+          upload_translations: false
+          download_translations: true
+          push_translations: false
+          create_pull_request: false
+          user: auto
+        env:
+          CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: crowdin-translations
+          delete-branch: true
+          add-paths: core/src/main/resources/l10n/messages_*.properties
+          title: Sync translations from Crowdin
+          commit-message: Sync translations from Crowdin
+          body: Automated update of the translations from [Crowdin](https://crowdin.com/project/openrocket).
+          labels: translation

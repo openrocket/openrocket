@@ -42,9 +42,8 @@ configurations {
 
 def flatlafVersionValue = "3.7.2"
 def lwjglVersionValue = "3.4.2"
-def lwjgl3AwtGroupValue = "com.github.LWJGLX"
-// Pin the upstream commit used by the 0.2.5 snapshot until that version is released.
-def lwjgl3AwtVersionValue = "8affe68f2cce0bceffe4891b072541758ce09937"
+def lwjgl3AwtGroupValue = "org.lwjglx"
+def lwjgl3AwtVersionValue = "0.2.5"
 def jomlVersionValue = "1.10.9"
 
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
