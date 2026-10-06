@@ -165,7 +165,7 @@ Crowdin translators:
           <br />
           <sub><b>(sibo.vangool)</b></sub></a>
         <br />
-        <sub><b>164104 words</b></sub>
+        <sub><b>164208 words</b></sub>
         <br /><sub><b><code title="Arabic">ar</code></b>, <b><code title="Chinese Simplified">zh-CN</code></b>, <b><code title="Czech">cs</code></b>, <b><code title="Dutch">nl</code></b>, <b><code title="French">fr</code></b>, <b><code title="Italian">it</code></b>, <b><code title="Japanese">ja</code></b>, <b><code title="Polish">pl</code></b>, <b><code title="Portuguese">pt-PT</code></b>, <b><code title="Russian">ru</code></b>, <b><code title="Spanish">es-ES</code></b>, <b><code title="Turkish">tr</code></b>, <b><code title="Ukrainian">uk</code></b></sub>
       </td>
       <td align="center" valign="top">
