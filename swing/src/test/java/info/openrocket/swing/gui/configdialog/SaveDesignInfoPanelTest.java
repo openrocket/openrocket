@@ -1,10 +1,18 @@
 package info.openrocket.swing.gui.configdialog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
+import java.awt.GraphicsEnvironment;
+
+import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.util.BaseTestCase;
@@ -13,8 +21,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Verifies the undo behaviour of the "Save Design Info" dialog's Cancel button.
  * <p>
- * The dialog is opened from {@code BasicFrame.showSaveRocketInfoDialog()}, which pushes an undo
- * position just before the dialog becomes visible; these tests simulate that sequence.
+ * The panel's constructor pushes an undo position just before recording the rocket's state; most
+ * tests simulate that sequence without building the panel.
  */
 class SaveDesignInfoPanelTest extends BaseTestCase {
 
@@ -82,5 +90,56 @@ class SaveDesignInfoPanelTest extends BaseTestCase {
 		SaveDesignInfoPanel.undoChangesSince(document, modIDAtOpen);
 
 		assertEquals("Work in progress", document.getRocket().getName());
+	}
+
+	@Test
+	void panelShowsTheRocketNameAndCancelRestoresIt() throws Exception {
+		// Regression test for #3288: the design name field used to open empty, and committing it wiped the rocket name
+		assumeFalse(GraphicsEnvironment.isHeadless());
+		SwingUtilities.invokeAndWait(() -> {
+			Rocket rocket = TestRockets.makeEstesAlphaIII();
+			OpenRocketDocument document = documentAt(rocket, "My Rocket");
+			JDialog dialog = new JDialog();
+			try {
+				SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
+				ModID modIDAtOpen = rocket.getModID();
+				assertEquals("My Rocket", panel.componentNameField.getText());
+
+				// The panel adds its own undo position, so Cancel only reverts the edits made in the dialog
+				rocket.setName("Renamed in the dialog");
+				SaveDesignInfoPanel.undoChangesSince(document, modIDAtOpen);
+				assertEquals("My Rocket", document.getRocket().getName());
+			} finally {
+				dialog.dispose();
+			}
+		});
+	}
+
+	@Test
+	void cancelDiscardsUncommittedTextAndResetsTheFields() throws Exception {
+		assumeFalse(GraphicsEnvironment.isHeadless());
+		SwingUtilities.invokeAndWait(() -> {
+			ApplicationPreferences preferences = Application.getPreferences();
+			boolean showDiscardConfirmation = preferences.isShowDiscardConfirmation();
+			preferences.setShowDiscardConfirmation(false);
+
+			Rocket rocket = TestRockets.makeEstesAlphaIII();
+			OpenRocketDocument document = documentAt(rocket, "My Rocket");
+			JDialog dialog = new JDialog();
+			try {
+				SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
+
+				// Typed into the field, but not committed because the field never lost focus
+				panel.componentNameField.setText("Renamed in the dialog");
+				panel.cancelButton.doClick();
+
+				assertEquals("My Rocket", rocket.getName());
+				// A focus-lost commit after Cancel must not bring the discarded edit back
+				assertEquals("My Rocket", panel.componentNameField.getText());
+			} finally {
+				dialog.dispose();
+				preferences.setShowDiscardConfirmation(showDiscardConfirmation);
+			}
+		});
 	}
 }

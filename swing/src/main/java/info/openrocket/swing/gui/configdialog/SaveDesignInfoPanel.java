@@ -33,6 +33,8 @@ public class SaveDesignInfoPanel extends RocketConfig {
     public SaveDesignInfoPanel(OpenRocketDocument d, RocketComponent c, JDialog parent) {
         super(d, c, parent);
 
+        // Mark the current state so that the Cancel button has something to restore
+        d.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + c.getComponentName());
         this.modIDAtOpen = d.getRocket().getModID();
 
         // (Optional) Fill in the design information for this file
@@ -64,14 +66,30 @@ public class SaveDesignInfoPanel extends RocketConfig {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // Yes/No dialog: Are you sure you want to discard your changes?
-                JPanel msg = createCancelOperationContent();
-                int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
-                        trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (resultYesNo == JOptionPane.YES_OPTION) {
+                // The focused text field may not have committed its edit yet
+                commitTextFields();
+
+                // Don't do anything on cancel if the design info was not modified
+                if (document.getRocket().getModID() == modIDAtOpen) {
                     disposeDialog();
-                    undoChangesSince(document, modIDAtOpen);
+                    return;
                 }
+
+                if (preferences.isShowDiscardConfirmation()) {
+                    // Yes/No dialog: Are you sure you want to discard your changes?
+                    JPanel msg = createCancelOperationContent();
+                    int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
+                            trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (resultYesNo != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                }
+
+                undoChangesSince(document, modIDAtOpen);
+                // Show the restored values before closing, so that the text fields don't write the discarded
+                // edits back when they lose focus
+                updateTextFields();
+                disposeDialog();
             }
         });
         buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
@@ -92,8 +110,8 @@ public class SaveDesignInfoPanel extends RocketConfig {
 
     /**
      * Discard the design info edits made in this dialog, restoring the state the rocket was in when the dialog
-     * was opened. The caller is expected to have added an undo position just before opening the dialog (see
-     * {@code BasicFrame.showSaveRocketInfoDialog()}), which is what that undo restores.
+     * was opened. The constructor adds an undo position just before recording {@code modIDAtOpen}, which is
+     * what that undo restores.
      * <p>
      * Nothing is undone when the rocket was not modified while the dialog was open: the document would then be in
      * a clean state, and {@link OpenRocketDocument#undo()} would step back past the undo position and roll back

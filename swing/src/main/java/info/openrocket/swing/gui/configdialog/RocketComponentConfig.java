@@ -410,6 +410,23 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		}
 	}
 
+	/**
+	 * Write pending edits in the text fields to the component. The text fields only do this themselves when they
+	 * lose focus, which may not have happened yet when a button is clicked.
+	 */
+	protected void commitTextFields() {
+		textFieldListener.setName();
+	}
+
+	/**
+	 * Show the component's current values in the text fields, e.g. after an undo. Otherwise, the text fields would
+	 * write their stale text back to the component when they lose focus.
+	 */
+	protected void updateTextFields() {
+		componentNameField.setText(component.getName());
+		commentTextArea.setText(component.getComment());
+	}
+
 	protected JPanel createCancelOperationContent() {
 		JPanel panel = new JPanel(new MigLayout());
 		String msg = isNewComponent ? trans.get("RocketCompCfg.CancelOperation.msg.undoAdd") :
