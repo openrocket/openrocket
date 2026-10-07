@@ -117,12 +117,18 @@ public class FlightEventsTest extends BaseTestCase {
 		boosterTube.setMotorMount(true);
 		booster.addChild(boosterTube);
 
-		// TEST_FCID_4 has a C6-7 in the sustainer; we'll use that and add a C6-0 in the booster
+		// TEST_FCID_4 has a C6-7 in the sustainer; we'll use that and add a C6-0 in the booster.
 		final FlightConfigurationId fcid = TestRockets.TEST_FCID_4;
 		
 		final MotorConfiguration sustainerMotorConfig = sustainerInnerTube.getMotorConfig(fcid);
 		sustainerMotorConfig.setIgnitionEvent(IgnitionEvent.BURNOUT);
-		
+
+		// Configure recovery deployment at 1.5 seconds post separation to trigger DEPLOY_UNDER_THRUST abort
+		final DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
+		deploymentConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION);
+		deploymentConfig.setDeployDelay(1.5);
+		parachute.getDeploymentConfigurations().setDefault(deploymentConfig);
+																  
 		final MotorConfiguration boosterMotorConfig = new MotorConfiguration(boosterTube, fcid);
 		boosterMotorConfig.setMotor(boosterMotor);
 		boosterMotorConfig.setIgnitionEvent(IgnitionEvent.LAUNCH);
@@ -150,21 +156,26 @@ public class FlightEventsTest extends BaseTestCase {
 		
 		sim.simulate();
 
-		// Expected warning
-		final Warning warn = Warning.DIAMETER_DISCONTINUITY;
+		// Expected warnings
+		final Warning discontinuity = Warning.DIAMETER_DISCONTINUITY;
 		RocketComponent[] warnSources = new RocketComponent[] {sustainerBodyTube, boosterTube};
-		warn.setSources(new RocketComponent[] {sustainerBodyTube, boosterTube});
+		discontinuity.setSources(new RocketComponent[] {sustainerBodyTube, boosterTube});
+
+		final Warning highSpeed = new Warning.RecoveryHighSpeedDeployment(125, parachute);
+		
+		// Expected abort
+		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
 		
 		// Test branch count
 		final int expectedBranchCount = 2;
 		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
-		assertEquals(expectedBranchCount, actualBranchCount, " Multi-stage simulation invalid branch count ");
-
+		assertEquals(expectedBranchCount, actualBranchCount, " CHAD staged simulation invalid branch count ");
+		
 		for (int b = 0; b < expectedBranchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
 				// Sustainer
 				case 0 -> new FlightEvent[]{
-					new FlightEvent(FlightEvent.Type.SIM_WARN, 0.0, null, warn),
+					new FlightEvent(FlightEvent.Type.SIM_WARN, 0.0, null, discontinuity),
 					new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
 					new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterTube), 
 					new FlightEvent(FlightEvent.Type.LIFTOFF, 0.065, null),
@@ -173,13 +184,9 @@ public class FlightEventsTest extends BaseTestCase {
 					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.1, booster),
 					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.1, booster),
 					new FlightEvent(FlightEvent.Type.IGNITION, 2.1, sustainerInnerTube),
-					new FlightEvent(FlightEvent.Type.BURNOUT, 4.2, sustainerInnerTube),
-					new FlightEvent(FlightEvent.Type.APOGEE, 9.1, rocket),
-					new FlightEvent(FlightEvent.Type.TUMBLE, 10.33, null),
-					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 11.2, sustainer),
-					new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 11.2, parachute),
-					new FlightEvent(FlightEvent.Type.GROUND_HIT, 169.76, null),
-					new FlightEvent(FlightEvent.Type.SIMULATION_END, 169.76, null)
+					new FlightEvent(FlightEvent.Type.SIM_WARN, 3.6, null, highSpeed),
+					new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 3.6, parachute),
+					new FlightEvent(FlightEvent.Type.SIM_ABORT, 3.6, null, simAbort),
 				};
 
 				// Stage
@@ -198,7 +205,12 @@ public class FlightEventsTest extends BaseTestCase {
 			};
 
 			checkEvents(expectedEvents, sim, b);
-			checkLastRecord(sim, b);
+
+			// We don't save the sim step params on an abort, so the last record's saved types will
+			// be missing a lot of them.
+			if (expectedEvents[expectedEvents.length - 1].getType() != FlightEvent.Type.SIM_ABORT) {
+				checkLastRecord(sim, b);
+			}
 		}
 	}
 		
