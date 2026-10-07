@@ -42,6 +42,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.swing.gui.util.ColorConversion;
 
 import info.openrocket.swing.gui.plot.PlotPanel;
 import info.openrocket.swing.gui.plot.SimulationPlotConfiguration;
@@ -369,7 +370,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			java.awt.Color explicitColor = configuration.getPlotDataColor(idx);
 			LineStyle lineStyle = configuration.getPlotDataLineStyle(idx);
 			PlotAppearance appearance = new PlotAppearance(
-					explicitColor != null ? ORColor.fromAWTColor(explicitColor) : null,
+					explicitColor != null ? ColorConversion.fromAwtColor(explicitColor) : null,
 					lineStyle);
 			preferences.setDefaultPlotAppearance(selectedType, appearance);
 			syncButtonStates(selector, idx);
@@ -405,7 +406,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		LineStyle lineStyle = configuration.getPlotDataLineStyle(idx);
 
 		PlotAppearance current = new PlotAppearance(
-				explicitColor != null ? ORColor.fromAWTColor(explicitColor) : null,
+				explicitColor != null ? ColorConversion.fromAwtColor(explicitColor) : null,
 				lineStyle);
 		boolean isAtFactory = PlotAppearance.FACTORY_DEFAULT.equals(current);
 
@@ -427,7 +428,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		LineStyle lineStyle = LineStyle.SOLID;
 		if (storedAppearance != null) {
 			if (storedAppearance.getColor() != null) {
-				color = storedAppearance.getColor().toAWTColor();
+				color = ColorConversion.toAwtColor(storedAppearance.getColor());
 			}
 			if (storedAppearance.getLineStyle() != null) {
 				lineStyle = storedAppearance.getLineStyle();
@@ -479,7 +480,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 
 	private void applyStoredAppearance(int index, PlotAppearance appearance) {
 		if (appearance.getColor() != null && configuration.getPlotDataColor(index) == null) {
-			configuration.setPlotDataColor(index, appearance.getColor().toAWTColor());
+			configuration.setPlotDataColor(index, ColorConversion.toAwtColor(appearance.getColor()));
 		}
 		if (appearance.getLineStyle() != null) {
 			configuration.setPlotDataLineStyle(index, appearance.getLineStyle());
@@ -496,7 +497,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		LineStyle storedLineStyle = appearance != null ? appearance.getLineStyle() : null;
 
 		if (updateColor) {
-			storedColor = color != null ? ORColor.fromAWTColor(color) : null;
+			storedColor = color != null ? ColorConversion.fromAwtColor(color) : null;
 		}
 		if (updateLineStyle) {
 			storedLineStyle = lineStyle;

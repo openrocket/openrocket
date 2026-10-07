@@ -13,6 +13,8 @@ public abstract class AsynchronousDatabaseLoader {
 	private volatile boolean endedLoading = false;
 	private volatile boolean inUse = false;
 
+	private volatile DatabaseLoadingErrorHandler errorHandler;
+
 	/**
 	 * Sole constructor.
 	 * <p>
@@ -138,6 +140,32 @@ public abstract class AsynchronousDatabaseLoader {
 				} catch (InterruptedException e) {
 				}
 			}
+		}
+	}
+
+	/**
+	 * Register a handler that is notified when an individual file fails to load.
+	 * A GUI front-end uses this to present the failure to the user; if no handler is
+	 * registered the failures are only logged.  May be {@code null} to clear.
+	 *
+	 * @param errorHandler the handler to notify, or {@code null} for none
+	 */
+	public void setErrorHandler(DatabaseLoadingErrorHandler errorHandler) {
+		this.errorHandler = errorHandler;
+	}
+
+	/**
+	 * Report a user-facing loading failure to the registered handler, if any.
+	 * Safe to call from the background loading thread; the handler is responsible
+	 * for marshalling to the appropriate UI thread.
+	 *
+	 * @param title   the localized message title
+	 * @param message the localized, human-readable message
+	 */
+	protected void reportLoadingError(String title, String message) {
+		DatabaseLoadingErrorHandler handler = this.errorHandler;
+		if (handler != null) {
+			handler.handleError(title, message);
 		}
 	}
 
