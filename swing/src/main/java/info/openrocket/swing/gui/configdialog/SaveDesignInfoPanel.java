@@ -7,6 +7,7 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.ModID;
 
 import info.openrocket.swing.gui.components.StyledLabel;
 
@@ -26,8 +27,15 @@ public class SaveDesignInfoPanel extends RocketConfig {
     private static final Translator trans = Application.getTranslator();
     private static final ApplicationPreferences preferences = Application.getPreferences();
 
+    /** State of the rocket when this panel was created, used to detect whether Cancel has anything to undo. */
+    private final ModID modIDAtOpen;
+
     public SaveDesignInfoPanel(OpenRocketDocument d, RocketComponent c, JDialog parent) {
         super(d, c, parent);
+
+        // Mark the current state so that the Cancel button has something to restore
+        d.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + c.getComponentName());
+        this.modIDAtOpen = d.getRocket().getModID();
 
         // (Optional) Fill in the design information for this file
         StyledLabel label = new StyledLabel(trans.get("SaveDesignInfoPanel.lbl.FillInInfo"), StyledLabel.Style.BOLD);
@@ -58,14 +66,30 @@ public class SaveDesignInfoPanel extends RocketConfig {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // Yes/No dialog: Are you sure you want to discard your changes?
-                JPanel msg = createCancelOperationContent();
-                int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
-                        trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (resultYesNo == JOptionPane.YES_OPTION) {
-                    ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
+                // The focused text field may not have committed its edit yet
+                commitTextFields();
+
+                // Don't do anything on cancel if the design info was not modified
+                if (document.getRocket().getModID() == modIDAtOpen) {
                     disposeDialog();
+                    return;
                 }
+
+                if (preferences.isShowDiscardConfirmation()) {
+                    // Yes/No dialog: Are you sure you want to discard your changes?
+                    JPanel msg = createCancelOperationContent();
+                    int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
+                            trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (resultYesNo != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                }
+
+                undoChangesSince(document, modIDAtOpen);
+                // Show the restored values before closing, so that the text fields don't write the discarded
+                // edits back when they lose focus
+                updateTextFields();
+                disposeDialog();
             }
         });
         buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
@@ -84,8 +108,21 @@ public class SaveDesignInfoPanel extends RocketConfig {
         this.add(buttonPanel, "newline, spanx, growx");
     }
 
-    @Override
-    public void updateFields() {
-        // Do nothing
+    /**
+     * Discard the design info edits made in this dialog, restoring the state the rocket was in when the dialog
+     * was opened. The constructor adds an undo position just before recording {@code modIDAtOpen}, which is
+     * what that undo restores.
+     * <p>
+     * Nothing is undone when the rocket was not modified while the dialog was open: the document would then be in
+     * a clean state, and {@link OpenRocketDocument#undo()} would step back past the undo position and roll back
+     * whatever the user did <em>before</em> opening the dialog (see issue #2680).
+     *
+     * @param document      the document being edited
+     * @param modIDAtOpen   the rocket's modification ID at the time the dialog was opened
+     */
+    static void undoChangesSince(OpenRocketDocument document, ModID modIDAtOpen) {
+        if (document.getRocket().getModID() != modIDAtOpen) {
+            document.undo();
+        }
     }
 }

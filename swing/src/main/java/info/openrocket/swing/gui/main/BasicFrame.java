@@ -2199,10 +2199,9 @@ private static final Translator trans = Application.getTranslator();
 		JDialog dialog = new JDialog();
 		SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
 		dialog.setContentPane(panel);
-		dialog.pack();
 		dialog.setTitle(trans.get("BasicFrame.lbl.SaveRocketInfo"));
 		dialog.setModal(true);
-		dialog.setLocationRelativeTo(null);
+		GUIUtil.setDisposableDialogOptions(dialog, null);
 		dialog.setVisible(true);
 	}
 
