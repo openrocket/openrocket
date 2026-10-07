@@ -1587,7 +1587,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the stroke color for the SVG
 	 */
 	public ORColor getSVGStrokeColor() {
-		return getORColor(SVG_STROKE_COLOR, ORColor.BLACK);
+		return getORColor(SVG_STROKE_COLOR, new ORColor(0, 0, 0));
 	}
 
 	/**
@@ -1697,7 +1697,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the label color
 	 */
 	public ORColor getSVGLabelColor() {
-		return getORColor(SVG_LABEL_COLOR, ORColor.BLACK);
+		return getORColor(SVG_LABEL_COLOR, new ORColor(0, 0, 0));
 	}
 
 	/**
@@ -2045,13 +2045,13 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, DEFAULT_COLORS);
 		if (color == null)
-			return ORColor.BLACK;
+			return new ORColor(0, 0, 0);
 
 		ORColor clr = parseColor(color);
 		if (clr != null) {
 			return clr;
 		} else {
-			return ORColor.BLACK;
+			return new ORColor(0, 0, 0);
 		}
 	}
 	

@@ -15,6 +15,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.xml.OpenRocketComponentLoader;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Pair;
+import info.openrocket.core.util.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 			presetCount += presets.size();
 		} catch (IOException e) {
 			log.warn("Error loading user-defined component preset file " + file, e);
-			notifyLoadingError(file.getPath(), e.getMessage());
+			notifyLoadingError(file.getPath(), e);
 		}
 	}
 
@@ -122,7 +123,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 				presetCount += presets.size();
 			} catch (IOException e) {
 				log.warn("Error loading user-defined component preset file " + f.getU(), e);
-				notifyLoadingError(f.getU().getPath(), e.getMessage());
+				notifyLoadingError(f.getU().getPath(), e);
 			}
 		}
 	}
@@ -133,12 +134,13 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	 * been logged by the caller and loading simply continues.
 	 *
 	 * @param filePath     the path of the file that failed to load
-	 * @param errorMessage the error message from the exception
+	 * @param e            the exception that caused the failure
 	 */
-	private void notifyLoadingError(String filePath, String errorMessage) {
+	private void notifyLoadingError(String filePath, Exception e) {
 		Translator trans = Application.getTranslator();
-		String message = errorMessage + ".\n\n" +
-				MessageFormat.format(trans.get("ComponentDbLoaderDlg.message1"), filePath) + "\n" +
+		String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+		String message = "<i>" + StringUtils.escapeHtml(detail) + "</i>.<br><br>" +
+				MessageFormat.format(trans.get("ComponentDbLoaderDlg.message1"), StringUtils.escapeHtml(filePath)) + "<br>" +
 				trans.get("ComponentDbLoaderDlg.message2");
 		reportLoadingError(trans.get("ComponentDbLoaderDlg.title"), message);
 	}

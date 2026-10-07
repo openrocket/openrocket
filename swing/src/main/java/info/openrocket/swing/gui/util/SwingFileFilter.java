@@ -26,10 +26,6 @@ public class SwingFileFilter extends FileFilter implements java.io.FileFilter {
 		this.delegate = new SimpleFileFilter(description, acceptDir, extensions);
 	}
 
-	public SwingFileFilter(SimpleFileFilter delegate) {
-		this.delegate = delegate;
-	}
-
 	public String[] getExtensions() {
 		return delegate.getExtensions();
 	}

@@ -27,6 +27,7 @@ import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.core.util.Pair;
 
 /**
@@ -246,8 +247,9 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 				Translator trans = Application.getTranslator();
 				String fullPath = f.getU().getPath();
 				log.warn("Error loading user-defined motor file " + fullPath + ": " + e.getMessage(), e);
-				String message = e.getMessage() + ".\n\n" +
-						MessageFormat.format(trans.get("MotorDbLoaderDlg.message1"), fullPath) + "\n" +
+				String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+				String message = "<i>" + StringUtils.escapeHtml(detail) + "</i>.<br><br>" +
+						MessageFormat.format(trans.get("MotorDbLoaderDlg.message1"), StringUtils.escapeHtml(fullPath)) + "<br>" +
 						trans.get("MotorDbLoaderDlg.message2");
 				reportLoadingError(trans.get("MotorDbLoaderDlg.title"), message);
 			}

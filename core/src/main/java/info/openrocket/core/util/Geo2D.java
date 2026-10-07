@@ -16,10 +16,12 @@ public final class Geo2D {
 	}
 
 	/**
-	 * Euclidean distance between two points.
+	 * Euclidean distance between two points, computed exactly as {@code Point2D.distance}.
 	 */
 	public static double distance(double x1, double y1, double x2, double y2) {
-		return Math.hypot(x2 - x1, y2 - y1);
+		double dx = x2 - x1;
+		double dy = y2 - y1;
+		return Math.sqrt(dx * dx + dy * dy);
 	}
 
 	/**

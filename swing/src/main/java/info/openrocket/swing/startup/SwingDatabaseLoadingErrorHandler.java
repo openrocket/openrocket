@@ -20,12 +20,8 @@ public class SwingDatabaseLoadingErrorHandler implements DatabaseLoadingErrorHan
 
 	@Override
 	public void handleError(String title, String message) {
-		// The localized messages already contain HTML markup (e.g. a bold file path and
-		// <br> breaks), so the text is treated as HTML rather than escaped.  Newline
-		// separators added by the caller are converted to <br> for rendering.
-		final String html = "<html><body><p style='width: 400px;'>"
-				+ message.replace("\n", "<br>")
-				+ "</p></body></html>";
+		// The message is already an HTML fragment with its dynamic parts escaped
+		final String html = "<html><body><p style='width: 400px;'>" + message + "</p></body></html>";
 		SwingUtilities.invokeLater(() -> {
 			JOptionPane pane = new JOptionPane(html, JOptionPane.WARNING_MESSAGE);
 			JDialog dialog = pane.createDialog(null, title);

@@ -16,8 +16,10 @@ public interface DatabaseLoadingErrorHandler {
 	 * Report a loading failure to the user.
 	 *
 	 * @param title   the localized dialog title
-	 * @param message the localized, human-readable message (plain text; line breaks
-	 *                are expressed as {@code \n} and may be rendered as the front-end sees fit)
+	 * @param message the localized, human-readable message as an HTML fragment without the
+	 *                {@code <html>} wrapper: it uses simple markup such as {@code <b>},
+	 *                {@code <i>} and {@code <br>}, and any dynamic text (file paths,
+	 *                exception messages) is already HTML-escaped
 	 */
 	void handleError(String title, String message);
 }
