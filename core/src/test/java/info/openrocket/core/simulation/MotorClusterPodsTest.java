@@ -38,17 +38,17 @@ public class MotorClusterPodsTest extends BaseTestCase {
 		
 		// Two motors in sustainer
 		config.setOnlyStage(0);
-		double thrust = stepper.calculateThrust(status, stepper.store);
+		double thrust = stepper.calculateThrust(status);
 		assertEquals(2.0 * c6Thrust, thrust, MathUtil.EPSILON, "Sustainer thrust incorrect");
 
 		// Three side boosters with four motors in each
 		config.setOnlyStage(1);
-		thrust = stepper.calculateThrust(status, stepper.store);
+		thrust = stepper.calculateThrust(status);
 		assertEquals(12.0 * c6Thrust, thrust, MathUtil.EPSILON, "side booster thrust incorrect");
 
 		// All 14 motors now
 		config.setAllStages();
-		thrust = stepper.calculateThrust(status, stepper.store);
+		thrust = stepper.calculateThrust(status);
 		assertEquals(14.0 * c6Thrust, thrust, MathUtil.EPSILON, "Total thrust incorrect");
 	}
 

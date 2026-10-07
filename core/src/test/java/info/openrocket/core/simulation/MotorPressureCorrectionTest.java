@@ -128,7 +128,7 @@ public class MotorPressureCorrectionTest {
 						 "thrusting nozzle exit area incorrect");
 			
 			assertEquals(motor1.getThrust(time1) + motor2.getThrust(time1),
-						 stepper.calculateThrust(simulationStatus, stepper.store),
+						 stepper.calculateThrust(simulationStatus),
 						 MathUtil.EPSILON,
 						 "Thrust at sea level incorrect");
 
@@ -142,7 +142,7 @@ public class MotorPressureCorrectionTest {
 			stepper.store.flightConditions.getAtmosphericConditions().setPressure(STANDARD_PRESSURE - pressureDifference);
 
 			assertEquals(motor1.getThrust(time1) + motor2.getThrust(time1) + thrust1Correction + thrust2Correction,
-						 stepper.calculateThrust(simulationStatus, stepper.store),
+						 stepper.calculateThrust(simulationStatus),
 						 MathUtil.EPSILON,
 						 "Corrected thrust incorrect");
 			
@@ -170,7 +170,7 @@ public class MotorPressureCorrectionTest {
 						 "thrusting nozzle exit area incorrect");
 
 			assertEquals(motor1.getThrust(time2) + thrust1Correction,
-						 stepper.calculateThrust(simulationStatus, stepper.store),
+						 stepper.calculateThrust(simulationStatus),
 						 MathUtil.EPSILON,
 						 "Corrected thrust incorrect");
 			

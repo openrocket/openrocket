@@ -48,7 +48,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 	// The thrust must be below this value for the transition to tumbling.
 	// TODO HIGH: this is an arbitrary value
-	private final static double THRUST_TUMBLE_CONDITION = 0.01;
+	private final static double UNDER_THRUST_CONDITION = 0.01;
 	
 	private SimulationStepper currentStepper;
 	
@@ -636,11 +636,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						!currentStatus.getDeployedRecoveryDevices().contains(c)) {
 					// TODO: HIGH: Check stage activeness for other events as well?
 
-					// Check whether any motor in the active stages is active anymore
-					for (MotorClusterState state : currentStatus.getActiveMotors() ) {
-						if (state.getThrust(currentStatus.getSimulationTime()) > MathUtil.EPSILON) {
-							currentStatus.abortSimulation(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
-						}
+					// If we've deployed a parachute under thrust there's nothing useful for the sim
+					// to tell us anymore
+					if ((currentStepper instanceof AbstractRKSimulationStepper) &&
+						((AbstractRKSimulationStepper) currentStepper).calculateThrust(currentStatus) > UNDER_THRUST_CONDITION) {
+						currentStatus.abortSimulation(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
 					}
 
 					// Check for launch rod
@@ -754,9 +754,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Inhibit if we've deployed a parachute or we're on the ground
 				if ((currentStatus.getDeployedRecoveryDevices().size() > 0) || currentStatus.isLanded())
 					break;
-				
-				final boolean tooMuchThrust = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
-				if (tooMuchThrust) {
+
+				// If this stage is currently under thrust we're about to start skywriting and the
+				// sim no longer has anything useful to tell us so we abort; otherwise we switch to
+				// the tumble stepper
+				if ((currentStepper instanceof AbstractRKSimulationStepper) &&
+					((AbstractRKSimulationStepper) currentStepper).calculateThrust(currentStatus) > UNDER_THRUST_CONDITION) {
 					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 				} else {
 					currentStepper = tumbleStepper;

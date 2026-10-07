@@ -15,6 +15,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.motor.IgnitionEvent;
+import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
@@ -25,6 +26,8 @@ import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
@@ -89,6 +92,131 @@ public class FlightEventsTest extends BaseTestCase {
 		checkEvents(expectedEvents, sim, 0);
 		checkLastRecord(sim, 0);
 	}
+
+	@RepeatedTest(50)
+	public void testCHADStaging() throws SimulationException {
+
+		// test rocket is the Alpha III with a motor taped to the back and increased fin sweep and tip chord for stability
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		final AxialStage sustainer = (AxialStage) findComponent(rocket, AxialStage.class);
+		final BodyTube sustainerBodyTube = (BodyTube) findComponent(sustainer, BodyTube.class);
+		final Parachute parachute = (Parachute) findComponent(sustainerBodyTube, Parachute.class);
+		final InnerTube sustainerInnerTube = (InnerTube) findComponent(sustainerBodyTube, InnerTube.class);
+		final TrapezoidFinSet finSet = (TrapezoidFinSet) findComponent(sustainerBodyTube, TrapezoidFinSet.class);
+
+		finSet.setSweep(.071);
+		finSet.setTipChord(.055);
+		
+		// as it's CHAD staged, the booster body tube is actually the outer surface of the motor so it has exactly
+		// the same dimensions and a thickness of 0
+		final AxialStage booster = new AxialStage();
+		rocket.addChild(booster);
+		final Motor boosterMotor = TestRockets.generateMotor_C6_18mm();
+		final BodyTube boosterTube = new BodyTube(boosterMotor.getLength(), boosterMotor.getDiameter()/2.0, 0);
+		boosterTube.setName("CHAD booster");
+		boosterTube.setMotorMount(true);
+		booster.addChild(boosterTube);
+
+		// TEST_FCID_4 has a C6-7 in the sustainer; we'll use that and add a C6-0 in the booster.
+		final FlightConfigurationId fcid = TestRockets.TEST_FCID_4;
+		
+		final MotorConfiguration sustainerMotorConfig = sustainerInnerTube.getMotorConfig(fcid);
+		sustainerMotorConfig.setIgnitionEvent(IgnitionEvent.BURNOUT);
+
+		// Configure recovery deployment at 1.5 seconds post separation to trigger DEPLOY_UNDER_THRUST abort
+		final DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
+		deploymentConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION);
+		deploymentConfig.setDeployDelay(1.5);
+		parachute.getDeploymentConfigurations().setDefault(deploymentConfig);
+																  
+		final MotorConfiguration boosterMotorConfig = new MotorConfiguration(boosterTube, fcid);
+		boosterMotorConfig.setMotor(boosterMotor);
+		boosterMotorConfig.setIgnitionEvent(IgnitionEvent.LAUNCH);
+		boosterMotorConfig.setEjectionDelay(0.0);
+		boosterTube.setMotorConfig(boosterMotorConfig, fcid);
+
+		StageSeparationConfiguration stageSepConfig = new StageSeparationConfiguration();
+		stageSepConfig.setSeparationEvent(StageSeparationConfiguration.SeparationEvent.BURNOUT);
+		sustainer.getSeparationConfigurations().set(fcid, stageSepConfig);
+
+		rocket.setSelectedConfiguration(fcid);
+		
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions ().getAverageWindModel().setAverage(0.1);
+		// The simulation has two independent random sources: the wind (PinkNoiseWindModel) and the
+		// stepper's small pitch/yaw perturbation (seeded from getRandomSeed()). Pin both so the event
+		// sequence and times are a property of the design rather than of the run.
+		sim.getOptions().setRandomSeed(0);
+		sim.getOptions().getAverageWindModel().setSeed(0);
+		sim.setFlightConfigurationId(fcid);
+		
+		rocket.getSelectedConfiguration().setAllStages();
+		
+		sim.simulate();
+
+		// Expected warnings
+		final Warning discontinuity = Warning.DIAMETER_DISCONTINUITY;
+		RocketComponent[] warnSources = new RocketComponent[] {sustainerBodyTube, boosterTube};
+		discontinuity.setSources(new RocketComponent[] {sustainerBodyTube, boosterTube});
+
+		final Warning highSpeed = new Warning.RecoveryHighSpeedDeployment(125, parachute);
+		
+		// Expected abort
+		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
+		
+		// Test branch count
+		final int expectedBranchCount = 2;
+		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
+		assertEquals(expectedBranchCount, actualBranchCount, " CHAD staged simulation invalid branch count ");
+		
+		for (int b = 0; b < expectedBranchCount; b++) {
+			FlightEvent[] expectedEvents = switch (b) {
+				// Sustainer
+				case 0 -> new FlightEvent[]{
+					new FlightEvent(FlightEvent.Type.SIM_WARN, 0.0, null, discontinuity),
+					new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
+					new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterTube), 
+					new FlightEvent(FlightEvent.Type.LIFTOFF, 0.065, null),
+					new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.0675, null),
+					new FlightEvent(FlightEvent.Type.BURNOUT, 2.1, boosterTube),
+					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.1, booster),
+					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.1, booster),
+					new FlightEvent(FlightEvent.Type.IGNITION, 2.1, sustainerInnerTube),
+					new FlightEvent(FlightEvent.Type.SIM_WARN, 3.6, null, highSpeed),
+					new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 3.6, parachute),
+					new FlightEvent(FlightEvent.Type.SIM_ABORT, 3.6, null, simAbort),
+				};
+
+				// Stage
+				case 1 -> new FlightEvent[]{
+					new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterTube),
+					new FlightEvent(FlightEvent.Type.BURNOUT, 2.1, boosterTube),
+					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.1, booster),
+					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.1, booster),
+					new FlightEvent(FlightEvent.Type.TUMBLE, 2.1, null),
+					new FlightEvent(FlightEvent.Type.APOGEE, 4.43, rocket),
+					new FlightEvent(FlightEvent.Type.GROUND_HIT, 16.58, null),
+					new FlightEvent(FlightEvent.Type.SIMULATION_END, 16.58, null)
+				};
+
+				default -> throw new IllegalStateException("Invalid branch number " + b);
+			};
+
+			checkEvents(expectedEvents, sim, b);
+
+			// We don't save the sim step params on an abort, so the last record's saved types will
+			// be missing a lot of them.
+			if (expectedEvents[expectedEvents.length - 1].getType() != FlightEvent.Type.SIM_ABORT) {
+				checkLastRecord(sim, b);
+			}
+		}
+	}
+		
+		
+		
+															  
 
 	/**
 	 * Should not get a sim abort if recovery device deploys when upper stage motor never fires
