@@ -163,6 +163,20 @@ public class RocketConfig extends RocketComponentConfig {
 		});
 	}
 
+	@Override
+	protected void commitTextFields() {
+		super.commitTextFields();
+		textFieldListener.setName();
+	}
+
+	@Override
+	protected void updateTextFields() {
+		super.updateTextFields();
+		designerTextArea.setText(rocket.getDesigner());
+		revisionTextArea.setText(rocket.getRevision());
+		kitNameTextArea.setText(rocket.getKitName());
+	}
+
 	/**
 	 * Little method that adds a fun easter-egg to the rocket config dialog.
 	 */

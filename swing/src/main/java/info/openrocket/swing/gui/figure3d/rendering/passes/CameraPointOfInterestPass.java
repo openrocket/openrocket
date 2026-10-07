@@ -4,7 +4,6 @@ import info.openrocket.swing.gui.figure3d.geometry.components.CameraPointOfInter
 import info.openrocket.swing.gui.figure3d.rendering.Renderable;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.GLShader;
-import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
@@ -18,9 +17,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
-/**
- * Renders a fixed-size marker at the camera center-of-interest.
- */
+/** Renders a fixed-size marker at the pivot used by the active drag-rotation mode. */
 public class CameraPointOfInterestPass implements RenderPass {
 
 	private static final float FIXED_SCREEN_SCALE = 25.0f;
@@ -61,8 +58,7 @@ public class CameraPointOfInterestPass implements RenderPass {
 			return;
 		}
 
-		Camera camera = scene.getCamera();
-		if (camera == null) {
+		if (scene.getCamera() == null) {
 			return;
 		}
 
@@ -70,13 +66,29 @@ public class CameraPointOfInterestPass implements RenderPass {
 		shader.use();
 		shader.setUniformMatrix4f(projectionUniform, projectionMatrix);
 		shader.setUniformMatrix4f(viewUniform, viewMatrix);
-		shader.setUniformVector3f(centerUniform, camera.getCenterOfInterest());
+		boolean rotateRocketOnDrag = config.getVisualEffects().isRotateRocketOnDrag();
+		shader.setUniformVector3f(centerUniform, getMarkerPosition(scene, rotateRocketOnDrag));
 		shader.setUniformVector3f(colorUniform, markerColor);
 		shader.setUniformFloat(scaleWithViewUniform, 0.0f);
 		shader.setUniformFloat(fixedScaleFactorUniform, FIXED_SCREEN_SCALE);
 		shader.setUniformFloat(viewportHeightUniform, (float) viewportHeight);
 		markerMesh.render();
 		glEnable(GL_DEPTH_TEST);
+	}
+
+	/**
+	 * Returns the pivot used by the selected drag behavior. Rocket-rotation mode uses
+	 * the scene pivot, while camera-orbit mode uses the camera's effective look-at target.
+	 *
+	 * @param scene the active scene
+	 * @param rotateRocketOnDrag whether dragging rotates the rocket instead of the camera
+	 * @return the world-space pivot used by the active drag mode
+	 */
+	static Vector3f getMarkerPosition(SceneView scene, boolean rotateRocketOnDrag) {
+		if (rotateRocketOnDrag) {
+			return scene.getRocketRotationPivot(new Vector3f());
+		}
+		return scene.getCamera().getEffectiveLookAt();
 	}
 
 	@Override

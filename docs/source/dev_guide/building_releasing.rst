@@ -114,7 +114,19 @@ Here are some of the most important Gradle tasks for OpenRocket:
 
    *  - root (*info.openrocket*)
       - ``dist``
-      - Creates a distributable JAR file of OpenRocket (a combination of the *core* and *swing* JAR) at :file:`openrocket/build/libs/OpenRocket-<build-version>.jar`.
+      - Runs ``check`` and builds and verifies the universal JAR and all six platform JARs in :file:`openrocket/build/libs`.
+
+   *  - root (*info.openrocket*)
+      - ``distributionJars``
+      - Builds the universal JAR and all six platform JARs without running checks.
+
+   *  - root (*info.openrocket*)
+      - ``verifyDistributionJars``
+      - Builds all distribution JARs and verifies native selection, manifests, and preservation of classes, resources, service descriptors and licenses.
+
+   *  - root (*info.openrocket*)
+      - ``distributionSmokeTest``
+      - Runs packaged SQLite, JavaScript, internationalization and native-loading checks against the universal JAR and the current platform JAR.
 
    *  - core
       - ``publishToMavenLocal``
@@ -133,19 +145,78 @@ Here are some of the most important Gradle tasks for OpenRocket:
       - Same as ``serializeEngines``, but loads the SQLite database file to the distribution directory (:file:`openrocket/build`) so it can be used in the final build.
 
    *  - core
+      - ``updateBundledMotorDatabase``
+      - Replaces the bundled motor database (:file:`initial_motors.db` and :file:`metadata.json`) with the version published
+        at https://openrocket.info/motor-database/ if that one is newer.
+
+   *  - core
       - ``submoduleUpdate``
       - Updates the submodule dependencies of the *core* module.
+
+Desktop Distribution JARs
+-------------------------
+
+``shadowJar`` creates :file:`build/libs/OpenRocket-<version>.jar`, the standalone cross-platform download. Installer JARs
+are named :file:`build/libs/OpenRocket-<version>-<platform>.jar`. They retain the universal JAR's Java classes, application
+resources, service descriptors and licenses, with only native libraries for the selected OS and architecture. Linux
+variants include both glibc and musl SQLite libraries. Android SQLite libraries are excluded from all desktop distributions.
+
+.. list-table:: Installer JARs
+   :widths: 30 50 20
+   :header-rows: 1
+
+   *  - Platform classifier
+      - Gradle task
+      - install4j media ID
+   *  - ``windows-x64``
+      - ``shadowJarWindowsX64``
+      - 60
+   *  - ``windows-arm64``
+      - ``shadowJarWindowsArm64``
+      - 248
+   *  - ``macos-x64``
+      - ``shadowJarMacosX64``
+      - 213
+   *  - ``macos-arm64``
+      - ``shadowJarMacosArm64``
+      - 240
+   *  - ``linux-x64``
+      - ``shadowJarLinuxX64``
+      - 168
+   *  - ``linux-arm64``
+      - ``shadowJarLinuxArm64``
+      - 244
+
+Run ``./gradlew verifyDistributionJars distributionSmokeTest`` to build and validate the distribution artifacts. The smoke
+tests run with just the packaged JAR and their test harness on the classpath, so development dependencies cannot hide
+missing packaged classes or natives. They open the bundled motor database, invoke JavaScript callbacks and locale
+formatting, and load SQLite, JNA, FlatLaf and LWJGL native libraries without opening a GUI.
+
+CI builds and verifies all seven JARs on Linux and uploads them in the existing build artifact. Linux, Windows and macOS
+jobs smoke-test their own platform variants. Before a release, run ``distributionSmokeTest`` on each supported OS and
+architecture with a matching 64-bit JDK 17, then exercise 3D rendering and scripting in the installed application. An
+explicit ``-PdistributionTarget=<platform>`` selects a different variant but requires a matching host and JVM; it does not
+emulate another platform.
+
+The install4j media definitions override ``JAR_NAME`` for each platform, and both the distribution file and launcher
+classpath use that value. Set install4j's application version to ``build.version`` or pass ``--release=<version>`` to the
+compiler. The Windows signing workflow builds both Windows variants and smoke-tests the runner's variant before packaging.
+Publish the universal JAR as the standalone download and use the platform JARs when building installers.
+Snap builds also select the Linux variant on amd64 and arm64, while other Snap architectures keep using the universal JAR.
 
 Thrust Curve Motor Database
 ===========================
 
-The internal thrust curve motor database is stored as a SQLite file at
-:file:`core/src/main/resources/datafiles/thrustcurves/thrustcurves.db`.
-The ``serializeEngines`` task rebuilds this file by downloading motor data from
-ThrustCurve.org. At runtime OpenRocket prefers the ``.db`` file and will fall
-back to the legacy ``.ser`` file if no SQLite database is found. User-defined
-motor directories can also include ``.db`` files; these are validated for the
-expected schema before loading.
+OpenRocket bundles a SQLite motor database at
+:file:`core/src/main/resources/datafiles/thrustcurves/initial_motors.db`, with its :file:`metadata.json`. It is a snapshot
+of the database published by `openrocket/motor-database <https://github.com/openrocket/motor-database>`__, which
+OpenRocket also downloads at runtime to keep the user's motor database up to date. The ``updateBundledMotorDatabase``
+task refreshes the snapshot, verifying the download the same way the application does. The **Update bundled motor
+database** workflow (:file:`.github/workflows/update-motor-database.yml`) runs that task monthly, runs the core tests,
+and opens a pull request when the snapshot changed. Pull requests opened by GitHub Actions do not start the Build
+workflow; close and reopen the pull request to run it. The workflow needs
+:menuselection:`Settings --> Actions --> General --> Allow GitHub Actions to create and approve pull requests` to be enabled.
+User-defined motor directories can also include ``.db`` files; these are validated for the expected schema before loading.
 
 You can run these tasks from the command line using the Gradle Wrapper scripts. For example for the task ``run``, run the
 following command in the root directory of the OpenRocket repository:
@@ -402,15 +473,24 @@ SignPath and is not stored in the repository or in GitHub Actions.
 Windows code signing with SignPath
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Windows installers are built and signed by the ``Sign Windows installers`` GitHub Actions workflow in
-:file:`.github/workflows/sign-windows.yml`. The workflow:
+Windows installers are built and signed by the ``Build and sign Windows installers`` GitHub Actions workflow in
+:file:`.github/workflows/build-windows.yml`. The workflow:
 
 1. builds the OpenRocket distribution JAR from the selected commit;
-2. downloads the pinned install4j 12.0.3 archive and verifies its SHA-256 checksum;
-3. builds the x86-64 and Arm64 installers with install4j code signing disabled;
-4. uploads both unsigned installers as one GitHub workflow artifact;
-5. submits that artifact to SignPath and waits for approval and signing;
-6. verifies both returned Authenticode signatures and uploads the signed installers as a separate workflow artifact.
+2. builds the Explorer thumbnail handler (``OrkThumbnailHandler.dll``) from the
+   `openrocket/Windows-ork-Preview <https://github.com/openrocket/Windows-ork-Preview>`__ commit pinned by
+   ``WINDOWS_ORK_PREVIEW_REF`` in the workflow, submits it to SignPath, and verifies the returned signature;
+3. downloads the install4j version pinned in :file:`.github/actions/setup-install4j/action.yml` and verifies its SHA-256
+   checksum;
+4. builds the x86-64 and Arm64 installers with install4j code signing disabled, including the signed thumbnail handler;
+5. uploads both unsigned installers as one GitHub workflow artifact;
+6. submits that artifact to SignPath and waits for approval and signing;
+7. verifies both returned Authenticode signatures and uploads the signed installers as a separate workflow artifact.
+
+Each run therefore makes two SignPath signing requests, and each needs its own approval. Only the thumbnail handler is
+signed: ``SharpShell.dll``, the upstream library it depends on, is shipped unsigned as distributed on NuGet, because the
+SignPath Foundation only allows signing binaries built from OpenRocket's own source code. To update the thumbnail handler,
+change ``WINDOWS_ORK_PREVIEW_REF`` to the new full commit SHA.
 
 This arrangement lets SignPath verify the GitHub repository, commit, workflow, and GitHub-hosted runner that produced the
 artifact. Never publish the ``openrocket-windows-unsigned-*`` workflow artifact. It is retained only long enough for SignPath
@@ -461,6 +541,28 @@ OpenRocket project's overview page. Return to the project overview before perfor
 
    SignPath recommends generating a configuration by uploading an unsigned sample first. If you do that, compare the
    generated configuration with the restrictions above and make sure it signs only the two OpenRocket installer files.
+
+   Create a second configuration with a slug such as ``windows-shell-extension`` for the thumbnail handler. Its upload is a
+   ZIP containing only ``OrkThumbnailHandler.dll``, whose product version is the OpenRocket version:
+
+   .. code-block:: xml
+
+      <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+        <parameters>
+          <parameter name="version" required="true" />
+        </parameters>
+        <zip-file>
+          <pe-file-set company-name="OpenRocket"
+                       original-filename="${file.name}"
+                       product-name="OpenRocket"
+                       product-version="${version}">
+            <include path="OrkThumbnailHandler.dll" min-matches="1" max-matches="1" />
+            <for-each>
+              <authenticode-sign />
+            </for-each>
+          </pe-file-set>
+        </zip-file>
+      </artifact-configuration>
 4. Open the ``release-signing`` signing policy. Select the OpenRocket release certificate, require a manual approval, allow
    only the dedicated CI user to submit, assign the OpenRocket approvers, enable trusted-build-system and origin
    verification, and restrict the origin to the protected release branch. The repository URL comes from the project
@@ -492,6 +594,8 @@ In :menuselection:`GitHub repository --> Settings --> Secrets and variables --> 
       - Release signing policy slug.
    *  - Variable ``SIGNPATH_ARTIFACT_CONFIGURATION_SLUG``
       - Windows installer artifact configuration slug.
+   *  - Variable ``SIGNPATH_SHELL_EXTENSION_ARTIFACT_CONFIGURATION_SLUG``
+      - Thumbnail handler artifact configuration slug.
 
 The SignPath API token and install4j license are secrets. IDs and slugs are identifiers and should be repository variables,
 which makes configuration errors easier to diagnose without exposing credentials.
@@ -501,19 +605,22 @@ Running and validating a Windows signing build
 
 1. Set ``build.version`` in :file:`core/src/main/resources/build.properties` to the release version and merge the release
    commit into the branch allowed by the SignPath signing policy.
-2. Open :menuselection:`GitHub --> Actions --> Sign Windows installers`, select :guilabel:`Run workflow`, and select that
+2. Open :menuselection:`GitHub --> Actions --> Build and sign Windows installers`, select :guilabel:`Run workflow`, and select that
    branch. Do not approve a request built from an unexpected repository, branch, commit, or workflow run.
-3. An approver reviews the verified origin and artifact details in SignPath, then approves the signing request.
+3. An approver reviews the verified origin and artifact details in SignPath, then approves the signing requests: first the
+   thumbnail handler, then the installers.
 4. After the workflow succeeds, download ``openrocket-windows-signed-<run number>`` from the workflow run. Those are the
    Windows release installers. The workflow rejects missing or invalid Authenticode signatures before uploading them.
-5. Test both architectures as appropriate and regenerate any release checksums from the signed files. Checksums produced by
-   install4j before signing are no longer valid after SignPath adds the signatures.
+5. Test both architectures as appropriate. Use the ``SHA256SUMS.txt`` in that artifact for release checksums; it is computed
+   from the signed files. Checksums produced by install4j before signing are no longer valid after SignPath adds the
+   signatures.
 
 .. note::
    SignPath signs the two outer install4j installer executables. SignPath treats PE files as non-composite artifacts, so this
    workflow does not deep-sign the install4j launcher embedded inside each installer. Signing the installed launcher as well
    would require an install4j-compatible SignPath crypto provider or a package format that SignPath supports for deep signing.
-   The outer signature is the one Windows evaluates when a downloaded installer is launched.
+   The outer signature is the one Windows evaluates when a downloaded installer is launched. The thumbnail handler is the
+   exception: it is loaded into Explorer, so it is signed separately before install4j packages it.
 
 For Microsoft Defender SmartScreen submission instructions, see the
 `install4j README <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
@@ -524,14 +631,29 @@ be notarized. Luckily, install4j takes care of this. More information on the cod
 
 Linux does not require code signing.
 
+Building the Linux installers with GitHub Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The **Build Linux installers** workflow (:file:`.github/workflows/build-linux.yml`) builds both Linux installers (x86_64 and
+ARM64) with install4j and uploads them, together with a ``SHA256SUMS.txt`` file, as the ``openrocket-linux-<run number>``
+workflow artifact. It only needs the ``INSTALL4J_LICENSE_KEY`` secret. To run it, open
+:menuselection:`GitHub --> Actions --> Build Linux installers`, select :guilabel:`Run workflow`, and select the release branch.
+
 Creating the Installers
 -----------------------
 
-First you need to build the project using Gradle (see above). This will create the JAR file that will be used to create the installers.
+First run ``./gradlew dist distributionSmokeTest`` (see above). This builds and verifies all installer JARs as well as the
+universal JAR. Set install4j's application version to the same value as ``build.version``; each media definition then selects
+its matching platform JAR automatically.
 
-Then, open install4j (requires a license) and load the project file *openrocket/install4j/<build-version>/openrocket-<build-version>.install4j*
+Then, open install4j (requires a license) and load the project file *openrocket/install4j/openrocket.install4j*
 from the repository. Go to the :menuselection:`Build` tab and click on the :guilabel:`Start Build` button. This will create the installers in
-the *openrocket/install4j/<build-version>/media/* directory.
+the *openrocket/install4j/media/* directory. Local macOS signing material goes in the git-ignored *openrocket/install4j/code_signing/*
+directory.
+
+The GitHub workflows build with the install4j version pinned in :file:`.github/actions/setup-install4j/action.yml`. When you
+upgrade install4j locally, update that version and its three download checksums as well, so that CI does not build the
+project with an older install4j than the one it was saved with.
 
 .. figure:: /img/dev_guide/building_releasing/install4j_build.png
    :align: center
@@ -544,26 +666,71 @@ The current install4j project deliberately has Windows code signing disabled bec
 the GitHub build. For local development builds, enable ``Disable code signing`` and ``Disable notarization`` in the
 install4j :menuselection:`Build` tab when the macOS credentials are unavailable.
 
+The Windows installers include the Explorer thumbnail handler from :file:`build/windows-shell-extension`. For a local
+Windows build, build `Windows-ork-Preview <https://github.com/openrocket/Windows-ork-Preview>`__ and copy
+``OrkThumbnailHandler.dll`` and ``SharpShell.dll`` into that directory first; otherwise install4j only warns and the
+installers are built without thumbnail previews.
+
 macOS QuickLook Extension
 -------------------------
 
 The macOS installers include a QuickLook extension that allows users to preview ``.ork`` files directly in Finder
-(via spacebar or the preview pane). This extension is built and signed separately from the main install4j build,
-then merged into the final macOS DMG.
+(via spacebar or the preview pane). install4j cannot build or sign this extension, so it is built and signed separately
+and merged into each macOS DMG afterwards.
 
-The source code and full instructions for the QuickLook extension are maintained in a separate repository:
+The source code of the extension is maintained in a separate repository:
 `openrocket/macOS-QuickLook-extension <https://github.com/openrocket/macOS-QuickLook-extension>`__.
 
-After building the macOS DMG with install4j, follow the steps in that repository's README to:
+Building the macOS installers with GitHub Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Build the QuickLook extension using Xcode.
-2. Sign and notarize the extension with your Apple Developer ID.
-3. Inject the signed extension into the install4j DMG using the ``runit`` script.
+The **Build macOS installers** workflow (:file:`.github/workflows/build-macos.yml`) builds, signs, and notarizes both macOS
+DMGs (Apple Silicon and Intel), including the QuickLook extension. It builds the Java installers with install4j, builds the
+extension with Xcode, merges the two with :file:`.github/scripts/add-macos-quicklook.sh`, and then notarizes and staples
+the result. The finished DMGs are uploaded as the ``openrocket-macos-<run number>`` workflow artifact.
+
+Before the first run, configure the following in the GitHub repository (preferably on an environment named
+``macos-signing`` with required reviewers and a branch restriction):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Name
+     - Value
+   * - ``INSTALL4J_LICENSE_KEY`` *(secret)*
+     - The install4j license key (shared with the Windows workflow).
+   * - ``MACOS_CERTIFICATE_P12_BASE64`` *(secret)*
+     - The **Developer ID Application** certificate and private key as a base64-encoded ``.p12`` file
+       (``base64 -i OpenRocket_macOS.p12 | pbcopy``).
+   * - ``MACOS_CERTIFICATE_PASSWORD`` *(secret)*
+     - The password of that ``.p12`` file.
+   * - ``APPLE_API_KEY_P8`` *(secret)*
+     - The full contents of the App Store Connect API key (``AuthKey_<key id>.p8``) used for notarization.
+   * - ``APPLE_API_KEY_ID`` *(variable)*
+     - The key ID of that API key (the ``KEY_ID`` variable in the install4j project).
+   * - ``APPLE_API_ISSUER_ID`` *(variable)*
+     - The issuer ID of the App Store Connect team (the ``ISSUER_ID`` variable in the install4j project).
+
+To run it, open :menuselection:`GitHub --> Actions --> Build macOS installers`, select :guilabel:`Run workflow`, and select the
+release branch. The ``quicklook_ref`` input is the commit of the QuickLook extension repository to build; update its
+default whenever the extension changes, and always use a full commit SHA because this code runs with the signing
+certificate available.
+
+.. note::
+   The workflow runs on the ``macos-26`` image because the extension project targets the macOS 26 SDK.
+
+Building the macOS installers manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you cannot use GitHub Actions, build the DMGs with install4j as described above and follow the steps in the
+`extension repository README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__ to build, sign, notarize,
+and inject the extension using the ``runit`` script.
 
 .. note::
    The QuickLook extension requires a **Developer ID Application** certificate and an **App-Specific Password**
-   for notarization. See the `macOS-QuickLook-extension README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__
-   for the full setup guide, including Apple Developer account configuration and Info.plist requirements.
+   (or App Store Connect API key) for notarization. See the extension README for the full setup guide, including Apple
+   Developer account configuration and Info.plist requirements.
 
 .. warning::
    The install4j project must declare the ``info.openrocket.ork`` UTI (Uniform Type Identifier) in the macOS
@@ -579,7 +746,10 @@ The release procedure for OpenRocket is as follows:
    This includes new features, bug fixes, and other changes that are part of the release. Make sure to include the version number and the release date.
    Take a look at the previous release notes to see how it should be formatted.
 
-2. Update the component database and thrustcurves by running the gradle tasks ``subModuleUpdate`` and ``serializeEngines`` respectively.
+2. Make sure the component database and the bundled motor database are up to date. Dependabot opens a monthly pull request
+   when the ``openrocket-database`` submodule has new commits, and the **Update bundled motor database** workflow opens a
+   monthly pull request when a newer motor database is published. Merge any open ones, or run the ``submoduleUpdate`` and
+   ``updateBundledMotorDatabase`` Gradle tasks yourself.
 
 3. Rerun all example design files (open the design and overwrite the files at :file:`core/src/main/resources/datafiles/examples`
 with the new results) to ensure that they are up-to-date with the latest changes.
@@ -605,9 +775,11 @@ with the new results) to ensure that they are up-to-date with the latest changes
    For instance, if the beta testing started in September 2023 with version number ``23.09.beta.01``, the final release should have version number ``23.09``,
    even if the final release is in November 2023. This is to ensure consistency in the version numbering and to link the beta release(s) to the final release.
 
-5. **Build the project JAR file** using Gradle (see above).
+5. **Build and verify the distribution JARs** using ``./gradlew dist distributionSmokeTest`` (see above).
 
-6. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under :menuselection:`Help --> About`.
+6. **Test the distribution JARs** on their matching OS and architecture. Run ``distributionSmokeTest`` on each supported
+   platform, then check that the application starts, 3D rendering and scripting work, and the new version number is applied
+   to the splash screen and under :menuselection:`Help --> About`.
 
 7. **Publish the Maven Central library artifacts**.
 
@@ -620,18 +792,19 @@ with the new results) to ensure that they are up-to-date with the latest changes
 8. **Create the packaged installers** (see above).
 
    .. warning::
-      Build and sign the Windows installers with the ``Sign Windows installers`` GitHub Actions workflow. Download only its
+      Build the Windows installers with the ``Build and sign Windows installers`` GitHub Actions workflow. Download only its
       ``openrocket-windows-signed-*`` artifact; never release the unsigned SignPath input artifact.
+
+      Build the Linux installers with the ``Build Linux installers`` GitHub Actions workflow.
 
       When building the macOS installers in install4j, make sure macOS code signing and notarization are enabled.
 
-      Make sure that `DS_Store <https://github.com/openrocket/openrocket/blob/unstable/install4j/23.09/macOS_resources/DS_Store>`__ for the macOS
-      installer is updated. Instructions can be found `here <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
-
 9. **Add the macOS QuickLook extension** to the macOS DMG installers.
 
-   Follow the instructions in the `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__
-   to build, sign, notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
+   Run the **Build macOS installers** GitHub workflow (see above). It builds both macOS DMGs and includes the
+   QuickLook extension, so no separate step is needed. If you build the DMGs locally instead, follow the instructions in the
+   `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__ to build, sign,
+   notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
 
 10. **Test the installers** to ensure that they work correctly.
 
@@ -665,7 +838,8 @@ with the new results) to ensure that they are up-to-date with the latest changes
     If you want to credit the developers who contributed to the release, you can tag them anywhere in the release text using the `@username` syntax.
     They will then be automatically displayed in the contributors list on the release page.
 
-    Finally, upload all the packaged installers and the JAR file to the release. For Windows, use only the installers from the
+    Finally, upload all the packaged installers and the universal ``OpenRocket-<version>.jar`` to the release. The platform
+    JARs are installer inputs. For Windows, use only the installers from the
     successful ``openrocket-windows-signed-*`` workflow artifact. The source code (zip and tar.gz) is automatically appended
     to each release, you do not need to upload it manually.
 

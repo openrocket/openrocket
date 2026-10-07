@@ -60,7 +60,6 @@ Add the icon definition to :file:`Icons.java`. There are several methods availab
 
    public static final Icon MY_ICON = loadIcon(
            "pix/icons/lucide/my-icon.svg",
-           "pix/icons/my-icon-fallback.png",  // PNG fallback (optional, can be same as SVG path)
            "My Icon Description");
 
 This uses the default color (``OR.icons.default``) which is black in light theme and white in dark theme.
@@ -71,7 +70,6 @@ This uses the default color (``OR.icons.default``) which is black in light theme
 
    public static final Icon MY_ICON = loadIcon(
            "pix/icons/lucide/my-icon.svg",
-           "pix/icons/my-icon-fallback.png",
            "My Icon Description",
            "OR.icons.myColor");  // UIManager color key
 
@@ -81,20 +79,11 @@ This uses the default color (``OR.icons.default``) which is black in light theme
 
    public static final Icon MY_ICON = loadIcon(
            "pix/icons/lucide/my-icon.svg",
-           "pix/icons/my-icon-fallback.png",
            "My Icon Description",
            Map.of(
                    SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
                    0x499C54, "OR.icons.plus"
            ));
-
-**SVG-only icon (no PNG fallback):**
-
-.. code-block:: java
-
-   public static final Icon MY_ICON = loadSvgIcon(
-           "pix/icons/lucide/my-icon.svg",
-           "My Icon Description");
 
 **Scaled icon (for sub-icons or smaller variations):**
 
@@ -102,7 +91,6 @@ This uses the default color (``OR.icons.default``) which is black in light theme
 
    public static final Icon MY_SMALL_ICON = loadIcon(
            "pix/icons/lucide/my-icon.svg",
-           "pix/icons/my-icon-fallback.png",
            "My Small Icon",
            "OR.icons.myColor",
            0.75);  // 75% of normal size
@@ -175,7 +163,6 @@ Creating a Multi-Color SVG
 
    public static final Icon FILE_NEW = loadIcon(
            "pix/icons/lucide/file-plus-corner.svg",
-           "pix/icons/document-new.png",
            "New document",
            Map.of(
                    SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,  // 0x000000 -> OR.icons.default
@@ -247,7 +234,6 @@ Adding a New Icon Color
 
    public static final Icon MY_ICON = loadIcon(
            "pix/icons/lucide/my-icon.svg",
-           "pix/icons/my-icon.png",
            "My Icon",
            "OR.icons.myNewColor");
 
@@ -348,9 +334,7 @@ Best Practices
 
 5. **Update all theme files** - When adding a new color key, define it in all three theme property files.
 
-6. **Provide PNG fallbacks** - While SVG is preferred, provide a PNG fallback for compatibility.
-
-7. **Use appropriate sizes** - Icons are automatically scaled based on font size. Use the ``scaleMultiplier``
+6. **Use appropriate sizes** - Icons are automatically scaled based on font size. Use the ``scaleMultiplier``
    parameter only when you need an icon that's intentionally smaller or larger than the standard size.
 
 Troubleshooting
@@ -377,7 +361,7 @@ Icons are scaled based on the user's font size setting. If you need a specifical
 
 .. code-block:: java
 
-   loadIcon(svgFile, pngFile, name, colorKey, 0.75);  // 75% of normal size
+   loadIcon(svgFile, name, colorKey, 0.75);  // 75% of normal size
 
 SVG stroke colors not theming correctly
 ---------------------------------------

@@ -3,6 +3,7 @@ package info.openrocket.core.file.openrocket.importt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -87,18 +88,80 @@ public class MotorHandlerTest {
 		assertTrue(containsWarning(warnings, requestedDigest));
 	}
 
+	@Test
+	public void testEmbeddedCurvePreferredToApproximateDatabaseMatch() throws Exception {
+		ThrustCurveMotor prototype = createMotor("F12X", 12.0, "");
+		String digest = createRaspStyleDigest(prototype);
+		ThrustCurveMotor original = createMotor("F12X", 12.0, digest);
+		ThrustCurveMotor approximate = createMotor("F12X", 20.0, "different-digest");
+		MotorHandler handler = createHandler(digest, createRseAttachment(original), approximate);
+		WarningSet warnings = new WarningSet();
+
+		Motor loaded = handler.getMotor(warnings);
+
+		assertEquals(digest, loaded.getDigest());
+		assertEquals(12.0, ((ThrustCurveMotor) loaded).getThrustPoints()[1]);
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void testExactDatabaseMatchDoesNotReadAttachment() throws Exception {
+		ThrustCurveMotor motor = createMotor("F12X", 12.0, "exact-digest");
+		assertSame(motor, createHandler("exact-digest", null, motor).getMotor(new WarningSet()));
+	}
+
+	@Test
+	public void testHistoricalDigestDatabaseMatchDoesNotReadAttachment() throws Exception {
+		ThrustCurveMotor motor = createMotor("F12X", 12.0, "current-digest");
+		assertSame(motor, createHandler(createRaspStyleDigest(motor), null, motor).getMotor(new WarningSet()));
+	}
+
+	@Test
+	public void testApproximateDatabaseMatchRetainedWhenAttachmentMissing() throws Exception {
+		ThrustCurveMotor motor = createMotor("F12X", 20.0, "different-digest");
+		WarningSet warnings = new WarningSet();
+		assertSame(motor, createHandler("missing-digest", new MissingAttachment("missing.rse"), motor)
+				.getMotor(warnings));
+		assertTrue(warnings.isEmpty());
+	}
+
+	@Test
+	public void testApproximateDatabaseMatchRetainedWhenAttachmentInvalid() throws Exception {
+		ThrustCurveMotor motor = createMotor("F12X", 20.0, "different-digest");
+		WarningSet warnings = new WarningSet();
+		Attachment corrupt = new ByteArrayAttachment("bad.rse", "<engine-database>".getBytes(StandardCharsets.UTF_8));
+		assertSame(motor, createHandler("missing-digest", corrupt, motor).getMotor(warnings));
+		assertTrue(containsWarning(warnings, "Unable to load embedded motor attachment"));
+	}
+
+	@Test
+	public void testLegacyFileWithoutDigestUsesDatabaseMatch() throws Exception {
+		ThrustCurveMotor motor = createMotor("F12X", 12.0, "current-digest");
+		assertSame(motor, createHandler(null, null, motor).getMotor(new WarningSet()));
+	}
+
 	/**
 	 * Create a handler whose database lookup always misses so attachment behavior is
 	 * exercised directly.
 	 */
 	private static MotorHandler createHandler(String digest, Attachment attachment) throws SAXException {
+		return createHandler(digest, attachment, null);
+	}
+
+	private static MotorHandler createHandler(String digest, Attachment attachment, Motor databaseMotor)
+			throws SAXException {
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setFileVersion(DIGEST_FILE_VERSION);
-		context.setMotorFinder((type, manufacturer, designation, diameter, length, motorDigest, warnings) -> null);
-		context.setAttachmentFactory(name -> attachment);
+		context.setMotorFinder((type, manufacturer, designation, diameter, length, motorDigest, warnings) -> databaseMotor);
+		context.setAttachmentFactory(name -> {
+			assertNotNull(attachment, "A compatible database match must not read attachments");
+			return attachment;
+		});
 
 		MotorHandler handler = new MotorHandler(context);
-		handler.closeElement("digest", new HashMap<>(), digest, new WarningSet());
+		if (digest != null) {
+			handler.closeElement("digest", new HashMap<>(), digest, new WarningSet());
+		}
 		return handler;
 	}
 

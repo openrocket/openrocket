@@ -313,6 +313,7 @@ class RocketSceneSynchronizerTest extends BaseTestCase {
 		assertEquals(1, buildCount.get());
 		assertEquals(List.of(latestSnapshot), preparedSnapshots);
 		verify(prepared).commitTo(scene);
+		verify(orchestrator).notifyRocketSceneRebuilt();
 	}
 
 	@Test

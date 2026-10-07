@@ -1,0 +1,256 @@
+name: Build macOS installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      quicklook_ref:
+        description: >-
+          Commit of openrocket/macOS-QuickLook-extension to build the Quick Look extension from.
+          Use a full commit SHA: this code is built with the signing certificate available.
+        required: true
+        default: 'b80cfff98e91b90adff7a7697812378e32f5fe6e'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-macos-installers
+  cancel-in-progress: false
+
+jobs:
+  build-and-sign:
+    name: Build, sign and notarize macOS installers
+    # The Quick Look extension project needs the macOS 26 SDK (project-level deployment target 26.0).
+    runs-on: macos-26
+    timeout-minutes: 120
+    # Put required reviewers and a branch restriction on this environment to gate access to the Apple credentials.
+    environment: macos-signing
+
+    env:
+      APPLE_API_KEY_ID: ${{ vars.APPLE_API_KEY_ID }}
+      APPLE_API_ISSUER_ID: ${{ vars.APPLE_API_ISSUER_ID }}
+
+    steps:
+      - name: Validate repository signing configuration
+        shell: bash
+        env:
+          INSTALL4J_LICENSE_KEY: ${{ secrets.INSTALL4J_LICENSE_KEY }}
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          QUICKLOOK_REF: ${{ inputs.quicklook_ref }}
+        run: |
+          missing=0
+          check() {
+            if [ -z "$2" ]; then
+              echo "::error::Missing GitHub $1."
+              missing=1
+            fi
+          }
+          check 'INSTALL4J_LICENSE_KEY secret' "$INSTALL4J_LICENSE_KEY"
+          check 'MACOS_CERTIFICATE_P12_BASE64 secret' "$MACOS_CERTIFICATE_P12_BASE64"
+          check 'MACOS_CERTIFICATE_PASSWORD secret' "$MACOS_CERTIFICATE_PASSWORD"
+          check 'APPLE_API_KEY_P8 secret' "$APPLE_API_KEY_P8"
+          check 'APPLE_API_KEY_ID variable' "$APPLE_API_KEY_ID"
+          check 'APPLE_API_ISSUER_ID variable' "$APPLE_API_ISSUER_ID"
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+          if ! [[ "$QUICKLOOK_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::quicklook_ref must be a full 40-character commit SHA."
+            exit 1
+          fi
+
+      - name: Checkout repository and submodules
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: 'recursive'
+
+      - name: Checkout macOS Quick Look extension
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: openrocket/macOS-QuickLook-extension
+          ref: ${{ inputs.quicklook_ref }}
+          path: macOS-QuickLook-extension
+          persist-credentials: false
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5
+
+      - name: Read OpenRocket version
+        id: version
+        shell: bash
+        run: |
+          version=$(sed -n 's/^build\.version=//p' core/src/main/resources/build.properties | tr -d '[:space:]')
+          if [ -z "$version" ] || [ "$(printf '%s\n' "$version" | wc -l)" -ne 1 ]; then
+            echo "::error::Could not read a unique, non-empty build.version from build.properties."
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      # Each install4j media definition selects its own OpenRocket-<version>-<platform>.jar (via a per-media JAR_NAME
+      # variable), so only the two macOS variants are needed. The runner is Apple Silicon: the smoke test covers the
+      # universal JAR and the macOS arm64 JAR, not the Intel one.
+      - name: Build and smoke-test macOS distribution JARs
+        shell: bash
+        env:
+          OPENROCKET_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          ./gradlew shadowJarMacosX64 shadowJarMacosArm64 distributionSmokeTest --no-daemon
+          test -f "build/libs/OpenRocket-$OPENROCKET_VERSION-macos-x64.jar"
+          test -f "build/libs/OpenRocket-$OPENROCKET_VERSION-macos-arm64.jar"
+
+      - name: Import the signing certificate
+        id: keychain
+        shell: bash
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          keychain="$RUNNER_TEMP/openrocket-signing.keychain-db"
+          keychain_password=$(uuidgen)
+          echo "::add-mask::$keychain_password"
+
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+
+          printf '%s' "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$keychain" -P "$MACOS_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          rm -f "$RUNNER_TEMP/certificate.p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" > /dev/null
+
+          # Put the temporary keychain first in the search list so codesign and xcodebuild find the identity.
+          existing=$(security list-keychains -d user | tr -d '"')
+          # shellcheck disable=SC2086
+          security list-keychains -d user -s "$keychain" $existing
+
+          identity=$(security find-identity -v -p codesigning "$keychain" | awk '/Developer ID Application/ { print $2; exit }')
+          if [ -z "$identity" ]; then
+            echo "::error::No valid 'Developer ID Application' identity found in the imported certificate."
+            security find-identity -p codesigning "$keychain"
+            exit 1
+          fi
+
+          echo "path=$keychain" >> "$GITHUB_OUTPUT"
+          echo "identity=$identity" >> "$GITHUB_OUTPUT"
+
+      - name: Write the notarization API key
+        id: notary
+        shell: bash
+        env:
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+        run: |
+          key="$RUNNER_TEMP/AuthKey_$APPLE_API_KEY_ID.p8"
+          (umask 077 && printf '%s\n' "$APPLE_API_KEY_P8" > "$key")
+          echo "path=$key" >> "$GITHUB_OUTPUT"
+
+      - name: Build the Quick Look extension
+        id: quicklook
+        shell: bash
+        env:
+          KEYCHAIN_PATH: ${{ steps.keychain.outputs.path }}
+        run: |
+          xcodebuild -version
+          archive="$RUNNER_TEMP/OpenRocketQuickLook.xcarchive"
+
+          # Build for both Apple Silicon and Intel: the same extension is injected into both DMGs.
+          xcodebuild archive \
+            -project "macOS-QuickLook-extension/OpenRocket QuickLook Preview.xcodeproj" \
+            -scheme "OpenRocket QuickLook Preview" \
+            -configuration Release \
+            -archivePath "$archive" \
+            ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" \
+            -quiet
+
+          host_app=$(find "$archive/Products/Applications" -maxdepth 1 -name '*.app' -type d | head -n 1)
+          plugins=$(find "$host_app/Contents" -maxdepth 1 -type d -iname plugins | head -n 1)
+          if [ -z "$plugins" ] || ! ls "$plugins"/*.appex > /dev/null 2>&1; then
+            echo "::error::The archived host app does not contain a Quick Look extension."
+            exit 1
+          fi
+          codesign --verify --deep --strict --verbose=2 "$plugins"/*.appex
+          echo "plugins=$plugins" >> "$GITHUB_OUTPUT"
+
+      - name: Set up install4j
+        id: install4j
+        uses: ./.github/actions/setup-install4j
+        with:
+          license-key: ${{ secrets.INSTALL4J_LICENSE_KEY }}
+
+      - name: Build and sign macOS installers
+        shell: bash
+        env:
+          INSTALL4J_COMPILER: ${{ steps.install4j.outputs.compiler }}
+          OPENROCKET_VERSION: ${{ steps.version.outputs.value }}
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          # The install4j project reads its macOS signing certificate from this (git-ignored) location.
+          mkdir -p install4j/code_signing install4j/media
+          printf '%s' "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode > install4j/code_signing/OpenRocket_macOS.p12
+
+          # Notarization is skipped here: the DMGs are modified afterwards, so they are notarized once, at the end.
+          "$INSTALL4J_COMPILER" \
+            --disable-notarization \
+            --mac-keystore-password="$MACOS_CERTIFICATE_PASSWORD" \
+            --build-ids=213,240 \
+            --release="$OPENROCKET_VERSION" \
+            --destination="$PWD/install4j/media" \
+            install4j/openrocket.install4j
+
+          count=$(find install4j/media -maxdepth 1 -name '*.dmg' | wc -l | tr -d ' ')
+          if [ "$count" -ne 2 ]; then
+            echo "::error::Expected two macOS DMGs, found $count."
+            ls -la install4j/media
+            exit 1
+          fi
+
+      - name: Add the Quick Look extension, then notarize and staple
+        shell: bash
+        env:
+          SIGN_IDENTITY: ${{ steps.keychain.outputs.identity }}
+          KEYCHAIN_PATH: ${{ steps.keychain.outputs.path }}
+          NOTARY_KEY_PATH: ${{ steps.notary.outputs.path }}
+          NOTARY_KEY_ID: ${{ env.APPLE_API_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ env.APPLE_API_ISSUER_ID }}
+          PLUGINS_DIR: ${{ steps.quicklook.outputs.plugins }}
+        run: |
+          mkdir -p dist
+          for dmg in install4j/media/*.dmg; do
+            .github/scripts/add-macos-quicklook.sh "$PLUGINS_DIR" "$dmg" "dist/$(basename "$dmg")"
+          done
+          (cd dist && shasum -a 256 *.dmg | tee SHA256SUMS.txt)
+
+      - name: Upload macOS installers
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openrocket-macos-${{ github.run_number }}
+          path: |
+            dist/*.dmg
+            dist/SHA256SUMS.txt
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove signing material
+        if: always()
+        shell: bash
+        env:
+          KEYCHAIN_PATH: ${{ steps.keychain.outputs.path }}
+          NOTARY_KEY_PATH: ${{ steps.notary.outputs.path }}
+        run: |
+          if [ -n "$KEYCHAIN_PATH" ]; then
+            security delete-keychain "$KEYCHAIN_PATH" || true
+          fi
+          rm -f "$NOTARY_KEY_PATH" "$RUNNER_TEMP/certificate.p12"
+          rm -rf install4j/code_signing

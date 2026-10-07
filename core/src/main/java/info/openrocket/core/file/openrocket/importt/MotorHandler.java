@@ -34,6 +34,7 @@ class MotorHandler extends AbstractElementHandler {
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
+	private double nozzleExitDiameter = 0.0;
 
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
@@ -50,8 +51,9 @@ class MotorHandler extends AbstractElementHandler {
 	 * <p>
 	 * Preference order:
 	 * <ol>
-	 *   <li>Lookup via {@link DocumentLoadingContext#getMotorFinder()} (typically the motor database).</li>
+	 *   <li>A database motor with a compatible digest, or any database match if no digest was saved.</li>
 	 *   <li>Embedded .rse file in the {@code thrustcurves/} directory of the .ork zip archive.</li>
+	 *   <li>An approximate database match if the embedded curve is unavailable.</li>
 	 * </ol>
 	 *
 	 * @param warnings warnings sink
@@ -62,7 +64,8 @@ class MotorHandler extends AbstractElementHandler {
 		WarningSet databaseWarnings = new WarningSet();
 		Motor databaseMotor = context.getMotorFinder().findMotor(type, manufacturer, designation, Double.NaN, Double.NaN, digest,
 				databaseWarnings);
-		if (databaseMotor != null) {
+		if (databaseMotor != null && (digest == null || digest.isEmpty()
+				|| MotorDigest.isDigestCompatible(databaseMotor, digest))) {
 			warnings.addAll(databaseWarnings);
 			return databaseMotor;
 		}
@@ -75,9 +78,9 @@ class MotorHandler extends AbstractElementHandler {
 			}
 		}
 
-		// Nothing worked: surface any database lookup warnings (e.g. missing motor).
+		// Retain the approximate database fallback for files without a usable embedded curve.
 		warnings.addAll(databaseWarnings);
-		return null;
+		return databaseMotor;
 	}
 
 	/**
@@ -134,6 +137,15 @@ class MotorHandler extends AbstractElementHandler {
 			return Motor.PLUGGED_DELAY;
 		}
 		return delay;
+	}
+
+	/**
+	 * Return the optional nozzle exit diameter stored with the motor selection.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when it was not specified
+	 */
+	public double getNozzleExitDiameter() {
+		return nozzleExitDiameter;
 	}
 
 	@Override
@@ -215,6 +227,17 @@ class MotorHandler extends AbstractElementHandler {
 					warnings.add(Warning.fromString("Illegal motor delay specified, ignoring."));
 				}
 
+			}
+
+		} else if (element.equals("nozzleexitdiameter")) {
+			try {
+				nozzleExitDiameter = Double.parseDouble(content.trim());
+			} catch (NumberFormatException ignore) {
+				nozzleExitDiameter = Double.NaN;
+			}
+			if (!Double.isFinite(nozzleExitDiameter) || nozzleExitDiameter < 0) {
+				warnings.add(Warning.fromString("Illegal nozzle exit diameter specified, assuming unknown."));
+				nozzleExitDiameter = 0.0;
 			}
 
 		} else {

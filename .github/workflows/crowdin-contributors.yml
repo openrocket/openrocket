@@ -1,0 +1,38 @@
+name: Crowdin Contributors
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  crowdin-contributors:
+    name: Update translator credits
+    if: github.repository == 'openrocket/openrocket'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Generate Crowdin contributors table
+        uses: andrii-bodnar/action-crowdin-contributors@v3
+        with:
+          crowdin_project_link: https://crowdin.com/project/openrocket
+          include_languages: true
+          min_words_contributed: 100
+          image_size: 64
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: crowdin-contributors
+          delete-branch: true
+          title: Update Crowdin translator credits
+          commit-message: Update Crowdin translator credits
+          body: Automated update of the Crowdin translator list in the README.
+          labels: translation

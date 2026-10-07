@@ -288,6 +288,10 @@ public class RocketComponentSaver {
 			} else {
 				elements.add("    <delay>" + motorInstance.getEjectionDelay() + "</delay>");
 			}
+			if (motorInstance.getNozzleExitDiameter() > 0) {
+				elements.add("    <nozzleexitdiameter>" + motorInstance.getNozzleExitDiameter()
+						+ "</nozzleexitdiameter>");
+			}
 			
 			elements.add("  </motor>");
 			

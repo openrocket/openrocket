@@ -6,7 +6,6 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
@@ -40,7 +39,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -57,7 +55,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.logging.Message;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
@@ -79,6 +76,7 @@ import info.openrocket.core.util.AlphanumComparator;
 import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
+import info.openrocket.swing.gui.simulation.LandingDispersionDialog;
 import info.openrocket.swing.gui.simulation.SimulationConfigDialog;
 import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.FileHelper;
@@ -117,6 +115,7 @@ public class SimulationPanel extends JPanel {
 
 	private final JButton editButton;
 	private final JButton runButton;
+	private final JButton landingDispersionButton;
 	private final JButton deleteButton;
 	private final JButton plotButton;
 	private final JButton simTableExportButton;
@@ -129,6 +128,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction copySimulationAction;
 	private final SimulationAction pasteSimulationAction;
 	private final SimulationAction runSimulationAction;
+	private final SimulationAction landingDispersionAction;
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
@@ -189,7 +189,7 @@ public class SimulationPanel extends JPanel {
 	}
 
 	public SimulationPanel(Window parent, OpenRocketDocument doc) {
-		super(new MigLayout("fill", "[grow][][][][][][grow]"));
+		super(new MigLayout("fill", "[grow][][][][][][][grow]"));
 
 		this.document = doc;
 
@@ -201,6 +201,7 @@ public class SimulationPanel extends JPanel {
 		copySimulationAction = new CopySimulationAction();
 		pasteSimulationAction = new PasteSimulationAction();
 		runSimulationAction = new RunSimulationAction();
+		landingDispersionAction = new LandingDispersionAction();
 		plotSimulationAction = new PlotSimulationAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
@@ -226,6 +227,13 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
+
+		//// Landing-dispersion analysis
+		landingDispersionButton = new IconButton();
+		RocketActions.tieActionToButton(landingDispersionButton, landingDispersionAction,
+				trans.get("simpanel.but.landingDispersion"));
+		landingDispersionButton.setToolTipText(trans.get("simpanel.but.ttip.landingDispersion"));
+		this.add(landingDispersionButton, "gapright para");
 
 		//// Delete simulations button
 		deleteButton = new IconButton();
@@ -277,6 +285,7 @@ public class SimulationPanel extends JPanel {
 		pm.add(deleteSimulationAction);
 		pm.addSeparator();
 		pm.add(runSimulationAction);
+		pm.add(landingDispersionAction);
 		pm.add(plotSimulationAction);
 		pm.add(selectedSimsExportAction);
 
@@ -591,6 +600,21 @@ public class SimulationPanel extends JPanel {
 		takeTheSpotlight();
 	}
 
+	/**
+	 * Open a non-destructive landing-dispersion analysis for the single selected
+	 * simulation. The analysis clones the simulation for every trajectory.
+	 */
+	private void landingDispersion() {
+		Simulation[] simulations = getSelectedSimulations();
+		if (simulations == null || simulations.length != 1) {
+			return;
+		}
+
+		new LandingDispersionDialog(SwingUtilities.getWindowAncestor(SimulationPanel.this),
+				simulations[0]).setVisible(true);
+		takeTheSpotlight();
+	}
+
 	public void editSimulation() {
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
@@ -611,9 +635,9 @@ public class SimulationPanel extends JPanel {
 			return;
 		}
 
-		JFileChooser chooser = setUpSimExportCSVFileChooser();
+		SaveFileChooser chooser = setUpSimExportCSVFileChooser();
 		int selectionStatus = chooser.showSaveDialog(tableParent);
-		if (selectionStatus != JFileChooser.APPROVE_OPTION) {
+		if (selectionStatus != SaveFileChooser.APPROVE_OPTION) {
 			log.debug("User cancelled CSV export");
 			return;
 		}
@@ -621,12 +645,12 @@ public class SimulationPanel extends JPanel {
 		// Fetch the info from the file chooser
 		File CSVFile = chooser.getSelectedFile();
 		CSVFile = FileHelper.forceExtension(CSVFile, "csv");
-		if (!FileHelper.confirmWrite(CSVFile, SimulationPanel.this)) {
+		if (!FileHelper.confirmWrite(CSVFile, chooser.getSelectedFile(), SimulationPanel.this)) {
 			log.debug("User cancelled CSV export overwrite");
 			return;
 		}
 
-		CsvOptionPanel csvOptions = (CsvOptionPanel) chooser.getAccessory();
+		CsvOptionPanel csvOptions = (CsvOptionPanel) chooser.getOptionsPanel();
 		String separator = csvOptions.getFieldSeparator();
 		int precision = csvOptions.getDecimalPlaces();
 		boolean isExponentialNotation = csvOptions.isExponentialNotation();
@@ -647,8 +671,8 @@ public class SimulationPanel extends JPanel {
 	 * Create the file chooser to save the CSV file.
 	 * @return The file chooser.
 	 */
-	private JFileChooser setUpSimExportCSVFileChooser() {
-		JFileChooser chooser = new SaveFileChooser();
+	private SaveFileChooser setUpSimExportCSVFileChooser() {
+		SaveFileChooser chooser = new SaveFileChooser();
 		chooser.setDialogTitle(trans.get("simpanel.pop.exportToCSV.save.dialog.title"));
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
@@ -658,17 +682,9 @@ public class SimulationPanel extends JPanel {
 		String fileName = document.getRocket().getName() + ".csv";
 		chooser.setSelectedFile(new File(fileName));
 
-		// Add CSV options to FileChooser
+		// Ask for the CSV options before showing the file chooser
 		CsvOptionPanel CSVOptions = new CsvOptionPanel(SimulationTableCSVExport.class);
-		chooser.setAccessory(CSVOptions);
-
-		// TODO: update this dynamically instead of hard-coded values
-		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
-		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
-			Dimension currentSize = chooser.getPreferredSize();
-			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
-			chooser.setPreferredSize(newSize);
-		}
+		chooser.setOptionsPanel(CSVOptions);
 
 		return chooser;
 	}
@@ -844,6 +860,7 @@ public class SimulationPanel extends JPanel {
 		duplicateSimulationAction.updateEnabledState();
 		deleteSimulationAction.updateEnabledState();
 		runSimulationAction.updateEnabledState();
+		landingDispersionAction.updateEnabledState();
 		plotSimulationAction.updateEnabledState();
 		simTableExportAction.updateEnabledState();
 		selectedSimsExportAction.updateEnabledState();
@@ -1178,6 +1195,30 @@ public class SimulationPanel extends JPanel {
 		@Override
 		public void updateEnabledState() {
 			this.setEnabled(simulationTable.getSelectedRowCount() > 0 && hasValidConfig);
+		}
+	}
+
+	/** Runs a Monte Carlo landing-dispersion analysis for one simulation. */
+	class LandingDispersionAction extends SimulationAction {
+		public LandingDispersionAction() {
+			this.putValue(NAME, trans.get("simpanel.pop.landingDispersion"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("simpanel.pop.landingDispersion.ttip"));
+			this.putValue(SMALL_ICON, Icons.SIM_DISPERSION);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			landingDispersion();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			if (simulationTable.getSelectedRowCount() != 1 || !hasValidConfig) {
+				this.setEnabled(false);
+				return;
+			}
+			int selected = simulationTable.convertRowIndexToModel(simulationTable.getSelectedRow());
+			this.setEnabled(document.getSimulation(selected).getStatus() != Status.EXTERNAL);
 		}
 	}
 

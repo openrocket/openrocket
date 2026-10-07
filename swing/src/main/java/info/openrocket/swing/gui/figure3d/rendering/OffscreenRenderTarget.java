@@ -32,6 +32,7 @@ import static org.lwjgl.opengl.GL33.glBindFramebuffer;
 import static org.lwjgl.opengl.GL33.glBindRenderbuffer;
 import static org.lwjgl.opengl.GL33.glBlitFramebuffer;
 import static org.lwjgl.opengl.GL33.glCheckFramebufferStatus;
+import static org.lwjgl.opengl.GL33.glClear;
 import static org.lwjgl.opengl.GL33.glDeleteFramebuffers;
 import static org.lwjgl.opengl.GL33.glDeleteRenderbuffers;
 import static org.lwjgl.opengl.GL33.glDeleteTextures;
@@ -41,6 +42,7 @@ import static org.lwjgl.opengl.GL33.glGenFramebuffers;
 import static org.lwjgl.opengl.GL33.glGenRenderbuffers;
 import static org.lwjgl.opengl.GL33.glGenTextures;
 import static org.lwjgl.opengl.GL33.glGetInteger;
+import static org.lwjgl.opengl.GL33.glRenderbufferStorage;
 import static org.lwjgl.opengl.GL33.glRenderbufferStorageMultisample;
 
 /**
@@ -59,6 +61,7 @@ public class OffscreenRenderTarget implements GpuResource {
 	private int multisampleFramebufferId;
 	private int multisampleColorRenderbufferId;
 	private int multisampleDepthRenderbufferId;
+	private int isolatedDepthRenderbufferId;
 	private int width;
 	private int height;
 	private int requestedSamples;
@@ -88,6 +91,33 @@ public class OffscreenRenderTarget implements GpuResource {
 
 	public void unbindResolved() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	/**
+	 * Draws into the resolved color attachment with a fresh, temporary depth buffer.
+	 *
+	 * <p>This allows overlay geometry to depth-test against itself while remaining in
+	 * front of the main scene. The scene depth texture is detached without being
+	 * cleared and restored after drawing, so later effects still see the original
+	 * scene depth.</p>
+	 *
+	 * @param drawing rendering operation that should use the isolated depth buffer
+	 */
+	public void withIsolatedDepthBuffer(Runnable drawing) {
+		bindResolved();
+		ensureIsolatedDepthBuffer();
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER,
+				isolatedDepthRenderbufferId);
+		try {
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+				throw new IllegalStateException("Failed to attach isolated overlay depth buffer");
+			}
+			glClear(GL_DEPTH_BUFFER_BIT);
+			drawing.run();
+		} finally {
+			bindResolved();
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureId, 0);
+		}
 	}
 
 	public int getColorTextureId() {
@@ -204,6 +234,20 @@ public class OffscreenRenderTarget implements GpuResource {
 				"OffscreenRenderTarget msaa depth");
 	}
 
+	private void ensureIsolatedDepthBuffer() {
+		if (isolatedDepthRenderbufferId != 0) {
+			return;
+		}
+
+		isolatedDepthRenderbufferId = glGenRenderbuffers();
+		glBindRenderbuffer(GL_RENDERBUFFER, isolatedDepthRenderbufferId);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.RENDERBUFFER,
+				isolatedDepthRenderbufferId, "OffscreenRenderTarget isolated overlay depth");
+		GLErrors.check("isolated overlay depth buffer creation");
+	}
+
 	private void resolveMultisampleAttachments() {
 		if (activeSamples <= 1 || multisampleFramebufferId == 0 || framebufferId == 0) {
 			return;
@@ -247,6 +291,12 @@ public class OffscreenRenderTarget implements GpuResource {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.RENDERBUFFER, multisampleDepthRenderbufferId);
 			glDeleteRenderbuffers(multisampleDepthRenderbufferId);
 			multisampleDepthRenderbufferId = 0;
+		}
+		if (isolatedDepthRenderbufferId != 0) {
+			GpuResourceTracker.release(GpuResourceTracker.ResourceType.RENDERBUFFER,
+					isolatedDepthRenderbufferId);
+			glDeleteRenderbuffers(isolatedDepthRenderbufferId);
+			isolatedDepthRenderbufferId = 0;
 		}
 		if (framebufferId != 0) {
 			GpuResourceTracker.release(GpuResourceTracker.ResourceType.FRAMEBUFFER, framebufferId);

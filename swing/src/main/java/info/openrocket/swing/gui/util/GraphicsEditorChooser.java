@@ -4,10 +4,9 @@ import java.awt.Component;
 import java.io.File;
 import java.util.Optional;
 
-import javax.swing.JFileChooser;
-
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 /**
  * Shared helper for selecting an external graphics editor executable.
@@ -18,14 +17,15 @@ public final class GraphicsEditorChooser {
 	}
 
 	public static Optional<String> chooseEditor(Component parentComponent) {
-		JFileChooser chooser = new JFileChooser();
+		// The native macOS file dialog lets application bundles be selected like files
+		NativeFileChooser chooser = new NativeFileChooser();
 		File initialDirectory = determineInitialDirectory();
 		if (initialDirectory != null) {
 			chooser.setCurrentDirectory(initialDirectory);
 		}
 
 		int action = chooser.showOpenDialog(parentComponent);
-		if (action == JFileChooser.APPROVE_OPTION) {
+		if (action == NativeFileChooser.APPROVE_OPTION) {
 			File selected = chooser.getSelectedFile();
 			return Optional.ofNullable(selected)
 					.map(File::getAbsolutePath)

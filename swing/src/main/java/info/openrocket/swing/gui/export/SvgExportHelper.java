@@ -12,8 +12,8 @@ import info.openrocket.swing.gui.components.SVGOptionPanel;
 import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.Component;
 import java.io.File;
@@ -41,15 +41,15 @@ public final class SvgExportHelper {
 		}
 
 		// Then: plain file chooser
-		JFileChooser chooser = new JFileChooser();
+		NativeFileChooser chooser = new NativeFileChooser();
 		chooser.setFileFilter(FileHelper.SVG_FILTER);
 		chooser.setCurrentDirectory(prefs.getDefaultDirectory());
 		chooser.setSelectedFile(suggestDefaultFile(component));
-		if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(parent)) {
+		if (NativeFileChooser.APPROVE_OPTION != chooser.showSaveDialog(parent)) {
 			return;
 		}
 		File target = FileHelper.forceExtension(chooser.getSelectedFile(), "svg");
-		if (!FileHelper.confirmWrite(target, parent)) {
+		if (!FileHelper.confirmWrite(target, chooser.getSelectedFile(), parent)) {
 			return;
 		}
 

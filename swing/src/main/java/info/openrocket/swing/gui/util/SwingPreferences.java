@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -117,6 +118,10 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	private final Map<String, Set<String>> cachedNodeKeys = new HashMap<>();
 
+	// The design figure asks for the default component colors on every paint, and looking them up in the
+	// preference store each time was a notable part of the painting time
+	private final Map<Class<? extends RocketComponent>, ORColor> defaultColorCache = new ConcurrentHashMap<>();
+
 
 	public SwingPreferences() {
 		Preferences root = Preferences.userRoot();
@@ -149,6 +154,7 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	public void updateColors() {
 		fillDefaultComponentColors();
+		clearDefaultColorCache();
 	}
 
 	public String getNodename() {
@@ -187,6 +193,7 @@ public class SwingPreferences extends ApplicationPreferences {
 			}
 			PREFNODE = root.node(NODENAME);
 			cachedNodeKeys.clear();
+			clearDefaultColorCache();
 			UnitGroup.resetDefaultUnits();
 			storeDefaultUnits();
 			log.info("Cleared preferences");
@@ -199,8 +206,23 @@ public class SwingPreferences extends ApplicationPreferences {
 	 * Store the current OpenRocket version into the preferences to allow for preferences migration.
 	 */
 	private void storeVersion() {
-		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
-		cacheKeyAdded(PREFNODE, "OpenRocketVersion");
+		if (putIfChanged(PREFNODE, "OpenRocketVersion", BuildProperties.getVersion())) {
+			cacheKeyAdded(PREFNODE, "OpenRocketVersion");
+		}
+	}
+
+	/**
+	 * Store a value unless it is already stored. Writing to the preference store is slow on some platforms
+	 * (about a millisecond on macOS), even when the value does not change, while reading is cheap.
+	 *
+	 * @return true if the value was written
+	 */
+	private static boolean putIfChanged(Preferences node, String key, String value) {
+		if (value.equals(node.get(key, null))) {
+			return false;
+		}
+		node.put(key, value);
+		return true;
 	}
 
 	/**
@@ -557,12 +579,25 @@ public class SwingPreferences extends ApplicationPreferences {
 		putBoolean(UPDATE_ROCKET_WHILE_DRAGGING_POINT, update);
 	}
 
-	// getDefaultColor is in ApplicationPreferences
+	@Override
+	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
+		ORColor color = defaultColorCache.computeIfAbsent(c, super::getDefaultColor);
+		// ORColor is mutable, so callers get their own copy
+		return new ORColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+	}
 
 	public final void setDefaultColor(Class<? extends RocketComponent> c, ORColor color) {
 		if (color == null)
 			return;
 		putString("componentColors", c.getSimpleName(), stringifyColor(color));
+		clearDefaultColorCache();
+	}
+
+	/**
+	 * Forget the cached default component colors, for when the stored preferences were replaced.
+	 */
+	void clearDefaultColorCache() {
+		defaultColorCache.clear();
 	}
 
 	/**
@@ -618,8 +653,10 @@ public class SwingPreferences extends ApplicationPreferences {
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
-		getWindowsPreferences().put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
-		storeVersion();
+		// Called for every window move event, which includes showing a window at its stored position
+		if (putIfChanged(getWindowsPreferences(), "position." + c.getCanonicalName(), "" + p.x + "," + p.y)) {
+			storeVersion();
+		}
 	}
 
 	/**
@@ -670,13 +707,15 @@ public class SwingPreferences extends ApplicationPreferences {
 	}
 	
 	public void setWindowSize(Class<?> c, Dimension d) {
-		getWindowsPreferences().put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
-		storeVersion();
+		if (putIfChanged(getWindowsPreferences(), "size." + c.getCanonicalName(), "" + d.width + "," + d.height)) {
+			storeVersion();
+		}
 	}
 	
 	public void setWindowMaximized(Class<?> c) {
-		getWindowsPreferences().put("size." + c.getCanonicalName(), "max");
-		storeVersion();
+		if (putIfChanged(getWindowsPreferences(), "size." + c.getCanonicalName(), "max")) {
+			storeVersion();
+		}
 	}
 
 	public Integer getTableColumnWidth(String keyName, int columnIdx) {

@@ -24,7 +24,7 @@ import static org.lwjgl.opengl.GL33.glUniform1i;
 
 /**
  * Renders opaque geometry first, then translucent geometry with weighted blended
- * order-independent transparency, and finally opaque objects marked "render on top".
+ * order-independent transparency, and finally objects marked "render on top".
  *
  * <p>The translucent pass accumulates fragments on the GPU. It therefore remains stable
  * when objects intersect or the camera moves through a point where a CPU depth sort would
@@ -146,20 +146,23 @@ public class GeometryPass implements RenderPass {
 		mainShader.use();
 		glDisable(GL_BLEND);
 		glDepthMask(true);
+		renderOriginAxes(scene);
 		glDisable(GL_DEPTH_TEST);
 		try {
 			// Opaque texture coverage was excluded from WBOIT. Draw it last for the
 			// (currently unused) combination of transparency and render-on-top.
 			setTransparencyOutputMode(TransparencyOutputMode.OPAQUE_TEXTURE_FRAGMENTS);
 			for (SceneObject object : scene.getObjects()) {
-				if (object.isRenderOnTop() && mayProduceOpaqueTextureFragments(object)) {
+				if (object.isRenderOnTop() && !object.isOriginAxis()
+						&& mayProduceOpaqueTextureFragments(object)) {
 					renderTransparentObject(object);
 				}
 			}
 
 			setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 			for (SceneObject object : scene.getObjects()) {
-				if (object.isRenderOnTop() && !TransparencyPolicy.isTransparent(object, config)) {
+				if (object.isRenderOnTop() && !object.isOriginAxis()
+						&& !TransparencyPolicy.isTransparent(object, config)) {
 					renderObject(object, false);
 				}
 			}
@@ -167,6 +170,33 @@ public class GeometryPass implements RenderPass {
 			setTransparencyOutputMode(TransparencyOutputMode.SCENE_COLOR);
 			glEnable(GL_DEPTH_TEST);
 		}
+	}
+
+	/**
+	 * Renders the origin axes over the scene while retaining normal depth testing
+	 * between the three intersecting arrow meshes.
+	 */
+	private void renderOriginAxes(SceneView scene) {
+		boolean hasOriginAxes = false;
+		for (SceneObject object : scene.getObjects()) {
+			if (object.isRenderOnTop() && object.isOriginAxis()) {
+				hasOriginAxes = true;
+				break;
+			}
+		}
+		if (!hasOriginAxes) {
+			return;
+		}
+
+		renderTarget.withIsolatedDepthBuffer(() -> {
+			glEnable(GL_DEPTH_TEST);
+			for (SceneObject object : scene.getObjects()) {
+				if (object.isRenderOnTop() && object.isOriginAxis()
+						&& !TransparencyPolicy.isTransparent(object, config)) {
+					renderObject(object, false);
+				}
+			}
+		});
 	}
 
 	private void renderTransparentObject(SceneObject object) {

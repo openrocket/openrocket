@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import info.openrocket.core.appearance.DecalImage;
@@ -56,7 +55,7 @@ public abstract class ExportDecalAction {
 		int returnVal = openChooserDialog(parent, chooser, selectedDecals);
 
 		// Cancelled file chooser
-		if (returnVal != JFileChooser.APPROVE_OPTION) {
+		if (returnVal != SaveFileChooser.APPROVE_OPTION) {
 			return;
 		}
 
@@ -77,7 +76,7 @@ public abstract class ExportDecalAction {
 		return chooser.showOpenDialog(parent);
 	}
 	
-	static boolean handleApproval(Window parent, JFileChooser chooser, List<DecalImage> selectedDecals) {
+	static boolean handleApproval(Window parent, SaveFileChooser chooser, List<DecalImage> selectedDecals) {
 		File selectedFile = chooser.getSelectedFile();
 		if (selectedDecals.size() == 1) {
 			DecalImage decal = selectedDecals.get(0);
@@ -86,7 +85,7 @@ public abstract class ExportDecalAction {
 				file = new File(chooser.getCurrentDirectory(), new File(decal.getName()).getName());
 			}
 			Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
-			if (!FileHelper.confirmWrite(file, parent)) {
+			if (!FileHelper.confirmWrite(file, selectedFile, parent)) {
 				return false;
 			}
 			return export(parent, decal, file);

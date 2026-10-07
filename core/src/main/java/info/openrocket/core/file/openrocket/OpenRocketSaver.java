@@ -41,6 +41,9 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.extension.SimulationExtension;
+import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
+import info.openrocket.core.simulation.montecarlo.UncertaintySpec;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Config;
@@ -422,6 +425,8 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</conditions>");
 
+		saveLandingDispersionSettings(simulation.getLandingDispersionSettings());
+
 		Map<String, PlotAppearance> plotAppearances = simulation.getPlotAppearances();
 		if (!plotAppearances.isEmpty()) {
 			// Persist per-series appearance tweaks (color and/or line style).
@@ -637,6 +642,27 @@ public class OpenRocketSaver extends RocketSaver {
 			// Unknown type
 			log.error("Unknown configuration value type {}  value={}", value.getClass(), value);
 		}
+	}
+
+	private void saveLandingDispersionSettings(MonteCarloSettings settings) throws IOException {
+		if (settings == null) {
+			return;
+		}
+
+		writeln("<landingdispersion runs=\"" + settings.getRunCount() + "\" seed=\""
+				+ settings.getSeed() + "\">");
+		indent++;
+		for (MonteCarloParameter parameter : MonteCarloParameter.values()) {
+			UncertaintySpec uncertainty = settings.getUncertainties().get(parameter);
+			if (uncertainty == null) {
+				continue;
+			}
+			writeln("<uncertainty parameter=\"" + enumToXMLName(parameter)
+					+ "\" distribution=\"" + enumToXMLName(uncertainty.distribution())
+					+ "\" spread=\"" + Double.toString(uncertainty.spread()) + "\"/>");
+		}
+		indent--;
+		writeln("</landingdispersion>");
 	}
 	
 	private void saveFlightDataBranch(FlightDataBranch branch)

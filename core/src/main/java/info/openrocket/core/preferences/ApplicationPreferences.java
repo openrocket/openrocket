@@ -11,6 +11,7 @@ import java.util.Set;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.Databases;
+import info.openrocket.core.document.SaveSimulationDataMode;
 import info.openrocket.core.file.wavefrontobj.Axis;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
@@ -126,6 +127,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String SHOW_MARKERS = "ShowMarkers";
 	private static final String SHOW_RASAERO_FORMAT_WARNING = "ShowRASAeroFormatWarning";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRockSimFormatWarning";
+	private static final String SAVE_SIMULATION_DATA_MODE = "SaveSimulationDataMode";
 	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
 	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 
@@ -489,6 +491,17 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	public final void setShowRockSimFormatWarning(boolean check) {
 		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
+	}
+
+	/**
+	 * Returns which simulated data to store when saving a design, or whether to ask the user.
+	 */
+	public final SaveSimulationDataMode getSaveSimulationDataMode() {
+		return this.getEnum(SAVE_SIMULATION_DATA_MODE, SaveSimulationDataMode.ASK);
+	}
+
+	public final void setSaveSimulationDataMode(SaveSimulationDataMode mode) {
+		this.putEnum(SAVE_SIMULATION_DATA_MODE, mode);
 	}
 
 	public final boolean getExportUserDirectories() {

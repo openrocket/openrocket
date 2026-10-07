@@ -1,0 +1,160 @@
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.JavaCompile
+
+import java.util.jar.JarFile
+
+def universalJar = tasks.named('shadowJar')
+def platforms = [
+        'windows-x64'  : [lwjgl: 'windows/x64/', sqlite: ['Windows/x86_64/'],
+                          jna: 'win32-x86-64/', flatlaf: 'flatlaf-windows-x86_64.dll'],
+        'windows-arm64': [lwjgl: 'windows/arm64/', sqlite: ['Windows/aarch64/'],
+                          jna: 'win32-aarch64/', flatlaf: 'flatlaf-windows-arm64.dll'],
+        'macos-x64'    : [lwjgl: 'macos/x64/', sqlite: ['Mac/x86_64/'],
+                          jna: 'darwin-x86-64/', flatlaf: 'libflatlaf-macos-x86_64.dylib'],
+        'macos-arm64'  : [lwjgl: 'macos/arm64/', sqlite: ['Mac/aarch64/'],
+                          jna: 'darwin-aarch64/', flatlaf: 'libflatlaf-macos-arm64.dylib'],
+        'linux-x64'    : [lwjgl: 'linux/x64/', sqlite: ['Linux/x86_64/', 'Linux-Musl/x86_64/'],
+                          jna: 'linux-x86-64/', flatlaf: 'libflatlaf-linux-x86_64.so'],
+        'linux-arm64'  : [lwjgl: 'linux/arm64/', sqlite: ['Linux/aarch64/', 'Linux-Musl/aarch64/'],
+                          jna: 'linux-aarch64/', flatlaf: 'libflatlaf-linux-arm64.so'],
+]
+
+def nativeRoots = ['windows/', 'macos/', 'linux/', 'freebsd/', 'org/sqlite/native/',
+                   'com/sun/jna/', 'com/formdev/flatlaf/natives/']
+def isNativeResource = { String path ->
+    nativeRoots.any { path.startsWith(it) } &&
+            ['.dll', '.so', '.dylib', '.jnilib'].any { path.endsWith(it) }
+}
+def belongsToPlatform = { String path, platform ->
+    if (path.startsWith('org/sqlite/native/')) {
+        return platform.sqlite.any { path.startsWith("org/sqlite/native/${it}") }
+    }
+    if (path.startsWith('com/sun/jna/')) {
+        return path.startsWith("com/sun/jna/${platform.jna}")
+    }
+    if (path.startsWith('com/formdev/flatlaf/natives/')) {
+        return path == "com/formdev/flatlaf/natives/${platform.flatlaf}"
+    }
+    return path.startsWith(platform.lwjgl)
+}
+
+// Derive variants from the merged JAR so classes, resources, services and licenses
+// are identical regardless of the build host.
+def platformJars = platforms.collectEntries { target, platform ->
+    def taskName = 'shadowJar' + target.split('-').collect { it.capitalize() }.join()
+    def task = tasks.register(taskName, Jar) {
+        group = 'build'
+        description = "Builds the ${target} desktop distribution JAR."
+        dependsOn(universalJar)
+        archiveBaseName = 'OpenRocket'
+        archiveVersion = project.version.toString()
+        archiveClassifier = target
+        includeEmptyDirs = false
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+        manifest.from(universalJar.get().manifest)
+
+        from({ zipTree(universalJar.get().archiveFile.get().asFile) }) {
+            exclude 'META-INF/MANIFEST.MF'
+            eachFile { details ->
+                if (isNativeResource(details.path) && !belongsToPlatform(details.path, platform)) {
+                    details.exclude()
+                }
+            }
+        }
+    }
+    [(target): task]
+}
+
+tasks.register('distributionJars') {
+    group = 'build'
+    description = 'Builds the universal JAR and all six desktop installer JARs.'
+    dependsOn(universalJar, platformJars.values())
+}
+
+tasks.register('verifyDistributionJars') {
+    group = 'verification'
+    description = 'Checks native selection and preservation of the merged JAR contents.'
+    dependsOn('distributionJars')
+    inputs.file(universalJar.flatMap { it.archiveFile })
+    inputs.files(platformJars.values().collect { it.flatMap { jar -> jar.archiveFile } })
+
+    doLast {
+        new JarFile(universalJar.get().archiveFile.get().asFile).withCloseable { original ->
+            def originalEntries = original.entries().findAll { !it.directory }
+                    .collectEntries { [(it.name): it.crc] }
+            if (originalEntries.keySet().any { it.startsWith('org/sqlite/native/Linux-Android/') }) {
+                throw new GradleException('Android natives found in the universal desktop JAR.')
+            }
+            platformJars.each { target, task ->
+                def platform = platforms[target]
+                def expected = originalEntries.findAll { name, crc ->
+                    name != 'META-INF/MANIFEST.MF' &&
+                            (!isNativeResource(name) || belongsToPlatform(name, platform))
+                }
+                new JarFile(task.get().archiveFile.get().asFile).withCloseable { variant ->
+                    def actual = variant.entries().findAll { !it.directory && it.name != 'META-INF/MANIFEST.MF' }
+                            .collectEntries { [(it.name): it.crc] }
+                    if (actual != expected || variant.manifest.mainAttributes != original.manifest.mainAttributes) {
+                        throw new GradleException("${target} JAR differs from the expected distribution contents.")
+                    }
+                    for (String prefix : [platform.lwjgl, "com/sun/jna/${platform.jna}",
+                                          'com/formdev/flatlaf/natives/'] +
+                            platform.sqlite.collect { "org/sqlite/native/${it}" }) {
+                        if (!actual.keySet().any { isNativeResource(it) && it.startsWith(prefix) }) {
+                            throw new GradleException("${target} JAR is missing natives under ${prefix}.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+def compileSmokeTest = tasks.register('compileDistributionSmokeTest', JavaCompile) {
+    dependsOn(universalJar)
+    source = fileTree('swing/src/distributionTest/java') { include '**/*.java' }
+    classpath = files(universalJar.flatMap { it.archiveFile })
+    destinationDirectory = layout.buildDirectory.dir('classes/distributionTest')
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+def hostTarget = providers.provider {
+    def os = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+    def arch = System.getProperty('os.arch').toLowerCase(Locale.ROOT)
+    def system = os.contains('windows') ? 'windows' : os.contains('mac') ? 'macos' : 'linux'
+    def architecture = arch in ['aarch64', 'arm64'] ? 'arm64' : 'x64'
+    def target = "${system}-${architecture}".toString()
+    if (!(os.contains('windows') || os.contains('mac') || os.contains('linux')) ||
+            !(arch in ['aarch64', 'arm64', 'amd64', 'x86_64'])) {
+        throw new GradleException('Distribution smoke tests require an x64 or ARM64 desktop installer platform.')
+    }
+    target
+}
+def selectedTarget = providers.gradleProperty('distributionTarget').orElse(hostTarget)
+def selectedJarTask = selectedTarget.map { target ->
+    if (!platformJars.containsKey(target)) {
+        throw new GradleException("Unknown distribution target: ${target}")
+    }
+    platformJars[target]
+}
+
+def smokeTests = [universal: universalJar, platform: selectedJarTask]
+smokeTests.each { name, jarTask ->
+    tasks.register("smoke${name.capitalize()}Distribution", JavaExec) {
+        group = 'verification'
+        dependsOn(compileSmokeTest, jarTask)
+        // Do not add runtimeClasspath: it could hide missing packaged classes or natives.
+        classpath = files(compileSmokeTest.flatMap { it.destinationDirectory },
+                name == 'universal' ? universalJar.flatMap { it.archiveFile } :
+                        selectedJarTask.flatMap { it.flatMap { jar -> jar.archiveFile } })
+        mainClass = 'info.openrocket.distribution.DistributionSmokeTest'
+        systemProperty 'java.awt.headless', 'true'
+    }
+}
+
+tasks.register('distributionSmokeTest') {
+    group = 'verification'
+    description = 'Smoke-tests the universal JAR and the current desktop platform JAR.'
+    dependsOn('smokeUniversalDistribution', 'smokePlatformDistribution')
+}

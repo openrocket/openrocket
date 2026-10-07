@@ -2,12 +2,12 @@ package info.openrocket.swing.gui.dialogs;
 
 import info.openrocket.swing.gui.util.MessageWidthUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.DecalNotFoundException;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.Component;
 import java.io.File;
@@ -34,19 +34,19 @@ public abstract class DecalNotFoundDialog {
         String message = MessageWidthUtil.setMessageWidth(decex.getMessage(), 400);
         int resultYesNo = JOptionPane.showConfirmDialog(parent, message,
                 trans.get("ExportDecalDialog.source.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        int resultFileChooser = JFileChooser.CANCEL_OPTION;
+        int resultFileChooser = NativeFileChooser.CANCEL_OPTION;
 
         // Look for the file
         if (resultYesNo == JOptionPane.YES_OPTION) {
-            JFileChooser chooser = new JFileChooser();
+            NativeFileChooser chooser = new NativeFileChooser();
             chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
             resultFileChooser = chooser.showOpenDialog(parent);
-            if (resultFileChooser == JFileChooser.APPROVE_OPTION) {
+            if (resultFileChooser == NativeFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
                 decex.getDecal().setDecalFile(file);
                 Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
             }
         }
-        return (resultYesNo == JOptionPane.YES_OPTION) && (resultFileChooser == JFileChooser.APPROVE_OPTION);
+        return (resultYesNo == JOptionPane.YES_OPTION) && (resultFileChooser == NativeFileChooser.APPROVE_OPTION);
     }
 }

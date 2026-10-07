@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,6 +57,16 @@ class CameraControllerTest {
 		context.controller.focusOnRocket();
 
 		assertEquals(sideDistance, context.camera.getDistance(), sideDistance * 0.0001f);
+	}
+
+	@Test
+	void explicitCameraDistanceCanDisableFitTracking() {
+		TestContext context = createContext(new BoundingBox(
+				new Coordinate(0.0, -1.0, -0.5), new Coordinate(10.0, 1.0, 0.5)));
+		context.controller.focusOnRocket();
+		context.controller.setZoomFitting(false);
+
+		assertFalse(context.controller.isZoomFitting());
 	}
 
 	private static TestContext createContext(BoundingBox initialBounds) {

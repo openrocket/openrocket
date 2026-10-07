@@ -33,47 +33,49 @@ jobs:
 
     steps:
       - name: Checkout repository and submodules
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           submodules: 'recursive'
       - name: Setup JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: '17'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - name: Execute Gradle build
         run: ${{ matrix.gradle_command }} ${{ matrix.gradle_tasks }}
+      - name: Smoke-test packaged distribution JARs
+        run: ${{ matrix.gradle_command }} distributionSmokeTest
       # If wanting to serialize all the engines during build
       #        run: ./gradlew serializeEnginesDist build dist
       - name: Upload build reports
         if: always() && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: build-reports
           path: build/reports/
       - name: Upload Checkstyle reports
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: checkstyle-reports
           path: '**/build/reports/checkstyle/**'
       - name: Upload SpotBugs reports
         if: always() && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: spotbugs-reports
           path: '**/build/reports/spotbugs/**'
       - name: Upload Coverage HTML
         if: always() && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-html
           path: '**/build/reports/jacoco/test/html/**'
       - name: Upload Artifact
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: openrocket_build_${{ github.run_number }}
           path: ${{github.workspace}}/build/libs/OpenRocket*.jar

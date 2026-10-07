@@ -137,6 +137,14 @@ public interface SceneView {
 	default void updateRocketPivotFromCamera() {}
 
 	/**
+	 * Copies the world-space pivot currently used for interactive rocket rotation.
+	 *
+	 * @param destination the destination vector, or null to allocate one
+	 * @return the current rocket rotation pivot
+	 */
+	Vector3f getRocketRotationPivot(Vector3f destination);
+
+	/**
 	 * Transforms a point from rocket-local world space through the current rocket drag rotation.
 	 *
 	 * @param point the point to transform

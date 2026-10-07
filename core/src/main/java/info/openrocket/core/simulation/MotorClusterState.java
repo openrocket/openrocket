@@ -114,6 +114,25 @@ public class MotorClusterState {
 		return this.motor;
 	}
 
+	/**
+	 * Return the number of physical motors represented by this cluster state,
+	 * including repeated component-assembly instances.
+	 *
+	 * @return physical motor count
+	 */
+	public int getMotorCount() {
+		return motorCount;
+	}
+
+	/**
+	 * Return the nozzle exit diameter configured for this motor cluster.
+	 *
+	 * @return nozzle exit diameter in metres, or zero when unknown
+	 */
+	public double getNozzleExitDiameter() {
+		return config.getNozzleExitDiameter();
+	}
+
 	double getCutOffTime() {
 		return this.cutoffTime;
 	}
@@ -136,6 +155,17 @@ public class MotorClusterState {
 		} else {
 			return 0.0;
 		}
+	}
+
+	/**
+	 * Return whether this motor cluster is between ignition and burnout.  This state
+	 * is preferable to testing instantaneous thrust because thrust curves normally
+	 * contain zero-valued endpoints while the exhaust flow is transitioning.
+	 *
+	 * @return {@code true} while the motor cluster is thrusting
+	 */
+	public boolean isThrusting() {
+		return currentState.isThrusting();
 	}
 
 	public boolean isPlugged() {

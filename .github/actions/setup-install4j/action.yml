@@ -1,0 +1,125 @@
+name: Set up install4j
+description: >-
+  Downloads the pinned install4j version for the runner's OS, verifies its checksum and registers the license.
+  Keep INSTALL4J_VERSION in line with the install4j version the project file is saved with.
+
+inputs:
+  license-key:
+    description: The install4j license key.
+    required: true
+
+outputs:
+  compiler:
+    description: Path to the install4jc command-line compiler.
+    value: ${{ steps.linux.outputs.compiler || steps.macos.outputs.compiler || steps.windows.outputs.compiler }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install install4j (Linux)
+      id: linux
+      if: runner.os == 'Linux'
+      shell: bash
+      env:
+        INSTALL4J_VERSION: '12.0.5'
+        INSTALL4J_DOWNLOAD_SHA256: '5ed89ffd644888a7b82ce918da7bd227811505e1e002d53bc68de21fa6179df6'
+      run: |
+        version_for_url=${INSTALL4J_VERSION//./_}
+        archive="$RUNNER_TEMP/install4j-$INSTALL4J_VERSION.tar.gz"
+
+        curl --fail --silent --show-error --location \
+          --output "$archive" "https://download.ej-technologies.com/install4j/install4j_linux-x64_$version_for_url.tar.gz"
+        actual=$(sha256sum "$archive" | awk '{ print $1 }')
+        if [ "$actual" != "$INSTALL4J_DOWNLOAD_SHA256" ]; then
+          echo "::error::install4j archive checksum mismatch: expected $INSTALL4J_DOWNLOAD_SHA256, got $actual."
+          exit 1
+        fi
+
+        tar -xzf "$archive" -C "$RUNNER_TEMP"
+        compiler="$RUNNER_TEMP/install4j$INSTALL4J_VERSION/bin/install4jc"
+        if [ ! -x "$compiler" ]; then
+          echo "::error::install4jc was not found in the downloaded install4j archive."
+          exit 1
+        fi
+        echo "compiler=$compiler" >> "$GITHUB_OUTPUT"
+
+    - name: Install install4j (macOS)
+      id: macos
+      if: runner.os == 'macOS'
+      shell: bash
+      env:
+        INSTALL4J_VERSION: '12.0.5'
+        INSTALL4J_DOWNLOAD_SHA256: 'ba83037d61ae2c54f8ef15d44b7552b89df72406cb7c17ee5a81411dddd2f3fa'
+      run: |
+        version_for_url=${INSTALL4J_VERSION//./_}
+        dmg="$RUNNER_TEMP/install4j-$INSTALL4J_VERSION.dmg"
+        mount="$RUNNER_TEMP/install4j-mount"
+
+        curl --fail --silent --show-error --location \
+          --output "$dmg" "https://download.ej-technologies.com/install4j/install4j_macos_$version_for_url.dmg"
+        actual=$(shasum -a 256 "$dmg" | awk '{ print $1 }')
+        if [ "$actual" != "$INSTALL4J_DOWNLOAD_SHA256" ]; then
+          echo "::error::install4j archive checksum mismatch: expected $INSTALL4J_DOWNLOAD_SHA256, got $actual."
+          exit 1
+        fi
+
+        mkdir -p "$mount"
+        hdiutil attach "$dmg" -nobrowse -noverify -noautoopen -readonly -mountpoint "$mount" -quiet
+        ditto "$mount/install4j.app" "$RUNNER_TEMP/install4j.app"
+        hdiutil detach "$mount" -quiet
+
+        compiler="$RUNNER_TEMP/install4j.app/Contents/Resources/app/bin/install4jc"
+        if [ ! -x "$compiler" ]; then
+          echo "::error::install4jc was not found in the downloaded install4j image."
+          exit 1
+        fi
+        echo "compiler=$compiler" >> "$GITHUB_OUTPUT"
+
+    - name: Install install4j (Windows)
+      id: windows
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        INSTALL4J_VERSION: '12.0.5'
+        INSTALL4J_DOWNLOAD_SHA256: 'dedc8313bfab2545b88f3a1c6c852f567bb6e8e193fba8b9af2d8e3ea53bb362'
+      run: |
+        $versionForUrl = $env:INSTALL4J_VERSION.Replace('.', '_')
+        $archive = Join-Path $env:RUNNER_TEMP "install4j-$($env:INSTALL4J_VERSION).zip"
+        $installDirectory = Join-Path $env:RUNNER_TEMP "install4j-$($env:INSTALL4J_VERSION)"
+        $downloadUrl = "https://download.ej-technologies.com/install4j/install4j_windows-x64_$versionForUrl.zip"
+
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $archive
+        $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualHash -ne $env:INSTALL4J_DOWNLOAD_SHA256) {
+          throw "install4j archive checksum mismatch: expected $($env:INSTALL4J_DOWNLOAD_SHA256), got $actualHash."
+        }
+
+        Expand-Archive -Path $archive -DestinationPath $installDirectory
+        $compiler = Get-ChildItem -Path $installDirectory -Filter 'install4jc.exe' -File -Recurse |
+          Select-Object -First 1
+        if ($null -eq $compiler) {
+          throw 'install4jc.exe was not found in the downloaded install4j archive.'
+        }
+
+        "compiler=$($compiler.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+    - name: Register install4j license
+      if: runner.os != 'Windows'
+      shell: bash
+      env:
+        INSTALL4J_LICENSE_KEY: ${{ inputs.license-key }}
+        INSTALL4J_COMPILER: ${{ steps.linux.outputs.compiler || steps.macos.outputs.compiler }}
+      run: |
+        "$INSTALL4J_COMPILER" -L "$INSTALL4J_LICENSE_KEY"
+
+    - name: Register install4j license
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        INSTALL4J_LICENSE_KEY: ${{ inputs.license-key }}
+        INSTALL4J_COMPILER: ${{ steps.windows.outputs.compiler }}
+      run: |
+        & $env:INSTALL4J_COMPILER -L $env:INSTALL4J_LICENSE_KEY
+        if ($LASTEXITCODE -ne 0) {
+          throw "install4j license registration failed with code $LASTEXITCODE."
+        }

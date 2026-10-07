@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Generates a simple billboard cross for the camera point-of-interest marker.
+ * Generates a simple billboard cross for the active rotation-pivot marker.
  */
 public final class CameraPointOfInterestGenerator {
 

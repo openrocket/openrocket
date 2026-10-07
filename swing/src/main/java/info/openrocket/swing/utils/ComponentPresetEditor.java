@@ -16,7 +16,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -39,6 +38,7 @@ import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
@@ -324,11 +324,11 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 	 *         file are written to the table model.
 	 */
 	private boolean openComponentFile() {
-		final JFileChooser chooser = new JFileChooser();
+		final NativeFileChooser chooser = new NativeFileChooser();
 		chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
 		chooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
 		chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
-		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
 		if (editContext.getLastDirectory() != null) {
 			chooser.setCurrentDirectory(editContext.getLastDirectory());
 		}
@@ -337,7 +337,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		}
 		
 		int option = chooser.showOpenDialog(ComponentPresetEditor.this);
-		if (option != JFileChooser.APPROVE_OPTION) {
+		if (option != NativeFileChooser.APPROVE_OPTION) {
 			editContext.setOpenedFile(null);
 			log.info(Markers.USER_MARKER, "User decided not to open, option=" + option);
 			return false;
@@ -407,7 +407,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 	private boolean saveAsORC() throws JAXBException, IOException {
 		File file = null;
 		
-		final JFileChooser chooser = new SaveFileChooser();
+		final SaveFileChooser chooser = new SaveFileChooser();
 		chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
 		
 		chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
@@ -419,7 +419,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		}
 		
 		int option = chooser.showSaveDialog(ComponentPresetEditor.this);
-		if (option != JFileChooser.APPROVE_OPTION) {
+		if (option != NativeFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return false;
 		}
@@ -454,7 +454,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			presets.add(preset);
 		}
 		
-		return FileHelper.confirmWrite(file, this) && new OpenRocketComponentSaver().save(file, new ArrayList<>(materials.values()), presets);
+		return FileHelper.confirmWrite(file, chooser.getSelectedFile(), this) && new OpenRocketComponentSaver().save(file, new ArrayList<>(materials.values()), presets);
 	}
 	
 	class OpenedFileContext {

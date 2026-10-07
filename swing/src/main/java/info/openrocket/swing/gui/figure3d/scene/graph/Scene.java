@@ -458,4 +458,15 @@ public class Scene implements SceneView {
 
 		rocketRotationPivot.x = camera.getCenterOfInterest().x;
 	}
+
+	@Override
+	public Vector3f getRocketRotationPivot(Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		Vector3f activePivot = rocketRotationPivotOverridden
+				? overriddenRocketRotationPivot
+				: rocketRotationPivot;
+		return destination.set(activePivot);
+	}
 }

@@ -12,6 +12,7 @@ Welcome to OpenRocket's documentation!
    :caption: Introduction
 
    introduction/overview
+   introduction/gallery
    introduction/features
    introduction/contribute
    introduction/FAQ
@@ -51,6 +52,7 @@ Welcome to OpenRocket's documentation!
    /dev_guide/icons
    /dev_guide/development_guidelines
    /dev_guide/testing_and_debugging
+   /dev_guide/landing_dispersion_analysis
    /dev_guide/motor_database_updates
    /dev_guide/motor_database_schema
    /dev_guide/file_specification

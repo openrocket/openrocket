@@ -2,11 +2,11 @@ package info.openrocket.swing.gui.util;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.JFileChooser;
 import java.awt.Window;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,14 +24,14 @@ public abstract class PreferencesImporter {
      * @return true if the preferences were imported successfully, false otherwise.
      */
     public static boolean importPreferences(Window parent) {
-        final JFileChooser chooser = new JFileChooser();
+        final NativeFileChooser chooser = new NativeFileChooser();
         chooser.setDialogTitle(trans.get("PreferencesImporter.chooser.title"));
         chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
         chooser.setFileFilter(FileHelper.XML_FILTER);
         chooser.setAcceptAllFileFilterUsed(false);
 
         int returnVal = chooser.showOpenDialog(parent);
-        if (returnVal != JFileChooser.APPROVE_OPTION) {
+        if (returnVal != NativeFileChooser.APPROVE_OPTION) {
             log.info("Cancelled import of preferences.");
             return false;
         }
@@ -51,8 +51,9 @@ public abstract class PreferencesImporter {
         try (FileInputStream fis = new FileInputStream(importFile)) {
             Preferences.importPreferences(fis);
 
-            // Ensure units are updated
+            // Ensure units and component colors are updated
             ((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
+            ((SwingPreferences) Application.getPreferences()).clearDefaultColorCache();
 
             log.info("Preferences imported successfully.");
             return true;
