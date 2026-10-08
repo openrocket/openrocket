@@ -34,11 +34,15 @@ public class SceneObject {
 	private PoseProvider poseProvider = null;
 	private Matrix4f baseModelSnapshot = null;   // captured once, the first time we animate
 	private final Matrix4f dynamicTransform = new Matrix4f(); // T*R per-frame
+	private float uniformScale = 1.0f;
 
 	private boolean isSelected = false;					// Whether this object is currently selected
 	private boolean isSelectable = true;				// Whether this object can be selected by the user
 	private boolean renderOnTop = false;				// Whether this object should always render on top of others
+	private boolean renderInForeground = false;		// Whether opaque geometry gets a foreground redraw
+	private boolean foregroundDecoration = false;		// Whether this is omitted from foreground depth reconstruction
 	private boolean originAxis = false;
+	private volatile boolean visible = true;
 	private boolean cleaned = false;
 
 	/**
@@ -171,6 +175,19 @@ public class SceneObject {
 		return renderOnTop;
 	}
 
+	/**
+	 * Returns whether this opaque object is redrawn after ordinary opaque geometry, while
+	 * still remaining behind translucent effects and overlays.
+	 */
+	public boolean isRenderInForeground() {
+		return renderInForeground;
+	}
+
+	/** @return whether this decorative object may be painted behind foreground geometry */
+	public boolean isForegroundDecoration() {
+		return foregroundDecoration;
+	}
+
 	public void setSelectable(boolean selectable) {
 		isSelectable = selectable;
 	}
@@ -190,12 +207,32 @@ public class SceneObject {
 		this.renderOnTop = renderOnTop;
 	}
 
+	/**
+	 * Requests a foreground redraw for opaque geometry. This is intended for a focal object
+	 * that must remain legible through decorative geometry, not for general scene ordering.
+	 */
+	public void setRenderInForeground(boolean renderInForeground) {
+		this.renderInForeground = renderInForeground;
+	}
+
+	public void setForegroundDecoration(boolean foregroundDecoration) {
+		this.foregroundDecoration = foregroundDecoration;
+	}
+
 	public boolean isOriginAxis() {
 		return originAxis;
 	}
 
 	public void setOriginAxis(boolean originAxis) {
 		this.originAxis = originAxis;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 	/**
@@ -218,6 +255,22 @@ public class SceneObject {
 		return modelMatrix;
 	}
 
+	/**
+	 * Applies an absolute uniform visual scale without moving the object's origin. For animated
+	 * objects the scale is also retained in the captured base transform used by later poses.
+	 */
+	public void setUniformScale(float scale) {
+		if (!Float.isFinite(scale) || scale <= 0.0f) {
+			throw new IllegalArgumentException("scale must be finite and positive");
+		}
+		float factor = scale / uniformScale;
+		modelMatrix.scale(factor);
+		if (baseModelSnapshot != null) {
+			baseModelSnapshot.scale(factor);
+		}
+		uniformScale = scale;
+	}
+
 	public Appearance3D getAppearance() {
 		return appearance;
 	}
@@ -233,6 +286,18 @@ public class SceneObject {
 
 	public boolean hasPoseProvider() {
 		return poseProvider != null;
+	}
+
+	/**
+	 * Moves the object's unposed origin. A pose provider keeps applying on top of it, so an
+	 * animated object moves to the new offset on its next posed frame.
+	 */
+	public void setBasePosition(Vector3f position) {
+		if (baseModelSnapshot != null) {
+			baseModelSnapshot.setTranslation(position);
+		} else {
+			modelMatrix.setTranslation(position);
+		}
 	}
 
 	public void clearPoseProvider() {

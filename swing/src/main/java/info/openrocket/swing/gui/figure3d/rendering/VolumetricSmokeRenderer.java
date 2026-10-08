@@ -228,7 +228,8 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 				float size = particleSize(particle, ageRatio);
 				if (size < MIN_VISIBLE_PARTICLE_SIZE) continue;
 
-				float alpha = particleAlpha(ageRatio) * smokeEmitter.getOpacityMultiplier();
+				float alpha = effectiveParticleAlpha(particle, ageRatio, smokeEmitter.getOpacityMultiplier());
+				if (alpha <= 0.0f) continue;
 
 				vertexCount += createParticleBillboard(
 						particle.getPosition(), size, alpha, particle.getColor(), cameraPos);
@@ -253,6 +254,10 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
 		}
 		float fadeProgress = (ageRatio - PARTICLE_FADE_START) / PARTICLE_FADE_SPAN;
 		return PARTICLE_MAX_ALPHA * (1.0f - fadeProgress);
+	}
+
+	static float effectiveParticleAlpha(Particle particle, float ageRatio, float emitterOpacity) {
+		return particleAlpha(ageRatio) * particle.getOpacity() * emitterOpacity;
 	}
 
 	/**

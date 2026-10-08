@@ -22,6 +22,9 @@ public interface SceneView {
 	 */
 	Camera getCamera();
 
+	/** Absolute replay time for animated shaders, or NaN for ordinary wall-clock animation. */
+	default double getAnimationTimeSeconds() { return Double.NaN; }
+
 	/**
 	 * Adds a scene object to the 3D environment.
 	 * The object will be rendered and made available for interaction.
