@@ -25,7 +25,6 @@ import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
-import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
@@ -39,6 +38,14 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 	private static final double STALL_ANGLE = 17.5 * Math.PI / 180;
 	private static final String BARROWMAN_PACKAGE = "info.openrocket.core.aerodynamics.barrowman";
 	private static final String BARROWMAN_SUFFIX = "Calc";
+
+	/**
+	 * Tolerance (in SI metres) below which two airframe diameters or axial positions are
+	 * considered continuous in {@link #checkGeometry}. Coarse enough to ignore sub-manufacturing
+	 * modelling noise, fine enough to flag a real step. Deliberately unit-independent: the
+	 * emitted continuity warnings must not depend on the user's display-unit preference.
+	 */
+	private static final double CONTINUITY_EPSILON = 0.0001; // 0.1 mm
 
 	private final WarningSet ignoreWarningSet = new WarningSet();
 
@@ -161,9 +168,8 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 							}
 						}
 					} else {
-						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0 * sym.getForeRadius())
-								.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit()
-										.toStringUnit(2.0 * prevComp.getAftRadius()))) {
+						if (!MathUtil.equals(2.0 * sym.getForeRadius(), 2.0 * prevComp.getAftRadius(),
+								CONTINUITY_EPSILON)) {
 							actualWarnings.add(Warning.DIAMETER_DISCONTINUITY, prevComp, sym);
 						}
 
@@ -178,8 +184,7 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 						double symXaft = sym.toAbsolute(new Coordinate(comp.getLength(), 0, 0, 0))[0].getX();
 						double prevXaft = prevComp.toAbsolute(new Coordinate(prevComp.getLength(), 0, 0, 0))[0].getX();
 
-						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(symXfore)
-								.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(prevXaft))) {
+						if (!MathUtil.equals(symXfore, prevXaft, CONTINUITY_EPSILON)) {
 							if (symXfore > prevXaft) {
 								actualWarnings.add(Warning.AIRFRAME_GAP, prevComp, sym);
 							} else {
