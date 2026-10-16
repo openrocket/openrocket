@@ -1,15 +1,19 @@
 package info.openrocket.core.file.cad.export;
 
+import info.openrocket.core.file.svg.export.RingSvgExporter;
+import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.CoordinateIF;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A flat part that is cut from sheet stock (a fin), described as one or more
+ * A flat part that is cut from sheet stock (a fin or a centering ring), described as one or more
  * regions in the XY plane and a thickness. All lengths are in millimeters.
  * <p>
  * Outer loops are counter-clockwise and hole loops clockwise (seen from +Z), so the material is always
@@ -34,6 +38,11 @@ public final class FlatPart {
 		SWEEP_LENGTH,
 		TAB_LENGTH,
 		TAB_HEIGHT,
+		OUTER_DIAMETER,
+		INNER_DIAMETER,
+		HOLE_DIAMETER,
+		/** Distance from the ring center to the center of a hole */
+		HOLE_OFFSET,
 		/** Thickness of the stock the part is cut from */
 		MATERIAL_THICKNESS,
 		/** Volume of the solid part, in cubic meters */
@@ -50,7 +59,7 @@ public final class FlatPart {
 	public record DimensionValue(Dimension dimension, int index, double value) { }
 
 	/** A closed loop in the XY plane, in mm. */
-	public sealed interface Loop permits Polygon { }
+	public sealed interface Loop permits Polygon, Circle, ArcLoop { }
 
 	/**
 	 * A closed polygon. The first point is not repeated at the end.
@@ -91,6 +100,60 @@ public final class FlatPart {
 				ty[i] = ys[i] + dy;
 			}
 			return new Polygon(tx, ty);
+		}
+	}
+
+	/**
+	 * A full circle. Its direction is counter-clockwise for an outer loop and clockwise for a hole.
+	 */
+	public record Circle(double cx, double cy, double r) implements Loop { }
+
+	/**
+	 * A circular arc running clockwise around (cx, cy) from (x0, y0) to (x1, y1).
+	 */
+	public record Arc(double cx, double cy, double r, double x0, double y0, double x1, double y1) {
+		/**
+		 * @return the angle of the start point seen from the center, in radians
+		 */
+		public double startAngle() {
+			return Math.atan2(y0 - cy, x0 - cx);
+		}
+
+		/**
+		 * @return the angle of the end point seen from the center, in radians
+		 */
+		public double endAngle() {
+			return Math.atan2(y1 - cy, x1 - cx);
+		}
+
+		/** The clockwise angle from start to end, in (0, 2*pi]. */
+		public double sweep() {
+			double sweep = startAngle() - endAngle();
+			return sweep <= 0 ? sweep + 2 * Math.PI : sweep;
+		}
+
+		Arc translated(double dx, double dy) {
+			return new Arc(cx + dx, cy + dy, r, x0 + dx, y0 + dy, x1 + dx, y1 + dy);
+		}
+	}
+
+	/**
+	 * A closed loop of clockwise arcs, each starting where the previous one ends. Used for the outline of
+	 * overlapping holes.
+	 */
+	public record ArcLoop(List<Arc> arcs) implements Loop {
+		/** Signed area enclosed by the loop (negative, as it runs clockwise). */
+		public double signedArea() {
+			double area = 0;
+			for (Arc a : arcs) {
+				// Green's theorem along the arc, with the angle decreasing by the sweep
+				double t0 = a.startAngle();
+				double t1 = t0 - a.sweep();
+				area += a.r() * a.cx() * (Math.sin(t1) - Math.sin(t0))
+						- a.r() * a.cy() * (Math.cos(t1) - Math.cos(t0))
+						+ a.r() * a.r() * (t1 - t0);
+			}
+			return area / 2;
 		}
 	}
 
@@ -211,6 +274,56 @@ public final class FlatPart {
 	}
 
 	/**
+	 * Creates the flat part of a centering ring.
+	 *
+	 * @param holes additional holes, e.g. for motor mounts (see {@link RingSvgExporter#holesFromMotorMounts})
+	 */
+	public static FlatPart fromCenteringRing(CenteringRing ring, Collection<RingSvgExporter.Hole> holes) {
+		Objects.requireNonNull(ring, "ring");
+		return ring(ring.getName(), ring.getOuterRadius(), ring.getInnerRadius(), ring.getLength(),
+				holes == null ? Collections.emptyList() : holes);
+	}
+
+	private static FlatPart ring(String name, double outerRadius, double innerRadius, double thickness,
+								 Collection<RingSvgExporter.Hole> holes) {
+		final double outerMm = outerRadius * M_TO_MM;
+
+		// The bore and the extra holes. Hole positions use the same orientation as the SVG export
+		// (Z axis pointing down in the drawing).
+		List<Circle> circles = new ArrayList<>();
+		if (innerRadius > 0) {
+			circles.add(new Circle(0, 0, innerRadius * M_TO_MM));
+		}
+		int firstHole = circles.size();
+		for (RingSvgExporter.Hole hole : holes) {
+			circles.add(new Circle(hole.offsetY() * M_TO_MM, -hole.offsetZ() * M_TO_MM, hole.radius() * M_TO_MM));
+		}
+
+		// Holes inside another hole (e.g. a motor tube inside a larger bore) are not cut and not reported
+		List<Integer> visible = HoleUnion.visible(circles);
+		List<Circle> cut = new ArrayList<>();
+		List<DimensionValue> dims = new ArrayList<>();
+		dims.add(new DimensionValue(Dimension.OUTER_DIAMETER, 0, 2 * outerRadius));
+		int index = 1;
+		for (int i : visible) {
+			Circle c = circles.get(i);
+			cut.add(c);
+			if (i < firstHole) {
+				dims.add(new DimensionValue(Dimension.INNER_DIAMETER, 0, 2 * c.r() / M_TO_MM));
+			} else {
+				dims.add(new DimensionValue(Dimension.HOLE_DIAMETER, index, 2 * c.r() / M_TO_MM));
+				dims.add(new DimensionValue(Dimension.HOLE_OFFSET, index, Math.hypot(c.cx(), c.cy()) / M_TO_MM));
+				index++;
+			}
+		}
+		dims.add(new DimensionValue(Dimension.MATERIAL_THICKNESS, 0, thickness));
+
+		Region region = new Region(new Circle(0, 0, outerMm), HoleUnion.union(cut));
+		dims.add(new DimensionValue(Dimension.VOLUME, 0, area(region) * thickness * M_TO_MM * 1e-9));
+		return new FlatPart(name, List.of(region), thickness * M_TO_MM, dims);
+	}
+
+	/**
 	 * Exact area of a region in mm^2.
 	 */
 	public static double area(Region region) {
@@ -222,6 +335,11 @@ public final class FlatPart {
 	}
 
 	private static double area(Loop loop) {
+		if (loop instanceof Circle c) {
+			return Math.PI * c.r() * c.r();
+		} else if (loop instanceof ArcLoop arcs) {
+			return arcs.signedArea();
+		}
 		return ((Polygon) loop).signedArea();
 	}
 
@@ -261,10 +379,26 @@ public final class FlatPart {
 	}
 
 	private static Loop translate(Loop loop, double dx, double dy) {
+		if (loop instanceof Circle c) {
+			return new Circle(c.cx() + dx, c.cy() + dy, c.r());
+		} else if (loop instanceof ArcLoop arcs) {
+			List<Arc> moved = new ArrayList<>();
+			for (Arc arc : arcs.arcs()) {
+				moved.add(arc.translated(dx, dy));
+			}
+			return new ArcLoop(moved);
+		}
 		return ((Polygon) loop).translated(dx, dy);
 	}
 
 	private static void include(double[] b, Loop loop) {
+		if (loop instanceof Circle c) {
+			b[0] = Math.min(b[0], c.cx() - c.r());
+			b[1] = Math.min(b[1], c.cy() - c.r());
+			b[2] = Math.max(b[2], c.cx() + c.r());
+			b[3] = Math.max(b[3], c.cy() + c.r());
+			return;
+		}
 		Polygon p = (Polygon) loop;
 		for (int i = 0; i < p.size(); i++) {
 			b[0] = Math.min(b[0], p.xs()[i]);

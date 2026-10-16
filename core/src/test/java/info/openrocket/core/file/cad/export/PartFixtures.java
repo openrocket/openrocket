@@ -1,6 +1,7 @@
 package info.openrocket.core.file.cad.export;
 
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 
 /**
@@ -9,6 +10,9 @@ import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 final class PartFixtures {
 	/** Trapezoid area (100 + 50) / 2 * 60 = 4500 mm^2, 3 mm thick */
 	static final double FIN_VOLUME_MM3 = 4500 * 3;
+	/** Ring OD 50 mm, ID 18 mm, 5 mm thick */
+	static final double RING_VOLUME_MM3 = Math.PI * (25 * 25 - 9 * 9) * 5;
+
 	private PartFixtures() {
 	}
 
@@ -29,5 +33,24 @@ final class PartFixtures {
 		fins.setThickness(0.003);
 		fins.setName("Fins");
 		return fins;
+	}
+
+	static CenteringRing createRing(double outerRadius, double innerRadius) {
+		CenteringRing ring = new CenteringRing();
+		ring.setOuterRadiusAutomatic(false);
+		ring.setInnerRadiusAutomatic(false);
+		ring.setOuterRadius(outerRadius);
+		ring.setInnerRadius(innerRadius);
+		ring.setLength(0.005);
+		ring.setName("Ring");
+		return ring;
+	}
+
+	/** A solid ring of diameter 75 mm, 6 mm thick */
+	static CenteringRing createDisc() {
+		CenteringRing disc = createRing(0.0375, 0);
+		disc.setLength(0.006);
+		disc.setName("Disc");
+		return disc;
 	}
 }
