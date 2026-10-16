@@ -28,6 +28,7 @@ import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import info.openrocket.core.rocketcomponent.DesignType;
 import info.openrocket.core.rocketcomponent.EngineBlock;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
@@ -35,16 +36,23 @@ import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Parachute;
+import info.openrocket.core.rocketcomponent.ParallelStage;
+import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.RadiusRingComponent;
+import info.openrocket.core.rocketcomponent.ReferenceType;
 import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.ShockCord;
+import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
+import info.openrocket.core.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
+import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.core.util.MathUtil;
@@ -457,6 +465,139 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				loaded.getDeploymentConfigurations().getDefault());
 	}
 
+	@Test
+	public void testRocketParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		OpenRocketDocument document = documentWith(new BodyTube(BODY_TUBE_LENGTH, COMPONENT_RADIUS,
+				BODY_TUBE_THICKNESS));
+		Rocket original = document.getRocket();
+		original.setName("Round-trip rocket");
+		// Characters that must be escaped in XML
+		original.setDesigner("Designer & <team>");
+		original.setRevision("Second revision");
+		original.setDesignType(DesignType.COMMERCIAL_KIT);
+		original.setKitName("Round-trip kit");
+		original.setReferenceType(ReferenceType.CUSTOM);
+		original.setCustomReferenceLength(0.08);
+
+		FlightConfigurationId firstId = new FlightConfigurationId();
+		FlightConfigurationId selectedId = new FlightConfigurationId();
+		original.createFlightConfiguration(firstId);
+		original.createFlightConfiguration(selectedId).setName("Round-trip flight");
+		original.setSelectedConfiguration(selectedId);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "rocket.ork");
+		Rocket loaded = loadedDocument.getRocket();
+
+		assertEquals("Round-trip rocket", loaded.getName());
+		assertEquals("Designer & <team>", loaded.getDesigner());
+		assertEquals("Second revision", loaded.getRevision());
+		assertEquals(DesignType.COMMERCIAL_KIT, loaded.getDesignType());
+		assertEquals("Round-trip kit", loaded.getKitName());
+		assertEquals(ReferenceType.CUSTOM, loaded.getReferenceType());
+		assertEquals(0.08, loaded.getCustomReferenceLength(), EPSILON);
+		assertTrue(loaded.containsFlightConfigurationID(firstId));
+		assertTrue(loaded.containsFlightConfigurationID(selectedId));
+		assertEquals("Round-trip flight", loaded.getFlightConfiguration(selectedId).getNameRaw());
+		assertEquals(selectedId, loaded.getSelectedConfiguration().getFlightConfigurationID());
+	}
+
+	@Test
+	public void testAxialStageParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		Rocket rocket = new Rocket();
+		AxialStage sustainer = new AxialStage();
+		AxialStage original = new AxialStage();
+		rocket.addChild(sustainer);
+		sustainer.addChild(new BodyTube(BODY_TUBE_LENGTH, COMPONENT_RADIUS, BODY_TUBE_THICKNESS));
+		rocket.addChild(original);
+		original.addChild(new BodyTube(BODY_TUBE_LENGTH, COMPONENT_RADIUS, BODY_TUBE_THICKNESS));
+		rocket.enableEvents();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		FlightConfigurationId overrideId = new FlightConfigurationId();
+		rocket.createFlightConfiguration(overrideId);
+
+		original.setName("Round-trip booster stage");
+		// Separation settings are only saved for stages after the first one
+		StageSeparationConfiguration defaultSeparation = original.getSeparationConfigurations().getDefault();
+		defaultSeparation.setSeparationEvent(SeparationEvent.BURNOUT);
+		defaultSeparation.setSeparationAltitude(300);
+		defaultSeparation.setSeparationDelay(1.0);
+		// A flight configuration can override the default separation
+		StageSeparationConfiguration overrideSeparation = defaultSeparation.clone();
+		overrideSeparation.setSeparationEvent(SeparationEvent.ALTITUDE_ASCENDING);
+		overrideSeparation.setSeparationDelay(2.0);
+		original.getSeparationConfigurations().set(overrideId, overrideSeparation);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "axial-stage.ork");
+		AxialStage loaded = assertInstanceOf(AxialStage.class, componentAt(loadedDocument, 1));
+
+		assertEquals(1, loaded.getStageNumber());
+		assertEquals("Round-trip booster stage", loaded.getName());
+		assertSeparationEquals(SeparationEvent.BURNOUT, 300, 1.0,
+				loaded.getSeparationConfigurations().getDefault());
+		assertSeparationEquals(SeparationEvent.ALTITUDE_ASCENDING, 300, 2.0,
+				loaded.getSeparationConfigurations().get(overrideId));
+	}
+
+	@Test
+	public void testParallelStageParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		ParallelStage original = new ParallelStage();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		original.setName("Round-trip parallel stage");
+		original.setInstanceCount(3);
+		original.setAxialMethod(AxialMethod.TOP);
+		original.setAxialOffset(0.05);
+		original.setRadiusMethod(RadiusMethod.FREE);
+		original.setRadiusOffset(0.08);
+		original.setAngleMethod(AngleMethod.FIXED);
+		original.setAngleOffset(0.6);
+		StageSeparationConfiguration separation = original.getSeparationConfigurations().getDefault();
+		separation.setSeparationEvent(SeparationEvent.LAUNCH);
+		separation.setSeparationAltitude(100);
+		separation.setSeparationDelay(0.5);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "parallel-stage.ork");
+		ParallelStage loaded = assertInstanceOf(ParallelStage.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertEquals("Round-trip parallel stage", loaded.getName());
+		assertEquals(3, loaded.getInstanceCount());
+		assertEquals(AxialMethod.TOP, loaded.getAxialMethod());
+		assertEquals(0.05, loaded.getAxialOffset(), EPSILON);
+		assertEquals(RadiusMethod.FREE, loaded.getRadiusMethod());
+		assertEquals(0.08, loaded.getRadiusOffset(), EPSILON);
+		assertEquals(AngleMethod.FIXED, loaded.getAngleMethod());
+		assertEquals(0.6, loaded.getAngleOffset(), EPSILON);
+		assertSeparationEquals(SeparationEvent.LAUNCH, 100, 0.5,
+				loaded.getSeparationConfigurations().getDefault());
+	}
+
+	@Test
+	public void testPodSetParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		PodSet original = new PodSet();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		original.setName("Round-trip pod set");
+		original.setInstanceCount(3);
+		original.setAxialMethod(AxialMethod.TOP);
+		original.setAxialOffset(0.1);
+		original.setRadiusMethod(RadiusMethod.FREE);
+		original.setRadiusOffset(0.07);
+		original.setAngleOffset(0.4);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "pod-set.ork");
+		PodSet loaded = assertInstanceOf(PodSet.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertEquals("Round-trip pod set", loaded.getName());
+		assertEquals(3, loaded.getInstanceCount());
+		assertEquals(AxialMethod.TOP, loaded.getAxialMethod());
+		assertEquals(0.1, loaded.getAxialOffset(), EPSILON);
+		assertEquals(RadiusMethod.FREE, loaded.getRadiusMethod());
+		assertEquals(0.07, loaded.getRadiusOffset(), EPSILON);
+		assertEquals(0.4, loaded.getAngleOffset(), EPSILON);
+	}
+
 	private OpenRocketDocument documentWith(RocketComponent component) {
 		Rocket rocket = new Rocket();
 		AxialStage stage = new AxialStage();
@@ -554,6 +695,13 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(expectedEvent, loaded.getDeployEvent());
 		assertEquals(expectedAltitude, loaded.getDeployAltitude(), EPSILON);
 		assertEquals(expectedDelay, loaded.getDeployDelay(), EPSILON);
+	}
+
+	private void assertSeparationEquals(SeparationEvent expectedEvent, double expectedAltitude,
+			double expectedDelay, StageSeparationConfiguration loaded) {
+		assertEquals(expectedEvent, loaded.getSeparationEvent());
+		assertEquals(expectedAltitude, loaded.getSeparationAltitude(), EPSILON);
+		assertEquals(expectedDelay, loaded.getSeparationDelay(), EPSILON);
 	}
 
 	private OpenRocketDocument roundTrip(OpenRocketDocument document, String fileName)
