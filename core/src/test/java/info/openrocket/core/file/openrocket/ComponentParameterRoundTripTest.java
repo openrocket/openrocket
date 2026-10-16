@@ -23,10 +23,14 @@ import info.openrocket.core.file.GeneralRocketSaver;
 import info.openrocket.core.file.RocketLoadException;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.Bulkhead;
+import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
 import info.openrocket.core.rocketcomponent.EngineBlock;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.RadiusRingComponent;
+import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
@@ -45,8 +49,11 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	private static final double ABOVE_OLD_CLAMP_BOUNDARY = 0.030;
 	private static final double BODY_TUBE_LENGTH = 0.4;
 	private static final double BODY_TUBE_THICKNESS = 0.002;
+	private static final double BODY_TUBE_INNER_RADIUS = COMPONENT_RADIUS - BODY_TUBE_THICKNESS;
 	private static final double RING_OUTER_RADIUS = 0.03;
 	private static final double RING_THICKNESS = 0.012;
+	private static final double RING_INNER_RADIUS = 0.012;
+	private static final double MOTOR_TUBE_OUTER_RADIUS = 0.015;
 
 	@TempDir
 	Path tempDir;
@@ -206,7 +213,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		EngineBlock loaded = assertInstanceOf(EngineBlock.class, componentAt(loadedDocument, 0, 0, 0));
 
 		assertThicknessRingParametersEqual(original, loaded,
-				automaticOuterRadius ? COMPONENT_RADIUS - BODY_TUBE_THICKNESS : RING_OUTER_RADIUS);
+				automaticOuterRadius ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
 	}
 
 	@ParameterizedTest(name = "TubeCoupler automatic outer radius: {0}")
@@ -233,7 +240,75 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		TubeCoupler loaded = assertInstanceOf(TubeCoupler.class, componentAt(loadedDocument, 0, 0, 0));
 
 		assertThicknessRingParametersEqual(original, loaded,
-				automaticOuterRadius ? COMPONENT_RADIUS - BODY_TUBE_THICKNESS : RING_OUTER_RADIUS);
+				automaticOuterRadius ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
+	}
+
+	@ParameterizedTest(name = "Bulkhead automatic outer radius: {0}")
+	@ValueSource(booleans = { false, true })
+	public void testBulkheadParametersSurviveRoundTrip(boolean automaticOuterRadius)
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		Bulkhead original = new Bulkhead();
+		// The automatic outer radius comes from the parent body tube
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		original.setName("Round-trip bulkhead");
+		original.setLength(0.006);
+		original.setAxialMethod(AxialMethod.TOP);
+		original.setAxialOffset(0.03);
+		original.setInstanceCount(2);
+		original.setInstanceSeparation(0.05);
+		if (automaticOuterRadius) {
+			original.setOuterRadiusAutomatic(true);
+		} else {
+			original.setOuterRadius(RING_OUTER_RADIUS);
+		}
+		original.setRadialPosition(0.001);
+		original.setRadialDirection(0.3);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "bulkhead-" + automaticOuterRadius + ".ork");
+		Bulkhead loaded = assertInstanceOf(Bulkhead.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertRadiusRingParametersEqual(original, loaded,
+				automaticOuterRadius ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
+	}
+
+	@ParameterizedTest(name = "CenteringRing automatic radii: {0}")
+	@ValueSource(booleans = { false, true })
+	public void testCenteringRingParametersSurviveRoundTrip(boolean automaticRadii)
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		CenteringRing original = new CenteringRing();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		// The automatic inner radius follows the outer radius of an inner tube that overlaps the
+		// ring along the axis, so place one over the aft end of the body tube, around the ring.
+		InnerTube motorTube = new InnerTube();
+		componentAt(document, 0, 0).addChild(motorTube);
+		motorTube.setLength(0.1);
+		motorTube.setAxialMethod(AxialMethod.BOTTOM);
+		motorTube.setAxialOffset(0);
+		motorTube.setOuterRadius(MOTOR_TUBE_OUTER_RADIUS);
+
+		original.setName("Round-trip centering ring");
+		original.setLength(0.003);
+		original.setAxialMethod(AxialMethod.MIDDLE);
+		original.setAxialOffset(0.16);
+		original.setInstanceCount(2);
+		original.setInstanceSeparation(0.01);
+		if (automaticRadii) {
+			original.setOuterRadiusAutomatic(true);
+			original.setInnerRadiusAutomatic(true);
+		} else {
+			original.setOuterRadius(RING_OUTER_RADIUS);
+			original.setInnerRadius(RING_INNER_RADIUS);
+		}
+		original.setRadialPosition(0.001);
+		original.setRadialDirection(-0.5);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "centering-ring-" + automaticRadii + ".ork");
+		CenteringRing loaded = assertInstanceOf(CenteringRing.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertRadiusRingParametersEqual(original, loaded,
+				automaticRadii ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
+		assertEquals(original.isInnerRadiusAutomatic(), loaded.isInnerRadiusAutomatic());
+		assertEquals(automaticRadii ? MOTOR_TUBE_OUTER_RADIUS : RING_INNER_RADIUS, loaded.getInnerRadius(), EPSILON);
 	}
 
 	private OpenRocketDocument documentWith(RocketComponent component) {
@@ -278,21 +353,39 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	}
 
 	/**
-	 * Compares the parameters that are saved for every thickness ring component (inner tube,
-	 * engine block, tube coupler). The outer radius and thickness are checked against fixed
-	 * values, so a clamp while setting up the test would also be caught.
+	 * Compares the parameters that are saved for every ring component. The outer radius is
+	 * checked against a fixed value, so a clamp while setting up the test would also be caught.
 	 */
-	private void assertThicknessRingParametersEqual(ThicknessRingComponent original,
-			ThicknessRingComponent loaded, double expectedOuterRadius) {
+	private void assertRingParametersEqual(RingComponent original, RingComponent loaded,
+			double expectedOuterRadius) {
 		assertEquals(original.getName(), loaded.getName());
 		assertEquals(original.getLength(), loaded.getLength(), EPSILON);
 		assertEquals(original.getAxialMethod(), loaded.getAxialMethod());
 		assertEquals(original.getAxialOffset(), loaded.getAxialOffset(), EPSILON);
 		assertEquals(original.isOuterRadiusAutomatic(), loaded.isOuterRadiusAutomatic());
 		assertEquals(expectedOuterRadius, loaded.getOuterRadius(), EPSILON);
-		assertEquals(RING_THICKNESS, loaded.getThickness(), EPSILON);
 		assertEquals(original.getRadialPosition(), loaded.getRadialPosition(), EPSILON);
 		assertEquals(original.getRadialDirection(), loaded.getRadialDirection(), EPSILON);
+	}
+
+	/**
+	 * Adds the thickness to the shared ring checks (inner tube, engine block, tube coupler).
+	 */
+	private void assertThicknessRingParametersEqual(ThicknessRingComponent original,
+			ThicknessRingComponent loaded, double expectedOuterRadius) {
+		assertRingParametersEqual(original, loaded, expectedOuterRadius);
+		assertEquals(RING_THICKNESS, loaded.getThickness(), EPSILON);
+	}
+
+	/**
+	 * Adds the instance count and separation to the shared ring checks (bulkhead, centering
+	 * ring). Only radius ring components save these two.
+	 */
+	private void assertRadiusRingParametersEqual(RadiusRingComponent original,
+			RadiusRingComponent loaded, double expectedOuterRadius) {
+		assertRingParametersEqual(original, loaded, expectedOuterRadius);
+		assertEquals(original.getInstanceCount(), loaded.getInstanceCount());
+		assertEquals(original.getInstanceSeparation(), loaded.getInstanceSeparation(), EPSILON);
 	}
 
 	private OpenRocketDocument roundTrip(OpenRocketDocument document, String fileName)
