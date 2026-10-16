@@ -32,6 +32,7 @@ Welcome to OpenRocket's documentation!
    user_guide/basic_rocket_design
    user_guide/basic_flight_simulation
    user_guide/advanced_rocket_design
+   user_guide/exporting_parts
    user_guide/advanced_flight_simulation
    user_guide/overrides_and_surface_finish
    user_guide/rocket_analysis
