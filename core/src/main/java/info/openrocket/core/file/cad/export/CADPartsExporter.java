@@ -31,7 +31,9 @@ public class CADPartsExporter {
 		/** 2D drawing for laser cutters, CNC routers and 2D CAD */
 		DXF("dxf"),
 		/** 3D solid model (ISO 10303-21, AP214) for CAD programs */
-		STEP("step");
+		STEP("step"),
+		/** 3D triangle mesh for 3D printing */
+		STL("stl");
 
 		private final String extension;
 
@@ -99,6 +101,7 @@ public class CADPartsExporter {
 		switch (format) {
 			case DXF -> DXFPartsWriter.write(placed, out);
 			case STEP -> STEPPartsWriter.write(placed, title, out);
+			case STL -> STLPartsWriter.write(placed, title, out);
 		}
 		return placed;
 	}

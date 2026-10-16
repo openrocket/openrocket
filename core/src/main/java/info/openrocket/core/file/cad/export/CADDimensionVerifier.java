@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.util.regex.Pattern;
  * <ul>
  *     <li>DXF: outlines and circles on the cut layer</li>
  *     <li>STEP: vertices and circles of the solids</li>
+ *     <li>STL: the triangle mesh (extents, thickness and volume)</li>
  * </ul>
  */
 public class CADDimensionVerifier {
@@ -120,6 +123,7 @@ public class CADDimensionVerifier {
 		Geometry geometry = switch (format) {
 			case DXF -> readDXF(in);
 			case STEP -> readSTEP(in);
+			case STL -> readSTL(in);
 		};
 
 		List<Check> checks = new ArrayList<>();
@@ -409,5 +413,37 @@ public class CADDimensionVerifier {
 	private static int firstRef(String text) {
 		Matcher m = STEP_REF.matcher(text);
 		return m.find() ? Integer.parseInt(m.group(1)) : -1;
+	}
+
+	/**
+	 * Reads the triangles of a binary STL file.
+	 */
+	private static Geometry readSTL(InputStream in) throws IOException {
+		Geometry geometry = new Geometry();
+		geometry.threeD = true;
+		geometry.units = Units.NONE;
+
+		ByteBuffer buffer = ByteBuffer.wrap(in.readAllBytes()).order(ByteOrder.LITTLE_ENDIAN);
+		if (buffer.remaining() < 84) {
+			return geometry;
+		}
+		buffer.position(80);
+		long count = Integer.toUnsignedLong(buffer.getInt());
+		if (buffer.remaining() < count * 50) {
+			throw new IOException("Truncated STL file");
+		}
+		for (long i = 0; i < count; i++) {
+			buffer.position(buffer.position() + 12);		// Normal
+			double[] t = new double[9];
+			for (int j = 0; j < 9; j++) {
+				t[j] = buffer.getFloat();
+			}
+			buffer.getShort();
+			geometry.triangles.add(t);
+			for (int j = 0; j < 3; j++) {
+				geometry.points.add(new double[]{t[3 * j], t[3 * j + 1], t[3 * j + 2]});
+			}
+		}
+		return geometry;
 	}
 }
