@@ -26,16 +26,21 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
+import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
+import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.EngineBlock;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.RadiusRingComponent;
 import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.ShockCord;
+import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
@@ -363,6 +368,95 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(1.5, loaded.getCordLength(), EPSILON);
 	}
 
+	@Test
+	public void testParachuteParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		Parachute original = new Parachute();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		FlightConfigurationId overrideId = new FlightConfigurationId();
+		document.getRocket().createFlightConfiguration(overrideId);
+
+		original.setName("Round-trip parachute");
+		original.setAxialMethod(AxialMethod.TOP);
+		original.setAxialOffset(0.03);
+		original.setLength(0.05);
+		original.setRadius(MASS_OBJECT_RADIUS);
+		original.setRadialPosition(0.003);
+		original.setRadialDirection(0.5);
+		// Only a fixed CD is tested. A parachute that is switched back to an automatic CD
+		// currently reopens with the default CD instead of the value shown before saving.
+		original.setCD(1.2);
+		original.setDrogue(true);
+		original.setDiameter(0.45);
+		original.setLineCount(8);
+		original.setLineLength(0.5);
+
+		DeploymentConfiguration defaultDeployment = original.getDeploymentConfigurations().getDefault();
+		defaultDeployment.setDeployEvent(DeployEvent.ALTITUDE);
+		defaultDeployment.setDeployAltitude(150);
+		defaultDeployment.setDeployDelay(1.5);
+		// A flight configuration can override the default deployment
+		DeploymentConfiguration overrideDeployment = defaultDeployment.clone();
+		overrideDeployment.setDeployEvent(DeployEvent.APOGEE);
+		overrideDeployment.setDeployDelay(2.5);
+		original.getDeploymentConfigurations().set(overrideId, overrideDeployment);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "parachute.ork");
+		Parachute loaded = assertInstanceOf(Parachute.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertMassObjectParametersEqual(original, loaded);
+		assertFalse(loaded.isCDAutomatic());
+		assertEquals(1.2, loaded.getCD(), EPSILON);
+		assertTrue(loaded.isDrogue());
+		assertDeploymentEquals(DeployEvent.ALTITUDE, 150, 1.5,
+				loaded.getDeploymentConfigurations().getDefault());
+		assertDeploymentEquals(DeployEvent.APOGEE, 150, 2.5,
+				loaded.getDeploymentConfigurations().get(overrideId));
+		assertEquals(0.45, loaded.getDiameter(), EPSILON);
+		assertEquals(8, loaded.getLineCount());
+		assertFalse(loaded.isLineLengthAutomatic());
+		assertEquals(0.5, loaded.getLineLength(), EPSILON);
+	}
+
+	@ParameterizedTest(name = "Streamer automatic CD: {0}")
+	@ValueSource(booleans = { false, true })
+	public void testStreamerParametersSurviveRoundTrip(boolean automaticCd)
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		Streamer original = new Streamer();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		original.setName("Round-trip streamer");
+		original.setAxialMethod(AxialMethod.BOTTOM);
+		original.setAxialOffset(-0.01);
+		original.setLength(0.04);
+		original.setRadius(MASS_OBJECT_RADIUS);
+		original.setRadialPosition(0.001);
+		original.setRadialDirection(-1.0);
+		original.setStripLength(1.2);
+		original.setStripWidth(0.08);
+		if (automaticCd) {
+			original.setCDAutomatic(true);
+		} else {
+			original.setCD(0.9);
+		}
+
+		DeploymentConfiguration deployment = original.getDeploymentConfigurations().getDefault();
+		deployment.setDeployEvent(DeployEvent.LOWER_STAGE_SEPARATION);
+		deployment.setDeployAltitude(80);
+		deployment.setDeployDelay(0.5);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "streamer-" + automaticCd + ".ork");
+		Streamer loaded = assertInstanceOf(Streamer.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertMassObjectParametersEqual(original, loaded);
+		assertEquals(1.2, loaded.getStripLength(), EPSILON);
+		assertEquals(0.08, loaded.getStripWidth(), EPSILON);
+		assertEquals(automaticCd, loaded.isCDAutomatic());
+		// The automatic streamer CD is calculated from the strip size and material
+		assertEquals(automaticCd ? original.getCD() : 0.9, loaded.getCD(), EPSILON);
+		assertDeploymentEquals(DeployEvent.LOWER_STAGE_SEPARATION, 80, 0.5,
+				loaded.getDeploymentConfigurations().getDefault());
+	}
+
 	private OpenRocketDocument documentWith(RocketComponent component) {
 		Rocket rocket = new Rocket();
 		AxialStage stage = new AxialStage();
@@ -453,6 +547,13 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(original.getLength(), loaded.getLength(), EPSILON);
 		assertEquals(original.getRadialPosition(), loaded.getRadialPosition(), EPSILON);
 		assertEquals(original.getRadialDirection(), loaded.getRadialDirection(), EPSILON);
+	}
+
+	private void assertDeploymentEquals(DeployEvent expectedEvent, double expectedAltitude,
+			double expectedDelay, DeploymentConfiguration loaded) {
+		assertEquals(expectedEvent, loaded.getDeployEvent());
+		assertEquals(expectedAltitude, loaded.getDeployAltitude(), EPSILON);
+		assertEquals(expectedDelay, loaded.getDeployDelay(), EPSILON);
 	}
 
 	private OpenRocketDocument roundTrip(OpenRocketDocument document, String fileName)
