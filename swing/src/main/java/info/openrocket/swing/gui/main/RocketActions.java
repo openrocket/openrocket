@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
@@ -267,6 +268,22 @@ public class RocketActions {
 		actions.add(exportOBJAction);
 		actions.add(exportSVGAction);
 		return actions;
+	}
+
+	/**
+	 * @return an "Export as" submenu with all export actions
+	 */
+	public JMenu createExportMenu() {
+		JMenu menu = new JMenu(trans.get("RocketActions.ExportMenu"));
+		menu.setIcon(Icons.deriveMenuIcon(Icons.FILE_EXPORT));
+		for (Action action : getExportActions()) {
+			if (action == null) {
+				menu.addSeparator();
+			} else {
+				menu.add(action);
+			}
+		}
+		return menu;
 	}
 
 	public Action getToggleVisibilityAction() {

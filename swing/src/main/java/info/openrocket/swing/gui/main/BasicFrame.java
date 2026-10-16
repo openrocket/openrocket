@@ -294,13 +294,7 @@ private static final Translator trans = Application.getTranslator();
 			JMenuItem toggleStageActiveItem = popupMenu.add(actions.getToggleActiveAction());
 
 			popupMenu.addSeparator();
-			for (Action action : actions.getExportActions()) {
-				if (action == null) {
-					popupMenu.addSeparator();
-				} else {
-					popupMenu.add(action);
-				}
-			}
+			popupMenu.add(actions.createExportMenu());
 
 			popupMenu.addPopupMenuListener(new PopupMenuListener() {
 				@Override
