@@ -27,6 +27,7 @@ import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.file.cad.export.CADPartsExporter;
 import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
@@ -39,6 +40,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.dialogs.ScaleDialog;
+import info.openrocket.swing.gui.export.PartExportHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 
@@ -106,6 +108,7 @@ public class RocketActions {
 	private final RocketAction moveDownAction;
 	private final RocketAction exportOBJAction;
 	private final RocketAction exportSVGAction;
+	private final List<RocketAction> exportPartsActions = new ArrayList<>();
 	private final RocketAction toggleVisibilityAction;
 	private final RocketAction toggleVisibilityContextMenuAction;
 	private final RocketAction showAllComponentsAction;
@@ -136,6 +139,9 @@ public class RocketActions {
 		this.moveDownAction = new MoveDownAction();
 		this.exportOBJAction = new ExportOBJAction();
 		this.exportSVGAction = new ExportSVGAction();
+		for (CADPartsExporter.Format format : CADPartsExporter.Format.values()) {
+			exportPartsActions.add(new ExportPartsAction(format));
+		}
 		this.toggleVisibilityAction = new ToggleVisibilityAction();
 		this.toggleVisibilityContextMenuAction = new ContextMenuToggleVisibilityAction();
 		this.showAllComponentsAction = new ShowAllComponentsAction();
@@ -189,6 +195,7 @@ public class RocketActions {
 		moveDownAction.clipboardChanged();
 		exportOBJAction.clipboardChanged();
 		exportSVGAction.clipboardChanged();
+		exportPartsActions.forEach(RocketAction::clipboardChanged);
 		toggleVisibilityAction.clipboardChanged();
 		toggleVisibilityContextMenuAction.clipboardChanged();
 		showAllComponentsAction.clipboardChanged();
@@ -248,6 +255,18 @@ public class RocketActions {
 
 	public Action getExportSVGAction() {
 		return exportSVGAction;
+	}
+
+	/**
+	 * @return the export actions for the selected components, with null marking a separator: first the
+	 * fabrication formats for flat parts, then the general formats
+	 */
+	public List<Action> getExportActions() {
+		List<Action> actions = new ArrayList<>(exportPartsActions);
+		actions.add(null);
+		actions.add(exportOBJAction);
+		actions.add(exportSVGAction);
+		return actions;
 	}
 
 	public Action getToggleVisibilityAction() {
@@ -1382,6 +1401,38 @@ public class RocketActions {
 					component instanceof Transition ||
 					component instanceof BodyTube ||
 					component instanceof RailButton;
+		}
+	}
+
+	/**
+	 * Exports the selected fins and centering rings to a CAD file.
+	 */
+	private class ExportPartsAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+		private final CADPartsExporter.Format format;
+
+		public ExportPartsAction(CADPartsExporter.Format format) {
+			this.format = format;
+			this.putValue(NAME, trans.get("RocketActions.ExportPartsAct." + format.name()));
+			this.putValue(SMALL_ICON, Icons.FILE_EXPORT);
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.ExportPartsAct.ttip." + format.name()));
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components.isEmpty()) {
+				return;
+			}
+
+			parentFrame.exportPartsAction(format);
+		}
+
+		@Override
+		public void clipboardChanged() {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			this.setEnabled(!PartExportHelper.collectParts(components).isEmpty());
 		}
 	}
 

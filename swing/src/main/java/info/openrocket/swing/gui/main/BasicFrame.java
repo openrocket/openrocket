@@ -86,6 +86,7 @@ import info.openrocket.core.document.StorageOptions.FileType;
 import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.core.document.events.DocumentChangeListener;
 import info.openrocket.core.file.GeneralRocketSaver;
+import info.openrocket.core.file.cad.export.CADPartsExporter;
 import info.openrocket.core.file.RocketLoadException;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.file.svg.export.SVGExportOptions;
@@ -109,6 +110,7 @@ import info.openrocket.swing.gui.dialogs.ErrorWarningDialog;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.customexpression.CustomExpressionDialog;
+import info.openrocket.swing.gui.export.PartExportHelper;
 import info.openrocket.swing.gui.export.SVGRocketPartsExporter;
 import info.openrocket.swing.gui.export.SvgOptionsDialog;
 import info.openrocket.swing.gui.dialogs.AboutDialog;
@@ -292,8 +294,13 @@ private static final Translator trans = Application.getTranslator();
 			JMenuItem toggleStageActiveItem = popupMenu.add(actions.getToggleActiveAction());
 
 			popupMenu.addSeparator();
-			popupMenu.add(actions.getExportOBJAction());
-			popupMenu.add(actions.getExportSVGAction());
+			for (Action action : actions.getExportActions()) {
+				if (action == null) {
+					popupMenu.addSeparator();
+				} else {
+					popupMenu.add(action);
+				}
+			}
 
 			popupMenu.addPopupMenuListener(new PopupMenuListener() {
 				@Override
@@ -2157,6 +2164,21 @@ private static final Translator trans = Application.getTranslator();
 			return;
 		}
 		exportSvgProfilesAction(selectedComponents);
+	}
+
+	/**
+	 * Export the selected fins and centering rings to a CAD file.
+	 */
+	public void exportPartsAction(CADPartsExporter.Format format) {
+		List<RocketComponent> selectedComponents = getSelectedComponents();
+		if (selectedComponents == null || selectedComponents.isEmpty()) {
+			return;
+		}
+		try {
+			PartExportHelper.export(BasicFrame.this, document, selectedComponents, format);
+		} finally {
+			restoreFocus();
+		}
 	}
 
 

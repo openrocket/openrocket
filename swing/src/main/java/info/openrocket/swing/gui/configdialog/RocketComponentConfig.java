@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -253,8 +254,13 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		KebabMenu menu = new KebabMenu();
 		menu.add(new JMenuItem(actions.getScaleAction()));
 		menu.addSeparator();
-		menu.add(new JMenuItem(actions.getExportOBJAction()));
-		menu.add(new JMenuItem(actions.getExportSVGAction()));
+		for (Action action : actions.getExportActions()) {
+			if (action == null) {
+				menu.addSeparator();
+			} else {
+				menu.add(new JMenuItem(action));
+			}
+		}
 
 		return menu;
 	}
