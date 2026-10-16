@@ -28,11 +28,14 @@ import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
 import info.openrocket.core.rocketcomponent.EngineBlock;
 import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.MassComponent;
+import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RadiusRingComponent;
 import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.ShockCord;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
@@ -54,6 +57,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	private static final double RING_THICKNESS = 0.012;
 	private static final double RING_INNER_RADIUS = 0.012;
 	private static final double MOTOR_TUBE_OUTER_RADIUS = 0.015;
+	private static final double MASS_OBJECT_RADIUS = 0.02;
 
 	@TempDir
 	Path tempDir;
@@ -311,6 +315,54 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(automaticRadii ? MOTOR_TUBE_OUTER_RADIUS : RING_INNER_RADIUS, loaded.getInnerRadius(), EPSILON);
 	}
 
+	@Test
+	public void testMassComponentParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		MassComponent original = new MassComponent();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		original.setName("Round-trip mass component");
+		original.setAxialMethod(AxialMethod.MIDDLE);
+		original.setAxialOffset(-0.05);
+		original.setLength(0.06);
+		// Only a fixed radius is tested. With an automatic radius, getLength() currently
+		// depends on whether getRadius() was called first, even without saving the file.
+		original.setRadius(MASS_OBJECT_RADIUS);
+		original.setRadialPosition(0.005);
+		original.setRadialDirection(1.1);
+		original.setComponentMass(0.15);
+		original.setMassComponentType(MassComponent.MassComponentType.ALTIMETER);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "mass-component.ork");
+		MassComponent loaded = assertInstanceOf(MassComponent.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertMassObjectParametersEqual(original, loaded);
+		assertEquals(0.15, loaded.getComponentMass(), EPSILON);
+		assertEquals(MassComponent.MassComponentType.ALTIMETER, loaded.getMassComponentType());
+	}
+
+	@Test
+	public void testShockCordParametersSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		ShockCord original = new ShockCord();
+		OpenRocketDocument document = documentWithBodyTubeChild(original);
+		original.setName("Round-trip shock cord");
+		original.setAxialMethod(AxialMethod.BOTTOM);
+		original.setAxialOffset(-0.02);
+		original.setLength(0.03);
+		original.setRadius(MASS_OBJECT_RADIUS);
+		original.setRadialPosition(0.002);
+		original.setRadialDirection(-2.0);
+		// The automatic cord length is already covered by ShockCordTest
+		original.setCordLength(1.5);
+
+		OpenRocketDocument loadedDocument = roundTrip(document, "shock-cord.ork");
+		ShockCord loaded = assertInstanceOf(ShockCord.class, componentAt(loadedDocument, 0, 0, 0));
+
+		assertMassObjectParametersEqual(original, loaded);
+		assertFalse(loaded.isCordLengthAutomatic());
+		assertEquals(1.5, loaded.getCordLength(), EPSILON);
+	}
+
 	private OpenRocketDocument documentWith(RocketComponent component) {
 		Rocket rocket = new Rocket();
 		AxialStage stage = new AxialStage();
@@ -386,6 +438,21 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertRingParametersEqual(original, loaded, expectedOuterRadius);
 		assertEquals(original.getInstanceCount(), loaded.getInstanceCount());
 		assertEquals(original.getInstanceSeparation(), loaded.getInstanceSeparation(), EPSILON);
+	}
+
+	/**
+	 * Compares the parameters that are saved for every mass object (mass component, shock cord,
+	 * recovery devices). All of these tests use the fixed radius MASS_OBJECT_RADIUS.
+	 */
+	private void assertMassObjectParametersEqual(MassObject original, MassObject loaded) {
+		assertEquals(original.getName(), loaded.getName());
+		assertEquals(original.getAxialMethod(), loaded.getAxialMethod());
+		assertEquals(original.getAxialOffset(), loaded.getAxialOffset(), EPSILON);
+		assertFalse(loaded.isRadiusAutomatic());
+		assertEquals(MASS_OBJECT_RADIUS, loaded.getRadius(), EPSILON);
+		assertEquals(original.getLength(), loaded.getLength(), EPSILON);
+		assertEquals(original.getRadialPosition(), loaded.getRadialPosition(), EPSILON);
+		assertEquals(original.getRadialDirection(), loaded.getRadialDirection(), EPSILON);
 	}
 
 	private OpenRocketDocument roundTrip(OpenRocketDocument document, String fileName)
