@@ -5,7 +5,15 @@ import info.openrocket.core.file.cad.export.CADPartsExporter.Format;
 import info.openrocket.core.file.cad.export.FlatPart.Dimension;
 import info.openrocket.core.file.cad.export.FlatPart.DimensionValue;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Reads a file written by {@link CADPartsExporter} back in and measures the parts from the file geometry,
@@ -25,7 +35,7 @@ import java.util.regex.Pattern;
  * <ul>
  *     <li>DXF: outlines and circles on the cut layer</li>
  *     <li>STEP: vertices and circles of the solids</li>
- *     <li>STL: the triangle mesh (extents, thickness and volume)</li>
+ *     <li>STL and 3MF: the triangle mesh (extents, thickness and volume)</li>
  * </ul>
  */
 public class CADDimensionVerifier {
@@ -124,6 +134,7 @@ public class CADDimensionVerifier {
 			case DXF -> readDXF(in);
 			case STEP -> readSTEP(in);
 			case STL -> readSTL(in);
+			case THREE_MF -> read3MF(in);
 		};
 
 		List<Check> checks = new ArrayList<>();
@@ -413,6 +424,95 @@ public class CADDimensionVerifier {
 	private static int firstRef(String text) {
 		Matcher m = STEP_REF.matcher(text);
 		return m.find() ? Integer.parseInt(m.group(1)) : -1;
+	}
+
+	/**
+	 * Reads the triangles of all build items of a 3MF file, placed by their transforms, and the model unit.
+	 */
+	private static Geometry read3MF(InputStream in) throws IOException {
+		Geometry geometry = new Geometry();
+		geometry.threeD = true;
+
+		Document doc = null;
+		ZipInputStream zip = new ZipInputStream(in);
+		for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+			if (entry.getName().equalsIgnoreCase(ThreeMFPartsWriter.MODEL_PATH)) {
+				doc = parseXML(zip.readAllBytes());
+				break;
+			}
+		}
+		if (doc == null) {
+			throw new IOException("No 3D model found in the 3MF file");
+		}
+
+		Element model = doc.getDocumentElement();
+		String unit = model.getAttribute("unit");
+		geometry.units = unit.isEmpty() || unit.equals("millimeter") ? Units.MILLIMETERS : Units.OTHER;
+
+		// Object meshes, by id
+		Map<String, List<double[]>> objects = new HashMap<>();
+		NodeList objectNodes = model.getElementsByTagNameNS("*", "object");
+		for (int i = 0; i < objectNodes.getLength(); i++) {
+			Element object = (Element) objectNodes.item(i);
+			NodeList vertexNodes = object.getElementsByTagNameNS("*", "vertex");
+			double[][] vertices = new double[vertexNodes.getLength()][];
+			for (int v = 0; v < vertices.length; v++) {
+				Element vertex = (Element) vertexNodes.item(v);
+				vertices[v] = new double[]{Double.parseDouble(vertex.getAttribute("x")),
+						Double.parseDouble(vertex.getAttribute("y")), Double.parseDouble(vertex.getAttribute("z"))};
+			}
+			List<double[]> triangles = new ArrayList<>();
+			NodeList triangleNodes = object.getElementsByTagNameNS("*", "triangle");
+			for (int t = 0; t < triangleNodes.getLength(); t++) {
+				Element triangle = (Element) triangleNodes.item(t);
+				double[] a = vertices[Integer.parseInt(triangle.getAttribute("v1"))];
+				double[] b = vertices[Integer.parseInt(triangle.getAttribute("v2"))];
+				double[] c = vertices[Integer.parseInt(triangle.getAttribute("v3"))];
+				triangles.add(new double[]{a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]});
+			}
+			objects.put(object.getAttribute("id"), triangles);
+		}
+
+		// Build items place the objects with a 3x4 affine transform: m00 m01 m02 m10 m11 m12 m20 m21 m22 m30 m31 m32
+		NodeList items = model.getElementsByTagNameNS("*", "item");
+		for (int i = 0; i < items.getLength(); i++) {
+			Element item = (Element) items.item(i);
+			List<double[]> triangles = objects.get(item.getAttribute("objectid"));
+			if (triangles == null) {
+				continue;
+			}
+			double[] m = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
+			String transform = item.getAttribute("transform").trim();
+			if (!transform.isEmpty()) {
+				String[] values = transform.split("\\s+");
+				for (int k = 0; k < 12; k++) {
+					m[k] = Double.parseDouble(values[k]);
+				}
+			}
+			for (double[] t : triangles) {
+				double[] placed = new double[9];
+				for (int j = 0; j < 3; j++) {
+					double x = t[3 * j], y = t[3 * j + 1], z = t[3 * j + 2];
+					placed[3 * j] = x * m[0] + y * m[3] + z * m[6] + m[9];
+					placed[3 * j + 1] = x * m[1] + y * m[4] + z * m[7] + m[10];
+					placed[3 * j + 2] = x * m[2] + y * m[5] + z * m[8] + m[11];
+					geometry.points.add(new double[]{placed[3 * j], placed[3 * j + 1], placed[3 * j + 2]});
+				}
+				geometry.triangles.add(placed);
+			}
+		}
+		return geometry;
+	}
+
+	private static Document parseXML(byte[] bytes) throws IOException {
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			return factory.newDocumentBuilder().parse(new ByteArrayInputStream(bytes));
+		} catch (ParserConfigurationException | SAXException e) {
+			throw new IOException("Invalid 3MF model: " + e.getMessage(), e);
+		}
 	}
 
 	/**

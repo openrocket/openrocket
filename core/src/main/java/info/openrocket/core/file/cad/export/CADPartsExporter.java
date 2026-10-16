@@ -33,7 +33,9 @@ public class CADPartsExporter {
 		/** 3D solid model (ISO 10303-21, AP214) for CAD programs */
 		STEP("step"),
 		/** 3D triangle mesh for 3D printing */
-		STL("stl");
+		STL("stl"),
+		/** 3D Manufacturing Format for slicers, with each part as a separate object */
+		THREE_MF("3mf");
 
 		private final String extension;
 
@@ -102,6 +104,7 @@ public class CADPartsExporter {
 			case DXF -> DXFPartsWriter.write(placed, out);
 			case STEP -> STEPPartsWriter.write(placed, title, out);
 			case STL -> STLPartsWriter.write(placed, title, out);
+			case THREE_MF -> ThreeMFPartsWriter.write(placed, title, out);
 		}
 		return placed;
 	}
