@@ -9,14 +9,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Reads a file written by {@link CADPartsExporter} back in and measures the parts from the file geometry,
  * so the exported dimensions can be compared with the design values.
  * <ul>
  *     <li>DXF: outlines and circles on the cut layer</li>
+ *     <li>STEP: vertices and circles of the solids</li>
  * </ul>
  */
 public class CADDimensionVerifier {
@@ -113,6 +119,7 @@ public class CADDimensionVerifier {
 	public static Result verify(Format format, InputStream in, List<ExportedPart> parts) throws IOException {
 		Geometry geometry = switch (format) {
 			case DXF -> readDXF(in);
+			case STEP -> readSTEP(in);
 		};
 
 		List<Check> checks = new ArrayList<>();
@@ -332,5 +339,75 @@ public class CADDimensionVerifier {
 			}
 		}
 		return geometry;
+	}
+
+	private static final Pattern STEP_ENTITY = Pattern.compile("#(\\d+)\\s*=\\s*([A-Z_0-9]+)\\s*\\((.*)\\)");
+	private static final Pattern STEP_REF = Pattern.compile("#(\\d+)");
+
+	/**
+	 * Reads the units, vertices and circles of a STEP file.
+	 */
+	private static Geometry readSTEP(InputStream in) throws IOException {
+		Geometry geometry = new Geometry();
+		geometry.threeD = true;
+		geometry.hasCircles = true;
+
+		String text = new String(in.readAllBytes(), StandardCharsets.US_ASCII);
+		String compact = text.replaceAll("\\s+", " ");
+		boolean millimeters = compact.contains("LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.)");
+		geometry.units = millimeters ? Units.MILLIMETERS : Units.OTHER;
+
+		Map<Integer, double[]> points = new HashMap<>();
+		Map<Integer, Integer> placements = new HashMap<>();
+		List<int[]> vertexRefs = new ArrayList<>();
+		List<String[]> circleArgs = new ArrayList<>();
+		for (String statement : text.split(";")) {
+			Matcher m = STEP_ENTITY.matcher(statement.trim());
+			if (!m.matches()) {
+				continue;
+			}
+			int id = Integer.parseInt(m.group(1));
+			String type = m.group(2);
+			String args = m.group(3);
+			switch (type) {
+				case "CARTESIAN_POINT" -> {
+					String coords = args.substring(args.indexOf('(') + 1, args.lastIndexOf(')'));
+					String[] parts = coords.split(",");
+					double[] p = new double[3];
+					for (int i = 0; i < Math.min(3, parts.length); i++) {
+						p[i] = Double.parseDouble(parts[i].trim());
+					}
+					points.put(id, p);
+				}
+				case "VERTEX_POINT" -> vertexRefs.add(new int[]{firstRef(args)});
+				case "AXIS2_PLACEMENT_3D" -> placements.put(id, firstRef(args));
+				case "CIRCLE" -> circleArgs.add(args.split(","));
+				default -> {
+				}
+			}
+		}
+
+		for (int[] ref : vertexRefs) {
+			double[] p = points.get(ref[0]);
+			if (p != null) {
+				geometry.points.add(p);
+			}
+		}
+		for (String[] args : circleArgs) {
+			Integer location = placements.get(firstRef(args[1]));
+			double[] center = location == null ? null : points.get(location);
+			if (center != null) {
+				double r = Double.parseDouble(args[2].trim());
+				geometry.circles.add(new Circle(center[0], center[1], center[2], r));
+				geometry.points.add(new double[]{center[0] - r, center[1] - r, center[2]});
+				geometry.points.add(new double[]{center[0] + r, center[1] + r, center[2]});
+			}
+		}
+		return geometry;
+	}
+
+	private static int firstRef(String text) {
+		Matcher m = STEP_REF.matcher(text);
+		return m.find() ? Integer.parseInt(m.group(1)) : -1;
 	}
 }

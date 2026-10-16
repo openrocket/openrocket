@@ -324,6 +324,34 @@ public final class FlatPart {
 	}
 
 	/**
+	 * Checks that the part can be built as a solid: all holes must be inside the outer outline.
+	 *
+	 * @throws IllegalStateException if a hole reaches the outer edge of a ring
+	 */
+	public void validateSolid() {
+		for (Region region : regions) {
+			if (!(region.outer() instanceof Circle outer)) {
+				continue;
+			}
+			for (Loop hole : region.holes()) {
+				List<Circle> circles = new ArrayList<>();
+				if (hole instanceof Circle c) {
+					circles.add(c);
+				} else if (hole instanceof ArcLoop arcs) {
+					for (Arc arc : arcs.arcs()) {
+						circles.add(new Circle(arc.cx(), arc.cy(), arc.r()));
+					}
+				}
+				for (Circle c : circles) {
+					if (Math.hypot(c.cx() - outer.cx(), c.cy() - outer.cy()) + c.r() >= outer.r() - POINT_TOLERANCE_MM) {
+						throw new IllegalStateException("A hole in '" + name + "' reaches the outer edge of the part");
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Exact area of a region in mm^2.
 	 */
 	public static double area(Region region) {

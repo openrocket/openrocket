@@ -13,7 +13,8 @@ import java.util.List;
 /**
  * Exports flat parts (fins and centering rings) to CAD files at 1:1 scale in millimeters.
  * <p>
- * The parts are laid out side by side in the XY plane. The returned {@link ExportedPart}s describe where each part was placed, so the written
+ * The parts are laid out side by side in the XY plane. 3D formats extrude each part from z = 0 to its
+ * material thickness. The returned {@link ExportedPart}s describe where each part was placed, so the written
  * file can be checked with {@link CADDimensionVerifier}.
  */
 public class CADPartsExporter {
@@ -28,7 +29,9 @@ public class CADPartsExporter {
 	 */
 	public enum Format {
 		/** 2D drawing for laser cutters, CNC routers and 2D CAD */
-		DXF("dxf");
+		DXF("dxf"),
+		/** 3D solid model (ISO 10303-21, AP214) for CAD programs */
+		STEP("step");
 
 		private final String extension;
 
@@ -83,9 +86,19 @@ public class CADPartsExporter {
 	 * @throws IllegalStateException if a 3D format is requested for a part without thickness
 	 */
 	public List<ExportedPart> write(Format format, String title, OutputStream out) throws IOException {
+		if (format != Format.DXF) {
+			for (FlatPart part : parts) {
+				if (!(part.getThicknessMm() > 0)) {
+					throw new IllegalStateException("Part '" + part.getName() + "' has no thickness");
+				}
+				part.validateSolid();
+			}
+		}
+
 		List<ExportedPart> placed = layout();
 		switch (format) {
 			case DXF -> DXFPartsWriter.write(placed, out);
+			case STEP -> STEPPartsWriter.write(placed, title, out);
 		}
 		return placed;
 	}
