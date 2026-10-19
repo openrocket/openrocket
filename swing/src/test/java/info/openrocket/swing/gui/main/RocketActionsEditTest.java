@@ -39,6 +39,7 @@ import info.openrocket.swing.util.BaseTestCase;
  */
 
 public class RocketActionsEditTest extends BaseTestCase {
+
     /*
      * Test rocket, built in setUp():
      *
@@ -49,7 +50,6 @@ public class RocketActionsEditTest extends BaseTestCase {
      *           ├── Fin set          [index 0]
      *           └── Inner tube       [index 1]
      */
-
     private OpenRocketDocument document;
     private Rocket rocket;
     private AxialStage stage;
@@ -155,5 +155,46 @@ public class RocketActionsEditTest extends BaseTestCase {
         // Copy must not modify the design
         assertEquals(List.of("Nose", "Tube"), childNames(stage));
         assertEquals(List.of("Fins", "Inner"), childNames(tube));
+    }
+
+    @Test
+    public void copyParentAndAllChildrenPutsOnlyParentOnClipboard() {
+        select(tube, fins, inner);
+        actions.getCopyAction().actionPerformed(null);
+
+        List<RocketComponent> clipboard = OpenRocketClipboard.getClipboardComponents();
+        assertEquals(1, clipboard.size());
+        assertEquals(List.of("Fins", "Inner"), childNames(clipboard.get(0)));
+    }
+
+    @Test
+    public void copyParentWithSubsetOfChildrenKeepsOnlySelectedChildren() {
+        // Discontinuous selection: the tube and only one of its two children
+        select(tube, fins);
+        actions.getCopyAction().actionPerformed(null);
+
+        List<RocketComponent> clipboard = OpenRocketClipboard.getClipboardComponents();
+        assertEquals(1, clipboard.size(), "children must be folded into the copied parent");
+        assertEquals(List.of("Fins"), childNames(clipboard.get(0)));
+    }
+
+    @Test
+    public void copyMultipleSiblingsKeepsTreeOrder() {
+        // Select in reverse click order; clipboard order must still be usable for a sensible paste
+        select(tube, nose);
+        actions.getCopyAction().actionPerformed(null);
+
+        List<RocketComponent> clipboard = OpenRocketClipboard.getClipboardComponents();
+        assertEquals(2, clipboard.size());
+        assertTrue(clipboard.stream().anyMatch(c -> c.getName().equals("Nose")));
+        assertTrue(clipboard.stream().anyMatch(c -> c.getName().equals("Tube")));
+    }
+
+    @Test
+    public void copyActionDisabledForRocketAndEnabledForComponent() {
+        select(rocket);
+        assertFalse(actions.getCopyAction().isEnabled());
+        select(nose);
+        assertTrue(actions.getCopyAction().isEnabled());
     }
 }
