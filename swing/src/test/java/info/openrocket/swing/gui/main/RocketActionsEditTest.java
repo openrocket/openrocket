@@ -562,4 +562,113 @@ public class RocketActionsEditTest extends BaseTestCase {
         select(rocket);
         assertFalse(actions.getDuplicateAction().isEnabled());
     }
+
+    // ---------------------------------------------------------------- move up / down
+
+    /**
+     * Move up swaps the component with the sibling above it and keeps it selected.
+     */
+    @Test
+    public void moveUpSingleComponent() {
+        select(tube);
+        assertTrue(actions.getMoveUpAction().isEnabled());
+        actions.getMoveUpAction().actionPerformed(null);
+
+        assertEquals(List.of("Tube", "Nose"), childNames(stage));
+        assertEquals(List.of(tube), selection.getSelectedComponents());
+    }
+
+    /**
+     * Move down swaps the component with the sibling below it.
+     */
+    @Test
+    public void moveDownSingleComponent() {
+        select(nose);
+        actions.getMoveDownAction().actionPerformed(null);
+        assertEquals(List.of("Tube", "Nose"), childNames(stage));
+    }
+
+    /**
+     * Move up is disabled for the first child and performing it anyway changes nothing.
+     */
+    @Test
+    public void moveUpAtTopIsDisabledAndNoOp() {
+        select(nose);
+        assertFalse(actions.getMoveUpAction().isEnabled());
+        actions.getMoveUpAction().actionPerformed(null);
+        assertEquals(List.of("Nose", "Tube"), childNames(stage));
+    }
+
+    /**
+     * Move down is disabled for the last child and performing it anyway changes nothing.
+     */
+    @Test
+    public void moveDownAtBottomIsDisabledAndNoOp() {
+        select(tube);
+        assertFalse(actions.getMoveDownAction().isEnabled());
+        actions.getMoveDownAction().actionPerformed(null);
+        assertEquals(List.of("Nose", "Tube"), childNames(stage));
+    }
+
+    /**
+     * Moving several siblings up keeps their relative order regardless of click order.
+     */
+    @Test
+    public void moveUpMultipleSiblingsKeepsRelativeOrder() {
+        BodyTube third = new BodyTube();
+        third.setName("Third");
+        stage.addChild(third);  // Nose, Tube, Third
+
+        select(third, tube);     // reverse click order on purpose
+        actions.getMoveUpAction().actionPerformed(null);
+
+        assertEquals(List.of("Tube", "Third", "Nose"), childNames(stage));
+    }
+
+    /**
+     * When a parent and its child are both selected only the parent moves; the child stays put
+     * and its own position must not disable the action.
+     */
+    @Test
+    public void moveDownParentAndChildOnlyMovesParent() {
+        // Selecting a parent together with its child: only the top component moves
+        select(nose, fins);
+        assertTrue(actions.getMoveDownAction().isEnabled(), "child's own position must not block the move");
+        actions.getMoveDownAction().actionPerformed(null);
+
+        assertEquals(List.of("Tube", "Nose"), childNames(stage));
+        assertEquals(List.of("Fins", "Inner"), childNames(tube), "child must not be moved");
+    }
+
+    /**
+     * Undo after a move restores the original order.
+     */
+    @Test
+    public void moveIsUndoable() {
+        select(tube);
+        actions.getMoveUpAction().actionPerformed(null);
+        assertEquals(List.of("Tube", "Nose"), childNames(stage));
+
+        document.undo();
+        assertEquals(List.of("Nose", "Tube"), childNames(document.getRocket().getChild(0)));
+    }
+
+    // ---------------------------------------------------------------- copyComponentsMaintainParent
+
+    /**
+     * Resolves the parent-child TODO in {@code RocketActionsTest}: when both a parent and its
+     * child are copied, the copied child is attached to the copied parent.
+     */
+    @Test
+    public void copyComponentsMaintainParentReparentsCopiedChildOntoCopiedParent() {
+        List<RocketComponent> copies = RocketActions.copyComponentsMaintainParent(List.of(tube, fins));
+
+        assertEquals(2, copies.size());
+        RocketComponent copiedTube = copies.get(0);
+        RocketComponent copiedFins = copies.get(1);
+        assertSame(copiedTube, copiedFins.getParent());
+        assertTrue(copiedTube.getChildren().contains(copiedFins));
+        // Note: copy() is a deep copy, so copiedTube also carries its own copies of fins and inner.
+        // OpenRocketClipboard.filterClipboardComponents() is what removes those afterwards.
+    }
 }
