@@ -1,5 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
+import info.openrocket.core.material.Material;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.Test;
@@ -127,5 +128,25 @@ public class MultiComponentEditTest extends BaseTestCase {
 
 		assertEquals(0.5, noseCone.getLength(), MathUtil.EPSILON);
 		assertEquals(0.5, tube.getLength(), MathUtil.EPSILON);
+	}
+
+	@Test
+	public void testMaterialAppliedToAllSelectedBodyTubes() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		BodyTube tube1 = new BodyTube();
+		stage.addChild(tube1);
+		BodyTube tube2 = new BodyTube();
+		stage.addChild(tube2);
+
+		assertTrue(tube1.addConfigListener(tube2));
+
+		Material material = Material.newMaterial(Material.Type.BULK, "Test material", 1234.0, true);
+		tube1.setMaterial(material);
+
+		assertEquals(material, tube1.getMaterial());
+		assertEquals(material, tube2.getMaterial());
 	}
 }
