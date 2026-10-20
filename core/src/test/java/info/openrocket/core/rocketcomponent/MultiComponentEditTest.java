@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class MultiComponentEditTest extends BaseTestCase {
 
+	/**
+	 * Test that a length change on one selected body tube is applied to the other selected body tube.
+	 */
 	@Test
 	public void testBodyTubeLengthAppliedToAllSelectedBodyTubes() {
 		Rocket rocket = new Rocket();
@@ -36,6 +39,9 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
 	}
 
+	/**
+	 * Test that an outer radius change is applied to all selected body tubes.
+	 */
 	@Test
 	public void testBodyTubeOuterRadiusAppliedToAllSelectedBodyTubes() {
 		Rocket rocket = new Rocket();
@@ -57,6 +63,9 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.05, tube2.getOuterRadius(), MathUtil.EPSILON);
 	}
 
+	/**
+	 * Test that a body tube no longer follows edits after it is deselected.
+	 */
 	@Test
 	public void testDeselectedBodyTubeNoLongerFollowsEdits() {
 		Rocket rocket = new Rocket();
@@ -82,6 +91,9 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
 	}
 
+	/**
+	 * Test that a length change reaches every selected body tube when more than two are selected.
+	 */
 	@Test
 	public void testLengthAppliedToMoreThanTwoSelectedBodyTubes() {
 		Rocket rocket = new Rocket();
@@ -108,6 +120,9 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.5, tube3.getLength(), MathUtil.EPSILON);
 	}
 
+	/**
+	 * Test that a length change on a nose cone is applied to a selected body tube.
+	 */
 	@Test
 	public void testLengthAppliedToSelectedComponentOfDifferentType() {
 		Rocket rocket = new Rocket();
@@ -130,6 +145,9 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.5, tube.getLength(), MathUtil.EPSILON);
 	}
 
+	/**
+	 * Test that a material change is applied to all selected body tubes.
+	 */
 	@Test
 	public void testMaterialAppliedToAllSelectedBodyTubes() {
 		Rocket rocket = new Rocket();
