@@ -340,4 +340,116 @@ public class RocketActionsEditTest extends BaseTestCase {
         assertTrue(rocket.getChildCount() == 0 || rocket.getChildCount() == 2,
                 "cut must be all-or-nothing, got " + childNames(rocket));
     }
+
+    // ---------------------------------------------------------------- paste
+
+    /**
+     * Pasting onto a compatible component appends a fresh copy as its last child, selects the
+     * pasted component, and never inserts the clipboard instance itself.
+     */
+    @Test
+    public void pasteIntoCompatibleSelectionAppendsAsLastChild() {
+        select(fins);
+        actions.getCopyAction().actionPerformed(null);
+
+        select(tube);
+        assertTrue(actions.getPasteAction().isEnabled());
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(3, tube.getChildCount());
+        RocketComponent pasted = tube.getChild(2);
+        assertEquals("Fins", pasted.getName());
+        assertNotSame(fins, pasted);
+        assertNotEquals(fins.getID(), pasted.getID());
+        // Clipboard content must not be the instance that ended up in the tree
+        assertNotSame(OpenRocketClipboard.getClipboardComponents().get(0), pasted);
+        // Pasted components become the selection
+        assertEquals(List.of(pasted), selection.getSelectedComponents());
+    }
+
+    /**
+     * Pasting onto an incompatible component falls back to inserting after it as a sibling.
+     */
+    @Test
+    public void pasteIntoIncompatibleSelectionInsertsAfterItAsSibling() {
+        select(tube);
+        actions.getCopyAction().actionPerformed(null);
+
+        select(nose);  // a nose cone cannot contain a body tube, but the stage can
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube", "Tube"), childNames(stage));
+        assertEquals(List.of("Fins", "Inner"), childNames(stage.getChild(1)));
+    }
+
+    /**
+     * Pasting the same clipboard twice yields two distinct components with distinct IDs.
+     */
+    @Test
+    public void pasteTwiceCreatesTwoIndependentCopies() {
+        select(nose);
+        actions.getCopyAction().actionPerformed(null);
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube", "Nose", "Nose"), childNames(stage));
+        assertNotSame(stage.getChild(2), stage.getChild(3));
+        assertNotEquals(stage.getChild(2).getID(), stage.getChild(3).getID());
+    }
+
+    /**
+     * Pasting a multi-component clipboard keeps the original tree order.
+     */
+    @Test
+    public void pasteMultipleComponentsPreservesOrder() {
+        select(nose, tube);
+        actions.getCopyAction().actionPerformed(null);
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube", "Nose", "Tube"), childNames(stage));
+    }
+
+    /**
+     * Undo after a paste removes the pasted component.
+     */
+    @Test
+    public void pasteIsUndoable() {
+        select(nose);
+        actions.getCopyAction().actionPerformed(null);
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+        assertEquals(3, stage.getChildCount());
+
+        document.undo();
+        assertEquals(List.of("Nose", "Tube"), childNames(document.getRocket().getChild(0)));
+    }
+
+    /**
+     * Paste is disabled while the clipboard holds no components.
+     */
+    @Test
+    public void pasteActionDisabledWithEmptyClipboard() {
+        select(stage);
+        assertFalse(actions.getPasteAction().isEnabled());
+    }
+
+    /**
+     * Candidate bug (found by code reading, verify when running): {@code getPastePosition()} never
+     * returns null, it returns a {@code Pair(null, null)}, so {@code getPastePositions()} is never
+     * empty for a non-empty clipboard. Paste therefore stays enabled when nothing on the clipboard
+     * can go anywhere near the selection, and the "invalid position" dialog branch is unreachable.
+     */
+    @Test
+    public void pasteActionDisabledWhenClipboardCannotBePastedAtSelection() {
+        select(fins);
+        actions.getCopyAction().actionPerformed(null);
+
+        select(rocket);  // fins don't fit in the rocket, and the rocket has no parent
+        assertFalse(actions.getPasteAction().isEnabled());
+
+        actions.getPasteAction().actionPerformed(null);
+        assertEquals(1, rocket.getChildCount(), "nothing must be added");
+    }
 }
