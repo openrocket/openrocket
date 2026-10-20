@@ -106,4 +106,26 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
 		assertEquals(0.5, tube3.getLength(), MathUtil.EPSILON);
 	}
+
+	@Test
+	public void testLengthAppliedToSelectedComponentOfDifferentType() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		NoseCone noseCone = new NoseCone();
+		noseCone.setLength(0.1);
+		stage.addChild(noseCone);
+		BodyTube tube = new BodyTube();
+		tube.setLength(0.2);
+		stage.addChild(tube);
+
+		// Edit the nose cone with the body tube also selected
+		assertTrue(noseCone.addConfigListener(tube));
+
+		noseCone.setLength(0.5);
+
+		assertEquals(0.5, noseCone.getLength(), MathUtil.EPSILON);
+		assertEquals(0.5, tube.getLength(), MathUtil.EPSILON);
+	}
 }
