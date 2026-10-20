@@ -80,4 +80,30 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.7, tube1.getLength(), MathUtil.EPSILON);
 		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
 	}
+
+	@Test
+	public void testLengthAppliedToMoreThanTwoSelectedBodyTubes() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		BodyTube tube1 = new BodyTube();
+		tube1.setLength(0.1);
+		stage.addChild(tube1);
+		BodyTube tube2 = new BodyTube();
+		tube2.setLength(0.2);
+		stage.addChild(tube2);
+		BodyTube tube3 = new BodyTube();
+		tube3.setLength(0.3);
+		stage.addChild(tube3);
+
+		assertTrue(tube1.addConfigListener(tube2));
+		assertTrue(tube1.addConfigListener(tube3));
+
+		tube1.setLength(0.5);
+
+		assertEquals(0.5, tube1.getLength(), MathUtil.EPSILON);
+		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
+		assertEquals(0.5, tube3.getLength(), MathUtil.EPSILON);
+	}
 }
