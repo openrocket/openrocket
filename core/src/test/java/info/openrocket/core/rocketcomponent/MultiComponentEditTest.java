@@ -55,4 +55,29 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.05, tube1.getOuterRadius(), MathUtil.EPSILON);
 		assertEquals(0.05, tube2.getOuterRadius(), MathUtil.EPSILON);
 	}
+
+	@Test
+	public void testDeselectedBodyTubeNoLongerFollowsEdits() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		BodyTube tube1 = new BodyTube();
+		tube1.setLength(0.1);
+		stage.addChild(tube1);
+		BodyTube tube2 = new BodyTube();
+		tube2.setLength(0.2);
+		stage.addChild(tube2);
+
+		assertTrue(tube1.addConfigListener(tube2));
+		tube1.setLength(0.5);
+		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
+
+		// Deselect tube2: later edits to tube1 must not change it
+		tube1.removeConfigListener(tube2);
+		tube1.setLength(0.7);
+
+		assertEquals(0.7, tube1.getLength(), MathUtil.EPSILON);
+		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
+	}
 }
