@@ -452,4 +452,114 @@ public class RocketActionsEditTest extends BaseTestCase {
         actions.getPasteAction().actionPerformed(null);
         assertEquals(1, rocket.getChildCount(), "nothing must be added");
     }
+
+    // ---------------------------------------------------------------- duplicate
+
+    /**
+     * Duplicating a component adds the copy to the same parent and selects it.
+     */
+    @Test
+    public void duplicateSingleComponentAddsCopyToSameParentAndSelectsIt() {
+        select(nose);
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(3, stage.getChildCount());
+        RocketComponent duplicate = selection.getSelectedComponent();
+        assertEquals("Nose", duplicate.getName());
+        assertNotSame(nose, duplicate);
+        assertSame(stage, duplicate.getParent());
+        assertTrue(stage.getChildren().contains(duplicate));
+    }
+
+    /**
+     * Duplicating a component with children duplicates the whole subtree with fresh IDs.
+     */
+    @Test
+    public void duplicateComponentWithChildrenDuplicatesSubtree() {
+        select(tube);
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube", "Tube"), childNames(stage));
+        RocketComponent duplicate = stage.getChild(2);
+        assertEquals(List.of("Fins", "Inner"), childNames(duplicate));
+        assertNotEquals(fins.getID(), childNamed(duplicate, "Fins").getID());
+    }
+
+    /**
+     * Discontinuous selection: the duplicate carries only the selected child while the
+     * original keeps all of its children (issue #1692).
+     */
+    @Test
+    public void duplicateParentWithSubsetOfChildrenKeepsOnlySelectedChildren() {
+        select(tube, inner);
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(3, stage.getChildCount());
+        RocketComponent duplicate = stage.getChild(2);
+        assertEquals("Tube", duplicate.getName());
+        assertEquals(List.of("Inner"), childNames(duplicate));
+        // Original is untouched
+        assertEquals(List.of("Fins", "Inner"), childNames(tube));
+    }
+
+    /**
+     * Duplicating two siblings adds two new components to the parent and selects them.
+     */
+    @Test
+    public void duplicateMultipleSiblingsAddsAllDuplicatesToParent() {
+        select(nose, tube);
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(4, stage.getChildCount());
+        assertEquals(2, selection.getSelectedComponents().size());
+        for (RocketComponent dup : selection.getSelectedComponents()) {
+            assertSame(stage, dup.getParent());
+            assertNotSame(nose, dup);
+            assertNotSame(tube, dup);
+        }
+    }
+
+    /**
+     * A selection spanning tree levels (tube, one of its children, and a sibling of the tube)
+     * duplicates only top-level components, with the child folded into its duplicated parent.
+     */
+    @Test
+    public void duplicateMixedLevelSelection() {
+        // Body tube, one of its children, and a sibling of the tube - all in one selection
+        select(tube, fins, nose);
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(4, stage.getChildCount());
+        RocketComponent dupTube = null;
+        for (RocketComponent c : stage.getChildren()) {
+            if (c != tube && c.getName().equals("Tube")) {
+                dupTube = c;
+            }
+        }
+        assertTrue(dupTube != null, "duplicated tube missing: " + childNames(stage));
+        assertEquals(List.of("Fins"), childNames(dupTube), "only the selected child is duplicated");
+        assertEquals(2, tube.getChildCount(), "fins must not be duplicated inside the original tube");
+    }
+
+    /**
+     * Undo after a duplicate removes the duplicate.
+     */
+    @Test
+    public void duplicateIsUndoable() {
+        select(tube);
+        actions.getDuplicateAction().actionPerformed(null);
+        assertEquals(3, stage.getChildCount());
+
+        document.undo();
+        assertEquals(List.of("Nose", "Tube"), childNames(document.getRocket().getChild(0)));
+    }
+
+    /**
+     * The Rocket root cannot be duplicated.
+     */
+    @Test
+    public void duplicateActionDisabledForRocket() {
+        select(rocket);
+        assertFalse(actions.getDuplicateAction().isEnabled());
+    }
 }
