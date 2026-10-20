@@ -34,4 +34,25 @@ public class MultiComponentEditTest extends BaseTestCase {
 		assertEquals(0.5, tube1.getLength(), MathUtil.EPSILON);
 		assertEquals(0.5, tube2.getLength(), MathUtil.EPSILON);
 	}
+
+	@Test
+	public void testBodyTubeOuterRadiusAppliedToAllSelectedBodyTubes() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+
+		BodyTube tube1 = new BodyTube();
+		tube1.setOuterRadius(0.02);
+		stage.addChild(tube1);
+		BodyTube tube2 = new BodyTube();
+		tube2.setOuterRadius(0.03);
+		stage.addChild(tube2);
+
+		assertTrue(tube1.addConfigListener(tube2));
+
+		tube1.setOuterRadius(0.05);
+
+		assertEquals(0.05, tube1.getOuterRadius(), MathUtil.EPSILON);
+		assertEquals(0.05, tube2.getOuterRadius(), MathUtil.EPSILON);
+	}
 }
