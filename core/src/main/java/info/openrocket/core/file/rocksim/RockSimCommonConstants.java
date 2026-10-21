@@ -65,6 +65,7 @@ public class RockSimCommonConstants {
     public static final String SHOULDER_OD = "ShoulderOD";
     public static final String DIAMETER = "Dia";
     public static final String SPILL_HOLE_DIA = "SpillHoleDia";
+    public static final String SIDE_COUNT = "SideCount";
     public static final String SHROUD_LINE_COUNT = "ShroudLineCount";
     public static final String SHROUD_LINE_LEN = "ShroudLineLen";
     public static final String CHUTE_COUNT = "ChuteCount";

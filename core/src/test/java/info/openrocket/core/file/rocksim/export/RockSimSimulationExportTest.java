@@ -225,6 +225,21 @@ public class RockSimSimulationExportTest extends RockSimTestBase {
 		assertEngine(result.getStage3Engines(), "H148R", "AeroTech", 0.3, 6.0, 12.0);
 	}
 
+	/**
+	 * RockSim treats a parachute without a side count as a 6-sided canopy, so a round OpenRocket parachute must be
+	 * exported with a side count of 0.
+	 */
+	@Test
+	public void exportsParachutesAsRound() throws Exception {
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		BodyTube body = makeBodyTube("Body");
+		document.getRocket().getStage(0).addChild(body);
+		body.addChild(new Parachute());
+
+		String result = new RockSimSaver().marshalToRockSim(document);
+		assertTrue(result.contains("<SideCount>0</SideCount>"));
+	}
+
 	private RockSimDocumentDTO marshalAndRead(OpenRocketDocument document) throws Exception {
 		String result = new RockSimSaver().marshalToRockSim(document);
 		assertNotNull(result);

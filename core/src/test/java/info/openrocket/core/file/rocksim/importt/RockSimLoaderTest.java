@@ -212,7 +212,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         // mass and cg were
         // not overridden for each stage.
         assertEquals(doc.getRocket().getName(), "Three Stage Everything Included Rocket");
-        assertEquals(0, loader.getWarnings().size());
+        assertEquals(1, loader.getWarnings().size()); // hexagonal parachute imported as a round one
         assertEquals(3, rocket.getStageCount());
         AxialStage stage1 = (AxialStage) rocket.getChild(0);
         assertFalse(stage1.isMassOverridden());
@@ -396,8 +396,9 @@ public class RockSimLoaderTest extends BaseTestCase {
         Rocket rocket = doc.getRocket();
         assertNotNull(rocket);
         assertEquals(doc.getRocket().getName(), "SubAssembly Test");
-        assertEquals(2, loader.getWarnings().size()); // can't add BodyTube to NoseCone, and can't add Transition
-                                                             // to Transition
+        // can't add BodyTube to NoseCone, can't add Transition to Transition, and a hexagonal parachute is imported
+        // as a round one
+        assertEquals(3, loader.getWarnings().size());
 
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/SubAssemblyTest.rkt");
         assertNotNull(stream, "Could not open SubAssemblyTest.rkt");
