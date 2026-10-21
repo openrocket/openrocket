@@ -150,10 +150,60 @@ public class RockSimSaver extends RocketSaver {
 		if (stageCount > 2) {
 			result.setStage1(toStageDTO(axialStages.get(2), result, 1, context));
 		}
+		setStageOverrides(rocket, axialStages, result);
 		// Record the final component serial number in the RockSim design.
 		result.setLastSerialNumber(BasePartDTO.getCurrentSerialNumber());
 
 		return result;
+	}
+
+	/**
+	 * RockSim's stage overrides are all-or-nothing: when UseKnownMass is set, RockSim flies each stack of stages with
+	 * the sum of the stage masses and the CG of that stack (sustainer alone, sustainer and first booster, all
+	 * stages), measured from the nose tip. So when any stage mass or CG is overridden, the mass of every stage and
+	 * the CG of every stack are exported.
+	 */
+	private void setStageOverrides(Rocket rocket, List<AxialStage> axialStages, RocketDesignDTO design) {
+		int stageCount = Math.min(axialStages.size(), 3);
+		boolean overridden = false;
+		for (int i = 0; i < stageCount; i++) {
+			overridden |= axialStages.get(i).isMassOverridden() || axialStages.get(i).isCGOverridden();
+		}
+		if (!overridden) {
+			return;
+		}
+
+		design.setUseKnownMass(1);
+		FlightConfiguration stack = new FlightConfiguration(rocket);
+		stack.clearAllStages();
+		for (int i = 0; i < stageCount; i++) {
+			int stageNumber = axialStages.get(i).getStageNumber();
+
+			FlightConfiguration single = new FlightConfiguration(rocket);
+			single.clearAllStages();
+			single._setStageActive(stageNumber, true);
+			double mass = MassCalculator.calculateStructure(single).getMass()
+					* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
+
+			stack._setStageActive(stageNumber, true);
+			double cg = MassCalculator.calculateStructure(stack).getCM().getX()
+					* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+
+			switch (i) {
+				case 0:
+					design.setStage3Mass(mass);
+					design.setStage3CG(cg);
+					break;
+				case 1:
+					design.setStage2Mass(mass);
+					design.setStage32CG(cg);
+					break;
+				default:
+					design.setStage1Mass(mass);
+					design.setStage321CG(cg);
+					break;
+			}
+		}
 	}
 
 	private List<AxialStage> getAxialStages(Rocket rocket) {
