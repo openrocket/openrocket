@@ -40,6 +40,16 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 	private double thickness = 0.0d;
 
 	/**
+	 * The length of the straight section between the nose cone and its shoulder.
+	 */
+	private double baseExtensionLength = 0.0d;
+
+	/**
+	 * The parent component of the nose cone, or null if the nose cone could not be added to it.
+	 */
+	private RocketComponent parent = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param c        the parent component to the nosecone
@@ -56,6 +66,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 		if (isCompatible(c, NoseCone.class, warnings)) {
 			c.addChild(noseCone);
 			noseCone.setAftRadiusAutomatic(false);
+			parent = c;
 		}
 	}
 
@@ -101,6 +112,10 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 			if (RockSimCommonConstants.SHOULDER_LEN.equals(element)) {
 				noseCone.setAftShoulderLength(Math.max(0, Double.parseDouble(
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
+			}
+			if (RockSimCommonConstants.BASE_EXTENSION_LEN.equals(element)) {
+				baseExtensionLength = Math.max(0, Double.parseDouble(content)
+						/ RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if (RockSimCommonConstants.SHAPE_PARAMETER.equals(element)) {
 				// The Rocksim ShapeParameter only applies to certain shapes, although it is
@@ -148,6 +163,47 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 			noseCone.setThickness(thickness);
 			noseCone.setAftShoulderThickness(thickness);
 		}
+
+		if (baseExtensionLength > 0 && parent != null) {
+			addBaseExtension(warnings);
+		}
+	}
+
+	/**
+	 * OpenRocket nose cones have no straight base extension, so it is imported as a straight transition behind the
+	 * nose cone, which takes over the nose cone's shoulder.
+	 *
+	 * @param warnings the warning set
+	 */
+	private void addBaseExtension(WarningSet warnings) {
+		Transition extension = new Transition();
+		extension.setName(noseCone.getName() + " base extension");
+		extension.setShapeType(Transition.Shape.CONICAL);
+		extension.setLength(baseExtensionLength);
+		extension.setForeRadiusAutomatic(false);
+		extension.setAftRadiusAutomatic(false);
+		extension.setForeRadius(noseCone.getAftRadius());
+		extension.setAftRadius(noseCone.getAftRadius());
+		extension.setFilled(noseCone.isFilled());
+		extension.setThickness(noseCone.getThickness());
+		extension.setMaterial(noseCone.getMaterial());
+		extension.setFinish(noseCone.getFinish());
+
+		extension.setAftShoulderRadius(noseCone.getAftShoulderRadius());
+		extension.setAftShoulderLength(noseCone.getAftShoulderLength());
+		extension.setAftShoulderThickness(noseCone.getAftShoulderThickness());
+		extension.setAftShoulderCapped(noseCone.isAftShoulderCapped());
+		noseCone.setAftShoulderLength(0);
+
+		// A known nose cone mass already includes its base extension
+		if (noseCone.isMassOverridden()) {
+			extension.setMassOverridden(true);
+			extension.setOverrideMass(0);
+		}
+
+		parent.addChild(extension, parent.getChildPosition(noseCone) + 1);
+		warnings.add("The base extension of nose cone '" + noseCone.getName()
+				+ "' was imported as a separate transition, '" + extension.getName() + "'.");
 	}
 
 	/**

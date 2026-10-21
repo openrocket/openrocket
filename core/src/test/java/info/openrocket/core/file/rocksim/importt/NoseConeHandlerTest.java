@@ -210,6 +210,44 @@ public class NoseConeHandlerTest extends RockSimTestBase {
     }
 
     /**
+     * RockSim places the part after a nose cone at Len + BaseExtensionLen, with the shoulder behind the base
+     * extension. The extension is imported as a straight transition that carries the shoulder.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @Test
+    public void testBaseExtension() throws Exception {
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+        AxialStage stage = new AxialStage();
+        NoseConeHandler handler = new NoseConeHandler(null, stage, warnings);
+        NoseCone noseCone = (NoseCone) getField(handler, "noseCone");
+
+        handler.closeElement("Len", attributes, "139.7", warnings);
+        handler.closeElement("BaseDia", attributes, "66", warnings);
+        handler.closeElement("ShoulderLen", attributes, "40", warnings);
+        handler.closeElement("ShoulderOD", attributes, "64", warnings);
+        handler.closeElement("BaseExtensionLen", attributes, "50.8", warnings);
+        handler.endHandler("NoseCone", attributes, null, warnings);
+
+        Assertions.assertEquals(2, stage.getChildCount());
+        Assertions.assertSame(noseCone, stage.getChild(0));
+        Transition extension = (Transition) stage.getChild(1);
+        Assertions.assertEquals(139.7 / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, noseCone.getLength(),
+                1e-9);
+        Assertions.assertEquals(0, noseCone.getAftShoulderLength(), 1e-9);
+        Assertions.assertEquals(50.8 / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, extension.getLength(),
+                1e-9);
+        Assertions.assertEquals(noseCone.getAftRadius(), extension.getForeRadius(), 1e-9);
+        Assertions.assertEquals(noseCone.getAftRadius(), extension.getAftRadius(), 1e-9);
+        Assertions.assertEquals(40.0 / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+                extension.getAftShoulderLength(), 1e-9);
+        Assertions.assertEquals(64.0 / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
+                extension.getAftShoulderRadius(), 1e-9);
+        Assertions.assertEquals(1, warnings.size());
+    }
+
+    /**
      * Method: getComponent()
      *
      * @throws Exception thrown if something goes awry

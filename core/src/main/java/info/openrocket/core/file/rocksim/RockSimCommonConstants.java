@@ -61,6 +61,7 @@ public class RockSimCommonConstants {
     public static final String NOSE_CONE = "NoseCone";
     public static final String BASE_DIA = "BaseDia";
     public static final String SHOULDER_LEN = "ShoulderLen";
+    public static final String BASE_EXTENSION_LEN = "BaseExtensionLen";
     public static final String SHOULDER_OD = "ShoulderOD";
     public static final String DIAMETER = "Dia";
     public static final String SPILL_HOLE_DIA = "SpillHoleDia";

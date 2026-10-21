@@ -183,11 +183,15 @@ public class RockSimLoaderTest extends BaseTestCase {
         Rocket rocket = doc.getRocket();
         assertNotNull(rocket);
         assertEquals(doc.getRocket().getName(), "FooBar Test");
-        assertTrue(loader.getWarnings().isEmpty());
+        // The nose cone's base extension is imported as a separate transition, with a warning
+        assertEquals(1, loader.getWarnings().size());
+        assertEquals("Nose cone base extension", rocket.getChild(0).getChild(1).getName());
+        assertEquals(0.066675, rocket.getChild(0).getChild(1).getLength(), 1e-9);
 
         stream = this.getClass().getResourceAsStream("/file/rocksim/importt/rocksimTestRocket2.rkt");
         assertNotNull(stream, "Could not open rocksimTestRocket2.rkt");
 
+        loader = new RockSimLoader();
         doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
