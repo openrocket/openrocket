@@ -15,6 +15,8 @@ import info.openrocket.core.componentanalysis.CADomainDataType;
 import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -27,6 +29,7 @@ import info.openrocket.core.util.StringUtils;
 import info.openrocket.core.util.TextUtil;
 
 public class CSVExport {
+	private static final Translator trans = Application.getTranslator();
 
 	/**
 	 * Exports the specified flight data branch into a CSV file.
@@ -259,8 +262,8 @@ public class CSVExport {
 
 	private static void printEvent(PrintWriter writer, FlightEvent e,
 			String commentStarter) {
-		writer.print(prependComment(commentStarter, "Event " + e.getType().name() +
-				" occurred at t=" + TextUtil.doubleToString(e.getTime()) + " seconds"));
+		writer.print(prependComment(commentStarter, String.format(trans.get("CSVExport.comment.event"),
+				e.getType().name(), TextUtil.doubleToString(e.getTime()))));
 		if (e.getType() == FlightEvent.Type.SIM_WARN) {
 			writer.print(": " + (Warning) e.getData());
 		}
@@ -279,39 +282,39 @@ public class CSVExport {
 
 		switch (simulation.getStatus()) {
 			case UPTODATE:
-				line += " (Up to date)";
+				line += " (" + trans.get("CSVExport.comment.upToDate") + ")";
 				break;
 
 			case LOADED:
-				line += " (Data loaded from a file)";
+				line += " (" + trans.get("CSVExport.comment.loaded") + ")";
 				break;
 
 			case OUTDATED:
-				line += " (Out of date)";
+				line += " (" + trans.get("CSVExport.comment.outOfDate") + ")";
 				break;
 
 			case EXTERNAL:
-				line += " (Imported data)";
+				line += " (" + trans.get("CSVExport.comment.imported") + ")";
 				break;
 
 			case NOT_SIMULATED:
-				line += " (Not simulated yet)";
+				line += " (" + trans.get("CSVExport.comment.notSimulated") + ")";
 				break;
 		}
 
 		writer.println(prependComment(commentStarter,line));
 
-		writer.println(prependComment(commentStarter, branch.getLength() + " data points written for "
-				+ fields.length + " variables."));
+		writer.println(prependComment(commentStarter, String.format(trans.get("CSVExport.comment.dataPoints"),
+				branch.getLength(), fields.length)));
 
 		if (data == null) {
-			writer.println(prependComment(commentStarter, "No simulation data available."));
+			writer.println(prependComment(commentStarter, trans.get("CSVExport.comment.noData")));
 			return;
 		}
 		WarningSet warnings = data.getWarningSet();
 
 		if (!warnings.isEmpty()) {
-			writer.println(prependComment(commentStarter,"Simulation warnings:"));
+			writer.println(prependComment(commentStarter, trans.get("CSVExport.comment.warnings")));
 			for (Warning w : warnings) {
 				writer.println(prependComment(commentStarter, "  " + w.toString()));
 			}
@@ -322,10 +325,11 @@ public class CSVExport {
 													   CADomainDataType domainDataType, CADataType[] fields,
 													   Map<CADataType, List<RocketComponent>> components,
 													   String fieldSeparator, String commentStarter) {
-		StringBuilder line = new StringBuilder(prependComment(commentStarter, "Parameters:")).append(fieldSeparator);
+		StringBuilder line = new StringBuilder(prependComment(commentStarter,
+				trans.get("CSVExport.comment.parameters"))).append(fieldSeparator);
 
 		if (domainDataType != CADomainDataType.WIND_DIRECTION) {
-			line.append("Wind direction:").append(fieldSeparator);
+			line.append(trans.get("CSVExport.comment.windDirection")).append(fieldSeparator);
 			Unit unit = parameters.getThetaUnit();
 			if (unit != null) {
 				line.append(unit.toStringUnit(parameters.getTheta())).append(fieldSeparator);
@@ -334,7 +338,7 @@ public class CSVExport {
 			}
 		}
 		if (domainDataType != CADomainDataType.AOA) {
-			line.append("Angle of attack:").append(fieldSeparator);
+			line.append(trans.get("CSVExport.comment.angleOfAttack")).append(fieldSeparator);
 			Unit unit = parameters.getAOAUnit();
 			if (unit != null) {
 				line.append(unit.toStringUnit(parameters.getAOA())).append(fieldSeparator);
@@ -343,7 +347,7 @@ public class CSVExport {
 			}
 		}
 		if (domainDataType != CADomainDataType.MACH) {
-			line.append("Mach:").append(fieldSeparator);
+			line.append(trans.get("CSVExport.comment.mach")).append(fieldSeparator);
 			Unit unit = parameters.getMachUnit();
 			if (unit != null) {
 				line.append(unit.toStringUnit(parameters.getMach())).append(fieldSeparator);
@@ -352,7 +356,7 @@ public class CSVExport {
 			}
 		}
 		if (domainDataType != CADomainDataType.ROLL_RATE) {
-			line.append("Roll rate:").append(fieldSeparator);
+			line.append(trans.get("CSVExport.comment.rollRate")).append(fieldSeparator);
 			Unit unit = parameters.getRollRateUnit();
 			if (unit != null) {
 				line.append(unit.toStringUnit(parameters.getRollRate())).append(fieldSeparator);
@@ -361,13 +365,13 @@ public class CSVExport {
 			}
 		}
 
-		line.append("Active stages:").append(fieldSeparator);
+		line.append(trans.get("CSVExport.comment.activeStages")).append(fieldSeparator);
 		List<AxialStage> activeStages = parameters.getSelectedConfiguration().getActiveStages();
 		for (AxialStage stage: activeStages) {
 			line.append(stage.getName()).append(fieldSeparator);
 		}
 
-		line.append("Flight configuration:").append(fieldSeparator);
+		line.append(trans.get("CSVExport.comment.flightConfiguration")).append(fieldSeparator);
 		line.append(parameters.getSelectedConfiguration().getName());
 
 		writer.println(line);
@@ -377,8 +381,8 @@ public class CSVExport {
 			nrOfVariables += components.get(t).size();
 		}
 
-		writer.println(prependComment(commentStarter, branch.getLength() + " data points written for "
-				+ nrOfVariables + " variables."));
+		writer.println(prependComment(commentStarter, String.format(trans.get("CSVExport.comment.dataPoints"),
+				branch.getLength(), nrOfVariables)));
 	}
 
 	private static String prependComment(String commentStarter, String comment) {

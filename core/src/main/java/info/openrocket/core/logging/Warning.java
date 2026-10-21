@@ -366,11 +366,10 @@ public abstract class Warning extends Message {
 
 		@Override
 		public String getMessageDescription() {
-			String str = "No motor with designation '" + designation + "'";
-			if (manufacturer != null)
-				str += " for manufacturer '" + manufacturer + "'";
-			str += " found.";
-			return str;
+			if (manufacturer != null) {
+				return String.format(trans.get("Warning.MissingMotor.withManufacturer"), designation, manufacturer);
+			}
+			return String.format(trans.get("Warning.MissingMotor"), designation);
 		}
 		
 		public Motor.Type getType() {

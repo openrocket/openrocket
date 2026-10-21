@@ -116,7 +116,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						document.addUndoPosition("Split fin set");
+						document.addUndoPosition(trans.get("FinSetConfig.undo.split"));
 						for (RocketComponent listener : listeners) {
 							component.addConfigListener(listener);
 						}
@@ -260,7 +260,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		RocketComponent parent = component.getParent();
 		if (parent instanceof SymmetricComponent){
 			try {
-				document.startUndo("Compute fin tabs");
+				document.startUndo(trans.get("FinSetConfig.undo.computeTabs"));
 
 				List<CenteringRing> rings = new ArrayList<>();
 				// Do deep recursive iteration to find centering rings and determine radius of inner tube

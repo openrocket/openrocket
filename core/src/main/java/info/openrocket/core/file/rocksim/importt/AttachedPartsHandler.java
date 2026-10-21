@@ -4,6 +4,8 @@
 package info.openrocket.core.file.rocksim.importt;
 
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.simplesax.AbstractElementHandler;
@@ -17,6 +19,7 @@ import java.util.HashMap;
  * A SAX handler for the Rocksim AttachedParts XML type.
  */
 class AttachedPartsHandler extends AbstractElementHandler {
+	private static final Translator trans = Application.getTranslator();
 	private final DocumentLoadingContext context;
 
 	/** The parent component. */
@@ -94,7 +97,7 @@ class AttachedPartsHandler extends AbstractElementHandler {
 			return new PodHandler(context, component, warnings);
 		}
 		if (RockSimCommonConstants.RING_TAIL.equals(element)) {
-			warnings.add("Ring tails are not currently supported. Ignoring.");
+			warnings.add(trans.get("RockSimImport.warning.ringTail"));
 		}
 		return null;
 	}

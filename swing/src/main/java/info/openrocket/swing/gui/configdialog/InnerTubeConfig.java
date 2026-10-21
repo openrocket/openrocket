@@ -416,7 +416,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						document.addUndoPosition("Split cluster");
+						document.addUndoPosition(trans.get("InnerTubeConfig.undo.splitCluster"));
 
 						List<RocketComponent> listeners = new ArrayList<>(component.getConfigListeners());
 						splitAction(component);

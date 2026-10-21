@@ -33,15 +33,15 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	
 	public ThrustCurveMotorPlotDialog(List<ThrustCurveMotor> motors, int selected, Window parent) {
-		super(parent, "Motor thrust curves", ModalityType.APPLICATION_MODAL);
+		super(parent, trans.get("ThrustCurveMotorPlotDialog.title"), ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Thrust curve plot
 		JFreeChart chart = ChartFactory.createXYLineChart(
-				"Motor thrust curves", // title
-				"Time / " + UnitGroup.UNITS_SHORT_TIME.getDefaultUnit().getUnit(), // xAxisLabel
-				"Thrust / " + UnitGroup.UNITS_FORCE.getDefaultUnit().getUnit(), // yAxisLabel
+				trans.get("ThrustCurveMotorPlotDialog.title"), // title
+				String.format(trans.get("ThrustCurveMotorPlotDialog.axis.time"), UnitGroup.UNITS_SHORT_TIME.getDefaultUnit().getUnit()), // xAxisLabel
+				String.format(trans.get("ThrustCurveMotorPlotDialog.axis.thrust"), UnitGroup.UNITS_FORCE.getDefaultUnit().getUnit()), // yAxisLabel
 				null, // dataset
 				PlotOrientation.VERTICAL,
 				true, // legend

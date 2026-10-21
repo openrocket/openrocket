@@ -6,6 +6,8 @@ package info.openrocket.core.file.rocksim.importt;
 import java.util.HashMap;
 
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.simplesax.ElementHandler;
@@ -22,6 +24,7 @@ import org.xml.sax.SAXException;
  * A SAX handler for Rocksim's Parachute XML type.
  */
 class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
+	private static final Translator trans = Application.getTranslator();
 	/**
 	 * The OpenRocket Parachute instance
 	 */
@@ -94,7 +97,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 				double spillHoleRadius = Double.parseDouble(content)
 						/ RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
 				if (spillHoleRadius > 0) {
-					warnings.add("Parachute spill holes are not supported. Ignoring.");
+					warnings.add(trans.get("RockSimImport.warning.parachuteSpillHole"));
 				}
 			}
 			if (RockSimCommonConstants.SHROUD_LINE_MASS_PER_MM.equals(element)) {
@@ -111,7 +114,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 				setMaterialName(content);
 			}
 		} catch (NumberFormatException nfe) {
-			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
+			warnings.add(String.format(trans.get("RockSimImport.warning.invalidNumber"), element, content));
 		}
 	}
 

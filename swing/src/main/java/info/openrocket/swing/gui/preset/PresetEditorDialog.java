@@ -267,14 +267,14 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new MigLayout("", "[][grow][94.00,grow][232.0,grow][130.00][grow]", "[][][20.00,grow][grow]"));
-		JLabel lblManufacturer = new JLabel("Manufacturer:");
+		JLabel lblManufacturer = new JLabel(trans.get("TCMotorSelPan.lbl.Manufacturer"));
 		contentPanel.add(lblManufacturer, "cell 2 0,alignx left,aligny center");
 		
 		mfgTextField = new JTextField();
 		contentPanel.add(mfgTextField, "cell 3 0,growx");
 		mfgTextField.setColumns(10);
 		
-		JLabel typeLabel = new JLabel("Type:");
+		JLabel typeLabel = new JLabel(trans.get("MotorPlot.txt.Type"));
 		contentPanel.add(typeLabel, "cell 2 1,alignx left,aligny center");
 		
 		componentOverlayPanel = new JPanel();
@@ -287,7 +287,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		setItems(typeCombo, toEdit);
 		contentPanel.add(typeCombo, "cell 3 1,growx");
 		
-		JLabel bhMaterialLabel = new JLabel("Material:");
+		JLabel bhMaterialLabel = new JLabel(trans.get("RocketCfg.lbl.Material"));
 		contentPanel.add(bhMaterialLabel, "cell 2 2, alignx left");
 		
 		materialChooser = new MaterialChooser(new MaterialModel(this, Material.Type.BULK));
@@ -298,21 +298,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel ncPanel = new JPanel();
 			componentOverlayPanel.add(ncPanel, "NOSECONE");
 			ncPanel.setLayout(new MigLayout("", "[61px][159.00,grow][45.00][109.00,grow][189.00,grow][grow]", "[16px][][][][][]"));
-			JLabel ncPartNoLabel = new JLabel("Part No:");
+			JLabel ncPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			ncPanel.add(ncPartNoLabel, "cell 0 0,alignx left,aligny center");
 			
 			ncPartNoTextField = new JTextField();
 			ncPanel.add(ncPartNoTextField, "cell 1 0,growx");
 			ncPartNoTextField.setColumns(10);
 			
-			JLabel ncDescLabel = new JLabel("Description:");
+			JLabel ncDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			ncPanel.add(ncDescLabel, "cell 3 0,alignx left,aligny center");
 			
 			ncDescTextField = new JTextField();
 			ncPanel.add(ncDescTextField, "cell 4 0,growx");
 			ncDescTextField.setColumns(10);
 			
-			ncFilledCB = new JCheckBox("Filled");
+			ncFilledCB = new JCheckBox(trans.get("BodyTubecfg.checkbox.Filled"));
 			ncPanel.add(ncFilledCB, "cell 1 1");
 			
 			JLabel ncMaterialLabel = new JLabel(trans.get("MaterialPanel.lbl.ComponentMaterial"));
@@ -344,7 +344,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ncPanel.add(spin, "cell 4 2, growx");
 			ncPanel.add(new UnitSelector(ncLength), "growx");
 			
-			JLabel ncAftDiaLabel = new JLabel("Aft Dia.:");
+			JLabel ncAftDiaLabel = new JLabel(trans.get("TransitionCfg.lbl.Aftdiam"));
 			ncPanel.add(ncAftDiaLabel, "cell 0 3,alignx left");
 			
 			ncAftDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -353,7 +353,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ncPanel.add(spin, "cell 1 3, growx");
 			ncPanel.add(new UnitSelector(ncAftDia), "growx");
 			
-			JLabel ncAftShoulderLenLabel = new JLabel("Aft Shoulder Len:");
+			JLabel ncAftShoulderLenLabel = new JLabel(trans.get("table.column.AftShoulderLength") + ":");
 			ncPanel.add(ncAftShoulderLenLabel, "cell 0 4,alignx left");
 			
 			ncAftShoulderLen = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -362,7 +362,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ncPanel.add(spin, "cell 1 4, growx");
 			ncPanel.add(new UnitSelector(ncAftShoulderLen), "growx");
 			
-			JLabel ncAftShoulderDiaLabel = new JLabel("Aft Shoulder Dia.:");
+			JLabel ncAftShoulderDiaLabel = new JLabel(trans.get("table.column.AftShoulderDiameter") + ":");
 			ncPanel.add(ncAftShoulderDiaLabel, "cell 0 5,alignx left, aligny top, pad 7 0 0 0");
 			
 			ncAftShoulderDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -375,7 +375,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			ncPanel.add(panel, "cell 4 3, span 1 3");
 			panel.setLayout(null);
-			ncImageBtn = new JButton("No Image");
+			ncImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			ncImageBtn.setMaximumSize(new Dimension(75, 75));
 			ncImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(ncImageBtn);
@@ -401,24 +401,24 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			componentOverlayPanel.add(trPanel, "TRANSITION");
 			trPanel.setLayout(new MigLayout("", "[61px][159.00,grow][45.00][109.00,grow][189.00,grow][grow]", "[16px][][][][][]"));
 			
-			JLabel trPartNoLabel = new JLabel("Part No:");
+			JLabel trPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			trPanel.add(trPartNoLabel, "cell 0 0,alignx left");
 			
 			trPartNoTextField = new JTextField();
 			trPanel.add(trPartNoTextField, "cell 1 0,growx");
 			trPartNoTextField.setColumns(10);
 			
-			JLabel trDescLabel = new JLabel("Description:");
+			JLabel trDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			trPanel.add(trDescLabel, "cell 3 0,alignx left");
 			
 			trDescTextField = new JTextField();
 			trPanel.add(trDescTextField, "cell 4 0,growx");
 			trDescTextField.setColumns(10);
 			
-			trFilledCB = new JCheckBox("Filled");
+			trFilledCB = new JCheckBox(trans.get("BodyTubecfg.checkbox.Filled"));
 			trPanel.add(trFilledCB, "cell 1 1");
 			
-			JLabel trMassLabel = new JLabel("Mass:");
+			JLabel trMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			trPanel.add(trMassLabel, "cell 3 1,alignx left");
 			
 			trMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -427,7 +427,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 4 1, growx");
 			trPanel.add(new UnitSelector(trMass), "growx");
 			
-			JLabel trShapeLabel = new JLabel("Shape:");
+			JLabel trShapeLabel = new JLabel(trans.get("table.column.Shape") + ":");
 			trPanel.add(trShapeLabel, "cell 0 2,alignx left");
 			
 			trShapeCB = new JComboBox<>();
@@ -435,7 +435,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName()}));
 			trPanel.add(trShapeCB, "cell 1 2,growx");
 			
-			JLabel trLengthLabel = new JLabel("Length:");
+			JLabel trLengthLabel = new JLabel(trans.get("RocketCompCfg.lbl.Length"));
 			trPanel.add(trLengthLabel, "cell 3 2,alignx left");
 			
 			trLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -444,7 +444,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 4 2, growx");
 			trPanel.add(new UnitSelector(trLength), "growx");
 			
-			JLabel trAftDiaLabel = new JLabel("Aft Dia.:");
+			JLabel trAftDiaLabel = new JLabel(trans.get("TransitionCfg.lbl.Aftdiam"));
 			trPanel.add(trAftDiaLabel, "cell 0 3,alignx left");
 			
 			trAftDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -453,7 +453,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 1 3, growx");
 			trPanel.add(new UnitSelector(trAftDia), "growx");
 			
-			JLabel trForeDiaLabel = new JLabel("Fore Dia.:");
+			JLabel trForeDiaLabel = new JLabel(trans.get("TransitionCfg.lbl.Forediam"));
 			trPanel.add(trForeDiaLabel, "cell 3 3,alignx left");
 			
 			trForeDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -462,7 +462,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 4 3, growx");
 			trPanel.add(new UnitSelector(trForeDia), "growx");
 			
-			JLabel trAftShouldDiaLabel = new JLabel("Aft Shoulder Dia.:");
+			JLabel trAftShouldDiaLabel = new JLabel(trans.get("table.column.AftShoulderDiameter") + ":");
 			trPanel.add(trAftShouldDiaLabel, "cell 0 4,alignx left");
 			
 			trAftShoulderDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -471,7 +471,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 1 4, growx");
 			trPanel.add(new UnitSelector(trAftShoulderDia), "growx");
 			
-			JLabel trForeShouldDiaLabel = new JLabel("Fore Shoulder Dia.:");
+			JLabel trForeShouldDiaLabel = new JLabel(trans.get("table.column.ForeShoulderDiameter") + ":");
 			trPanel.add(trForeShouldDiaLabel, "cell 3 4,alignx left");
 			
 			trForeShoulderDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -480,7 +480,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 4 4, growx");
 			trPanel.add(new UnitSelector(trForeShoulderDia), "growx");
 			
-			JLabel trAftShoulderLenLabel = new JLabel("Aft Shoulder Len.:");
+			JLabel trAftShoulderLenLabel = new JLabel(trans.get("table.column.AftShoulderLength") + ":");
 			trPanel.add(trAftShoulderLenLabel, "cell 0 5,alignx left");
 			
 			trAftShoulderLen = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -489,7 +489,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			trPanel.add(spin, "cell 1 5, growx");
 			trPanel.add(new UnitSelector(trAftShoulderLen), "growx");
 			
-			JLabel lblForeShoulderLen = new JLabel("Fore Shoulder Len.:");
+			JLabel lblForeShoulderLen = new JLabel(trans.get("table.column.ForeShoulderLength") + ":");
 			trPanel.add(lblForeShoulderLen, "cell 3 5,alignx left");
 			
 			trForeShoulderLen = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0, 2);
@@ -502,7 +502,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			trPanel.add(panel, "cell 4 6");
 			panel.setLayout(null);
-			trImageBtn = new JButton("No Image");
+			trImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			trImageBtn.setMaximumSize(new Dimension(75, 75));
 			trImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(trImageBtn);
@@ -526,21 +526,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel btPanel = new JPanel();
 			componentOverlayPanel.add(btPanel, "BODYTUBE");
 			btPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
-			JLabel btPartNoLabel = new JLabel("Part No:");
+			JLabel btPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			btPanel.add(btPartNoLabel, "cell 0 0,alignx left");
 			
 			btPartNoTextField = new JTextField();
 			btPanel.add(btPartNoTextField, "cell 1 0,growx");
 			btPartNoTextField.setColumns(10);
 			
-			JLabel btDescLabel = new JLabel("Description:");
+			JLabel btDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			btPanel.add(btDescLabel, "cell 3 0,alignx left");
 			
 			btDescTextField = new JTextField();
 			btPanel.add(btDescTextField, "cell 4 0,growx");
 			btDescTextField.setColumns(10);
 			
-			JLabel btLengthLabel = new JLabel("Length:");
+			JLabel btLengthLabel = new JLabel(trans.get("RocketCompCfg.lbl.Length"));
 			btPanel.add(btLengthLabel, "cell 0 1,alignx left");
 			
 			btLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -549,7 +549,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			btPanel.add(spin, "cell 1 1, growx");
 			btPanel.add(new UnitSelector(btLength), "growx");
 			
-			JLabel btMassLabel = new JLabel("Mass:");
+			JLabel btMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			btPanel.add(btMassLabel, "cell 3 1,alignx left");
 			
 			btMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -558,7 +558,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			btPanel.add(spin, "cell 4 1, growx");
 			btPanel.add(new UnitSelector(btMass), "w 34lp!");
 			
-			JLabel btInnerDiaLabel = new JLabel("Inner Dia.:");
+			JLabel btInnerDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter"));
 			btPanel.add(btInnerDiaLabel, "cell 0 2,alignx left");
 			
 			btInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -567,7 +567,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			btPanel.add(spin, "cell 1 2, growx");
 			btPanel.add(new UnitSelector(btInnerDia), "growx");
 			
-			JLabel btOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel btOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			btPanel.add(btOuterDiaLabel, "cell 3 2,alignx left");
 			
 			btOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -580,7 +580,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			btPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			btImageBtn = new JButton("No Image");
+			btImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			btImageBtn.setMaximumSize(new Dimension(75, 75));
 			btImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(btImageBtn);
@@ -604,21 +604,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel tcPanel = new JPanel();
 			componentOverlayPanel.add(tcPanel, "TUBECOUPLER");
 			tcPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
-			JLabel tcPartNoLabel = new JLabel("Part No:");
+			JLabel tcPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			tcPanel.add(tcPartNoLabel, "cell 0 0,alignx left");
 			
 			tcPartNoTextField = new JTextField();
 			tcPanel.add(tcPartNoTextField, "cell 1 0,growx");
 			tcPartNoTextField.setColumns(10);
 			
-			JLabel tcDescLabel = new JLabel("Description:");
+			JLabel tcDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			tcPanel.add(tcDescLabel, "cell 3 0,alignx left");
 			
 			tcDescTextField = new JTextField();
 			tcPanel.add(tcDescTextField, "cell 4 0,growx");
 			tcDescTextField.setColumns(10);
 			
-			JLabel tcLengthLabel = new JLabel("Length:");
+			JLabel tcLengthLabel = new JLabel(trans.get("RocketCompCfg.lbl.Length"));
 			tcPanel.add(tcLengthLabel, "cell 0 1,alignx left");
 			
 			tcLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -627,7 +627,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			tcPanel.add(spin, "cell 1 1, growx");
 			tcPanel.add(new UnitSelector(tcLength), "growx");
 			
-			JLabel tcMassLabel = new JLabel("Mass:");
+			JLabel tcMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			tcPanel.add(tcMassLabel, "cell 3 1,alignx left");
 			
 			tcMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -636,7 +636,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			tcPanel.add(spin, "cell 4 1, growx");
 			tcPanel.add(new UnitSelector(tcMass), "w 34lp!");
 			
-			JLabel tcInnerDiaLabel = new JLabel("Inner Dia.:");
+			JLabel tcInnerDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter"));
 			tcPanel.add(tcInnerDiaLabel, "cell 0 2,alignx left");
 			
 			tcInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -645,7 +645,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			tcPanel.add(spin, "cell 1 2, growx");
 			tcPanel.add(new UnitSelector(tcInnerDia), "growx");
 			
-			JLabel tcOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel tcOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			tcPanel.add(tcOuterDiaLabel, "cell 3 2,alignx left");
 			
 			tcOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -658,7 +658,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			tcPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			tcImageBtn = new JButton("No Image");
+			tcImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			tcImageBtn.setMaximumSize(new Dimension(75, 75));
 			tcImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(tcImageBtn);
@@ -684,21 +684,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			componentOverlayPanel.add(bhPanel, "BULKHEAD");
 			bhPanel.setLayout(new MigLayout("", "[][157.00,grow 79][65.00][grow]", "[][][][]"));
 			
-			JLabel bhPartNoLabel = new JLabel("Part No:");
+			JLabel bhPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			bhPanel.add(bhPartNoLabel, "cell 0 0,alignx left");
 			
 			bhPartNoTextField = new JTextField();
 			bhPanel.add(bhPartNoTextField, "cell 1 0,growx");
 			bhPartNoTextField.setColumns(10);
 			
-			JLabel bhDescLabel = new JLabel("Description:");
+			JLabel bhDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			bhPanel.add(bhDescLabel, "cell 3 0,alignx left");
 			
 			bhDescTextField = new JTextField();
 			bhPanel.add(bhDescTextField, "cell 4 0,growx");
 			bhDescTextField.setColumns(10);
 			
-			JLabel bhLengthLabel = new JLabel("Thickness:");
+			JLabel bhLengthLabel = new JLabel(trans.get("RocketCompCfg.lbl.Thickness"));
 			bhPanel.add(bhLengthLabel, "cell 0 1,alignx left");
 			
 			bhLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -707,7 +707,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			bhPanel.add(spin, "cell 1 1, growx");
 			bhPanel.add(new UnitSelector(bhLength), "w 34lp!");
 			
-			JLabel bhMassLabel = new JLabel("Mass:");
+			JLabel bhMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			bhPanel.add(bhMassLabel, "cell 3 1,alignx left");
 			
 			bhMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -716,7 +716,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			bhPanel.add(spin, "cell 4 1, growx");
 			bhPanel.add(new UnitSelector(bhMass), "growx");
 			
-			JLabel bhOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel bhOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			bhPanel.add(bhOuterDiaLabel, "cell 0 2,alignx left, aligny top, pad 7 0 0 0");
 			
 			bhOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -729,7 +729,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			bhPanel.add(panel, "cell 4 2");
 			panel.setLayout(null);
-			bhImageBtn = new JButton("No Image");
+			bhImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			bhImageBtn.setMaximumSize(new Dimension(75, 75));
 			bhImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(bhImageBtn);
@@ -754,21 +754,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			componentOverlayPanel.add(crPanel, "CENTERINGRING");
 			crPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
 			
-			JLabel crPartNoLabel = new JLabel("Part No:");
+			JLabel crPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			crPanel.add(crPartNoLabel, "cell 0 0,alignx left");
 			
 			crPartNoTextField = new JTextField();
 			crPanel.add(crPartNoTextField, "cell 1 0, growx");
 			crPartNoTextField.setColumns(10);
 			
-			JLabel crDescLabel = new JLabel("Description:");
+			JLabel crDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			crPanel.add(crDescLabel, "cell 3 0,alignx left");
 			
 			crDescTextField = new JTextField();
 			crPanel.add(crDescTextField, "cell 4 0, growx");
 			crDescTextField.setColumns(10);
 			
-			JLabel crThicknessLabel = new JLabel("Thickness:");
+			JLabel crThicknessLabel = new JLabel(trans.get("RocketCompCfg.lbl.Thickness"));
 			crPanel.add(crThicknessLabel, "cell 0 1,alignx left");
 			
 			crThickness = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -777,7 +777,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			crPanel.add(spin, "cell 1 1, growx");
 			crPanel.add(new UnitSelector(crThickness), "growx");
 			
-			JLabel crMassLabel = new JLabel("Mass:");
+			JLabel crMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			crPanel.add(crMassLabel, "cell 3 1,alignx left");
 			
 			crMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -786,7 +786,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			crPanel.add(spin, "cell 4 1, growx");
 			crPanel.add(new UnitSelector(crMass), "w 34lp!");
 			
-			JLabel crOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel crOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			crPanel.add(crOuterDiaLabel, "cell 0 2,alignx left");
 			
 			crOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -795,7 +795,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			crPanel.add(spin, "cell 1 2, growx");
 			crPanel.add(new UnitSelector(crOuterDia), "w 34lp!");
 			
-			JLabel crInnerDiaLabel = new JLabel("Inner Dia.:");
+			JLabel crInnerDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter"));
 			crPanel.add(crInnerDiaLabel, "cell 3 2,alignx left");
 			
 			crInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -808,7 +808,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			crPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			crImageBtn = new JButton("No Image");
+			crImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			crImageBtn.setMaximumSize(new Dimension(75, 75));
 			crImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(crImageBtn);
@@ -832,21 +832,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel ebPanel = new JPanel();
 			componentOverlayPanel.add(ebPanel, "ENGINEBLOCK");
 			ebPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
-			JLabel ebPartNoLabel = new JLabel("Part No:");
+			JLabel ebPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			ebPanel.add(ebPartNoLabel, "cell 0 0,alignx left");
 			
 			ebPartNoTextField = new JTextField();
 			ebPanel.add(ebPartNoTextField, "cell 1 0,growx");
 			ebPartNoTextField.setColumns(10);
 			
-			JLabel ebDescLabel = new JLabel("Description:");
+			JLabel ebDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			ebPanel.add(ebDescLabel, "cell 3 0,alignx left");
 			
 			ebDescTextField = new JTextField();
 			ebPanel.add(ebDescTextField, "cell 4 0,growx");
 			ebDescTextField.setColumns(10);
 			
-			JLabel ebThicknessLabel = new JLabel("Thickness:");
+			JLabel ebThicknessLabel = new JLabel(trans.get("RocketCompCfg.lbl.Thickness"));
 			ebPanel.add(ebThicknessLabel, "cell 0 1,alignx left");
 			
 			ebThickness = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -855,7 +855,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ebPanel.add(spin, "cell 1 1, growx");
 			ebPanel.add(new UnitSelector(ebThickness), "growx");
 			
-			JLabel ebMassLabel = new JLabel("Mass:");
+			JLabel ebMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			ebPanel.add(ebMassLabel, "cell 3 1,alignx left");
 			
 			ebMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -864,7 +864,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ebPanel.add(spin, "cell 4 1, growx");
 			ebPanel.add(new UnitSelector(ebMass), "w 34lp!");
 			
-			JLabel ebOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel ebOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			ebPanel.add(ebOuterDiaLabel, "cell 0 2,alignx left");
 			
 			ebOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -873,7 +873,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			ebPanel.add(spin, "cell 1 2, growx");
 			ebPanel.add(new UnitSelector(ebOuterDia), "growx");
 			
-			JLabel ebInnerDiaLabel = new JLabel("Inner Dia.:");
+			JLabel ebInnerDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter"));
 			ebPanel.add(ebInnerDiaLabel, "cell 3 2,alignx left");
 			
 			ebInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -886,7 +886,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			ebPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			ebImageBtn = new JButton("No Image");
+			ebImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			ebImageBtn.setMaximumSize(new Dimension(75, 75));
 			ebImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(ebImageBtn);
@@ -910,21 +910,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel llPanel = new JPanel();
 			componentOverlayPanel.add(llPanel, "LAUNCHLUG");
 			llPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
-			JLabel llPartNoLabel = new JLabel("Part No:");
+			JLabel llPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			llPanel.add(llPartNoLabel, "cell 0 0,alignx left");
 			
 			llPartNoTextField = new JTextField();
 			llPanel.add(llPartNoTextField, "cell 1 0,growx");
 			llPartNoTextField.setColumns(10);
 			
-			JLabel llDescLabel = new JLabel("Description:");
+			JLabel llDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			llPanel.add(llDescLabel, "cell 3 0,alignx left");
 			
 			llDescTextField = new JTextField();
 			llPanel.add(llDescTextField, "cell 4 0,growx");
 			llDescTextField.setColumns(10);
 			
-			JLabel llLengthLabel = new JLabel("Length:");
+			JLabel llLengthLabel = new JLabel(trans.get("RocketCompCfg.lbl.Length"));
 			llPanel.add(llLengthLabel, "cell 0 1,alignx left");
 			
 			llLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -933,7 +933,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			llPanel.add(spin, "cell 1 1, growx");
 			llPanel.add(new UnitSelector(llLength), "growx");
 			
-			JLabel llMassLabel = new JLabel("Mass:");
+			JLabel llMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			llPanel.add(llMassLabel, "cell 3 1,alignx left");
 			
 			llMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -942,7 +942,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			llPanel.add(spin, "cell 4 1, growx");
 			llPanel.add(new UnitSelector(llMass), "w 34lp!");
 			
-			JLabel llOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel llOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			llPanel.add(llOuterDiaLabel, "cell 0 2,alignx left");
 			
 			llOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -951,7 +951,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			llPanel.add(spin, "cell 1 2, growx");
 			llPanel.add(new UnitSelector(llOuterDia), "growx");
 			
-			JLabel llInnerDiaLabel = new JLabel("Inner Dia.:");
+			JLabel llInnerDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter"));
 			llPanel.add(llInnerDiaLabel, "cell 3 2,alignx left");
 			
 			llInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -964,7 +964,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			llPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			llImageBtn = new JButton("No Image");
+			llImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			llImageBtn.setMaximumSize(new Dimension(75, 75));
 			llImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(llImageBtn);
@@ -989,21 +989,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel rbPanel = new JPanel();
 			componentOverlayPanel.add(rbPanel, "RAILBUTTON");
 			rbPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
-			JLabel rbPartNoLabel = new JLabel("Part No:");
+			JLabel rbPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			rbPanel.add(rbPartNoLabel, "cell 0 0,alignx left");
 			
 			rbPartNoTextField = new JTextField();
 			rbPanel.add(rbPartNoTextField, "cell 1 0,growx");
 			rbPartNoTextField.setColumns(10);
 			
-			JLabel rbDescLabel = new JLabel("Description:");
+			JLabel rbDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			rbPanel.add(rbDescLabel, "cell 3 0,alignx left");
 			
 			rbDescTextField = new JTextField();
 			rbPanel.add(rbDescTextField, "cell 4 0,growx");
 			rbDescTextField.setColumns(10);
 			
-			JLabel rbOuterDiaLabel = new JLabel("Outer Dia.:");
+			JLabel rbOuterDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter"));
 			rbPanel.add(rbOuterDiaLabel, "cell 0 1,alignx left");
 			
 			rbOuterDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1012,7 +1012,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			rbPanel.add(spin, "cell 1 1, growx");
 			rbPanel.add(new UnitSelector(rbOuterDia), "growx");
 			
-			JLabel rbMassLabel = new JLabel("Mass:");
+			JLabel rbMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			rbPanel.add(rbMassLabel, "cell 3 1,alignx left");
 			
 			rbMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -1021,7 +1021,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			rbPanel.add(spin, "cell 4 1, growx");
 			rbPanel.add(new UnitSelector(llMass), "w 34lp!");
 			
-			JLabel rbInnerDiaLabel = new JLabel("Inner Dia.:");
+			JLabel rbInnerDiaLabel = new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter"));
 			rbPanel.add(rbInnerDiaLabel, "cell 0 2,alignx left");
 			
 			rbInnerDia = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1030,7 +1030,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			rbPanel.add(spin, "cell 1 2, growx");
 			rbPanel.add(new UnitSelector(rbInnerDia), "growx");
 			
-			JLabel rbHeightLabel = new JLabel("Height:");
+			JLabel rbHeightLabel = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Height"));
 			rbPanel.add(rbHeightLabel, "cell 3 2,alignx left");
 			
 			rbHeight = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1039,7 +1039,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			rbPanel.add(spin, "cell 4 2, growx");
 			rbPanel.add(new UnitSelector(rbHeight), "w 34lp!");
 			
-			JLabel rbStandoffLabel = new JLabel("Standoff:");
+			JLabel rbStandoffLabel = new JLabel(trans.get("RailBtnCfg.lbl.BaseHeight"));
 			rbPanel.add(rbStandoffLabel, "cell 0 3,alignx left");
 			
 			rbStandoffHeight = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1048,7 +1048,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			rbPanel.add(spin, "cell 1 3, growx");
 			rbPanel.add(new UnitSelector(rbStandoffHeight), "growx");
 			
-			JLabel rbFlangeLabel = new JLabel("Flange:");
+			JLabel rbFlangeLabel = new JLabel(trans.get("RailBtnCfg.lbl.FlangeHeight"));
 			rbPanel.add(rbFlangeLabel, "cell 3 3,alignx left");
 			
 			rbFlangeHeight = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1061,7 +1061,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			rbPanel.add(panel, "cell 4 4");
 			panel.setLayout(null);
-			rbImageBtn = new JButton("No Image");
+			rbImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			rbImageBtn.setMaximumSize(new Dimension(75, 75));
 			rbImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(rbImageBtn);
@@ -1085,21 +1085,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel stPanel = new JPanel();
 			componentOverlayPanel.add(stPanel, "STREAMER");
 			stPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
-			JLabel stPartNoLabel = new JLabel("Part No:");
+			JLabel stPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			stPanel.add(stPartNoLabel, "cell 0 0,alignx left");
 			
 			stPartNoTextField = new JTextField();
 			stPanel.add(stPartNoTextField, "cell 1 0,growx");
 			stPartNoTextField.setColumns(10);
 			
-			JLabel stDescLabel = new JLabel("Description:");
+			JLabel stDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			stPanel.add(stDescLabel, "cell 3 0,alignx left");
 			
 			stDescTextField = new JTextField();
 			stPanel.add(stDescTextField, "cell 4 0,growx");
 			stDescTextField.setColumns(10);
 			
-			JLabel stLengthLabel = new JLabel("Length:");
+			JLabel stLengthLabel = new JLabel(trans.get("RocketCompCfg.lbl.Length"));
 			stPanel.add(stLengthLabel, "cell 0 1,alignx left");
 			
 			stLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1108,7 +1108,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			stPanel.add(spin, "cell 1 1, growx");
 			stPanel.add(new UnitSelector(stLength), "growx");
 			
-			JLabel stMassLabel = new JLabel("Mass:");
+			JLabel stMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			stPanel.add(stMassLabel, "cell 3 1,alignx left");
 			
 			stMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -1117,7 +1117,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			stPanel.add(spin, "cell 4 1, growx");
 			stPanel.add(new UnitSelector(stMass), "growx");
 			
-			JLabel stThicknessLabel = new JLabel("Thickness:");
+			JLabel stThicknessLabel = new JLabel(trans.get("RocketCompCfg.lbl.Thickness"));
 			stPanel.add(stThicknessLabel, "cell 0 2,alignx left");
 			
 			stThickness = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1126,7 +1126,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			stPanel.add(spin, "cell 1 2, growx");
 			stPanel.add(new UnitSelector(stThickness), "growx");
 			
-			JLabel stWidthLabel = new JLabel("Width:");
+			JLabel stWidthLabel = new JLabel(trans.get("table.column.Width") + ":");
 			stPanel.add(stWidthLabel, "cell 3 2,alignx left");
 			
 			stWidth = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1139,7 +1139,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			stPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			stImageBtn = new JButton("No Image");
+			stImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			stImageBtn.setMaximumSize(new Dimension(75, 75));
 			stImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(stImageBtn);
@@ -1163,21 +1163,21 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JPanel pcPanel = new JPanel();
 			componentOverlayPanel.add(pcPanel, "PARACHUTE");
 			pcPanel.setLayout(new MigLayout("", "[][157.00,grow 79][65.00][grow][][]", "[][][][][][]"));
-			JLabel pcPartNoLabel = new JLabel("Part No:");
+			JLabel pcPartNoLabel = new JLabel(trans.get("table.column.PartNo") + ":");
 			pcPanel.add(pcPartNoLabel, "cell 0 0,alignx left");
 			
 			pcPartNoTextField = new JTextField();
 			pcPanel.add(pcPartNoTextField, "cell 1 0,growx");
 			pcPartNoTextField.setColumns(10);
 			
-			JLabel pcDescLabel = new JLabel("Description:");
+			JLabel pcDescLabel = new JLabel(trans.get("table.column.Description") + ":");
 			pcPanel.add(pcDescLabel, "cell 3 0,alignx left");
 			
 			pcDescTextField = new JTextField();
 			pcPanel.add(pcDescTextField, "cell 4 0,growx");
 			pcDescTextField.setColumns(10);
 			
-			JLabel pcSidesLabel = new JLabel("Sides:");
+			JLabel pcSidesLabel = new JLabel(trans.get("table.column.Sides") + ":");
 			pcPanel.add(pcSidesLabel, "cell 0 1,alignx left");
 			
 			pcSides = new JTextField();
@@ -1185,7 +1185,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			pcSides.setInputVerifier(NON_NEGATIVE_INTEGER);
 			pcSides.setColumns(10);
 			
-			JLabel pcMassLabel = new JLabel("Mass:");
+			JLabel pcMassLabel = new JLabel(trans.get("RocketCompCfg.lbl.Mass"));
 			pcPanel.add(pcMassLabel, "cell 3 1,alignx left");
 			
 			pcMass = new DoubleModel(0, UnitGroup.UNITS_MASS, 0);
@@ -1194,7 +1194,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			pcPanel.add(spin, "cell 4 1, growx");
 			pcPanel.add(new UnitSelector(pcMass), "growx");
 			
-			JLabel pcDiameterLabel = new JLabel("Diameter:");
+			JLabel pcDiameterLabel = new JLabel(trans.get("ParachuteCfg.lbl.Diameter"));
 			pcPanel.add(pcDiameterLabel, "cell 0 2,alignx left");
 			
 			pcDiameter = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1203,7 +1203,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			pcPanel.add(spin, "cell 1 2, growx");
 			pcPanel.add(new UnitSelector(pcDiameter));
 			
-			JLabel pcLineLengthLabel = new JLabel("Line Length:");
+			JLabel pcLineLengthLabel = new JLabel(trans.get("table.column.LineLength") + ":");
 			pcPanel.add(pcLineLengthLabel, "cell 3 2,alignx left");
 			
 			pcLineLength = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
@@ -1212,7 +1212,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			pcPanel.add(spin, "cell 4 2, growx");
 			pcPanel.add(new UnitSelector(pcLineLength), "growx");
 			
-			JLabel pcLineCountLabel = new JLabel("Line Count:");
+			JLabel pcLineCountLabel = new JLabel(trans.get("table.column.LineCount") + ":");
 			pcPanel.add(pcLineCountLabel, "cell 3 3,alignx left");
 			
 			pcLineCount = new JTextField();
@@ -1220,7 +1220,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			pcPanel.add(pcLineCount, "cell 4 3, growx");
 			pcLineCount.setColumns(10);
 			
-			JLabel pcLineMaterialLabel = new JLabel("Line Material:");
+			JLabel pcLineMaterialLabel = new JLabel(trans.get("table.column.LineMaterial") + ":");
 			pcPanel.add(pcLineMaterialLabel, "cell 3 4,alignx left, aligny top, pad 7 0 0 0 ");
 			
 			pcLineMaterialChooser = new MaterialChooser();
@@ -1231,7 +1231,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			pcPanel.add(panel, "cell 1 3, span 1 3");
 			panel.setLayout(null);
-			pcImageBtn = new JButton("No Image");
+			pcImageBtn = new JButton(trans.get("PresetEditorDialog.but.noImage"));
 			pcImageBtn.setMaximumSize(new Dimension(75, 75));
 			pcImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(pcImageBtn);
@@ -1254,7 +1254,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		JPanel buttonPane = new JPanel();
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
 		buttonPane.setLayout(new MigLayout("", "[130px][176.00px][131.00px]", "[29px]"));
-		JButton btnSaveAndNew = new JButton("Save and New");
+		JButton btnSaveAndNew = new JButton(trans.get("PresetEditorDialog.but.saveAndNew"));
 		btnSaveAndNew.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -1263,7 +1263,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		});
 		buttonPane.add(btnSaveAndNew, "cell 0 0,alignx left,aligny top");
 		
-		JButton okButton = new JButton("Save and Close");
+		JButton okButton = new JButton(trans.get("PresetEditorDialog.but.saveAndClose"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -1276,7 +1276,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		buttonPane.add(okButton, "cell 1 0,alignx left,aligny top");
 		getRootPane().setDefaultButton(okButton);
 		
-		JButton cancelButton = new JButton("Close");
+		JButton cancelButton = new JButton(trans.get("dlg.but.close"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -1322,7 +1322,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		final NativeFileChooser chooser = new NativeFileChooser();
 		chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 		chooser.setAcceptAllFileFilterUsed(false);
-		chooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"));
+		chooser.addChoosableFileFilter(new FileNameExtensionFilter(trans.get("FileHelper.IMAGES"), "png", "jpg", "jpeg"));
 		return chooser;
 	}
 	
@@ -1789,7 +1789,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, ncMass.getValue());
@@ -1800,9 +1800,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert nose cone attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.noseCone"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory nose cone attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.noseCone")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -1841,7 +1841,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, trMass.getValue());
@@ -1852,9 +1852,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert transition attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.transition"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory transition attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.transition")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -1890,7 +1890,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, btMass.getValue());
@@ -1899,9 +1899,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert body tube attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.bodyTube"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory body tube attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.bodyTube")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -1932,7 +1932,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, tcMass.getValue());
@@ -1942,9 +1942,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert tube coupler attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.tubeCoupler"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory tube coupler attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.tubeCoupler")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -1974,7 +1974,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, bhMass.getValue());
@@ -1983,9 +1983,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert bulkhead attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.bulkhead"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory bulkhead attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.bulkhead")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -2015,7 +2015,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, crMass.getValue());
@@ -2024,9 +2024,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert centering ring attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.centeringRing"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory centering ring attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.centeringRing")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -2057,7 +2057,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, ebMass.getValue());
@@ -2066,9 +2066,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert engine block attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.engineBlock"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory engine block attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.engineBlock")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -2099,7 +2099,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, llMass.getValue());
@@ -2108,9 +2108,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert launch lug attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.launchLug"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory launch lug attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.launchLug")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -2143,7 +2143,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, rbMass.getValue());
@@ -2152,9 +2152,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert rail button attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.railButton"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory rail button attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.railButton")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -2185,7 +2185,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			if (!pcLineCount.getText().isEmpty()) {
@@ -2205,9 +2205,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert parachute attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.parachute"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory parachute attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.parachute")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
@@ -2238,7 +2238,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				props.put(ComponentPreset.MATERIAL, material);
 			}
 			else {
-				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.materialRequired"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
 			props.put(ComponentPreset.MASS, stMass.getValue());
@@ -2247,9 +2247,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			return ComponentPresetFactory.create(props);
 		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, "Could not convert engine block attribute.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, trans.get("PresetEditorDialog.error.convert.streamer"), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		} catch (InvalidComponentPresetException e) {
-			JOptionPane.showMessageDialog(null, craftErrorMessage(e, "Mandatory engine block attribute not set."), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, craftErrorMessage(e, trans.get("PresetEditorDialog.error.required.streamer")), trans.get("PresetEditorDialog.error.title"), JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
