@@ -13,19 +13,30 @@ import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.DatabaseMotorFinder;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.GeneralRocketLoader;
 import info.openrocket.core.file.RocketLoadException;
+import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.file.rasaero.importt.RASAeroLoader;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.ClusterConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,7 +49,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -187,6 +201,45 @@ public class RASAeroSaverTest {
         } catch (RocketLoadException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * A clustered motor mount must contribute the launch mass of every motor in the cluster, not just one.
+     */
+    @Test
+    public void testClusteredMotorLaunchWeightAndCG() {
+        Rocket rocket = TestRockets.makeEstesAlphaIII();
+        AxialStage sustainer = (AxialStage) rocket.getChild(0);
+        InnerTube mount = null;
+        for (RocketComponent component : rocket) {
+            if (component instanceof InnerTube) {
+                mount = (InnerTube) component;
+            }
+        }
+        mount.setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[5]);    // 4-ring
+        assertEquals(4, mount.getMotorCount());
+
+        OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+        Simulation simulation = new Simulation(document, rocket);
+        simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+        Map<AxialStage, MotorMount> mounts = new HashMap<>();
+        mounts.put(sustainer, mount);
+
+        SimulationDTO dto = new SimulationDTO(rocket, simulation, mounts, new ArrayList<>(), new WarningSet(),
+                new ErrorSet());
+
+        // Expected: the structure plus four motors at their launch mass and CG
+        RigidBody structure = MassCalculator.calculateStructure(new FlightConfiguration(rocket));
+        ThrustCurveMotor motor = (ThrustCurveMotor) mount.getMotorConfig(TestRockets.TEST_FCID_0).getMotor();
+        double motorMass = motor.getLaunchMass();
+        double motorCG = mount.getComponentLocations()[0].getX()
+                + mount.getMotorPosition(TestRockets.TEST_FCID_0).getX() + motor.getCGPoints()[0].getX();
+        double expectedMass = structure.getMass() + 4 * motorMass;
+        double expectedCG = (structure.getMass() * structure.getCM().getX() + 4 * motorMass * motorCG) / expectedMass;
+
+        assertEquals(expectedMass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT, dto.getSustainerLaunchWt(),
+                1e-6);
+        assertEquals(expectedCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH, dto.getSustainerCG(), 1e-6);
     }
 
     private OpenRocketDocument loadRocket(String fileName) {
