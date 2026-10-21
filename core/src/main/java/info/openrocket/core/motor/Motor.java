@@ -10,17 +10,15 @@ public interface Motor {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public enum Type {
-		SINGLE("Single-use", "Single-use solid propellant motor"),
-		RELOAD("Reloadable", "Reloadable solid propellant motor"),
-		HYBRID("Hybrid", "Hybrid rocket motor engine"),
-		UNKNOWN("Unknown", "Unknown motor type");
+		SINGLE("Single-use"),
+		RELOAD("Reloadable"),
+		HYBRID("Hybrid"),
+		UNKNOWN("Unknown");
 
 		private final String name;
-		private final String description;
 
-		Type(String name, String description) {
+		Type(String name) {
 			this.name = name;
-			this.description = description;
 		}
 
 		/**
@@ -29,7 +27,7 @@ public interface Motor {
 		 * @return a short name of the motor type.
 		 */
 		public String getName() {
-			return name;
+			return Application.getTranslator().get("Motor.Type." + name() + ".name");
 		}
 
 		/**
@@ -38,7 +36,7 @@ public interface Motor {
 		 * @return a description of the motor type.
 		 */
 		public String getDescription() {
-			return description;
+			return Application.getTranslator().get("Motor.Type." + name() + ".description");
 		}
 
 		@Override

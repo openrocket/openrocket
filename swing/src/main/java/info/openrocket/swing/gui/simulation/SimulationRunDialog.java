@@ -240,7 +240,7 @@ public class SimulationRunDialog extends JDialog {
 		log.debug("Progressbar value " + progress);
 
 		// Update the simulation fields
-		simLabel.setText("Running " + simulationNames[index]);
+		simLabel.setText(String.format(trans.get("SimuRunDlg.lbl.runningNamed"), simulationNames[index]));
 		if (simulationStatuses[index] == null) {
 			log.debug("No simulation status data available, setting empty labels");
 			timeLabel.setText("");
@@ -253,12 +253,14 @@ public class SimulationRunDialog extends JDialog {
 		timeLabel.setText(u.toStringUnit(simulationStatuses[index].getSimulationTime()));
 
 		u = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
-		altLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketPosition().getZ()) + " (max. "
-				+ u.toStringUnit(simulationMaxAltitude[index]) + ")");
+		altLabel.setText(String.format(trans.get("SimuRunDlg.lbl.valueWithMaximum"),
+				u.toStringUnit(simulationStatuses[index].getRocketPosition().getZ()),
+				u.toStringUnit(simulationMaxAltitude[index])));
 
 		u = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
-		velLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketVelocity().getZ()) + " (max. "
-				+ u.toStringUnit(simulationMaxVelocity[index]) + ")");
+		velLabel.setText(String.format(trans.get("SimuRunDlg.lbl.valueWithMaximum"),
+				u.toStringUnit(simulationStatuses[index].getRocketVelocity().getZ()),
+				u.toStringUnit(simulationMaxVelocity[index])));
 	}
 
 	/**

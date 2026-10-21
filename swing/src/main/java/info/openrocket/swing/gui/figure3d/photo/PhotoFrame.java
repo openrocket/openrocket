@@ -191,7 +191,7 @@ public class PhotoFrame extends JFrame {
 		if (showOpen) {
 			JMenuItem open = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
 			open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
-			open.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
+			open.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.open.desc"));
 			open.setIcon(Icons.FILE_OPEN);
 			open.addActionListener(e -> openDesign());
 			menu.add(open);
@@ -291,7 +291,7 @@ public class PhotoFrame extends JFrame {
 	private JMenu createEditMenu() {
 		JMenu menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.unk"));
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.desc"));
 
 		Action copy = new AbstractAction(trans.get("PhotoFrame.menu.edit.copy")) {
 			@Override

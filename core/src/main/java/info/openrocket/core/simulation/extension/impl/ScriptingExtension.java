@@ -94,18 +94,18 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	SimulationListener getListener() throws SimulationException {
 		ScriptEngine engine = util.getEngineByName(getLanguage());
 		if (engine == null) {
-			throw new SimulationException("Your JRE does not support the scripting language '" + getLanguage() + "'");
+			throw new SimulationException(String.format(trans.get("SimulationExtension.scripting.error.unsupportedLanguage"), getLanguage()));
 		}
 
 		try {
 			engine.eval(getScript());
 		} catch (ScriptException e) {
-			throw new SimulationException("Invalid script: " + e.getMessage());
+			throw new SimulationException(String.format(trans.get("SimulationExtension.scripting.error.invalidScript"), e.getMessage()));
 		}
 
 		if (!(engine instanceof Invocable)) {
 			throw new SimulationException(
-					"The scripting language '" + getLanguage() + "' does not implement the Invocable interface");
+					String.format(trans.get("SimulationExtension.scripting.error.notInvocable"), getLanguage()));
 		}
 		return new ScriptingSimulationListener((Invocable) engine);
 	}

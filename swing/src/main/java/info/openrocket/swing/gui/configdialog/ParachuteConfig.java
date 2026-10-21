@@ -361,7 +361,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		//// Reset button
 		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
-		button.setToolTipText("ParachuteCfg.but.ResetRadial.ttip");
+		button.setToolTipText(trans.get("ParachuteCfg.but.ResetRadial.ttip"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
