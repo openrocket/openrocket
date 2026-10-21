@@ -30,6 +30,7 @@ import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -165,6 +166,65 @@ public class RockSimSimulationExportTest extends RockSimTestBase {
 		assertMultiLevelWindLaunchConditions(second);
 	}
 
+	/**
+	 * Parallel stages are exported as pods of the axial stage that holds them, so their motors must be exported in
+	 * that axial stage's engine list. They must also not be mistaken for the lower stage of the sustainer.
+	 */
+	@Test
+	public void exportsParallelStageMotorsWithTheirAxialStage() throws Exception {
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		Rocket rocket = document.getRocket();
+		AxialStage sustainer = rocket.getStage(0);
+
+		BodyTube sustainerBody = makeBodyTube("Sustainer body");
+		sustainer.addChild(sustainerBody);
+		InnerTube coreMount = makeMotorMount("Core mount", 0.012);
+		sustainerBody.addChild(coreMount);
+
+		ParallelStage sideBoosters = new ParallelStage(2);
+		sideBoosters.setName("Side boosters");
+		sustainerBody.addChild(sideBoosters);
+		BodyTube podBody = makeBodyTube("Pod body");
+		sideBoosters.addChild(podBody);
+		InnerTube podMount = makeMotorMount("Pod mount", 0.004);
+		podBody.addChild(podMount);
+
+		AxialStage booster = new AxialStage();
+		booster.setName("Booster");
+		rocket.addChild(booster);
+		BodyTube boosterBody = makeBodyTube("Booster body");
+		booster.addChild(boosterBody);
+		InnerTube boosterMount = makeMotorMount("Booster mount", 0.008);
+		boosterBody.addChild(boosterMount);
+
+		FlightConfigurationId configurationId = new FlightConfigurationId();
+		rocket.createFlightConfiguration(configurationId).setAllStages();
+		configureMotor(coreMount, configurationId, makeMotor("AeroTech", "H148R"), 6.0, 0.8, IgnitionEvent.BURNOUT);
+		configureMotor(podMount, configurationId, makeMotor("Estes", "D12"), 0.0, 0.0, IgnitionEvent.LAUNCH);
+		configureMotor(boosterMount, configurationId, makeMotor("Estes", "C6"), 0.0, 0.0, IgnitionEvent.AUTOMATIC);
+		configureSeparation(booster, configurationId, SeparationEvent.BURNOUT, 0.5);
+		rocket.getFlightConfiguration(configurationId).setAllStages();
+
+		Simulation simulation = new Simulation(document, rocket);
+		simulation.setFlightConfigurationId(configurationId);
+		document.addSimulation(simulation);
+
+		RockSimDocumentDTO exported = marshalAndRead(document);
+		SimulationResultsDTO result = exported.getSimulationResultsList().getSimulations().get(0);
+
+		Set<Integer> podMountSerials = findMountSerials(exported, "Pod mount");
+		assertEquals(2, podMountSerials.size());
+		assertEquals(podMountSerials, serialsForMotor(result.getStage3Engines(), "D12"));
+		assertEquals(findMountSerials(exported, "Core mount"), serialsForMotor(result.getStage3Engines(), "H148R"));
+		assertEquals(3, result.getStage3Engines().size());
+		assertEquals(findMountSerials(exported, "Booster mount"), serialsForMotor(result.getStage2Engines(), "C6"));
+		assertEquals(1, result.getStage2Engines().size());
+		assertEquals(0, result.getStage1Engines().size());
+
+		// The sustainer ignites relative to the axial booster's separation, not the side boosters'
+		assertEngine(result.getStage3Engines(), "H148R", "AeroTech", 0.3, 6.0, 12.0);
+	}
+
 	private RockSimDocumentDTO marshalAndRead(OpenRocketDocument document) throws Exception {
 		String result = new RockSimSaver().marshalToRockSim(document);
 		assertNotNull(result);
@@ -288,6 +348,8 @@ public class RockSimSimulationExportTest extends RockSimTestBase {
 					serialNumbers.add(tube.getSerialNumber());
 				}
 				collectMountSerials(tube.getAttachedParts(), namePrefix, serialNumbers);
+			} else if (part instanceof PodSetDTO) {
+				collectMountSerials(((PodSetDTO) part).attachedParts, namePrefix, serialNumbers);
 			}
 		}
 	}

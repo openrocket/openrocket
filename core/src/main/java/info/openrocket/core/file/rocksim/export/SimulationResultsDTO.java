@@ -219,9 +219,11 @@ public class SimulationResultsDTO {
 			RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
 			double ignitionDelay = getRockSimIgnitionDelay(motorConfiguration, simulation);
 			double ejectionDelay = getRockSimEjectionDelay(motorConfiguration, simulation);
+			AxialStage stage = getRockSimStage(mount);
+			int stageIndex = stage.getRocket().getChildPosition(stage);
 			for (int serialNumber : context.getMotorMountSerialNumbers(motorConfiguration.getMount())) {
 				EngineSetDTO engine = new EngineSetDTO(motorConfiguration, serialNumber, ignitionDelay, ejectionDelay);
-				switch (mount.getStage().getStageNumber()) {
+				switch (stageIndex) {
 					case 0:
 						stage3Engines.add(engine);
 						break;
@@ -244,9 +246,21 @@ public class SimulationResultsDTO {
 		stage3Engines.sort(byMountSerial);
 	}
 
+	/**
+	 * RockSim only has the axial stages that are direct children of the rocket. Parallel stages are exported as
+	 * pods of the axial stage that holds them, so their motors belong to that axial stage.
+	 */
+	private static AxialStage getRockSimStage(RocketComponent component) {
+		AxialStage stage = component.getStage();
+		while (stage.getParent() != stage.getRocket()) {
+			stage = stage.getParent().getStage();
+		}
+		return stage;
+	}
+
 	private double getRockSimEjectionDelay(MotorConfiguration motorConfiguration, Simulation simulation) {
 		RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
-		AxialStage stage = mount.getStage();
+		AxialStage stage = getRockSimStage(mount);
 		if (stage.getUpperStage() == null) {
 			return motorConfiguration.getEjectionDelay();
 		}
@@ -281,7 +295,7 @@ public class SimulationResultsDTO {
 
 	private double getRockSimIgnitionDelay(MotorConfiguration motorConfiguration, Simulation simulation) {
 		RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
-		AxialStage stage = mount.getStage();
+		AxialStage stage = getRockSimStage(mount);
 		AxialStage lowerStage = getLowerActiveStage(stage, simulation.getActiveConfiguration());
 		if (lowerStage == null) {
 			return motorConfiguration.getIgnitionDelay();
@@ -309,6 +323,10 @@ public class SimulationResultsDTO {
 	private AxialStage getLowerActiveStage(AxialStage stage, FlightConfiguration configuration) {
 		AxialStage lowerStage = null;
 		for (AxialStage candidate : configuration.getActiveStages()) {
+			// Parallel stages are not separate RockSim stages
+			if (candidate.getParent() != candidate.getRocket()) {
+				continue;
+			}
 			if (candidate.getStageNumber() > stage.getStageNumber()
 					&& (lowerStage == null || candidate.getStageNumber() < lowerStage.getStageNumber())) {
 				lowerStage = candidate;
