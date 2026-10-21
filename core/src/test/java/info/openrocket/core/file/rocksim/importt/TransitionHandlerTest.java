@@ -219,6 +219,27 @@ public class TransitionHandlerTest extends RockSimTestBase {
     }
 
     /**
+     * RockSim's parabola (shape code 2) is a paraboloid of revolution, r = R * sqrt(x / L), which is a 1/2 power
+     * series in OpenRocket. The ShapeParameter that RockSim writes for every transition must not override it.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @org.junit.jupiter.api.Test
+    public void testParaboloidShapeCode() throws Exception {
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+        TransitionHandler handler = new TransitionHandler(null, new AxialStage(), warnings);
+        Transition component = (Transition) getField(handler, "transition");
+
+        handler.closeElement("ShapeCode", attributes, "2", warnings);
+        handler.closeElement("ShapeParameter", attributes, "0", warnings);
+
+        Assertions.assertEquals(Transition.Shape.POWER, component.getShapeType());
+        Assertions.assertEquals(0.5, component.getShapeParameter(), 1e-9);
+        Assertions.assertEquals(0, warnings.size());
+    }
+
+    /**
      * Method: getComponent()
      *
      * @throws Exception thrown if something goes awry

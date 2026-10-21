@@ -28,6 +28,11 @@ class TransitionHandler extends BaseHandler<Transition> {
 	private final Transition transition = new Transition();
 
 	/**
+	 * The RockSim shape code of the transition.
+	 */
+	private RockSimNoseConeCode shapeCode = null;
+
+	/**
 	 * The wall thickness. Used for hollow nose cones.
 	 */
 	private double thickness = 0.0d;
@@ -65,7 +70,11 @@ class TransitionHandler extends BaseHandler<Transition> {
 
 		try {
 			if ("ShapeCode".equals(element)) {
-				transition.setShapeType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+				shapeCode = RockSimNoseConeCode.fromCode(Integer.parseInt(content));
+				transition.setShapeType(shapeCode.asOpenRocket());
+				if (!Double.isNaN(shapeCode.getOpenRocketShapeParameter())) {
+					transition.setShapeParameter(shapeCode.getOpenRocketShapeParameter());
+				}
 			}
 			if ("Len".equals(element)) {
 				transition.setLength(Math.max(0, Double.parseDouble(
@@ -100,9 +109,11 @@ class TransitionHandler extends BaseHandler<Transition> {
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if ("ShapeParameter".equals(element)) {
-				if (Transition.Shape.POWER.equals(transition.getShapeType()) ||
+				boolean impliedByShapeCode = shapeCode != null && !Double.isNaN(shapeCode.getOpenRocketShapeParameter())
+						&& shapeCode.asOpenRocket().equals(transition.getShapeType());
+				if (!impliedByShapeCode && (Transition.Shape.POWER.equals(transition.getShapeType()) ||
 						Transition.Shape.HAACK.equals(transition.getShapeType()) ||
-						Transition.Shape.PARABOLIC.equals(transition.getShapeType())) {
+						Transition.Shape.PARABOLIC.equals(transition.getShapeType()))) {
 					transition.setShapeParameter(Double.parseDouble(content));
 				}
 			}

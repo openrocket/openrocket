@@ -30,6 +30,11 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 	private final NoseCone noseCone = new NoseCone();
 
 	/**
+	 * The RockSim shape code of the nose cone.
+	 */
+	private RockSimNoseConeCode shapeCode = null;
+
+	/**
 	 * The wall thickness. Used for hollow nose cones.
 	 */
 	private double thickness = 0.0d;
@@ -71,7 +76,11 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 
 		try {
 			if (RockSimCommonConstants.SHAPE_CODE.equals(element)) {
-				noseCone.setShapeType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+				shapeCode = RockSimNoseConeCode.fromCode(Integer.parseInt(content));
+				noseCone.setShapeType(shapeCode.asOpenRocket());
+				if (!Double.isNaN(shapeCode.getOpenRocketShapeParameter())) {
+					noseCone.setShapeParameter(shapeCode.getOpenRocketShapeParameter());
+				}
 			}
 			if (RockSimCommonConstants.LEN.equals(element)) {
 				noseCone.setLength(
@@ -99,9 +108,11 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 				// in the design file for all nose cones. Applying it when it should not be
 				// causes oddities so
 				// a check is made for the allowable shapes.
-				if (Transition.Shape.POWER.equals(noseCone.getShapeType()) ||
+				boolean impliedByShapeCode = shapeCode != null && !Double.isNaN(shapeCode.getOpenRocketShapeParameter())
+						&& shapeCode.asOpenRocket().equals(noseCone.getShapeType());
+				if (!impliedByShapeCode && (Transition.Shape.POWER.equals(noseCone.getShapeType()) ||
 						Transition.Shape.HAACK.equals(noseCone.getShapeType()) ||
-						Transition.Shape.PARABOLIC.equals(noseCone.getShapeType())) {
+						Transition.Shape.PARABOLIC.equals(noseCone.getShapeType()))) {
 					noseCone.setShapeParameter(Double.parseDouble(content));
 				}
 			}
