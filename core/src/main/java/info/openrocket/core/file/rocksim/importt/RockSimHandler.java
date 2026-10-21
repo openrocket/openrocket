@@ -4,7 +4,9 @@
  */
 package info.openrocket.core.file.rocksim.importt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
@@ -186,17 +188,25 @@ class RocketDesignHandler extends AbstractElementHandler {
 	 */
 	private double stage3Mass = 0.0d;
 	/**
-	 * The overridden stage 1 Cg.
-	 */
-	private double stage1CG = 0.0d;
-	/**
-	 * The overridden stage 2 Cg.
-	 */
-	private double stage2CG = 0.0d;
-	/**
-	 * The overridden stage 3 Cg.
+	 * The overridden CG of stage 3 (the sustainer) alone, measured from the nose tip.
 	 */
 	private double stage3CG = 0.0d;
+	/**
+	 * The overridden CG of stages 3 and 2 combined, measured from the nose tip.
+	 */
+	private double stage32CG = 0.0d;
+	/**
+	 * The overridden CG of stages 3, 2 and 1 combined, measured from the nose tip.
+	 */
+	private double stage321CG = 0.0d;
+	/**
+	 * Whether RockSim uses the stage mass and CG overrides.
+	 */
+	private boolean useKnownMass = false;
+	/**
+	 * The imported stages, from the top (RockSim stage 3) down.
+	 */
+	private final List<AxialStage> stages = new ArrayList<>();
 
 	/**
 	 * Constructor.
@@ -216,54 +226,13 @@ class RocketDesignHandler extends AbstractElementHandler {
 		 * rocket defines stage '2' as the initial booster with stage '3' sitting atop
 		 * it. And so on.
 		 */
-		if ("Stage3Parts".equals(element)) {
+		if ("Stage3Parts".equals(element)
+				|| ("Stage2Parts".equals(element) && stageCount >= 2)
+				|| ("Stage1Parts".equals(element) && stageCount == 3)) {
 			final AxialStage stage = new AxialStage();
-			if (stage3Mass > 0.0d) {
-				stage.setMassOverridden(true);
-				stage.setSubcomponentsOverriddenMass(true); // Rocksim does not support this type of override
-				stage.setOverrideMass(stage3Mass);
-			}
-			if (stage3CG > 0.0d) {
-				stage.setCGOverridden(true);
-				stage.setSubcomponentsOverriddenCG(true); // Rocksim does not support this type of override
-				stage.setOverrideCGX(stage3CG);
-			}
 			component.addChild(stage);
+			stages.add(stage);
 			return new StageHandler(context, stage);
-		}
-		if ("Stage2Parts".equals(element)) {
-			if (stageCount >= 2) {
-				final AxialStage stage = new AxialStage();
-				if (stage2Mass > 0.0d) {
-					stage.setMassOverridden(true);
-					stage.setSubcomponentsOverriddenMass(true); // Rocksim does not support this type of override
-					stage.setOverrideMass(stage2Mass);
-				}
-				if (stage2CG > 0.0d) {
-					stage.setCGOverridden(true);
-					stage.setSubcomponentsOverriddenCG(true); // Rocksim does not support this type of override
-					stage.setOverrideCGX(stage2CG);
-				}
-				component.addChild(stage);
-				return new StageHandler(context, stage);
-			}
-		}
-		if ("Stage1Parts".equals(element)) {
-			if (stageCount == 3) {
-				final AxialStage stage = new AxialStage();
-				if (stage1Mass > 0.0d) {
-					stage.setMassOverridden(true);
-					stage.setSubcomponentsOverriddenMass(true); // Rocksim does not support this type of override
-					stage.setOverrideMass(stage1Mass);
-				}
-				if (stage1CG > 0.0d) {
-					stage.setCGOverridden(true);
-					stage.setSubcomponentsOverriddenCG(true); // Rocksim does not support this type of override
-					stage.setOverrideCGX(stage1CG);
-				}
-				component.addChild(stage);
-				return new StageHandler(context, stage);
-			}
 		}
 		if (RockSimCommonConstants.NAME.equals(element)) {
 			return PlainTextHandler.INSTANCE;
@@ -283,10 +252,13 @@ class RocketDesignHandler extends AbstractElementHandler {
 		if ("Stage3CG".equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
-		if ("Stage2CGAlone".equals(element)) {
+		if ("Stage32CG".equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
-		if ("Stage1CGAlone".equals(element)) {
+		if ("Stage321CG".equals(element)) {
+			return PlainTextHandler.INSTANCE;
+		}
+		if ("UseKnownMass".equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
 		return null;
@@ -314,14 +286,62 @@ class RocketDesignHandler extends AbstractElementHandler {
 			if ("Stage3CG".equals(element)) {
 				stage3CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
-			if ("Stage2CGAlone".equals(element)) {
-				stage2CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+			if ("Stage32CG".equals(element)) {
+				stage32CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
-			if ("Stage1CGAlone".equals(element)) {
-				stage1CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+			if ("Stage321CG".equals(element)) {
+				stage321CG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+			}
+			if ("UseKnownMass".equals(element)) {
+				useKnownMass = Integer.parseInt(content.trim()) != 0;
 			}
 		} catch (NumberFormatException nfe) {
 			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
+		}
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
+			throws SAXException {
+		applyStageOverrides();
+	}
+
+	/**
+	 * RockSim only uses the stage mass and CG overrides when UseKnownMass is set. The mass overrides are per stage,
+	 * but the CG overrides are those of the stacked stages (sustainer alone, sustainer and first booster, all
+	 * stages), measured from the nose tip. The CG of each stage is derived from the CGs of the stacks.
+	 */
+	private void applyStageOverrides() {
+		if (!useKnownMass) {
+			return;
+		}
+
+		final double[] stageMasses = { stage3Mass, stage2Mass, stage1Mass };
+		final double[] stackCGs = { stage3CG, stage32CG, stage321CG };
+		double stackMass = 0;
+		double stackMoment = 0;
+		boolean stackCGKnown = true;
+		for (int i = 0; i < stages.size(); i++) {
+			final AxialStage stage = stages.get(i);
+			final double mass = stageMasses[i];
+			if (mass <= 0) {
+				// Without the stage mass, the CGs of this and the lower stages cannot be derived
+				stackCGKnown = false;
+				continue;
+			}
+			stage.setMassOverridden(true);
+			stage.setSubcomponentsOverriddenMass(true); // Rocksim does not support this type of override
+			stage.setOverrideMass(mass);
+
+			stackCGKnown &= stackCGs[i] > 0;
+			if (stackCGKnown) {
+				double stageCG = (stackCGs[i] * (stackMass + mass) - stackMoment) / mass;
+				stage.setCGOverridden(true);
+				stage.setSubcomponentsOverriddenCG(true); // Rocksim does not support this type of override
+				stage.setOverrideCGX(stageCG - stage.getComponentLocations()[0].getX());
+			}
+			stackMass += mass;
+			stackMoment = stackCGs[i] * stackMass;
 		}
 	}
 

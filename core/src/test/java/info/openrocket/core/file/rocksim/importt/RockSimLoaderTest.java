@@ -5,8 +5,14 @@
 package info.openrocket.core.file.rocksim.importt;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 
 import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
@@ -243,10 +249,9 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(2, stage1.getChildCount());
         assertEquals(stage1.getChild(0).getName(), "Nose cone");
         assertEquals(stage1.getChild(1).getName(), "Body tube");
-        assertTrue(stage1.isMassOverridden());
-        assertEquals(0.185d, stage1.getOverrideMass(), 0.001);
-        assertTrue(stage1.isCGOverridden());
-        assertEquals(0.3d, stage1.getOverrideCG().getX(), 0.001);
+        // UseKnownMass is 0, so RockSim does not use the stage mass and CG overrides
+        assertFalse(stage1.isMassOverridden());
+        assertFalse(stage1.isCGOverridden());
         assertEquals(2, loader.getWarnings().size());
 
         NoseCone nc = (NoseCone) stage1.getChild(0);
@@ -285,10 +290,8 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         assertEquals(1, stage2.getChildCount());
         assertEquals(stage2.getChild(0).getName(), "2nd Stage Tube");
-        assertTrue(stage2.isMassOverridden());
-        assertEquals(0.21d, stage2.getOverrideMass(), 0.001);
-        assertTrue(stage2.isCGOverridden());
-        assertEquals(0.4d, stage2.getOverrideCG().getX(), 0.001);
+        assertFalse(stage2.isMassOverridden());
+        assertFalse(stage2.isCGOverridden());
 
         BodyTube bt2 = (BodyTube) stage2.getChild(0);
         LaunchLug ll = (LaunchLug) bt2.getChild(6);
@@ -297,10 +300,48 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(2, stage3.getChildCount());
         assertEquals(stage3.getChild(0).getName(), "Transition");
         assertEquals(stage3.getChild(1).getName(), "Body tube");
-        assertTrue(stage2.isMassOverridden());
-        assertEquals(0.33d, stage3.getOverrideMass(), 0.001);
-        assertTrue(stage2.isCGOverridden());
-        assertEquals(0.5d, stage3.getOverrideCG().getX(), 0.001);
+        assertFalse(stage3.isMassOverridden());
+        assertFalse(stage3.isCGOverridden());
+    }
+
+    /**
+     * With UseKnownMass set, RockSim flies each stack of stages with the sum of the stage mass overrides and the
+     * CG override of that stack (sustainer alone, sustainer and first booster, all stages), measured from the nose
+     * tip. The imported stage overrides must reproduce those stack masses and CGs.
+     */
+    @Test
+    public void testStageMassAndCGOverrides() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rocksim/importt/rocksimTestRocket3.rkt")) {
+            assertNotNull(stream, "Could not open rocksimTestRocket3.rkt");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        design = design.replace("<UseKnownMass>0</UseKnownMass>", "<UseKnownMass>1</UseKnownMass>")
+                .replace("<Stage32CG>0.</Stage32CG>", "<Stage32CG>450.</Stage32CG>")
+                .replace("<Stage321CG>0.</Stage321CG>", "<Stage321CG>600.</Stage321CG>");
+
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+        Rocket rocket = doc.getRocket();
+
+        assertStack(rocket, 1, 0.185, 0.300);
+        assertStack(rocket, 2, 0.185 + 0.210, 0.450);
+        assertStack(rocket, 3, 0.185 + 0.210 + 0.330, 0.600);
+    }
+
+    private void assertStack(Rocket rocket, int stageCount, double mass, double cg) {
+        FlightConfiguration configuration = new FlightConfiguration(rocket);
+        configuration.clearAllStages();
+        for (int i = 0; i < stageCount; i++) {
+            configuration._setStageActive(rocket.getChild(i).getStageNumber(), true);
+        }
+        RigidBody structure = MassCalculator.calculateStructure(configuration);
+        assertEquals(mass, structure.getMass(), 1e-6);
+        assertEquals(cg, structure.getCM().getX(), 1e-6);
     }
 
     @org.junit.jupiter.api.Test
