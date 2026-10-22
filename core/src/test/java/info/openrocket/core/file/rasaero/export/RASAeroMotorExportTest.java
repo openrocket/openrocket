@@ -109,6 +109,39 @@ public class RASAeroMotorExportTest {
         assertTrue(containsWarning(warnings, "not available in RASAero II's rasp.eng catalog"));
     }
 
+    /**
+     * RASAero lists Quest's C6 as C6 (0, 3 and 5 s delays) and as C6-0. The selected ejection delay picks the entry.
+     */
+    @Test
+    public void usesEjectionDelayToChooseBetweenCatalogEntries() {
+        List<RASAeroMotor> motors = RASAeroMotorsLoader.loadAllRASAeroMotors(new WarningSet());
+        ThrustCurveMotor motor = createMotor("Quest", "C6", 0.018, 0.070);
+
+        assertEquals("C6  (QU)", RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, 3, new WarningSet()));
+    }
+
+    /**
+     * RASAero lists AMW's K475WW twice, with the same name and dimensions, which is the same RASAero motor.
+     */
+    @Test
+    public void exportsMotorsWithDuplicateCatalogEntries() {
+        List<RASAeroMotor> motors = RASAeroMotorsLoader.loadAllRASAeroMotors(new WarningSet());
+        ThrustCurveMotor motor = createMotor("Animal Motor Works", "K475", 0.054, 0.403);
+
+        assertEquals("K475WW  (AMW)", RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, new WarningSet()));
+    }
+
+    /**
+     * RASAero abbreviates West Coast Hybrids as WCH.
+     */
+    @Test
+    public void exportsWestCoastHybridsMotors() {
+        List<RASAeroMotor> motors = RASAeroMotorsLoader.loadAllRASAeroMotors(new WarningSet());
+        ThrustCurveMotor motor = createMotor("West Coast Hybrids", "499I110", 0.038, 0.606);
+
+        assertEquals("I110H  (WCH)", RASAeroCommonConstants.OPENROCKET_TO_RASAERO_MOTOR(motors, motor, new WarningSet()));
+    }
+
     private static InnerTube createMotorMount(String name, double length) {
         InnerTube mount = new InnerTube();
         mount.setName(name);
@@ -123,6 +156,26 @@ public class RASAeroMotorExportTest {
         MotorConfiguration configuration = new MotorConfiguration(mount, configurationId);
         configuration.setMotor(motor);
         mount.setMotorConfig(configuration, configurationId);
+    }
+
+    private static ThrustCurveMotor createMotor(String manufacturer, String designation, double diameter,
+            double length) {
+        return new ThrustCurveMotor.Builder()
+                .setManufacturer(Manufacturer.getManufacturer(manufacturer))
+                .setDesignation(designation)
+                .setCommonName(designation)
+                .setMotorType(Motor.Type.RELOAD)
+                .setStandardDelays(new double[] { 0 })
+                .setDiameter(diameter)
+                .setLength(length)
+                .setTimePoints(new double[] { 0, 1, 2 })
+                .setThrustPoints(new double[] { 0, 100, 0 })
+                .setCGPoints(new CoordinateIF[] {
+                        new Coordinate(length / 2, 0, 0, 0.3),
+                        new Coordinate(length / 2, 0, 0, 0.2),
+                        new Coordinate(length / 2, 0, 0, 0.1) })
+                .setDigest("rasaero-export-" + manufacturer + "-" + designation)
+                .build();
     }
 
     private static ThrustCurveMotor createMotor(String designation, double length, double launchMass) {

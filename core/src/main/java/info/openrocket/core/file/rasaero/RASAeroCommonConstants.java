@@ -401,6 +401,21 @@ public class RASAeroCommonConstants {
      */
     public static String OPENROCKET_TO_RASAERO_MOTOR(List<RASAeroMotor> rasaeroMotors, Motor openRocketMotor,
                                                      WarningSet warnings) {
+        return OPENROCKET_TO_RASAERO_MOTOR(rasaeroMotors, openRocketMotor, Double.NaN, warnings);
+    }
+
+    /**
+     * Returns the RASAero motor name of an OpenRocket motor.
+     *
+     * @param rasaeroMotors   RASAero's motor catalog
+     * @param openRocketMotor the OpenRocket motor
+     * @param ejectionDelay   the selected ejection delay, used to choose between catalog entries that only differ in
+     *                        their delays, or NaN if unknown
+     * @param warnings        the warning set
+     * @return the RASAero motor name, or null if the motor has no unique catalog entry
+     */
+    public static String OPENROCKET_TO_RASAERO_MOTOR(List<RASAeroMotor> rasaeroMotors, Motor openRocketMotor,
+                                                     double ejectionDelay, WarningSet warnings) {
         if (openRocketMotor == null) {
             return null;
         }
@@ -417,14 +432,14 @@ public class RASAeroCommonConstants {
 
         ThrustCurveMotor thrustCurveMotor = (ThrustCurveMotor) openRocketMotor;
         List<RASAeroMotor> candidates = findDesignationMatches(rasaeroMotors, thrustCurveMotor);
-        RASAeroMotor match = selectUniqueMotor(candidates, thrustCurveMotor);
+        RASAeroMotor match = selectUniqueMotor(candidates, thrustCurveMotor, ejectionDelay);
 
         if (match == null && candidates.isEmpty()) {
             // Some databases use a propellant suffix while others only retain the
             // impulse class and average thrust. Physical dimensions keep this fallback
             // conservative and prevent similarly named motors from being confused.
             candidates = findCommonNameMatches(rasaeroMotors, thrustCurveMotor);
-            match = selectUniqueMotor(candidates, thrustCurveMotor);
+            match = selectUniqueMotor(candidates, thrustCurveMotor, ejectionDelay);
         }
 
         if (match != null) {
@@ -486,26 +501,49 @@ public class RASAeroCommonConstants {
 
     /**
      * Selects a single catalog entry. If a designation maps to more than one
-     * entry, dimensions may disambiguate it; otherwise the exporter warns instead
-     * of guessing.
+     * entry, dimensions, the selected ejection delay and an exact designation
+     * may disambiguate it; otherwise the exporter warns instead of guessing.
      */
     private static RASAeroMotor selectUniqueMotor(List<RASAeroMotor> candidates,
-                                                   ThrustCurveMotor openRocketMotor) {
-        if (candidates.size() == 1) {
-            return candidates.get(0);
+                                                   ThrustCurveMotor openRocketMotor, double ejectionDelay) {
+        if (candidates.size() <= 1) {
+            return candidates.isEmpty() ? null : candidates.get(0);
         }
-        if (candidates.size() > 1) {
-            List<RASAeroMotor> dimensionMatches = new ArrayList<>();
-            for (RASAeroMotor candidate : candidates) {
-                if (motorDimensionsMatch(openRocketMotor, candidate)) {
-                    dimensionMatches.add(candidate);
+        List<RASAeroMotor> matches = new ArrayList<>();
+        for (RASAeroMotor candidate : candidates) {
+            if (motorDimensionsMatch(openRocketMotor, candidate)) {
+                matches.add(candidate);
+            }
+        }
+        if (matches.size() > 1 && !Double.isNaN(ejectionDelay)) {
+            List<RASAeroMotor> delayMatches = new ArrayList<>();
+            for (RASAeroMotor candidate : matches) {
+                if (candidate.hasDelay(ejectionDelay)) {
+                    delayMatches.add(candidate);
                 }
             }
-            if (dimensionMatches.size() == 1) {
-                return dimensionMatches.get(0);
+            if (!delayMatches.isEmpty()) {
+                matches = delayMatches;
             }
         }
-        return null;
+        if (matches.size() > 1) {
+            List<RASAeroMotor> exactMatches = new ArrayList<>();
+            for (RASAeroMotor candidate : matches) {
+                if (candidate.getDesignation().equalsIgnoreCase(openRocketMotor.getDesignation())) {
+                    exactMatches.add(candidate);
+                }
+            }
+            if (!exactMatches.isEmpty()) {
+                matches = exactMatches;
+            }
+        }
+        // Catalog entries with the same name and manufacturer export to the same motor
+        for (RASAeroMotor candidate : matches) {
+            if (!candidate.getDesignation().equals(matches.get(0).getDesignation())) {
+                return null;
+            }
+        }
+        return matches.isEmpty() ? null : matches.get(0);
     }
 
     private static boolean sameManufacturer(ThrustCurveMotor openRocketMotor, RASAeroMotor rasaeroMotor) {
@@ -513,16 +551,16 @@ public class RASAeroCommonConstants {
         return manufacturer.equalsIgnoreCase(rasaeroMotor.getManufacturer());
     }
 
-    private static String normalizeMotorDesignation(String designation) {
+    static String normalizeMotorDesignation(String designation) {
         String withoutDelay = AbstractMotorLoader.removeDelay(designation.trim());
         return withoutDelay.replaceAll("\\s+", "").toUpperCase(Locale.ROOT);
     }
 
-    private static String commonMotorDesignation(String designation) {
+    static String commonMotorDesignation(String designation) {
         return ThrustCurveMotor.Builder.simplifyDesignation(normalizeMotorDesignation(designation));
     }
 
-    private static boolean motorDimensionsMatch(Motor first, RASAeroMotor second) {
+    static boolean motorDimensionsMatch(Motor first, RASAeroMotor second) {
         // Motor data sources commonly differ by rounding a metric case dimension.
         double diameterTolerance = Math.max(0.001, first.getDiameter() * 0.02);
         double lengthTolerance = Math.max(0.003, first.getLength() * 0.02);
@@ -573,8 +611,8 @@ public class RASAeroCommonConstants {
             return "HT";
         } else if (manufacturer.matches("Animal Motor Works")) {
             return "AMW";
-        } else if (manufacturer.matches("Loki")) {
-            return "CT";
+        } else if (manufacturer.matches("West Coast Hybrids")) {
+            return "WCH";
         } else if (manufacturer.matches("AMW ProX")) {
             return "AMW/ProX";
         } else if (manufacturer.matches("Loki Research EX")) {

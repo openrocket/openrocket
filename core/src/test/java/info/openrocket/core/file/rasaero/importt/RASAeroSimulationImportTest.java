@@ -30,6 +30,7 @@ import info.openrocket.core.file.DatabaseMotorFinder;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.file.rasaero.RASAeroMotorsLoader;
+import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
@@ -59,6 +60,8 @@ public class RASAeroSimulationImportTest {
 		motorDatabase.addMotor(makeMotor("I170G"));
 		motorDatabase.addMotor(makeMotor("J180T"));
 		motorDatabase.addMotor(makeMotor("I215R"));
+		motorDatabase.addMotor(makeMotor("Contrail", "K707-BG", 0.075, 1.0414));
+		motorDatabase.addMotor(makeMotor("Gorilla", "J465GT", 0.054, 0.326));
 
 		Module dbOverrides = new AbstractModule() {
 			@Override
@@ -146,6 +149,23 @@ public class RASAeroSimulationImportTest {
 		assertFalse(rocket.getFlightConfiguration(first).isStageActive(rocket.getChild(1).getStageNumber()));
 	}
 
+	/**
+	 * RASAero motor names that differ from OpenRocket's designations (Contrail's K707 is K707-BG in OpenRocket) or
+	 * use RASAero's manufacturer abbreviations (GM for Gorilla) resolve to the OpenRocket motor.
+	 */
+	@Test
+	public void resolvesRASAeroMotorNames() {
+		WarningSet warnings = new WarningSet();
+		ThrustCurveMotor contrail = RASAeroMotorsLoader.getMotorFromRASAero("K707  (Contrail)", warnings);
+		ThrustCurveMotor gorilla = RASAeroMotorsLoader.getMotorFromRASAero("J465GT  (GM)", warnings);
+
+		assertNotNull(contrail);
+		assertEquals("K707-BG", contrail.getDesignation());
+		assertNotNull(gorilla);
+		assertEquals("J465GT", gorilla.getDesignation());
+		assertEquals(0, warnings.size());
+	}
+
 	private static String design() throws Exception {
 		try (InputStream stream = RASAeroSimulationImportTest.class
 				.getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
@@ -174,22 +194,27 @@ public class RASAeroSimulationImportTest {
 	}
 
 	private static ThrustCurveMotor makeMotor(String designation) {
+		return makeMotor("AeroTech", designation, 0.038, 0.3);
+	}
+
+	private static ThrustCurveMotor makeMotor(String manufacturer, String designation, double diameter,
+			double length) {
 		return new ThrustCurveMotor.Builder()
-				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setManufacturer(Manufacturer.getManufacturer(manufacturer))
 				.setDesignation(designation)
 				.setCode(designation)
 				.setCommonName(designation)
 				.setMotorType(Motor.Type.RELOAD)
 				.setStandardDelays(new double[] { 0.0, 6.0 })
-				.setDiameter(0.038)
-				.setLength(0.3)
+				.setDiameter(diameter)
+				.setLength(length)
 				.setTimePoints(new double[] { 0.0, 1.0, 2.0 })
 				.setThrustPoints(new double[] { 0.0, 300.0, 0.0 })
 				.setCGPoints(new CoordinateIF[] {
 						new Coordinate(0.15, 0.0, 0.0, 0.6),
 						new Coordinate(0.15, 0.0, 0.0, 0.45),
 						new Coordinate(0.15, 0.0, 0.0, 0.3) })
-				.setDigest("AeroTech-" + designation)
+				.setDigest(manufacturer + "-" + designation)
 				.build();
 	}
 }

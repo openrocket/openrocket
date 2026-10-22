@@ -51,6 +51,10 @@ public abstract class RASAeroMotorsLoader {
                     return motor;
                 }
             }
+            ThrustCurveMotor motor = findCommonNameMatch(split[0].trim(), manufacturer, warnings);
+            if (motor != null) {
+                return motor;
+            }
         }
         if (warnings != null) {
             warnings.add("Could not find motor '" + normalizedMotorString
@@ -59,6 +63,40 @@ public abstract class RASAeroMotorsLoader {
                     + "manually.");
         }
         return null;
+    }
+
+    /**
+     * Finds an OpenRocket motor whose designation differs from RASAero's only in a propellant or impulse suffix
+     * or prefix (for example K707-BG for RASAero's K707), as the export does. The case dimensions must match those of
+     * RASAero's catalog entry, and only a unique match is returned.
+     */
+    private static ThrustCurveMotor findCommonNameMatch(String motorName, String manufacturer,
+            WarningSet warnings) {
+        String commonName = RASAeroCommonConstants.commonMotorDesignation(motorName);
+        List<ThrustCurveMotor> candidates = new ArrayList<>();
+        for (ThrustCurveMotor motor : allMotors) {
+            if (motor.getManufacturer().matches(manufacturer)
+                    && commonName.equals(RASAeroCommonConstants.commonMotorDesignation(motor.getDesignation()))) {
+                candidates.add(motor);
+            }
+        }
+        if (candidates.isEmpty()) {
+            return null;
+        }
+        RASAeroMotor catalogMotor = null;
+        for (RASAeroMotor rasaeroMotor : loadAllRASAeroMotors(warnings)) {
+            if (rasaeroMotor.getDesignation().equals(motorName)
+                    && rasaeroMotor.getManufacturer().equalsIgnoreCase(manufacturer)) {
+                catalogMotor = rasaeroMotor;
+            }
+        }
+        List<ThrustCurveMotor> dimensionMatches = new ArrayList<>();
+        for (ThrustCurveMotor candidate : candidates) {
+            if (catalogMotor != null && RASAeroCommonConstants.motorDimensionsMatch(candidate, catalogMotor)) {
+                dimensionMatches.add(candidate);
+            }
+        }
+        return dimensionMatches.size() == 1 ? dimensionMatches.get(0) : null;
     }
 
     /**
@@ -147,7 +185,7 @@ public abstract class RASAeroMotorsLoader {
             if (diameter <= 0 || length <= 0 || propellantMass < 0 || totalMass < propellantMass) {
                 return null;
             }
-            return new RASAeroMotor(fields[0], fields[6], diameter, length);
+            return new RASAeroMotor(fields[0], fields[6], diameter, length, fields[3]);
         } catch (NumberFormatException e) {
             return null;
         }
@@ -189,12 +227,15 @@ public abstract class RASAeroMotorsLoader {
         private final String manufacturer;
         private final double diameter;
         private final double length;
+        private final String delays;
 
-        private RASAeroMotor(String designation, String manufacturer, double diameter, double length) {
+        private RASAeroMotor(String designation, String manufacturer, double diameter, double length,
+                String delays) {
             this.designation = designation;
             this.manufacturer = manufacturer;
             this.diameter = diameter;
             this.length = length;
+            this.delays = delays;
         }
 
         public String getDesignation() {
@@ -211,6 +252,25 @@ public abstract class RASAeroMotorsLoader {
 
         public double getLength() {
             return length;
+        }
+
+        /**
+         * Returns whether the catalog lists an ejection delay for this motor.
+         *
+         * @param delay the ejection delay in seconds
+         * @return true if the delay is one of the motor's ejection delays
+         */
+        public boolean hasDelay(double delay) {
+            for (String listedDelay : delays.split("-")) {
+                try {
+                    if (Math.abs(Double.parseDouble(listedDelay) - delay) < 0.01) {
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    // Not a numeric delay
+                }
+            }
+            return false;
         }
     }
 
