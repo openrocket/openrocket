@@ -204,6 +204,14 @@ class RocketDesignHandler extends AbstractElementHandler {
 	 */
 	private boolean useKnownMass = false;
 	/**
+	 * Whether RockSim calculates the Cd (true) or uses the fixed Cd (false).
+	 */
+	private boolean calculateCD = true;
+	/**
+	 * RockSim's fixed Cd of the sustainer.
+	 */
+	private double fixedCD = 0.0d;
+	/**
 	 * The imported stages, from the top (RockSim stage 3) down.
 	 */
 	private final List<AxialStage> stages = new ArrayList<>();
@@ -261,6 +269,9 @@ class RocketDesignHandler extends AbstractElementHandler {
 		if ("UseKnownMass".equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
+		if (RockSimCommonConstants.CALCULATE_CD.equals(element) || RockSimCommonConstants.FIXED_CD.equals(element)) {
+			return PlainTextHandler.INSTANCE;
+		}
 		if (RockSimCommonConstants.COMMENTS.equals(element) || RockSimCommonConstants.DESIGNER.equals(element)
 				|| RockSimCommonConstants.REVISIONS.equals(element)) {
 			return PlainTextHandler.INSTANCE;
@@ -274,6 +285,12 @@ class RocketDesignHandler extends AbstractElementHandler {
 		try {
 			if (RockSimCommonConstants.NAME.equals(element)) {
 				component.setName(content);
+			}
+			if (RockSimCommonConstants.CALCULATE_CD.equals(element)) {
+				calculateCD = Integer.parseInt(content.trim()) != 0;
+			}
+			if (RockSimCommonConstants.FIXED_CD.equals(element)) {
+				fixedCD = Double.parseDouble(content);
 			}
 			if (RockSimCommonConstants.COMMENTS.equals(element)) {
 				component.setComment(content);
@@ -317,6 +334,25 @@ class RocketDesignHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
 			throws SAXException {
 		applyStageOverrides();
+		applyFixedCD(warnings);
+	}
+
+	/**
+	 * When RockSim does not calculate the Cd, it uses the fixed Cd of the design instead. For a single-stage design,
+	 * this is the sustainer's Cd, which becomes the stage's Cd override.
+	 */
+	private void applyFixedCD(WarningSet warnings) {
+		if (calculateCD || fixedCD <= 0 || stages.isEmpty()) {
+			return;
+		}
+		if (stages.size() > 1) {
+			warnings.add("The fixed Cd of multi-stage RockSim designs is not imported; OpenRocket calculates the Cd.");
+			return;
+		}
+		AxialStage sustainer = stages.get(0);
+		sustainer.setCDOverridden(true);
+		sustainer.setSubcomponentsOverriddenCD(true);
+		sustainer.setOverrideCD(fixedCD);
 	}
 
 	/**

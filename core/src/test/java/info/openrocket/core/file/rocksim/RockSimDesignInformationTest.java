@@ -1,6 +1,8 @@
 package info.openrocket.core.file.rocksim;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +15,7 @@ import info.openrocket.core.file.DatabaseMotorFinder;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rocksim.export.RockSimSaver;
 import info.openrocket.core.file.rocksim.importt.RockSimLoader;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.BaseTestCase;
@@ -43,6 +46,31 @@ public class RockSimDesignInformationTest extends BaseTestCase {
 		assertEquals("A comment", roundTripped.getComment());
 		assertEquals("A designer", roundTripped.getDesigner());
 		assertEquals("A revision", roundTripped.getRevision());
+	}
+
+	/**
+	 * When RockSim's Cd calculation is off, a single-stage design flies with its fixed Cd, which must become the
+	 * stage's Cd override, and the reverse on export.
+	 */
+	@Test
+	public void importsAndExportsFixedCd() throws Exception {
+		AxialStage stage = (AxialStage) load(design("<CalculateCD>0</CalculateCD><FixedCd>0.55</FixedCd>")).getChild(0);
+		assertTrue(stage.isCDOverridden());
+		assertTrue(stage.isSubcomponentsOverriddenCD());
+		assertEquals(0.55, stage.getOverrideCD(), 1e-9);
+
+		stage = (AxialStage) load(design("<CalculateCD>1</CalculateCD><FixedCd>0.55</FixedCd>")).getChild(0);
+		assertFalse(stage.isCDOverridden());
+
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		AxialStage sustainer = document.getRocket().getStage(0);
+		sustainer.addChild(new BodyTube());
+		sustainer.setCDOverridden(true);
+		sustainer.setSubcomponentsOverriddenCD(true);
+		sustainer.setOverrideCD(0.65);
+		stage = (AxialStage) load(new RockSimSaver().marshalToRockSim(document)).getChild(0);
+		assertTrue(stage.isCDOverridden());
+		assertEquals(0.65, stage.getOverrideCD(), 1e-9);
 	}
 
 	static String design(String designElements) {

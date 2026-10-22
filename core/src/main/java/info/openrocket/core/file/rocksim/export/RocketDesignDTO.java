@@ -17,6 +17,10 @@ public class RocketDesignDTO {
 
     @XmlElement(name = "Name")
     private String name;
+    @XmlElement(name = RockSimCommonConstants.CALCULATE_CD)
+    private Integer calculateCD = null;
+    @XmlElement(name = RockSimCommonConstants.FIXED_CD)
+    private Double fixedCD = null;
     @XmlElement(name = RockSimCommonConstants.COMMENTS)
     private String comments = "";
     @XmlElement(name = RockSimCommonConstants.DESIGNER)
@@ -252,5 +256,23 @@ public class RocketDesignDTO {
 
     public void setRevisions(String revisions) {
         this.revisions = revisions;
+    }
+
+    public Integer getCalculateCD() {
+        return calculateCD;
+    }
+
+    public Double getFixedCD() {
+        return fixedCD;
+    }
+
+    /**
+     * Make RockSim use a fixed Cd instead of calculating it.
+     *
+     * @param fixedCD the fixed Cd
+     */
+    public void setFixedCD(double fixedCD) {
+        this.calculateCD = 0;
+        this.fixedCD = fixedCD;
     }
 }

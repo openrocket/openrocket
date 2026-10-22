@@ -200,4 +200,6 @@ public class RockSimCommonConstants {
 
     public static final String DESIGNER = "Designer";
     public static final String REVISIONS = "Revisions";
+    public static final String CALCULATE_CD = "CalculateCD";
+    public static final String FIXED_CD = "FixedCd";
 }

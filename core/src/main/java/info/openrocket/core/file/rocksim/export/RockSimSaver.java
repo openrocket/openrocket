@@ -159,6 +159,11 @@ public class RockSimSaver extends RocketSaver {
 		result.setComments(rocket.getComment());
 		result.setDesigner(rocket.getDesigner());
 		result.setRevisions(rocket.getRevision());
+		// RockSim's fixed Cd is the Cd of the whole design, so only a single overridden stage can be exported as such
+		if (stageCount == 1 && axialStages.get(0).isCDOverridden()
+				&& axialStages.get(0).isSubcomponentsOverriddenCD()) {
+			result.setFixedCD(axialStages.get(0).getOverrideCD());
+		}
 		result.setStageCount(stageCount);
 		if (stageCount > 0) {
 			result.setStage3(toStageDTO(axialStages.get(0), result, 3, context));
