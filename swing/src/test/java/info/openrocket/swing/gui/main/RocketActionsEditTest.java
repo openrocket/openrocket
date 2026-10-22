@@ -644,14 +644,13 @@ public class RocketActionsEditTest extends BaseTestCase {
 
     /**
      * When a parent and its child are both selected only the parent moves; the child stays put
-     * and its own position must not disable the action.
+     * and its own position (first child, so not movable up) must not disable the action.
      */
     @Test
-    public void moveDownParentAndChildOnlyMovesParent() {
-        // Selecting a parent together with its child: only the top component moves
-        select(nose, fins);
-        assertTrue(actions.getMoveDownAction().isEnabled(), "child's own position must not block the move");
-        actions.getMoveDownAction().actionPerformed(null);
+    public void moveUpParentAndChildOnlyMovesParent() {
+        select(tube, fins);
+        assertTrue(actions.getMoveUpAction().isEnabled(), "child's own position must not block the move");
+        actions.getMoveUpAction().actionPerformed(null);
 
         assertEquals(List.of("Tube", "Nose"), childNames(stage));
         assertEquals(List.of("Fins", "Inner"), childNames(tube), "child must not be moved");
@@ -956,11 +955,11 @@ public class RocketActionsEditTest extends BaseTestCase {
      */
     @Test
     public void pasteAppendsAfterExistingChildren() {
-        select(nose);
+        select(inner);
         actions.getCopyAction().actionPerformed(null);
         select(tube);
         actions.getPasteAction().actionPerformed(null);
 
-        assertEquals(List.of("Fins", "Inner", "Nose"), childNames(tube));
+        assertEquals(List.of("Fins", "Inner", "Inner"), childNames(tube));
     }
 }
