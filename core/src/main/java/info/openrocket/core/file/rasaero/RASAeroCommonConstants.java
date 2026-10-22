@@ -75,6 +75,8 @@ public class RASAeroCommonConstants {
     private static final String SHAPE_LVHAACK = "LV-Haack";
     private static final String SHAPE_PARABOLIC = "Parabolic";
     private static final String SHAPE_ELLIPTICAL = "Elliptical";
+    private static final String SHAPE_LEGACY_OGIVE = "Ogive";
+    private static final String SHAPE_LEGACY_CONIC = "Conic";
 
     // Transition settings
     public static final String REAR_DIAMETER = "RearDiameter";
@@ -285,7 +287,21 @@ public class RASAeroCommonConstants {
      * @return The OpenRocket nose cone shape.
      */
     public static Transition.Shape RASAERO_TO_OPENROCKET_SHAPE(String shape) {
-        return RASAeroNoseConeShapeMap.get(shape);
+        return RASAeroNoseConeShapeMap.get(normalizeLegacyShape(shape));
+    }
+
+    /**
+     * Older RASAero files use "Ogive" and "Conic", which RASAero reads as "Tangent Ogive" and "Conical".
+     * @param shape The RASAero shape string.
+     * @return The current RASAero name of the shape.
+     */
+    private static String normalizeLegacyShape(String shape) {
+        if (SHAPE_LEGACY_OGIVE.equals(shape)) {
+            return SHAPE_TANGENT_OGIVE;
+        } else if (SHAPE_LEGACY_CONIC.equals(shape)) {
+            return SHAPE_CONICAL;
+        }
+        return shape;
     }
 
     /**
@@ -335,6 +351,7 @@ public class RASAeroCommonConstants {
      * @return The shape parameter for the OpenRocket nose cone.
      */
     public static double RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(String shape) {
+        shape = normalizeLegacyShape(shape);
         if (SHAPE_CONICAL.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit
         } else if (SHAPE_TANGENT_OGIVE.equals(shape)) {

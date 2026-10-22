@@ -255,6 +255,38 @@ public class RASAeroLoaderTest extends BaseTestCase {
         }
     }
 
+    /**
+     * RASAero reads the legacy nose cone shapes "Ogive" and "Conic" as "Tangent Ogive" and "Conical". An unknown
+     * shape must give a warning instead of failing the import.
+     */
+    @Test
+    public void testLegacyAndUnknownNoseConeShapes() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+
+        NoseCone ogive = (NoseCone) loadFromString(design.replace("<Shape>Tangent Ogive</Shape>", "<Shape>Ogive</Shape>"))
+                .getRocket().getStage(0).getChild(0);
+        assertEquals(Transition.Shape.OGIVE, ogive.getShapeType());
+        assertEquals(1.0, ogive.getShapeParameter(), EPSILON);
+
+        NoseCone cone = (NoseCone) loadFromString(design.replace("<Shape>Tangent Ogive</Shape>", "<Shape>Conic</Shape>"))
+                .getRocket().getStage(0).getChild(0);
+        assertEquals(Transition.Shape.CONICAL, cone.getShapeType());
+
+        RASAeroLoader loader = new RASAeroLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(
+                design.replace("<Shape>Tangent Ogive</Shape>", "<Shape>Foo</Shape>").getBytes(StandardCharsets.UTF_8)),
+                null);
+        assertTrue(loader.getWarnings().stream().anyMatch(w -> w.toString().contains("Unknown nose cone shape 'Foo'")));
+    }
+
     private OpenRocketDocument loadFromString(String design) throws RocketLoadException, IOException {
         OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();

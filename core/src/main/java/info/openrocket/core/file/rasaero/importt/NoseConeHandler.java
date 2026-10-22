@@ -7,6 +7,7 @@ import info.openrocket.core.file.simplesax.ElementHandler;
 import info.openrocket.core.file.simplesax.PlainTextHandler;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Transition;
 import org.xml.sax.SAXException;
 
 import java.util.HashMap;
@@ -52,8 +53,13 @@ public class NoseConeHandler extends BaseHandler<NoseCone> {
             throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         if (RASAeroCommonConstants.SHAPE.equals(element)) {
-            this.noseCone.setShapeType(RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SHAPE(content));
-            this.noseCone.setShapeParameter(RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(content));
+            Transition.Shape shape = RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SHAPE(content);
+            if (shape == null) {
+                warnings.add("Unknown nose cone shape '" + content + "', keeping the default shape.");
+            } else {
+                this.noseCone.setShapeType(shape);
+                this.noseCone.setShapeParameter(RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(content));
+            }
         }
         try {
             if (RASAeroCommonConstants.POWER_LAW.equals(element)) {
