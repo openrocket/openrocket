@@ -20,7 +20,9 @@ public enum RockSimNoseConeCode {
     ELLIPTICAL(3, Transition.Shape.ELLIPSOID),
     POWER_SERIES(4, Transition.Shape.POWER),
     PARABOLIC_SERIES(5, Transition.Shape.PARABOLIC),
-    HAACK(6, Transition.Shape.HAACK);
+    HAACK(6, Transition.Shape.HAACK),
+    // RockSim's secant ogive bulges beyond the tangent ogive, which OpenRocket cannot represent
+    SECANT_OGIVE(7, Transition.Shape.OGIVE, 1.0);
 
     /**
      * The RockSim enumeration value. Sent in XML.

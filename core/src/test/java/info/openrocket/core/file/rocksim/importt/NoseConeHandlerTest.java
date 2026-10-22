@@ -189,6 +189,27 @@ public class NoseConeHandlerTest extends RockSimTestBase {
     }
 
     /**
+     * RockSim's secant ogive (shape code 7) bulges beyond the tangent ogive, which OpenRocket cannot represent, so it
+     * is imported as a tangent ogive with a warning.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @Test
+    public void testSecantOgiveShapeCode() throws Exception {
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+        NoseConeHandler handler = new NoseConeHandler(null, new AxialStage(), warnings);
+        NoseCone component = (NoseCone) getField(handler, "noseCone");
+
+        handler.closeElement("ShapeCode", attributes, "7", warnings);
+        handler.closeElement("ShapeParameter", attributes, "300", warnings);
+
+        Assertions.assertEquals(Transition.Shape.OGIVE, component.getShapeType());
+        Assertions.assertEquals(1.0, component.getShapeParameter(), 1e-9);
+        Assertions.assertEquals(1, warnings.size());
+    }
+
+    /**
      * RockSim's parabola (shape code 2) is a paraboloid of revolution, r = R * sqrt(x / L), which is a 1/2 power
      * series in OpenRocket. The ShapeParameter that RockSim writes for every nose cone must not override it.
      *

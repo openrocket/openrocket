@@ -75,6 +75,9 @@ class TransitionHandler extends BaseHandler<Transition> {
 				if (!Double.isNaN(shapeCode.getOpenRocketShapeParameter())) {
 					transition.setShapeParameter(shapeCode.getOpenRocketShapeParameter());
 				}
+				if (shapeCode == RockSimNoseConeCode.SECANT_OGIVE) {
+					warnings.add("The secant ogive transition was imported as a tangent ogive.");
+				}
 			}
 			if ("Len".equals(element)) {
 				transition.setLength(Math.max(0, Double.parseDouble(

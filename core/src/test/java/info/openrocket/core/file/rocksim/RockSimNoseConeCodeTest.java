@@ -18,5 +18,6 @@ public class RockSimNoseConeCodeTest {
 	public void exportsEllipsoidAndPowerSeriesWithTheirOwnCodes() {
 		assertEquals(3, RockSimNoseConeCode.toCode(Transition.Shape.ELLIPSOID));
 		assertEquals(4, RockSimNoseConeCode.toCode(Transition.Shape.POWER));
+		assertEquals(1, RockSimNoseConeCode.toCode(Transition.Shape.OGIVE));
 	}
 }

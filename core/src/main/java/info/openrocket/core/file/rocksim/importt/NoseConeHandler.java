@@ -92,6 +92,9 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 				if (!Double.isNaN(shapeCode.getOpenRocketShapeParameter())) {
 					noseCone.setShapeParameter(shapeCode.getOpenRocketShapeParameter());
 				}
+				if (shapeCode == RockSimNoseConeCode.SECANT_OGIVE) {
+					warnings.add("The secant ogive nose cone was imported as a tangent ogive.");
+				}
 			}
 			if (RockSimCommonConstants.LEN.equals(element)) {
 				noseCone.setLength(
