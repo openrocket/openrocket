@@ -7,12 +7,12 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class RecoveryDTO {
      * the altitude parachute as device 2, independent of their order in the component tree.
      */
     public RecoveryDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) {
-        List<Parachute> parachutes = getParachutesFromRocket(rocket);
+        List<Parachute> parachutes = getParachutesFromRocket(rocket, warnings);
         FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
 
         if (parachutes.isEmpty()) {
@@ -124,19 +124,17 @@ public class RecoveryDTO {
         }
     }
 
-    private List<Parachute> getParachutesFromRocket(Rocket rocket) {
+    private List<Parachute> getParachutesFromRocket(Rocket rocket, WarningSet warnings) {
         List<Parachute> parachutes = new LinkedList<>();
 
         for (int i = 0; i < Math.min(rocket.getChildCount(), 3); i++) {
             AxialStage stage = (AxialStage) rocket.getChild(i);
 
-            for (RocketComponent stageChild : stage.getChildren()) {
-                if (stageChild instanceof BodyTube) {
-                    for (RocketComponent child : stageChild) {
-                        if (child instanceof Parachute) {
-                            parachutes.add((Parachute) child);
-                        }
-                    }
+            for (RocketComponent component : stage) {
+                if (component instanceof Parachute) {
+                    parachutes.add((Parachute) component);
+                } else if (component instanceof Streamer) {
+                    warnings.add(String.format(trans.get("RASAeroExport.warningB2"), component.getName()));
                 }
             }
         }
