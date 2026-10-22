@@ -16,18 +16,12 @@ import java.util.List;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeSelectionModel;
 
+import info.openrocket.core.rocketcomponent.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
-import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.InnerTube;
-import info.openrocket.core.rocketcomponent.NoseCone;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.swing.util.BaseTestCase;
 
@@ -86,12 +80,23 @@ public class RocketActionsEditTest extends BaseTestCase {
         tube.addChild(fins);
         tube.addChild(inner);
 
-        JTree tree = new JTree();
-        tree.setModel(new ComponentTreeModel(rocket, tree));
-        tree.setSelectionModel(new DefaultTreeSelectionModel());
-        selection = new DocumentSelectionModel(document);
-        selection.attachComponentTreeSelectionModel(tree.getSelectionModel());
+        selection = createSelection(document);
 
+        // The clipboard is a static singleton: start every test from an empty one.
+        OpenRocketClipboard.setClipboard(new ArrayList<>());
+
+        actions = createActions(document, selection);
+    }
+
+    /**
+     * Creates a {@link RocketActions} for a document with the frame and simulation panel mocked,
+     * so the same actions can be driven against a second document in cross-document tests.
+     *
+     * @param doc the document the actions operate on
+     * @param sel the selection model the actions read from
+     * @return the actions under test
+     */
+    private static RocketActions createActions(OpenRocketDocument doc, DocumentSelectionModel sel) {
         BasicFrame frame = mock(BasicFrame.class);
         SimulationPanel simulationPanel = mock(SimulationPanel.class);
         when(simulationPanel.getCutSimulationAction()).thenReturn(disabledSimulationAction());
@@ -100,11 +105,23 @@ public class RocketActionsEditTest extends BaseTestCase {
         when(simulationPanel.getDuplicateSimulationAction()).thenReturn(disabledSimulationAction());
         when(simulationPanel.getEditSimulationAction()).thenReturn(disabledSimulationAction());
         when(simulationPanel.getDeleteSimulationAction()).thenReturn(disabledSimulationAction());
+        return new RocketActions(doc, sel, frame, simulationPanel);
+    }
 
-        // The clipboard is a static singleton: start every test from an empty one.
-        OpenRocketClipboard.setClipboard(new ArrayList<>());
-
-        actions = new RocketActions(document, selection, frame, simulationPanel);
+    /**
+     * Creates a selection model for a document, attached to a real {@link JTree} exactly like
+     * the one built in {@link #setUpRocket()}.
+     *
+     * @param doc the document to select in
+     * @return an attached selection model
+     */
+    private static DocumentSelectionModel createSelection(OpenRocketDocument doc) {
+        JTree tree = new JTree();
+        tree.setModel(new ComponentTreeModel(doc.getRocket(), tree));
+        tree.setSelectionModel(new DefaultTreeSelectionModel());
+        DocumentSelectionModel sel = new DocumentSelectionModel(doc);
+        sel.attachComponentTreeSelectionModel(tree.getSelectionModel());
+        return sel;
     }
 
     /**
@@ -670,5 +687,280 @@ public class RocketActionsEditTest extends BaseTestCase {
         assertTrue(copiedTube.getChildren().contains(copiedFins));
         // Note: copy() is a deep copy, so copiedTube also carries its own copies of fins and inner.
         // OpenRocketClipboard.filterClipboardComponents() is what removes those afterwards.
+    }
+
+    // ---------------------------------------------------------------- edge cases
+
+    /**
+     * The clipboard holds its own copies: deleting the original afterwards must not affect
+     * what gets pasted.
+     */
+    @Test
+    public void clipboardSurvivesDeletingTheOriginal() {
+        select(nose);
+        actions.getCopyAction().actionPerformed(null);
+        actions.getDeleteAction().actionPerformed(null);
+        assertEquals(List.of("Tube"), childNames(stage));
+
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+        assertEquals(List.of("Tube", "Nose"), childNames(stage));
+    }
+
+    /**
+     * The clipboard is a snapshot, not a live reference: editing the original after copying
+     * must not change what gets pasted.
+     */
+    @Test
+    public void clipboardIsSnapshotOfComponentAtCopyTime() {
+        select(tube);
+        actions.getCopyAction().actionPerformed(null);
+        tube.setName("Renamed");
+        tube.setLength(tube.getLength() * 2);
+
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+        RocketComponent pasted = stage.getChild(2);
+        assertEquals("Tube", pasted.getName());
+        assertEquals(tube.getLength() / 2, pasted.getLength(), 1e-9);
+    }
+
+    /**
+     * Copying does not carry over multi-edit config listeners, which would otherwise make
+     * a pasted component silently mirror edits made to an unrelated component.
+     */
+    @Test
+    public void copiedComponentHasNoConfigListeners() {
+        tube.addConfigListener(inner);
+        select(tube);
+        actions.getCopyAction().actionPerformed(null);
+
+        assertTrue(OpenRocketClipboard.getClipboardComponents().get(0).getConfigListeners().isEmpty());
+        tube.clearConfigListeners();
+    }
+
+    /**
+     * A component's own mass override is part of what gets copied.
+     */
+    @Test
+    public void copyPreservesComponentsOwnMassOverride() {
+        nose.setMassOverridden(true);
+        nose.setOverrideMass(0.123);
+        select(nose);
+        actions.getCopyAction().actionPerformed(null);
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+
+        RocketComponent pasted = stage.getChild(2);
+        assertTrue(pasted.isMassOverridden());
+        assertEquals(0.123, pasted.getOverrideMass(), 1e-12);
+    }
+
+    /**
+     * The clipboard is shared between open documents: a component copied in one document can be
+     * pasted into another, lands in the target rocket, and leaves the source untouched.
+     */
+    @Test
+    public void pasteIntoAnotherDocument() {
+        OpenRocketDocument other = OpenRocketDocumentFactory.createNewRocket();
+        DocumentSelectionModel otherSelection = createSelection(other);
+        RocketActions otherActions = createActions(other, otherSelection);
+        AxialStage otherStage = (AxialStage) other.getRocket().getChild(0);
+
+        select(tube);
+        actions.getCopyAction().actionPerformed(null);
+        otherSelection.setSelectedComponents(List.of(otherStage));
+        assertTrue(otherActions.getPasteAction().isEnabled());
+        otherActions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Tube"), childNames(otherStage));
+        assertSame(other.getRocket(), otherStage.getChild(0).getRocket());
+        assertEquals(List.of("Fins", "Inner"), childNames(otherStage.getChild(0)));
+        assertEquals(List.of("Nose", "Tube"), childNames(stage), "source document unchanged");
+    }
+
+    /**
+     * Candidate bug (found by code reading, verify when running): {@code copyWithOriginalID()}
+     * clones the {@code massOverriddenBy} back-reference verbatim, and {@code addChild()} only
+     * rewrites it on grandchildren when the pasted top component itself ends up overridden. A
+     * subtree copied out of an overriding stage and pasted under a parent without an override
+     * can therefore keep pointing at a component of the <em>source</em> tree.
+     */
+    @Test
+    public void pastedSubtreeDoesNotReferenceOverridesOfSourceTree() {
+        stage.setMassOverridden(true);
+        stage.setSubcomponentsOverriddenMass(true);
+        assertSame(stage, fins.getMassOverriddenBy(), "precondition: fins overridden by the stage");
+
+        OpenRocketDocument other = OpenRocketDocumentFactory.createNewRocket();
+        DocumentSelectionModel otherSelection = createSelection(other);
+        RocketActions otherActions = createActions(other, otherSelection);
+        AxialStage otherStage = (AxialStage) other.getRocket().getChild(0);
+
+        select(tube);
+        actions.getCopyAction().actionPerformed(null);
+        otherSelection.setSelectedComponents(List.of(otherStage));
+        otherActions.getPasteAction().actionPerformed(null);
+
+        RocketComponent pastedTube = otherStage.getChild(0);
+        RocketComponent pastedFins = childNamed(pastedTube, "Fins");
+        assertEquals(null, pastedTube.getMassOverriddenBy());
+        assertEquals(null, pastedFins.getMassOverriddenBy(),
+                "pasted fins must not be 'overridden by' a stage in a different rocket");
+    }
+
+    /**
+     * Cutting a stage from a two-stage rocket drops the stage count, and pasting it back onto
+     * the rocket restores it.
+     */
+    @Test
+    public void cutAndPasteStageKeepsStageCountConsistent() {
+        AxialStage booster = new AxialStage();
+        booster.setName("Booster");
+        rocket.addChild(booster);
+        assertEquals(2, rocket.getStageCount());
+
+        select(booster);
+        assertTrue(actions.getCutAction().isEnabled());
+        actions.getCutAction().actionPerformed(null);
+        assertEquals(1, rocket.getStageCount());
+        assertEquals(List.of(stage), rocket.getChildren());
+
+        select(rocket);
+        actions.getPasteAction().actionPerformed(null);
+        assertEquals(2, rocket.getStageCount());
+        assertEquals("Booster", rocket.getChild(1).getName());
+    }
+
+    /**
+     * A parallel (booster) stage attached to a body tube can be duplicated; the duplicate is
+     * attached to the same tube and the rocket tracks the extra stage.
+     */
+    @Test
+    public void duplicateParallelStage() {
+        ParallelStage booster = new ParallelStage();
+        booster.setName("Pod");
+        tube.addChild(booster);
+        int stagesBefore = rocket.getStageCount();
+
+        select(booster);
+        assertTrue(actions.getDuplicateAction().isEnabled());
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(List.of("Fins", "Inner", "Pod", "Pod"), childNames(tube));
+        assertEquals(stagesBefore + 1, rocket.getStageCount());
+        assertNotSame(booster, tube.getChild(3));
+    }
+
+    /**
+     * Cut followed by paste back into the same parent rebuilds the same structure, but with
+     * new component IDs: it is a new component, not the old one re-attached.
+     */
+    @Test
+    public void cutThenPasteBackRestoresStructureWithNewIds() {
+        select(tube);
+        actions.getCutAction().actionPerformed(null);
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube"), childNames(stage));
+        RocketComponent restored = stage.getChild(1);
+        assertEquals(List.of("Fins", "Inner"), childNames(restored));
+        assertNotEquals(tube.getID(), restored.getID());
+        assertNotEquals(fins.getID(), childNamed(restored, "Fins").getID());
+    }
+
+    /**
+     * Undo descriptions name the component for a single-component action and say
+     * "components" for a multi-component one.
+     */
+    @Test
+    public void undoDescriptionsMatchTheAction() {
+        select(nose);
+        actions.getCutAction().actionPerformed(null);
+        assertEquals("Cut " + nose.getComponentName(), document.getUndoDescription());
+
+        select(tube);
+        actions.getDuplicateAction().actionPerformed(null);
+        assertEquals("Duplicate " + tube.getComponentName(), document.getUndoDescription());
+
+        select(stage.getChild(0), stage.getChild(1));
+        actions.getCopyAction().actionPerformed(null);
+        select(stage);
+        actions.getPasteAction().actionPerformed(null);
+        assertEquals("Paste components", document.getUndoDescription());
+    }
+
+    /**
+     * Pasting with nothing selected has nowhere to go and must leave the design alone.
+     */
+    @Test
+    public void pasteWithNothingSelectedAddsNothing() {
+        select(nose);
+        actions.getCopyAction().actionPerformed(null);
+        selection.clearComponentSelection();
+
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube"), childNames(stage));
+        assertEquals(1, rocket.getChildCount());
+    }
+
+    /**
+     * Duplicating with nothing selected is a no-op: the design and the undo description are
+     * unchanged. (The fixture builds the rocket without undo positions, so the document is
+     * already modified when a test starts; {@code isUndoAvailable()} cannot be used here.)
+     */
+    @Test
+    public void duplicateWithNothingSelectedIsNoOp() {
+        selection.clearComponentSelection();
+        assertFalse(actions.getDuplicateAction().isEnabled());
+        String undoBefore = document.getUndoDescription();
+
+        actions.getDuplicateAction().actionPerformed(null);
+
+        assertEquals(List.of("Nose", "Tube"), childNames(stage));
+        assertEquals(undoBefore, document.getUndoDescription());
+    }
+
+    /**
+     * Move up is disabled when any top-level component of the selection cannot move, so a
+     * selection containing the first child is not movable as a whole.
+     */
+    @Test
+    public void moveUpDisabledWhenAnySelectedTopComponentCannotMove() {
+        select(nose, tube);
+        assertFalse(actions.getMoveUpAction().isEnabled());
+        select(tube);
+        assertTrue(actions.getMoveUpAction().isEnabled());
+    }
+
+    /**
+     * Moving two adjacent siblings down past a third keeps them adjacent and in order.
+     */
+    @Test
+    public void moveDownAdjacentSiblingsPastThirdKeepsOrder() {
+        BodyTube third = new BodyTube();
+        third.setName("Third");
+        stage.addChild(third);  // Nose, Tube, Third
+
+        select(nose, tube);
+        actions.getMoveDownAction().actionPerformed(null);
+
+        assertEquals(List.of("Third", "Nose", "Tube"), childNames(stage));
+    }
+
+    /**
+     * Pasting a component into a parent that already holds other children appends it after
+     * the existing ones rather than displacing them.
+     */
+    @Test
+    public void pasteAppendsAfterExistingChildren() {
+        select(nose);
+        actions.getCopyAction().actionPerformed(null);
+        select(tube);
+        actions.getPasteAction().actionPerformed(null);
+
+        assertEquals(List.of("Fins", "Inner", "Nose"), childNames(tube));
     }
 }
