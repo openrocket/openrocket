@@ -233,6 +233,27 @@ public class NoseConeHandlerTest extends RockSimTestBase {
     }
 
     /**
+     * OpenRocket nose cones cannot have a drilled core, so a drilled solid RockSim nose cone must be reported.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @Test
+    public void testDrilledCore() throws Exception {
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+        NoseConeHandler handler = new NoseConeHandler(null, new AxialStage(), warnings);
+
+        handler.closeElement("Len", attributes, "100", warnings);
+        handler.closeElement("BaseDia", attributes, "40", warnings);
+        handler.closeElement("ConstructionType", attributes, "0", warnings);
+        handler.closeElement("CoreDia", attributes, "10", warnings);
+        handler.closeElement("CoreLen", attributes, "50", warnings);
+        handler.endHandler("NoseCone", attributes, null, warnings);
+
+        Assertions.assertEquals(1, warnings.size());
+    }
+
+    /**
      * RockSim's parabola (shape code 2) is a paraboloid of revolution, r = R * sqrt(x / L), which is a 1/2 power
      * series in OpenRocket. The ShapeParameter that RockSim writes for every nose cone must not override it.
      *

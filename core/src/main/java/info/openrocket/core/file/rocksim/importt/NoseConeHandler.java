@@ -46,6 +46,12 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 	private double baseExtensionLength = 0.0d;
 
 	/**
+	 * The diameter and length of the core drilled into a solid nose cone.
+	 */
+	private double coreDiameter = 0.0d;
+	private double coreLength = 0.0d;
+
+	/**
 	 * The parent component of the nose cone, or null if the nose cone could not be added to it.
 	 */
 	private RocketComponent parent = null;
@@ -117,6 +123,12 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 				noseCone.setAftShoulderLength(Math.max(0, Double.parseDouble(
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
+			if (RockSimCommonConstants.CORE_DIA.equals(element)) {
+				coreDiameter = Math.max(0, Double.parseDouble(content));
+			}
+			if (RockSimCommonConstants.CORE_LEN.equals(element)) {
+				coreLength = Math.max(0, Double.parseDouble(content));
+			}
 			if (RockSimCommonConstants.BASE_EXTENSION_LEN.equals(element)) {
 				baseExtensionLength = Math.max(0, Double.parseDouble(content)
 						/ RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -171,6 +183,11 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 		} else {
 			noseCone.setThickness(thickness);
 			noseCone.setAftShoulderThickness(thickness);
+		}
+
+		if (noseCone.isFilled() && coreDiameter > 0 && coreLength > 0) {
+			warnings.add("The drilled core of nose cone '" + noseCone.getName()
+					+ "' is not supported; its mass and CG are those of a solid nose cone.");
 		}
 
 		if (baseExtensionLength > 0 && parent != null) {
