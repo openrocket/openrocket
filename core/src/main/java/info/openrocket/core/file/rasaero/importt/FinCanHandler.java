@@ -63,9 +63,9 @@ public class FinCanHandler extends BodyTubeHandler {
         super.closeElement(element, attributes, content, warnings);
         try {
             if (RASAeroCommonConstants.INSIDE_DIAMETER.equals(element)) {
-                insideDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+                insideDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
             } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
-                shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+                shoulderLength = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");

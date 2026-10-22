@@ -21,11 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class RASAeroLoaderTest extends BaseTestCase {
     private static final double EPSILON = 0.0001;
@@ -216,5 +220,48 @@ public class RASAeroLoaderTest extends BaseTestCase {
         assertEquals(4, loader.getWarnings().size());
         assertTrue(loader.getWarnings().stream()
                 .anyMatch(warning -> warning.toString().contains("mass and CG overrides were skipped")));
+    }
+
+    /**
+     * RASAero writes numbers with the decimal separator of the user's locale, so a design saved with a comma
+     * separator must load the same as one saved with a period.
+     */
+    @Test
+    public void testCommaDecimalSeparator() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        int start = design.indexOf("<RocketDesign>");
+        int end = design.indexOf("</RocketDesign>");
+        String commaDesign = design.substring(0, start)
+                + design.substring(start, end).replaceAll(">(-?\\d+)\\.(\\d+)<", ">$1,$2<")
+                + design.substring(end);
+        assertNotEquals(design, commaDesign);
+
+        Rocket expected = loadFromString(design).getRocket();
+        Rocket actual = loadFromString(commaDesign).getRocket();
+        List<RocketComponent> expectedComponents = expected.getAllChildren();
+        List<RocketComponent> actualComponents = actual.getAllChildren();
+        assertEquals(expectedComponents.size(), actualComponents.size());
+        for (int i = 0; i < expectedComponents.size(); i++) {
+            RocketComponent e = expectedComponents.get(i);
+            RocketComponent a = actualComponents.get(i);
+            assertEquals(e.getName(), a.getName());
+            assertEquals(e.getLength(), a.getLength(), EPSILON, e.getName());
+            assertEquals(e.getComponentLocations()[0].getX(), a.getComponentLocations()[0].getX(), EPSILON,
+                    e.getName());
+        }
+    }
+
+    private OpenRocketDocument loadFromString(String design) throws RocketLoadException, IOException {
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        new RASAeroLoader().loadFromStream(context,
+                new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+        return doc;
     }
 }

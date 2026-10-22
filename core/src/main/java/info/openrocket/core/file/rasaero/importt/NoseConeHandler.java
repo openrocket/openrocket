@@ -57,7 +57,7 @@ public class NoseConeHandler extends BaseHandler<NoseCone> {
         }
         try {
             if (RASAeroCommonConstants.POWER_LAW.equals(element)) {
-                this.noseCone.setShapeParameter(Double.parseDouble(content));
+                this.noseCone.setShapeParameter(BaseHandler.parseDouble(content));
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
