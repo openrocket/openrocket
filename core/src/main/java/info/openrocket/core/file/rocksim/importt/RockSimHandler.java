@@ -261,6 +261,10 @@ class RocketDesignHandler extends AbstractElementHandler {
 		if ("UseKnownMass".equals(element)) {
 			return PlainTextHandler.INSTANCE;
 		}
+		if (RockSimCommonConstants.COMMENTS.equals(element) || RockSimCommonConstants.DESIGNER.equals(element)
+				|| RockSimCommonConstants.REVISIONS.equals(element)) {
+			return PlainTextHandler.INSTANCE;
+		}
 		return null;
 	}
 
@@ -270,6 +274,15 @@ class RocketDesignHandler extends AbstractElementHandler {
 		try {
 			if (RockSimCommonConstants.NAME.equals(element)) {
 				component.setName(content);
+			}
+			if (RockSimCommonConstants.COMMENTS.equals(element)) {
+				component.setComment(content);
+			}
+			if (RockSimCommonConstants.DESIGNER.equals(element) && component instanceof Rocket) {
+				((Rocket) component).setDesigner(content);
+			}
+			if (RockSimCommonConstants.REVISIONS.equals(element) && component instanceof Rocket) {
+				((Rocket) component).setRevision(content);
 			}
 			if ("StageCount".equals(element)) {
 				stageCount = Integer.parseInt(content);

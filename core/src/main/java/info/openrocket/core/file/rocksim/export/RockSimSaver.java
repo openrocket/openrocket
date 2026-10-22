@@ -156,6 +156,9 @@ public class RockSimSaver extends RocketSaver {
 		}
 
 		result.setName(rocket.getName());
+		result.setComments(rocket.getComment());
+		result.setDesigner(rocket.getDesigner());
+		result.setRevisions(rocket.getRevision());
 		result.setStageCount(stageCount);
 		if (stageCount > 0) {
 			result.setStage3(toStageDTO(axialStages.get(0), result, 3, context));

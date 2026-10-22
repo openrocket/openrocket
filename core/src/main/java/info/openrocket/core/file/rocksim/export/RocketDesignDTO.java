@@ -1,5 +1,7 @@
 package info.openrocket.core.file.rocksim.export;
 
+import info.openrocket.core.file.rocksim.RockSimCommonConstants;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -15,6 +17,12 @@ public class RocketDesignDTO {
 
     @XmlElement(name = "Name")
     private String name;
+    @XmlElement(name = RockSimCommonConstants.COMMENTS)
+    private String comments = "";
+    @XmlElement(name = RockSimCommonConstants.DESIGNER)
+    private String designer = "";
+    @XmlElement(name = RockSimCommonConstants.REVISIONS)
+    private String revisions = "";
     @XmlElement(name = "StageCount")
     private int stageCount = 1;
     @XmlElement(name = "DisplayFlags")
@@ -220,5 +228,29 @@ public class RocketDesignDTO {
 
     public void setLastSerialNumber(int lastSerialNumber) {
         this.lastSerialNumber = lastSerialNumber;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public String getDesigner() {
+        return designer;
+    }
+
+    public void setDesigner(String designer) {
+        this.designer = designer;
+    }
+
+    public String getRevisions() {
+        return revisions;
+    }
+
+    public void setRevisions(String revisions) {
+        this.revisions = revisions;
     }
 }

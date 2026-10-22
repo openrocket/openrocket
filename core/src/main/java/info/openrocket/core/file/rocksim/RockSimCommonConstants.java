@@ -197,4 +197,7 @@ public class RockSimCommonConstants {
      * radius.
      */
     public static final int ROCKSIM_TO_OPENROCKET_RADIUS = 2 * ROCKSIM_TO_OPENROCKET_LENGTH;
+
+    public static final String DESIGNER = "Designer";
+    public static final String REVISIONS = "Revisions";
 }
