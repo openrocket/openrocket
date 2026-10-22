@@ -98,13 +98,66 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	 * @author Yibing Liu
 	 */
 	private static final double ABOVE_OLD_CLAMP_BOUNDARY = 0.030;
+
+	/**
+	 * Length of the body tube that holds the components in the nested tests.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double BODY_TUBE_LENGTH = 0.4;
+
+	/**
+	 * Wall thickness of that body tube.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double BODY_TUBE_THICKNESS = 0.002;
+
+	/**
+	 * Inner radius of that body tube (0.048 m). Components with an automatic
+	 * outer radius should get this value.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double BODY_TUBE_INNER_RADIUS = COMPONENT_RADIUS - BODY_TUBE_THICKNESS;
+
+	/**
+	 * Manual outer radius of the ring components. It is above the default inner tube
+	 * outer radius (0.0095 m), so a clamp to the default while loading would show.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double RING_OUTER_RADIUS = 0.03;
+
+	/**
+	 * Thickness of the inner tube, engine block and tube coupler. It is also above
+	 * 0.0095 m, for the same reason.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double RING_THICKNESS = 0.012;
+
+	/**
+	 * Manual inner radius of the centering ring.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double RING_INNER_RADIUS = 0.012;
+
+	/**
+	 * Outer radius of the motor tube around the centering ring. The automatic
+	 * inner radius of the ring should get this value.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double MOTOR_TUBE_OUTER_RADIUS = 0.015;
+
+	/**
+	 * Fixed radius used by all mass object tests. The automatic radius is not
+	 * tested because of #3399.
+	 *
+	 * @author Baizhen Huang
+	 */
 	private static final double MASS_OBJECT_RADIUS = 0.02;
 
 	/**
@@ -248,6 +301,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertFalse(loaded.isFilled());
 	}
 
+	/**
+	 * Checks that the inner tube parameters stay the same after saving and loading,
+	 * including the cluster and motor mount settings.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testInnerTubeParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -278,6 +341,18 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(original.getMotorOverhang(), loaded.getMotorOverhang(), EPSILON);
 	}
 
+	/**
+	 * Checks that the engine block parameters stay the same after saving and loading,
+	 * with a manual and with an automatic outer radius.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param automaticOuterRadius whether the outer radius is taken from the body tube
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "EngineBlock automatic outer radius: {0}")
 	@ValueSource(booleans = { false, true })
 	public void testEngineBlockParametersSurviveRoundTrip(boolean automaticOuterRadius)
@@ -306,6 +381,18 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				automaticOuterRadius ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
 	}
 
+	/**
+	 * Checks that the tube coupler parameters stay the same after saving and loading,
+	 * with a manual and with an automatic outer radius.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param automaticOuterRadius whether the outer radius is taken from the body tube
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "TubeCoupler automatic outer radius: {0}")
 	@ValueSource(booleans = { false, true })
 	public void testTubeCouplerParametersSurviveRoundTrip(boolean automaticOuterRadius)
@@ -333,6 +420,19 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				automaticOuterRadius ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
 	}
 
+	/**
+	 * Checks that the bulkhead parameters stay the same after saving and loading,
+	 * including the instance count and separation, with a manual and with an automatic
+	 * outer radius.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param automaticOuterRadius whether the outer radius is taken from the body tube
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "Bulkhead automatic outer radius: {0}")
 	@ValueSource(booleans = { false, true })
 	public void testBulkheadParametersSurviveRoundTrip(boolean automaticOuterRadius)
@@ -361,6 +461,19 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				automaticOuterRadius ? BODY_TUBE_INNER_RADIUS : RING_OUTER_RADIUS);
 	}
 
+	/**
+	 * Checks that the centering ring parameters stay the same after saving and loading,
+	 * with manual radii and with automatic radii. A motor tube is placed around the ring
+	 * so that the automatic inner radius has a value to take.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param automaticRadii whether both radii are automatic
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "CenteringRing automatic radii: {0}")
 	@ValueSource(booleans = { false, true })
 	public void testCenteringRingParametersSurviveRoundTrip(boolean automaticRadii)
@@ -401,6 +514,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(automaticRadii ? MOTOR_TUBE_OUTER_RADIUS : RING_INNER_RADIUS, loaded.getInnerRadius(), EPSILON);
 	}
 
+	/**
+	 * Checks that the mass component parameters stay the same after saving and loading.
+	 * The mass override is not tested because of #3398, and the automatic radius is not
+	 * tested because of #3399.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testMassComponentParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -411,7 +535,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		original.setAxialOffset(-0.05);
 		original.setLength(0.06);
 		// Only a fixed radius is tested. With an automatic radius, getLength() currently
-		// depends on whether getRadius() was called first, even without saving the file.
+		// depends on whether getRadius() was called first, even without saving the file. See #3399.
 		original.setRadius(MASS_OBJECT_RADIUS);
 		original.setRadialPosition(0.005);
 		original.setRadialDirection(1.1);
@@ -426,6 +550,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(MassComponent.MassComponentType.ALTIMETER, loaded.getMassComponentType());
 	}
 
+	/**
+	 * Checks that the shock cord parameters stay the same after saving and loading,
+	 * with a manual cord length.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testShockCordParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -449,6 +583,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(1.5, loaded.getCordLength(), EPSILON);
 	}
 
+	/**
+	 * Checks that the parachute parameters stay the same after saving and loading,
+	 * including the default deployment and a deployment override for one flight
+	 * configuration. Only a manual CD is tested.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testParachuteParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -499,6 +644,18 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(0.5, loaded.getLineLength(), EPSILON);
 	}
 
+	/**
+	 * Checks that the streamer parameters stay the same after saving and loading,
+	 * with a manual and with an automatic CD.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param automaticCd whether the CD is calculated automatically
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "Streamer automatic CD: {0}")
 	@ValueSource(booleans = { false, true })
 	public void testStreamerParametersSurviveRoundTrip(boolean automaticCd)
@@ -538,6 +695,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				loaded.getDeploymentConfigurations().getDefault());
 	}
 
+	/**
+	 * Checks that the rocket design information and flight configurations stay the
+	 * same after saving and loading. The designer name contains XML special characters
+	 * to check that they are escaped.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testRocketParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -575,6 +743,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(selectedId, loaded.getSelectedConfiguration().getFlightConfigurationID());
 	}
 
+	/**
+	 * Checks that the separation settings of a second stage stay the same after saving
+	 * and loading, including an override for one flight configuration. Two stages are
+	 * needed because separation settings are only saved from the second stage on.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testAxialStageParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -613,6 +792,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				loaded.getSeparationConfigurations().get(overrideId));
 	}
 
+	/**
+	 * Checks that the parallel stage parameters stay the same after saving and loading,
+	 * using non-default radius and angle methods.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testParallelStageParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -646,6 +835,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				loaded.getSeparationConfigurations().getDefault());
 	}
 
+	/**
+	 * Checks that the pod set parameters stay the same after saving and loading.
+	 * The angle method is not checked because PodSet.setAngleMethod() does nothing.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@Test
 	public void testPodSetParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
@@ -689,6 +888,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 
+	/**
+	 * Creates a rocket document with one stage and one body tube, with the given
+	 * component inside the body tube.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param component the component added to the body tube
+	 *
+	 * @return a rocket document containing the component
+	 */
 	private OpenRocketDocument documentWithBodyTubeChild(RocketComponent component) {
 		Rocket rocket = new Rocket();
 		AxialStage stage = new AxialStage();
@@ -703,6 +912,13 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	/**
 	 * Returns the component reached from the rocket by following the given child indices,
 	 * e.g. (0, 0, 0) is the first child of the first component in the first stage.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param document the rocket document to read
+	 * @param childIndices the child index at each level
+	 *
+	 * @return the component at that position
 	 */
 	private RocketComponent componentAt(OpenRocketDocument document, int... childIndices) {
 		RocketComponent component = document.getRocket();
@@ -714,6 +930,15 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		return component;
 	}
 
+	/**
+	 * Finds a cluster configuration by the name used in the .ork file.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param xmlName the XML name of the configuration, e.g. "3-ring"
+	 *
+	 * @return the matching cluster configuration
+	 */
 	private ClusterConfiguration clusterConfiguration(String xmlName) {
 		return Arrays.stream(ClusterConfiguration.CONFIGURATIONS)
 				.filter(configuration -> configuration.getXMLName().equals(xmlName))
@@ -724,6 +949,12 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	/**
 	 * Compares the parameters that are saved for every ring component. The outer radius is
 	 * checked against a fixed value, so a clamp while setting up the test would also be caught.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param original the component before saving
+	 * @param loaded the component after loading
+	 * @param expectedOuterRadius the outer radius the loaded component should have
 	 */
 	private void assertRingParametersEqual(RingComponent original, RingComponent loaded,
 			double expectedOuterRadius) {
@@ -739,6 +970,12 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 
 	/**
 	 * Adds the thickness to the shared ring checks (inner tube, engine block, tube coupler).
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param original the component before saving
+	 * @param loaded the component after loading
+	 * @param expectedOuterRadius the outer radius the loaded component should have
 	 */
 	private void assertThicknessRingParametersEqual(ThicknessRingComponent original,
 			ThicknessRingComponent loaded, double expectedOuterRadius) {
@@ -749,6 +986,12 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	/**
 	 * Adds the instance count and separation to the shared ring checks (bulkhead, centering
 	 * ring). Only radius ring components save these two.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param original the component before saving
+	 * @param loaded the component after loading
+	 * @param expectedOuterRadius the outer radius the loaded component should have
 	 */
 	private void assertRadiusRingParametersEqual(RadiusRingComponent original,
 			RadiusRingComponent loaded, double expectedOuterRadius) {
@@ -760,6 +1003,11 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	/**
 	 * Compares the parameters that are saved for every mass object (mass component, shock cord,
 	 * recovery devices). All of these tests use the fixed radius MASS_OBJECT_RADIUS.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param original the component before saving
+	 * @param loaded the component after loading
 	 */
 	private void assertMassObjectParametersEqual(MassObject original, MassObject loaded) {
 		assertEquals(original.getName(), loaded.getName());
@@ -772,6 +1020,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(original.getRadialDirection(), loaded.getRadialDirection(), EPSILON);
 	}
 
+	/**
+	 * Checks the event, altitude and delay of a loaded deployment configuration.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param expectedEvent the expected deployment event
+	 * @param expectedAltitude the expected deployment altitude in metres
+	 * @param expectedDelay the expected deployment delay in seconds
+	 * @param loaded the deployment configuration after loading
+	 */
 	private void assertDeploymentEquals(DeployEvent expectedEvent, double expectedAltitude,
 			double expectedDelay, DeploymentConfiguration loaded) {
 		assertEquals(expectedEvent, loaded.getDeployEvent());
@@ -779,6 +1037,16 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(expectedDelay, loaded.getDeployDelay(), EPSILON);
 	}
 
+	/**
+	 * Checks the event, altitude and delay of a loaded stage separation configuration.
+	 *
+	 * @author Baizhen Huang
+	 *
+	 * @param expectedEvent the expected separation event
+	 * @param expectedAltitude the expected separation altitude in metres
+	 * @param expectedDelay the expected separation delay in seconds
+	 * @param loaded the separation configuration after loading
+	 */
 	private void assertSeparationEquals(SeparationEvent expectedEvent, double expectedAltitude,
 			double expectedDelay, StageSeparationConfiguration loaded) {
 		assertEquals(expectedEvent, loaded.getSeparationEvent());
