@@ -99,6 +99,11 @@ class RockSimContentHandler extends AbstractElementHandler {
 	 */
 	private String version;
 
+	/**
+	 * The newest RockSim file version, as written by RockSim 11.
+	 */
+	private static final int NEWEST_FILE_VERSION = 4;
+
 	public RockSimContentHandler(DocumentLoadingContext context) {
 		super();
 		this.context = context;
@@ -144,6 +149,14 @@ class RockSimContentHandler extends AbstractElementHandler {
 		 */
 		if (RockSimCommonConstants.FILE_VERSION.equals(element)) {
 			version = content;
+			try {
+				if (Integer.parseInt(content.trim()) > NEWEST_FILE_VERSION) {
+					warnings.add("RockSim file version " + content.trim() + " is newer than the supported version "
+							+ NEWEST_FILE_VERSION + "; some data may not be imported.");
+				}
+			} catch (NumberFormatException nfe) {
+				warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
+			}
 		}
 	}
 

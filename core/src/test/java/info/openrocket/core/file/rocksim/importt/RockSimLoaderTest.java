@@ -576,6 +576,25 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(1, loader.getWarnings().size());
     }
 
+    /**
+     * A file version newer than RockSim 11's (4) must be reported, as it may contain data that is not imported.
+     */
+    @Test
+    public void testNewerFileVersionWarning() throws Exception {
+        String design = "<RockSimDocument><FileVersion>5</FileVersion><DesignInformation><RocketDesign>"
+                + "<Name>New</Name><StageCount>1</StageCount><Stage3Parts>"
+                + "<BodyTube><Name>Tube</Name><OD>24.8</OD><ID>24</ID><Len>300</Len></BodyTube>"
+                + "</Stage3Parts></RocketDesign></DesignInformation></RockSimDocument>";
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+
+        assertEquals(1, loader.getWarnings().size());
+    }
+
     public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName)
             throws IOException, RocketLoadException {
         try (InputStream stream = RockSimLoaderTest.class.getResourceAsStream("/file/rocksim/importt/" + fileName)) {
