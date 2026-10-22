@@ -97,6 +97,11 @@ public class RASAeroCommonConstants {
     public static final String CROSS_SECTION_SQUARE = "Square";
     public static final String CROSS_SECTION_ROUNDED = "Rounded";
     public static final String CROSS_SECTION_SUBSONIC_NACA = "Subsonic NACA";
+    // Written by RASAero's own RockSim importer
+    private static final String CROSS_SECTION_ROUND = "Round";
+    // Sharp-edged supersonic sections that OpenRocket does not have
+    private static final List<String> CROSS_SECTIONS_SHARP = List.of("Single Wedge", "Double Wedge", "Biconvex",
+            "Hexagonal", "Hexagonal Blunt Base", "Hexagonal Dbl Wedge");
 
     // Launch lug settings
     public static final String LAUNCH_LUG_DIAMETER = "LaunchLugDiameter";
@@ -374,9 +379,14 @@ public class RASAeroCommonConstants {
     public static FinSet.CrossSection RASAERO_TO_OPENROCKET_FIN_CROSSSECTION(String crossSection, WarningSet warnings) {
         if (CROSS_SECTION_SQUARE.equals(crossSection)) {
             return FinSet.CrossSection.SQUARE;
-        } else if (CROSS_SECTION_ROUNDED.equals(crossSection)) {
+        } else if (CROSS_SECTION_ROUNDED.equals(crossSection) || CROSS_SECTION_ROUND.equals(crossSection)) {
             return FinSet.CrossSection.ROUNDED;
         } else if (CROSS_SECTION_SUBSONIC_NACA.equals(crossSection)) {
+            return FinSet.CrossSection.AIRFOIL;
+        } else if (CROSS_SECTIONS_SHARP.contains(crossSection)) {
+            String msg = "Fin cross section " + crossSection + " is not supported, approximating it as an airfoil.";
+            warnings.add(msg);
+            log.debug(msg);
             return FinSet.CrossSection.AIRFOIL;
         } else {
             String msg = "Unknown fin cross section: " + crossSection + ", defaulting to Airfoil.";

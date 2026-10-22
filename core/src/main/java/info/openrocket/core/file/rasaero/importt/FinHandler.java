@@ -58,6 +58,11 @@ public class FinHandler extends AbstractElementHandler {
                 finSet.setTipChord(BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
             } else if (RASAeroCommonConstants.FIN_THICKNESS.equals(element)) {
                 finSet.setThickness(BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+            } else if (RASAeroCommonConstants.FIN_LE_RADIUS.equals(element)) {
+                if (BaseHandler.parseDouble(content) > 0) {
+                    warnings.add("The leading edge radius of fin set '" + finSet.getName()
+                            + "' is not supported, ignoring it.");
+                }
             } else if (RASAeroCommonConstants.AIRFOIL_SECTION.equals(element)) {
                 finSet.setCrossSection(
                         RASAeroCommonConstants.RASAERO_TO_OPENROCKET_FIN_CROSSSECTION(content, warnings));

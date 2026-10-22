@@ -304,6 +304,54 @@ public class RASAeroLoaderTest extends BaseTestCase {
         assertEquals(1.0 / 3, noseCone.getShapeParameter(), 1e-9);
     }
 
+    /**
+     * RASAero's RockSim importer writes the "Round" fin section, which is RASAero's "Rounded". RASAero's sharp-edged
+     * sections, which OpenRocket does not have, are approximated as an airfoil with a warning.
+     */
+    @Test
+    public void testFinAirfoilSections() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        String square = "<AirfoilSection>Square</AirfoilSection>";
+
+        RASAeroLoader loader = new RASAeroLoader();
+        FinSet round = getFirstFinSet(load(loader,
+                design.replaceFirst(square, "<AirfoilSection>Round</AirfoilSection>")).getRocket());
+        assertEquals(FinSet.CrossSection.ROUNDED, round.getCrossSection());
+        assertFalse(loader.getWarnings().stream().anyMatch(w -> w.toString().contains("cross section")));
+
+        loader = new RASAeroLoader();
+        FinSet wedge = getFirstFinSet(load(loader, design.replaceFirst(square,
+                "<AirfoilSection>Double Wedge</AirfoilSection>").replaceFirst("<LERadius>0</LERadius>",
+                "<LERadius>0.1</LERadius>")).getRocket());
+        assertEquals(FinSet.CrossSection.AIRFOIL, wedge.getCrossSection());
+        assertTrue(loader.getWarnings().stream()
+                .anyMatch(w -> w.toString().contains("Double Wedge is not supported, approximating it as an airfoil")));
+        assertTrue(loader.getWarnings().stream().anyMatch(w -> w.toString().contains("leading edge radius")));
+    }
+
+    private FinSet getFirstFinSet(Rocket rocket) {
+        for (RocketComponent component : rocket) {
+            if (component instanceof FinSet) {
+                return (FinSet) component;
+            }
+        }
+        fail("No fin set found");
+        return null;
+    }
+
+    private OpenRocketDocument load(RASAeroLoader loader, String design) throws RocketLoadException, IOException {
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+        return doc;
+    }
+
     private OpenRocketDocument loadFromString(String design) throws RocketLoadException, IOException {
         OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
