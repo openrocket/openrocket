@@ -9,12 +9,18 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.ExternalComponent;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -105,9 +111,6 @@ public class RocketDesignDTO {
                         return;
                     }
                     addExternalPart(new NoseConeDTO((NoseCone) component, warnings, errors));
-                    // Set the global surface finish to that of the first nose cone
-                    setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(((NoseCone) component).getFinish(),
-                            warnings));
                 } else if (component instanceof Transition) {
                     // If there is only a sustainer & this is the last child of the sustainer, it's
                     // a boattail
@@ -145,6 +148,42 @@ public class RocketDesignDTO {
                 errors.add(e.getMessage());
             }
         }
+
+        ExternalComponent.Finish finish = getPredominantFinish(rocket, warnings);
+        if (finish != null) {
+            setSurface(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SURFACE(finish, warnings));
+        }
+    }
+
+    /**
+     * RASAero has a single surface finish for the whole rocket. Use the finish of most of the rocket's wetted area.
+     *
+     * @param rocket   the rocket to export
+     * @param warnings the warning set to add a warning to when the rocket has several finishes
+     * @return the finish of most of the rocket's wetted area, or null if the rocket has no external surfaces
+     */
+    private static ExternalComponent.Finish getPredominantFinish(Rocket rocket, WarningSet warnings) {
+        Map<ExternalComponent.Finish, Double> areas = new EnumMap<>(ExternalComponent.Finish.class);
+        for (RocketComponent component : rocket) {
+            double area;
+            if (component instanceof SymmetricComponent) {
+                area = ((SymmetricComponent) component).getComponentWetArea();
+            } else if (component instanceof FinSet) {
+                area = 2 * ((FinSet) component).getPlanformArea() * ((FinSet) component).getFinCount();
+            } else {
+                continue;
+            }
+            areas.merge(((ExternalComponent) component).getFinish(), area, Double::sum);
+        }
+        if (areas.isEmpty()) {
+            return null;
+        }
+
+        ExternalComponent.Finish finish = Collections.max(areas.entrySet(), Map.Entry.comparingByValue()).getKey();
+        if (areas.size() > 1) {
+            warnings.add(String.format(trans.get("RASAeroExport.warningB1"), finish));
+        }
+        return finish;
     }
 
     public String getSurface() {

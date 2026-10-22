@@ -35,6 +35,7 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
+import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
@@ -115,7 +116,7 @@ public class RASAeroSaverTest {
             ErrorSet errors = new ErrorSet();
             String result = new RASAeroSaver().marshalToRASAero(originalDocument, warnings, errors);
 
-            assertEquals(3, warnings.size(), " incorrect amount of RASAero export warnings");
+            assertEquals(4, warnings.size(), " incorrect amount of RASAero export warnings"); // incl. mixed surface finishes
             assertEquals(0, errors.size(), " incorrect amount of RASAero export errors");
 
             // Write to .CDX1 file
@@ -192,7 +193,7 @@ public class RASAeroSaverTest {
             ErrorSet errors = new ErrorSet();
             String result = new RASAeroSaver().marshalToRASAero(originalDocument, warnings, errors);
 
-            assertEquals(2, warnings.size(), " incorrect amount of RASAero export warnings");
+            assertEquals(3, warnings.size(), " incorrect amount of RASAero export warnings"); // incl. mixed surface finishes
             assertEquals(0, errors.size(), " incorrect amount of RASAero export errors");
 
             // Write to .CDX1 file
@@ -236,6 +237,31 @@ public class RASAeroSaverTest {
         noseCone.setAftRadius(noseCone.getAftRadius() - 0.001);
         new RASAeroSaver().marshalToRASAero(document, new WarningSet(), errors);
         assertTrue(errors.size() > 0);
+    }
+
+    /**
+     * RASAero has one surface finish for the whole rocket, so the finish of most of the rocket's surface must be
+     * exported, mapped to the nearest RASAero finish, with a warning when the rocket has several finishes.
+     */
+    @Test
+    public void testExportsPredominantSurfaceFinish() {
+        OpenRocketDocument document = loadRocket("01.One-stage.ork");
+        for (RocketComponent component : document.getRocket()) {
+            if (component instanceof ExternalComponent) {
+                ((ExternalComponent) component).setFinish(ExternalComponent.Finish.POLISHED);
+            }
+        }
+        WarningSet warnings = new WarningSet();
+        String result = new RASAeroSaver().marshalToRASAero(document, warnings, new ErrorSet());
+        assertTrue(result.contains("<Surface>Polished</Surface>"));
+        assertFalse(warnings.stream().anyMatch(w -> w.toString().contains("RASAeroExport.warningB1")));
+
+        NoseCone noseCone = (NoseCone) document.getRocket().getStage(0).getChild(0);
+        noseCone.setFinish(ExternalComponent.Finish.ROUGH);
+        warnings = new WarningSet();
+        result = new RASAeroSaver().marshalToRASAero(document, warnings, new ErrorSet());
+        assertTrue(result.contains("<Surface>Polished</Surface>"));
+        assertTrue(warnings.stream().anyMatch(w -> w.toString().contains("RASAeroExport.warningB1")));
     }
 
     /**

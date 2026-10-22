@@ -431,7 +431,8 @@ public class RASAeroCommonConstants {
     public static String OPENROCKET_TO_RASAERO_SURFACE(ExternalComponent.Finish finish, WarningSet warnings) {
         if (finish.equals(ExternalComponent.Finish.MIRROR)) {
             return FINISH_SMOOTH;
-        } else if (finish.equals(ExternalComponent.Finish.FINISHPOLISHED)) {
+        } else if (finish.equals(ExternalComponent.Finish.FINISHPOLISHED)
+                || finish.equals(ExternalComponent.Finish.POLISHED)) {
             return FINISH_POLISHED;
         } else if (finish.equals(ExternalComponent.Finish.OPTIMUM)) {
             return FINISH_SHEET_METAL;
@@ -441,7 +442,8 @@ public class RASAeroCommonConstants {
             return FINISH_ROUGH_CAMOUFLAGE;
         } else if (finish.equals(ExternalComponent.Finish.UNFINISHED)) {
             return FINISH_GALVANIZED;
-        } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)) {
+        } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)
+                || finish.equals(ExternalComponent.Finish.ROUGH)) {
             return FINISH_CAST_IRON;
         } else {
             String msg = "Unknown surface finish: " + finish + ", defaulting to Smooth.";
