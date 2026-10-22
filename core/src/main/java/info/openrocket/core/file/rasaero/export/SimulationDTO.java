@@ -236,6 +236,25 @@ public class SimulationDTO {
         }
 
         setStagingDelays(rocket, fcid, mounts, warnings);
+        if (fcid != null) {
+            warnUnsupportedMotors(rocket, fcid, mounts, warnings);
+        }
+    }
+
+    /**
+     * RASAero flies a single motor per stage and has no parallel boosters, so warn about the motors it does not fly.
+     */
+    private void warnUnsupportedMotors(Rocket rocket, FlightConfigurationId fcid, Map<AxialStage, MotorMount> mounts,
+            WarningSet warnings) {
+        for (MotorConfiguration motorConfig : rocket.getFlightConfiguration(fcid).getActiveMotors()) {
+            MotorMount mount = motorConfig.getMount();
+            AxialStage stage = mount.getStage();
+            if (stage.getParent() != rocket) {
+                warnings.add(String.format(trans.get("RASAeroExport.warning19"), stage.getName()));
+            } else if (mounts.get(stage) != mount || mount.getMotorCount() > 1) {
+                warnings.add(String.format(trans.get("RASAeroExport.warning20"), stage.getName()));
+            }
+        }
     }
 
     /**

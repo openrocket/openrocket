@@ -40,6 +40,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
@@ -347,6 +348,40 @@ public class RASAeroSaverTest {
         WarningSet warnings = new WarningSet();
         exportSimulation(document, configurationId, warnings);
         assertTrue(warnings.toString().contains("RASAeroExport.warning16"));
+    }
+
+    /**
+     * RASAero flies one motor per stage and has no parallel boosters, so clustered motors and motors in parallel
+     * stages must be reported.
+     */
+    @Test
+    public void testWarnsForMotorsRASAeroDoesNotFly() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Rocket rocket = document.getRocket();
+        FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
+        AxialStage sustainer = (AxialStage) rocket.getChild(0);
+        WarningSet warnings = new WarningSet();
+        exportSimulation(document, configurationId, warnings);
+        assertFalse(warnings.toString().contains("RASAeroExport.warning20"));
+
+        ((InnerTube) SimulationListDTO.findMotorMount(sustainer))
+                .setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[1]);
+        warnings = new WarningSet();
+        exportSimulation(document, configurationId, warnings);
+        assertTrue(warnings.toString().contains("RASAeroExport.warning20"));
+
+        ParallelStage sideBoosters = new ParallelStage(2);
+        ((BodyTube) sustainer.getChild(1)).addChild(sideBoosters);
+        BodyTube podBody = new BodyTube(0.2, 0.012, 0.001);
+        sideBoosters.addChild(podBody);
+        InnerTube podMount = makeMotorMount();
+        podMount.setOuterRadius(0.01);
+        podBody.addChild(podMount);
+        configureMotor(podMount, configurationId, "G80T", 0);
+        rocket.getFlightConfiguration(configurationId).setAllStages();
+        warnings = new WarningSet();
+        exportSimulation(document, configurationId, warnings);
+        assertTrue(warnings.toString().contains("RASAeroExport.warning19"));
     }
 
     private SimulationDTO exportSimulation(OpenRocketDocument document, FlightConfigurationId configurationId) {
