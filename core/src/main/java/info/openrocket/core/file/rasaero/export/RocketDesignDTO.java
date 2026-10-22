@@ -44,9 +44,9 @@ public class RocketDesignDTO {
 
     @XmlElement(name = RASAeroCommonConstants.SURFACE_FINISH)
     private String surface = RASAeroCommonConstants.FINISH_SMOOTH;
-    @XmlElement(name = RASAeroCommonConstants.CD)
+    @XmlElement(name = RASAeroCommonConstants.CP)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double CD = 0.0d;
+    private Double CP = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.MODIFIED_BARROWMAN)
     @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
     private Boolean modifiedBarrowman = false;
@@ -155,12 +155,12 @@ public class RocketDesignDTO {
         this.surface = surface;
     }
 
-    public double getCD() {
-        return CD;
+    public double getCP() {
+        return CP;
     }
 
-    public void setCD(double CD) {
-        this.CD = CD;
+    public void setCP(double CP) {
+        this.CP = CP;
     }
 
     public boolean isModifiedBarrowman() {

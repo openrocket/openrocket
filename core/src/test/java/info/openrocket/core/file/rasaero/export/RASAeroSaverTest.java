@@ -221,6 +221,17 @@ public class RASAeroSaverTest {
     }
 
     /**
+     * RASAero writes and reads the rocket's CP element, not a CD element.
+     */
+    @Test
+    public void testExportsCPElement() {
+        OpenRocketDocument document = loadRocket("01.One-stage.ork");
+        String result = new RASAeroSaver().marshalToRASAero(document, new WarningSet(), new ErrorSet());
+        assertTrue(result.contains("<CP>0</CP>"));
+        assertFalse(result.contains("<CD>"));
+    }
+
+    /**
      * A clustered motor mount must contribute the launch mass of every motor in the cluster, not just one.
      */
     @Test

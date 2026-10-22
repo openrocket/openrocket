@@ -131,7 +131,7 @@ public class RASAeroCommonConstants {
     public static final String NOZZLE_DIAMETER = "NozzleDiameter";
 
     // RocketDesign settings
-    public static final String CD = "CD";
+    public static final String CP = "CP";
     public static final String MODIFIED_BARROWMAN = "ModifiedBarrowman";
     public static final String TURBULENCE = "Turbulence";
     public static final String SUSTAINER_NOZZLE = "SustainerNozzle";
