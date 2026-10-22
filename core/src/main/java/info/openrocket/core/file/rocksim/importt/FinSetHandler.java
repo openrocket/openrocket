@@ -272,7 +272,7 @@ class FinSetHandler extends AbstractElementHandler {
 						Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
 			}
 			if (RockSimCommonConstants.KNOWN_CG.equals(element)) {
-				cg = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+				cg = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if (RockSimCommonConstants.USE_KNOWN_CG.equals(element)) {
 				override = "1".equals(content);
