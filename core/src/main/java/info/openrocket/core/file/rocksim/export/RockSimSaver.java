@@ -46,6 +46,17 @@ public class RockSimSaver extends RocketSaver {
 	 * @return Rocksim-compliant XML
 	 */
 	public String marshalToRockSim(OpenRocketDocument doc) {
+		return marshalToRockSim(doc, new WarningSet());
+	}
+
+	/**
+	 * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant XML.
+	 *
+	 * @param doc      the OR design
+	 * @param warnings the warning set to which features that RockSim cannot represent are added
+	 * @return Rocksim-compliant XML
+	 */
+	public String marshalToRockSim(OpenRocketDocument doc, WarningSet warnings) {
 		
 		try {
 			JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
@@ -54,7 +65,7 @@ public class RockSimSaver extends RocketSaver {
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			StringWriter sw = new StringWriter();
 			
-			marshaller.marshal(toRockSimDocumentDTO(doc), sw);
+			marshaller.marshal(toRockSimDocumentDTO(doc, warnings), sw);
 			return sw.toString();
 		} catch (Exception e) {
 			log.error("Could not marshal a design to RockSim format.", e);
@@ -68,7 +79,7 @@ public class RockSimSaver extends RocketSaver {
 		log.info("Saving .rkt file");
 
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
-		String payload = marshalToRockSim(doc);
+		String payload = marshalToRockSim(doc, warnings);
 		if (payload == null) {
 			// Surface the export failure to callers instead of failing later on a null write.
 			String message = "Could not export RockSim file.";
@@ -93,10 +104,11 @@ public class RockSimSaver extends RocketSaver {
 	/**
 	 * Root conversion method. It iterates over all subcomponents.
 	 *
-	 * @param doc the OR design
+	 * @param doc      the OR design
+	 * @param warnings the warning set to which features that RockSim cannot represent are added
 	 * @return a corresponding Rocksim representation
 	 */
-	private RockSimDocumentDTO toRockSimDocumentDTO(OpenRocketDocument doc) {
+	private RockSimDocumentDTO toRockSimDocumentDTO(OpenRocketDocument doc, WarningSet warnings) {
 		Rocket exportRocket = doc.getRocket().copyWithOriginalID();
 		// Component serials are references shared by the design, motors, and
 		// deployment events.  Serialize their allocation so separate exports cannot
@@ -105,7 +117,7 @@ public class RockSimSaver extends RocketSaver {
 			BasePartDTO.resetCurrentSerialNumber();
 			try {
 				RockSimDocumentDTO result = new RockSimDocumentDTO();
-				RockSimExportContext context = new RockSimExportContext();
+				RockSimExportContext context = new RockSimExportContext(warnings);
 				result.setDesign(toRockSimDesignDTO(exportRocket, context));
 				result.setSimulationResultsList(new SimulationResultsListDTO(doc, context));
 				return result;
@@ -130,7 +142,10 @@ public class RockSimSaver extends RocketSaver {
 		final RigidBody spentData = MassCalculator.calculateStructure(configuration);
 		final double cg = spentData.cm.getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
-		int stageCount = axialStages.size();
+		int stageCount = Math.min(axialStages.size(), 3);
+		for (int i = 3; i < axialStages.size(); i++) {
+			RockSimExportContext.warn(context, "RockSimExport.warning.stage", axialStages.get(i).getName());
+		}
 		if (stageCount == 3) {
 			result.setStage321CG(cg);
 		} else if (stageCount == 2) {

@@ -15,6 +15,7 @@ import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
@@ -214,13 +215,25 @@ public class SimulationResultsDTO {
 			if (motorConfiguration.getIgnitionEvent() == IgnitionEvent.NEVER) {
 				// RockSim has no never-ignite flag.  Omitting the motor is safer than
 				// turning a deliberately disabled motor into an automatically staged one.
+				RockSimExportContext.warn(context, "RockSimExport.warning.neverIgnite",
+						motorConfiguration.getMotor().getDesignation(), simulation.getName());
 				continue;
 			}
 			RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
 			double ignitionDelay = getRockSimIgnitionDelay(motorConfiguration, simulation);
-			double ejectionDelay = getRockSimEjectionDelay(motorConfiguration, simulation);
+			double ejectionDelay = getRockSimEjectionDelay(motorConfiguration, simulation, context);
 			AxialStage stage = getRockSimStage(mount);
 			int stageIndex = stage.getRocket().getChildPosition(stage);
+			if (stageIndex > 2) {
+				// RockSim supports at most three axial stages.
+				continue;
+			}
+			if (motorConfiguration.getMotor() instanceof ThrustCurveMotor
+					&& !RockSimEngineCode.isInRockSimEngineDatabase(motorConfiguration.getMotor())) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.motorVendor",
+						RockSimEngineCode.getManufacturer(motorConfiguration.getMotor()),
+						motorConfiguration.getMotor().getDesignation());
+			}
 			for (int serialNumber : context.getMotorMountSerialNumbers(motorConfiguration.getMount())) {
 				EngineSetDTO engine = new EngineSetDTO(motorConfiguration, serialNumber, ignitionDelay, ejectionDelay);
 				switch (stageIndex) {
@@ -230,11 +243,8 @@ public class SimulationResultsDTO {
 					case 1:
 						stage2Engines.add(engine);
 						break;
-					case 2:
-						stage1Engines.add(engine);
-						break;
 					default:
-						// RockSim supports at most three axial stages.
+						stage1Engines.add(engine);
 						break;
 				}
 			}
@@ -258,7 +268,8 @@ public class SimulationResultsDTO {
 		return stage;
 	}
 
-	private double getRockSimEjectionDelay(MotorConfiguration motorConfiguration, Simulation simulation) {
+	private double getRockSimEjectionDelay(MotorConfiguration motorConfiguration, Simulation simulation,
+			RockSimExportContext context) {
 		RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
 		AxialStage stage = getRockSimStage(mount);
 		if (stage.getUpperStage() == null) {
@@ -290,6 +301,8 @@ public class SimulationResultsDTO {
 
 		// RockSim Standard cannot stage on altitude, apogee, launch, or ignition.
 		// Keep those stages attached instead of inventing a potentially unsafe time.
+		RockSimExportContext.warn(context, "RockSimExport.warning.staging", stage.getName(), simulation.getName(),
+				event.toString());
 		return Motor.PLUGGED_DELAY;
 	}
 

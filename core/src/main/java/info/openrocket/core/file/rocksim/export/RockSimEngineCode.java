@@ -2,6 +2,7 @@ package info.openrocket.core.file.rocksim.export;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +50,24 @@ final class RockSimEngineCode {
 			Pattern.compile("([A-Z]\\d+)RC([A-Z])"),
 			Pattern.compile("([A-Z]\\d+)([A-Z]?)RC") };
 
+	// OpenRocket manufacturers with motors in RockSim 11's bundled engine database
+	private static final Set<String> ROCKSIM_ENGINE_DATABASE_MANUFACTURERS = Set.of("AeroTech",
+			"Animal Motor Works", "AMW/ProX", "Apogee", "Cesaroni Technology Inc.", "Contrail Rockets", "Estes",
+			"Gorilla Rocket Motors", "HyperTEK", "Klima", "Loki Research", "Quest", "Sky Ripper Systems");
+
 	private RockSimEngineCode() {
+	}
+
+	/**
+	 * Whether RockSim's bundled engine database has motors of the motor's manufacturer. If not, RockSim can only
+	 * find the motor if the user added it to their own engine database.
+	 *
+	 * @param motor the OpenRocket motor
+	 * @return true if RockSim's bundled engine database has motors of this manufacturer
+	 */
+	static boolean isInRockSimEngineDatabase(Motor motor) {
+		return motor instanceof ThrustCurveMotor && ROCKSIM_ENGINE_DATABASE_MANUFACTURERS.contains(
+				((ThrustCurveMotor) motor).getManufacturer().getDisplayName());
 	}
 
 	/**
