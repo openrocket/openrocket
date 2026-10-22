@@ -62,10 +62,13 @@ public class RocketDesignDTO {
     @XmlElement(name = "Stage32CG")
     private double stage32CG = 0.0d;
 
+    // RockSim's CP method flags: 1 = Barrowman, 4 = RockSim's own stability equations
+    public static final int CP_METHOD_BARROWMAN = 1;
+    public static final int CP_METHOD_ROCKSIM = 4;
     @XmlElement(name = "CPCalcFlags")
-    private final int cpCalcFlags = 1;
+    private int cpCalcFlags = CP_METHOD_BARROWMAN;
     @XmlElement(name = "CPSimFlags")
-    private final int cpSimFlags = 1;
+    private int cpSimFlags = CP_METHOD_BARROWMAN;
     @XmlElement(name = "UseKnownMass")
     private int useKnownMass = 0;
     @XmlElement(name = "Stage3Parts")
@@ -119,6 +122,24 @@ public class RocketDesignDTO {
 
     public void setStage1(StageDTO theStage1) {
         stage1 = theStage1;
+    }
+
+    public int getCPCalcFlags() {
+        return cpCalcFlags;
+    }
+
+    public int getCPSimFlags() {
+        return cpSimFlags;
+    }
+
+    /**
+     * Set the CP method that RockSim uses for its drawings and simulations.
+     *
+     * @param cpMethod {@link #CP_METHOD_BARROWMAN} or {@link #CP_METHOD_ROCKSIM}
+     */
+    public void setCPMethod(int cpMethod) {
+        cpCalcFlags = cpMethod;
+        cpSimFlags = cpMethod;
     }
 
     public int getUseKnownMass() {

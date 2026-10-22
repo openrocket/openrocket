@@ -18,6 +18,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -166,6 +167,9 @@ public class RockSimSaver extends RocketSaver {
 			result.setStage1(toStageDTO(axialStages.get(2), result, 1, context));
 		}
 		setStageOverrides(rocket, axialStages, result);
+		if (!supportsBarrowmanEquations(rocket)) {
+			result.setCPMethod(RocketDesignDTO.CP_METHOD_ROCKSIM);
+		}
 		// Record the final component serial number in the RockSim design.
 		result.setLastSerialNumber(BasePartDTO.getCurrentSerialNumber());
 
@@ -219,6 +223,22 @@ public class RockSimSaver extends RocketSaver {
 					break;
 			}
 		}
+	}
+
+	/**
+	 * RockSim only supports the Barrowman equations for fin sets with 3, 4 or 6 fins
+	 * (CRocket::SupportsBarrowmanEquations in RockSim 11); other designs need RockSim's own stability equations.
+	 */
+	private static boolean supportsBarrowmanEquations(Rocket rocket) {
+		for (RocketComponent component : rocket) {
+			if (component instanceof FinSet) {
+				int finCount = ((FinSet) component).getFinCount();
+				if (finCount != 3 && finCount != 4 && finCount != 6) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private List<AxialStage> getAxialStages(Rocket rocket) {
