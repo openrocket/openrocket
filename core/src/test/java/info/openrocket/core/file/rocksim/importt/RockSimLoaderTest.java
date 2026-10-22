@@ -545,6 +545,37 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals("Mass object 3", component.getName());
     }
 
+    /**
+     * OpenRocket has no ring tails, so a ring tail must be imported as a mass component with RockSim's calculated
+     * mass and CG, instead of being dropped.
+     */
+    @Test
+    public void testRingTailImportedAsMass() throws Exception {
+        String design = "<RockSimDocument><FileVersion>4</FileVersion><DesignInformation><RocketDesign>"
+                + "<Name>Ring tail</Name><StageCount>1</StageCount><Stage3Parts>"
+                + "<BodyTube><Name>Tube</Name><OD>24.8</OD><ID>24</ID><Len>300</Len><AttachedParts>"
+                + "<RingTail><Name>Ringtail</Name><KnownMass>0.</KnownMass><UseKnownCG>0</UseKnownCG>"
+                + "<Xb>149.225</Xb><LocationMode>0</LocationMode><Len>76.2</Len>"
+                + "<CalcMass>15.9106</CalcMass><CalcCG>38.1</CalcCG></RingTail>"
+                + "</AttachedParts></BodyTube></Stage3Parts></RocketDesign></DesignInformation></RockSimDocument>";
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+
+        RocketComponent tube = doc.getRocket().getChild(0).getChild(0);
+        assertEquals(1, tube.getChildCount());
+        MassComponent ringTail = (MassComponent) tube.getChild(0);
+        assertEquals("Ringtail", ringTail.getName());
+        assertEquals(0.0159106, ringTail.getComponentMass(), 1e-9);
+        assertEquals(0.149225, ringTail.getAxialOffset(), 1e-9);
+        assertTrue(ringTail.isCGOverridden());
+        assertEquals(0.0381, ringTail.getOverrideCGX(), 1e-9);
+        assertEquals(1, loader.getWarnings().size());
+    }
+
     public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName)
             throws IOException, RocketLoadException {
         try (InputStream stream = RockSimLoaderTest.class.getResourceAsStream("/file/rocksim/importt/" + fileName)) {
