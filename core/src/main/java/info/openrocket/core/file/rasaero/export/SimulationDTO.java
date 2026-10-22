@@ -185,6 +185,7 @@ public class SimulationDTO {
 
                     setSustainerLaunchWt(calc.getMass() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
                     setSustainerCG(calc.getCM().getX() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                    setSustainerNozzleDiameter(getNozzleExitDiameter(mount, fcid));
 
                     // Set ignition delay
                     ignitionDelay = motorConfig != null ? motorConfig.getIgnitionDelay() : 0;
@@ -204,6 +205,7 @@ public class SimulationDTO {
 
                     setBooster1LaunchWt(calc.getMass() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
                     setBooster1CG(calc.getCM().getX() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                    setBooster1NozzleDiameter(getNozzleExitDiameter(mount, fcid));
 
                     // Set ignition delay
                     ignitionDelay = motorConfig != null ? motorConfig.getIgnitionDelay() : 0;
@@ -225,6 +227,7 @@ public class SimulationDTO {
 
                     setBooster2LaunchWt(calc.getMass() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
                     setBooster2CG(calc.getCM().getX() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                    setBooster2NozzleDiameter(getNozzleExitDiameter(mount, fcid));
 
                     setIncludeBooster2(includeStage);
 
@@ -255,6 +258,23 @@ public class SimulationDTO {
                 warnings.add(String.format(trans.get("RASAeroExport.warning20"), stage.getName()));
             }
         }
+    }
+
+    /**
+     * Returns the nozzle exit diameter of the motors in a mount, in RASAero units. RASAero flies a single motor per
+     * stage, so a cluster gets the diameter of a single nozzle with the same total exit area.
+     *
+     * @param mount the motor mount, or null
+     * @param fcid  the flight configuration
+     * @return the nozzle exit diameter, or 0 when it is unknown
+     */
+    static double getNozzleExitDiameter(MotorMount mount, FlightConfigurationId fcid) {
+        if (mount == null) {
+            return 0;
+        }
+        MotorConfiguration motorConfig = mount.getMotorConfig(fcid);
+        return motorConfig.getNozzleExitDiameter() * Math.sqrt(mount.getMotorCount())
+                * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
     }
 
     /**

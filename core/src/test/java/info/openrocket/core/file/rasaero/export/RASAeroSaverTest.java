@@ -45,6 +45,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -384,6 +385,38 @@ public class RASAeroSaverTest {
         assertTrue(warnings.toString().contains("RASAeroExport.warning19"));
     }
 
+    /**
+     * RASAero uses the nozzle exit diameter for its power-on drag and its altitude thrust correction. A cluster is
+     * exported as a single nozzle with the same exit area.
+     */
+    @Test
+    public void testNozzleExitDiameterExport() throws Exception {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Rocket rocket = document.getRocket();
+        FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
+        MotorMount sustainerMount = SimulationListDTO.findMotorMount((AxialStage) rocket.getChild(0));
+        InnerTube boosterMount = (InnerTube) SimulationListDTO.findMotorMount((AxialStage) rocket.getChild(1));
+        boosterMount.setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[1]);
+        sustainerMount.getMotorConfig(configurationId).setNozzleExitDiameter(0.02);
+        boosterMount.getMotorConfig(configurationId).setNozzleExitDiameter(0.015);
+
+        SimulationDTO simulation = exportSimulation(document, configurationId);
+        assertEquals(0.02 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH,
+                simulation.getSustainerNozzleDiameter(), 1e-9);
+        assertEquals(0.015 * Math.sqrt(2) * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH,
+                simulation.getBooster1NozzleDiameter(), 1e-9);
+
+        Simulation documentSimulation = new Simulation(document, rocket);
+        documentSimulation.setFlightConfigurationId(configurationId);
+        document.addSimulation(documentSimulation);
+        ErrorSet errors = new ErrorSet();
+        String exported = new RASAeroSaver().marshalToRASAero(document, new WarningSet(), errors);
+        assertEquals(0, errors.size(), errors.toString());
+        // RASAero reads the booster nozzle exit diameter from NozzleDiameter, but writes it as NozzleExitDiameter
+        assertTrue(exported.contains("<NozzleDiameter>"));
+        assertTrue(exported.contains("<NozzleExitDiameter>"));
+    }
+
     private SimulationDTO exportSimulation(OpenRocketDocument document, FlightConfigurationId configurationId) {
         return exportSimulation(document, configurationId, new WarningSet());
     }
@@ -418,6 +451,7 @@ public class RASAeroSaverTest {
         rocket.addChild(booster);
         BodyTube boosterBody = new BodyTube(0.4, 0.025, 0.001);
         booster.addChild(boosterBody);
+        boosterBody.addChild(new TrapezoidFinSet(3, 0.1, 0.05, 0.03, 0.06));
         InnerTube boosterMount = makeMotorMount();
         boosterBody.addChild(boosterMount);
 

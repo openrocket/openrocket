@@ -68,6 +68,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     @XmlElement(name = RASAeroCommonConstants.NOZZLE_EXIT_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double nozzleExitDiameter = 0.0d;
+    // RASAero writes the booster nozzle exit diameter as NozzleExitDiameter, but reads it from NozzleDiameter
+    @XmlElement(name = RASAeroCommonConstants.NOZZLE_DIAMETER)
+    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    private Double nozzleDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double boattailLength;
@@ -108,6 +112,9 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             throw new RASAeroExportException(
                     String.format(trans.get("RASAeroExport.error9"), stageNr, stage.getName()));
         }
+
+        setNozzleExitDiameter(SimulationDTO.getNozzleExitDiameter(SimulationListDTO.findMotorMount(stage),
+                rocket.getSelectedConfiguration().getId()));
 
         if (stage.getChildCount() == 0) {
             throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error10"), stage.getName()));
@@ -341,6 +348,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
 
     public void setNozzleExitDiameter(Double nozzleExitDiameter) {
         this.nozzleExitDiameter = nozzleExitDiameter;
+        this.nozzleDiameter = nozzleExitDiameter;
     }
 
     public Double getBoattailLength() {

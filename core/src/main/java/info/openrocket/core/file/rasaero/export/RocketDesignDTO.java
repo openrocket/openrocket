@@ -7,6 +7,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -122,6 +123,18 @@ public class RocketDesignDTO {
             } catch (RASAeroExportException e) {
                 errors.add(e.getMessage());
             }
+        }
+
+        // The nozzle exit diameters of the selected flight configuration
+        FlightConfigurationId fcid = rocket.getSelectedConfiguration().getId();
+        setSustainerNozzle(SimulationDTO.getNozzleExitDiameter(SimulationListDTO.findMotorMount(sustainer), fcid));
+        if (rocket.getChildCount() > 1) {
+            setBooster1Nozzle(SimulationDTO.getNozzleExitDiameter(
+                    SimulationListDTO.findMotorMount((AxialStage) rocket.getChild(1)), fcid));
+        }
+        if (rocket.getChildCount() > 2) {
+            setBooster2Nozzle(SimulationDTO.getNozzleExitDiameter(
+                    SimulationListDTO.findMotorMount((AxialStage) rocket.getChild(2)), fcid));
         }
 
         // Export components from other stages

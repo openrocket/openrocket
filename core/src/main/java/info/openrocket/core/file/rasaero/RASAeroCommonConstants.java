@@ -126,6 +126,7 @@ public class RASAeroCommonConstants {
     public static final String BOATTAIL_REAR_DIAMETER = "BoattailRearDiameter";
     public static final String BOATTAIL_OFFSET = "BoattailOffset";
     public static final String NOZZLE_EXIT_DIAMETER = "NozzleExitDiameter";
+    public static final String NOZZLE_DIAMETER = "NozzleDiameter";
 
     // RocketDesign settings
     public static final String CD = "CD";
