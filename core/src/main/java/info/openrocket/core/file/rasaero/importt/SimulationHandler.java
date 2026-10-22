@@ -146,13 +146,26 @@ public class SimulationHandler extends AbstractElementHandler {
             rocket.setSelectedConfiguration(fcid);
         }
 
-        // Add motors to the rocket
-        MotorMount sustainerMount = addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay,
-                sustainerNozzleDiameter, fcid, true, warnings);
-        MotorMount booster1Mount = addMotorToStage(1, booster1Engine, booster1IgnitionDelay, booster1NozzleDiameter,
-                fcid, includeBooster1, warnings);
-        MotorMount booster2Mount = addMotorToStage(2, booster2Engine, 0.0, booster2NozzleDiameter, fcid,
-                includeBooster2, warnings);
+        // RASAero removes the second booster when it is not included, and then the first booster when it is not
+        // included and the only booster left, so an included second booster keeps the first one too
+        includeBooster2 = Boolean.TRUE.equals(includeBooster2) && rocket.getChildCount() > 2;
+        includeBooster1 = (Boolean.TRUE.equals(includeBooster1) || includeBooster2) && rocket.getChildCount() > 1;
+        if (rocket.getChildCount() > 1 && !includeBooster1) {
+            rocket.getFlightConfiguration(fcid)._setStageActive(rocket.getChild(1).getStageNumber(), false);
+        }
+        if (rocket.getChildCount() > 2 && !includeBooster2) {
+            rocket.getFlightConfiguration(fcid)._setStageActive(rocket.getChild(2).getStageNumber(), false);
+        }
+
+        // An upper stage ignites after the stage below it burns out, separates after its separation delay, and the
+        // upper stage has coasted for its ignition delay
+        MotorMount sustainerMount = addMotorToStage(0, sustainerEngine,
+                includeBooster1 ? sum(booster1SeparationDelay, sustainerIgnitionDelay) : null,
+                sustainerNozzleDiameter, fcid, warnings);
+        MotorMount booster1Mount = addMotorToStage(1, booster1Engine,
+                includeBooster2 ? sum(booster2SeparationDelay, booster1IgnitionDelay) : null,
+                booster1NozzleDiameter, fcid, warnings);
+        MotorMount booster2Mount = addMotorToStage(2, booster2Engine, null, booster2NozzleDiameter, fcid, warnings);
 
         // Set separation settings
         setSeparationDelay(0, 0.0, fcid);
@@ -175,20 +188,23 @@ public class SimulationHandler extends AbstractElementHandler {
         applyCGOverrides(sustainerMount, booster1Mount, booster2Mount, fcid);
     }
 
+    private static double sum(Double a, Double b) {
+        return (a != null ? a : 0) + (b != null ? b : 0);
+    }
+
     /**
      * Add a new motor to a stage
      * 
      * @param stageNr          number of the stage to add the motor to
      * @param motor            motor to add
-     * @param ignitionDelay    ignition delay of the motor
+     * @param burnoutIgnitionDelay delay after the burnout of the stage below at which the motor ignites, or null if
+     *                         the motor ignites at launch
      * @param nozzleExitDiameter nozzle exit diameter of the motor, or null if unknown
      * @param id               flight config id to alter
-     * @param enableMotorMount whether the motor mount should be enabled or disabled
      * @param warnings         The warning set
      */
-    private MotorMount addMotorToStage(final int stageNr, final Motor motor, final Double ignitionDelay,
-            final Double nozzleExitDiameter, final FlightConfigurationId id, boolean enableMotorMount,
-            final WarningSet warnings) {
+    private MotorMount addMotorToStage(final int stageNr, final Motor motor, final Double burnoutIgnitionDelay,
+            final Double nozzleExitDiameter, final FlightConfigurationId id, final WarningSet warnings) {
         if (motor == null || rocket.getStage(stageNr) == null) {
             return null;
         }
@@ -209,15 +225,15 @@ public class SimulationHandler extends AbstractElementHandler {
             motorConfig.setEjectionDelay(Motor.PLUGGED_DELAY);
         }
 
-        double delay = ignitionDelay != null ? ignitionDelay : 0.0;
-        motorConfig.setIgnitionDelay(delay);
-        if (stageNr < rocket.getStageCount() - 1) { // Use burnout non-last if multi-staged rocket
+        if (burnoutIgnitionDelay != null) {
             motorConfig.setIgnitionEvent(IgnitionEvent.BURNOUT);
+            motorConfig.setIgnitionDelay(burnoutIgnitionDelay);
         } else {
             motorConfig.setIgnitionEvent(IgnitionEvent.AUTOMATIC);
+            motorConfig.setIgnitionDelay(0);
         }
         mount.setMotorConfig(motorConfig, id);
-        mount.setMotorMount(enableMotorMount);
+        mount.setMotorMount(true);
 
         return mount;
     }

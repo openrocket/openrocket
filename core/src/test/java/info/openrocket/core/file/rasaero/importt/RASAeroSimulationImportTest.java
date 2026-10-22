@@ -1,7 +1,9 @@
 package info.openrocket.core.file.rasaero.importt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -28,8 +30,10 @@ import info.openrocket.core.file.DatabaseMotorFinder;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.file.rasaero.RASAeroMotorsLoader;
+import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -92,6 +96,54 @@ public class RASAeroSimulationImportTest {
 				findMotorMount(rocket, 0).getMotorConfig(configurationId).getNozzleExitDiameter(), 1e-9);
 		assertEquals(0.6 / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH,
 				findMotorMount(rocket, 1).getMotorConfig(configurationId).getNozzleExitDiameter(), 1e-9);
+	}
+
+	/**
+	 * In RASAero, the sustainer ignites after the booster burns out, the stages coast together for the booster's
+	 * separation delay, and the sustainer coasts for its ignition delay.
+	 */
+	@Test
+	public void importsSustainerIgnitionAfterSeparation() throws Exception {
+		OpenRocketDocument document = load(design().replaceFirst("<SustainerIgnitionDelay>0</SustainerIgnitionDelay>",
+				"<SustainerIgnitionDelay>1.5</SustainerIgnitionDelay>"));
+		FlightConfigurationId configurationId = document.getSimulation(0).getFlightConfigurationId();
+		MotorConfiguration sustainerMotor = findMotorMount(document.getRocket(), 0).getMotorConfig(configurationId);
+
+		assertEquals(IgnitionEvent.BURNOUT, sustainerMotor.getIgnitionEvent());
+		// Booster separation delay (2 s) + sustainer ignition delay (1.5 s)
+		assertEquals(3.5, sustainerMotor.getIgnitionDelay(), 1e-9);
+	}
+
+	/**
+	 * A booster that is not included in one RASAero simulation is only disabled in that simulation's flight
+	 * configuration, and the sustainer then ignites at launch.
+	 */
+	@Test
+	public void excludesBoosterOnlyFromItsSimulation() throws Exception {
+		OpenRocketDocument document = load(design().replaceFirst("<IncludeBooster1>True</IncludeBooster1>",
+				"<IncludeBooster1>False</IncludeBooster1>"));
+		Rocket rocket = document.getRocket();
+		int boosterStage = rocket.getChild(1).getStageNumber();
+		FlightConfigurationId first = document.getSimulation(0).getFlightConfigurationId();
+		FlightConfigurationId second = document.getSimulation(1).getFlightConfigurationId();
+
+		assertFalse(rocket.getFlightConfiguration(first).isStageActive(boosterStage));
+		assertTrue(rocket.getFlightConfiguration(second).isStageActive(boosterStage));
+		assertTrue(findMotorMount(rocket, 1).isMotorMount());
+		assertEquals(IgnitionEvent.AUTOMATIC, findMotorMount(rocket, 0).getMotorConfig(first).getIgnitionEvent());
+	}
+
+	/**
+	 * A simulation without IncludeBooster elements is imported without its boosters instead of failing.
+	 */
+	@Test
+	public void importsSimulationsWithoutIncludeBoosterElements() throws Exception {
+		OpenRocketDocument document = load(design().replaceAll("\\s*<IncludeBooster[12]>\\w+</IncludeBooster[12]>", ""));
+		Rocket rocket = document.getRocket();
+		FlightConfigurationId first = document.getSimulation(0).getFlightConfigurationId();
+
+		assertEquals(2, document.getSimulations().size());
+		assertFalse(rocket.getFlightConfiguration(first).isStageActive(rocket.getChild(1).getStageNumber()));
 	}
 
 	private static String design() throws Exception {
