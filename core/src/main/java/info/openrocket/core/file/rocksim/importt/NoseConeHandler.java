@@ -17,6 +17,7 @@ import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 
+import info.openrocket.core.util.MathUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -131,7 +132,12 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 				if (!impliedByShapeCode && (Transition.Shape.POWER.equals(noseCone.getShapeType()) ||
 						Transition.Shape.HAACK.equals(noseCone.getShapeType()) ||
 						Transition.Shape.PARABOLIC.equals(noseCone.getShapeType()))) {
-					noseCone.setShapeParameter(Double.parseDouble(content));
+					double shapeParameter = Double.parseDouble(content);
+					noseCone.setShapeParameter(shapeParameter);
+					if (!MathUtil.equals(noseCone.getShapeParameter(), shapeParameter)) {
+						warnings.add(String.format("The shape parameter %s of nose cone '%s' is outside OpenRocket's range "
+								+ "and was changed to %s.", content, noseCone.getName(), noseCone.getShapeParameter()));
+					}
 				}
 			}
 			if (RockSimCommonConstants.CONSTRUCTION_TYPE.equals(element)) {

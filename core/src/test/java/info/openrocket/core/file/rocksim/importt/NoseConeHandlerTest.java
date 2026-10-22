@@ -161,6 +161,9 @@ public class NoseConeHandlerTest extends RockSimTestBase {
         Assertions.assertEquals(0.0d, component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
         Assertions.assertEquals(Transition.Shape.HAACK.maxParameter(), component.getShapeParameter(), 0.001);
+        // Both out-of-range values are clamped with a warning
+        Assertions.assertEquals(2, warnings.size());
+        warnings.clear();
         handler.closeElement("ShapeParameter", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         Assertions.assertEquals(warnings.iterator().next().toString(), "Could not convert ShapeParameter value of foo.  It is expected to be a number.");
@@ -206,6 +209,26 @@ public class NoseConeHandlerTest extends RockSimTestBase {
 
         Assertions.assertEquals(Transition.Shape.OGIVE, component.getShapeType());
         Assertions.assertEquals(1.0, component.getShapeParameter(), 1e-9);
+        Assertions.assertEquals(1, warnings.size());
+    }
+
+    /**
+     * RockSim allows Haack shape parameters above OpenRocket's maximum (1/3, the LV-Haack); clamping one must be
+     * reported.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @Test
+    public void testHaackShapeParameterClamped() throws Exception {
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+        NoseConeHandler handler = new NoseConeHandler(null, new AxialStage(), warnings);
+        NoseCone component = (NoseCone) getField(handler, "noseCone");
+
+        handler.closeElement("ShapeCode", attributes, "6", warnings);
+        handler.closeElement("ShapeParameter", attributes, "0.6", warnings);
+
+        Assertions.assertEquals(Transition.Shape.HAACK.maxParameter(), component.getShapeParameter(), 1e-9);
         Assertions.assertEquals(1, warnings.size());
     }
 

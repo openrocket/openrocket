@@ -191,6 +191,9 @@ public class TransitionHandlerTest extends RockSimTestBase {
         Assertions.assertEquals(0.0d, component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
         Assertions.assertEquals(Transition.Shape.HAACK.maxParameter(), component.getShapeParameter(), 0.001);
+        // Both out-of-range values are clamped with a warning
+        Assertions.assertEquals(2, warnings.size());
+        warnings.clear();
         handler.closeElement("ShapeParameter", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         Assertions.assertEquals(warnings.iterator().next().toString(), "Could not convert ShapeParameter value of foo.  It is expected to be a number.");

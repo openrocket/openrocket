@@ -16,6 +16,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 
+import info.openrocket.core.util.MathUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -117,7 +118,12 @@ class TransitionHandler extends BaseHandler<Transition> {
 				if (!impliedByShapeCode && (Transition.Shape.POWER.equals(transition.getShapeType()) ||
 						Transition.Shape.HAACK.equals(transition.getShapeType()) ||
 						Transition.Shape.PARABOLIC.equals(transition.getShapeType()))) {
-					transition.setShapeParameter(Double.parseDouble(content));
+					double shapeParameter = Double.parseDouble(content);
+					transition.setShapeParameter(shapeParameter);
+					if (!MathUtil.equals(transition.getShapeParameter(), shapeParameter)) {
+						warnings.add(String.format("The shape parameter %s of transition '%s' is outside OpenRocket's range "
+								+ "and was changed to %s.", content, transition.getName(), transition.getShapeParameter()));
+					}
 				}
 			}
 			if ("ConstructionType".equals(element)) {
