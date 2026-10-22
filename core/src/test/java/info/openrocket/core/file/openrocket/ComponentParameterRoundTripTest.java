@@ -57,11 +57,46 @@ import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.core.util.MathUtil;
 
+/**
+ * Tests that component parameters stay the same after saving and loading an OpenRocket file.
+ *
+ * @author Yibing Liu
+ * @author Baizhen Huang
+ */
 public class ComponentParameterRoundTripTest extends BaseTestCase {
+	/**
+	 * Tolerance used when comparing double values.
+	 *
+	 * @author Yibing Liu
+	 */
 	private static final double EPSILON = MathUtil.EPSILON;
+
+	/**
+	 * Radius used by the components in the basic round-trip tests.
+	 *
+	 * @author Yibing Liu
+	 */
 	private static final double COMPONENT_RADIUS = 0.05;
+
+	/**
+	 * Thickness value just below the old clamp boundary.
+	 *
+	 * @author Yibing Liu
+	 */
 	private static final double BELOW_OLD_CLAMP_BOUNDARY = 0.024;
+
+	/**
+	 * Thickness value at the old clamp boundary.
+	 *
+	 * @author Yibing Liu
+	 */
 	private static final double OLD_CLAMP_BOUNDARY = 0.025;
+
+	/**
+	 * Thickness value above the old clamp boundary.
+	 *
+	 * @author Yibing Liu
+	 */
 	private static final double ABOVE_OLD_CLAMP_BOUNDARY = 0.030;
 	private static final double BODY_TUBE_LENGTH = 0.4;
 	private static final double BODY_TUBE_THICKNESS = 0.002;
@@ -72,9 +107,25 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	private static final double MOTOR_TUBE_OUTER_RADIUS = 0.015;
 	private static final double MASS_OBJECT_RADIUS = 0.02;
 
+	/**
+	 * Temporary folder used for the saved rocket files.
+	 *
+	 * @author Yibing Liu
+	 */
 	@TempDir
 	Path tempDir;
 
+	/**
+	 * Checks that the body tube parameters stay the same after saving and loading.
+	 *
+	 * @author Yibing Liu
+	 *
+	 * @param thickness the body tube thickness used in the test
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "BodyTube thickness {0} m")
 	@ValueSource(doubles = { BELOW_OLD_CLAMP_BOUNDARY, OLD_CLAMP_BOUNDARY, ABOVE_OLD_CLAMP_BOUNDARY })
 	public void testBodyTubeParametersSurviveRoundTrip(double thickness)
@@ -96,6 +147,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertFalse(loaded.isFilled());
 	}
 
+	/**
+	 * Checks that the transition parameters stay the same after saving and loading.
+	 *
+	 * @author Yibing Liu
+	 *
+	 * @param thickness the transition thickness used in the test
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "Transition thickness {0} m")
 	@ValueSource(doubles = { BELOW_OLD_CLAMP_BOUNDARY, OLD_CLAMP_BOUNDARY, ABOVE_OLD_CLAMP_BOUNDARY })
 	public void testTransitionParametersSurviveRoundTrip(double thickness)
@@ -142,6 +204,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertFalse(loaded.isFilled());
 	}
 
+	/**
+	 * Checks that the nose cone parameters stay the same after saving and loading.
+	 *
+	 * @author Yibing Liu
+	 *
+	 * @param thickness the nose cone thickness used in the test
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	@ParameterizedTest(name = "NoseCone thickness {0} m")
 	@ValueSource(doubles = { BELOW_OLD_CLAMP_BOUNDARY, OLD_CLAMP_BOUNDARY, ABOVE_OLD_CLAMP_BOUNDARY })
 	public void testNoseConeParametersSurviveRoundTrip(double thickness)
@@ -598,6 +671,15 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(0.4, loaded.getAngleOffset(), EPSILON);
 	}
 
+	/**
+	 * Creates a rocket document with one stage and the given component.
+	 *
+	 * @author Yibing Liu
+	 *
+	 * @param component the component added to the stage
+	 *
+	 * @return a rocket document containing the component
+	 */
 	private OpenRocketDocument documentWith(RocketComponent component) {
 		Rocket rocket = new Rocket();
 		AxialStage stage = new AxialStage();
@@ -704,6 +786,20 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(expectedDelay, loaded.getSeparationDelay(), EPSILON);
 	}
 
+	/**
+	 * Saves a rocket document to a temporary file and loads it again.
+	 *
+	 * @author Yibing Liu
+	 *
+	 * @param document the rocket document to save
+	 * @param fileName the name of the temporary file
+	 *
+	 * @return the document loaded from the saved file
+	 *
+	 * @throws IOException if the file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
 	private OpenRocketDocument roundTrip(OpenRocketDocument document, String fileName)
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		File file = tempDir.resolve(fileName).toFile();
@@ -713,6 +809,15 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		return new GeneralRocketLoader(file).load();
 	}
 
+	/**
+	 * Gets the only component from the first stage of a rocket document.
+	 *
+	 * @author Yibing Liu
+	 *
+	 * @param document the rocket document to read
+	 *
+	 * @return the component in the first stage
+	 */
 	private RocketComponent firstComponent(OpenRocketDocument document) {
 		Rocket rocket = document.getRocket();
 		assertEquals(1, rocket.getChildCount());
