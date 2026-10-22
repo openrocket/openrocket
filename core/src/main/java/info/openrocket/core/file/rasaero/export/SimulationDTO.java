@@ -159,6 +159,9 @@ public class SimulationDTO {
                 separationConfig = stage.getSeparationConfigurations().get(fcid);
             }
             int stageNr = rocket.getChildPosition(stage);
+            // RASAero aborts the simulation when an included booster has no motor
+            boolean includeStage = motor != null
+                    && (fcid == null || rocket.getFlightConfiguration(fcid).isStageActive(stage.getStageNumber()));
 
             // Add friendly reminder to user
             if (motor == null) {
@@ -211,7 +214,7 @@ public class SimulationDTO {
                     setBooster1SeparationDelay(separationDelay); // TODO: this could be handled a bit better (look at
                                                                  // separation delay, upper stage ignition event etc.)
 
-                    setIncludeBooster1(mount != null && mount.isMotorMount());
+                    setIncludeBooster1(includeStage);
 
                     break;
                 // Booster 2
@@ -233,7 +236,7 @@ public class SimulationDTO {
                     setBooster2Delay(separationDelay); // TODO: this could be handled a bit better (look at separation
                                                        // delay, upper stage ignition event etc.)
 
-                    setIncludeBooster2(mount != null && mount.isMotorMount());
+                    setIncludeBooster2(includeStage);
 
                     break;
                 // Invalid

@@ -26,16 +26,25 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.motor.Manufacturer;
+import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,7 +64,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class RASAeroSaverTest {
@@ -240,6 +251,120 @@ public class RASAeroSaverTest {
         assertEquals(expectedMass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT, dto.getSustainerLaunchWt(),
                 1e-6);
         assertEquals(expectedCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH, dto.getSustainerCG(), 1e-6);
+    }
+
+    /**
+     * RASAero aborts the simulation when an included booster has no motor, and flies an included booster even when
+     * the OpenRocket flight configuration has that stage disabled. The booster must only be included when it is
+     * active in the simulation's configuration and has a motor.
+     */
+    @Test
+    public void testIncludeBoosterFollowsFlightConfiguration() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Rocket rocket = document.getRocket();
+        AxialStage booster = (AxialStage) rocket.getChild(1);
+        InnerTube boosterMount = (InnerTube) SimulationListDTO.findMotorMount(booster);
+
+        // Booster active with a motor
+        FlightConfigurationId withBooster = rocket.getSelectedConfiguration().getId();
+        assertTrue(exportSimulation(document, withBooster).getIncludeBooster1());
+
+        // Booster disabled in the flight configuration
+        FlightConfigurationId boosterDisabled = new FlightConfigurationId();
+        rocket.createFlightConfiguration(boosterDisabled);
+        configureMotor((InnerTube) SimulationListDTO.findMotorMount((AxialStage) rocket.getChild(0)), boosterDisabled,
+                "H128W", 0);
+        configureMotor(boosterMount, boosterDisabled, "I357T", 0);
+        rocket.getFlightConfiguration(boosterDisabled).setAllStages();
+        rocket.getFlightConfiguration(boosterDisabled)._setStageActive(booster.getStageNumber(), false);
+        assertFalse(exportSimulation(document, boosterDisabled).getIncludeBooster1());
+
+        // Booster without a motor in this flight configuration
+        FlightConfigurationId noBoosterMotor = new FlightConfigurationId();
+        rocket.createFlightConfiguration(noBoosterMotor);
+        configureMotor((InnerTube) SimulationListDTO.findMotorMount((AxialStage) rocket.getChild(0)), noBoosterMotor,
+                "H128W", 0);
+        rocket.getFlightConfiguration(noBoosterMotor).setAllStages();
+        assertFalse(exportSimulation(document, noBoosterMotor).getIncludeBooster1());
+    }
+
+    private SimulationDTO exportSimulation(OpenRocketDocument document, FlightConfigurationId configurationId) {
+        Rocket rocket = document.getRocket();
+        Simulation simulation = new Simulation(document, rocket);
+        simulation.setFlightConfigurationId(configurationId);
+        Map<AxialStage, MotorMount> mounts = new HashMap<>();
+        for (RocketComponent child : rocket.getChildren()) {
+            mounts.put((AxialStage) child, SimulationListDTO.findMotorMount((AxialStage) child));
+        }
+        return new SimulationDTO(rocket, simulation, mounts, new ArrayList<>(), new WarningSet(), new ErrorSet());
+    }
+
+    /**
+     * A two-stage rocket whose first flight configuration has an H128W sustainer and an I357T booster.
+     */
+    private OpenRocketDocument makeTwoStageDocument() {
+        OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+        Rocket rocket = document.getRocket();
+        AxialStage sustainer = rocket.getStage(0);
+        NoseCone noseCone = new NoseCone(Transition.Shape.OGIVE, 0.2, 0.025);
+        sustainer.addChild(noseCone);
+        BodyTube sustainerBody = new BodyTube(0.5, 0.025, 0.001);
+        sustainer.addChild(sustainerBody);
+        InnerTube sustainerMount = makeMotorMount();
+        sustainerBody.addChild(sustainerMount);
+
+        AxialStage booster = new AxialStage();
+        rocket.addChild(booster);
+        BodyTube boosterBody = new BodyTube(0.4, 0.025, 0.001);
+        booster.addChild(boosterBody);
+        InnerTube boosterMount = makeMotorMount();
+        boosterBody.addChild(boosterMount);
+
+        FlightConfigurationId configurationId = new FlightConfigurationId();
+        rocket.createFlightConfiguration(configurationId);
+        configureMotor(sustainerMount, configurationId, "H128W", 0);
+        configureMotor(boosterMount, configurationId, "I357T", 0);
+        rocket.getFlightConfiguration(configurationId).setAllStages();
+        rocket.setSelectedConfiguration(configurationId);
+        return document;
+    }
+
+    private InnerTube makeMotorMount() {
+        InnerTube mount = new InnerTube();
+        mount.setLength(0.15);
+        mount.setOuterRadius(0.015);
+        mount.setThickness(0.001);
+        mount.setMotorMount(true);
+        return mount;
+    }
+
+    private MotorConfiguration configureMotor(InnerTube mount, FlightConfigurationId configurationId,
+            String designation, double ejectionDelay) {
+        MotorConfiguration configuration = new MotorConfiguration(mount, configurationId);
+        configuration.setMotor(makeMotor(designation));
+        configuration.setEjectionDelay(ejectionDelay);
+        mount.setMotorConfig(configuration, configurationId);
+        return configuration;
+    }
+
+    private ThrustCurveMotor makeMotor(String designation) {
+        return new ThrustCurveMotor.Builder()
+                .setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+                .setDesignation(designation)
+                .setCode(designation)
+                .setCommonName(designation)
+                .setMotorType(Motor.Type.RELOAD)
+                .setStandardDelays(new double[] { 0.0, 6.0 })
+                .setDiameter(0.029)
+                .setLength(0.12)
+                .setTimePoints(new double[] { 0.0, 0.5, 1.0 })
+                .setThrustPoints(new double[] { 0.0, 200.0, 0.0 })
+                .setCGPoints(new CoordinateIF[] {
+                        new Coordinate(0.06, 0.0, 0.0, 0.2),
+                        new Coordinate(0.06, 0.0, 0.0, 0.15),
+                        new Coordinate(0.06, 0.0, 0.0, 0.1) })
+                .setDigest("AeroTech-" + designation)
+                .build();
     }
 
     private OpenRocketDocument loadRocket(String fileName) {
