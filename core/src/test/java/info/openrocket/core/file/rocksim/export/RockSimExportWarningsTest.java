@@ -13,6 +13,8 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.file.rocksim.importt.RockSimTestBase;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
+import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
@@ -112,6 +114,29 @@ public class RockSimExportWarningsTest extends RockSimTestBase {
 		assertWarning(warnings, "Booster");	// separates at apogee
 		assertWarning(warnings, "G37");		// no RockSim engine file for the manufacturer
 		assertEquals(3, warnings.size());
+	}
+
+	/**
+	 * RockSim's standard simulation only uses the lowest wind level of a multi-level wind.
+	 */
+	@Test
+	public void warnsAboutMultiLevelWind() throws Exception {
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		document.getRocket().getStage(0).addChild(makeBodyTube("Body"));
+		Simulation simulation = new Simulation(document, document.getRocket());
+		simulation.setName("Windy");
+		simulation.getOptions().setWindModelType(WindModelType.MULTI_LEVEL);
+		MultiLevelPinkNoiseWindModel wind = simulation.getOptions().getMultiLevelWindModel();
+		wind.clearLevels();
+		wind.addWindLevel(0.0, 3.0, 0.0, 0.3);
+		wind.addWindLevel(1000.0, 9.0, 0.0, 0.9);
+		document.addSimulation(simulation);
+
+		WarningSet warnings = new WarningSet();
+		new RockSimSaver().marshalToRockSim(document, warnings);
+
+		assertWarning(warnings, "Windy");
+		assertEquals(1, warnings.size());
 	}
 
 	private void assertWarning(WarningSet warnings, String text) {

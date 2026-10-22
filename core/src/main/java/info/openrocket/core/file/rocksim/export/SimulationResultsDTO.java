@@ -143,13 +143,14 @@ public class SimulationResultsDTO {
 	 */
 	public SimulationResultsDTO(Simulation simulation, RockSimExportContext context) {
 		comments = simulation.getName();
-		copyLaunchConditions(simulation.getOptions());
+		copyLaunchConditions(simulation, context);
 		copyMotors(simulation, context);
 		copyRecoveryEvents(simulation, context);
 		simulationName = formatMotorSummary();
 	}
 
-	private void copyLaunchConditions(SimulationOptions options) {
+	private void copyLaunchConditions(Simulation simulation, RockSimExportContext context) {
+		SimulationOptions options = simulation.getOptions();
 		launchGuideLength = options.getLaunchRodLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 		launchAngle = options.getLaunchRodAngle();
 		// RockSim-written RKT files store compass azimuths in degrees.
@@ -165,16 +166,23 @@ public class SimulationResultsDTO {
 
 		if (options.getWindModelType() == WindModelType.MULTI_LEVEL) {
 			copyMultiLevelWind(options);
+			if (options.getMultiLevelWindModel().getLevels().size() > 1) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.windLevels", simulation.getName());
+			}
 		} else {
-			copyAverageWind(options.getAverageWindModel());
+			PinkNoiseWindModel windModel = options.getAverageWindModel();
+			setWindSpeedRange(windModel.getAverage(), windModel.getStandardDeviation());
 		}
 	}
 
-	private void copyAverageWind(PinkNoiseWindModel windModel) {
-		// RockSim's fixed custom-wind range preserves the OpenRocket mean.  The two
-		// applications do not expose equivalent pink-noise turbulence parameters.
-		launchWindLowSpeed = windModel.getAverage();
-		launchWindHighSpeed = windModel.getAverage();
+	/**
+	 * RockSim's standard simulation blows the wind at a speed between the low and the high wind speed, so
+	 * OpenRocket's turbulence is exported as the range of one standard deviation around the average wind speed.
+	 * RockSim has no wind direction for this wind.
+	 */
+	private void setWindSpeedRange(double average, double standardDeviation) {
+		launchWindLowSpeed = Math.max(0, average - standardDeviation);
+		launchWindHighSpeed = average + standardDeviation;
 	}
 
 	private void copyMultiLevelWind(SimulationOptions options) {
@@ -183,8 +191,8 @@ public class SimulationResultsDTO {
 		launchWindTableSize = Math.min(levels.size(), MAX_WIND_LEVELS);
 
 		if (!levels.isEmpty()) {
-			launchWindLowSpeed = levels.get(0).getSpeed();
-			launchWindHighSpeed = levels.get(0).getSpeed();
+			// RockSim's standard simulation only uses the low and high wind speed, not the wind table
+			setWindSpeedRange(levels.get(0).getSpeed(), levels.get(0).getStandardDeviation());
 		}
 
 		double[] altitudes = new double[MAX_WIND_LEVELS];

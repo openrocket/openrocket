@@ -444,8 +444,9 @@ public class RockSimSimulationExportTest extends RockSimTestBase {
 		assertEquals(65.0, simulation.getLaunchHumidity(), EPSILON);
 		assertEquals(12.0, simulation.getLaunchTemperature(), EPSILON);
 		assertEquals(350.0, simulation.getLaunchAltitude(), EPSILON);
-		assertEquals(7.5, simulation.getLaunchWindLowSpeed(), EPSILON);
-		assertEquals(7.5, simulation.getLaunchWindHighSpeed(), EPSILON);
+		// RockSim's wind speed range is one standard deviation around the average
+		assertEquals(7.5 - 1.2, simulation.getLaunchWindLowSpeed(), EPSILON);
+		assertEquals(7.5 + 1.2, simulation.getLaunchWindHighSpeed(), EPSILON);
 		assertEquals(0, simulation.getLaunchWindTableSize());
 	}
 
