@@ -3,6 +3,8 @@ package info.openrocket.core.file.rasaero.importt;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
+import info.openrocket.core.file.simplesax.PlainTextHandler;
+import info.openrocket.core.file.simplesax.ElementHandler;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -55,6 +57,16 @@ public class FinCanHandler extends BodyTubeHandler {
         // A fin can is always positioned at the end of the parent body tube.
         this.finCan.setAxialMethod(AxialMethod.BOTTOM);
         this.finCan.setAngleOffset(0);
+    }
+
+    @Override
+    public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
+            throws SAXException {
+        if (RASAeroCommonConstants.INSIDE_DIAMETER.equals(element)
+                || RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
+            return PlainTextHandler.INSTANCE;
+        }
+        return super.openElement(element, attributes, warnings);
     }
 
     @Override

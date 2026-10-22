@@ -333,6 +333,27 @@ public class RASAeroLoaderTest extends BaseTestCase {
         assertTrue(loader.getWarnings().stream().anyMatch(w -> w.toString().contains("leading edge radius")));
     }
 
+    /**
+     * A fin can's shoulder is imported from its inside diameter and shoulder length.
+     */
+    @Test
+    public void testFinCanShoulder() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        Transition shoulder = null;
+        for (RocketComponent component : loadFromString(design).getRocket()) {
+            if ("Fin Can Shoulder".equals(component.getName())) {
+                shoulder = (Transition) component;
+            }
+        }
+        assertNotNull(shoulder);
+        assertEquals(0.25 * 0.0254, shoulder.getLength(), EPSILON);
+        assertEquals(3 * 0.0254 / 2, shoulder.getForeRadius(), EPSILON);
+    }
+
     private FinSet getFirstFinSet(Rocket rocket) {
         for (RocketComponent component : rocket) {
             if (component instanceof FinSet) {
