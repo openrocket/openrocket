@@ -221,6 +221,24 @@ public class RASAeroSaverTest {
     }
 
     /**
+     * RASAero gives a body tube the aft diameter of the previous component, so a diameter step must be an export
+     * error instead of silently changing the tube's diameter.
+     */
+    @Test
+    public void testBodyTubeDiameterStepIsAnError() {
+        OpenRocketDocument document = loadRocket("01.One-stage.ork");
+        ErrorSet errors = new ErrorSet();
+        new RASAeroSaver().marshalToRASAero(document, new WarningSet(), errors);
+        assertEquals(0, errors.size());
+
+        NoseCone noseCone = (NoseCone) document.getRocket().getStage(0).getChild(0);
+        noseCone.setAftRadiusAutomatic(false);
+        noseCone.setAftRadius(noseCone.getAftRadius() - 0.001);
+        new RASAeroSaver().marshalToRASAero(document, new WarningSet(), errors);
+        assertTrue(errors.size() > 0);
+    }
+
+    /**
      * RASAero writes and reads the rocket's CP element, not a CD element.
      */
     @Test
