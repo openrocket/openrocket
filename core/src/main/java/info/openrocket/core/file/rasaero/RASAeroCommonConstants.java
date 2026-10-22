@@ -743,4 +743,8 @@ public class RASAeroCommonConstants {
             return shapeParameter;
         }
     }
+
+    // Elements that are read by the importer only to warn that they are not supported
+    public static final String PROTUBERANCE = "Protuberance";
+    public static final String FIN_CAN_OFFSET = "Offset";
 }

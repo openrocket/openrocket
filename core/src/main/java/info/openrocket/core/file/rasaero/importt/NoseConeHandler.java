@@ -64,11 +64,12 @@ public class NoseConeHandler extends BaseHandler<NoseCone> {
         try {
             if (RASAeroCommonConstants.POWER_LAW.equals(element)) {
                 this.noseCone.setShapeParameter(BaseHandler.parseDouble(content));
+            } else if (RASAeroCommonConstants.BLUNT_RADIUS.equals(element) && BaseHandler.parseDouble(content) > 0) {
+                warnings.add("Blunt nose cone tips are not supported, ignoring the blunt radius of the nose cone.");
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
         }
-        // TODO: bluntradius (but we don't support it yet)
     }
 
     @Override

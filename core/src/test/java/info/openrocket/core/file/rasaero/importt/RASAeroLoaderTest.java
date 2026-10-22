@@ -178,7 +178,8 @@ public class RASAeroLoaderTest extends BaseTestCase {
         } catch (RocketLoadException | IOException e) {
             throw new RuntimeException(e);
         }
-        assertEquals(5, loader.getWarnings().size());
+        // Includes the unsupported fin can offset
+        assertEquals(6, loader.getWarnings().size());
     }
 
     /**
@@ -217,9 +218,13 @@ public class RASAeroLoaderTest extends BaseTestCase {
         // TODO: this also includes all motor warnings, so change motor db in setUp() to
         // include OR motors so the total
         // warning size decreases
-        assertEquals(4, loader.getWarnings().size());
+        assertEquals(7, loader.getWarnings().size());
         assertTrue(loader.getWarnings().stream()
                 .anyMatch(warning -> warning.toString().contains("mass and CG overrides were skipped")));
+        // Unsupported inputs that affect the aerodynamics
+        assertTrue(loader.getWarnings().stream().anyMatch(warning -> warning.toString().contains("Blunt nose cone")));
+        assertTrue(loader.getWarnings().stream().anyMatch(warning -> warning.toString().contains("Protuberances")));
+        assertTrue(loader.getWarnings().stream().anyMatch(warning -> warning.toString().contains("offset of fin cans")));
     }
 
     /**

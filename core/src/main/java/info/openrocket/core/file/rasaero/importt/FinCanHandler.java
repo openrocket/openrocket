@@ -63,7 +63,8 @@ public class FinCanHandler extends BodyTubeHandler {
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
             throws SAXException {
         if (RASAeroCommonConstants.INSIDE_DIAMETER.equals(element)
-                || RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
+                || RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)
+                || RASAeroCommonConstants.FIN_CAN_OFFSET.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
         return super.openElement(element, attributes, warnings);
@@ -78,6 +79,8 @@ public class FinCanHandler extends BodyTubeHandler {
                 insideDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
             } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
                 shoulderLength = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            } else if (RASAeroCommonConstants.FIN_CAN_OFFSET.equals(element) && BaseHandler.parseDouble(content) != 0) {
+                warnings.add("The offset of fin cans is not supported, ignoring the offset of " + finCan.getName() + ".");
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
