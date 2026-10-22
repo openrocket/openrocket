@@ -10,6 +10,7 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -18,6 +19,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
+import info.openrocket.core.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import info.openrocket.core.startup.Application;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -153,10 +155,8 @@ public class SimulationDTO {
             // Get the motor info for this stage
             MotorConfiguration motorConfig = mount != null ? mount.getMotorConfig(fcid) : null;
             Motor motor = null;
-            StageSeparationConfiguration separationConfig = null;
             if (motorConfig != null) {
                 motor = motorConfig.getMotor();
-                separationConfig = stage.getSeparationConfigurations().get(fcid);
             }
             int stageNr = rocket.getChildPosition(stage);
             // RASAero aborts the simulation when an included booster has no motor
@@ -173,7 +173,7 @@ public class SimulationDTO {
             FlightConfiguration CGCalcConfig = fcid != null ? new FlightConfiguration(rocket, fcid) :
                     new FlightConfiguration(rocket);
             RigidBody calc;
-            double ignitionDelay, separationDelay;
+            double ignitionDelay;
             switch (stageNr) {
                 // Sustainer
                 case 0:
@@ -209,11 +209,6 @@ public class SimulationDTO {
                     ignitionDelay = motorConfig != null ? motorConfig.getIgnitionDelay() : 0;
                     setBooster1IgnitionDelay(ignitionDelay);
 
-                    // Set separation delay
-                    separationDelay = separationConfig != null ? separationConfig.getSeparationDelay() : 0;
-                    setBooster1SeparationDelay(separationDelay); // TODO: this could be handled a bit better (look at
-                                                                 // separation delay, upper stage ignition event etc.)
-
                     setIncludeBooster1(includeStage);
 
                     break;
@@ -231,17 +226,77 @@ public class SimulationDTO {
                     setBooster2LaunchWt(calc.getMass() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
                     setBooster2CG(calc.getCM().getX() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
-                    // Set separation delay
-                    separationDelay = separationConfig != null ? separationConfig.getSeparationDelay() : 0;
-                    setBooster2Delay(separationDelay); // TODO: this could be handled a bit better (look at separation
-                                                       // delay, upper stage ignition event etc.)
-
                     setIncludeBooster2(includeStage);
 
                     break;
                 // Invalid
                 default:
                     errors.add(String.format(trans.get("RASAeroExport.error25"), stageNr, simulationName));
+            }
+        }
+
+        setStagingDelays(rocket, fcid, mounts, warnings);
+    }
+
+    /**
+     * RASAero's staging timeline is relative to the burnout of each booster: the booster and the stage above it
+     * coast together for the booster's separation delay, after which the upper stage coasts for its ignition delay
+     * before its motor ignites. The OpenRocket separation and ignition events are converted to that timeline.
+     */
+    private void setStagingDelays(Rocket rocket, FlightConfigurationId fcid, Map<AxialStage, MotorMount> mounts,
+            WarningSet warnings) {
+        for (int lower = 1; lower <= Math.min(2, rocket.getChildCount() - 1); lower++) {
+            if (!(lower == 1 ? includeBooster1 : includeBooster2)) {
+                continue;
+            }
+            AxialStage lowerStage = (AxialStage) rocket.getChild(lower);
+            AxialStage upperStage = (AxialStage) rocket.getChild(lower - 1);
+            // An included booster always has a motor
+            double lowerEjectionDelay = mounts.get(lowerStage).getMotorConfig(fcid).getEjectionDelay();
+            MotorMount upperMount = mounts.get(upperStage);
+            MotorConfiguration upperMotor = upperMount != null ? upperMount.getMotorConfig(fcid) : null;
+            boolean upperHasMotor = upperMotor != null && upperMotor.getMotor() != null;
+
+            // Times after the burnout of the lower stage
+            double ignition = 0;
+            if (upperHasMotor) {
+                IgnitionEvent ignitionEvent = upperMotor.getIgnitionEvent();
+                if ((ignitionEvent == IgnitionEvent.AUTOMATIC || ignitionEvent == IgnitionEvent.EJECTION_CHARGE)
+                        && lowerEjectionDelay != Motor.PLUGGED_DELAY) {
+                    ignition = lowerEjectionDelay;
+                } else if (ignitionEvent != IgnitionEvent.BURNOUT) {
+                    warnings.add(String.format(trans.get("RASAeroExport.warning16"), upperStage.getName(),
+                            ignitionEvent.toString()));
+                }
+                ignition += upperMotor.getIgnitionDelay();
+            }
+
+            StageSeparationConfiguration separationConfig = lowerStage.getSeparationConfigurations().get(fcid);
+            SeparationEvent separationEvent = separationConfig.getSeparationEvent();
+            double separation = 0;
+            if (separationEvent == SeparationEvent.EJECTION && lowerEjectionDelay != Motor.PLUGGED_DELAY) {
+                separation = lowerEjectionDelay;
+            } else if (separationEvent == SeparationEvent.UPPER_IGNITION && upperHasMotor) {
+                separation = ignition;
+            } else if (separationEvent != SeparationEvent.BURNOUT) {
+                warnings.add(String.format(trans.get("RASAeroExport.warning17"), lowerStage.getName(),
+                        separationEvent.toString()));
+            }
+            separation += separationConfig.getSeparationDelay();
+
+            // RASAero cannot ignite the upper stage before the lower stage separates
+            double ignitionAfterSeparation = ignition - separation;
+            if (ignitionAfterSeparation < 0) {
+                warnings.add(String.format(trans.get("RASAeroExport.warning18"), upperStage.getName()));
+                ignitionAfterSeparation = 0;
+            }
+
+            if (lower == 1) {
+                setBooster1SeparationDelay(separation);
+                setSustainerIgnitionDelay(ignitionAfterSeparation);
+            } else {
+                setBooster2Delay(separation);
+                setBooster1IgnitionDelay(ignitionAfterSeparation);
             }
         }
     }

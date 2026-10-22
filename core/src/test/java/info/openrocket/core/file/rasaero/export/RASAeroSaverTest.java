@@ -26,6 +26,7 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
@@ -41,6 +42,7 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
@@ -288,7 +290,71 @@ public class RASAeroSaverTest {
         assertFalse(exportSimulation(document, noBoosterMotor).getIncludeBooster1());
     }
 
+    /**
+     * RASAero's booster separation delay is the coast time after booster burnout, and the sustainer ignition delay is
+     * the coast time after separation. OpenRocket's default staging separates the booster and ignites the sustainer
+     * at the booster's ejection charge, i.e. the booster motor's ejection delay after burnout.
+     */
+    @Test
+    public void testStagingAtBoosterEjectionCharge() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Rocket rocket = document.getRocket();
+        FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
+        AxialStage booster = (AxialStage) rocket.getChild(1);
+        SimulationListDTO.findMotorMount(booster).getMotorConfig(configurationId).setEjectionDelay(4);
+
+        SimulationDTO simulation = exportSimulation(document, configurationId);
+        assertEquals(4, simulation.getBooster1SeparationDelay(), 1e-9);
+        assertEquals(0, simulation.getSustainerIgnitionDelay(), 1e-9);
+    }
+
+    /**
+     * A booster that separates 0.5 s after burnout, with a sustainer that ignites 2 s after booster burnout, coasts
+     * for 1.5 s after separation in RASAero's timeline.
+     */
+    @Test
+    public void testStagingAfterBoosterBurnout() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Rocket rocket = document.getRocket();
+        FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
+        AxialStage sustainer = (AxialStage) rocket.getChild(0);
+        AxialStage booster = (AxialStage) rocket.getChild(1);
+        StageSeparationConfiguration separation = new StageSeparationConfiguration();
+        separation.setSeparationEvent(StageSeparationConfiguration.SeparationEvent.BURNOUT);
+        separation.setSeparationDelay(0.5);
+        booster.getSeparationConfigurations().set(configurationId, separation);
+        MotorConfiguration sustainerMotor = SimulationListDTO.findMotorMount(sustainer).getMotorConfig(configurationId);
+        sustainerMotor.setIgnitionEvent(IgnitionEvent.BURNOUT);
+        sustainerMotor.setIgnitionDelay(2);
+
+        SimulationDTO simulation = exportSimulation(document, configurationId);
+        assertEquals(0.5, simulation.getBooster1SeparationDelay(), 1e-9);
+        assertEquals(1.5, simulation.getSustainerIgnitionDelay(), 1e-9);
+    }
+
+    /**
+     * An air-started sustainer cannot be represented in RASAero, which ignites the sustainer after separation.
+     */
+    @Test
+    public void testStagingWarnsForAirStart() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Rocket rocket = document.getRocket();
+        FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
+        AxialStage sustainer = (AxialStage) rocket.getChild(0);
+        SimulationListDTO.findMotorMount(sustainer).getMotorConfig(configurationId)
+                .setIgnitionEvent(IgnitionEvent.LAUNCH);
+
+        WarningSet warnings = new WarningSet();
+        exportSimulation(document, configurationId, warnings);
+        assertTrue(warnings.toString().contains("RASAeroExport.warning16"));
+    }
+
     private SimulationDTO exportSimulation(OpenRocketDocument document, FlightConfigurationId configurationId) {
+        return exportSimulation(document, configurationId, new WarningSet());
+    }
+
+    private SimulationDTO exportSimulation(OpenRocketDocument document, FlightConfigurationId configurationId,
+            WarningSet warnings) {
         Rocket rocket = document.getRocket();
         Simulation simulation = new Simulation(document, rocket);
         simulation.setFlightConfigurationId(configurationId);
@@ -296,7 +362,7 @@ public class RASAeroSaverTest {
         for (RocketComponent child : rocket.getChildren()) {
             mounts.put((AxialStage) child, SimulationListDTO.findMotorMount((AxialStage) child));
         }
-        return new SimulationDTO(rocket, simulation, mounts, new ArrayList<>(), new WarningSet(), new ErrorSet());
+        return new SimulationDTO(rocket, simulation, mounts, new ArrayList<>(), warnings, new ErrorSet());
     }
 
     /**
