@@ -367,6 +367,14 @@ public class SimulationResultsDTO {
 				continue;
 			}
 			DeploymentConfiguration configuration = device.getDeploymentConfigurations().get(configurationId);
+			if (configuration.getDeployEvent() == DeploymentConfiguration.DeployEvent.EJECTION
+					&& configuration.getDeployDelay() > 0) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.ejectionDelay", device.getName(),
+						simulation.getName());
+			} else if (configuration.getDeployEvent() == DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.stageSeparation", device.getName(),
+						simulation.getName());
+			}
 			for (int serialNumber : context.getRecoveryDeviceSerialNumbers(device)) {
 				simulationEvents.add(new SimulationEventDTO(device, configuration, serialNumber));
 			}

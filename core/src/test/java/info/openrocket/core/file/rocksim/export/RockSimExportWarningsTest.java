@@ -22,6 +22,9 @@ import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
+import info.openrocket.core.rocketcomponent.Parachute;
+import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.RailButton;
@@ -137,6 +140,40 @@ public class RockSimExportWarningsTest extends RockSimTestBase {
 
 		assertWarning(warnings, "Windy");
 		assertEquals(1, warnings.size());
+	}
+
+	/**
+	 * RockSim cannot delay a deployment after the ejection charge, nor deploy a device when the lower stage
+	 * separates.
+	 */
+	@Test
+	public void warnsAboutRecoveryEventsRockSimCannotRepresent() throws Exception {
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		Rocket rocket = document.getRocket();
+		BodyTube body = makeBodyTube("Body");
+		rocket.getStage(0).addChild(body);
+		Parachute main = new Parachute();
+		main.setName("Main");
+		body.addChild(main);
+		Streamer streamer = new Streamer();
+		streamer.setName("Streamer");
+		body.addChild(streamer);
+
+		DeploymentConfiguration ejection = main.getDeploymentConfigurations().getDefault();
+		ejection.setDeployEvent(DeploymentConfiguration.DeployEvent.EJECTION);
+		ejection.setDeployDelay(2.0);
+		streamer.getDeploymentConfigurations().getDefault()
+				.setDeployEvent(DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION);
+
+		Simulation simulation = new Simulation(document, rocket);
+		document.addSimulation(simulation);
+
+		WarningSet warnings = new WarningSet();
+		new RockSimSaver().marshalToRockSim(document, warnings);
+
+		assertWarning(warnings, "Main");
+		assertWarning(warnings, "Streamer");
+		assertEquals(2, warnings.size());
 	}
 
 	private void assertWarning(WarningSet warnings, String text) {
