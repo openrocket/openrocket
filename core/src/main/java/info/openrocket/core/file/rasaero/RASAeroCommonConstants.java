@@ -321,7 +321,7 @@ public class RASAeroCommonConstants {
             return new NoseConeShapeSettings(SHAPE_PARABOLIC);
         } else if (shape.equals(Transition.Shape.POWER)) {
             return new NoseConeShapeSettings(SHAPE_POWER_LAW, shapeParameter);
-        } else if (shape.equals(Transition.Shape.HAACK) && MathUtil.equals(shapeParameter, 0.33, 0.01)) {
+        } else if (shape.equals(Transition.Shape.HAACK) && MathUtil.equals(shapeParameter, 1.0 / 3, 0.01)) {
             return new NoseConeShapeSettings(SHAPE_LVHAACK);
         } else if (shape.equals(Transition.Shape.ELLIPSOID)) {
             return new NoseConeShapeSettings(SHAPE_ELLIPTICAL);
@@ -361,7 +361,7 @@ public class RASAeroCommonConstants {
         } else if (SHAPE_POWER_LAW.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit (will be overwritten later)
         } else if (SHAPE_LVHAACK.equals(shape)) {
-            return 0.33;
+            return 1.0 / 3;
         } else if (SHAPE_PARABOLIC.equals(shape)) {
             return 0.5;
         } else if (SHAPE_ELLIPTICAL.equals(shape)) {

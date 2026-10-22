@@ -287,6 +287,23 @@ public class RASAeroLoaderTest extends BaseTestCase {
         assertTrue(loader.getWarnings().stream().anyMatch(w -> w.toString().contains("Unknown nose cone shape 'Foo'")));
     }
 
+    /**
+     * RASAero's LV-Haack nose cone is a Haack series with a shape parameter of 1/3.
+     */
+    @Test
+    public void testLVHaackNoseCone() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        NoseCone noseCone = (NoseCone) loadFromString(
+                design.replace("<Shape>Tangent Ogive</Shape>", "<Shape>LV-Haack</Shape>")).getRocket().getStage(0)
+                .getChild(0);
+        assertEquals(Transition.Shape.HAACK, noseCone.getShapeType());
+        assertEquals(1.0 / 3, noseCone.getShapeParameter(), 1e-9);
+    }
+
     private OpenRocketDocument loadFromString(String design) throws RocketLoadException, IOException {
         OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
