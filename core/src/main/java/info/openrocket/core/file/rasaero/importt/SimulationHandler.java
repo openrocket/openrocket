@@ -98,41 +98,41 @@ public class SimulationHandler extends AbstractElementHandler {
             sustainerEngineName = content;
             sustainerEngine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY.equals(element)) {
-            sustainerIgnitionDelay = Double.parseDouble(content);
+            sustainerIgnitionDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.SUSTAINER_LAUNCH_WT.equals(element)) {
-            sustainerLaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
+            sustainerLaunchWt = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.SUSTAINER_CG.equals(element)) {
-            sustainerCG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            sustainerCG = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.BOOSTER1_ENGINE.equals(element)) {
             booster1EngineName = content;
             booster1Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY.equals(element)) {
-            booster1IgnitionDelay = Double.parseDouble(content);
+            booster1IgnitionDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.BOOSTER1_SEPARATION_DELAY.equals(element)) {
-            booster1SeparationDelay = Double.parseDouble(content);
+            booster1SeparationDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.BOOSTER1_LAUNCH_WT.equals(element)) {
-            booster1LaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
+            booster1LaunchWt = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.BOOSTER1_CG.equals(element)) {
-            booster1CG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            booster1CG = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER1.equals(element)) {
             includeBooster1 = Boolean.parseBoolean(content);
         } else if (RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element)) {
             booster2EngineName = content;
             booster2Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element)) {
-            booster2SeparationDelay = Double.parseDouble(content);
+            booster2SeparationDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.BOOSTER2_LAUNCH_WT.equals(element)) {
-            booster2LaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
+            booster2LaunchWt = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.BOOSTER2_CG.equals(element)) {
-            booster2CG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            booster2CG = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
             includeBooster2 = Boolean.parseBoolean(content);
         } else if (RASAeroCommonConstants.SUSTAINER_NOZZLE_DIAMETER.equals(element)) {
-            sustainerNozzleDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            sustainerNozzleDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.BOOSTER1_NOZZLE_DIAMETER.equals(element)) {
-            booster1NozzleDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            booster1NozzleDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.BOOSTER2_NOZZLE_DIAMETER.equals(element)) {
-            booster2NozzleDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            booster2NozzleDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         }
     }
 

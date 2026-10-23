@@ -48,20 +48,20 @@ public class LaunchSiteHandler extends AbstractElementHandler {
         try {
             if (RASAeroCommonConstants.LAUNCH_ALTITUDE.equals(element)) {
                 launchSiteSettings.setLaunchAltitude(
-                        Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
+                        BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
             } else if (RASAeroCommonConstants.LAUNCH_PRESSURE.equals(element)) {
-                barometricPressure = Double.parseDouble(content);
+                barometricPressure = BaseHandler.parseDouble(content);
             } else if (RASAeroCommonConstants.LAUNCH_ROD_ANGLE.equals(element)) {
                 launchSiteSettings.setLaunchRodAngle(
-                        Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ANGLE);
+                        BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ANGLE);
             } else if (RASAeroCommonConstants.LAUNCH_ROD_LENGTH.equals(element)) {
                 launchSiteSettings.setLaunchRodLength(
-                        Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
+                        BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
             } else if (RASAeroCommonConstants.LAUNCH_TEMPERATURE.equals(element)) {
                 launchSiteSettings.setLaunchTemperature(
-                        RASAeroCommonConstants.RASAERO_TO_OPENROCKET_TEMPERATURE(Double.parseDouble(content)));
+                        RASAeroCommonConstants.RASAERO_TO_OPENROCKET_TEMPERATURE(BaseHandler.parseDouble(content)));
             } else if (RASAeroCommonConstants.LAUNCH_WIND_SPEED.equals(element)) {
-                windSpeed = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED;
+                windSpeed = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED;
             }
         } catch (NumberFormatException e) {
             warnings.add("Invalid number format for element " + element + ", ignoring.");

@@ -14,6 +14,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 
@@ -257,6 +258,35 @@ public class RASAeroLoaderTest extends BaseTestCase {
             assertEquals(e.getLength(), a.getLength(), EPSILON, e.getName());
             assertEquals(e.getComponentLocations()[0].getX(), a.getComponentLocations()[0].getX(), EPSILON,
                     e.getName());
+        }
+    }
+
+    /**
+     * The simulations and launch site of a RASAero file written with a comma decimal separator must import the same
+     * as with a point.
+     */
+    @Test
+    public void testCommaDecimalSeparatorInSimulations() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        int end = design.indexOf("</RocketDesign>");
+        String commaDesign = design.substring(0, end)
+                + design.substring(end).replaceAll(">(-?\\d+)\\.(\\d+)<", ">$1,$2<");
+        assertNotEquals(design, commaDesign);
+
+        OpenRocketDocument expected = loadFromString(design);
+        OpenRocketDocument actual = loadFromString(commaDesign);
+        assertEquals(expected.getSimulations().size(), actual.getSimulations().size());
+        for (int i = 0; i < expected.getSimulations().size(); i++) {
+            SimulationOptions e = expected.getSimulations().get(i).getOptions();
+            SimulationOptions a = actual.getSimulations().get(i).getOptions();
+            assertEquals(e.getLaunchAltitude(), a.getLaunchAltitude(), EPSILON);
+            assertEquals(e.getLaunchTemperature(), a.getLaunchTemperature(), EPSILON);
+            assertEquals(e.getLaunchRodLength(), a.getLaunchRodLength(), EPSILON);
+            assertEquals(e.getLaunchRodAngle(), a.getLaunchRodAngle(), EPSILON);
         }
     }
 
