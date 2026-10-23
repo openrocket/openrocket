@@ -46,6 +46,8 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.simulation.SimulationOptions;
+import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -415,6 +417,65 @@ public class RASAeroSaverTest {
         // RASAero reads the booster nozzle exit diameter from NozzleDiameter, but writes it as NozzleExitDiameter
         assertTrue(exported.contains("<NozzleDiameter>"));
         assertTrue(exported.contains("<NozzleExitDiameter>"));
+    }
+
+    /**
+     * The launch site is exported from the simulation options, also for simulations that have not been run. RASAero's
+     * barometric pressure is reduced to sea level, and a positive wind speed is a headwind.
+     */
+    @Test
+    public void testLaunchSiteExport() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Simulation simulation = new Simulation(document, document.getRocket());
+        document.addSimulation(simulation);
+        SimulationOptions options = simulation.getOptions();
+        options.setLaunchAltitude(1000);
+        options.setISAAtmosphere(false);
+        options.setLaunchTemperature(300);
+        options.setLaunchPressure(88000);
+        options.setWindModelType(WindModelType.AVERAGE);
+        options.getAverageWindModel().setAverage(5);
+        options.setLaunchIntoWind(true);
+
+        LaunchSiteDTO launchSite = new LaunchSiteDTO(document, new WarningSet(), new ErrorSet());
+        double altitude = 1000 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE;
+        assertEquals(altitude, launchSite.getAltitude(), 1e-6);
+        assertEquals(88000, RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LAUNCH_PRESSURE(launchSite.getPressure(),
+                altitude), 1);
+        // The barometric pressure reduced to sea level is higher than the launch site pressure
+        assertTrue(launchSite.getPressure() > 88000 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_PRESSURE);
+        assertEquals(5 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED, launchSite.getWindSpeed(), 1e-6);
+
+        // With the standard atmosphere, the barometric pressure is left empty and the ISA temperature is exported
+        options.setISAAtmosphere(true);
+        options.setLaunchIntoWind(false);
+        options.setLaunchRodDirection(options.getAverageWindModel().getDirection() + Math.PI);
+        launchSite = new LaunchSiteDTO(document, new WarningSet(), new ErrorSet());
+        assertEquals(0, launchSite.getPressure(), 1e-9);
+        assertEquals(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TEMPERATURE(288.15 - 0.0065 * 1000),
+                launchSite.getTemperature(), 0.1);
+        assertEquals(-5 * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED, launchSite.getWindSpeed(), 1e-6);
+    }
+
+    /**
+     * RASAero has a single launch site and a single constant wind, so differing launch sites and multi-level wind
+     * must be reported.
+     */
+    @Test
+    public void testLaunchSiteWarnings() {
+        OpenRocketDocument document = makeTwoStageDocument();
+        Simulation first = new Simulation(document, document.getRocket());
+        Simulation second = new Simulation(document, document.getRocket());
+        document.addSimulation(first);
+        document.addSimulation(second);
+        second.getOptions().setLaunchAltitude(first.getOptions().getLaunchAltitude() + 500);
+        first.getOptions().setWindModelType(WindModelType.MULTI_LEVEL);
+        first.getOptions().getMultiLevelWindModel().addWindLevel(100, 4, 0, 0.1);
+
+        WarningSet warnings = new WarningSet();
+        new LaunchSiteDTO(document, warnings, new ErrorSet());
+        assertTrue(warnings.toString().contains("RASAeroExport.warning21"));
+        assertTrue(warnings.toString().contains("RASAeroExport.warning22"));
     }
 
     private SimulationDTO exportSimulation(OpenRocketDocument document, FlightConfigurationId configurationId) {

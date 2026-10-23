@@ -41,6 +41,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -164,6 +165,28 @@ public class RASAeroSimulationImportTest {
 		assertNotNull(gorilla);
 		assertEquals("J465GT", gorilla.getDesignation());
 		assertEquals(0, warnings.size());
+	}
+
+	/**
+	 * RASAero uses the standard pressure at the launch site elevation when no barometric pressure is entered
+	 * (Pressure 0), and always uses the entered temperature. A negative wind speed is a tailwind.
+	 */
+	@Test
+	public void importsLaunchSiteAtmosphereAndWind() throws Exception {
+		OpenRocketDocument document = load(design().replaceFirst("<WindSpeed>0</WindSpeed>",
+				"<WindSpeed>-10</WindSpeed>"));
+		SimulationOptions options = document.getSimulation(0).getOptions();
+
+		// RASAero II's standard atmosphere at 3750 ft, in Pa
+		double standardPressure = 14.6958 * Math.pow(1 - 6.87535e-6 * 3750, 5.2561) * 6894.757;
+		assertFalse(options.isISAAtmosphere());
+		assertEquals(standardPressure, options.getLaunchPressure(), 1);
+		assertEquals((80 - 32) / 1.8 + 273.15, options.getLaunchTemperature(), 0.01);
+		assertEquals(10 / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED,
+				options.getAverageWindModel().getAverage(), 1e-6);
+		// A tailwind blows from behind the rocket: the rod points away from the wind
+		assertEquals(-1, Math.cos(options.getAverageWindModel().getDirection() - options.getLaunchRodDirection()),
+				1e-9);
 	}
 
 	private static String design() throws Exception {

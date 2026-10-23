@@ -206,6 +206,49 @@ public class RASAeroCommonConstants {
      * Pressure conversion from OpenRocket units to RASAero units.  RASAero is in in-hg, OpenRocket in Pa.
      */
     public static final double OPENROCKET_TO_RASAERO_PRESSURE = 0.000295301;
+
+    // RASAero II's standard atmosphere: sea-level pressure (psi), pressure-altitude lapse (1/ft) and exponent, and
+    // the conversion of its barometric pressure input from inHg to psi
+    private static final double RASAERO_SEA_LEVEL_PRESSURE = 14.6958;
+    private static final double RASAERO_PRESSURE_LAPSE = 6.87535e-6;
+    private static final double RASAERO_PRESSURE_EXPONENT = 5.2561;
+    private static final double RASAERO_BAROMETRIC_EXPONENT = 0.19026;
+    private static final double RASAERO_INHG_TO_PSI = 0.49117;
+    private static final double PSI_TO_PASCAL = 6894.757;
+
+    /**
+     * Returns the launch site pressure that RASAero uses for its barometric pressure input. RASAero's barometric
+     * pressure is the pressure reduced to sea level; when it is 0 (not entered), RASAero uses the standard pressure
+     * at the launch site elevation.
+     *
+     * @param barometricPressure the barometric pressure (inHg), or 0 if not entered
+     * @param altitude           the launch site elevation (ft)
+     * @return the launch site pressure (Pa)
+     */
+    public static double RASAERO_TO_OPENROCKET_LAUNCH_PRESSURE(double barometricPressure, double altitude) {
+        double pressureAltitude = altitude;
+        if (barometricPressure != 0) {
+            pressureAltitude += (Math.pow(barometricPressure * RASAERO_INHG_TO_PSI / RASAERO_SEA_LEVEL_PRESSURE,
+                    RASAERO_BAROMETRIC_EXPONENT) - 1) / -RASAERO_PRESSURE_LAPSE;
+        }
+        return RASAERO_SEA_LEVEL_PRESSURE * Math.pow(1 - RASAERO_PRESSURE_LAPSE * pressureAltitude,
+                RASAERO_PRESSURE_EXPONENT) * PSI_TO_PASCAL;
+    }
+
+    /**
+     * Returns RASAero's barometric pressure input for a launch site pressure; the inverse of
+     * {@link #RASAERO_TO_OPENROCKET_LAUNCH_PRESSURE(double, double)}.
+     *
+     * @param pressure the launch site pressure (Pa)
+     * @param altitude the launch site elevation (ft)
+     * @return the barometric pressure (inHg)
+     */
+    public static double OPENROCKET_TO_RASAERO_BAROMETRIC_PRESSURE(double pressure, double altitude) {
+        double pressureAltitude = (1 - Math.pow(pressure / PSI_TO_PASCAL / RASAERO_SEA_LEVEL_PRESSURE,
+                1 / RASAERO_PRESSURE_EXPONENT)) / RASAERO_PRESSURE_LAPSE;
+        return RASAERO_SEA_LEVEL_PRESSURE * Math.pow(1 - RASAERO_PRESSURE_LAPSE * (pressureAltitude - altitude),
+                1 / RASAERO_BAROMETRIC_EXPONENT) / RASAERO_INHG_TO_PSI;
+    }
     /**
      * Angle conversion from OpenRocket units to RASAero units.  RASAero is in degrees, OpenRocket in rad.
      */
