@@ -22,7 +22,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
@@ -160,7 +160,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             firstTube = (BodyTube) stage.getChild(0);
         }
 
-        TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
+        FinSet finSet = getFinSetFromBodyTube(firstTube);
 
         double tubeLength = firstTube.getLength();
         double finLocationOffset = 0;
@@ -227,10 +227,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         setColor(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_COLOR(firstTube.getColor()));
     }
 
-    private TrapezoidFinSet getFinSetFromBodyTube(BodyTube bodyTube) {
+    private FinSet getFinSetFromBodyTube(BodyTube bodyTube) {
         for (RocketComponent child : bodyTube.getChildren()) {
-            if (child instanceof TrapezoidFinSet) {
-                return (TrapezoidFinSet) child;
+            if (child instanceof FinSet) {
+                return (FinSet) child;
             }
         }
         return null;

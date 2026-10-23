@@ -35,6 +35,7 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
+import info.openrocket.core.rocketcomponent.EllipticalFinSet;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -262,6 +263,59 @@ public class RASAeroSaverTest {
         result = new RASAeroSaver().marshalToRASAero(document, warnings, new ErrorSet());
         assertTrue(result.contains("<Surface>Polished</Surface>"));
         assertTrue(warnings.stream().anyMatch(w -> w.toString().contains("RASAeroExport.warningB1")));
+    }
+
+    /**
+     * A non-trapezoidal fin set is exported as the trapezoid with the same root chord, span, area and area centroid.
+     * For an elliptical fin, that is the symmetric trapezoid with a tip chord of (pi/2 - 1) times the root chord.
+     */
+    @Test
+    public void testExportsEllipticalFinsAsEquivalentTrapezoid() throws Exception {
+        BodyTube bodyTube = makeFinTestRocket();
+        EllipticalFinSet fins = new EllipticalFinSet();
+        fins.setFinCount(3);
+        fins.setLength(0.1);
+        fins.setHeight(0.05);
+        bodyTube.addChild(fins);
+
+        WarningSet warnings = new WarningSet();
+        FinDTO fin = new FinDTO(fins, warnings, new ErrorSet());
+
+        double rootChord = 0.1;
+        double tipChord = (Math.PI / 2 - 1) * rootChord;
+        double toInches = RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        assertEquals(rootChord * toInches, fin.getChord(), 1e-6);
+        assertEquals(0.05 * toInches, fin.getSpan(), 1e-6);
+        assertEquals(tipChord * toInches, fin.getTipChord(), 0.01 * tipChord * toInches);
+        assertEquals((rootChord - tipChord) / 2 * toInches, fin.getSweepDistance(), 0.01 * rootChord * toInches);
+        assertTrue(warnings.stream().anyMatch(w -> w.toString().contains("RASAeroExport.warningB3")));
+    }
+
+    /**
+     * RASAero has one fin set per body tube, so a second fin set must not silently replace the first.
+     */
+    @Test
+    public void testKeepsTheFirstOfSeveralFinSets() throws Exception {
+        BodyTube bodyTube = makeFinTestRocket();
+        bodyTube.addChild(new TrapezoidFinSet(3, 0.1, 0.05, 0.02, 0.05));
+        bodyTube.addChild(new TrapezoidFinSet(4, 0.08, 0.04, 0.01, 0.04));
+
+        WarningSet warnings = new WarningSet();
+        BodyTubeDTO dto = new BodyTubeDTO(bodyTube, warnings, new ErrorSet());
+
+        assertEquals(3, dto.getFin().getCount());
+        assertTrue(warnings.stream().anyMatch(w -> w.toString().contains("RASAeroExport.warningB4")));
+    }
+
+    private BodyTube makeFinTestRocket() {
+        Rocket rocket = new Rocket();
+        AxialStage stage = new AxialStage();
+        rocket.addChild(stage);
+        stage.addChild(new NoseCone());
+        BodyTube bodyTube = new BodyTube();
+        bodyTube.setLength(0.5);
+        stage.addChild(bodyTube);
+        return bodyTube;
     }
 
     /**
