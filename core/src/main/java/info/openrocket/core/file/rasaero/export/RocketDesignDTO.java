@@ -12,11 +12,13 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -37,6 +39,7 @@ import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportExcept
 public class RocketDesignDTO {
     @XmlElementRefs({
             @XmlElementRef(name = RASAeroCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
+            @XmlElementRef(name = RASAeroCommonConstants.FIN_CAN, type = FinCanDTO.class),
             @XmlElementRef(name = RASAeroCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
             @XmlElementRef(name = RASAeroCommonConstants.TRANSITION, type = TransitionDTO.class),
             @XmlElementRef(name = RASAeroCommonConstants.BOOSTER, type = BoosterDTO.class)
@@ -104,7 +107,21 @@ public class RocketDesignDTO {
                     return;
                 }
                 if (component instanceof BodyTube) {
-                    addExternalPart(new BodyTubeDTO((BodyTube) component, warnings, errors));
+                    // The importer adds a zero-length tube to hold a boattail that follows a transition
+                    boolean onlyBoattails = MathUtil.equals(component.getLength(), 0) && component.getChildCount() > 0;
+                    for (RocketComponent child : component.getChildren()) {
+                        onlyBoattails &= BoattailDTO.isBoattailPod(child);
+                    }
+                    if (!onlyBoattails) {
+                        addExternalPart(new BodyTubeDTO((BodyTube) component, warnings, errors));
+                    }
+                    for (RocketComponent child : component.getChildren()) {
+                        if (FinCanDTO.isFinCan(child)) {
+                            addExternalPart(new FinCanDTO((PodSet) child, warnings, errors));
+                        } else if (BoattailDTO.isBoattailPod(child)) {
+                            addExternalPart(new BoattailDTO((Transition) child.getChild(0), warnings, errors));
+                        }
+                    }
                 } else if (component instanceof NoseCone) {
                     if (i != 0) {
                         errors.add(trans.get("RASAeroExport.error24"));

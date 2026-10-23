@@ -5,6 +5,7 @@ import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 
@@ -95,7 +96,8 @@ public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
 
         // RASAero gives a body tube the aft diameter of the previous component
         SymmetricComponent previous = bodyTube.getPreviousSymmetricComponent();
-        if (previous != null && !MathUtil.equals(bodyTube.getOuterRadius(), previous.getAftRadius())) {
+        if (bodyTube.getParent() instanceof AxialStage && previous != null
+                && !MathUtil.equals(bodyTube.getOuterRadius(), previous.getAftRadius())) {
             throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error15"),
                     bodyTube.getName(), bodyTube.getStage().getName(), previous.getName()));
         }

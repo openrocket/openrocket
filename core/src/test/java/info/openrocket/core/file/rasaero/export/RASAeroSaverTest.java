@@ -307,6 +307,46 @@ public class RASAeroSaverTest {
         assertTrue(warnings.stream().anyMatch(w -> w.toString().contains("RASAeroExport.warningB4")));
     }
 
+    /**
+     * The importer represents RASAero fin cans and boattails as inline pods, so exporting an imported design must
+     * write them back as fin cans and boattails.
+     */
+    @Test
+    public void testFinCanAndBoattailRoundTrip() throws Exception {
+        OpenRocketDocument document = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(document);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1")) {
+            assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
+            new RASAeroLoader().loadFromStream(context, new BufferedInputStream(stream), null);
+        }
+
+        ErrorSet errors = new ErrorSet();
+        String result = new RASAeroSaver().marshalToRASAero(document, new WarningSet(), errors);
+
+        assertEquals(0, errors.size(), errors.toString());
+        assertTrue(result.contains("<FinCan>"), result);
+        assertTrue(result.contains("<InsideDiameter>3</InsideDiameter>"), result);
+        assertTrue(result.contains("<ShoulderLength>0.25</ShoulderLength>"), result);
+        assertTrue(result.contains("<BoatTail>"), result);
+        assertTrue(result.contains("<RearDiameter>2.75</RearDiameter>"), result);
+
+        document = OpenRocketDocumentFactory.createEmptyRocket();
+        context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(document);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        try (InputStream stream = getClass().getResourceAsStream("/file/rasaero/importt/Show-off.CDX1")) {
+            assertNotNull(stream, "Could not open Show-off.CDX1");
+            new RASAeroLoader().loadFromStream(context, new BufferedInputStream(stream), null);
+        }
+        errors = new ErrorSet();
+        result = new RASAeroSaver().marshalToRASAero(document, new WarningSet(), errors);
+        assertEquals(0, errors.size(), errors.toString());
+        assertTrue(result.contains("<FinCan>"), result);
+        assertTrue(result.contains("<BoatTail>"), result);
+    }
+
     private BodyTube makeFinTestRocket() {
         Rocket rocket = new Rocket();
         AxialStage stage = new AxialStage();

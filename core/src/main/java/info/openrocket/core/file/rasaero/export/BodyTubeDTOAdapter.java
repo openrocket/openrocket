@@ -94,6 +94,8 @@ public interface BodyTubeDTOAdapter {
                     warnings.add(String.format(trans.get("RASAeroExport.warning8"), button.getName(),
                             button.getInstanceCount()));
                 }
+            } else if (FinCanDTO.isFinCan(child) || BoattailDTO.isBoattailPod(child)) {
+                // Exported as a separate fin can or boattail after the body tube
             } else if (child instanceof Parachute) {
                 // Do nothing, is handled by RecoveryDTO
             } else {
