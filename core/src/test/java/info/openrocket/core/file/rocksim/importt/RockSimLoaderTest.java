@@ -189,8 +189,10 @@ public class RockSimLoaderTest extends BaseTestCase {
         Rocket rocket = doc.getRocket();
         assertNotNull(rocket);
         assertEquals(doc.getRocket().getName(), "FooBar Test");
-        // The nose cone's base extension is imported as a separate transition, with a warning
-        assertEquals(1, loader.getWarnings().size());
+        // The nose cone's base extension is imported as a separate transition, with a warning. The file's simulation
+        // refers to a motor mount (serial number 5) that is not in the design, so it is ignored with two warnings.
+        assertEquals(3, loader.getWarnings().size());
+        assertEquals(0, doc.getSimulations().size());
         assertEquals("Nose cone base extension", rocket.getChild(0).getChild(1).getName());
         assertEquals(0.066675, rocket.getChild(0).getChild(1).getLength(), 1e-9);
 

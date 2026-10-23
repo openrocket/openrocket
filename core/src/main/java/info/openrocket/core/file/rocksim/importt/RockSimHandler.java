@@ -29,8 +29,7 @@ import org.xml.sax.SAXException;
  * best effort approach and may not
  * be an exact replica.
  * <p/>
- * Limitations: Rocksim flight simulations are not imported; tube fins are not
- * supported; Rocksim 'pods' are not supported.
+ * Limitations: tube fins are not supported; Rocksim 'pods' are not supported.
  */
 public class RockSimHandler extends AbstractElementHandler {
 
@@ -134,6 +133,9 @@ class RockSimContentHandler extends AbstractElementHandler {
 		}
 		if (RockSimCommonConstants.ROCKET_DESIGN.equals(element)) {
 			return new RocketDesignHandler(context, rocket);
+		}
+		if (RockSimCommonConstants.SIMULATION_RESULTS_LIST.equals(element)) {
+			return new SimulationResultsListHandler(context, rocket);
 		}
 		return null;
 	}
