@@ -352,6 +352,7 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
 
         // Compute flight conditions
         calculateFlightConditions(status, store);
+        store.flightConditions.setPitchCenter(store.rocketMass.getCM());
 
         /*
          * Check whether to store warnings or not.  Warnings are ignored when on the

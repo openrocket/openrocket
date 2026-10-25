@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,7 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Rotation2D;
 import info.openrocket.core.util.TestRockets;
 
 import java.util.Map;
@@ -1023,6 +1026,100 @@ public class BarrowmanCalculatorTest {
 			assertEquals(expectedTotalCD, stageForces.getCDTotal(), EPSILON,
 					"Stage drag does not equal its aerodynamic descendants: " + stage.getName());
 		}
+	}
+
+	/**
+	 * The pitch and yaw damping moments must oppose the lateral rotation of the rocket, whatever the
+	 * roll orientation (theta) of the angle-of-attack plane and the direction of the rotation.
+	 */
+	@Test
+	public void testDampingMomentOpposesRotation() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BarrowmanCalculator calc = new BarrowmanCalculator();
+		CoordinateIF cg = MassCalculator.calculateLaunch(config).getCM();
+		double rateMagnitude = 5;
+
+		double expectedMagnitude = Double.NaN;
+		for (int i = 0; i < 8; i++) {
+			double theta = i * Math.PI / 4;
+			Rotation2D thetaRotation = new Rotation2D(theta);
+			for (int j = 0; j < 8; j++) {
+				// Rotation axis in the angle-of-attack plane, converted to rocket coordinates
+				double axisAngle = j * Math.PI / 4;
+				Coordinate axis = new Coordinate(Math.cos(axisAngle), Math.sin(axisAngle), 0);
+				CoordinateIF rate = thetaRotation.rotateZ(axis).multiply(rateMagnitude);
+
+				FlightConditions conditions = new FlightConditions(config);
+				conditions.setAOA(Math.toRadians(10));
+				conditions.setTheta(theta);
+				conditions.setVelocity(10);
+				conditions.setPitchCenter(cg);
+				conditions.setPitchRate(rate.getY());
+				conditions.setYawRate(rate.getX());
+
+				AerodynamicForces forces = calc.getAerodynamicForces(config, conditions, null);
+
+				// The simulation applies the moment (-Cyaw, Cm) in the angle-of-attack plane
+				CoordinateIF damping = thetaRotation.rotateZ(new Coordinate(
+						forces.getYawDampingMoment(), -forces.getPitchDampingMoment(), 0));
+				assertTrue(damping.length() > 0,
+						"No damping moment at theta=" + theta + ", axis=" + axisAngle);
+				assertEquals(-1, damping.dot(rate) / (damping.length() * rate.length()), EPSILON,
+						"Damping moment does not oppose the rotation at theta=" + theta +
+								", axis=" + axisAngle);
+
+				if (Double.isNaN(expectedMagnitude)) {
+					expectedMagnitude = damping.length();
+				}
+				assertEquals(expectedMagnitude, damping.length(), EPSILON,
+						"Damping moment magnitude depends on the rotation direction");
+			}
+		}
+	}
+
+	/**
+	 * The pitch damping moment of a body is computed from the portions fore and aft of the pitch center
+	 * (the CG), also for a separated booster whose body does not start at the rocket tip.
+	 */
+	@Test
+	public void testDampingMomentAboutPitchCenterOfBooster() {
+		final double radius = 0.025;
+		Rocket rocket = new Rocket();
+		AxialStage sustainer = new AxialStage();
+		rocket.addChild(sustainer);
+		sustainer.addChild(new NoseCone(Transition.Shape.OGIVE, 0.1, radius));
+		sustainer.addChild(new BodyTube(0.3, radius));
+		AxialStage booster = new AxialStage();
+		rocket.addChild(booster);
+		BodyTube boosterTube = new BodyTube(0.2, radius);
+		booster.addChild(boosterTube);
+		rocket.enableEvents();
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BarrowmanCalculator calc = new BarrowmanCalculator();
+
+		// Pitch center 0.05 m aft of the booster front, so 0.15 m of the booster body is aft of it
+		double boosterFore = boosterTube.toAbsolute(Coordinate.NUL)[0].getX();
+		double pitchRate = 5;
+		double velocity = 10;
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setAOA(Math.toRadians(10));
+		conditions.setVelocity(velocity);
+		conditions.setPitchCenter(new Coordinate(boosterFore + 0.05, 0, 0));
+		conditions.setPitchRate(pitchRate);
+
+		// Evaluate the full rocket first, so that nothing computed for it may leak into the booster result
+		calc.getAerodynamicForces(config, conditions, null);
+		config.setOnlyStage(booster.getStageNumber());
+		AerodynamicForces forces = calc.getAerodynamicForces(config, conditions, null);
+
+		// C_damp = 0.55 * l^4 * r / (A_ref * d) * (omega / v)^2 for each body portion (Niskanen)
+		double expected = 0.55 * (MathUtil.pow4(0.05) + MathUtil.pow4(0.15)) * radius /
+				(conditions.getRefArea() * conditions.getRefLength()) *
+				MathUtil.pow2(pitchRate / velocity);
+		assertEquals(expected, forces.getPitchDampingMoment(), EPSILON);
+		assertEquals(0, forces.getYawDampingMoment(), EPSILON);
 	}
 
 	@Test

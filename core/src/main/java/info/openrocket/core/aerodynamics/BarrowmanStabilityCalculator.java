@@ -29,6 +29,7 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Reflection;
 
 /**
@@ -43,8 +44,11 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 	private final WarningSet ignoreWarningSet = new WarningSet();
 
 	private Map<RocketComponent, RocketComponentCalc> calcMap = null;
+	private ModID cacheModID = ModID.INVALID;
 	private double cacheDiameter = -1;
 	private double cacheLength = -1;
+	private double cacheForeX = 0;
+	private double cacheAftX = 0;
 
 	@Override
 	public StabilityCalculator newInstance() {
@@ -110,19 +114,31 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 			AerodynamicForces total) {
 		ensureCalcMap(configuration);
 
-		double mul = getDampingMultiplier(configuration, conditions, conditions.getPitchCenter().getX());
-		double pitchRate = conditions.getPitchRate();
-		double yawRate = conditions.getYawRate();
+		// The pitch and yaw rates are in rocket coordinates, but the moments are in the angle-of-attack
+		// plane, which is rotated by theta about the rocket axis. Yaw is negated because Cyaw is applied as -x.
+		double sinTheta = Math.sin(conditions.getTheta());
+		double cosTheta = Math.cos(conditions.getTheta());
+		double pitchRate = cosTheta * conditions.getPitchRate() - sinTheta * conditions.getYawRate();
+		double yawRate = -(cosTheta * conditions.getYawRate() + sinTheta * conditions.getPitchRate());
+		double lateralRate = MathUtil.hypot(pitchRate, yawRate);
 		double velocity = conditions.getVelocity();
 
-		mul *= 3; // Higher damping yields much more realistic apogee turn
+		if (lateralRate < MathUtil.EPSILON || velocity < MathUtil.EPSILON) {
+			total.setPitchDampingMoment(0);
+			total.setYawDampingMoment(0);
+			return;
+		}
 
-		double pitchDampingMomentMagnitude = MathUtil.min(mul * pow2(pitchRate / velocity), total.getCm());
-		double yawDampingMomentMagnitude = MathUtil.min(mul * pow2(yawRate / velocity), total.getCyaw());
+		// The damping moment is computed about the CG and opposes the lateral rotation
+		double cgx = conditions.getPitchCenter().getX();
+		double mul = getDampingMultiplier(configuration, conditions, cgx);
 
-		total.setPitchDampingMoment(MathUtil.sign(pitchRate) * pitchDampingMomentMagnitude);
-		total.setYawDampingMoment(MathUtil.sign(yawRate) * yawDampingMomentMagnitude);
+		// Clamp to the moment about the CG to avoid numerical instability
+		double cgMoment = Math.abs(total.getCm() - total.getCN() * cgx / conditions.getRefLength());
+		double dampingMomentMagnitude = MathUtil.min(mul * pow2(lateralRate / velocity), cgMoment);
 
+		total.setPitchDampingMoment(dampingMomentMagnitude * pitchRate / lateralRate);
+		total.setYawDampingMoment(dampingMomentMagnitude * yawRate / lateralRate);
 	}
 
 	@Override
@@ -235,8 +251,7 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 	@Override
 	public void voidAerodynamicCache() {
 		calcMap = null;
-		cacheDiameter = -1;
-		cacheLength = -1;
+		cacheModID = ModID.INVALID;
 	}
 
 	private AerodynamicForces calculateComponentNonAxialForces(FlightConditions conditions, RocketComponent comp,
@@ -329,25 +344,35 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 	}
 
 	private double getDampingMultiplier(FlightConfiguration configuration, FlightConditions conditions, double cgx) {
-		if (cacheDiameter < 0) {
+		// The active stages change at stage separation, so the body geometry is cached per configuration state
+		if (cacheModID != configuration.getModID()) {
 			double area = 0;
 			cacheLength = 0;
 			cacheDiameter = 0;
+			cacheForeX = Double.MAX_VALUE;
+			cacheAftX = -Double.MAX_VALUE;
 
 			for (RocketComponent c : configuration.getActiveComponents()) {
-				if (c instanceof SymmetricComponent) {
-					SymmetricComponent s = (SymmetricComponent) c;
+				if (c instanceof SymmetricComponent s) {
 					area += s.getComponentPlanformArea();
 					cacheLength += s.getLength();
+					double x = s.toAbsolute(Coordinate.NUL)[0].getX();
+					cacheForeX = Math.min(cacheForeX, x);
+					cacheAftX = Math.max(cacheAftX, x + s.getLength());
 				}
 			}
 			if (cacheLength > 0) {
 				cacheDiameter = area / cacheLength;
 			}
+			cacheModID = configuration.getModID();
 		}
 
-		double mul = 0.275 * cacheDiameter / (conditions.getRefArea() * conditions.getRefLength());
-		mul *= (MathUtil.pow4(cgx) + MathUtil.pow4(cacheLength - cgx));
+		// Body portions fore and aft of the CG, using the average body diameter
+		double mul = 0;
+		if (cacheLength > 0) {
+			mul = 0.275 * cacheDiameter / (conditions.getRefArea() * conditions.getRefLength());
+			mul *= (MathUtil.pow4(cgx - cacheForeX) + MathUtil.pow4(cacheAftX - cgx));
+		}
 
 		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (c instanceof FinSet) {
