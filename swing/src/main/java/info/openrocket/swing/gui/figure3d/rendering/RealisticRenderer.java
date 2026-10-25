@@ -507,7 +507,9 @@ public class RealisticRenderer implements GLRenderer {
 	private void updatePostProcessingChain() {
 		postProcessingPasses.clear();
 		postProcessingPasses.add(outlinePass);
-		if (config.getQuality().isFXAAEnabled()) {
+		// FXAA is only a fallback for when the scene is not multisampled. On top of MSAA
+		// it blurs already-resolved edges and texture detail a second time.
+		if (config.getQuality().isFXAAEnabled() && renderTarget.getSamples() == 0) {
 			postProcessingPasses.add(fxaaPass);
 		}
 	}
