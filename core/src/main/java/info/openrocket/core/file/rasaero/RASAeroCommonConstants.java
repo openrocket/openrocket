@@ -75,6 +75,8 @@ public class RASAeroCommonConstants {
     private static final String SHAPE_LVHAACK = "LV-Haack";
     private static final String SHAPE_PARABOLIC = "Parabolic";
     private static final String SHAPE_ELLIPTICAL = "Elliptical";
+    private static final String SHAPE_LEGACY_OGIVE = "Ogive";
+    private static final String SHAPE_LEGACY_CONIC = "Conic";
 
     // Transition settings
     public static final String REAR_DIAMETER = "RearDiameter";
@@ -95,6 +97,11 @@ public class RASAeroCommonConstants {
     public static final String CROSS_SECTION_SQUARE = "Square";
     public static final String CROSS_SECTION_ROUNDED = "Rounded";
     public static final String CROSS_SECTION_SUBSONIC_NACA = "Subsonic NACA";
+    // Written by RASAero's own RockSim importer
+    private static final String CROSS_SECTION_ROUND = "Round";
+    // Sharp-edged supersonic sections that OpenRocket does not have
+    private static final List<String> CROSS_SECTIONS_SHARP = List.of("Single Wedge", "Double Wedge", "Biconvex",
+            "Hexagonal", "Hexagonal Blunt Base", "Hexagonal Dbl Wedge");
 
     // Launch lug settings
     public static final String LAUNCH_LUG_DIAMETER = "LaunchLugDiameter";
@@ -126,9 +133,10 @@ public class RASAeroCommonConstants {
     public static final String BOATTAIL_REAR_DIAMETER = "BoattailRearDiameter";
     public static final String BOATTAIL_OFFSET = "BoattailOffset";
     public static final String NOZZLE_EXIT_DIAMETER = "NozzleExitDiameter";
+    public static final String NOZZLE_DIAMETER = "NozzleDiameter";
 
     // RocketDesign settings
-    public static final String CD = "CD";
+    public static final String CP = "CP";
     public static final String MODIFIED_BARROWMAN = "ModifiedBarrowman";
     public static final String TURBULENCE = "Turbulence";
     public static final String SUSTAINER_NOZZLE = "SustainerNozzle";
@@ -205,6 +213,49 @@ public class RASAeroCommonConstants {
      * Pressure conversion from OpenRocket units to RASAero units.  RASAero is in in-hg, OpenRocket in Pa.
      */
     public static final double OPENROCKET_TO_RASAERO_PRESSURE = 0.000295301;
+
+    // RASAero II's standard atmosphere: sea-level pressure (psi), pressure-altitude lapse (1/ft) and exponent, and
+    // the conversion of its barometric pressure input from inHg to psi
+    private static final double RASAERO_SEA_LEVEL_PRESSURE = 14.6958;
+    private static final double RASAERO_PRESSURE_LAPSE = 6.87535e-6;
+    private static final double RASAERO_PRESSURE_EXPONENT = 5.2561;
+    private static final double RASAERO_BAROMETRIC_EXPONENT = 0.19026;
+    private static final double RASAERO_INHG_TO_PSI = 0.49117;
+    private static final double PSI_TO_PASCAL = 6894.757;
+
+    /**
+     * Returns the launch site pressure that RASAero uses for its barometric pressure input. RASAero's barometric
+     * pressure is the pressure reduced to sea level; when it is 0 (not entered), RASAero uses the standard pressure
+     * at the launch site elevation.
+     *
+     * @param barometricPressure the barometric pressure (inHg), or 0 if not entered
+     * @param altitude           the launch site elevation (ft)
+     * @return the launch site pressure (Pa)
+     */
+    public static double RASAERO_TO_OPENROCKET_LAUNCH_PRESSURE(double barometricPressure, double altitude) {
+        double pressureAltitude = altitude;
+        if (barometricPressure != 0) {
+            pressureAltitude += (Math.pow(barometricPressure * RASAERO_INHG_TO_PSI / RASAERO_SEA_LEVEL_PRESSURE,
+                    RASAERO_BAROMETRIC_EXPONENT) - 1) / -RASAERO_PRESSURE_LAPSE;
+        }
+        return RASAERO_SEA_LEVEL_PRESSURE * Math.pow(1 - RASAERO_PRESSURE_LAPSE * pressureAltitude,
+                RASAERO_PRESSURE_EXPONENT) * PSI_TO_PASCAL;
+    }
+
+    /**
+     * Returns RASAero's barometric pressure input for a launch site pressure; the inverse of
+     * {@link #RASAERO_TO_OPENROCKET_LAUNCH_PRESSURE(double, double)}.
+     *
+     * @param pressure the launch site pressure (Pa)
+     * @param altitude the launch site elevation (ft)
+     * @return the barometric pressure (inHg)
+     */
+    public static double OPENROCKET_TO_RASAERO_BAROMETRIC_PRESSURE(double pressure, double altitude) {
+        double pressureAltitude = (1 - Math.pow(pressure / PSI_TO_PASCAL / RASAERO_SEA_LEVEL_PRESSURE,
+                1 / RASAERO_PRESSURE_EXPONENT)) / RASAERO_PRESSURE_LAPSE;
+        return RASAERO_SEA_LEVEL_PRESSURE * Math.pow(1 - RASAERO_PRESSURE_LAPSE * (pressureAltitude - altitude),
+                1 / RASAERO_BAROMETRIC_EXPONENT) / RASAERO_INHG_TO_PSI;
+    }
     /**
      * Angle conversion from OpenRocket units to RASAero units.  RASAero is in degrees, OpenRocket in rad.
      */
@@ -241,7 +292,21 @@ public class RASAeroCommonConstants {
      * @return The OpenRocket nose cone shape.
      */
     public static Transition.Shape RASAERO_TO_OPENROCKET_SHAPE(String shape) {
-        return RASAeroNoseConeShapeMap.get(shape);
+        return RASAeroNoseConeShapeMap.get(normalizeLegacyShape(shape));
+    }
+
+    /**
+     * Older RASAero files use "Ogive" and "Conic", which RASAero reads as "Tangent Ogive" and "Conical".
+     * @param shape The RASAero shape string.
+     * @return The current RASAero name of the shape.
+     */
+    private static String normalizeLegacyShape(String shape) {
+        if (SHAPE_LEGACY_OGIVE.equals(shape)) {
+            return SHAPE_TANGENT_OGIVE;
+        } else if (SHAPE_LEGACY_CONIC.equals(shape)) {
+            return SHAPE_CONICAL;
+        }
+        return shape;
     }
 
     /**
@@ -261,7 +326,7 @@ public class RASAeroCommonConstants {
             return new NoseConeShapeSettings(SHAPE_PARABOLIC);
         } else if (shape.equals(Transition.Shape.POWER)) {
             return new NoseConeShapeSettings(SHAPE_POWER_LAW, shapeParameter);
-        } else if (shape.equals(Transition.Shape.HAACK) && MathUtil.equals(shapeParameter, 0.33, 0.01)) {
+        } else if (shape.equals(Transition.Shape.HAACK) && MathUtil.equals(shapeParameter, 1.0 / 3, 0.01)) {
             return new NoseConeShapeSettings(SHAPE_LVHAACK);
         } else if (shape.equals(Transition.Shape.ELLIPSOID)) {
             return new NoseConeShapeSettings(SHAPE_ELLIPTICAL);
@@ -291,6 +356,7 @@ public class RASAeroCommonConstants {
      * @return The shape parameter for the OpenRocket nose cone.
      */
     public static double RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(String shape) {
+        shape = normalizeLegacyShape(shape);
         if (SHAPE_CONICAL.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit
         } else if (SHAPE_TANGENT_OGIVE.equals(shape)) {
@@ -300,7 +366,7 @@ public class RASAeroCommonConstants {
         } else if (SHAPE_POWER_LAW.equals(shape)) {
             return 0.0;     // Not really needed, but just to be explicit (will be overwritten later)
         } else if (SHAPE_LVHAACK.equals(shape)) {
-            return 0.33;
+            return 1.0 / 3;
         } else if (SHAPE_PARABOLIC.equals(shape)) {
             return 0.5;
         } else if (SHAPE_ELLIPTICAL.equals(shape)) {
@@ -313,9 +379,14 @@ public class RASAeroCommonConstants {
     public static FinSet.CrossSection RASAERO_TO_OPENROCKET_FIN_CROSSSECTION(String crossSection, WarningSet warnings) {
         if (CROSS_SECTION_SQUARE.equals(crossSection)) {
             return FinSet.CrossSection.SQUARE;
-        } else if (CROSS_SECTION_ROUNDED.equals(crossSection)) {
+        } else if (CROSS_SECTION_ROUNDED.equals(crossSection) || CROSS_SECTION_ROUND.equals(crossSection)) {
             return FinSet.CrossSection.ROUNDED;
         } else if (CROSS_SECTION_SUBSONIC_NACA.equals(crossSection)) {
+            return FinSet.CrossSection.AIRFOIL;
+        } else if (CROSS_SECTIONS_SHARP.contains(crossSection)) {
+            String msg = "Fin cross section " + crossSection + " is not supported, approximating it as an airfoil.";
+            warnings.add(msg);
+            log.debug(msg);
             return FinSet.CrossSection.AIRFOIL;
         } else {
             String msg = "Unknown fin cross section: " + crossSection + ", defaulting to Airfoil.";
@@ -370,7 +441,8 @@ public class RASAeroCommonConstants {
     public static String OPENROCKET_TO_RASAERO_SURFACE(ExternalComponent.Finish finish, WarningSet warnings) {
         if (finish.equals(ExternalComponent.Finish.MIRROR)) {
             return FINISH_SMOOTH;
-        } else if (finish.equals(ExternalComponent.Finish.FINISHPOLISHED)) {
+        } else if (finish.equals(ExternalComponent.Finish.FINISHPOLISHED)
+                || finish.equals(ExternalComponent.Finish.POLISHED)) {
             return FINISH_POLISHED;
         } else if (finish.equals(ExternalComponent.Finish.OPTIMUM)) {
             return FINISH_SHEET_METAL;
@@ -380,7 +452,8 @@ public class RASAeroCommonConstants {
             return FINISH_ROUGH_CAMOUFLAGE;
         } else if (finish.equals(ExternalComponent.Finish.UNFINISHED)) {
             return FINISH_GALVANIZED;
-        } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)) {
+        } else if (finish.equals(ExternalComponent.Finish.ROUGHUNFINISHED)
+                || finish.equals(ExternalComponent.Finish.ROUGH)) {
             return FINISH_CAST_IRON;
         } else {
             String msg = "Unknown surface finish: " + finish + ", defaulting to Smooth.";
@@ -400,6 +473,21 @@ public class RASAeroCommonConstants {
      */
     public static String OPENROCKET_TO_RASAERO_MOTOR(List<RASAeroMotor> rasaeroMotors, Motor openRocketMotor,
                                                      WarningSet warnings) {
+        return OPENROCKET_TO_RASAERO_MOTOR(rasaeroMotors, openRocketMotor, Double.NaN, warnings);
+    }
+
+    /**
+     * Returns the RASAero motor name of an OpenRocket motor.
+     *
+     * @param rasaeroMotors   RASAero's motor catalog
+     * @param openRocketMotor the OpenRocket motor
+     * @param ejectionDelay   the selected ejection delay, used to choose between catalog entries that only differ in
+     *                        their delays, or NaN if unknown
+     * @param warnings        the warning set
+     * @return the RASAero motor name, or null if the motor has no unique catalog entry
+     */
+    public static String OPENROCKET_TO_RASAERO_MOTOR(List<RASAeroMotor> rasaeroMotors, Motor openRocketMotor,
+                                                     double ejectionDelay, WarningSet warnings) {
         if (openRocketMotor == null) {
             return null;
         }
@@ -416,14 +504,14 @@ public class RASAeroCommonConstants {
 
         ThrustCurveMotor thrustCurveMotor = (ThrustCurveMotor) openRocketMotor;
         List<RASAeroMotor> candidates = findDesignationMatches(rasaeroMotors, thrustCurveMotor);
-        RASAeroMotor match = selectUniqueMotor(candidates, thrustCurveMotor);
+        RASAeroMotor match = selectUniqueMotor(candidates, thrustCurveMotor, ejectionDelay);
 
         if (match == null && candidates.isEmpty()) {
             // Some databases use a propellant suffix while others only retain the
             // impulse class and average thrust. Physical dimensions keep this fallback
             // conservative and prevent similarly named motors from being confused.
             candidates = findCommonNameMatches(rasaeroMotors, thrustCurveMotor);
-            match = selectUniqueMotor(candidates, thrustCurveMotor);
+            match = selectUniqueMotor(candidates, thrustCurveMotor, ejectionDelay);
         }
 
         if (match != null) {
@@ -485,26 +573,49 @@ public class RASAeroCommonConstants {
 
     /**
      * Selects a single catalog entry. If a designation maps to more than one
-     * entry, dimensions may disambiguate it; otherwise the exporter warns instead
-     * of guessing.
+     * entry, dimensions, the selected ejection delay and an exact designation
+     * may disambiguate it; otherwise the exporter warns instead of guessing.
      */
     private static RASAeroMotor selectUniqueMotor(List<RASAeroMotor> candidates,
-                                                   ThrustCurveMotor openRocketMotor) {
-        if (candidates.size() == 1) {
-            return candidates.get(0);
+                                                   ThrustCurveMotor openRocketMotor, double ejectionDelay) {
+        if (candidates.size() <= 1) {
+            return candidates.isEmpty() ? null : candidates.get(0);
         }
-        if (candidates.size() > 1) {
-            List<RASAeroMotor> dimensionMatches = new ArrayList<>();
-            for (RASAeroMotor candidate : candidates) {
-                if (motorDimensionsMatch(openRocketMotor, candidate)) {
-                    dimensionMatches.add(candidate);
+        List<RASAeroMotor> matches = new ArrayList<>();
+        for (RASAeroMotor candidate : candidates) {
+            if (motorDimensionsMatch(openRocketMotor, candidate)) {
+                matches.add(candidate);
+            }
+        }
+        if (matches.size() > 1 && !Double.isNaN(ejectionDelay)) {
+            List<RASAeroMotor> delayMatches = new ArrayList<>();
+            for (RASAeroMotor candidate : matches) {
+                if (candidate.hasDelay(ejectionDelay)) {
+                    delayMatches.add(candidate);
                 }
             }
-            if (dimensionMatches.size() == 1) {
-                return dimensionMatches.get(0);
+            if (!delayMatches.isEmpty()) {
+                matches = delayMatches;
             }
         }
-        return null;
+        if (matches.size() > 1) {
+            List<RASAeroMotor> exactMatches = new ArrayList<>();
+            for (RASAeroMotor candidate : matches) {
+                if (candidate.getDesignation().equalsIgnoreCase(openRocketMotor.getDesignation())) {
+                    exactMatches.add(candidate);
+                }
+            }
+            if (!exactMatches.isEmpty()) {
+                matches = exactMatches;
+            }
+        }
+        // Catalog entries with the same name and manufacturer export to the same motor
+        for (RASAeroMotor candidate : matches) {
+            if (!candidate.getDesignation().equals(matches.get(0).getDesignation())) {
+                return null;
+            }
+        }
+        return matches.isEmpty() ? null : matches.get(0);
     }
 
     private static boolean sameManufacturer(ThrustCurveMotor openRocketMotor, RASAeroMotor rasaeroMotor) {
@@ -512,16 +623,16 @@ public class RASAeroCommonConstants {
         return manufacturer.equalsIgnoreCase(rasaeroMotor.getManufacturer());
     }
 
-    private static String normalizeMotorDesignation(String designation) {
+    static String normalizeMotorDesignation(String designation) {
         String withoutDelay = AbstractMotorLoader.removeDelay(designation.trim());
         return withoutDelay.replaceAll("\\s+", "").toUpperCase(Locale.ROOT);
     }
 
-    private static String commonMotorDesignation(String designation) {
+    static String commonMotorDesignation(String designation) {
         return ThrustCurveMotor.Builder.simplifyDesignation(normalizeMotorDesignation(designation));
     }
 
-    private static boolean motorDimensionsMatch(Motor first, RASAeroMotor second) {
+    static boolean motorDimensionsMatch(Motor first, RASAeroMotor second) {
         // Motor data sources commonly differ by rounding a metric case dimension.
         double diameterTolerance = Math.max(0.001, first.getDiameter() * 0.02);
         double lengthTolerance = Math.max(0.003, first.getLength() * 0.02);
@@ -572,8 +683,8 @@ public class RASAeroCommonConstants {
             return "HT";
         } else if (manufacturer.matches("Animal Motor Works")) {
             return "AMW";
-        } else if (manufacturer.matches("Loki")) {
-            return "CT";
+        } else if (manufacturer.matches("West Coast Hybrids")) {
+            return "WCH";
         } else if (manufacturer.matches("AMW ProX")) {
             return "AMW/ProX";
         } else if (manufacturer.matches("Loki Research EX")) {
@@ -632,4 +743,8 @@ public class RASAeroCommonConstants {
             return shapeParameter;
         }
     }
+
+    // Elements that are read by the importer only to warn that they are not supported
+    public static final String PROTUBERANCE = "Protuberance";
+    public static final String FIN_CAN_OFFSET = "Offset";
 }

@@ -61,7 +61,7 @@ public class TransitionHandler extends BaseHandler<Transition> {
         try {
             if (RASAeroCommonConstants.REAR_DIAMETER.equals(element)) {
                 this.transition.setAftRadius(
-                        Double.parseDouble(content) / 2 / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+                        BaseHandler.parseDouble(content) / 2 / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");

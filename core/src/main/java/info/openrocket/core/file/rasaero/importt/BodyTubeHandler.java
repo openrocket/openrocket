@@ -51,8 +51,12 @@ public class BodyTubeHandler extends BaseHandler<BodyTube> {
                 || RASAeroCommonConstants.LAUNCH_LUG_LENGTH.equals(element) ||
                 RASAeroCommonConstants.RAIL_GUIDE_DIAMETER.equals(element)
                 || RASAeroCommonConstants.RAIL_GUIDE_HEIGHT.equals(element) ||
-                RASAeroCommonConstants.LOCATION.equals(element) || RASAeroCommonConstants.COLOR.equals(element)) {
+                RASAeroCommonConstants.LOCATION.equals(element) || RASAeroCommonConstants.COLOR.equals(element) ||
+                RASAeroCommonConstants.LAUNCH_SHOE_AREA.equals(element)) {
             return PlainTextHandler.INSTANCE;
+        }
+        if (RASAeroCommonConstants.PROTUBERANCE.equals(element)) {
+            warnings.add("Protuberances are not supported, ignoring the protuberance of " + bodyTube.getName() + ".");
         }
         return null;
     }
@@ -63,13 +67,15 @@ public class BodyTubeHandler extends BaseHandler<BodyTube> {
         super.closeElement(element, attributes, content, warnings);
         try {
             if (RASAeroCommonConstants.LAUNCH_LUG_DIAMETER.equals(element)) {
-                launchLugDiameter = Double.parseDouble(content);
+                launchLugDiameter = BaseHandler.parseDouble(content);
             } else if (RASAeroCommonConstants.LAUNCH_LUG_LENGTH.equals(element)) {
-                launchLugLength = Double.parseDouble(content);
+                launchLugLength = BaseHandler.parseDouble(content);
             } else if (RASAeroCommonConstants.RAIL_GUIDE_DIAMETER.equals(element)) {
-                railGuideDiameter = Double.parseDouble(content);
+                railGuideDiameter = BaseHandler.parseDouble(content);
             } else if (RASAeroCommonConstants.RAIL_GUIDE_HEIGHT.equals(element)) {
-                railGuideHeight = Double.parseDouble(content);
+                railGuideHeight = BaseHandler.parseDouble(content);
+            } else if (RASAeroCommonConstants.LAUNCH_SHOE_AREA.equals(element) && BaseHandler.parseDouble(content) > 0) {
+                warnings.add("Launch shoes are not supported, ignoring the launch shoe of " + bodyTube.getName() + ".");
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
