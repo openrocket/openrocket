@@ -297,7 +297,23 @@ public class TubeGenerator {
 		);
 		ProfileSections sections = createFromProfile(vertices, indices, profile, wallThickness, length,
 				numSegments, false, 0, true, true, null, null);
+		reverseInnerWallTextureAxis(vertices);
 		return new SectionedMesh(new Mesh(vertices, indices), sections);
+	}
+
+	/**
+	 * Reverses the axial texture coordinate of a cylinder's inner wall, so a texture on the
+	 * inside of a tube is oriented the way OpenRocket 24.12 and earlier drew it. Profiled
+	 * transition walls keep the outer wall's mapping, which is also how those versions drew them.
+	 *
+	 * @param vertices the tube vertices to update in place
+	 */
+	public static void reverseInnerWallTextureAxis(List<Vertex> vertices) {
+		for (Vertex vertex : vertices) {
+			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_INSIDE) {
+				vertex.texCoords.y = 1.0f - vertex.texCoords.y;
+			}
+		}
 	}
 
 	private static void copyIndexRange(IntList destination, IntList source, IndexRange range) {
