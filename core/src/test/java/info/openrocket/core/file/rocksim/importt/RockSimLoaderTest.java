@@ -5,8 +5,14 @@
 package info.openrocket.core.file.rocksim.importt;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 
 import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
@@ -183,11 +189,17 @@ public class RockSimLoaderTest extends BaseTestCase {
         Rocket rocket = doc.getRocket();
         assertNotNull(rocket);
         assertEquals(doc.getRocket().getName(), "FooBar Test");
-        assertTrue(loader.getWarnings().isEmpty());
+        // The nose cone's base extension is imported as a separate transition, with a warning. The file's simulation
+        // refers to a motor mount (serial number 5) that is not in the design, so it is ignored with two warnings.
+        assertEquals(3, loader.getWarnings().size());
+        assertEquals(0, doc.getSimulations().size());
+        assertEquals("Nose cone base extension", rocket.getChild(0).getChild(1).getName());
+        assertEquals(0.066675, rocket.getChild(0).getChild(1).getLength(), 1e-9);
 
         stream = this.getClass().getResourceAsStream("/file/rocksim/importt/rocksimTestRocket2.rkt");
         assertNotNull(stream, "Could not open rocksimTestRocket2.rkt");
 
+        loader = new RockSimLoader();
         doc = OpenRocketDocumentFactory.createEmptyRocket();
         DocumentLoadingContext context = new DocumentLoadingContext();
         context.setOpenRocketDocument(doc);
@@ -202,7 +214,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         // mass and cg were
         // not overridden for each stage.
         assertEquals(doc.getRocket().getName(), "Three Stage Everything Included Rocket");
-        assertEquals(0, loader.getWarnings().size());
+        assertEquals(1, loader.getWarnings().size()); // hexagonal parachute imported as a round one
         assertEquals(3, rocket.getStageCount());
         AxialStage stage1 = (AxialStage) rocket.getChild(0);
         assertFalse(stage1.isMassOverridden());
@@ -239,10 +251,9 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(2, stage1.getChildCount());
         assertEquals(stage1.getChild(0).getName(), "Nose cone");
         assertEquals(stage1.getChild(1).getName(), "Body tube");
-        assertTrue(stage1.isMassOverridden());
-        assertEquals(0.185d, stage1.getOverrideMass(), 0.001);
-        assertTrue(stage1.isCGOverridden());
-        assertEquals(0.3d, stage1.getOverrideCG().getX(), 0.001);
+        // UseKnownMass is 0, so RockSim does not use the stage mass and CG overrides
+        assertFalse(stage1.isMassOverridden());
+        assertFalse(stage1.isCGOverridden());
         assertEquals(2, loader.getWarnings().size());
 
         NoseCone nc = (NoseCone) stage1.getChild(0);
@@ -281,10 +292,8 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         assertEquals(1, stage2.getChildCount());
         assertEquals(stage2.getChild(0).getName(), "2nd Stage Tube");
-        assertTrue(stage2.isMassOverridden());
-        assertEquals(0.21d, stage2.getOverrideMass(), 0.001);
-        assertTrue(stage2.isCGOverridden());
-        assertEquals(0.4d, stage2.getOverrideCG().getX(), 0.001);
+        assertFalse(stage2.isMassOverridden());
+        assertFalse(stage2.isCGOverridden());
 
         BodyTube bt2 = (BodyTube) stage2.getChild(0);
         LaunchLug ll = (LaunchLug) bt2.getChild(6);
@@ -293,10 +302,48 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(2, stage3.getChildCount());
         assertEquals(stage3.getChild(0).getName(), "Transition");
         assertEquals(stage3.getChild(1).getName(), "Body tube");
-        assertTrue(stage2.isMassOverridden());
-        assertEquals(0.33d, stage3.getOverrideMass(), 0.001);
-        assertTrue(stage2.isCGOverridden());
-        assertEquals(0.5d, stage3.getOverrideCG().getX(), 0.001);
+        assertFalse(stage3.isMassOverridden());
+        assertFalse(stage3.isCGOverridden());
+    }
+
+    /**
+     * With UseKnownMass set, RockSim flies each stack of stages with the sum of the stage mass overrides and the
+     * CG override of that stack (sustainer alone, sustainer and first booster, all stages), measured from the nose
+     * tip. The imported stage overrides must reproduce those stack masses and CGs.
+     */
+    @Test
+    public void testStageMassAndCGOverrides() throws Exception {
+        String design;
+        try (InputStream stream = getClass().getResourceAsStream("/file/rocksim/importt/rocksimTestRocket3.rkt")) {
+            assertNotNull(stream, "Could not open rocksimTestRocket3.rkt");
+            design = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        design = design.replace("<UseKnownMass>0</UseKnownMass>", "<UseKnownMass>1</UseKnownMass>")
+                .replace("<Stage32CG>0.</Stage32CG>", "<Stage32CG>450.</Stage32CG>")
+                .replace("<Stage321CG>0.</Stage321CG>", "<Stage321CG>600.</Stage321CG>");
+
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+        Rocket rocket = doc.getRocket();
+
+        assertStack(rocket, 1, 0.185, 0.300);
+        assertStack(rocket, 2, 0.185 + 0.210, 0.450);
+        assertStack(rocket, 3, 0.185 + 0.210 + 0.330, 0.600);
+    }
+
+    private void assertStack(Rocket rocket, int stageCount, double mass, double cg) {
+        FlightConfiguration configuration = new FlightConfiguration(rocket);
+        configuration.clearAllStages();
+        for (int i = 0; i < stageCount; i++) {
+            configuration._setStageActive(rocket.getChild(i).getStageNumber(), true);
+        }
+        RigidBody structure = MassCalculator.calculateStructure(configuration);
+        assertEquals(mass, structure.getMass(), 1e-6);
+        assertEquals(cg, structure.getCM().getX(), 1e-6);
     }
 
     @org.junit.jupiter.api.Test
@@ -351,8 +398,9 @@ public class RockSimLoaderTest extends BaseTestCase {
         Rocket rocket = doc.getRocket();
         assertNotNull(rocket);
         assertEquals(doc.getRocket().getName(), "SubAssembly Test");
-        assertEquals(2, loader.getWarnings().size()); // can't add BodyTube to NoseCone, and can't add Transition
-                                                             // to Transition
+        // can't add BodyTube to NoseCone, can't add Transition to Transition, and a hexagonal parachute is imported
+        // as a round one
+        assertEquals(3, loader.getWarnings().size());
 
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/SubAssemblyTest.rkt");
         assertNotNull(stream, "Could not open SubAssemblyTest.rkt");
@@ -497,6 +545,56 @@ public class RockSimLoaderTest extends BaseTestCase {
         component = transition1.getChild(0);
         assertSame(MassComponent.class, component.getClass());
         assertEquals("Mass object 3", component.getName());
+    }
+
+    /**
+     * OpenRocket has no ring tails, so a ring tail must be imported as a mass component with RockSim's calculated
+     * mass and CG, instead of being dropped.
+     */
+    @Test
+    public void testRingTailImportedAsMass() throws Exception {
+        String design = "<RockSimDocument><FileVersion>4</FileVersion><DesignInformation><RocketDesign>"
+                + "<Name>Ring tail</Name><StageCount>1</StageCount><Stage3Parts>"
+                + "<BodyTube><Name>Tube</Name><OD>24.8</OD><ID>24</ID><Len>300</Len><AttachedParts>"
+                + "<RingTail><Name>Ringtail</Name><KnownMass>0.</KnownMass><UseKnownCG>0</UseKnownCG>"
+                + "<Xb>149.225</Xb><LocationMode>0</LocationMode><Len>76.2</Len>"
+                + "<CalcMass>15.9106</CalcMass><CalcCG>38.1</CalcCG></RingTail>"
+                + "</AttachedParts></BodyTube></Stage3Parts></RocketDesign></DesignInformation></RockSimDocument>";
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+
+        RocketComponent tube = doc.getRocket().getChild(0).getChild(0);
+        assertEquals(1, tube.getChildCount());
+        MassComponent ringTail = (MassComponent) tube.getChild(0);
+        assertEquals("Ringtail", ringTail.getName());
+        assertEquals(0.0159106, ringTail.getComponentMass(), 1e-9);
+        assertEquals(0.149225, ringTail.getAxialOffset(), 1e-9);
+        assertTrue(ringTail.isCGOverridden());
+        assertEquals(0.0381, ringTail.getOverrideCGX(), 1e-9);
+        assertEquals(1, loader.getWarnings().size());
+    }
+
+    /**
+     * A file version newer than RockSim 11's (4) must be reported, as it may contain data that is not imported.
+     */
+    @Test
+    public void testNewerFileVersionWarning() throws Exception {
+        String design = "<RockSimDocument><FileVersion>5</FileVersion><DesignInformation><RocketDesign>"
+                + "<Name>New</Name><StageCount>1</StageCount><Stage3Parts>"
+                + "<BodyTube><Name>Tube</Name><OD>24.8</OD><ID>24</ID><Len>300</Len></BodyTube>"
+                + "</Stage3Parts></RocketDesign></DesignInformation></RockSimDocument>";
+        RockSimLoader loader = new RockSimLoader();
+        OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+        DocumentLoadingContext context = new DocumentLoadingContext();
+        context.setOpenRocketDocument(doc);
+        context.setMotorFinder(new DatabaseMotorFinder());
+        loader.loadFromStream(context, new ByteArrayInputStream(design.getBytes(StandardCharsets.UTF_8)), null);
+
+        assertEquals(1, loader.getWarnings().size());
     }
 
     public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName)

@@ -56,38 +56,6 @@ public class StageDTO {
     public StageDTO(AxialStage theORStage, RocketDesignDTO design, int stageNumber,
             RockSimExportContext context) {
 
-        if (stageNumber == 3) {
-            if (theORStage.isMassOverridden()) {
-                design.setStage3Mass(theORStage.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
-                design.setUseKnownMass(1);
-            }
-            if (theORStage.isCGOverridden()) {
-                design.setStage3CG(theORStage.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-            }
-        }
-
-        if (stageNumber == 2) {
-            if (theORStage.isMassOverridden()) {
-                design.setStage2Mass(theORStage.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
-                design.setUseKnownMass(1);
-            }
-            if (theORStage.isCGOverridden()) {
-                design.setStage2CGAlone(
-                        theORStage.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-            }
-        }
-
-        if (stageNumber == 1) {
-            if (theORStage.isMassOverridden()) {
-                design.setStage1Mass(theORStage.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
-                design.setUseKnownMass(1);
-            }
-            if (theORStage.isCGOverridden()) {
-                design.setStage1CGAlone(
-                        theORStage.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-            }
-        }
-
         List<RocketComponent> children = theORStage.getChildren();
 		for (RocketComponent rocketComponents : children) {
 			if (rocketComponents instanceof NoseCone) {

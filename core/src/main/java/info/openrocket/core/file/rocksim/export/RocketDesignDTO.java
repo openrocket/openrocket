@@ -1,5 +1,7 @@
 package info.openrocket.core.file.rocksim.export;
 
+import info.openrocket.core.file.rocksim.RockSimCommonConstants;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -15,6 +17,16 @@ public class RocketDesignDTO {
 
     @XmlElement(name = "Name")
     private String name;
+    @XmlElement(name = RockSimCommonConstants.CALCULATE_CD)
+    private Integer calculateCD = null;
+    @XmlElement(name = RockSimCommonConstants.FIXED_CD)
+    private Double fixedCD = null;
+    @XmlElement(name = RockSimCommonConstants.COMMENTS)
+    private String comments = "";
+    @XmlElement(name = RockSimCommonConstants.DESIGNER)
+    private String designer = "";
+    @XmlElement(name = RockSimCommonConstants.REVISIONS)
+    private String revisions = "";
     @XmlElement(name = "StageCount")
     private int stageCount = 1;
     @XmlElement(name = "DisplayFlags")
@@ -62,10 +74,13 @@ public class RocketDesignDTO {
     @XmlElement(name = "Stage32CG")
     private double stage32CG = 0.0d;
 
+    // RockSim's CP method flags: 1 = Barrowman, 4 = RockSim's own stability equations
+    public static final int CP_METHOD_BARROWMAN = 1;
+    public static final int CP_METHOD_ROCKSIM = 4;
     @XmlElement(name = "CPCalcFlags")
-    private final int cpCalcFlags = 1;
+    private int cpCalcFlags = CP_METHOD_BARROWMAN;
     @XmlElement(name = "CPSimFlags")
-    private final int cpSimFlags = 1;
+    private int cpSimFlags = CP_METHOD_BARROWMAN;
     @XmlElement(name = "UseKnownMass")
     private int useKnownMass = 0;
     @XmlElement(name = "Stage3Parts")
@@ -119,6 +134,24 @@ public class RocketDesignDTO {
 
     public void setStage1(StageDTO theStage1) {
         stage1 = theStage1;
+    }
+
+    public int getCPCalcFlags() {
+        return cpCalcFlags;
+    }
+
+    public int getCPSimFlags() {
+        return cpSimFlags;
+    }
+
+    /**
+     * Set the CP method that RockSim uses for its drawings and simulations.
+     *
+     * @param cpMethod {@link #CP_METHOD_BARROWMAN} or {@link #CP_METHOD_ROCKSIM}
+     */
+    public void setCPMethod(int cpMethod) {
+        cpCalcFlags = cpMethod;
+        cpSimFlags = cpMethod;
     }
 
     public int getUseKnownMass() {
@@ -199,5 +232,47 @@ public class RocketDesignDTO {
 
     public void setLastSerialNumber(int lastSerialNumber) {
         this.lastSerialNumber = lastSerialNumber;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public String getDesigner() {
+        return designer;
+    }
+
+    public void setDesigner(String designer) {
+        this.designer = designer;
+    }
+
+    public String getRevisions() {
+        return revisions;
+    }
+
+    public void setRevisions(String revisions) {
+        this.revisions = revisions;
+    }
+
+    public Integer getCalculateCD() {
+        return calculateCD;
+    }
+
+    public Double getFixedCD() {
+        return fixedCD;
+    }
+
+    /**
+     * Make RockSim use a fixed Cd instead of calculating it.
+     *
+     * @param fixedCD the fixed Cd
+     */
+    public void setFixedCD(double fixedCD) {
+        this.calculateCD = 0;
+        this.fixedCD = fixedCD;
     }
 }

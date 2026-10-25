@@ -65,10 +65,13 @@ public enum RockSimFinishCode {
      * @return the RockSim XML value
      */
     public static int toCode(ExternalComponent.Finish type) {
-        if (type.equals(ExternalComponent.Finish.UNFINISHED)) {
+        // RockSim's roughest finish is unfinished (0.008 in), and its smoothest is polished (0.0001 in)
+        if (type.equals(ExternalComponent.Finish.UNFINISHED) || type.equals(ExternalComponent.Finish.ROUGHUNFINISHED)
+                || type.equals(ExternalComponent.Finish.ROUGH)) {
             return UNFINISHED.ordinal;
         }
-        if (type.equals(ExternalComponent.Finish.POLISHED)) {
+        if (type.equals(ExternalComponent.Finish.POLISHED) || type.equals(ExternalComponent.Finish.OPTIMUM)
+                || type.equals(ExternalComponent.Finish.FINISHPOLISHED) || type.equals(ExternalComponent.Finish.MIRROR)) {
             return POLISHED.ordinal;
         }
         if (type.equals(ExternalComponent.Finish.SMOOTH)) {

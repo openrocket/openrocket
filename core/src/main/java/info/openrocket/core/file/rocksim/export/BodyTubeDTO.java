@@ -161,6 +161,9 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 						ParallelStageDTO.generateParallelStageDTOs((ParallelStage) rocketComponent, context)) {
 					addAttachedPart(parallelStageDTO);
 				}
+			} else {
+				RockSimExportContext.warn(context, "RockSimExport.warning.component", rocketComponent.getName(),
+						theORBodyTube.getName());
 			}
 		}
     }

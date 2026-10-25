@@ -1942,6 +1942,20 @@ private static final Translator trans = Application.getTranslator();
 	private boolean saveRockSimFile(File file, StorageOptions options) {
 		try {
 			ROCKET_SAVER.save(file, document, options);
+
+			WarningSet warnings = ROCKET_SAVER.getWarnings();
+			if (!warnings.isEmpty()) {
+				WarningDialog.showWarnings(BasicFrame.this,
+						new Object[]{
+								//	//	The following problems were encountered while saving
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								//	//	Some design features may not have been exported correctly.
+								trans.get("BasicFrame.WarningDialog.saving.txt2")
+						},
+						////	Warnings while saving file
+						trans.get("BasicFrame.WarningDialog.saving.title"),
+						warnings);
+			}
 			// Do not update the save state of the document.
 			return true;
 		} catch (IOException e) {

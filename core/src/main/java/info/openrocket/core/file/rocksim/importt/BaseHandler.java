@@ -82,6 +82,10 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 			if (RockSimCommonConstants.NAME.equals(element)) {
 				component.setName(content);
 			}
+			if (RockSimCommonConstants.SERIAL_NUMBER.equals(element) && context != null) {
+				// Simulations refer to motor mounts and recovery devices by their serial number
+				context.putComponentByFileId(content.trim(), component);
+			}
 			if (RockSimCommonConstants.KNOWN_MASS.equals(element)) {
 				mass = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}

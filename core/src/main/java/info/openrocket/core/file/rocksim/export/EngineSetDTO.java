@@ -3,7 +3,6 @@ package info.openrocket.core.file.rocksim.export;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
-import info.openrocket.core.motor.ThrustCurveMotor;
 
 import java.util.Locale;
 
@@ -72,8 +71,7 @@ public class EngineSetDTO {
 	public EngineSetDTO(MotorConfiguration motorConfiguration, int serialNumber, double exportedIgnitionDelay,
 			double exportedEjectionDelay) {
 		Motor motor = motorConfiguration.getMotor();
-		String code = motor.getCode();
-		engineCode = code == null || code.isBlank() ? motor.getDesignation() : code;
+		engineCode = RockSimEngineCode.getCode(motor);
 		ignitionDelay = exportedIgnitionDelay;
 		engineOverhang = motorConfiguration.getMount().getMotorOverhang()
 				* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
@@ -85,12 +83,7 @@ public class EngineSetDTO {
 			ejectionDelay = exportedEjectionDelay;
 		}
 
-		if (motor instanceof ThrustCurveMotor) {
-			ThrustCurveMotor thrustCurveMotor = (ThrustCurveMotor) motor;
-			// The display name is generally the canonical vendor name expected by
-			// RockSim's engine database (for example, "Cesaroni Technology Inc.").
-			engineManufacturer = thrustCurveMotor.getManufacturer().getDisplayName();
-		}
+		engineManufacturer = RockSimEngineCode.getManufacturer(motor);
 	}
 
 	public int getEngineCount() {
