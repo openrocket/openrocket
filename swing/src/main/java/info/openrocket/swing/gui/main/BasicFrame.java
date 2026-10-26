@@ -1857,6 +1857,7 @@ private static final Translator trans = Application.getTranslator();
 			// Do not update the save state of the document.
 			return errors.isEmpty();
 		} catch (IOException e) {
+			showSaveError(file, e);
 			return false;
 		} catch (DecalNotFoundException decex) {
 			DecalImage decal = decex.getDecal();
@@ -1959,6 +1960,7 @@ private static final Translator trans = Application.getTranslator();
 			// Do not update the save state of the document.
 			return true;
 		} catch (IOException e) {
+			showSaveError(file, e);
 			return false;
 		} catch (DecalNotFoundException decex) {
 			DecalImage decal = decex.getDecal();
@@ -1971,6 +1973,22 @@ private static final Translator trans = Application.getTranslator();
 	}
 
 	////	END ROCKSIM Save/Export Action
+
+	/**
+	 * Tell the user that a design could not be written to a file.
+	 *
+	 * @param file the file that was being written
+	 * @param e the error that stopped the write
+	 */
+	private void showSaveError(File file, IOException e) {
+		log.warn("An I/O error occurred while saving " + file, e);
+		JOptionPane.showMessageDialog(BasicFrame.this, new String[] {
+				////	An I/O error occurred while saving
+				trans.get("BasicFrame.SaveError.txt") + " '" + file.getName() + "':",
+				e.getMessage() },
+				////	Saving failed
+				trans.get("BasicFrame.SaveError.title"), JOptionPane.ERROR_MESSAGE);
+	}
 
 
 	////	BEGIN WAVEFRONT OBJ Save/Export Action
@@ -2013,7 +2031,12 @@ private static final Translator trans = Application.getTranslator();
 		WarningSet warnings = new WarningSet();
 		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
 				file, options, warnings);
-		exporter.doExport();
+		try {
+			exporter.doExport();
+		} catch (IOException e) {
+			showSaveError(file, e);
+			return false;
+		}
 
 		// Show warning dialog
 		if (!warnings.isEmpty()) {

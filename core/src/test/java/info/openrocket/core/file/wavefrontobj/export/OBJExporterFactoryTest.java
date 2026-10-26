@@ -31,6 +31,7 @@ import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.startup.Application;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OBJExporterFactoryTest {
     private static final File TMP_DIR = new File("./tmp/");
@@ -206,7 +208,22 @@ public class OBJExporterFactoryTest {
         Files.delete(tempFile);
     }
 
-    private static void testExportWarnings(WarningSet warnings, List<RocketComponent> components, Rocket rocket, Path tempFile, OBJExportOptions options, int expectedWarnings) {
+    @Test
+    public void testExportToUnwritableFileThrowsIOException(@TempDir Path tempDir) {
+        Rocket rocket = OpenRocketDocumentFactory.createNewRocket().getRocket();
+        rocket.getStage(0).addChild(new NoseCone());
+
+        // A file in a directory that does not exist cannot be created
+        File file = tempDir.resolve("missing").resolve("rocket.obj").toFile();
+
+        OBJExportOptions options = new OBJExportOptions(rocket);
+        options.setExportChildren(true);
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(List.of(rocket), rocket.getSelectedConfiguration(),
+                file, options, new WarningSet());
+        assertThrows(IOException.class, exporterFactory::doExport);
+    }
+
+    private static void testExportWarnings(WarningSet warnings, List<RocketComponent> components, Rocket rocket, Path tempFile, OBJExportOptions options, int expectedWarnings) throws IOException {
         OBJExporterFactory exporterFactory;
         warnings.clear();
         exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
