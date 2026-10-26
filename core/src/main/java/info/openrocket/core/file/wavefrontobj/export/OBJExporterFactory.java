@@ -106,8 +106,9 @@ public class OBJExporterFactory {
 
     /**
      * Performs the actual exporting.
+     * @throws IOException if an OBJ or MTL file could not be written
      */
-    public void doExport() {
+    public void doExport() throws IOException {
         DefaultObj obj = new DefaultObj();
         Map<String, DefaultObj> objFileMap;
         Map<DefaultObj, List<DefaultMtl>> materials = new HashMap<>();
@@ -212,8 +213,6 @@ public class OBJExporterFactory {
                 if (mtls != null) {
                     try (OutputStream mtlOutputStream = new FileOutputStream(mtlFilePath, false)) {
                         DefaultMtlWriter.write(mtls, mtlOutputStream);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 } else {
                     log.debug("No materials to export for {}", filePath);
@@ -231,11 +230,9 @@ public class OBJExporterFactory {
         }
     }
 
-    private static void writeObj(DefaultObj obj, String filePath) {
+    private static void writeObj(DefaultObj obj, String filePath) throws IOException {
         try (OutputStream objOutputStream = new FileOutputStream(filePath, false)) {
             ObjWriter.write(obj, objOutputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
