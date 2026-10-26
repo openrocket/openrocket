@@ -17,6 +17,9 @@ public class ParachuteDTO extends BasePartDTO {
 
     @XmlElement(name = RockSimCommonConstants.DIAMETER)
     private double dia = 0.0d;
+    // RockSim defaults to a 6-sided canopy when the side count is absent; 0 is round
+    @XmlElement(name = RockSimCommonConstants.SIDE_COUNT)
+    private int sideCount = 0;
     @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_COUNT)
     private int ShroudLineCount = 0;
     @XmlElement(name = RockSimCommonConstants.THICKNESS)

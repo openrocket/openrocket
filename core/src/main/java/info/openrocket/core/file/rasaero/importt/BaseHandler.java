@@ -20,9 +20,10 @@ import java.util.HashMap;
 public abstract class BaseHandler<C extends RocketComponent> extends AbstractElementHandler {
     protected final DocumentLoadingContext context;
 
-    protected Double length;
-    protected Double diameter;
-    protected Double location;
+    // RASAero reads missing or invalid numbers as 0
+    protected double length = 0;
+    protected double diameter = 0;
+    protected double location = 0;
 
     public BaseHandler(DocumentLoadingContext context) {
         this.context = context;
@@ -46,17 +47,29 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
             // There is also a PartType element, but we don't need it
 
             if (RASAeroCommonConstants.LENGTH.equals(element)) {
-                length = Double.parseDouble(content);
+                length = parseDouble(content);
             } else if (RASAeroCommonConstants.DIAMETER.equals(element)) {
-                diameter = Double.parseDouble(content);
+                diameter = parseDouble(content);
             } else if (RASAeroCommonConstants.LOCATION.equals(element)) {
-                location = Double.parseDouble(content);
+                location = parseDouble(content);
             } else if (RASAeroCommonConstants.COLOR.equals(element)) {
                 ColorHandler.applyRASAeroColor(getComponent(), content);
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
         }
+    }
+
+    /**
+     * Parse a number from a RASAero file. RASAero writes numbers using the decimal separator of the user's locale,
+     * and reads both a comma and a period as the decimal separator.
+     *
+     * @param content the text to parse
+     * @return the number
+     * @throws NumberFormatException if the text is not a number
+     */
+    static double parseDouble(String content) {
+        return Double.parseDouble(content.trim().replace(',', '.'));
     }
 
     /**

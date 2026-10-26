@@ -15,11 +15,14 @@ import java.util.Set;
 public enum RockSimNoseConeCode {
     CONICAL(0, Transition.Shape.CONICAL, "Conic", "Cone"),
     OGIVE(1, Transition.Shape.OGIVE),
-    PARABOLIC(2, Transition.Shape.ELLIPSOID), // RockSim' PARABOLIC most closely resembles an ELLIPSOID in OpenRocket
+    // RockSim's parabola is a paraboloid of revolution, r = R * sqrt(x / L), which is a 1/2 power series
+    PARABOLIC(2, Transition.Shape.POWER, 0.5),
     ELLIPTICAL(3, Transition.Shape.ELLIPSOID),
     POWER_SERIES(4, Transition.Shape.POWER),
     PARABOLIC_SERIES(5, Transition.Shape.PARABOLIC),
-    HAACK(6, Transition.Shape.HAACK);
+    HAACK(6, Transition.Shape.HAACK),
+    // RockSim's secant ogive bulges beyond the tangent ogive, which OpenRocket cannot represent
+    SECANT_OGIVE(7, Transition.Shape.OGIVE, 1.0);
 
     /**
      * The RockSim enumeration value. Sent in XML.
@@ -30,6 +33,12 @@ public enum RockSimNoseConeCode {
      * The corresponding OpenRocket shape.
      */
     private final Transition.Shape shape;
+
+    /**
+     * The OpenRocket shape parameter implied by the RockSim shape, or NaN if it is given by the RockSim
+     * ShapeParameter.
+     */
+    private final double shapeParameter;
 
     /**
      * Names of the shape that are sometimes found in NCDATA.CSV
@@ -44,8 +53,21 @@ public enum RockSimNoseConeCode {
      * @param theShapeNames an array of alternate names
      */
     private RockSimNoseConeCode(int idx, Transition.Shape aShape, String... theShapeNames) {
+        this(idx, aShape, Double.NaN, theShapeNames);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param idx               the RockSim shape code
+     * @param aShape            the corresponding OpenRocket shape
+     * @param theShapeParameter the OpenRocket shape parameter implied by the RockSim shape
+     * @param theShapeNames     an array of alternate names
+     */
+    private RockSimNoseConeCode(int idx, Transition.Shape aShape, double theShapeParameter, String... theShapeNames) {
         ordinal = idx;
         shape = aShape;
+        shapeParameter = theShapeParameter;
         shapeNames.add(this.name().toLowerCase());
         if (theShapeNames != null) {
             for (String theShapeName : theShapeNames) {
@@ -61,6 +83,15 @@ public enum RockSimNoseConeCode {
      */
     public Transition.Shape asOpenRocket() {
         return shape;
+    }
+
+    /**
+     * Get the OpenRocket shape parameter that is implied by the RockSim shape.
+     *
+     * @return the shape parameter, or NaN if it is given by the RockSim ShapeParameter instead
+     */
+    public double getOpenRocketShapeParameter() {
+        return shapeParameter;
     }
 
     /**
@@ -88,10 +119,8 @@ public enum RockSimNoseConeCode {
     public static int toCode(Transition.Shape type) {
         RockSimNoseConeCode[] values = values();
         for (RockSimNoseConeCode value : values) {
-            if (value.shape.equals(type)) {
-                if (value.ordinal == 2) {
-                    return 3;
-                }
+            // RockSim's parabola is exported as the equivalent 1/2 power series, which keeps the exponent
+            if (value != PARABOLIC && value.shape.equals(type)) {
                 return value.ordinal;
             }
         }

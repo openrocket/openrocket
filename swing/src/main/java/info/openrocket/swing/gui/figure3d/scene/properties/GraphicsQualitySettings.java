@@ -99,7 +99,7 @@ public class GraphicsQualitySettings {
 	}
 
 	/** Bump strength at the roughest finish; the smoothest is always 0. */
-	private static final float MAX_ROUGHNESS_STRENGTH = 1.2f;
+	private static final float MAX_ROUGHNESS_STRENGTH = 0.6f;
 	/**
 	 * How strength grows across the roughness range at the levels below HIGH. The finishes
 	 * are not spread evenly over that range — everything from polished to regular paint sits

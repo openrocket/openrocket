@@ -118,6 +118,9 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
                 addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
             } else if (rocketComponents instanceof FinSet) {
                 addAttachedPart(new FinSetDTO((FinSet) rocketComponents));
+            } else {
+                RockSimExportContext.warn(context, "RockSimExport.warning.component", rocketComponents.getName(),
+                        nc.getName());
             }
         }
     }

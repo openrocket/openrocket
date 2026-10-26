@@ -40,18 +40,21 @@ public class SimulationHandler extends AbstractElementHandler {
     private Double sustainerIgnitionDelay;
     private Double sustainerLaunchWt;
     private Double sustainerCG;
+    private Double sustainerNozzleDiameter;
     private String booster1EngineName;
     private ThrustCurveMotor booster1Engine;
     private Double booster1IgnitionDelay;
     private Double booster1SeparationDelay;
     private Double booster1LaunchWt;
     private Double booster1CG;
+    private Double booster1NozzleDiameter;
     private Boolean includeBooster1;
     private String booster2EngineName;
     private ThrustCurveMotor booster2Engine;
     private Double booster2SeparationDelay;
     private Double booster2LaunchWt;
     private Double booster2CG;
+    private Double booster2NozzleDiameter;
     private Boolean includeBooster2;
 
     public SimulationHandler(DocumentLoadingContext context, Rocket rocket, SimulationOptions launchSiteSettings,
@@ -79,7 +82,10 @@ public class SimulationHandler extends AbstractElementHandler {
                 || RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element)
                 || RASAeroCommonConstants.BOOSTER2_LAUNCH_WT.equals(element)
                 || RASAeroCommonConstants.BOOSTER2_CG.equals(element)
-                || RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
+                || RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)
+                || RASAeroCommonConstants.SUSTAINER_NOZZLE_DIAMETER.equals(element)
+                || RASAeroCommonConstants.BOOSTER1_NOZZLE_DIAMETER.equals(element)
+                || RASAeroCommonConstants.BOOSTER2_NOZZLE_DIAMETER.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
         return null;
@@ -92,35 +98,41 @@ public class SimulationHandler extends AbstractElementHandler {
             sustainerEngineName = content;
             sustainerEngine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY.equals(element)) {
-            sustainerIgnitionDelay = Double.parseDouble(content);
+            sustainerIgnitionDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.SUSTAINER_LAUNCH_WT.equals(element)) {
-            sustainerLaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
+            sustainerLaunchWt = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.SUSTAINER_CG.equals(element)) {
-            sustainerCG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            sustainerCG = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.BOOSTER1_ENGINE.equals(element)) {
             booster1EngineName = content;
             booster1Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY.equals(element)) {
-            booster1IgnitionDelay = Double.parseDouble(content);
+            booster1IgnitionDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.BOOSTER1_SEPARATION_DELAY.equals(element)) {
-            booster1SeparationDelay = Double.parseDouble(content);
+            booster1SeparationDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.BOOSTER1_LAUNCH_WT.equals(element)) {
-            booster1LaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
+            booster1LaunchWt = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.BOOSTER1_CG.equals(element)) {
-            booster1CG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            booster1CG = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER1.equals(element)) {
             includeBooster1 = Boolean.parseBoolean(content);
         } else if (RASAeroCommonConstants.BOOSTER2_ENGINE.equals(element)) {
             booster2EngineName = content;
             booster2Engine = RASAeroMotorsLoader.getMotorFromRASAero(content, warnings);
         } else if (RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY.equals(element)) {
-            booster2SeparationDelay = Double.parseDouble(content);
+            booster2SeparationDelay = BaseHandler.parseDouble(content);
         } else if (RASAeroCommonConstants.BOOSTER2_LAUNCH_WT.equals(element)) {
-            booster2LaunchWt = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
+            booster2LaunchWt = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT;
         } else if (RASAeroCommonConstants.BOOSTER2_CG.equals(element)) {
-            booster2CG = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            booster2CG = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.INCLUDE_BOOSTER2.equals(element)) {
             includeBooster2 = Boolean.parseBoolean(content);
+        } else if (RASAeroCommonConstants.SUSTAINER_NOZZLE_DIAMETER.equals(element)) {
+            sustainerNozzleDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        } else if (RASAeroCommonConstants.BOOSTER1_NOZZLE_DIAMETER.equals(element)) {
+            booster1NozzleDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        } else if (RASAeroCommonConstants.BOOSTER2_NOZZLE_DIAMETER.equals(element)) {
+            booster2NozzleDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         }
     }
 
@@ -134,11 +146,26 @@ public class SimulationHandler extends AbstractElementHandler {
             rocket.setSelectedConfiguration(fcid);
         }
 
-        // Add motors to the rocket
-        MotorMount sustainerMount = addMotorToStage(0, sustainerEngine, sustainerIgnitionDelay, fcid, true, warnings);
-        MotorMount booster1Mount = addMotorToStage(1, booster1Engine, booster1IgnitionDelay, fcid, includeBooster1,
-                warnings);
-        MotorMount booster2Mount = addMotorToStage(2, booster2Engine, 0.0, fcid, includeBooster2, warnings);
+        // RASAero removes the second booster when it is not included, and then the first booster when it is not
+        // included and the only booster left, so an included second booster keeps the first one too
+        includeBooster2 = Boolean.TRUE.equals(includeBooster2) && rocket.getChildCount() > 2;
+        includeBooster1 = (Boolean.TRUE.equals(includeBooster1) || includeBooster2) && rocket.getChildCount() > 1;
+        if (rocket.getChildCount() > 1 && !includeBooster1) {
+            rocket.getFlightConfiguration(fcid)._setStageActive(rocket.getChild(1).getStageNumber(), false);
+        }
+        if (rocket.getChildCount() > 2 && !includeBooster2) {
+            rocket.getFlightConfiguration(fcid)._setStageActive(rocket.getChild(2).getStageNumber(), false);
+        }
+
+        // An upper stage ignites after the stage below it burns out, separates after its separation delay, and the
+        // upper stage has coasted for its ignition delay
+        MotorMount sustainerMount = addMotorToStage(0, sustainerEngine,
+                includeBooster1 ? sum(booster1SeparationDelay, sustainerIgnitionDelay) : null,
+                sustainerNozzleDiameter, fcid, warnings);
+        MotorMount booster1Mount = addMotorToStage(1, booster1Engine,
+                includeBooster2 ? sum(booster2SeparationDelay, booster1IgnitionDelay) : null,
+                booster1NozzleDiameter, fcid, warnings);
+        MotorMount booster2Mount = addMotorToStage(2, booster2Engine, null, booster2NozzleDiameter, fcid, warnings);
 
         // Set separation settings
         setSeparationDelay(0, 0.0, fcid);
@@ -161,19 +188,23 @@ public class SimulationHandler extends AbstractElementHandler {
         applyCGOverrides(sustainerMount, booster1Mount, booster2Mount, fcid);
     }
 
+    private static double sum(Double a, Double b) {
+        return (a != null ? a : 0) + (b != null ? b : 0);
+    }
+
     /**
      * Add a new motor to a stage
      * 
      * @param stageNr          number of the stage to add the motor to
      * @param motor            motor to add
-     * @param ignitionDelay    ignition delay of the motor
+     * @param burnoutIgnitionDelay delay after the burnout of the stage below at which the motor ignites, or null if
+     *                         the motor ignites at launch
+     * @param nozzleExitDiameter nozzle exit diameter of the motor, or null if unknown
      * @param id               flight config id to alter
-     * @param enableMotorMount whether the motor mount should be enabled or disabled
      * @param warnings         The warning set
      */
-    private MotorMount addMotorToStage(final int stageNr, final Motor motor, final Double ignitionDelay,
-            final FlightConfigurationId id, boolean enableMotorMount,
-            final WarningSet warnings) {
+    private MotorMount addMotorToStage(final int stageNr, final Motor motor, final Double burnoutIgnitionDelay,
+            final Double nozzleExitDiameter, final FlightConfigurationId id, final WarningSet warnings) {
         if (motor == null || rocket.getStage(stageNr) == null) {
             return null;
         }
@@ -184,6 +215,9 @@ public class SimulationHandler extends AbstractElementHandler {
         }
         MotorConfiguration motorConfig = new MotorConfiguration(mount, id);
         motorConfig.setMotor(motor);
+        if (nozzleExitDiameter != null) {
+            motorConfig.setNozzleExitDiameter(nozzleExitDiameter);
+        }
 
         // RASAero requires apogee deployment, so the sustainer motor should always be
         // plugged
@@ -191,15 +225,15 @@ public class SimulationHandler extends AbstractElementHandler {
             motorConfig.setEjectionDelay(Motor.PLUGGED_DELAY);
         }
 
-        double delay = ignitionDelay != null ? ignitionDelay : 0.0;
-        motorConfig.setIgnitionDelay(delay);
-        if (stageNr < rocket.getStageCount() - 1) { // Use burnout non-last if multi-staged rocket
+        if (burnoutIgnitionDelay != null) {
             motorConfig.setIgnitionEvent(IgnitionEvent.BURNOUT);
+            motorConfig.setIgnitionDelay(burnoutIgnitionDelay);
         } else {
             motorConfig.setIgnitionEvent(IgnitionEvent.AUTOMATIC);
+            motorConfig.setIgnitionDelay(0);
         }
         mount.setMotorConfig(motorConfig, id);
-        mount.setMotorMount(enableMotorMount);
+        mount.setMotorMount(true);
 
         return mount;
     }

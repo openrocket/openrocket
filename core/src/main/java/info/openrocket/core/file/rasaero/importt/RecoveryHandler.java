@@ -83,7 +83,7 @@ public class RecoveryHandler extends AbstractElementHandler {
                         throw new IllegalArgumentException("Recovery var array length is not 2");
                     }
                     if (vars instanceof Double[]) {
-                        vars[i - 1] = Double.parseDouble(content);
+                        vars[i - 1] = BaseHandler.parseDouble(content);
                     } else if (vars instanceof Boolean[]) {
                         vars[i - 1] = Boolean.parseBoolean(content);
                     } else if (vars instanceof String[]) {

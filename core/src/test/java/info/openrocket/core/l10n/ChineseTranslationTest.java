@@ -39,6 +39,16 @@ class ChineseTranslationTest {
 	}
 
 	@Test
+	void formatsEquivalentParachuteDiameterWithNewAndOriginalDimensions() {
+		String message = String.format(Locale.ROOT,
+				translator.get("RockSimImport.warning.parachuteEquivalentDiameter"), "Test chute", 1200.0, 1000.0);
+
+		assertTrue(message.contains("Test chute"));
+		assertTrue(message.contains("\u76f4\u5f84\u4e3a 1200.0 mm"));
+		assertTrue(message.contains("\u539f\u76f4\u5f84\u4e3a 1000.0 mm"));
+	}
+
+	@Test
 	void formatsTransitionErrorWithBothRadii() {
 		String message = String.format(Locale.ROOT, translator.get("RASAeroExport.error28"),
 				"\u6d4b\u8bd5\u8fc7\u6e21\u6bb5", 0.02, 0.01);

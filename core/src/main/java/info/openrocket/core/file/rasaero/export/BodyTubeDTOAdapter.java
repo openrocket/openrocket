@@ -5,11 +5,11 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.LaunchLug;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
@@ -23,8 +23,14 @@ public interface BodyTubeDTOAdapter {
     default void applyBodyTubeSettings(BodyTube bodyTube, WarningSet warnings, ErrorSet errors)
             throws RASAeroExportException {
         for (RocketComponent child : bodyTube.getChildren()) {
-            if (child instanceof TrapezoidFinSet) {
-                setFin(new FinDTO((TrapezoidFinSet) child, warnings, errors));
+            if (child instanceof FinSet) {
+                if (getFin() != null) {
+                    // RASAero has one fin set per body tube
+                    warnings.add(String.format(trans.get("RASAeroExport.warningB4"), bodyTube.getName(),
+                            child.getName()));
+                    continue;
+                }
+                setFin(new FinDTO((FinSet) child, warnings, errors));
             } else if (child instanceof LaunchLug) {
                 if (!MathUtil.equals(getRailGuideDiameter(), 0) || !MathUtil.equals(getRailGuideHeight(), 0)) { // only
                                                                                                                 // one
@@ -88,6 +94,8 @@ public interface BodyTubeDTOAdapter {
                     warnings.add(String.format(trans.get("RASAeroExport.warning8"), button.getName(),
                             button.getInstanceCount()));
                 }
+            } else if (FinCanDTO.isFinCan(child) || BoattailDTO.isBoattailPod(child)) {
+                // Exported as a separate fin can or boattail after the body tube
             } else if (child instanceof Parachute) {
                 // Do nothing, is handled by RecoveryDTO
             } else {

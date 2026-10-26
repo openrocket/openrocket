@@ -96,6 +96,8 @@ public final class FullscreenQuad implements GpuResource {
 				VERTEX_STRIDE_BYTES, TEXTURE_COORDINATE_OFFSET_BYTES);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+
+		GLErrors.check("fullscreen quad vertex array setup");
 	}
 
 	/**

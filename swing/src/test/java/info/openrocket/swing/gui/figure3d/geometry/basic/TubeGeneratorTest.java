@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TubeGeneratorTest {
@@ -48,6 +49,36 @@ class TubeGeneratorTest {
 		assertIndexedSurfaceAt(mesh, RenderingConstants.SURFACE_ID_FORE, -0.20f);
 		assertIndexedSurfaceAt(mesh, RenderingConstants.SURFACE_ID_AFT, 0.20f);
 		assertIndicesReferenceExistingVertices(mesh);
+	}
+
+	/** Shoulders are plain tubes, so their inner wall texture runs opposite to the outer wall. */
+	@Test
+	void shoulderInnerWallsReverseTheTextureAxis() {
+		Mesh mesh = createTubeWithShoulders(false);
+
+		assertInnerWallV(mesh, -0.20f, 0.0f);
+		assertInnerWallV(mesh, 0.20f, 1.0f);
+	}
+
+	/** A profiled wall keeps the outer wall's mapping on the inside. */
+	@Test
+	void profileInnerWallKeepsTheOuterTextureAxis() {
+		Mesh mesh = TubeGenerator.create(0.05f, 0.03f, 0.002f, 0.3f, 16, false);
+
+		assertInnerWallV(mesh, -0.15f, 1.0f);
+		assertInnerWallV(mesh, 0.15f, 0.0f);
+	}
+
+	private static void assertInnerWallV(Mesh mesh, float x, float expectedV) {
+		boolean found = false;
+		for (Vertex vertex : mesh.getVertices()) {
+			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_INSIDE
+					&& Math.abs(vertex.position.x - x) < EPSILON) {
+				assertEquals(expectedV, vertex.texCoords.y, EPSILON, "inner wall v at x=" + x);
+				found = true;
+			}
+		}
+		assertTrue(found, "No inner wall vertex at x=" + x);
 	}
 
 	private static Mesh createTubeWithShoulders(boolean capped) {

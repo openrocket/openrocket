@@ -15,6 +15,7 @@ import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.motor.IgnitionEvent;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
@@ -142,13 +143,14 @@ public class SimulationResultsDTO {
 	 */
 	public SimulationResultsDTO(Simulation simulation, RockSimExportContext context) {
 		comments = simulation.getName();
-		copyLaunchConditions(simulation.getOptions());
+		copyLaunchConditions(simulation, context);
 		copyMotors(simulation, context);
 		copyRecoveryEvents(simulation, context);
 		simulationName = formatMotorSummary();
 	}
 
-	private void copyLaunchConditions(SimulationOptions options) {
+	private void copyLaunchConditions(Simulation simulation, RockSimExportContext context) {
+		SimulationOptions options = simulation.getOptions();
 		launchGuideLength = options.getLaunchRodLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 		launchAngle = options.getLaunchRodAngle();
 		// RockSim-written RKT files store compass azimuths in degrees.
@@ -164,16 +166,23 @@ public class SimulationResultsDTO {
 
 		if (options.getWindModelType() == WindModelType.MULTI_LEVEL) {
 			copyMultiLevelWind(options);
+			if (options.getMultiLevelWindModel().getLevels().size() > 1) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.windLevels", simulation.getName());
+			}
 		} else {
-			copyAverageWind(options.getAverageWindModel());
+			PinkNoiseWindModel windModel = options.getAverageWindModel();
+			setWindSpeedRange(windModel.getAverage(), windModel.getStandardDeviation());
 		}
 	}
 
-	private void copyAverageWind(PinkNoiseWindModel windModel) {
-		// RockSim's fixed custom-wind range preserves the OpenRocket mean.  The two
-		// applications do not expose equivalent pink-noise turbulence parameters.
-		launchWindLowSpeed = windModel.getAverage();
-		launchWindHighSpeed = windModel.getAverage();
+	/**
+	 * RockSim's standard simulation blows the wind at a speed between the low and the high wind speed, so
+	 * OpenRocket's turbulence is exported as the range of one standard deviation around the average wind speed.
+	 * RockSim has no wind direction for this wind.
+	 */
+	private void setWindSpeedRange(double average, double standardDeviation) {
+		launchWindLowSpeed = Math.max(0, average - standardDeviation);
+		launchWindHighSpeed = average + standardDeviation;
 	}
 
 	private void copyMultiLevelWind(SimulationOptions options) {
@@ -182,8 +191,8 @@ public class SimulationResultsDTO {
 		launchWindTableSize = Math.min(levels.size(), MAX_WIND_LEVELS);
 
 		if (!levels.isEmpty()) {
-			launchWindLowSpeed = levels.get(0).getSpeed();
-			launchWindHighSpeed = levels.get(0).getSpeed();
+			// RockSim's standard simulation only uses the low and high wind speed, not the wind table
+			setWindSpeedRange(levels.get(0).getSpeed(), levels.get(0).getStandardDeviation());
 		}
 
 		double[] altitudes = new double[MAX_WIND_LEVELS];
@@ -214,25 +223,36 @@ public class SimulationResultsDTO {
 			if (motorConfiguration.getIgnitionEvent() == IgnitionEvent.NEVER) {
 				// RockSim has no never-ignite flag.  Omitting the motor is safer than
 				// turning a deliberately disabled motor into an automatically staged one.
+				RockSimExportContext.warn(context, "RockSimExport.warning.neverIgnite",
+						motorConfiguration.getMotor().getDesignation(), simulation.getName());
 				continue;
 			}
 			RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
 			double ignitionDelay = getRockSimIgnitionDelay(motorConfiguration, simulation);
-			double ejectionDelay = getRockSimEjectionDelay(motorConfiguration, simulation);
+			double ejectionDelay = getRockSimEjectionDelay(motorConfiguration, simulation, context);
+			AxialStage stage = getRockSimStage(mount);
+			int stageIndex = stage.getRocket().getChildPosition(stage);
+			if (stageIndex > 2) {
+				// RockSim supports at most three axial stages.
+				continue;
+			}
+			if (motorConfiguration.getMotor() instanceof ThrustCurveMotor
+					&& !RockSimEngineCode.isInRockSimEngineDatabase(motorConfiguration.getMotor())) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.motorVendor",
+						RockSimEngineCode.getManufacturer(motorConfiguration.getMotor()),
+						motorConfiguration.getMotor().getDesignation());
+			}
 			for (int serialNumber : context.getMotorMountSerialNumbers(motorConfiguration.getMount())) {
 				EngineSetDTO engine = new EngineSetDTO(motorConfiguration, serialNumber, ignitionDelay, ejectionDelay);
-				switch (mount.getStage().getStageNumber()) {
+				switch (stageIndex) {
 					case 0:
 						stage3Engines.add(engine);
 						break;
 					case 1:
 						stage2Engines.add(engine);
 						break;
-					case 2:
-						stage1Engines.add(engine);
-						break;
 					default:
-						// RockSim supports at most three axial stages.
+						stage1Engines.add(engine);
 						break;
 				}
 			}
@@ -244,9 +264,22 @@ public class SimulationResultsDTO {
 		stage3Engines.sort(byMountSerial);
 	}
 
-	private double getRockSimEjectionDelay(MotorConfiguration motorConfiguration, Simulation simulation) {
+	/**
+	 * RockSim only has the axial stages that are direct children of the rocket. Parallel stages are exported as
+	 * pods of the axial stage that holds them, so their motors belong to that axial stage.
+	 */
+	private static AxialStage getRockSimStage(RocketComponent component) {
+		AxialStage stage = component.getStage();
+		while (stage.getParent() != stage.getRocket()) {
+			stage = stage.getParent().getStage();
+		}
+		return stage;
+	}
+
+	private double getRockSimEjectionDelay(MotorConfiguration motorConfiguration, Simulation simulation,
+			RockSimExportContext context) {
 		RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
-		AxialStage stage = mount.getStage();
+		AxialStage stage = getRockSimStage(mount);
 		if (stage.getUpperStage() == null) {
 			return motorConfiguration.getEjectionDelay();
 		}
@@ -276,12 +309,14 @@ public class SimulationResultsDTO {
 
 		// RockSim Standard cannot stage on altitude, apogee, launch, or ignition.
 		// Keep those stages attached instead of inventing a potentially unsafe time.
+		RockSimExportContext.warn(context, "RockSimExport.warning.staging", stage.getName(), simulation.getName(),
+				event.toString());
 		return Motor.PLUGGED_DELAY;
 	}
 
 	private double getRockSimIgnitionDelay(MotorConfiguration motorConfiguration, Simulation simulation) {
 		RocketComponent mount = (RocketComponent) motorConfiguration.getMount();
-		AxialStage stage = mount.getStage();
+		AxialStage stage = getRockSimStage(mount);
 		AxialStage lowerStage = getLowerActiveStage(stage, simulation.getActiveConfiguration());
 		if (lowerStage == null) {
 			return motorConfiguration.getIgnitionDelay();
@@ -309,6 +344,10 @@ public class SimulationResultsDTO {
 	private AxialStage getLowerActiveStage(AxialStage stage, FlightConfiguration configuration) {
 		AxialStage lowerStage = null;
 		for (AxialStage candidate : configuration.getActiveStages()) {
+			// Parallel stages are not separate RockSim stages
+			if (candidate.getParent() != candidate.getRocket()) {
+				continue;
+			}
 			if (candidate.getStageNumber() > stage.getStageNumber()
 					&& (lowerStage == null || candidate.getStageNumber() < lowerStage.getStageNumber())) {
 				lowerStage = candidate;
@@ -328,6 +367,14 @@ public class SimulationResultsDTO {
 				continue;
 			}
 			DeploymentConfiguration configuration = device.getDeploymentConfigurations().get(configurationId);
+			if (configuration.getDeployEvent() == DeploymentConfiguration.DeployEvent.EJECTION
+					&& configuration.getDeployDelay() > 0) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.ejectionDelay", device.getName(),
+						simulation.getName());
+			} else if (configuration.getDeployEvent() == DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION) {
+				RockSimExportContext.warn(context, "RockSimExport.warning.stageSeparation", device.getName(),
+						simulation.getName());
+			}
 			for (int serialNumber : context.getRecoveryDeviceSerialNumbers(device)) {
 				simulationEvents.add(new SimulationEventDTO(device, configuration, serialNumber));
 			}

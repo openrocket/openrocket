@@ -55,13 +55,19 @@ public class BoosterHandler extends BodyTubeHandler {
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         super.closeElement(element, attributes, content, warnings);
-        if (RASAeroCommonConstants.BOATTAIL_LENGTH.equals(element)) {
-            this.boatTailLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
-        } else if (RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER.equals(element)) {
-            this.boatTailRearDiameter = Double.parseDouble(content)
-                    / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
-        } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
-            this.shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        try {
+            if (RASAeroCommonConstants.BOATTAIL_LENGTH.equals(element)) {
+                this.boatTailLength = BaseHandler.parseDouble(content)
+                        / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            } else if (RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER.equals(element)) {
+                this.boatTailRearDiameter = BaseHandler.parseDouble(content)
+                        / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
+                this.shoulderLength = BaseHandler.parseDouble(content)
+                        / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            }
+        } catch (NumberFormatException nfe) {
+            warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
         }
     }
 
