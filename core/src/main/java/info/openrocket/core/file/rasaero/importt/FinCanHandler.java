@@ -3,6 +3,8 @@ package info.openrocket.core.file.rasaero.importt;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
+import info.openrocket.core.file.simplesax.PlainTextHandler;
+import info.openrocket.core.file.simplesax.ElementHandler;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -58,14 +60,27 @@ public class FinCanHandler extends BodyTubeHandler {
     }
 
     @Override
+    public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
+            throws SAXException {
+        if (RASAeroCommonConstants.INSIDE_DIAMETER.equals(element)
+                || RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)
+                || RASAeroCommonConstants.FIN_CAN_OFFSET.equals(element)) {
+            return PlainTextHandler.INSTANCE;
+        }
+        return super.openElement(element, attributes, warnings);
+    }
+
+    @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         try {
             if (RASAeroCommonConstants.INSIDE_DIAMETER.equals(element)) {
-                insideDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+                insideDiameter = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
             } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
-                shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+                shoulderLength = BaseHandler.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+            } else if (RASAeroCommonConstants.FIN_CAN_OFFSET.equals(element) && BaseHandler.parseDouble(content) != 0) {
+                warnings.add("The offset of fin cans is not supported, ignoring the offset of " + finCan.getName() + ".");
             }
         } catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");

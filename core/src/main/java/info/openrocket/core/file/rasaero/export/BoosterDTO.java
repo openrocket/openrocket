@@ -22,7 +22,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
@@ -68,6 +68,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     @XmlElement(name = RASAeroCommonConstants.NOZZLE_EXIT_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double nozzleExitDiameter = 0.0d;
+    // RASAero writes the booster nozzle exit diameter as NozzleExitDiameter, but reads it from NozzleDiameter
+    @XmlElement(name = RASAeroCommonConstants.NOZZLE_DIAMETER)
+    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    private Double nozzleDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double boattailLength;
@@ -108,6 +112,9 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             throw new RASAeroExportException(
                     String.format(trans.get("RASAeroExport.error9"), stageNr, stage.getName()));
         }
+
+        setNozzleExitDiameter(SimulationDTO.getNozzleExitDiameter(SimulationListDTO.findMotorMount(stage),
+                rocket.getSelectedConfiguration().getId()));
 
         if (stage.getChildCount() == 0) {
             throw new RASAeroExportException(String.format(trans.get("RASAeroExport.error10"), stage.getName()));
@@ -153,7 +160,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
             firstTube = (BodyTube) stage.getChild(0);
         }
 
-        TrapezoidFinSet finSet = getFinSetFromBodyTube(firstTube);
+        FinSet finSet = getFinSetFromBodyTube(firstTube);
 
         double tubeLength = firstTube.getLength();
         double finLocationOffset = 0;
@@ -220,10 +227,10 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
         setColor(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_COLOR(firstTube.getColor()));
     }
 
-    private TrapezoidFinSet getFinSetFromBodyTube(BodyTube bodyTube) {
+    private FinSet getFinSetFromBodyTube(BodyTube bodyTube) {
         for (RocketComponent child : bodyTube.getChildren()) {
-            if (child instanceof TrapezoidFinSet) {
-                return (TrapezoidFinSet) child;
+            if (child instanceof FinSet) {
+                return (FinSet) child;
             }
         }
         return null;
@@ -341,6 +348,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
 
     public void setNozzleExitDiameter(Double nozzleExitDiameter) {
         this.nozzleExitDiameter = nozzleExitDiameter;
+        this.nozzleDiameter = nozzleExitDiameter;
     }
 
     public Double getBoattailLength() {

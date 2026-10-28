@@ -28,7 +28,9 @@ public abstract class CoaxialGenerator {
 		};
 
 		double wallThickness = object.getOuterRadius() - object.getInnerRadius();
-		return TubeGenerator.create((float)object.getOuterRadius(), (float)wallThickness, (float)object.getLength(),
+		Mesh mesh = TubeGenerator.create((float)object.getOuterRadius(), (float)wallThickness, (float)object.getLength(),
 				segments, isFilled);
+		TubeGenerator.reverseInnerWallTextureAxis(mesh.getVertices());
+		return mesh;
 	}
 }

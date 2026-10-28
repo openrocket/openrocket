@@ -169,4 +169,49 @@ public class ParachuteHandlerTest extends RockSimTestBase {
         Assertions.assertEquals(component.getAxialOffset(), 10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
     }
+
+    /**
+     * RockSim's drag area is that of all canopies, each a regular polygon whose diameter is measured between
+     * opposite corners, minus the spill hole. The imported round parachute must have the same drag area.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @org.junit.jupiter.api.Test
+    public void testPolygonalCanopyDragArea() throws Exception {
+        ParachuteHandler handler = new ParachuteHandler(null, new BodyTube(), new WarningSet());
+        Parachute component = (Parachute) getField(handler, "chute");
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+
+        handler.closeElement("Dia", attributes, "1000", warnings);
+        handler.closeElement("SideCount", attributes, "6", warnings);
+        handler.closeElement("SpillHoleDia", attributes, "100", warnings);
+        handler.closeElement("ChuteCount", attributes, "2", warnings);
+        handler.endHandler("Parachute", attributes, null, warnings);
+
+        double hexagonArea = 3 * Math.sqrt(3) / 2 * 0.5 * 0.5;
+        double expectedArea = 2 * (hexagonArea - Math.PI * 0.05 * 0.05);
+        Assertions.assertEquals(expectedArea, Math.PI * Math.pow(component.getDiameter() / 2, 2), 1e-9);
+        Assertions.assertEquals(1, warnings.size());
+    }
+
+    /**
+     * A round RockSim parachute (SideCount 0) keeps its diameter.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @org.junit.jupiter.api.Test
+    public void testRoundCanopy() throws Exception {
+        ParachuteHandler handler = new ParachuteHandler(null, new BodyTube(), new WarningSet());
+        Parachute component = (Parachute) getField(handler, "chute");
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+
+        handler.closeElement("Dia", attributes, "1000", warnings);
+        handler.closeElement("SideCount", attributes, "0", warnings);
+        handler.endHandler("Parachute", attributes, null, warnings);
+
+        Assertions.assertEquals(1.0, component.getDiameter(), 1e-9);
+        Assertions.assertEquals(0, warnings.size());
+    }
 }

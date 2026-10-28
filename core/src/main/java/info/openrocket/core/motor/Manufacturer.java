@@ -81,7 +81,7 @@ public class Manufacturer implements Serializable {
 				"EM", "ELLIS", "ELLIS MOUNTAIN ROCKET", "ELLIS MOUNTAIN ROCKETS"));
 
 		manufacturers.add(new Manufacturer("Gorilla Rocket Motors", "Gorilla Rocket Motors", Motor.Type.RELOAD,
-				"GR", "GORILLA", "GORILLA ROCKET", "GORILLA ROCKETS", "GORILLA MOTOR",
+				"GR", "GM", "GORILLA", "GORILLA ROCKET", "GORILLA ROCKETS", "GORILLA MOTOR",
 				"GORILLA MOTORS", "GORILLA ROCKET MOTOR"));
 
 		manufacturers.add(new Manufacturer("HyperTEK", "HyperTEK", Motor.Type.HYBRID,

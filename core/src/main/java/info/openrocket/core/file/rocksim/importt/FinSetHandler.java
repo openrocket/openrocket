@@ -91,6 +91,10 @@ class FinSetHandler extends AbstractElementHandler {
 	 */
 	private double radialAngle = 0.0d;
 	/**
+	 * The fin cant angle (radians).
+	 */
+	private double cantAngle = 0.0d;
+	/**
 	 * The thickness of the fins.
 	 */
 	private double thickness;
@@ -248,6 +252,9 @@ class FinSetHandler extends AbstractElementHandler {
 			if (RockSimCommonConstants.TAB_OFFSET.equals(element)) {
 				taboffset = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
+			if (RockSimCommonConstants.CANT_ANGLE.equals(element)) {
+				cantAngle = Double.parseDouble(content);
+			}
 			if (RockSimCommonConstants.RADIAL_ANGLE.equals(element)) {
 				radialAngle = Double.parseDouble(content);
 			}
@@ -265,7 +272,7 @@ class FinSetHandler extends AbstractElementHandler {
 						Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
 			}
 			if (RockSimCommonConstants.KNOWN_CG.equals(element)) {
-				cg = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+				cg = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if (RockSimCommonConstants.USE_KNOWN_CG.equals(element)) {
 				override = "1".equals(content);
@@ -350,6 +357,7 @@ class FinSetHandler extends AbstractElementHandler {
 		result.setAxialMethod(axialMethod);
 		result.setAxialOffset(location);
 		result.setBaseRotation(radialAngle);
+		result.setCantAngle(cantAngle);
 		result.setCrossSection(convertTipShapeCode(tipShapeCode));
 		result.setFinish(finish);
 		result.setTabOffsetMethod(AxialMethod.TOP);

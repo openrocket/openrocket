@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
 
 /**
  * Holds per-export state that links OpenRocket motor mounts to the serial
@@ -23,6 +25,31 @@ final class RockSimExportContext {
 	private final Map<UUID, UUID> sourceComponentIds = new HashMap<>();
 	private final Map<UUID, List<Integer>> motorMountSerialNumbers = new HashMap<>();
 	private final Map<UUID, List<Integer>> recoveryDeviceSerialNumbers = new HashMap<>();
+	private final WarningSet warnings;
+
+	RockSimExportContext() {
+		this(new WarningSet());
+	}
+
+	/**
+	 * @param warnings the warning set that collects the features that could not be exported faithfully
+	 */
+	RockSimExportContext(WarningSet warnings) {
+		this.warnings = warnings != null ? warnings : new WarningSet();
+	}
+
+	/**
+	 * Report a design or simulation feature that RockSim cannot represent.
+	 *
+	 * @param context the export context, or null when converting a single component
+	 * @param key     the translation key of the warning message
+	 * @param args    the arguments of the warning message
+	 */
+	static void warn(RockSimExportContext context, String key, Object... args) {
+		if (context != null) {
+			context.warnings.add(String.format(Application.getTranslator().get(key), args));
+		}
+	}
 
 	/**
 	 * Record a physical motor mount emitted by the component exporter.

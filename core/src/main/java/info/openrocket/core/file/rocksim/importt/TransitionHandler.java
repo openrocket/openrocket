@@ -16,6 +16,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 
+import info.openrocket.core.util.MathUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -26,6 +27,11 @@ class TransitionHandler extends BaseHandler<Transition> {
 	 * The OpenRocket Transition.
 	 */
 	private final Transition transition = new Transition();
+
+	/**
+	 * The RockSim shape code of the transition.
+	 */
+	private RockSimNoseConeCode shapeCode = null;
 
 	/**
 	 * The wall thickness. Used for hollow nose cones.
@@ -65,7 +71,14 @@ class TransitionHandler extends BaseHandler<Transition> {
 
 		try {
 			if ("ShapeCode".equals(element)) {
-				transition.setShapeType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+				shapeCode = RockSimNoseConeCode.fromCode(Integer.parseInt(content));
+				transition.setShapeType(shapeCode.asOpenRocket());
+				if (!Double.isNaN(shapeCode.getOpenRocketShapeParameter())) {
+					transition.setShapeParameter(shapeCode.getOpenRocketShapeParameter());
+				}
+				if (shapeCode == RockSimNoseConeCode.SECANT_OGIVE) {
+					warnings.add("The secant ogive transition was imported as a tangent ogive.");
+				}
 			}
 			if ("Len".equals(element)) {
 				transition.setLength(Math.max(0, Double.parseDouble(
@@ -100,10 +113,17 @@ class TransitionHandler extends BaseHandler<Transition> {
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if ("ShapeParameter".equals(element)) {
-				if (Transition.Shape.POWER.equals(transition.getShapeType()) ||
+				boolean impliedByShapeCode = shapeCode != null && !Double.isNaN(shapeCode.getOpenRocketShapeParameter())
+						&& shapeCode.asOpenRocket().equals(transition.getShapeType());
+				if (!impliedByShapeCode && (Transition.Shape.POWER.equals(transition.getShapeType()) ||
 						Transition.Shape.HAACK.equals(transition.getShapeType()) ||
-						Transition.Shape.PARABOLIC.equals(transition.getShapeType())) {
-					transition.setShapeParameter(Double.parseDouble(content));
+						Transition.Shape.PARABOLIC.equals(transition.getShapeType()))) {
+					double shapeParameter = Double.parseDouble(content);
+					transition.setShapeParameter(shapeParameter);
+					if (!MathUtil.equals(transition.getShapeParameter(), shapeParameter)) {
+						warnings.add(String.format("The shape parameter %s of transition '%s' is outside OpenRocket's range "
+								+ "and was changed to %s.", content, transition.getName(), transition.getShapeParameter()));
+					}
 				}
 			}
 			if ("ConstructionType".equals(element)) {

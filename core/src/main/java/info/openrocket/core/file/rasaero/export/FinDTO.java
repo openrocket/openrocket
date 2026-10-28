@@ -5,7 +5,9 @@ import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.startup.Application;
@@ -61,7 +63,41 @@ public class FinDTO {
     public FinDTO() {
     }
 
-    public FinDTO(TrapezoidFinSet fin, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
+    /**
+     * RASAero only has trapezoidal fins. Export the trapezoid with the same root chord, span, planform area and
+     * planform area centroid as the fin, which keeps the fin's normal force and center of pressure close.
+     *
+     * @param fin the non-trapezoidal fin set
+     */
+    private void setEquivalentTrapezoid(FinSet fin) throws RASAeroExportException {
+        CoordinateIF[] points = fin.getFinPoints();
+        double rootChord = points[points.length - 1].getX() - points[0].getX();
+        double span = fin.getSpan();
+
+        // Area and area centroid of the fin outline, closed along the root
+        double area = 0;
+        double moment = 0;
+        for (int i = 0; i < points.length; i++) {
+            CoordinateIF p0 = points[i];
+            CoordinateIF p1 = points[(i + 1) % points.length];
+            double cross = p0.getX() * p1.getY() - p1.getX() * p0.getY();
+            area += cross / 2;
+            moment += (p0.getX() + p1.getX()) * cross / 6;
+        }
+        double centroidX = moment / area - points[0].getX();
+        area = Math.abs(area);
+
+        double tipChord = Math.max(0, 2 * area / span - rootChord);
+        double sweep = (3 * (rootChord + tipChord) * centroidX
+                - (rootChord * rootChord + rootChord * tipChord + tipChord * tipChord)) / (rootChord + 2 * tipChord);
+
+        setChord(rootChord * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        setTipChord(tipChord * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        setSpan(span * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        setSweepDistance(sweep * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+    }
+
+    public FinDTO(FinSet fin, WarningSet warnings, ErrorSet errors) throws RASAeroExportException {
         int finCount = fin.getFinCount();
         if (finCount < 3 || finCount > 8) {
             throw new RASAeroExportException(
@@ -69,10 +105,16 @@ public class FinDTO {
         }
 
         setCount(fin.getFinCount());
-        setChord(fin.getRootChord() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
-        setTipChord(fin.getTipChord() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
-        setSpan(fin.getSpan() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
-        setSweepDistance(fin.getSweep() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        if (fin instanceof TrapezoidFinSet) {
+            TrapezoidFinSet trapezoid = (TrapezoidFinSet) fin;
+            setChord(trapezoid.getRootChord() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+            setTipChord(trapezoid.getTipChord() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+            setSpan(trapezoid.getSpan() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+            setSweepDistance(trapezoid.getSweep() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        } else {
+            setEquivalentTrapezoid(fin);
+            warnings.add(String.format(trans.get("RASAeroExport.warningB3"), fin.getName()));
+        }
         setThickness(fin.getThickness() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         setAirfoilSection(
                 RASAeroCommonConstants.OPENROCKET_TO_RASAERO_FIN_CROSSSECTION(fin.getCrossSection(), warnings));

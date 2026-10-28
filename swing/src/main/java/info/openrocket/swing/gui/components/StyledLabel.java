@@ -3,11 +3,15 @@ package info.openrocket.swing.gui.components;
 import info.openrocket.swing.gui.util.Icons;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.plaf.basic.BasicHTML;
 
 /**
  * A resizeable and styleable JLabel.  The method {@link #resizeFont(float)} changes the 
@@ -117,5 +121,32 @@ public class StyledLabel extends JLabel {
 
 	public void setFontColor(Color color) {
 		this.setForeground(color);
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		Dimension size = super.getPreferredSize();
+		if (!isPreferredSizeSet()) {
+			size.width += getItalicOverhang();
+		}
+		return size;
+	}
+
+	/**
+	 * JLabel only reserves the text's advance width, but italic glyphs lean past it, so the end of the last
+	 * glyph would be clipped at the label's edge.
+	 *
+	 * @return how far the text's glyphs extend past its advance width, in pixels
+	 */
+	private int getItalicOverhang() {
+		Font font = getFont();
+		String text = getText();
+		if (font == null || !font.isItalic() || text == null || text.isEmpty() || BasicHTML.isHTMLString(text)) {
+			return 0;
+		}
+		FontRenderContext frc = getFontMetrics(font).getFontRenderContext();
+		GlyphVector glyphs = font.createGlyphVector(frc, text);
+		double overhang = glyphs.getVisualBounds().getMaxX() - glyphs.getLogicalBounds().getMaxX();
+		return (int) Math.ceil(Math.max(0, overhang));
 	}
 }

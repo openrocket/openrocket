@@ -61,9 +61,11 @@ public class RockSimCommonConstants {
     public static final String NOSE_CONE = "NoseCone";
     public static final String BASE_DIA = "BaseDia";
     public static final String SHOULDER_LEN = "ShoulderLen";
+    public static final String BASE_EXTENSION_LEN = "BaseExtensionLen";
     public static final String SHOULDER_OD = "ShoulderOD";
     public static final String DIAMETER = "Dia";
     public static final String SPILL_HOLE_DIA = "SpillHoleDia";
+    public static final String SIDE_COUNT = "SideCount";
     public static final String SHROUD_LINE_COUNT = "ShroudLineCount";
     public static final String SHROUD_LINE_LEN = "ShroudLineLen";
     public static final String CHUTE_COUNT = "ChuteCount";
@@ -195,4 +197,11 @@ public class RockSimCommonConstants {
      * radius.
      */
     public static final int ROCKSIM_TO_OPENROCKET_RADIUS = 2 * ROCKSIM_TO_OPENROCKET_LENGTH;
+
+    public static final String DESIGNER = "Designer";
+    public static final String REVISIONS = "Revisions";
+    public static final String CALCULATE_CD = "CalculateCD";
+    public static final String FIXED_CD = "FixedCd";
+    public static final String CORE_DIA = "CoreDia";
+    public static final String CORE_LEN = "CoreLen";
 }

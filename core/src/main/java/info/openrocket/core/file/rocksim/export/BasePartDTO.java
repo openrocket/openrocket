@@ -11,6 +11,7 @@ import info.openrocket.core.file.rocksim.RockSimDensityType;
 import info.openrocket.core.file.rocksim.RockSimFinishCode;
 import info.openrocket.core.file.rocksim.RockSimLocationMode;
 import info.openrocket.core.file.rocksim.importt.BaseHandler;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyComponent;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FinSet;
@@ -129,6 +130,12 @@ public abstract class BasePartDTO {
             setLen(ec.getLength() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
         setUseKnownCG(ec.isCGOverridden() || ec.isMassOverridden() ? 1 : 0);
+        // RockSim's known mass of a part excludes its attached parts, so the parts inside an OpenRocket mass
+        // override that includes the subcomponents must not add their own mass
+        if (isInSubcomponentMassOverride(ec)) {
+            setKnownMass(0d);
+            setUseKnownCG(1);
+        }
         setName(ec.getName());
 
         setXb(ec.getAxialOffset() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -216,6 +223,23 @@ public abstract class BasePartDTO {
         } else {
             setOpacity(1.0);
         }
+    }
+
+    /**
+     * Whether the mass of a component is included in the mass override of one of its parent components. Stage
+     * overrides are exported separately.
+     *
+     * @param component the component
+     * @return true if a parent component (below the stage) overrides the mass of its subcomponents
+     */
+    private static boolean isInSubcomponentMassOverride(RocketComponent component) {
+        for (RocketComponent parent = component.getParent(); parent != null && !(parent instanceof AxialStage);
+                parent = parent.getParent()) {
+            if (parent.isMassOverridden() && parent.isSubcomponentsOverriddenMass()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Double getKnownMass() {
