@@ -48,7 +48,7 @@ public interface Monitorable {
 	 * object.
 	 * 
 	 * @return a modification ID value for this object.
-	 * @see ModID()
+	 * @see ModID
 	 */
 	public ModID getModID();
 

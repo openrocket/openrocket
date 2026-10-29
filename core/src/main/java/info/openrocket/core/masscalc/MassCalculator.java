@@ -50,7 +50,7 @@ public class MassCalculator implements Monitorable {
 	 * Calculates mass data of the rocket's burnout mass
 	 * - includes structure
 	 * - includes motors
-	 * - for Black Powder & Composite motors, this generally *excludes* propellant
+	 * - for Black Powder and Composite motors, this generally *excludes* propellant
 	 * 
 	 * @param config the rocket configuration to calculate for
 	 * @return the MassData struct of the rocket at burnout

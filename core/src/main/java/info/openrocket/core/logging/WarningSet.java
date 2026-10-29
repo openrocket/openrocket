@@ -18,7 +18,7 @@ import java.util.List;
 public class WarningSet extends MessageSet<Warning> {
 	/**
 	 * Add a <code>Warning</code> with the specified text to the set.  The Warning object
-	 * is created using the {@link Message#fromString(String)} method.  If a warning of the
+	 * is created using the {@link Warning#fromString(String)} method.  If a warning of the
 	 * same type exists in the set, the warning that is left in the set is defined by the
 	 * method {@link Warning#replaceBy(Message)}.
 	 *

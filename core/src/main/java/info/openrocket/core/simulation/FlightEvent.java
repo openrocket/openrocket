@@ -74,7 +74,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		SIMULATION_END(trans.get("FlightEvent.Type.SIMULATION_END")),
 		
 		/**
-		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
+		 * A change in altitude has occurred.  Data is a {@code Pair<Double,Double>}
 		 * which contains the old and new altitudes.
 		 */
 		ALTITUDE(trans.get("FlightEvent.Type.ALTITUDE")),
@@ -213,8 +213,6 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	 * verify that this event's state is well-formed. 
 	 * 
 	 * User actions should not cause these.
-	 * 
-	 * @return
 	 */
 	public void validate(){
 		if(Double.isNaN(this.time)){
