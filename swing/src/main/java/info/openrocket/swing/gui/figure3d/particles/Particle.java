@@ -18,6 +18,7 @@ public class Particle implements Cloneable {
 	public Vector3f angularVelocity;
 
 	private float maxLife;
+	private float opacity = 1.0f;
 	private final Vector3f scratchVector = new Vector3f();
 	private final Vector3f scratchAxis = new Vector3f();
 	private final Quaternionf scratchRotation = new Quaternionf();
@@ -77,6 +78,7 @@ public class Particle implements Cloneable {
 			new Vector3f(this.angularVelocity)
 		);
 		cloned.maxLife = this.maxLife; // Preserve original maxLife
+		cloned.opacity = this.opacity;
 		return cloned;
 	}
 
@@ -116,11 +118,23 @@ public class Particle implements Cloneable {
 		return update(deltaTime, GRAVITY);
 	}
 
+	/** Sets the remaining and total lifetime for externally scripted particles. */
+	public void setLifetime(float remainingLife, float maxLife) {
+		this.life = remainingLife;
+		this.maxLife = maxLife;
+	}
+
+	/** Sets an additional per-particle opacity multiplier for scripted effects. */
+	public void setOpacity(float opacity) {
+		this.opacity = Math.max(0.0f, Math.min(1.0f, opacity));
+	}
+
 	// Getter methods
 	public Vector3f getPosition() { return position; }
 	public Vector3f getColor() { return color; }
 	public float getSize() { return size; }
 	public float getLife() { return life; }
 	public float getMaxLife() { return maxLife; }
+	public float getOpacity() { return opacity; }
 	public Quaternionf getOrientation() { return orientation; }
 }

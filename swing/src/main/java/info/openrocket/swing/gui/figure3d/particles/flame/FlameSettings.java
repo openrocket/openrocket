@@ -30,6 +30,13 @@ public class FlameSettings extends ParticleSettings {
 		this.exposureScale = exposureScale;
 	}
 
+	/** Returns a copy of these settings with a different lateral velocity spread. */
+	public FlameSettings withSpread(float spread) {
+		return new FlameSettings(velocity, creationRate, minLife, maxLife, minSize, maxSize, spread, burst,
+				new Vector3f(gravity), new Vector3f(minColor), new Vector3f(maxColor),
+				noiseScale, noiseSpeed, flickerIntensity, lightIntensity, sizeMultiplier, exposureScale, config);
+	}
+
 	/**
 	 * Settings for a typical rocket flame.
 	 */

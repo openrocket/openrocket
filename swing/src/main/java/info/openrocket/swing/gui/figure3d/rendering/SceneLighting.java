@@ -135,7 +135,7 @@ final class SceneLighting {
 			Vector4f backgroundColor = solidBackground.getColor();
 			fogColor.set(backgroundColor.x, backgroundColor.y, backgroundColor.z);
 		} else if (scene.getBackground() instanceof GradientBackground gradientBackground) {
-			fogColor.set(gradientBackground.getBottomColor());
+			gradientBackground.getHorizonColor(fogColor);
 		} else {
 			fogColor.set(0.5f, 0.6f, 0.7f);
 		}

@@ -1,11 +1,13 @@
 package info.openrocket.swing.gui.figure3d.geometry;
 
 import info.openrocket.core.appearance.Appearance;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.Coordinate;
@@ -39,6 +41,23 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class RocketMeshBuilderTest extends BaseTestCase {
+
+	@Test
+	void explicitSnapshotConfigurationDoesNotChangeUiSelection() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+		FlightConfigurationId selected = rocket.getSelectedConfiguration().getId();
+		FlightConfigurationId replay = new FlightConfigurationId();
+		rocket.createFlightConfiguration(replay).setAllStages();
+
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(
+				rocket, new RenderingConfiguration(), replay);
+
+		assertEquals(replay, snapshot.getFlightConfigurationId());
+		assertEquals(selected, rocket.getSelectedConfiguration().getId());
+	}
+
 	private static final Appearance PRIMARY_APPEARANCE = new Appearance(new ORColor(220, 30, 20), 0.2);
 	private static final Appearance SECONDARY_APPEARANCE = new Appearance(new ORColor(20, 60, 220), 0.7);
 

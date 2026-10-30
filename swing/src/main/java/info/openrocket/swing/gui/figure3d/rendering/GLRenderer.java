@@ -16,6 +16,9 @@ public interface GLRenderer extends GpuResource {
 	 */
 	void render(SceneView scene, boolean renderBackground);
 
+	/** Installs an overlay drawn on top of the finished frame, or null to remove it. */
+	default void setFrameOverlay(FrameOverlay overlay) {}
+
 	/** Draws the last resolved frame into the currently bound framebuffer. */
 	void presentResolvedToCurrentFramebuffer();
 

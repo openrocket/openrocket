@@ -37,6 +37,7 @@ public class Scene implements SceneView {
 	private boolean fogEnabled = false;
 	private float fogDensity = 0.07f;
 	private final RenderingConfiguration config;
+	private double animationTimeSeconds = Double.NaN;
 
 	private final Rocket rocket;
 	private final Matrix4f rocketRotationMatrix = new Matrix4f();
@@ -67,6 +68,16 @@ public class Scene implements SceneView {
 
 	public Scene(Rocket rocket, Camera camera, RenderingConfiguration config) {
 		this(rocket, camera, config, Light.directional(-0.5f, -1.0f, -0.5f));
+	}
+
+	@Override
+	public double getAnimationTimeSeconds() {
+		return animationTimeSeconds;
+	}
+
+	/** Called on the render thread by the replay clock. */
+	public void setAnimationTimeSeconds(double time) {
+		animationTimeSeconds = time;
 	}
 
 	/**

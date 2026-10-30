@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.scalefigure;
+package info.openrocket.swing.gui.widgets;
 
 import javax.swing.JScrollPane;
 import java.awt.Component;
@@ -12,10 +12,10 @@ import java.awt.event.ComponentEvent;
  * <p>The preferred height grows when the horizontal scrollbar becomes visible,
  * leaving the full viewport height available to the row's controls.</p>
  */
-class SingleRowScrollPane extends JScrollPane {
+public class SingleRowScrollPane extends JScrollPane {
 	private final Runnable scrollbarVisibilityChanged;
 
-	SingleRowScrollPane(Component view, Runnable scrollbarVisibilityChanged) {
+	public SingleRowScrollPane(Component view, Runnable scrollbarVisibilityChanged) {
 		super(view, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.scrollbarVisibilityChanged = scrollbarVisibilityChanged;
 		applyBorderlessStyling();

@@ -265,6 +265,28 @@ public class Icons {
 			"pix/icons/lucide/play-filled.svg",
 			"Run",
 			"OR.icons.play");
+	public static final Icon PLAYBACK_PLAY = loadSvgIcon(
+			"pix/icons/lucide/play-filled.svg",
+			"Play",
+			Map.of(
+					SVG_THEME_COLOR_RGB, "OR.colors.green"
+			));
+	public static final Icon PLAYBACK_PAUSE = loadSvgIcon(
+			"pix/icons/lucide/pause.svg",
+			"Pause",
+			"OR.colors.blue");
+	public static final Icon FLIGHT_REPLAY = loadSvgIcon(
+			"pix/icons/lucide/rocket.svg",
+			"Replay in 3D");
+	public static final Icon PLAYBACK_RESTART = loadSvgIcon(
+			"pix/icons/lucide/skip-back.svg",
+			"Back to beginning");
+	public static final Icon PLAYBACK_STEP_BACK = loadSvgIcon(
+			"pix/icons/lucide/step-back.svg",
+			"Previous frame");
+	public static final Icon PLAYBACK_STEP_FORWARD = loadSvgIcon(
+			"pix/icons/lucide/step-forward.svg",
+			"Next frame");
 	public static final Icon SIM_PLOT = loadIcon(
 			"pix/icons/lucide/chart-spline.svg",
 			"Plot",
