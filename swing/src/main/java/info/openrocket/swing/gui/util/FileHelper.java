@@ -77,6 +77,22 @@ public final class FileHelper {
 	public static final FileFilter SVG_FILTER =
 			createFilter(trans.get("FileHelper.SVG_FILTER"), "svg");
 
+	/** File filter for DXF files (*.dxf) */
+	public static final FileFilter DXF_FILTER =
+			createFilter(trans.get("FileHelper.DXF_FILTER"), "dxf");
+
+	/** File filter for STEP files (*.step) */
+	public static final FileFilter STEP_FILTER =
+			createFilter(trans.get("FileHelper.STEP_FILTER"), "step");
+
+	/** File filter for STL files (*.stl) */
+	public static final FileFilter STL_FILTER =
+			createFilter(trans.get("FileHelper.STL_FILTER"), "stl");
+
+	/** File filter for 3MF files (*.3mf) */
+	public static final FileFilter THREE_MF_FILTER =
+			createFilter(trans.get("FileHelper.THREE_MF_FILTER"), "3mf");
+
 	/** File filter for XML files (*.xml) */
 	public static final FileFilter XML_FILTER =
 			createFilter(trans.get("FileHelper.XML_FILTER"), "xml");
