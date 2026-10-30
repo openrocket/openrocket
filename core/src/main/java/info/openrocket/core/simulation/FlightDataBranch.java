@@ -16,9 +16,9 @@ import info.openrocket.core.util.ModID;
  * <p>
  * After instantiating a FlightDataBranch data and new variable types can be added to the branch.
  * A new data point (a value for each variable defined) is created using {@link #addPoint()} after
- * which the value for each variable type can be set using {@link #setValue(FlightDataType, double)}.
+ * which the value for each variable type can be set using {@link #setValue}.
  * Each variable type does NOT have to be set, unset values will default to NaN.  New variable types
- * not defined in the constructor can be added using {@link #setValue(FlightDataType, double)}, they
+ * not defined in the constructor can be added using {@link #setValue}, they
  * will be created and all previous values will be set to NaN.
  * <p>
  * After populating a FlightDataBranch object it can be made immutable by calling {@link #immute()}.

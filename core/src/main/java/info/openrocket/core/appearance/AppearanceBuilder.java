@@ -345,7 +345,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	 * set a new value for axis V for center in template
 	 * fires change event
 	 *
-	 * @return value of axis V for center
+	 * @param centerV value of axis V for center
 	 */
 	public void setCenterV(double centerV) {
 		for (AppearanceBuilder listener : configListeners.values()) {

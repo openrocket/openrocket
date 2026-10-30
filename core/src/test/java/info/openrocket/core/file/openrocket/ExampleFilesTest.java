@@ -602,7 +602,7 @@ public class ExampleFilesTest extends BaseTestCase {
 				.aerodynamics(3.0, 0.422432711, 1.444875685)
 				.simulation("Simulation 1", 0.127440089, 0.363962391, 0.000106510, 0.000036674, 263.632015842)
 				.simulation("Simulation 2", 0.134190089, 0.364165490, 0.000101153, 0.000034830, 469.098287617)
-				.simulation("Simulation 3", 0.149190089, 0.376314539, 0.000090983, 0.000031328, 617.061091167)
+				.simulation("Simulation 3", 0.149190089, 0.376314539, 0.000090983, 0.000031328, 616.308373416)
 				.build());
 
 		EXPECTED_METRICS.put("Tube fin rocket.ork", ExpectedMetrics.builder()

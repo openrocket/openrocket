@@ -24,7 +24,7 @@ public interface Calculable {
 	/**
 	 * set a variable value for the calculation
 	 * 
-	 * @param value
+	 * @param var
 	 *            the value of the variable
 	 */
 	public void setVariable(Variable var);

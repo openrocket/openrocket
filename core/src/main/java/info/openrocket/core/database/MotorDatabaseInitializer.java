@@ -24,7 +24,7 @@ import info.openrocket.core.util.FileUtils;
  *    - Check if metadata.json exists in motor library directory
  *    - If no metadata.json: overwrite db (assume it's outdated)
  *    - If metadata.json exists: compare database_version values
- *      - If library version < resources version: overwrite db and metadata
+ *      - If library version &lt; resources version: overwrite db and metadata
  *      - If equal or library > resources: do nothing
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>

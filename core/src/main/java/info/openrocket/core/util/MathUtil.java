@@ -252,7 +252,7 @@ public class MathUtil {
 	 * This method is about 4 times faster than Math.signum().
 	 * 
 	 * @param x the checked value.
-	 * @return -1.0 if x<0; 1.0 if x>0; otherwise either -1.0 or 1.0.
+	 * @return -1.0 if {@code x < 0}; 1.0 if {@code x > 0}; otherwise either -1.0 or 1.0.
 	 */
 	public static double sign(double x) {
 		return (x < 0) ? -1.0 : 1.0;

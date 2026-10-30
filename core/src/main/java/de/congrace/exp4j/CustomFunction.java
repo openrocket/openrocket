@@ -62,7 +62,7 @@ public abstract class CustomFunction extends CalculationToken {
     /**
 	 * apply the function to a value
 	 * 
-	 * @param values
+	 * @param vars
 	 *            the values to which the function should be applied.
 	 * @return the function value
 	 */

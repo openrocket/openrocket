@@ -959,7 +959,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	/**
 	 * Enable/Disable showing a 'save rocket information' dialog after saving a new design file.
-	 * @return true if the 'save rocket information' dialog should be shown.
+	 * @param enabled true if the 'save rocket information' dialog should be shown.
 	 */
 	public final void setShowSaveRocketInfo(boolean enabled) {
 		this.putBoolean(SHOW_SAVE_ROCKET_INFO, enabled);

@@ -17,8 +17,6 @@ public class ModID implements Comparable {
 	 * </ul>
 	 * <p>
 	 * This method is thread-safe and fast.
-	 * 
-	 * @return a positive integer ID unique in this program execution.
 	 */
 	public ModID() {
 		id = nextId.getAndIncrement();

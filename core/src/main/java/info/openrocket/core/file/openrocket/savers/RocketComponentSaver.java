@@ -234,7 +234,8 @@ public class RocketComponentSaver {
 	 * <p>
 	 * For {@link info.openrocket.core.motor.ThrustCurveMotor} instances the motor metadata (manufacturer, digest,
 	 * designation, dimensions) is written to the XML. The actual thrust curve data is stored separately as .rse files
-	 * in the {@code thrustcurves/} directory of the .ork zip archive (see {@link GeneralRocketSaver}).
+	 * in the {@code thrustcurves/} directory of the .ork zip archive
+	 * (see {@link info.openrocket.core.file.GeneralRocketSaver}).
 	 *
 	 * @param mount motor mount component
 	 * @return XML element lines (empty if not a motor mount)

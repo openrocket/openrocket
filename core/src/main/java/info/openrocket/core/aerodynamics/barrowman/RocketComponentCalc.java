@@ -35,7 +35,7 @@ public abstract class RocketComponentCalc {
 	 * Calculates the friction drag of the component.
 	 *
 	 * @param conditions  the flight conditions
-	 * @param componentCF component coefficient of friction, calculated in
+	 * @param componentCf component coefficient of friction, calculated in
 	 *                    BarrowmanCalculator
 	 * @param warnings    set in which to to store possible warnings
 	 * @return the friction drag coefficient of the component

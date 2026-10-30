@@ -37,9 +37,7 @@ import info.openrocket.core.file.simplesax.SimpleSAX;
  */
 public class RockSimLoader extends AbstractRocketLoader {
 	/**
-	 * This method is called by the default implementations of
-	 * {@link #load(java.io.File)}
-	 * and {@link #load(java.io.InputStream)} to load the rocket.
+	 * This method is called by {@link #load(DocumentLoadingContext, InputStream, String)} to load the rocket.
 	 *
 	 * @throws info.openrocket.core.file.RocketLoadException
 	 *                                                       if an error occurs
