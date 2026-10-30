@@ -8,7 +8,6 @@ open module info.openrocket.core {
 
 	// Libraries
 	requires com.google.guice;
-	requires java.desktop;
 	requires java.scripting;
 	requires org.graalvm.js.scriptengine;
 	requires org.graalvm.sdk;
