@@ -141,7 +141,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
 	/**
 	 * filter out any messages of the given type.  Can't just use remove() inherited from
 	 * AbstractCollection because the Message.equals() depends on message types, sources, and priority.
-	 * @param type of message to filter
+	 * @param filter a message of the type to filter out
 	 */
 	  
 	public void filterOut(E filter) {

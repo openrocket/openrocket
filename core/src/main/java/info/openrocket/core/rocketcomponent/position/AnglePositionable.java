@@ -8,7 +8,7 @@ public interface AnglePositionable {
 	public double getAngleOffset();
 
 	/**
-	 * @param new offset angle, in radians
+	 * @param angle new offset angle, in radians
 	 */
 	public void setAngleOffset(final double angle);
 

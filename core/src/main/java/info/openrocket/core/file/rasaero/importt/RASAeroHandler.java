@@ -201,6 +201,12 @@ public class RASAeroHandler extends AbstractElementHandler {
                 return PlainTextHandler.INSTANCE;
             }
 
+            // Aerodynamic method options
+            else if (RASAeroCommonConstants.MODIFIED_BARROWMAN.equals(element)
+                    || RASAeroCommonConstants.TURBULENCE.equals(element)) {
+                return PlainTextHandler.INSTANCE;
+            }
+
             // warnings.add("Unknown element " + element + " in RocketDesign, ignoring.");
             return null;
         }
@@ -215,6 +221,12 @@ public class RASAeroHandler extends AbstractElementHandler {
             // Comments
             else if (RASAeroCommonConstants.COMMENTS.equals(element)) {
                 component.getRocket().setComment(content);
+            }
+            // OpenRocket has its own aerodynamic methods
+            else if (RASAeroCommonConstants.MODIFIED_BARROWMAN.equals(element) && Boolean.parseBoolean(content.trim())) {
+                warnings.add("RASAero's Rogers Modified Barrowman option is not supported, ignoring it.");
+            } else if (RASAeroCommonConstants.TURBULENCE.equals(element) && Boolean.parseBoolean(content.trim())) {
+                warnings.add("RASAero's All Turbulent Flow option is not supported, ignoring it.");
             }
         }
     }

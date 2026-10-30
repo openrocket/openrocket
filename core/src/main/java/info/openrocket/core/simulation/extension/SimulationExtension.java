@@ -70,7 +70,6 @@ public interface SimulationExtension {
 	 * the simulation conditions or add simulation listeners to it.
 	 * 
 	 * @param conditions    the simulation conditions to be run
-	 * @param configuration the extension configuration
 	 */
 	public void initialize(SimulationConditions conditions) throws SimulationException;
 

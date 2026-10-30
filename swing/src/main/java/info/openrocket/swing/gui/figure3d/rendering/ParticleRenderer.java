@@ -102,6 +102,8 @@ public class ParticleRenderer implements ParticleSystemRenderer {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+
+		GLErrors.check("particle renderer vertex array setup");
 	}
 
 	/** Renders spark particles in the scene as glowing velocity streaks. */

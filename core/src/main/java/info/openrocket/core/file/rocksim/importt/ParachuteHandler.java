@@ -15,6 +15,7 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.MathUtil;
 
 import org.xml.sax.SAXException;
 
@@ -30,6 +31,22 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 	 * The shroud line density.
 	 */
 	private double shroudLineDensity = 0.0d;
+	/**
+	 * RockSim's canopy diameter. For a polygonal canopy, this is the distance between opposite corners.
+	 */
+	private double rockSimDiameter = 0.0d;
+	/**
+	 * The number of canopy sides, or 0 for a round canopy. RockSim defaults to 6 sides.
+	 */
+	private int sideCount = 6;
+	/**
+	 * The number of identical parachutes.
+	 */
+	private int chuteCount = 1;
+	/**
+	 * The spill hole diameter.
+	 */
+	private double spillHoleDiameter = 0.0d;
 
 	/**
 	 * Constructor.
@@ -68,7 +85,8 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 		super.closeElement(element, attributes, content, warnings);
 		try {
 			if (RockSimCommonConstants.DIAMETER.equals(element)) {
-				chute.setDiameter(Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+				rockSimDiameter = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+				chute.setDiameter(rockSimDiameter);
 				/* Rocksim doesn't have a packed parachute radius, so we approximate it. */
 				double packed;
 				RocketComponent parent = chute.getParent();
@@ -90,12 +108,14 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 						Math.max(0, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if (RockSimCommonConstants.SPILL_HOLE_DIA.equals(element)) {
-				// Not supported in OpenRocket
-				double spillHoleRadius = Double.parseDouble(content)
-						/ RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
-				if (spillHoleRadius > 0) {
-					warnings.add("Parachute spill holes are not supported. Ignoring.");
-				}
+				spillHoleDiameter = Math.max(0, Double.parseDouble(content)
+						/ RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+			}
+			if (RockSimCommonConstants.SIDE_COUNT.equals(element)) {
+				sideCount = Integer.parseInt(content.trim());
+			}
+			if (RockSimCommonConstants.CHUTE_COUNT.equals(element)) {
+				chuteCount = Math.max(1, Integer.parseInt(content.trim()));
 			}
 			if (RockSimCommonConstants.SHROUD_LINE_MASS_PER_MM.equals(element)) {
 				shroudLineDensity = Double.parseDouble(content)
@@ -113,6 +133,46 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 		} catch (NumberFormatException nfe) {
 			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
 		}
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
+			throws SAXException {
+		super.endHandler(element, attributes, content, warnings);
+		setEquivalentDiameter(warnings);
+	}
+
+	/**
+	 * OpenRocket parachutes are round, single canopies without a spill hole. RockSim's drag area is that of all
+	 * canopies, each a regular polygon (or a circle) minus its spill hole, so the parachute is imported with the
+	 * round diameter that has the same drag area.
+	 *
+	 * @param warnings the warning set
+	 */
+	private void setEquivalentDiameter(WarningSet warnings) {
+		if (rockSimDiameter <= 0) {
+			return;
+		}
+		double canopyArea;
+		if (sideCount < 3) {
+			canopyArea = Math.PI * MathUtil.pow2(rockSimDiameter / 2);
+		} else {
+			canopyArea = 0.5 * sideCount * MathUtil.pow2(rockSimDiameter / 2) * Math.sin(2 * Math.PI / sideCount);
+		}
+		double area = chuteCount * (canopyArea - Math.PI * MathUtil.pow2(spillHoleDiameter / 2));
+		if (area <= 0) {
+			return;
+		}
+
+		double diameter = 2 * Math.sqrt(area / Math.PI);
+		if (MathUtil.equals(diameter, rockSimDiameter)) {
+			return;
+		}
+		chute.setDiameter(diameter);
+		warnings.add(String.format("Parachute '%s' was imported as a single round parachute with the same drag area "
+				+ "(diameter %.1f mm instead of %.1f mm).", chute.getName(),
+				diameter * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+				rockSimDiameter * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 	}
 
 	/**

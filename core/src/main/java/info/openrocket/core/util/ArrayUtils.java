@@ -6,7 +6,7 @@ public class ArrayUtils {
 
 	/**
 	 * Returns a double array with values from start to end with given step.
-	 * Starts exactly at start and stops at the multiple of step <= stop.
+	 * Starts exactly at start and stops at the multiple of step {@code <= stop}.
 	 * An empty array is returned if the step is not positive, if either bound is
 	 * NaN, or if stop is before start.
 	 */

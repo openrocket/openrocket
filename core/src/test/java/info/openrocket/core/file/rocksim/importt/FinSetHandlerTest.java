@@ -138,6 +138,28 @@ public class FinSetHandlerTest {
     }
 
     /**
+     * The fin cant angle (radians) must be imported, as it is exported.
+     *
+     * @throws Exception thrown if something goes awry
+     */
+    @org.junit.jupiter.api.Test
+    public void testCantAngle() throws Exception {
+        FinSetHandler dto = new FinSetHandler(null, new BodyTube());
+        HashMap<String, String> attributes = new HashMap<>();
+        WarningSet warnings = new WarningSet();
+        dto.closeElement("ShapeCode", attributes, "0", warnings);
+        dto.closeElement("FinCount", attributes, "3", warnings);
+        dto.closeElement("RootChord", attributes, "100", warnings);
+        dto.closeElement("TipChord", attributes, "50", warnings);
+        dto.closeElement("SemiSpan", attributes, "60", warnings);
+        dto.closeElement("CantAngle", attributes, "0.05", warnings);
+        dto.closeElement("LocationMode", attributes, "0", warnings);
+
+        FinSet fins = dto.asOpenRocket(warnings);
+        assertEquals(0.05, fins.getCantAngle(), 1e-9);
+    }
+
+    /**
      * Method: toCoordinates(String pointList)
      *
      * @throws Exception thrown if something goes awry

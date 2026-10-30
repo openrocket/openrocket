@@ -98,7 +98,7 @@ public class TextUtil {
 	 * Return a string of the double value with suitable precision for storage.
 	 * The string is the shortest representation of the value including at least
 	 * 5 digits of precision.
-	 * Saves with exponential notation by default & decimal places based on the
+	 * Saves with exponential notation by default and decimal places based on the
 	 * value's size.
 	 * 
 	 * @param d the value to present.

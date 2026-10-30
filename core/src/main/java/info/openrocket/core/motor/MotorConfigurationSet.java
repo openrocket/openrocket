@@ -22,10 +22,8 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 	/**
 	 * Construct a copy of an existing FlightConfigurationSet.
 	 * 
-	 * @param configSet another flightConfiguration to copy data from.
-	 * @param component the rocket component on which events are fired when the
-	 *                  parameter values are changed
-	 * @param eventType the event type that will be fired on changes
+	 * @param sourceSet another flightConfiguration to copy data from.
+	 * @param newMount the motor mount the copied configurations belong to
 	 */
 	public MotorConfigurationSet(FlightConfigurableParameterSet<MotorConfiguration> sourceSet,
 			final MotorMount newMount) {

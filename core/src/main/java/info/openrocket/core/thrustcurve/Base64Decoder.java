@@ -24,11 +24,10 @@ public abstract class Base64Decoder {
 	}
 
 	/**
-	 * Decode the specified Base64 string and write binary data
-	 * to the given stream.
+	 * Decode the specified Base64 string.
 	 * 
 	 * @param str Base64 encoded string
-	 * @param w   output stream
+	 * @return    the decoded data, or null if the string is empty
 	 */
 	public static String decodeData(String str) throws IOException {
 		StringReader r;

@@ -7,12 +7,12 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,40 +73,68 @@ public class RecoveryDTO {
     public RecoveryDTO() {
     }
 
+    /**
+     * RASAero always deploys recovery device 1 at apogee and recovery device 2 when descending through
+     * altitude 2, regardless of the event types. The apogee parachute is therefore exported as device 1 and
+     * the altitude parachute as device 2, independent of their order in the component tree.
+     */
     public RecoveryDTO(Rocket rocket, WarningSet warnings, ErrorSet errors) {
-        List<Parachute> parachutes = getParachutesFromRocket(rocket);
+        List<Parachute> parachutes = getParachutesFromRocket(rocket, warnings);
         FlightConfigurationId configurationId = rocket.getSelectedConfiguration().getId();
 
-        switch (parachutes.size()) {
-            case 0:
-                log.debug("No parachutes present");
-                break;
-            case 1:
-                configureRecoveryDevice1(parachutes.get(0), configurationId, errors);
-                break;
-            case 2:
-                configureRecoveryDevice1(parachutes.get(0), configurationId, errors);
-                configureRecoveryDevice2(parachutes.get(1), configurationId, errors);
-                break;
+        if (parachutes.isEmpty()) {
+            log.debug("No parachutes present");
+            return;
+        }
+
+        Parachute apogeeDevice = null;
+        Parachute altitudeDevice = null;
+        for (Parachute parachute : parachutes) {
+            DeploymentConfiguration deployConfig = parachute.getDeploymentConfigurations().get(configurationId);
+            switch (deployConfig.getDeployEvent()) {
+                case EJECTION:
+                    warnings.add(String.format(trans.get("RASAeroExport.warning14"), parachute.getName()));
+                    // Fall through: RASAero deploys this parachute at apogee
+                case APOGEE:
+                    if (apogeeDevice == null) {
+                        apogeeDevice = parachute;
+                    } else {
+                        warnings.add(String.format(trans.get("RASAeroExport.warning15"), parachute.getName()));
+                    }
+                    break;
+                case ALTITUDE:
+                    if (altitudeDevice == null) {
+                        altitudeDevice = parachute;
+                    } else {
+                        warnings.add(String.format(trans.get("RASAeroExport.warning15"), parachute.getName()));
+                    }
+                    break;
+                default:
+                    errors.add(String.format(trans.get("RASAeroExport.error21"),
+                            parachute.getName(), deployConfig.getDeployEvent().toString()));
+                    break;
+            }
+        }
+
+        if (apogeeDevice != null) {
+            configureRecoveryDevice1(apogeeDevice);
+        }
+        if (altitudeDevice != null) {
+            configureRecoveryDevice2(altitudeDevice, configurationId);
         }
     }
 
-    private List<Parachute> getParachutesFromRocket(Rocket rocket) {
+    private List<Parachute> getParachutesFromRocket(Rocket rocket, WarningSet warnings) {
         List<Parachute> parachutes = new LinkedList<>();
 
         for (int i = 0; i < Math.min(rocket.getChildCount(), 3); i++) {
             AxialStage stage = (AxialStage) rocket.getChild(i);
 
-            for (RocketComponent stageChild : stage.getChildren()) {
-                if (stageChild instanceof BodyTube) {
-                    for (RocketComponent child : stageChild) {
-                        if (child instanceof Parachute) {
-                            parachutes.add((Parachute) child);
-                            if (parachutes.size() == 2) {
-                                return parachutes;
-                            }
-                        }
-                    }
+            for (RocketComponent component : stage) {
+                if (component instanceof Parachute) {
+                    parachutes.add((Parachute) component);
+                } else if (component instanceof Streamer) {
+                    warnings.add(String.format(trans.get("RASAeroExport.warningB2"), component.getName()));
                 }
             }
         }
@@ -114,38 +142,20 @@ public class RecoveryDTO {
         return parachutes;
     }
 
-    private void configureRecoveryDevice1(Parachute device1, FlightConfigurationId configurationId,
-            ErrorSet errors) {
+    private void configureRecoveryDevice1(Parachute device1) {
         setCD1(device1.getCD());
         setDeviceType1("Parachute");
-        DeploymentConfiguration deployConfig = device1.getDeploymentConfigurations().get(configurationId);
-        setAltitude1(deployConfig.getDeployAltitude() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
-        if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE) {
-            setEventType1(RASAeroCommonConstants.DEPLOYMENT_APOGEE);
-        } else if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.ALTITUDE) {
-            setEventType1(RASAeroCommonConstants.RECOVERY_ALTITUDE);
-        } else {
-            errors.add(String.format(trans.get("RASAeroExport.error21"),
-                    device1.getName(), deployConfig.getDeployEvent().toString()));
-        }
+        setEventType1(RASAeroCommonConstants.DEPLOYMENT_APOGEE);
         setEvent1(true);
         setSize1(device1.getDiameter() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
     }
 
-    private void configureRecoveryDevice2(Parachute device2, FlightConfigurationId configurationId,
-            ErrorSet errors) {
-        setCD1(device2.getCD());
+    private void configureRecoveryDevice2(Parachute device2, FlightConfigurationId configurationId) {
+        setCD2(device2.getCD());
         setDeviceType2("Parachute");
         DeploymentConfiguration deployConfig = device2.getDeploymentConfigurations().get(configurationId);
         setAltitude2(deployConfig.getDeployAltitude() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
-        if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.APOGEE) {
-            setEventType2(RASAeroCommonConstants.DEPLOYMENT_APOGEE);
-        } else if (deployConfig.getDeployEvent() == DeploymentConfiguration.DeployEvent.ALTITUDE) {
-            setEventType2(RASAeroCommonConstants.RECOVERY_ALTITUDE);
-        } else {
-            errors.add(String.format(trans.get("RASAeroExport.error21"),
-                    device2.getName(), deployConfig.getDeployEvent().toString()));
-        }
+        setEventType2(RASAeroCommonConstants.RECOVERY_ALTITUDE);
         setEvent2(true);
         setSize2(device2.getDiameter() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
     }

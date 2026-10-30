@@ -83,8 +83,6 @@ public class ExpressionBuilder {
 	/**
 	 * set the value for a variable
 	 * 
-	 * @param variableName
-	 *            the variable name e.g. "x"
 	 * @param value
 	 *            the value e.g. 2.32d
 	 * @return the {@link ExpressionBuilder} instance
@@ -124,7 +122,7 @@ public class ExpressionBuilder {
 	/**
 	 * set the values for variables
 	 * 
-	 * @param variableMap
+	 * @param myVariables
 	 *            a map of variable names to variable values
 	 * @return the {@link ExpressionBuilder} instance
 	 */

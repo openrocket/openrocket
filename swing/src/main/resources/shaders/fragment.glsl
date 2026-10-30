@@ -413,10 +413,12 @@ void main()
 
             // Specular
             vec3 specular = vec3(0.0);
-            if (shine > 0.0) {
-                vec3 reflectDir = reflect(-lightDir, norm);
+            if (shine > 0.0 && diff > 0.0) {
+                // Blinn-Phong: the half-vector lobe is about four times wider than a
+                // Phong lobe with the same exponent, which keeps glossy highlights broad.
+                vec3 halfwayDir = normalize(lightDir + viewDir);
                 float spec_power = shine * 256.0 + 1.0;
-            float spec = pow(max(dot(viewDir, reflectDir), 0.0), spec_power);
+            float spec = pow(max(dot(norm, halfwayDir), 0.0), spec_power);
             vec3 tintedSpecularColor = mix(materialSpecular, surfaceColor.rgb, 0.3);
             specular = shine * spec * tintedSpecularColor * currentLight.color * attenuation;
         }

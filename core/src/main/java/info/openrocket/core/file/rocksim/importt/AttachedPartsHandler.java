@@ -94,7 +94,7 @@ class AttachedPartsHandler extends AbstractElementHandler {
 			return new PodHandler(context, component, warnings);
 		}
 		if (RockSimCommonConstants.RING_TAIL.equals(element)) {
-			warnings.add("Ring tails are not currently supported. Ignoring.");
+			return new RingTailHandler(context, component);
 		}
 		return null;
 	}

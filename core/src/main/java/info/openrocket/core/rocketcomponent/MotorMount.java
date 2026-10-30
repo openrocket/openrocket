@@ -110,7 +110,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * 
 	 * @param fcid             index the supplied motor against this flight
 	 *                         configuration
-	 * @param newMotorInstance motor instance to store
+	 * @param newMotorConfig   motor configuration to store
 	 */
 	public void setMotorConfig(final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid);
 
