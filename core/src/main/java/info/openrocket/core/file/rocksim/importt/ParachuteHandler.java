@@ -6,6 +6,8 @@ package info.openrocket.core.file.rocksim.importt;
 import java.util.HashMap;
 
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.simplesax.ElementHandler;
@@ -23,6 +25,7 @@ import org.xml.sax.SAXException;
  * A SAX handler for Rocksim's Parachute XML type.
  */
 class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
+	private static final Translator trans = Application.getTranslator();
 	/**
 	 * The OpenRocket Parachute instance
 	 */
@@ -131,7 +134,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 				setMaterialName(content);
 			}
 		} catch (NumberFormatException nfe) {
-			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
+			warnings.add(String.format(trans.get("RockSimImport.warning.invalidNumber"), element, content));
 		}
 	}
 
@@ -169,8 +172,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 			return;
 		}
 		chute.setDiameter(diameter);
-		warnings.add(String.format("Parachute '%s' was imported as a single round parachute with the same drag area "
-				+ "(diameter %.1f mm instead of %.1f mm).", chute.getName(),
+		warnings.add(String.format(trans.get("RockSimImport.warning.parachuteEquivalentDiameter"), chute.getName(),
 				diameter * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
 				rockSimDiameter * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 	}

@@ -1,5 +1,7 @@
 package info.openrocket.core.preset;
 
+import info.openrocket.core.util.BaseTestCase;
+
 import info.openrocket.core.motor.Manufacturer;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * Ensure any computed values are correctly computed.
  * 
  */
-public class StreamerPresetTests {
+public class StreamerPresetTests extends BaseTestCase {
 
 	@Test
 	public void testManufacturerRequired() {

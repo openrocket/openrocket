@@ -32,7 +32,7 @@ public class LicenseDialog extends JDialog {
 		// OpenRocket logo
 		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-128.png", "OpenRocket")), "top");
 		
-		panel.add(new StyledLabel("Software Licenses", 10), "ax 50%, pushx, wrap para");
+		panel.add(new StyledLabel(trans.get("LicenseDialog.lbl.licenses"), 10), "ax 50%, pushx, wrap para");
 
 		final String jarUrl = "jar:" + getClass().getProtectionDomain().getCodeSource().getLocation().toString();
 		final String copyrightYear = BuildProperties.getCopyrightYear();
@@ -169,7 +169,7 @@ public class LicenseDialog extends JDialog {
 		panel.add(close, "spanx, right");
 		
 		this.add(panel);
-		this.setTitle("OpenRocket license");
+		this.setTitle(trans.get("LicenseDialog.title"));
 		this.pack();
 		this.setLocationRelativeTo(parent);
 		

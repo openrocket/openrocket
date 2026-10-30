@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.motor.MotorConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
@@ -26,6 +27,7 @@ import info.openrocket.core.simulation.exception.SimulationListenerException;
 import info.openrocket.core.simulation.listeners.SimulationComputationListener;
 import info.openrocket.core.simulation.listeners.SimulationEventListener;
 import info.openrocket.core.simulation.listeners.SimulationListener;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.CoordinateIF;
 
@@ -33,6 +35,7 @@ public class ScriptingSimulationListener
 		implements SimulationListener, SimulationComputationListener, SimulationEventListener, Cloneable {
 
 	private final static Logger logger = LoggerFactory.getLogger(ScriptingSimulationListener.class);
+	private static final Translator trans = Application.getTranslator();
 
 	/*
 	 * NOTE: This class is used instead of using the scripting interface API
@@ -219,8 +222,9 @@ public class ScriptingSimulationListener
 					// Use default/null if function returns nothing
 					return def;
 				} else if (!o.getClass().equals(retType)) {
-					throw new SimulationListenerException("Custom script function " + method + " returned type " +
-							o.getClass().getSimpleName() + ", expected " + retType.getSimpleName());
+					throw new SimulationListenerException(String.format(
+							trans.get("SimulationExtension.scripting.error.returnType"),
+							method, o.getClass().getSimpleName(), retType.getSimpleName()));
 				} else {
 					return (T) o;
 				}
@@ -230,7 +234,8 @@ public class ScriptingSimulationListener
 			// fall-through
 		} catch (ScriptException e) {
 			logger.warn("Script exception in " + method + ": " + e, e);
-			throw new SimulationException("Script failed: " + e.getMessage());
+			throw new SimulationException(String.format(
+					trans.get("SimulationExtension.scripting.error.failed"), e.getMessage()));
 		}
 		return def;
 	}

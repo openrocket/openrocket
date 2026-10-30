@@ -869,7 +869,7 @@ private static final Translator trans = Application.getTranslator();
 		toolsMenu.add(item);
 
 		bananaForScaleSeparator = new JPopupMenu.Separator();
-		bananaForScaleMenuItem = new JCheckBoxMenuItem("Banana for scale");
+		bananaForScaleMenuItem = new JCheckBoxMenuItem(trans.get("BasicFrame.menu.bananaForScale"));
 		bananaForScaleMenuItem.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -1606,7 +1606,8 @@ private static final Translator trans = Application.getTranslator();
 	private static BasicFrame open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
 		////	Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
-		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
+		if (!SwingWorkerDialog.runWorker(parent, trans.get("BasicFrame.openFile.title"),
+				String.format(trans.get("BasicFrame.openFile.reading"), displayName), worker)) {
 			//	//	User cancelled the operation
 			log.info("User cancelled the OpenFileWorker");
 			return null;
@@ -1621,15 +1622,14 @@ private static final Translator trans = Application.getTranslator();
 			if (cause instanceof FileNotFoundException) {
 				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
-						"File not found: " + displayName,
-						"Error opening file", JOptionPane.ERROR_MESSAGE);
+						String.format(trans.get("BasicFrame.openFile.notFound"), displayName),
+						trans.get("BasicFrame.openFile.errorTitle"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			} else if (cause instanceof RocketLoadException) {
 				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
-						"Unable to open file '" + displayName + "': "
-								+ cause.getMessage(),
-								"Error opening file", JOptionPane.ERROR_MESSAGE);
+						String.format(trans.get("BasicFrame.openFile.unableToOpen"), displayName, cause.getMessage()),
+						trans.get("BasicFrame.openFile.errorTitle"), JOptionPane.ERROR_MESSAGE);
 				return null;
 			} else {
 				throw new BugException("Unknown error when opening file", e);
@@ -2271,8 +2271,8 @@ private static final Translator trans = Application.getTranslator();
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
 		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
 
-		if (!SwingWorkerDialog.runWorker(BasicFrame.this, "Saving file",
-				"Writing " + file.getName() + "...", worker)) {
+		if (!SwingWorkerDialog.runWorker(BasicFrame.this, trans.get("BasicFrame.saveFile.title"),
+				String.format(trans.get("BasicFrame.saveFile.writing"), file.getName()), worker)) {
 
 			// User cancelled the save
 			log.info(Markers.USER_MARKER, "User cancelled the save, deleting the file");
@@ -2293,8 +2293,8 @@ private static final Translator trans = Application.getTranslator();
 			if (cause instanceof IOException) {
 				log.warn("An I/O error occurred while saving " + file, cause);
 				JOptionPane.showMessageDialog(BasicFrame.this, new String[] {
-						"An I/O error occurred while saving:",
-						e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
+						trans.get("error.writing.desc"),
+						e.getMessage() }, trans.get("error.writing.title"), JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 			else if (cause instanceof DecalNotFoundException) {

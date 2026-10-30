@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.startup.Application;
 
 /**
  * NAR approved motor classes (http://www.nar.org/NARmotors.html).
@@ -31,12 +32,13 @@ public enum MotorClass {
 	OVER("> O", 40960, Double.MAX_VALUE) {
 		@Override
 		public String getDescription(double impulse) {
-			return "Over O";
+			return Application.getTranslator().get("MotorClass.overO");
 		}
 		
 		@Override
 		public String getClassDescription() {
-			return "Over O-class (over " + UnitGroup.UNITS_IMPULSE.toStringUnit(40960) + ")";
+			return String.format(Application.getTranslator().get("MotorClass.overO.description"),
+					UnitGroup.UNITS_IMPULSE.toStringUnit(40960));
 		}
 	};
 	
@@ -63,7 +65,8 @@ public enum MotorClass {
 	}
 	
 	public String getClassDescription() {
-		return "Class " + className + " (" + UnitGroup.UNITS_IMPULSE.toStringUnit(min) + " - " + UnitGroup.UNITS_IMPULSE.toStringUnit(max) + ")";
+		return String.format(Application.getTranslator().get("MotorClass.description"), className,
+				UnitGroup.UNITS_IMPULSE.toStringUnit(min), UnitGroup.UNITS_IMPULSE.toStringUnit(max));
 	}
 	
 	
