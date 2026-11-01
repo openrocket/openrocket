@@ -51,6 +51,23 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	private final double wetArea;
 	private final double sinphi;
 
+	/**
+	 * Fineness ratio at/above which nose shape stops affecting subsonic pressure
+	 * drag. Centuri TIR-100 section 8 measures no significant variation across the
+	 * catalogue nose shapes from fineness ratio 4.0 down to 1.8.
+	 */
+	private static final double STUBBY_NOSE_FINENESS_LIMIT = 1.8;
+
+	/**
+	 * A stubby rounded nose's subsonic pressure drag as a fraction of this class's
+	 * own cone value at the same fineness ratio. Bracketed from measured deltas
+	 * (Mercer's TIR-100 series and a CFD estimate for a stubby nose), which put a
+	 * rounded stubby nose near 1/3 of this model's cone, ~0.12 on frontal area at
+	 * fineness ratio 0.5. Erring high charges more drag (conservative). This is a
+	 * bracket on the endpoint, not a calibrated curve.
+	 */
+	private static final double STUBBY_NOSE_ROUNDNESS = 1.0 / 3.0;
+
 	public SymmetricComponentCalc(RocketComponent c) {
 		super(c);
 		if (!(c instanceof SymmetricComponent)) {
@@ -389,6 +406,11 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			int1 = int3;
 		}
 
+		// int1 != null is exactly the stored-table shapes (ELLIPSOID, POWER,
+		// PARABOLIC, HAACK); CONICAL and OGIVE build the interpolator analytically
+		// above. This is the scope of the stubby-nose subsonic floor applied below.
+		final boolean tableShape = int1 != null;
+
 		// Extrapolate for fineness ratio if necessary
 		if (int1 != null) {
 			double log4 = Math.log(fineness + 1) / Math.log(4);
@@ -405,26 +427,71 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 
 		double min = interpolator.getXPoints()[0];
 		double minValue = interpolator.getValue(min);
-		if (minValue < 0.001) {
-			// No interpolation necessary
-			return;
-		}
 
 		double cdMach0 = 0.8 * pow2(sinphi);
 		double minDeriv = (interpolator.getValue(min + 0.01) - minValue) / 0.01;
 
-		// These should not occur, but might cause havoc for the interpolation
-		if ((cdMach0 >= minValue - 0.01) || (minDeriv <= 0.01)) {
+		// Fit the subsonic region only when the leading point is non-zero and
+		// well-conditioned. Formerly three early returns; folded into one guard (the
+		// exact negation) so the stubby-nose floor below still runs when the fit is
+		// skipped. The first two terms are "no interpolation necessary"; the last two
+		// "should not occur, but might cause havoc for the interpolation".
+		if (minValue >= 0.001 && cdMach0 < minValue - 0.01 && minDeriv > 0.01) {
+			// Cd = a*M^b + cdMach0
+			final double b = min * minDeriv / (minValue - cdMach0);
+			final double a = (minValue - cdMach0) / Math.pow(min, b);
+
+			for (double m = 0; m < min; m += 0.05)
+				interpolator.addPoint(m, a * Math.pow(m, b) + cdMach0);
+		}
+
+		applyStubbyNoseFloor(interpolator, min, tableShape);
+	}
+
+	/**
+	 * Apply a subsonic pressure-drag floor for a stubby stored-table nose.
+	 * <p>
+	 * A short blunt body has real, measurable subsonic pressure drag, but the
+	 * stored-table shapes under-predict it at low fineness ratio: shapes whose
+	 * table is zero at drag divergence (POWER param &gt; 0.5, PARABOLIC param &gt;
+	 * 0.5, HAACK) skip the subsonic fit entirely and are left at ~0, and shapes
+	 * that do get the fit (ELLIPSOID, the analytically-blended POWER/PARABOLIC
+	 * cases) anchor it at a small {@code cdMach0}. This raises the whole subsonic
+	 * range, including the leading point, to at least the floor via
+	 * {@code max(existing, floor)}, so the curve does not sit low and then jump at
+	 * drag divergence.
+	 * <p>
+	 * Scope is the stored-table shapes only. CONICAL and OGIVE build their curve
+	 * analytically and a cone's own Cd(M=0) already exceeds this floor, so
+	 * {@code max()} would ignore it; a short tangent ogive wants its own evidence.
+	 *
+	 * @param interpolator the pressure-drag interpolator being built
+	 * @param min          the lowest Mach with a real (tabulated/analytic) point
+	 * @param tableShape   whether this nose uses a stored table (see caller)
+	 */
+	private void applyStubbyNoseFloor(LinearInterpolator interpolator, double min, boolean tableShape) {
+		// A nose is a symmetric component whose fore radius is (essentially) zero;
+		// mid-body transitions and boattails are out of scope.
+		final boolean isNose = foreRadius < 1e-9 && aftRadius > foreRadius;
+		if (!tableShape || !isNose)
 			return;
-		}
+		if (!(fineness > 0) || fineness >= STUBBY_NOSE_FINENESS_LIMIT)
+			return;
 
-		// Cd = a*M^b + cdMach0
-		final double b = min * minDeriv / (minValue - cdMach0);
-		final double a = (minValue - cdMach0) / Math.pow(min, b);
+		// 0.8/(1+4f^2) is this class's own conical Cd(M=0) (0.8*sin^2(phi) with
+		// sin(phi) = 1/sqrt(1+4f^2) for a cone of fineness ratio f).
+		double cone = 0.8 / (1 + 4 * fineness * fineness);
+		double taper = 1 - pow2(fineness / STUBBY_NOSE_FINENESS_LIMIT);
+		double floor = STUBBY_NOSE_ROUNDNESS * cone * taper;
+		if (!(floor > 0))
+			return;
 
-		for (double m = 0; m < min; m += 0.05) {
-			interpolator.addPoint(m, a * Math.pow(m, b) + cdMach0);
+		for (double m = 0; m <= min + 1e-9; m += 0.05) {
+			if (interpolator.getValue(m) < floor)
+				interpolator.addPoint(m, floor);
 		}
+		if (interpolator.getValue(min) < floor)
+			interpolator.addPoint(min, floor);
 	}
 
 	private static final PolyInterpolator conicalPolyInterpolator = new PolyInterpolator(new double[] { 1.0, 1.3 },
