@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -64,7 +64,7 @@ jobs:
 
       # Uploads the English source, and the translation edits collected above as approved translations, using crowdin.yml.
       - name: Upload to Crowdin
-        uses: crowdin/github-action@9c23991700c0ec5256fd41089b9d9d7d540e424e # v3.3.0
+        uses: crowdin/github-action@959dc74ac104447731cba99a016f85d0ae719788 # v3.5.0
         with:
           # The Crowdin project keeps its files in the 'unstable' version branch. Without this, the source is uploaded as a
           # second, untranslated file at the project root.
@@ -87,7 +87,7 @@ jobs:
       # Downloads the translations. The pull request is opened by a later step, so that it is created by GitHub Actions
       # like the translator credits pull request.
       - name: Download from Crowdin
-        uses: crowdin/github-action@9c23991700c0ec5256fd41089b9d9d7d540e424e # v3.3.0
+        uses: crowdin/github-action@959dc74ac104447731cba99a016f85d0ae719788 # v3.5.0
         with:
           crowdin_branch_name: unstable
           upload_sources: false
