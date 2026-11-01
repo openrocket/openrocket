@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeSelectionModel;
 
 import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.swing.gui.util.Icons;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -106,7 +108,21 @@ public class RocketActionsEditTest extends BaseTestCase {
         when(simulationPanel.getDuplicateSimulationAction()).thenReturn(disabledSimulationAction());
         when(simulationPanel.getEditSimulationAction()).thenReturn(disabledSimulationAction());
         when(simulationPanel.getDeleteSimulationAction()).thenReturn(disabledSimulationAction());
-        return new RocketActions(doc, sel, frame, simulationPanel);
+
+        if (!GraphicsEnvironment.isHeadless()) {
+            return new RocketActions(doc, sel, frame, simulationPanel);
+        }
+
+        // Headless CI: RocketActions' shortcut keystrokes call Toolkit.getMenuShortcutKeyMaskEx(),
+        // which throws HeadlessException. Load the action icons with the real toolkit first, then
+        // hand RocketActions a toolkit that reports Ctrl as the menu shortcut key.
+        Icons.EDIT_CUT.getIconWidth();
+        Toolkit shortcutToolkit = mock(Toolkit.class);
+        when(shortcutToolkit.getMenuShortcutKeyMaskEx()).thenReturn(InputEvent.CTRL_DOWN_MASK);
+        try (org.mockito.MockedStatic<Toolkit> toolkit = mockStatic(Toolkit.class, CALLS_REAL_METHODS)) {
+            toolkit.when(Toolkit::getDefaultToolkit).thenReturn(shortcutToolkit);
+            return new RocketActions(doc, sel, frame, simulationPanel);
+        }
     }
 
     /**
