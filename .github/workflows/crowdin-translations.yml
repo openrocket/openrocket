@@ -5,7 +5,7 @@ on:
     branches:
       - unstable
     paths:
-      - core/src/main/resources/l10n/messages.properties
+      - core/src/main/resources/l10n/messages*.properties
       - crowdin.yml
   schedule:
     - cron: '0 4 * * *'
@@ -27,16 +27,70 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
 
-      # Uploads the English source and downloads the translations, using crowdin.yml. The pull request is opened by the
-      # next step, so that it is created by GitHub Actions like the translator credits pull request.
-      - name: Sync with Crowdin
+      # Translations edited directly in git would be overwritten by the next download. Reduce each translation file to the
+      # lines that commits other than the Crowdin sync changed in this push, and remove the files without such changes, so
+      # that only those strings are uploaded and translations made on Crowdin in the meantime are kept.
+      - name: Collect translation edits made outside Crowdin
+        id: edits
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          found=false
+          if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            commits=$(git rev-list --no-merges --invert-grep --grep='^Sync translations from Crowdin' "$BEFORE..HEAD")
+            for file in core/src/main/resources/l10n/messages_*.properties; do
+              keys=$(for commit in $commits; do git show --format= -U0 "$commit" -- "$file"; done \
+                | sed -n '/^+++/d; s/^+\([^#! ][^=:]*\)[=:].*/\1/p' | sed 's/[[:space:]]*$//' | sort -u)
+              if [ -n "$keys" ]; then
+                awk -F'[=:]' 'NR == FNR { keys[$0]; next } { key = $1; sub(/[[:space:]]+$/, "", key) } key in keys' \
+                  <(echo "$keys") "$file" > "$file.edits"
+                echo "$file: $(wc -l < "$file.edits") edited strings"
+                found=true
+              fi
+            done
+          fi
+          rm core/src/main/resources/l10n/messages_*.properties
+          for edits in core/src/main/resources/l10n/messages_*.properties.edits; do
+            if [ -e "$edits" ]; then
+              mv "$edits" "${edits%.edits}"
+            fi
+          done
+          echo "found=$found" >> "$GITHUB_OUTPUT"
+
+      # Uploads the English source, and the translation edits collected above as approved translations, using crowdin.yml.
+      - name: Upload to Crowdin
         uses: crowdin/github-action@9c23991700c0ec5256fd41089b9d9d7d540e424e # v3.3.0
         with:
           # The Crowdin project keeps its files in the 'unstable' version branch. Without this, the source is uploaded as a
           # second, untranslated file at the project root.
           crowdin_branch_name: unstable
           upload_sources: true
+          upload_translations: ${{ steps.edits.outputs.found == 'true' }}
+          auto_approve_imported: true
+          import_eq_suggestions: true
+          download_translations: false
+          push_translations: false
+          create_pull_request: false
+          user: auto
+        env:
+          CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      - name: Restore the translation files
+        if: steps.edits.outcome == 'success'
+        run: git checkout -- core/src/main/resources/l10n
+
+      # Downloads the translations. The pull request is opened by a later step, so that it is created by GitHub Actions
+      # like the translator credits pull request.
+      - name: Download from Crowdin
+        uses: crowdin/github-action@9c23991700c0ec5256fd41089b9d9d7d540e424e # v3.3.0
+        with:
+          crowdin_branch_name: unstable
+          upload_sources: false
           upload_translations: false
           download_translations: true
           push_translations: false
