@@ -10,14 +10,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class DampingMomentCoefficientTest extends BaseTestCase {
 
@@ -93,5 +98,57 @@ public class DampingMomentCoefficientTest extends BaseTestCase {
 
 		assertTrue(foundNonZeroAerodynamic, "Expected at least one non-zero aerodynamic contribution");
 		assertTrue(foundNonZeroPropulsive, "Expected at least one non-zero propulsive contribution");
+	}
+
+	/**
+	 * The propulsive part is mdot * (x_nozzle - x_cg)^2, where x_nozzle is the absolute position of the
+	 * furthest-aft nozzle exit. Recover the lever arm from the stored data and compare it against the nozzle
+	 * exit position derived independently from the motor mount geometry.
+	 */
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	public void testPropulsiveDampingUsesAbsoluteNozzlePosition(boolean withMotorPods) throws SimulationException {
+		Rocket rocket = withMotorPods ? TestRockets.makeEstesAlphaIIIWithMotorPods() : TestRockets.makeEstesAlphaIII();
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		simulation.getOptions().setISAAtmosphere(true);
+		simulation.getOptions().setTimeStep(0.05);
+		simulation.getOptions().setRandomSeed(0xC0FFEE);
+
+		simulation.simulate();
+
+		double expectedNozzle = Double.NEGATIVE_INFINITY;
+		for (RocketComponent component : rocket) {
+			if (!(component instanceof MotorMount mount) || !mount.isMotorMount() ||
+					mount.getMotorConfig(TestRockets.TEST_FCID_0).isEmpty()) {
+				continue;
+			}
+			CoordinateIF nozzleExit = new Coordinate(mount.getLength() + mount.getMotorOverhang());
+			for (CoordinateIF location : component.toAbsolute(nozzleExit)) {
+				expectedNozzle = Math.max(expectedNozzle, location.getX());
+			}
+		}
+		assertTrue(expectedNozzle > 0, "Expected an active motor mount");
+
+		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
+		List<Double> time = branch.getView(FlightDataType.TYPE_TIME);
+		List<Double> motorMass = branch.getView(FlightDataType.TYPE_MOTOR_MASS);
+		List<Double> cg = branch.getView(FlightDataType.TYPE_CG_LOCATION);
+		List<Double> propulsive = branch.getView(FlightDataType.TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE);
+
+		int checked = 0;
+		for (int i = 1; i < propulsive.size(); i++) {
+			double p = propulsive.get(i);
+			double massExpulsionRate = -(motorMass.get(i) - motorMass.get(i - 1)) / (time.get(i) - time.get(i - 1));
+			if (Double.isNaN(p) || p < NON_ZERO_THRESHOLD || massExpulsionRate < NON_ZERO_THRESHOLD) {
+				continue;
+			}
+
+			double leverArm = Math.sqrt(p / massExpulsionRate);
+			assertEquals(Math.abs(expectedNozzle - cg.get(i)), leverArm, 1.0e-9,
+					"Lever arm at t=" + time.get(i) + " should run from the CG to the nozzle exit");
+			checked++;
+		}
+		assertTrue(checked > 0, "Expected propulsive damping samples during the burn");
 	}
 }

@@ -18,6 +18,8 @@ import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.InstanceContext;
+import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
@@ -620,9 +622,16 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			double nozzleDistance = 0;
 			FlightConfiguration config = status.getConfiguration();
 			for (MotorConfiguration inst : config.getActiveMotors()) {
-				double x = inst.getX() + inst.getMotor().getLaunchCGx();
-				if (x > nozzleDistance) {
-					nozzleDistance = x;
+				MotorMount mount = inst.getMount();
+				List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts((RocketComponent) mount);
+				if (contexts == null) {
+					continue;
+				}
+				for (InstanceContext context : contexts) {
+					double x = context.getLocation().getX() + mount.getLength() + mount.getMotorOverhang();
+					if (x > nozzleDistance) {
+						nozzleDistance = x;
+					}
 				}
 			}
 
