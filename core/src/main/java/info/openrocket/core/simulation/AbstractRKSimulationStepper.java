@@ -330,6 +330,17 @@ public abstract class AbstractRKSimulationStepper extends AbstractSimulationStep
 
             store.thetaRotation.rotateZInPlace(angularAcceleration);
 
+            // Jet damping opposes the pitch and yaw rates while the motors are burning
+            double jetDamping = computeJetDampingCoefficient(status, store.rocketMass.getCM().getX());
+            if (jetDamping > 0) {
+                MutableCoordinate rotationVelocity = new MutableCoordinate();
+                rotationVelocity.set(status.getRocketRotationVelocity());
+                status.getRocketOrientationQuaternion().invRotateInPlace(rotationVelocity);
+                double inertia = store.rocketMass.getLongitudinalInertia();
+                angularAcceleration.sub(jetDamping * rotationVelocity.getX() / inertia,
+                        jetDamping * rotationVelocity.getY() / inertia, 0);
+            }
+
             // Convert to world coordinates
             status.getRocketOrientationQuaternion().rotateInPlace(angularAcceleration);
         }

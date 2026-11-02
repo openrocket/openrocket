@@ -600,9 +600,9 @@ public class ExampleFilesTest extends BaseTestCase {
 				.aerodynamics(1.2, 0.443931326, 1.975794152)
 				.aerodynamics(2.0, 0.438041610, 1.706408685)
 				.aerodynamics(3.0, 0.422432711, 1.499109828)
-				.simulation("Simulation 1", 0.132680089, 0.368742589, 0.000102304, 0.000035226, 254.913176793)
+				.simulation("Simulation 1", 0.132680089, 0.368742589, 0.000102304, 0.000035226, 255.492751070)
 				.simulation("Simulation 2", 0.139430089, 0.368706639, 0.000097351, 0.000033521, 461.494653656)
-				.simulation("Simulation 3", 0.149190089, 0.376314539, 0.000090983, 0.000031328, 616.298333892)
+				.simulation("Simulation 3", 0.149190089, 0.376314539, 0.000090983, 0.000031328, 616.951218016)
 				.build());
 
 		EXPECTED_METRICS.put("Tube fin rocket.ork", ExpectedMetrics.builder()
