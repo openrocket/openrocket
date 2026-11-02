@@ -592,6 +592,19 @@ rocket are known, the linear and rotational accelerations can be
 calculated using the mass and moments of inertia discussed in
 Section~\ref{sec-mass-inertia}.
 
+While the motors are burning, the exhaust leaves each nozzle with the
+lateral velocity of the nozzle exit and carries away angular momentum.
+This jet damping produces a pitch and yaw moment
+%
+\begin{equation}
+M_{\rm jet} = -C_{2R}\,\omega, \qquad
+C_{2R} = \sum_i \dot m_i \left(x_{{\rm n},i} - x_{\rm cg}\right)^2
+\end{equation}
+%
+where $\omega$ is the pitch or yaw rate, $\dot m_i$ is the mass
+expulsion rate of motor $i$, obtained from the motor's mass curve,
+and $x_{{\rm n},i}$ is the axial position of its nozzle exit.
+
 The numerical integration is performed using the Runge-Kutta~4 (RK4)
 integration method.  In order to simulate the differential equations
 %

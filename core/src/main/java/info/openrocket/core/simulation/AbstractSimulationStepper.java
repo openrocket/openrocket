@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
-import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.motor.Motor;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
@@ -32,6 +32,9 @@ import info.openrocket.core.util.MutableCoordinate;
 
 public abstract class AbstractSimulationStepper implements SimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(AbstractSimulationStepper.class);
+
+	/** Half-width of the time interval used to differentiate the motor mass curve (s). */
+	private static final double MASS_RATE_TIME_DELTA = 1.0e-4;
 
 	protected static final double MIN_TIME_STEP = 0.001;
 
@@ -374,6 +377,58 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		status.setRocketVelocity(Coordinate.ZERO);
 	}
 
+	/**
+	 * Compute the jet damping coefficient C2R = sum of mdot * (x_nozzle - x_cg)^2 over every thrusting motor
+	 * instance, where mdot is the mass expulsion rate of one motor and x_nozzle the absolute axial position of its
+	 * nozzle exit. The exhaust leaves with the lateral velocity of the nozzle exit, which produces a moment of
+	 * -C2R * omega about the CG for a pitch or yaw rate omega.
+	 * See peak of flight issue 195, October 23, 2007 for more information about the calculation.
+	 *
+	 * @param status the simulation status
+	 * @param cgX    the axial position of the rocket CG, measured from the rocket tip
+	 * @return the jet damping coefficient (kg·m²/s)
+	 */
+	static double computeJetDampingCoefficient(SimulationStatus status, double cgX) {
+		FlightConfiguration config = status.getConfiguration();
+		double simulationTime = status.getSimulationTime();
+		double coefficient = 0;
+		for (MotorClusterState motorState : status.getActiveMotors()) {
+			if (!motorState.isThrusting()) {
+				continue;
+			}
+			double massExpulsionRate = computeMassExpulsionRate(motorState.getMotor(),
+					motorState.getMotorTime(simulationTime));
+			if (!(massExpulsionRate > 0)) {
+				continue;
+			}
+
+			MotorMount mount = motorState.getMount();
+			List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts((RocketComponent) mount);
+			if (contexts == null) {
+				continue;
+			}
+			for (InstanceContext context : contexts) {
+				double nozzleX = context.getLocation().getX() + mount.getLength() + mount.getMotorOverhang();
+				coefficient += massExpulsionRate * MathUtil.pow2(nozzleX - cgX);
+			}
+		}
+		return coefficient;
+	}
+
+	/**
+	 * Compute the mass expulsion rate (-dm/dt) of a single motor from its mass curve, using a central
+	 * difference that is clamped to the start of the burn.
+	 *
+	 * @param motor     the motor
+	 * @param motorTime the time since motor ignition
+	 * @return the mass expulsion rate (kg/s)
+	 */
+	private static double computeMassExpulsionRate(Motor motor, double motorTime) {
+		double t0 = Math.max(motorTime - MASS_RATE_TIME_DELTA, 0);
+		double t1 = motorTime + MASS_RATE_TIME_DELTA;
+		return (motor.getTotalMass(t0) - motor.getTotalMass(t1)) / (t1 - t0);
+	}
+
 	/*
 	 * The DataStore holds calculated data to be used in computing a simulation step.
 	 * It is saved to the FlightDataBranch at the beginning of the time step, and one
@@ -535,7 +590,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * {@code FlightDataType.TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE}.
 		 * <p>
 		 * This is computed from:
-		 * - a propulsive/jet damping part based on the time-derivative of motor mass, and
+		 * - a propulsive/jet damping part, see {@link #computeJetDampingCoefficient(SimulationStatus, double)}, and
 		 * - an aerodynamic part based on component-wise force analysis (CNa and Cp distance to CG).
 		 *
 		 * @param status     the simulation status
@@ -559,7 +614,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			}
 
 			double aerodynamic = computeAerodynamicDampingMomentCoefficient(status, dataBranch);
-			double propulsive = computePropulsiveDampingMomentCoefficient(status, dataBranch);
+			double propulsive = computePropulsiveDampingMomentCoefficient(status);
 			return new DampingMomentComponents(aerodynamic + propulsive, aerodynamic, propulsive);
 		}
 
@@ -600,80 +655,14 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		/**
-		 * Compute the propulsive/jet part of the damping moment coefficient.
+		 * Compute the propulsive/jet part of the damping moment coefficient. This is the same jet damping
+		 * coefficient that the simulation applies to the pitch and yaw dynamics.
 		 *
-		 * @param status     the simulation status
-		 * @param dataBranch the flight data branch
+		 * @param status the simulation status
 		 * @return the propulsive part of the damping moment coefficient
 		 */
-		private double computePropulsiveDampingMomentCoefficient(SimulationStatus status, FlightDataBranch dataBranch) {
-			double motorMassDerivative = computeMotorMassDerivative(dataBranch);
-			if (Double.isNaN(motorMassDerivative)) {
-				return 0;
-			}
-
-			// The damping equation uses the positive mass-expulsion rate, while the remaining motor mass
-			// decreases during the burn. Therefore, massExpulsionRate = -d(motor mass)/dt.
-			double massExpulsionRate = -motorMassDerivative;
-
-			double cg = rocketMass.getCM().getX();
-
-			// Find the furthest-aft nozzle location in the current configuration, measured from the rocket tip.
-			double nozzleDistance = 0;
-			FlightConfiguration config = status.getConfiguration();
-			for (MotorConfiguration inst : config.getActiveMotors()) {
-				MotorMount mount = inst.getMount();
-				List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts((RocketComponent) mount);
-				if (contexts == null) {
-					continue;
-				}
-				for (InstanceContext context : contexts) {
-					double x = context.getLocation().getX() + mount.getLength() + mount.getMotorOverhang();
-					if (x > nozzleDistance) {
-						nozzleDistance = x;
-					}
-				}
-			}
-
-			return massExpulsionRate * MathUtil.pow2(nozzleDistance - cg);
-		}
-
-		/**
-		 * Estimate the motor mass time-derivative using the last two points in the data branch.
-		 * Returns NaN when insufficient history exists (e.g. at t=0), or when dt is invalid.
-		 *
-		 * @param dataBranch the flight data branch
-		 * @return the motor mass time-derivative, or NaN if it cannot be computed
-		 */
-		private static double computeMotorMassDerivative(FlightDataBranch dataBranch) {
-			List<Double> motorMass = dataBranch.getView(FlightDataType.TYPE_MOTOR_MASS);
-			List<Double> time = dataBranch.getView(FlightDataType.TYPE_TIME);
-			if (motorMass == null || time == null) {
-				return Double.NaN;
-			}
-
-			// Check that we have enough samples
-			int n = Math.min(motorMass.size(), time.size());
-			if (n < 2) {
-				return Double.NaN;
-			}
-
-			double dt = time.get(n - 1) - time.get(n - 2);
-			if (!(dt > 0)) {
-				return Double.NaN;
-			}
-
-			// This isn't as accurate as I would like
-			// Using polynomial interpolator for derivative. Doesn't help much
-			// double[] x = { time.get(len-5), time.get(len-4), time.get(len-3),
-			// time.get(len-2), time.get(len-1) };
-			// double[] y = { mpAll.get(len-5), mpAll.get(len-4), mpAll.get(len-3),
-			// mpAll.get(len-2), mpAll.get(len-1) };
-			// PolyInterpolator interp = new PolyInterpolator(x);
-			// double[] coeff = interp.interpolator(y);
-			// double dt = .01;
-			// mdot = (interp.eval(x[4], coeff) - interp.eval(x[4]-dt, coeff))/dt;
-			return (motorMass.get(n - 1) - motorMass.get(n - 2)) / dt;    // Note: peak of flight mentions gram/s, but we use kg/s
+		private double computePropulsiveDampingMomentCoefficient(SimulationStatus status) {
+			return computeJetDampingCoefficient(status, rocketMass.getCM().getX());
 		}
 
 		/**

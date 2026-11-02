@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -18,6 +20,7 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -101,23 +104,27 @@ public class DampingMomentCoefficientTest extends BaseTestCase {
 	}
 
 	/**
-	 * The propulsive part is mdot * (x_nozzle - x_cg)^2, where x_nozzle is the absolute position of the
-	 * furthest-aft nozzle exit. Recover the lever arm from the stored data and compare it against the nozzle
-	 * exit position derived independently from the motor mount geometry.
+	 * The propulsive part is the jet damping coefficient, the sum over every motor of mdot * (x_nozzle - x_cg)^2,
+	 * where x_nozzle is the absolute position of that motor's nozzle exit. Integrated over time, this equals the
+	 * expelled mass of each motor times its squared lever arm. Compare the time integral of the stored values
+	 * against that sum, using the motor mass curves and the nozzle exit positions from the mount geometry.
 	 */
 	@ParameterizedTest
 	@ValueSource(booleans = { false, true })
-	public void testPropulsiveDampingUsesAbsoluteNozzlePosition(boolean withMotorPods) throws SimulationException {
+	public void testPropulsiveDampingMatchesExpelledMassAndNozzlePosition(boolean withMotorPods)
+			throws SimulationException {
 		Rocket rocket = withMotorPods ? TestRockets.makeEstesAlphaIIIWithMotorPods() : TestRockets.makeEstesAlphaIII();
 		Simulation simulation = new Simulation(rocket);
 		simulation.setFlightConfigurationId(TestRockets.TEST_FCID_0);
 		simulation.getOptions().setISAAtmosphere(true);
-		simulation.getOptions().setTimeStep(0.05);
+		simulation.getOptions().setTimeStep(0.001);
 		simulation.getOptions().setRandomSeed(0xC0FFEE);
 
 		simulation.simulate();
 
-		double expectedNozzle = Double.NEGATIVE_INFINITY;
+		// Every motor ignites at launch, so the motor time equals the simulation time.
+		List<Motor> motors = new ArrayList<>();
+		List<Double> nozzlePositions = new ArrayList<>();
 		for (RocketComponent component : rocket) {
 			if (!(component instanceof MotorMount mount) || !mount.isMotorMount() ||
 					mount.getMotorConfig(TestRockets.TEST_FCID_0).isEmpty()) {
@@ -125,30 +132,44 @@ public class DampingMomentCoefficientTest extends BaseTestCase {
 			}
 			CoordinateIF nozzleExit = new Coordinate(mount.getLength() + mount.getMotorOverhang());
 			for (CoordinateIF location : component.toAbsolute(nozzleExit)) {
-				expectedNozzle = Math.max(expectedNozzle, location.getX());
+				motors.add(mount.getMotorConfig(TestRockets.TEST_FCID_0).getMotor());
+				nozzlePositions.add(location.getX());
 			}
 		}
-		assertTrue(expectedNozzle > 0, "Expected an active motor mount");
+		assertEquals(withMotorPods ? 3 : 1, motors.size());
 
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
 		List<Double> time = branch.getView(FlightDataType.TYPE_TIME);
-		List<Double> motorMass = branch.getView(FlightDataType.TYPE_MOTOR_MASS);
 		List<Double> cg = branch.getView(FlightDataType.TYPE_CG_LOCATION);
 		List<Double> propulsive = branch.getView(FlightDataType.TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE);
 
-		int checked = 0;
-		for (int i = 1; i < propulsive.size(); i++) {
-			double p = propulsive.get(i);
-			double massExpulsionRate = -(motorMass.get(i) - motorMass.get(i - 1)) / (time.get(i) - time.get(i - 1));
-			if (Double.isNaN(p) || p < NON_ZERO_THRESHOLD || massExpulsionRate < NON_ZERO_THRESHOLD) {
-				continue;
-			}
-
-			double leverArm = Math.sqrt(p / massExpulsionRate);
-			assertEquals(Math.abs(expectedNozzle - cg.get(i)), leverArm, 1.0e-9,
-					"Lever arm at t=" + time.get(i) + " should run from the CG to the nozzle exit");
-			checked++;
+		// Integrate from launch rod clearance, before which the coefficient is not computed
+		int first = 0;
+		while (first < propulsive.size() && !(propulsive.get(first) > NON_ZERO_THRESHOLD)) {
+			first++;
 		}
-		assertTrue(checked > 0, "Expected propulsive damping samples during the burn");
+		assertTrue(first < propulsive.size(), "Expected propulsive damping samples during the burn");
+
+		double actual = 0;
+		double expected = 0;
+		for (int k = first; k + 1 < time.size(); k++) {
+			double p0 = propulsive.get(k);
+			double p1 = propulsive.get(k + 1);
+			if (Double.isNaN(p0) || Double.isNaN(p1)) {
+				break;
+			}
+			double t0 = time.get(k);
+			double t1 = time.get(k + 1);
+			actual += 0.5 * (p0 + p1) * (t1 - t0);
+			for (int i = 0; i < motors.size(); i++) {
+				double expelledMass = motors.get(i).getTotalMass(t0) - motors.get(i).getTotalMass(t1);
+				double arm0 = MathUtil.pow2(nozzlePositions.get(i) - cg.get(k));
+				double arm1 = MathUtil.pow2(nozzlePositions.get(i) - cg.get(k + 1));
+				expected += expelledMass * 0.5 * (arm0 + arm1);
+			}
+		}
+
+		assertTrue(expected > 0, "Expected mass to be expelled after launch rod clearance");
+		assertEquals(expected, actual, 0.01 * expected);
 	}
 }
