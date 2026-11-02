@@ -320,7 +320,10 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				break;
 
 			case OGIVE:
-				interpolator = calculateOgiveNoseInterpolator(param, sinphi);
+				// Ogives follow the wave drag of a cone with the same length and base diameter,
+				// not that of the joint angle (sinphi)
+				interpolator = calculateOgiveNoseInterpolator(param,
+						1 / MathUtil.safeSqrt(1 + 4 * pow2(fineness)));
 				break;
 
 			case ELLIPSOID:
