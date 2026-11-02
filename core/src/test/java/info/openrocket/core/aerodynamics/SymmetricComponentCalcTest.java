@@ -145,4 +145,49 @@ public class SymmetricComponentCalcTest {
 		}
 	}
 
+	/**
+	 * Ogive nose cones get the supersonic pressure drag of a cone with the same length and base diameter, scaled by
+	 * the shape factor 0.72 * (param - 0.5)^2 + 0.82 (technical documentation, appendix B.4). A tangent ogive has a
+	 * zero joint angle, which must only remove its low subsonic pressure drag (issue #3391).
+	 */
+	@Test
+	public void testOgiveNoseconeSupersonicDrag() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		NoseCone nose = (NoseCone) rocket.getChild(0).getChild(0);
+		// use a fineness ratio of 3
+		nose.setLength(nose.getAftRadius() * 6.0);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setAOA(0.0);
+		WarningSet warnings = new WarningSet();
+		double frontalArea = Math.PI * nose.getAftRadius() * nose.getAftRadius();
+
+		// Conical nose pressure drag at Mach 1.5 for the equivalent cone: sin(eps) = 1 / sqrt(1 + 4 * 3^2)
+		double sinEps = 1 / Math.sqrt(37);
+		double coneCD = 2.1 * sinEps * sinEps + 0.5 * sinEps / Math.sqrt(1.5 * 1.5 - 1);
+
+		double[][] paramAndExpectedCD = {
+				{ 1.0, coneCD }, // tangent ogive
+				{ 0.5, 0.82 * coneCD }, // minimum drag secant ogive
+				{ 0.0, coneCD } }; // conical
+		for (double[] values : paramAndExpectedCD) {
+			nose.setShapeType(Transition.Shape.OGIVE);
+			nose.setShapeParameter(values[0]);
+			SymmetricComponentCalc calcObj = new SymmetricComponentCalc(nose);
+
+			conditions.setMach(1.5);
+			double testcd = calcObj.calculatePressureCD(conditions, 0.0, 0.0, warnings) *
+					conditions.getRefArea() / frontalArea;
+			assertEquals(values[1], testcd, 1e-4, "Bad Mach 1.5 pressure Cd for ogive parameter " + values[0]);
+		}
+
+		// The tangent ogive still has no low subsonic pressure drag (issue #2998)
+		nose.setShapeParameter(1.0);
+		SymmetricComponentCalc calcObj = new SymmetricComponentCalc(nose);
+		conditions.setMach(0.1);
+		assertEquals(0.0, calcObj.calculatePressureCD(conditions, 0.0, 0.0, warnings), 1e-6,
+				"Tangent ogive should have no low subsonic pressure drag");
+	}
+
 }
