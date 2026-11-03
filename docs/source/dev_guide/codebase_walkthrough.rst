@@ -26,7 +26,7 @@ OpenRocket uses the Gradle build system, where each modules (``info.openrocket.c
 
    ├── gradle                    # Gradle Wrapper
    ├── libs                      # (optional) Library JAR files that cannot be obtained from the gradle dependency system
-   ├── resources-src             # Source files for the resources in the src dir (e.g. InkScape project file for the splash screen)
+   ├── resources-src             # Source files for the resources in the src dir (e.g. GIMP files for the component icons)
    ├── scripts                   # Utility scripts
    ├── src                       # Source code and resources
    │   ├── main                  # Application source code and resources
