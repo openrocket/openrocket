@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="12.0.3" transformSequenceNumber="12">
   <directoryPresets config="../../remote/Windows-ork-Preview/src/OrkThumbnailHandler/bin/x64" />
-  <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="26.xx" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="26.11.beta.01" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
     <variables>
       <variable name="ISSUER_ID" value="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" hidden="true" />
       <variable name="KEY_ID" value="6CY43KJL23" hidden="true" />
@@ -35,7 +35,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 26.xx" id="59" icnsFile="resources/icons/macos-squircle.icns">
+    <launcher name="OpenRocket 26.11.beta.01" id="59" icnsFile="resources/icons/macos-squircle.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="resources/icons/icon-windows.ico" executableDir="." executableMode="gui">
         <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2026 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
       </executable>

@@ -136,7 +136,7 @@ of our repository).
        * Added warning flight events
        * Added maximum time attribute for simulation conditions
    * - 1.11
-     - OpenRocket 26.xx
+     - OpenRocket 26.11
      - * Added ``<simulationsteppermethod>`` to simulation conditions
        * Added optional ``<randomseed>`` to simulation conditions for reproducible runs
        * Added simulation table column visibility preferences
@@ -154,7 +154,7 @@ The following shows the root XML structure of an OpenRocket design file:
 .. code-block:: xml
 
    <?xml version='1.0' encoding='utf-8'?>
-   <openrocket version="1.11" creator="OpenRocket 26.xx">
+   <openrocket version="1.11" creator="OpenRocket 26.11.beta.01">
       <rocket>
          <!-- Rocket definition -->
       </rocket>
