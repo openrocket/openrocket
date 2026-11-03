@@ -9,6 +9,7 @@ responding to review. AI assistance does not replace that responsibility.
 - Address one concrete problem per PR. Check existing issues and PRs for duplicate work. Discuss new features and broad changes with maintainers before implementing them.
 - Read the relevant code and follow existing patterns. Prefer the smallest complete fix. Leave unrelated formatting, renaming, refactoring, and cleanup out of the diff.
 - Do not invent requirements or add speculative abstractions, dependencies, fallback behavior, or configuration. Explain any necessary expansion of scope.
+- Put only files the application loads at runtime in `core/src/main/resources` or `swing/src/main/resources`; everything there is packaged into the distribution JARs. Keep editable originals, high-resolution exports, and other branding or design assets in `artwork/` (see [artwork/README.md](artwork/README.md)).
 - Review the entire diff before submitting. Remove generated clutter, redundant comments, scratch files, and changes you cannot explain. Do not submit batches of speculative fixes or generate follow-up PRs without a concrete need.
 
 ## Verification
