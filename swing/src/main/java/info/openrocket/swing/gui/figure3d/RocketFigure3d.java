@@ -57,9 +57,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
 	private static final Translator trans = Application.getTranslator();
-	// JAWT drawing-surface access must be serialized across canvases. The shared
-	// scheduler renders every dirty view each tick, so idle views add no work.
+	// The scheduler renders each view on its own thread and serializes JAWT drawing-surface
+	// access across canvases. Only dirty views render on a tick, so idle views add no work.
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
+	private static final long RENDER_SHUTDOWN_TIMEOUT_MS = 2_000;
 	private static final int IMAGE_CAPTURE_TIMEOUT_MS = 2_000;
 
 	public static final int TYPE_FIGURE = 2;
@@ -219,9 +220,9 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			failedPanel.setRenderRequestCallback(null);
 			failedPanel.setGraphicsResetCallback(null);
 			failedPanel.setGlInitFailureCallback(null);
-			remove(failedPanel);
 			glScenePanel = null;
-			failedPanel.cleanup();
+			disposeCanvasOnRenderThread(failedPanel);
+			remove(failedPanel);
 		}
 		selectionBridgeInstalled = false;
 
@@ -278,10 +279,10 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		failedPanel.setGraphicsResetCallback(null);
 		failedPanel.setGlInitFailureCallback(null);
 		pendingContextResetRebuild.compareAndSet(failedPanel, null);
-		remove(failedPanel);
 		glScenePanel = null;
 		selectionBridgeInstalled = false;
-		failedPanel.cleanup();
+		disposeCanvasOnRenderThread(failedPanel);
+		remove(failedPanel);
 		revalidate();
 		repaint();
 
@@ -947,8 +948,18 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		pendingCameraRestore.set(null);
 		if (panel != null) {
 			panel.setGraphicsResetCallback(null);
-			panel.cleanup();
 		}
+		disposeCanvasOnRenderThread(panel);
+	}
+
+	/**
+	 * Disposes the canvas on the thread that rendered it and retires that thread, also when
+	 * there is no canvas left to dispose. Must run before the canvas leaves the component tree.
+	 */
+	private void disposeCanvasOnRenderThread(GLScenePanel panel) {
+		Runnable disposal = panel != null ? panel::cleanup : () -> {
+		};
+		RENDER_SCHEDULER.disposeOnRenderThread(this, disposal, RENDER_SHUTDOWN_TIMEOUT_MS);
 	}
 
 	@Override

@@ -268,7 +268,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		debug("clearDoc");
 		stopRenderLoop();
 		if (glPanel != null) {
-			RENDER_SCHEDULER.awaitQuiescence(RENDER_SHUTDOWN_TIMEOUT_MS);
+			RENDER_SCHEDULER.awaitQuiescence(this, RENDER_SHUTDOWN_TIMEOUT_MS);
 			disposeCurrentCanvas(glPanel);
 		}
 		imageCallbacks.clear();
@@ -452,6 +452,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 	private void showGLInitFailureUI(GLScenePanel failedPanel) {
 		if (glPanel == failedPanel) {
+			stopRenderLoop();
 			disposeCurrentCanvas(failedPanel);
 		}
 		JLabel label = new JLabel(trans.get("PhotoPanel.glInitFailed"));
@@ -486,7 +487,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 		boolean resumeRenderLoop = renderLoopRunning;
 		stopRenderLoop();
-		RENDER_SCHEDULER.awaitQuiescence(RENDER_SHUTDOWN_TIMEOUT_MS);
+		RENDER_SCHEDULER.awaitQuiescence(this, RENDER_SHUTDOWN_TIMEOUT_MS);
 		if (glPanel != failedPanel || document == null) {
 			if (resumeRenderLoop && glPanel != null) {
 				startRenderLoop();
@@ -530,6 +531,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		panel.setRenderActivityCallback(null);
 		panel.setRenderRequestCallback(null);
 		panel.setGraphicsResetCallback(null);
+		RENDER_SCHEDULER.disposeOnRenderThread(this, panel::cleanup, RENDER_SHUTDOWN_TIMEOUT_MS);
 		remove(panel);
 		glPanel = null;
 		revalidate();
