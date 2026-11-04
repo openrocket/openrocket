@@ -38,8 +38,8 @@ configurations {
     }
 }
 
-def flatlafVersionValue = "3.7.2"
-def lwjglVersionValue = "3.4.2"
+def flatlafVersionValue = "3.8"
+def lwjglVersionValue = "3.4.3"
 def lwjgl3AwtGroupValue = "org.lwjglx"
 def lwjgl3AwtVersionValue = "0.2.5"
 def jomlVersionValue = "1.10.9"
