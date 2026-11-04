@@ -13,6 +13,197 @@ Release Notes
 
 </div>
 
+<div id="26.11.beta.01">
+
+OpenRocket 26.11.beta.01 (2026-11-03)
+-------------------------------------
+
+This is the first beta of the 26.11 release and covers all changes since 24.12. References in parentheses are pull request numbers. Notable features and fixes shown in **bold**.
+
+### RELEASE HIGHLIGHTS
+* **Brand-new 3D engine**: The 3D view and Photo Studio were rewritten from scratch using LWJGL. Expect better fin rendering, improved lighting, shadows and ambient occlusion, roughness rendering, better smoke, flame and motion blur effects, and a render quality setting. Object picking in the 3D view finally works on macOS.
+* **Monte Carlo landing-dispersion analysis**: Run a simulation many times with varying weather, launcher, vehicle, propulsion and recovery inputs, and see the resulting landing cloud with containment statistics for every recovered body.
+* **Motor database updates between releases**: OpenRocket can now download newer motor databases on startup, so you no longer have to wait for a new OpenRocket release to get the latest motors from ThrustCurve.org.
+* **Thrust curves embedded in design files**: The thrust curves of the motors used in a design are stored inside the .ork file, so designs with custom or missing motors open correctly on other computers.
+* **Aerodynamic and simulation accuracy improvements**: Fin-body interference according to NACA Report 1307, base drag correction during powered flight, thrust correction for air pressure at altitude, jet damping, relative humidity, and a new Runge-Kutta 6th order simulation method.
+* **Custom aerodynamic data**: Replace OpenRocket's built-in drag and stability calculations with your own data (for example from CFD, wind tunnel tests or other tools), loaded from CSV tables as a function of Mach number and angle of attack.
+* **Caliper tool**: Measure distances directly in the 2D design view.
+* **Decal editor overhaul**: Create textures directly from a component, delete decals, see decal previews, and choose which decals to export.
+* **Design file previews**: .ork files now contain a preview image, shown as thumbnails in Windows Explorer and as Quick Look previews on macOS.
+* **Native file dialogs** on all platforms.
+
+### Simulation
+* **Monte Carlo landing-dispersion analysis** (#3260, #3349)
+* **Add Runge-Kutta 6th order method as simulation method** (#2839, #3013, #3113)
+* **Add relative humidity to the atmospheric conditions** (#2834, #3238)
+* **Configurable gravity**: Ever wanted to launch on the Moon or Mars? (#2923)
+* **Show random seeds in the UI for reproducible simulation runs** (#3201, #3189)
+* **Undo/redo for simulation actions** (#2973)
+* **Plotting**
+  * **Custom plot line color and style** (#3052, #3259)
+  * Add checkbox to toggle visibility of flight events in plots (#2920)
+  * Make plot legend interactive and draw plot lines thicker (#2947)
+  * Fix plot line highlighting for multi-stage rockets with extra variables (#3098)
+  * Fix simulation plot selector layout (#3200, #3117)
+* **New flight data types**
+  * **Damping moment coefficient, corrective moment coefficient, damping ratio and natural frequency** (#3002)
+  * X and Y component and body frame accelerations (#2982)
+  * Normal force coefficient derivative (CNa) (#3010)
+* **Simulation table**
+  * **Allow toggling of simulation table column visibility** (#2894)
+  * Use tab separator when copying the simulation table to the clipboard (#2943)
+  * Fix simulation table sort race (#3245)
+* **Warnings**
+  * Only show the open airframe warning when the separated booster has a recovery device (#3024, #3081)
+  * Don't warn about high-speed deployment in dual-deploy scenarios (#3129)
+  * Detect tumbling from a sustained angle of attack instead of an instantaneous one (#3190, #3382)
+  * Move recovery warning threshold configuration to a dedicated Warnings tab (#3311)
+  * Store "show warnings" setting in the document preferences (#3005)
+* **Other**
+  * **Major reduction of simulation memory usage and improved performance** (#2909, #2912, #3124, #3217)
+  * Increase storage precision of simulation data points (#3143)
+  * Update launch rod direction when wind direction or "launch into wind" changes (#2961)
+  * Fix issues in the launch preferences panel (#2945)
+  * Ensure sim reset and set-to-default also apply to the preferences (#3187)
+  * Mark simulations as outdated when interrupted, when launch modes change, or when aerodynamic lookup tables change (#3347, #3348, #3338)
+  * Prevent creating a simulation without a motor and flight configuration (#3039)
+  * Improve simulation window size (#3125)
+  * Set a non-zero minimum air pressure (#2976)
+
+### Motors
+* **Download motor database updates on startup**, with optional automatic installation (#2991, #3199, #3261, #3106)
+* **Embed thrust curves in .ork files** (#2972, #3066, #3227, #3337)
+* Store the ThrustCurve.org motor database in SQLite and upgrade to the ThrustCurve API v1 (#2985, #2984)
+* Fix motor designation and common name handling (#3123)
+* Make the motor chooser dialog more compact (#2919)
+* Fix crash when sorting the motor table after deselecting a manufacturer filter (#3049)
+* Fix exception when deleting all motor configurations (#3162)
+* Make user-defined thrust curve and component preset loading more foolproof (#2856)
+
+### Multi-stage Rockets
+* **Fix recovery device deployment with motors in pods** (#3204)
+* Calculate component positions using the simulation's own flight configuration, fixing incorrect geometry warnings with disabled stages (#3241)
+
+### Calculations
+* **Custom aerodynamic lookup tables**: Load drag (Cd) and stability (Cn, Cm, CP) data versus Mach number and angle of attack from CSV files in the simulation options (#2889, #3338, #3339, #3340, #3341)
+* **Fin-body interference according to NACA Report 1307**: The rocket CP now moves with Mach number and fin geometry (#3220, #3233, #3263)
+* **Base drag correction during powered flight** (#3244)
+* **Thrust correction for air pressure at altitude** (#3327)
+* **Jet damping in pitch and yaw** (#3434, #3433, #3197)
+* Compute pitch/yaw damping moment about the CG and in the angle-of-attack plane (#3410)
+* Fix damping moment calculation (#2911)
+* Report fin pressure drag and base drag separately (#3078)
+* Use the equivalent cone angle for transonic/supersonic ogive pressure drag (#3431)
+* Set pressure drag of tangent ogive nose cones to 0 (#2999)
+* Fix geopotential-geometric altitude conversion in the ISA model (#2997)
+* Fix pitch/yaw rate discontinuity in local orientation rates (#3119)
+* Fix mass moment of inertia calculation (#3319)
+* Fix tube fin CP interpolation, transonic fin CNa, body friction fineness ratio, and low-aspect-ratio fin CP singularities (#3235, #3236, #3237, #3262)
+* Fix NaN mass for zero-volume slices and other calculation edge cases (#3202, #3194)
+* Update rocket mass when material settings change (#2860)
+
+### Component Analysis
+* **Add stage and rocket totals to Component Analysis** (#3223)
+* Retain Component Analysis settings when closing the dialog or switching data type (#3207)
+* Fix legend series highlighting and parameter sweeps (#3222, #3195)
+
+### Components
+* **Allow mass components to contain internal components** (#3178)
+* **Automatic parachute shroud line length and shock cord length** (#3007)
+* **Freeform fin editor**
+  * **Undo/redo in the fin shape editor** (#2981)
+  * Improve handle sensitivity, clear selection when clicking empty space, and improve performance (#2975)
+  * Add point context menu and fix snap drag highlight color (#2967)
+  * Fix fin root point ordering and point deletion while editing a cell (#2969, #2942)
+* Show a warning when loading a design with incompatible components instead of failing (#3203)
+* Restore parent selection after deleting a component (#2971)
+* Default nose cone shoulder wall thickness to 0 (#2952)
+* Fix tail cone scaling (#2964)
+* Use 0.1 increments for the fin fillet and nose cone/transition shape parameter spinners (#3208, #3332)
+
+### Appearance and Decals
+* **Improved decal editor** (#2929)
+* **Allow decal deletion and add decal previews** (#2933)
+* **Create textures directly from a component** (#2934, #3068)
+* Choose which decals to export (#2927)
+* Put the 2D and 3D appearance settings in dedicated sections (#3215)
+* Support 3-character hex color entry (#3137)
+* Fix decal edits affecting both fin surfaces (#3067)
+* Allow selecting macOS app bundles as graphics editors (#3317)
+* Fix default 3D component textures and inside-tube texture orientation (#3016, #3409)
+
+### 3D View and Photo Studio
+* **Complete rewrite of the 3D engine in LWJGL** (#3110, #3408)
+* **Fix 3D object picking on macOS** (#2994)
+* Show the active rotation pivot, allow rotating past the vertical poles, and preserve pending zoom selections (#3280, #3286, #3275)
+* Correctly render concave fin outlines and fin cant (#3283, #3344)
+* Fix Photo Studio settings for sparks, camera distance and light direction (#3312, #3313, #3314, #3316)
+* Fix 3D views failing on Linux with NVIDIA drivers (#3436)
+
+### Import/Export
+* **Capture the design view to a file or the clipboard** (#3012, #3031)
+* **Export more component types to SVG** (#2938)
+* RockSim: import and export component appearance, motor configurations, launch conditions, stage overrides, shapes, parachutes and simulations (#3004, #3240, #3404, #3030)
+* RASAero: fix import and export of recovery, stage mass, staging, motors, launch site and design components (#3405, #3219, #3221, #3243, #3092)
+* Correctly export zero-thickness and zero-length components to OBJ (#2890)
+* Show an error when exporting to OBJ, RockSim or RASAero fails (#3414)
+
+### Materials
+* Add in-plane shear modulus to materials, in preparation for fin flutter calculations (#3006)
+* Group materials by category (#2899, #2948)
+* Keep material table rows stable during edits (#3216)
+
+### User Interface
+* **Caliper tool in the design view** (#2941, #3121, #3257, #3258)
+* **Native file dialogs** (#3364)
+* **Configurable background and text color for the 2D and 3D views** (#3014, #3060)
+* **Kebab menu in the component config dialog** (#2979)
+* **New, high-resolution application icons** (#2988, #3096, #3011)
+* Snap view rotation when holding Shift, pan with click-drag when rotation is locked, and add a zoom-to-fit button (#2968, #2995, #2996)
+* Put the design view ribbon in a scroll pane when needed and add "Disable" to the component context menu (#3082, #3100, #3278)
+* Add an Apply button to the preferences and update the UI theme without restarting (#3214, #2958, #3213)
+* Add option to globally disable the Parts Library pop-up (#2966)
+* More compact component config dialogs and wider component tree (#2925, #2932, #2946, #3365, #3362)
+* Show feedback for invalid input values (#2970)
+* Keep the component config dialog open when deselecting a component (#3009)
+* Open new design windows at a different position from existing windows (#2891)
+* Fix "Save As" clearing the rocket name (#3296)
+* Fix menu items staying disabled after save/export dialogs (#3050)
+* Fix bundled UI font usage, italic label clipping, and keyboard shortcuts on non-macOS platforms (#3112, #3411, #3084)
+
+### Misc
+* **.ork files now include a preview image**, shown as thumbnails in Windows Explorer and as Quick Look previews on macOS (#2915, #3083, #3378)
+* **Smaller downloads with platform-specific installers** (#3373)
+* **Windows installers are now code signed through SignPath** (#3254)
+* Ask for consent before checking for updates on first startup (#3255)
+* Show a clear message when the component preset database fails to load (#3000)
+* Fix exception when printing after deleting a freeform fin set (#3346)
+* Reject virtual save locations (#3212)
+* Quit directly on macOS (#3256)
+* Faster startup and UI updates (#3353, #3354, #3357, #3358, #3359, #3360, #3361)
+* Store flight data types in .ork files using stable keys (#3109)
+* New "powered pods with recovery deployment" example design and example design fixes (#3122, #3094, #3331)
+* Improved Chinese and Russian translations (#3135, #3413), and translations are now managed on [Crowdin](https://crowdin.com/project/openrocket)
+
+### Developer stuff
+* **Publish `info.openrocket:core` to Maven Central** (#3115, #3064)
+* **Run tests on Linux, Windows and macOS** (#3225, #3102, #3246)
+* Separate BarrowmanCalculator into DragCalculator and StabilityCalculator (#2889)
+* Move common RK4/RK6 code into AbstractRKSimulationStepper (#3302)
+* Add simulation branch listeners and a RemovedComponent subclass (#2944, #2939)
+* Make stall angle available to the simulation engine (#3093)
+* Harden migration of old plugin JARs (#3234)
+* Update build to Gradle 9 and add JaCoCo code coverage (#2992, #2887, #3058)
+* Many new unit tests (#2914, #2922, #2926, #2937, #2951, #3045, #3226, #3422)
+* Documentation and contribution guide improvements (#3074, #3253, #3310, #3367, #3371)
+
+### Contributors
+Many thanks to everyone who contributed to this release: @SiboVG, @JoePfeiffer, @neilweinstock, @thzero, @Kruzk02, @MDNich, @gdilbaz, @sebastianvelace, @tejas-ae, @wcravens, @BaknineNouhaila03, @Alisonsun7, @AzazelSensei, @DanGrabski, @DigikixUSA, @Gustave-M, @OPaivaHeitor, @Ozziboi65, @SparrowTheNerd, @UncleRus, @abwdn, @entity-0-0-2, @hazard3045, @joonseolee, @jorsoni, @midasavocado, @mvanhorn, @roostr365, @rundvd, @senft-research, @shawnmcmanus, and @taotieren. Thanks as well to all translators on Crowdin and to everyone who reported bugs and tested development builds.
+
+_...and countless additional fixes and tweaks._
+
+</div>
+
 <div id="24.12">
 
 OpenRocket 24.12 (2025-07-27)
