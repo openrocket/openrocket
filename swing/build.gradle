@@ -4,7 +4,7 @@ plugins {
     id 'java'
     id 'com.adarshr.test-logger' version '4.0.0'
     id 'checkstyle'
-    id 'org.gradlex.extra-java-module-info' version '1.13.1'
+    id 'org.gradlex.extra-java-module-info' version '1.14.2'
 }
 
 java {
@@ -31,12 +31,10 @@ configurations {
     testArtifactsClasspath {
         canBeConsumed = false
         canBeResolved = true
-        visible = false
     }
     lwjglNativeArtifacts {
         canBeConsumed = false
         canBeResolved = true
-        visible = false
     }
 }
 
