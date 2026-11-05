@@ -152,12 +152,31 @@ class AppearanceFactoryTest {
 				"a rough finish must still produce a bumpy surface");
 	}
 
+	@Test
+	void eachDecalEdgeModeMapsToItsOwnTextureMode() {
+		AppearanceFactory.setTextureLoaderForTesting(decalImage -> mock(Texture.class));
+		TestDecalImage image = new TestDecalImage("decal.png");
+
+		assertEquals(Appearance3D.TextureMode.REPEAT,
+				AppearanceFactory.createFrom(componentWithDecal(image, Decal.EdgeMode.REPEAT)).getTextureMode());
+		assertEquals(Appearance3D.TextureMode.MIRROR,
+				AppearanceFactory.createFrom(componentWithDecal(image, Decal.EdgeMode.MIRROR)).getTextureMode());
+		assertEquals(Appearance3D.TextureMode.STRETCH,
+				AppearanceFactory.createFrom(componentWithDecal(image, Decal.EdgeMode.CLAMP)).getTextureMode());
+		assertEquals(Appearance3D.TextureMode.STICKER,
+				AppearanceFactory.createFrom(componentWithDecal(image, Decal.EdgeMode.STICKER)).getTextureMode());
+	}
+
 	private static RocketComponent componentWithDecal(DecalImage image) {
+		return componentWithDecal(image, Decal.EdgeMode.CLAMP);
+	}
+
+	private static RocketComponent componentWithDecal(DecalImage image, Decal.EdgeMode edgeMode) {
 		RocketComponent component = mock(RocketComponent.class);
 		when(component.getAppearance()).thenReturn(new Appearance(
 				new ORColor(255, 255, 255),
 				0.0,
-				new Decal(Coordinate.ZERO, Coordinate.ZERO, new Coordinate(1, 1), 0.0, image, Decal.EdgeMode.CLAMP)));
+				new Decal(Coordinate.ZERO, Coordinate.ZERO, new Coordinate(1, 1), 0.0, image, edgeMode)));
 		return component;
 	}
 
