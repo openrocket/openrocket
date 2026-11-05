@@ -41,6 +41,7 @@ import javax.swing.border.TitledBorder;
 import info.openrocket.core.document.Attachment;
 import info.openrocket.core.util.Invalidatable;
 import info.openrocket.swing.gui.components.ColorChooserButton;
+import info.openrocket.swing.gui.components.EdgeModeComboBox;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.PlaceholderTextField;
 import net.miginfocom.swing.MigLayout;
@@ -852,7 +853,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				EdgeMode.values().length);
 		em = new EnumModel<>(builder, "EdgeMode", list);
 		register(em);
-		JComboBox<EdgeMode> combo = new JComboBox<>(em);
+		EdgeModeComboBox combo = new EdgeModeComboBox(em);
 		mDefault.addEnableComponent(combo, false);
 		panel.add(combo, "wrap");
 		order.add(combo);

@@ -25,6 +25,7 @@ import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL13.GL_ACTIVE_TEXTURE;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL14.GL_MIRRORED_REPEAT;
 import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL33.GL_LINEAR_MIPMAP_LINEAR;
 import static org.lwjgl.opengl.GL33.GL_TEXTURE_2D;
@@ -115,12 +116,17 @@ public final class DefaultMaterialBinder implements GpuResource {
 			if (tex != null && tex.getId() != 0) {
 				textureBinder.bindTexture(0, GL_TEXTURE_2D, tex.getId());
 				Appearance3D.TextureMode textureMode = unfinishedMode ? unfinishedAppearance.getTextureMode() : appearance.getTextureMode();
-				int wrapMode = (textureMode == Appearance3D.TextureMode.STRETCH) ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+				int wrapMode = switch (textureMode) {
+					case REPEAT -> GL_REPEAT;
+					case MIRROR -> GL_MIRRORED_REPEAT;
+					case STRETCH, STICKER -> GL_CLAMP_TO_EDGE;
+				};
 				// Enable sharper close-up texture inspection while keeping trilinear mipmapping at distance.
 				textureBinder.setTextureParams(GL_TEXTURE_2D, tex.getId(), wrapMode, wrapMode,
 						GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST);
 				glUniform1i(uniforms.textureSampler, 0);
 				glUniform1i(uniforms.hasTexture, 1);
+				glUniform1i(uniforms.textureSticker, textureMode == Appearance3D.TextureMode.STICKER ? 1 : 0);
 			} else {
 				glUniform1i(uniforms.hasTexture, 0);
 			}

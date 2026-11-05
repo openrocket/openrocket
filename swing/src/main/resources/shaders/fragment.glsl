@@ -17,6 +17,10 @@ in mediump vec4 v_lightSpacePos;
 uniform int renderStyle; // 0: solid, 1: textured
 uniform mediump vec3 objectColor;
 uniform int hasTexture;
+// Sticker edge mode: the image is drawn once and the paint shows outside its [0,1] UV range.
+// Done here rather than with a transparent GL_CLAMP_TO_BORDER, which turns opaque black for
+// textures without an alpha channel.
+uniform bool textureSticker;
 uniform sampler2D textureSampler;
 uniform mat4 model;
 // transpose(inverse(mat3(model))), supplied by the CPU rather than derived here:
@@ -360,6 +364,13 @@ void main()
     // Texture handling
     if (renderStyle == 1 && hasTexture == 1) { // 1 = TEXTURED
         vec4 texColor = texture(textureSampler, materialTexCoord);
+        if (textureSticker) {
+            // Antialiased coverage mask: 1 inside the unit square, fading to 0 over one pixel.
+            vec2 edgeWidth = max(fwidth(materialTexCoord), vec2(1e-6));
+            vec2 inside = clamp(min(materialTexCoord, 1.0 - materialTexCoord) / edgeWidth + 0.5,
+                    0.0, 1.0);
+            texColor.a *= inside.x * inside.y;
+        }
         float textureAlpha = adjustTextureCoverage(texColor.a);
         if (textureOpacityAffectsAlpha) {
             surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, textureAlpha);
