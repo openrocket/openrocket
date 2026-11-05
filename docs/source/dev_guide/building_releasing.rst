@@ -674,12 +674,51 @@ installers are built without thumbnail previews.
 macOS QuickLook Extension
 -------------------------
 
-The macOS installers include a QuickLook extension that allows users to preview ``.ork`` files directly in Finder
-(via spacebar or the preview pane). install4j cannot build or sign this extension, so it is built and signed separately
-and merged into each macOS DMG afterwards.
+The macOS installers include QuickLook extensions that allow users to preview ``.ork`` files directly in Finder
+(via spacebar or the preview pane) and that show a picture of the rocket as the file icon. install4j cannot build or sign
+these extensions, so they are built and signed separately and merged into each macOS DMG afterwards.
 
-The source code of the extension is maintained in a separate repository:
-`openrocket/macOS-QuickLook-extension <https://github.com/openrocket/macOS-QuickLook-extension>`__.
+The source code of the extensions is maintained in a separate repository:
+`openrocket/macOS-QuickLook-extension <https://github.com/openrocket/macOS-QuickLook-extension>`__. It builds a small host
+app, ``OpenRocket QuickLook Preview``, that contains the two extensions. Only the extensions are copied into
+:file:`OpenRocket.app/Contents/PlugIns`:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 35 40
+
+   * - Extension
+     - Bundle ID
+     - Shows
+   * - OpenRocket QL Preview
+     - ``info.openrocket.ork.qlpreview``
+     - The QuickLook preview (spacebar), using the ``preview.png`` image stored in the ``.ork`` file.
+   * - OpenRocket QL Thumbnail
+     - ``info.openrocket.ork.qlthumbnail``
+     - The Finder icon, using the ``thumbnail.png`` image stored in the ``.ork`` file, or ``preview.png`` for files saved
+       by older OpenRocket versions.
+
+Registering the Apple App IDs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The host app (``info.openrocket.ork``) and each extension have an explicit App ID in the Apple Developer account that
+owns the **Developer ID Application** certificate. The App IDs only need to be registered once. When an extension is
+added, register its bundle ID as follows:
+
+1. Sign in to `developer.apple.com/account <https://developer.apple.com/account>`__ and open
+   :menuselection:`Certificates, Identifiers & Profiles --> Identifiers`.
+2. Click the :guilabel:`+` button next to **Identifiers**, select **App IDs**, and click :guilabel:`Continue`.
+3. Select the type **App** and click :guilabel:`Continue`.
+4. Fill in the form:
+
+   - **Description**: a name for the extension, e.g. ``OpenRocket QL Thumbnail Extension``.
+   - **Bundle ID**: select **Explicit** and enter the bundle ID, e.g. ``info.openrocket.ork.qlthumbnail``. Extension
+     bundle IDs must start with the bundle ID of the host app, ``info.openrocket.ork``.
+   - **Capabilities**: leave all of them unchecked.
+
+5. Click :guilabel:`Continue`, check the summary, and click :guilabel:`Register`.
+
+The new App ID then appears in the list of identifiers.
 
 Building the macOS installers with GitHub Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

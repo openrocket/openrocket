@@ -73,6 +73,35 @@ class PreviewPersistenceTest extends BaseTestCase {
 	}
 
 	@Test
+	void thumbnailPngIsEmbeddedNextToPreview() throws Exception {
+		byte[] previewBytes = { 1, 2, 3 };
+		byte[] thumbnailBytes = { 4, 5, 6, 7 };
+
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		StorageOptions options = document.getDefaultStorageOptions();
+		options.setPreviewImage(previewBytes.clone());
+		options.setThumbnailImage(thumbnailBytes.clone());
+
+		File tempFile = Files.createTempFile("thumbnail-test", ".ork").toFile();
+		tempFile.deleteOnExit();
+
+		new GeneralRocketSaver().save(tempFile, document);
+
+		try (ZipFile zip = new ZipFile(tempFile)) {
+			ZipEntry previewEntry = zip.getEntry("preview.png");
+			ZipEntry thumbnailEntry = zip.getEntry("thumbnail.png");
+			assertNotNull(previewEntry, "Saved ORK must contain preview.png");
+			assertNotNull(thumbnailEntry, "Saved ORK must contain thumbnail.png");
+
+			try (InputStream previewStream = zip.getInputStream(previewEntry);
+				 InputStream thumbnailStream = zip.getInputStream(thumbnailEntry)) {
+				assertArrayEquals(previewBytes, previewStream.readAllBytes());
+				assertArrayEquals(thumbnailBytes, thumbnailStream.readAllBytes());
+			}
+		}
+	}
+
+	@Test
 	void previewGeneratedThroughRocketPanelIsPersisted() throws Exception {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"RocketPanel relies on Swing painting; skip in headless environments");

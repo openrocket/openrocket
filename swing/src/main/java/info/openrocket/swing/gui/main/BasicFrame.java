@@ -124,6 +124,7 @@ import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.figure3d.photo.PhotoFrame;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnailRenderer;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
@@ -2266,6 +2267,19 @@ private static final Translator trans = Application.getTranslator();
 			document.getDefaultStorageOptions().setPreviewImage(previewImage);
 		} else {
 			document.getDefaultStorageOptions().clearPreviewImage();
+		}
+
+		// Generate file thumbnail image. A design that cannot be rendered is still saved, just without a thumbnail.
+		byte[] thumbnailImage = null;
+		try {
+			thumbnailImage = RocketThumbnailRenderer.renderPng(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
+		} catch (RuntimeException e) {
+			log.warn("Could not render the file thumbnail", e);
+		}
+		if (thumbnailImage != null) {
+			document.getDefaultStorageOptions().setThumbnailImage(thumbnailImage);
+		} else {
+			document.getDefaultStorageOptions().clearThumbnailImage();
 		}
 
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
