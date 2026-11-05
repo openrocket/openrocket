@@ -222,10 +222,13 @@ class PhotoStudioGoldenTest extends BaseTestCase {
 
 			JFrame frame = new JFrame("Photo Studio visual regression");
 			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			// Same as GoldenImageTestSupport: window-manager decorations and placement can resize
+			// the Linux canvas after pack(), changing the captured framebuffer's aspect ratio.
+			frame.setUndecorated(true);
 			frame.setResizable(false);
 			frame.setContentPane(panel);
 			frame.pack();
-			frame.setLocationByPlatform(true);
+			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 			panel.setDoc(document);
 			return new PhotoHarness(frame, panel);
