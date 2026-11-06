@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -2261,29 +2262,30 @@ private static final Translator trans = Application.getTranslator();
 			return false;
 		}
 
-		// Generate file preview image
-		byte[] previewImage = generatePreviewImage();
-		if (previewImage != null) {
-			document.getDefaultStorageOptions().setPreviewImage(previewImage);
-		} else {
-			document.getDefaultStorageOptions().clearPreviewImage();
+		// Prepare the file preview and thumbnail on the EDT (they read the rocket model), then render them on the save
+		// worker thread so the UI stays responsive. A design that cannot be rendered is still saved, just without the
+		// image.
+		Supplier<byte[]> previewRenderer = null;
+		RocketPanel.PreparedPreview preparedPreview = preparePreviewImage();
+		if (preparedPreview != null) {
+			previewRenderer = preparedPreview::renderPng;
 		}
+		document.getDefaultStorageOptions().clearPreviewImage();
 
-		// Generate file thumbnail image. A design that cannot be rendered is still saved, just without a thumbnail.
-		byte[] thumbnailImage = null;
+		Supplier<byte[]> thumbnailRenderer = null;
 		try {
-			thumbnailImage = RocketThumbnailRenderer.renderPng(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
+			RocketThumbnailRenderer.RenderTask thumbnailTask =
+					RocketThumbnailRenderer.prepareThumbnail(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
+			if (thumbnailTask != null) {
+				thumbnailRenderer = thumbnailTask::renderPng;
+			}
 		} catch (RuntimeException e) {
-			log.warn("Could not render the file thumbnail", e);
+			log.warn("Could not prepare the file thumbnail", e);
 		}
-		if (thumbnailImage != null) {
-			document.getDefaultStorageOptions().setThumbnailImage(thumbnailImage);
-		} else {
-			document.getDefaultStorageOptions().clearThumbnailImage();
-		}
+		document.getDefaultStorageOptions().clearThumbnailImage();
 
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
-		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
+		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER, previewRenderer, thumbnailRenderer);
 
 		if (!SwingWorkerDialog.runWorker(BasicFrame.this, "Saving file",
 				"Writing " + file.getName() + "...", worker)) {
@@ -2332,10 +2334,11 @@ private static final Translator trans = Application.getTranslator();
 	}
 
 	/**
-	 * Generate a file preview image for saving in the design file.
-	 * @return the PNG image data, or null if no preview could be generated
+	 * Prepare a file preview image for saving in the design file. Reads the rocket model, so it must be called on the
+	 * EDT; the returned value is rendered on the save worker thread.
+	 * @return the prepared preview, or null if no preview could be generated
 	 */
-	private byte[] generatePreviewImage() {
+	private RocketPanel.PreparedPreview preparePreviewImage() {
 		if (rocketpanel == null) {
 			return null;
 		}
@@ -2347,11 +2350,7 @@ private static final Translator trans = Application.getTranslator();
 			previewView = RocketPanel.VIEW_TYPE.SideView;
 		}
 
-		byte[] previewBytes = rocketpanel.createPreviewPng(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
-		if (previewBytes == null || previewBytes.length == 0) {
-			return null;
-		}
-		return previewBytes;
+		return rocketpanel.preparePreview(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
 	}
 
 

@@ -40,6 +40,7 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.dialogs.DisplaySettingsDialog;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnailRenderer;
 import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.figureelements.Caret;
@@ -1910,16 +1911,85 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	public byte[] createPreviewPng(VIEW_TYPE requestedView, int targetWidth, int minHeight, int maxHeight) {
+		PreparedPreview prepared = preparePreview(requestedView, targetWidth, minHeight, maxHeight);
+		return prepared == null ? null : prepared.renderPng();
+	}
+
+	/**
+	 * Prepare a file preview: capture the 2D (or 3D) preview image and, for 2D views, prepare the 3D side view to be
+	 * rendered below it. Reads the rocket model and paints the figure, so it must be called on the EDT; the returned
+	 * value can be rendered on any thread.
+	 *
+	 * @return the prepared preview, or null if no preview can be generated
+	 */
+	public PreparedPreview preparePreview(VIEW_TYPE requestedView, int targetWidth, int minHeight, int maxHeight) {
 		BufferedImage image = capturePreviewImage(requestedView, targetWidth, minHeight, maxHeight);
 		if (image == null) {
 			return null;
 		}
-		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-			ImageIO.write(image, "png", output);
-			return output.toByteArray();
-		} catch (IOException e) {
-			throw new UncheckedIOException("Failed to encode preview image", e);
+		RocketThumbnailRenderer.RenderTask sideView = requestedView.is3d ? null : prepareSideView(image);
+		return new PreparedPreview(image, sideView);
+	}
+
+	/**
+	 * Prepare the 3D side view to be rendered below a 2D preview image, or null if it cannot be rendered. Must be
+	 * called on the EDT.
+	 */
+	private RocketThumbnailRenderer.RenderTask prepareSideView(BufferedImage preview) {
+		Color background = getCustom2DBackgroundColor();
+		if (background == null) {
+			background = UITheme.getColor(UITheme.Keys.BACKGROUND);
 		}
+		try {
+			return RocketThumbnailRenderer.prepareSideView(document.getRocket(), preview.getWidth(),
+					preview.getHeight(), background);
+		} catch (RuntimeException e) {
+			log.warn("Could not prepare the 3D side view for the file preview", e);
+			return null;
+		}
+	}
+
+	/** Combine a 2D preview with its rendered 3D side view below it. */
+	private static BufferedImage combineSideView(BufferedImage preview, BufferedImage sideView) {
+		BufferedImage combined = new BufferedImage(preview.getWidth(), preview.getHeight() + sideView.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = combined.createGraphics();
+		try {
+			g2.drawImage(preview, 0, 0, null);
+			g2.drawImage(sideView, 0, preview.getHeight(), null);
+		} finally {
+			g2.dispose();
+		}
+		return combined;
+	}
+
+	/**
+	 * A file preview prepared on the EDT: the captured preview image and, for 2D views, the 3D side view to render
+	 * below it. Rendering the PNG is pure CPU work that is safe to run on any thread.
+	 */
+	public record PreparedPreview(BufferedImage image, RocketThumbnailRenderer.RenderTask sideView) {
+		public byte[] renderPng() {
+			BufferedImage result = image;
+			if (sideView != null) {
+				result = combineSideView(image, sideView.render());
+			}
+			try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+				ImageIO.write(result, "png", output);
+				return output.toByteArray();
+			} catch (IOException e) {
+				throw new UncheckedIOException("Failed to encode preview image", e);
+			}
+		}
+	}
+
+	/**
+	 * Background color of the 2D view set in the document or the preferences, or null to use the theme default.
+	 */
+	private Color getCustom2DBackgroundColor() {
+		DocumentPreferences docPrefs = document.getDocumentPreferences();
+		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
+		return docColor2D != null ? docColor2D : swingPrefs.getDefault2DBackgroundColor();
 	}
 
 	public boolean attachPreviewToDocument(OpenRocketDocument doc, VIEW_TYPE requestedView, int targetWidth,
@@ -2218,13 +2288,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		previewFigure.setDrawCarets(true);
 
 		// Apply custom background color to preview figure
-		DocumentPreferences docPrefs = document.getDocumentPreferences();
-		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
-		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
-		Color defaultColor2D = swingPrefs.getDefault2DBackgroundColor();
-		Color color2D = docColor2D != null ? docColor2D :
-			(defaultColor2D != null ? defaultColor2D : null);
-		previewFigure.setCustomBackgroundColor(color2D); // null means use theme default
+		previewFigure.setCustomBackgroundColor(getCustom2DBackgroundColor()); // null means use theme default
 
 		// Ensure text colors are correct for 2D view
 		if (extraText != null) {

@@ -38,13 +38,15 @@ import info.openrocket.swing.gui.figure3d.materials.TextureTransform;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 
 /**
- * Renders the thumbnail image that is stored in design files for file icons (Windows Explorer, macOS Finder).
+ * Renders the rocket images that are stored in design files: the thumbnail for file icons (Windows Explorer, macOS
+ * Finder), and the 3D side view in the file preview.
  * <p>
- * The thumbnail shows the same geometry, paint and decals as the 3D view, but is drawn in software so that it does not
+ * The images show the same geometry, paint and decals as the 3D view, but are drawn in software so that they do not
  * need an OpenGL context: the 3D view only renders while it is on screen, and it may be disabled or unavailable. The
- * rocket is drawn with an orthographic projection at 45 degrees (nose up-left) so that it fills more of the square
- * image, with soft, view-aligned shading instead of lighting, and with an outline around each part so that it stays
- * recognizable when the operating system scales the image down to icon size.
+ * rocket is drawn with an orthographic projection, with soft, view-aligned shading instead of lighting, and with an
+ * outline around each part. In the thumbnail, the rocket is drawn at 45 degrees (nose up-left) so that it fills more of
+ * the square image, and the outlines are thick enough to keep it recognizable when the operating system scales the
+ * image down to icon size.
  */
 public final class RocketThumbnailRenderer {
 	private static final Logger log = LoggerFactory.getLogger(RocketThumbnailRenderer.class);
@@ -53,9 +55,12 @@ public final class RocketThumbnailRenderer {
 	public static final int DEFAULT_SIZE = 1024;
 
 	private static final int SUPERSAMPLING = 2;			// Samples per pixel along each axis
-	private static final double ANGLE = Math.PI / 4;	// Nose up-left
+	private static final double THUMBNAIL_ANGLE = Math.PI / 4;	// Nose up-left
 	private static final double MARGIN = 0.06;			// Fraction of the image left empty on each side
-	private static final int BACKGROUND = 0xFFFFFF;
+	private static final int THUMBNAIL_BACKGROUND = 0xFFFFFF;
+	/** Outline width as a fraction of the image width. */
+	private static final double THUMBNAIL_OUTLINE = 1 / 170.0;
+	private static final double SIDE_VIEW_OUTLINE = 1 / 400.0;
 	/** Brightness of surfaces seen edge-on; surfaces facing the viewer are drawn at full brightness. */
 	private static final float EDGE_BRIGHTNESS = 0.72f;
 	private static final float OUTLINE_DARKENING = 0.6f;
@@ -85,16 +90,8 @@ public final class RocketThumbnailRenderer {
 	 * @return the PNG data, or null if the rocket has nothing to draw
 	 */
 	public static byte[] renderPng(Rocket rocket, int size) {
-		BufferedImage image = render(rocket, size);
-		if (image == null) {
-			return null;
-		}
-		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-			ImageIO.write(image, "png", output);
-			return output.toByteArray();
-		} catch (IOException e) {
-			throw new UncheckedIOException("Failed to encode thumbnail image", e);
-		}
+		RenderTask task = prepareThumbnail(rocket, size);
+		return task == null ? null : task.renderPng();
 	}
 
 	/**
@@ -106,12 +103,119 @@ public final class RocketThumbnailRenderer {
 	 * @return the image, or null if the rocket has nothing to draw
 	 */
 	public static BufferedImage render(Rocket rocket, int size) {
+		RenderTask task = prepareThumbnail(rocket, size);
+		return task == null ? null : task.render();
+	}
+
+	/**
+	 * Render a 3D side view of the selected flight configuration of a rocket, with the nose to the left, as in the
+	 * design view. The image is as high as the rocket needs at the given width, up to {@code maxHeight}. Must be called
+	 * on the thread that owns the rocket model (the EDT in the application).
+	 *
+	 * @param rocket     the rocket to render
+	 * @param width      width of the image, in pixels
+	 * @param maxHeight  maximum height of the image, in pixels
+	 * @param background background color of the image
+	 * @return the image, or null if the rocket has nothing to draw
+	 */
+	public static BufferedImage renderSideView(Rocket rocket, int width, int maxHeight, java.awt.Color background) {
+		RenderTask task = prepareSideView(rocket, width, maxHeight, background);
+		return task == null ? null : task.render();
+	}
+
+	/**
+	 * Prepare the thumbnail of the selected flight configuration for rendering. Reads the rocket model, so it must be
+	 * called on the thread that owns it (the EDT in the application); the returned task can be rendered on any thread.
+	 *
+	 * @param rocket the rocket to render
+	 * @param size   width and height of the image, in pixels
+	 * @return the prepared render, or null if the rocket has nothing to draw
+	 */
+	public static RenderTask prepareThumbnail(Rocket rocket, int size) {
+		return prepare(rocket, THUMBNAIL_ANGLE, size, size, false, THUMBNAIL_BACKGROUND, THUMBNAIL_OUTLINE);
+	}
+
+	/**
+	 * Prepare a 3D side view of the selected flight configuration for rendering. Reads the rocket model, so it must be
+	 * called on the thread that owns it (the EDT in the application); the returned task can be rendered on any thread.
+	 *
+	 * @param rocket     the rocket to render
+	 * @param width      width of the image, in pixels
+	 * @param maxHeight  maximum height of the image, in pixels
+	 * @param background background color of the image
+	 * @return the prepared render, or null if the rocket has nothing to draw
+	 */
+	public static RenderTask prepareSideView(Rocket rocket, int width, int maxHeight, java.awt.Color background) {
+		return prepare(rocket, 0, width, maxHeight, true, background.getRGB() & 0xFFFFFF, SIDE_VIEW_OUTLINE);
+	}
+
+	private static RenderTask prepare(Rocket rocket, double angle, int width, int maxHeight, boolean fitHeight,
+									  int background, double outline) {
+		if (width <= 0 || maxHeight <= 0) {
+			throw new IllegalArgumentException("Image dimensions must be positive: " + width + "x" + maxHeight);
+		}
 		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket, new RenderingConfiguration());
-		List<Part> parts = collectParts(snapshot);
+		List<Part> parts = collectParts(snapshot, angle);
 		if (parts.isEmpty()) {
 			return null;
 		}
-		return new Rasterizer(parts, size).render();
+
+		float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+		for (Part part : parts) {
+			for (int i = 0; i < part.x().length; i++) {
+				minX = Math.min(minX, part.x()[i]);
+				maxX = Math.max(maxX, part.x()[i]);
+				minY = Math.min(minY, part.y()[i]);
+				maxY = Math.max(maxY, part.y()[i]);
+			}
+		}
+		double extentX = Math.max(maxX - minX, 1e-9), extentY = Math.max(maxY - minY, 1e-9);
+		double margin = MARGIN * Math.min(width, maxHeight);
+		double scale = Math.min((width - 2 * margin) / extentX, (maxHeight - 2 * margin) / extentY);
+		int height = fitHeight ? Math.min(maxHeight, (int) Math.ceil(extentY * scale + 2 * margin)) : maxHeight;
+		double offsetX = width / 2.0 - (minX + maxX) / 2.0 * scale;
+		double offsetY = height / 2.0 - (minY + maxY) / 2.0 * scale;
+		int outlineWidth = Math.max(2, (int) Math.round(width * SUPERSAMPLING * outline));
+		return new RenderTask(parts, width, height, scale, offsetX, offsetY, background, outlineWidth);
+	}
+
+	/**
+	 * A fully prepared image render: the rocket has been read and its geometry projected, so the remaining work is
+	 * pure CPU rasterization that does not touch the rocket model and is safe to run on any thread.
+	 */
+	public static final class RenderTask {
+		private final List<Part> parts;
+		private final int width, height;
+		private final double scale, offsetX, offsetY;
+		private final int background;
+		private final int outlineWidth;
+
+		private RenderTask(List<Part> parts, int width, int height, double scale, double offsetX, double offsetY,
+						   int background, int outlineWidth) {
+			this.parts = parts;
+			this.width = width;
+			this.height = height;
+			this.scale = scale;
+			this.offsetX = offsetX;
+			this.offsetY = offsetY;
+			this.background = background;
+			this.outlineWidth = outlineWidth;
+		}
+
+		/** Render the prepared image. */
+		public BufferedImage render() {
+			return new Rasterizer(parts, width, height, scale, offsetX, offsetY, background, outlineWidth).render();
+		}
+
+		/** Render the prepared image and encode it as PNG data. */
+		public byte[] renderPng() {
+			try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+				ImageIO.write(render(), "png", output);
+				return output.toByteArray();
+			} catch (IOException e) {
+				throw new UncheckedIOException("Failed to encode thumbnail image", e);
+			}
+		}
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
@@ -144,7 +248,7 @@ public final class RocketThumbnailRenderer {
 						IntList indices) {
 	}
 
-	private static List<Part> collectParts(RocketSceneSnapshot snapshot) {
+	private static List<Part> collectParts(RocketSceneSnapshot snapshot, double angle) {
 		Map<RocketThumbnailMaterialKey, Material> materials = new HashMap<>();
 		Map<DecalImage, Texture> textures = new IdentityHashMap<>();
 		List<Part> parts = new ArrayList<>();
@@ -157,13 +261,13 @@ public final class RocketThumbnailRenderer {
 			Material material = materials.computeIfAbsent(
 					new RocketThumbnailMaterialKey(appearance, instance.appearance().scaleTextureFromTop()),
 					key -> createMaterial(key.appearance(), key.scaleTextureFromTop(), textures));
-			addPart(parts, instance.mesh(), instance.modelMatrix(), material);
+			addPart(parts, instance.mesh(), instance.modelMatrix(), material, angle);
 		}
 		for (RocketSceneSnapshot.MotorInstance instance : snapshot.getMotorInstances()) {
 			Appearance appearance = DefaultAppearance.getDefaultAppearance(instance.motor());
 			Material material = materials.computeIfAbsent(new RocketThumbnailMaterialKey(appearance, true),
 					key -> createMaterial(key.appearance(), key.scaleTextureFromTop(), textures));
-			addPart(parts, instance.motorMesh(), instance.modelMatrix(), material);
+			addPart(parts, instance.motorMesh(), instance.modelMatrix(), material, angle);
 		}
 		return parts;
 	}
@@ -171,7 +275,7 @@ public final class RocketThumbnailRenderer {
 	private record RocketThumbnailMaterialKey(Appearance appearance, boolean scaleTextureFromTop) {
 	}
 
-	private static void addPart(List<Part> parts, Mesh mesh, Matrix4f modelMatrix, Material material) {
+	private static void addPart(List<Part> parts, Mesh mesh, Matrix4f modelMatrix, Material material, double angle) {
 		if (mesh == null || mesh.getIndices().size() < 3) {
 			return;
 		}
@@ -179,14 +283,14 @@ public final class RocketThumbnailRenderer {
 		int count = vertices.size();
 		float[] x = new float[count], y = new float[count], z = new float[count];
 		float[] u = new float[count], v = new float[count], nz = new float[count];
-		float cos = (float) Math.cos(ANGLE), sin = (float) Math.sin(ANGLE);
+		float cos = (float) Math.cos(angle), sin = (float) Math.sin(angle);
 		Vector3f p = new Vector3f();
 		Vector3f n = new Vector3f();
 		for (int i = 0; i < count; i++) {
 			Vertex vertex = vertices.get(i);
 			modelMatrix.transformPosition(vertex.position, p);
 			// The 3D scene has the rocket axis along x, y up and z towards the viewer of the side view. Flip y for the
-			// image, then rotate the image so that the nose points up-left.
+			// image, then rotate the image.
 			float ix = p.x, iy = -p.y;
 			x[i] = cos * ix - sin * iy;
 			y[i] = sin * ix + cos * iy;
@@ -234,7 +338,7 @@ public final class RocketThumbnailRenderer {
 		BufferedImage decal;
 		try (InputStream input = image.getBytes()) {
 			decal = ImageIO.read(input);
-		} catch (IOException | DecalNotFoundException | RuntimeException e) {
+		} catch (IOException | DecalNotFoundException e) {
 			log.warn("Could not load decal " + image.getName() + " for the file thumbnail", e);
 			return null;
 		}
@@ -271,10 +375,11 @@ public final class RocketThumbnailRenderer {
 
 	private static final class Rasterizer {
 		private final List<Part> parts;
-		private final int size;
-		private final int n;					// Width and height of the supersampled buffers
-		private final double scale;				// Pixels per scene unit
+		private final int width, height;		// Size of the image
+		private final int nw, nh;				// Size of the supersampled buffers
+		private final double scale;				// Supersampled pixels per scene unit
 		private final double offsetX, offsetY;
+		private final int outlineWidth;			// In supersampled pixels
 
 		private final float[] opaqueDepth;		// Depth of the nearest opaque surface (larger is nearer)
 		private final float[] frontDepth;		// Depth of the nearest surface, opaque or translucent
@@ -284,33 +389,26 @@ public final class RocketThumbnailRenderer {
 		// Output of shade(), kept in fields to avoid allocating per pixel
 		private float shadedR, shadedG, shadedB, shadedA;
 
-		Rasterizer(List<Part> parts, int size) {
+		Rasterizer(List<Part> parts, int width, int height, double scale, double offsetX, double offsetY,
+				   int background, int outlineWidth) {
 			this.parts = parts;
-			this.size = size;
-			this.n = size * SUPERSAMPLING;
+			this.width = width;
+			this.height = height;
+			this.nw = width * SUPERSAMPLING;
+			this.nh = height * SUPERSAMPLING;
+			this.scale = scale * SUPERSAMPLING;
+			this.offsetX = offsetX * SUPERSAMPLING;
+			this.offsetY = offsetY * SUPERSAMPLING;
+			this.outlineWidth = outlineWidth;
 
-			float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
-			for (Part part : parts) {
-				for (int i = 0; i < part.x().length; i++) {
-					minX = Math.min(minX, part.x()[i]);
-					maxX = Math.max(maxX, part.x()[i]);
-					minY = Math.min(minY, part.y()[i]);
-					maxY = Math.max(maxY, part.y()[i]);
-				}
-			}
-			double extent = Math.max(Math.max(maxX - minX, maxY - minY), 1e-9);
-			this.scale = n * (1 - 2 * MARGIN) / extent;
-			this.offsetX = n / 2.0 - (minX + maxX) / 2.0 * scale;
-			this.offsetY = n / 2.0 - (minY + maxY) / 2.0 * scale;
-
-			int pixels = n * n;
+			int pixels = nw * nh;
 			this.opaqueDepth = new float[pixels];
 			this.frontDepth = new float[pixels];
 			this.frontId = new int[pixels];
 			this.color = new int[pixels];
 			Arrays.fill(opaqueDepth, -Float.MAX_VALUE);
 			Arrays.fill(frontDepth, -Float.MAX_VALUE);
-			Arrays.fill(color, BACKGROUND);
+			Arrays.fill(color, background);
 		}
 
 		BufferedImage render() {
@@ -326,6 +424,8 @@ public final class RocketThumbnailRenderer {
 					}
 				}
 			}
+			// Sort by triangle centroid depth. This is an approximation of a true depth sort, so very differently
+			// sized overlapping translucent triangles can still be ordered incorrectly; acceptable at thumbnail size.
 			translucent.sort(Comparator.comparingDouble(t -> centroidDepth(parts.get(t[0]), t[1])));
 			for (int[] t : translucent) {
 				Part part = parts.get(t[0]);
@@ -364,7 +464,7 @@ public final class RocketThumbnailRenderer {
 
 			double[] crossing = new double[1];
 			int rowStart = Math.max(0, (int) Math.ceil(Math.min(y0, Math.min(y1, y2)) - 0.5));
-			int rowEnd = Math.min(n - 1, (int) Math.ceil(Math.max(y0, Math.max(y1, y2)) - 0.5) - 1);
+			int rowEnd = Math.min(nh - 1, (int) Math.ceil(Math.max(y0, Math.max(y1, y2)) - 0.5) - 1);
 			for (int row = rowStart; row <= rowEnd; row++) {
 				double yc = row + 0.5;
 				double left = Double.MAX_VALUE, right = -Double.MAX_VALUE;
@@ -381,14 +481,14 @@ public final class RocketThumbnailRenderer {
 					right = Math.max(right, crossing[0]);
 				}
 				int colStart = Math.max(0, (int) Math.ceil(left - 0.5));
-				int colEnd = Math.min(n - 1, (int) Math.ceil(right - 0.5) - 1);
+				int colEnd = Math.min(nw - 1, (int) Math.ceil(right - 0.5) - 1);
 				if (colStart > colEnd) {
 					continue;
 				}
 
 				double xc = colStart + 0.5;
 				double zValue = z.at(xc, yc), uValue = u.at(xc, yc), vValue = v.at(xc, yc), nzValue = nz.at(xc, yc);
-				int offset = row * n;
+				int offset = row * nw;
 				for (int col = colStart; col <= colEnd; col++, zValue += z.dx, uValue += u.dx, vValue += v.dx,
 						nzValue += nz.dx) {
 					int o = offset + col;
@@ -509,17 +609,16 @@ public final class RocketThumbnailRenderer {
 		 * about the same depth, only one of them gets the line.
 		 */
 		private void drawOutlines() {
-			int width = Math.max(2, n / 170);
-			int[] distances = { width / 2, width };
+			int[] distances = { outlineWidth / 2, outlineWidth };
 			int[] dx = { 1, -1, 0, 0, 1, 1, -1, -1 };
 			int[] dy = { 0, 0, 1, -1, 1, -1, 1, -1 };
 			// Depth change that a smooth surface can have over the outline width, in scene units
-			float tolerance = (float) (3.0 * width / scale);
+			float tolerance = (float) (3.0 * outlineWidth / scale);
 
-			boolean[] outline = new boolean[n * n];
-			for (int y = 0; y < n; y++) {
-				for (int x = 0; x < n; x++) {
-					int o = y * n + x;
+			boolean[] outline = new boolean[nw * nh];
+			for (int y = 0; y < nh; y++) {
+				for (int x = 0; x < nw; x++) {
+					int o = y * nw + x;
 					int id = frontId[o];
 					if (id == 0) {
 						continue;
@@ -528,11 +627,11 @@ public final class RocketThumbnailRenderer {
 					for (int d = 0; d < dx.length; d++) {
 						for (int distance : distances) {
 							int qx = x + dx[d] * distance, qy = y + dy[d] * distance;
-							if (qx < 0 || qy < 0 || qx >= n || qy >= n) {
+							if (qx < 0 || qy < 0 || qx >= nw || qy >= nh) {
 								outline[o] = true;
 								break search;
 							}
-							int q = qy * n + qx;
+							int q = qy * nw + qx;
 							int other = frontId[q];
 							if (other == id) {
 								continue;
@@ -557,13 +656,13 @@ public final class RocketThumbnailRenderer {
 
 		/** Average each block of supersamples into one image pixel. */
 		private BufferedImage downsample() {
-			int[] pixels = new int[size * size];
+			int[] pixels = new int[width * height];
 			int samples = SUPERSAMPLING * SUPERSAMPLING;
-			for (int y = 0; y < size; y++) {
-				for (int x = 0; x < size; x++) {
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
 					int r = 0, g = 0, b = 0;
 					for (int sy = 0; sy < SUPERSAMPLING; sy++) {
-						int offset = (y * SUPERSAMPLING + sy) * n + x * SUPERSAMPLING;
+						int offset = (y * SUPERSAMPLING + sy) * nw + x * SUPERSAMPLING;
 						for (int sx = 0; sx < SUPERSAMPLING; sx++) {
 							int c = color[offset + sx];
 							r += (c >> 16) & 0xFF;
@@ -571,11 +670,11 @@ public final class RocketThumbnailRenderer {
 							b += c & 0xFF;
 						}
 					}
-					pixels[y * size + x] = ((r / samples) << 16) | ((g / samples) << 8) | (b / samples);
+					pixels[y * width + x] = ((r / samples) << 16) | ((g / samples) << 8) | (b / samples);
 				}
 			}
-			BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-			image.setRGB(0, 0, size, size, pixels, 0, size);
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			image.setRGB(0, 0, width, height, pixels, 0, width);
 			return image;
 		}
 

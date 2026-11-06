@@ -65,6 +65,21 @@ class RocketThumbnailRendererTest extends BaseTestCase {
 	}
 
 	@Test
+	void sideViewIsHorizontalWithNoseLeftAndFitsTheRocket() {
+		java.awt.Color background = new java.awt.Color(10, 20, 30);
+		BufferedImage image = RocketThumbnailRenderer.renderSideView(createRocket(RED, GREY), 600, 600, background);
+
+		assertNotNull(image);
+		assertEquals(600, image.getWidth());
+		assertTrue(image.getHeight() < 300, "a long, thin rocket should get a low image, not " + image.getHeight());
+		double[] nose = centroid(image, IS_RED);
+		double[] fins = centroid(image, IS_BLUE);
+		assertTrue(nose[0] < 150 && fins[0] > 450, "nose cone should be on the left and fins on the right");
+		assertTrue(Math.abs(nose[1] - fins[1]) < 0.1 * image.getHeight(), "rocket should be horizontal");
+		assertEquals(background.getRGB() & 0xFFFFFF, image.getRGB(0, 0) & 0xFFFFFF, "background color should be used");
+	}
+
+	@Test
 	void decalIsDrawnOverThePaint() throws Exception {
 		Rocket plain = createRocket(RED, GREY);
 		Rocket decorated = createRocket(RED, GREY);
