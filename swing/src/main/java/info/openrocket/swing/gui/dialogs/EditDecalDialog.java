@@ -111,7 +111,7 @@ public class EditDecalDialog extends JDialog {
 		
 		if (usageCount > 1) {
 			ButtonGroup bg = new ButtonGroup();
-			final JRadioButton justThisOne = new JRadioButton("just this one", true);
+			final JRadioButton justThisOne = new JRadioButton(trans.get("EditDecalDialog.radio.justThisOne"), true);
 			justThisOne.addChangeListener(new ChangeListener() {
 				
 				@Override
@@ -122,7 +122,7 @@ public class EditDecalDialog extends JDialog {
 			});
 			panel.add(justThisOne, "left");
 			bg.add(justThisOne);
-			JRadioButton all = new JRadioButton("all", false);
+			JRadioButton all = new JRadioButton(trans.get("EditDecalDialog.radio.all"), false);
 			panel.add(all, "gapleft para, right, wrap");
 			bg.add(all);
 		}

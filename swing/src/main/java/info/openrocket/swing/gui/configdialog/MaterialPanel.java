@@ -86,7 +86,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
             public void actionPerformed(ActionEvent e) {
                 ExternalComponent.Finish f = ((ExternalComponent) component).getFinish();
                 try {
-                    document.startUndo("Set rocket finish");
+                    document.startUndo(trans.get("MaterialPanel.undo.setFinish"));
 
                     // Do changes
 					for (RocketComponent c : component.getRocket()) {

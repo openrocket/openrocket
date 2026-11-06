@@ -1,6 +1,7 @@
 package info.openrocket.core.file.rasaero;
 
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;
 import info.openrocket.core.file.motor.AbstractMotorLoader;
 import info.openrocket.core.motor.ThrustCurveMotor;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class RASAeroMotorsLoader {
+    private static final Translator trans = Application.getTranslator();
     private static final String RASAERO_MOTOR_FILE = "rasp.eng";
     private static final String RASAERO_MOTOR_RESOURCE =
             "datafiles/thrustcurves/RASAero/" + RASAERO_MOTOR_FILE;
@@ -57,10 +59,7 @@ public abstract class RASAeroMotorsLoader {
             }
         }
         if (warnings != null) {
-            warnings.add("Could not find motor '" + normalizedMotorString
-                    + "' in the OpenRocket motors database. Stage mass and CG overrides were skipped because "
-                    + "RASAero values include motor mass. Add the motor and set the stage's dry mass and CG "
-                    + "manually.");
+            warnings.add(String.format(trans.get("RASAeroMotorsLoader.warning.motorNotFound"), normalizedMotorString));
         }
         return null;
     }
@@ -124,7 +123,7 @@ public abstract class RASAeroMotorsLoader {
 
         try (InputStream stream = openRASAeroMotorResource()) {
             if (stream == null) {
-                addWarning(warnings, "Unable to load RASAero motor catalog '" + RASAERO_MOTOR_FILE + "'.");
+                addWarning(warnings, String.format(trans.get("RASAeroMotorsLoader.warning.catalogMissing"), RASAERO_MOTOR_FILE));
                 return motors;
             }
 
@@ -139,13 +138,13 @@ public abstract class RASAeroMotorsLoader {
                 }
             }
         } catch (IOException e) {
-            addWarning(warnings, "Unable to load RASAero motor catalog '" + RASAERO_MOTOR_FILE
-                    + "': " + e.getMessage());
+            addWarning(warnings, String.format(trans.get("RASAeroMotorsLoader.warning.catalogLoadFailed"),
+                    RASAERO_MOTOR_FILE, e.getMessage()));
             return motors;
         }
 
         if (motors.isEmpty()) {
-            addWarning(warnings, "RASAero motor catalog '" + RASAERO_MOTOR_FILE + "' contains no motors.");
+            addWarning(warnings, String.format(trans.get("RASAeroMotorsLoader.warning.catalogEmpty"), RASAERO_MOTOR_FILE));
         }
 
         return motors;
@@ -207,7 +206,7 @@ public abstract class RASAeroMotorsLoader {
             }
         } catch (Exception e) {
             if (warnings != null) {
-                warnings.add("Unable to load motors from the OpenRocket motor database: " + e.getMessage());
+                warnings.add(String.format(trans.get("RASAeroMotorsLoader.warning.databaseLoadFailed"), e.getMessage()));
             }
         }
         return motors;

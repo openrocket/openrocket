@@ -146,7 +146,7 @@ public class CompassSelectionButton extends FlatButton implements Resettable {
 			
 			panel.add(new JLabel("" + Chars.DEGREE), "wrap para");
 			
-			JButton close = new JButton("OK");
+			JButton close = new JButton(trans.get("dlg.but.ok"));
 			close.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

@@ -1,6 +1,7 @@
 package info.openrocket.core.simulation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
@@ -9,6 +10,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -34,6 +36,16 @@ public class RungeKuttaSimulationStepperTest extends BaseTestCase {
 	private static final double ANALYTIC_TOLERANCE = 1.0e-10;
 	private static final double OSCILLATOR_DURATION = 4.0;
 	private static final double[] CONVERGENCE_TIME_STEPS = { 0.4, 0.2, 0.1 };
+
+	@ParameterizedTest(name = "{0}")
+	@EnumSource(SimulationStepperMethod.class)
+	public void testOutOfRangeValuesHaveReadableError(SimulationStepperMethod method) {
+		SimulationCalculationException exception = assertThrows(SimulationCalculationException.class,
+				() -> integrate(method, status -> Coordinate.ZERO, Coordinate.ZERO,
+						new Coordinate(1.0e10, 0, 0), 0.01, 0.01));
+
+		assertEquals("Simulation values exceeded limits.  Try selecting a shorter time step.", exception.getMessage());
+	}
 
 	/**
 	 * A ballistic trajectory under constant acceleration has a closed-form solution.

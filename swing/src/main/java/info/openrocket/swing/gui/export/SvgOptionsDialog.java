@@ -47,7 +47,7 @@ public class SvgOptionsDialog extends JDialog {
 	private boolean confirmed = false;
 
 	public SvgOptionsDialog(Frame owner, OpenRocketDocument document, List<RocketComponent> initiallySelectedComponents) {
-		super(owner, "SVG Export Options", true);
+		super(owner, trans.get("SvgOptionsDialog.title"), true);
 		this.document = document;
 		optionsPanel = new SVGOptionPanel(true);
 		
@@ -103,8 +103,8 @@ public class SvgOptionsDialog extends JDialog {
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		JButton cancel = new JButton("Cancel");
-		JButton ok = new JButton("OK");
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
+		JButton ok = new JButton(trans.get("dlg.but.ok"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

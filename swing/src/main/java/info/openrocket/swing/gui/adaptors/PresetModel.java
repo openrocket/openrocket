@@ -71,7 +71,7 @@ public class PresetModel extends AbstractListModel
 		} else if (item.equals(NONE_SELECTED)) {
 			component.clearPreset();
 		} else {
-			document.addUndoPosition("Use Preset " + component.getComponentName());
+			document.addUndoPosition(String.format(trans.get("PresetModel.undo.usePreset"), component.getComponentName()));
 			component.loadPreset((ComponentPreset) item);
 			((RocketComponentConfig) parent).setFocusElement();
 		}
