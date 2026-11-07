@@ -1,12 +1,6 @@
 package info.openrocket.core.preset.xml;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import info.openrocket.core.material.MaterialGroup;
 import jakarta.xml.bind.DatatypeConverter;
@@ -143,21 +137,6 @@ public abstract class BaseComponentDTO {
 
 	public void setImageData(final byte[] theImage) {
 		image = theImage;
-	}
-
-	public BufferedImage getImage() throws IOException {
-		if (image != null) {
-			return ImageIO.read(new ByteArrayInputStream(image));
-		}
-		return null;
-	}
-
-	public void setImage(BufferedImage theImage) throws IOException {
-		if (theImage != null) {
-			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			ImageIO.write(theImage, "png", byteArrayOutputStream);
-			image = byteArrayOutputStream.toByteArray();
-		}
 	}
 
 	public abstract ComponentPreset asComponentPreset(Boolean legacy, List<MaterialDTO> materials)

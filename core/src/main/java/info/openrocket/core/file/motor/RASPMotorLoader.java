@@ -102,8 +102,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 				// desig diam len delays prop.w tot.w manufacturer
 				pieces = split(line);
 				if (pieces.length != 7) {
-					throw new IOException("Illegal file format. Motor header line must contain 7 fields:<br>" +
-							"&nbsp designation diameter length delays propellantWeight totalWeight manufacturer");
+					throw new IOException("Illegal file format. Motor header line must contain 7 fields:\n" +
+							" designation diameter length delays propellantWeight totalWeight manufacturer");
 				}
 
 				designation = pieces[0];
@@ -150,7 +150,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 						thrust.add(Double.parseDouble(buf[1]));
 
 					} else {
-						throw new IOException("Illegal file format.<br>" +
+						throw new IOException("Illegal file format.\n" +
 								"Data should only have 2 entries: a time and thrust value.");
 					}
 				}
@@ -169,8 +169,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 
 		} catch (NumberFormatException e) {
 
-			throw new IOException("Illegal file format. Could not convert value to a number.<br" +
-					">Verify that each number is correctly formatted.");
+			throw new IOException("Illegal file format. Could not convert value to a number.\n" +
+					"Verify that each number is correctly formatted.");
 
 		}
 
