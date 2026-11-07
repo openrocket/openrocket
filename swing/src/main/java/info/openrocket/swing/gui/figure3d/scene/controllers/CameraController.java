@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.controllers;
 
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
@@ -31,9 +32,15 @@ public class CameraController implements CameraControls {
 	private final Camera camera;
 	private final SceneView scene;
 	private final RenderingConfiguration renderingConfiguration;
+	private final FlightConfigurationId renderedConfigurationId;
 	private final List<Consumer<Camera>> cameraChangeListeners = new CopyOnWriteArrayList<>();
 	private float focusedDistance;
 	private BoundingBox lastFittedRocketBounds;
+	private Vector3f fittedCenter;
+	private Vector3f fittedDimensions;
+	private float fittedClosestDistanceFactor = Float.NaN;
+	private float fittedFarthestDistanceFactor = Float.NaN;
+	private volatile boolean panEnabled = true;
 	// Whether the camera should track the fitted distance. This is explicit state
 	// rather than "distance ≈ fitted distance" so that a resize-triggered re-fit
 	// cannot race with (and overwrite) a manual zoom that was applied in between.
@@ -49,10 +56,16 @@ public class CameraController implements CameraControls {
 	 */
 	public CameraController(Rocket rocket, Camera camera, SceneView scene,
 			RenderingConfiguration renderingConfiguration) {
+		this(rocket, camera, scene, renderingConfiguration, null);
+	}
+
+	public CameraController(Rocket rocket, Camera camera, SceneView scene,
+			RenderingConfiguration renderingConfiguration, FlightConfigurationId renderedConfigurationId) {
 		this.rocket = rocket;
 		this.camera = camera;
 		this.scene = scene;
 		this.renderingConfiguration = renderingConfiguration;
+		this.renderedConfigurationId = renderedConfigurationId;
 	}
 
 	/**
@@ -88,7 +101,7 @@ public class CameraController implements CameraControls {
 		if (rocket == null) {
 			return;
 		}
-		focusOnRocket(rocket.getBoundingBox());
+		focusOnRocket(getRocketBounds());
 	}
 
 	@Override
@@ -96,7 +109,7 @@ public class CameraController implements CameraControls {
 		if (rocket == null) {
 			return;
 		}
-		BoundingBox bounds = rocket.getBoundingBox();
+		BoundingBox bounds = getRocketBounds();
 		if (sameBounds(lastFittedRocketBounds, bounds)) {
 			return;
 		}
@@ -116,17 +129,54 @@ public class CameraController implements CameraControls {
 				(float) ((minBounds.getY() + maxBounds.getY()) * 0.5),
 				(float) ((minBounds.getZ() + maxBounds.getZ()) * 0.5));
 		Vector3f rocketCenter = scene.transformRocketPoint(localCenter, new Vector3f());
-		camera.setCenterOfInterest(rocketCenter);
-
-		// 2. Calculate distance from model-space bounds so rocket drag rotation cannot alter 100% zoom.
+		// 2. Calculate dimensions from model-space bounds so rocket drag rotation cannot alter 100% zoom.
 		Vector3f dimensions = new Vector3f(
 				(float) (maxBounds.getX() - minBounds.getX()),
 				(float) (maxBounds.getY() - minBounds.getY()),
 				(float) (maxBounds.getZ() - minBounds.getZ()));
-		camera.fitBounds(dimensions);
+		focusOnBounds(rocketCenter, dimensions);
+		lastFittedRocketBounds = bounds.clone();
+	}
+
+	@Override
+	public void focusOnBounds(Vector3f center, Vector3f dimensions) {
+		focusOnBounds(center, dimensions, Float.NaN, Float.NaN);
+	}
+
+	@Override
+	public void focusOnBounds(Vector3f center, Vector3f dimensions,
+			float closestDistanceFactor, float farthestDistanceFactor) {
+		if (center == null || dimensions == null) {
+			return;
+		}
+		if (Float.isFinite(closestDistanceFactor) || Float.isFinite(farthestDistanceFactor)) {
+			if (!Float.isFinite(closestDistanceFactor) || closestDistanceFactor <= 0.0f
+					|| closestDistanceFactor > 1.0f
+					|| !Float.isFinite(farthestDistanceFactor) || farthestDistanceFactor <= 1.0f) {
+				throw new IllegalArgumentException("Fitted zoom factors must span the fitted distance");
+			}
+		}
+		fittedCenter = new Vector3f(center);
+		fittedDimensions = new Vector3f(dimensions);
+		fittedClosestDistanceFactor = closestDistanceFactor;
+		fittedFarthestDistanceFactor = farthestDistanceFactor;
+		lastFittedRocketBounds = null;
+		applyFittedBounds();
+	}
+
+	private void applyFittedBounds() {
+		if (fittedCenter == null || fittedDimensions == null) {
+			return;
+		}
+		camera.setCenterOfInterest(fittedCenter);
+		camera.fitBounds(fittedDimensions);
 		camera.resetViewOffset();
 		focusedDistance = camera.getDistance();
-		lastFittedRocketBounds = bounds.clone();
+		if (Float.isFinite(fittedClosestDistanceFactor)) {
+			float closestDistance = Math.max(CameraConstants.MIN_DISTANCE,
+					focusedDistance * fittedClosestDistanceFactor);
+			camera.setZoomLimits(closestDistance, focusedDistance * fittedFarthestDistanceFactor);
+		}
 		zoomFitting = true;
 		scene.updateRocketPivotFromCamera();
 		notifyCameraChanged();
@@ -145,6 +195,48 @@ public class CameraController implements CameraControls {
 				&& MathUtil.equals(first.max.getX(), second.max.getX())
 				&& MathUtil.equals(first.max.getY(), second.max.getY())
 				&& MathUtil.equals(first.max.getZ(), second.max.getZ());
+	}
+
+	@Override
+	public Vector3f computeRocketCenter() {
+		if (rocket == null) {
+			return null;
+		}
+		BoundingBox bounds = getRocketBounds();
+		if (bounds == null || bounds.isEmpty()) {
+			return null;
+		}
+		CoordinateIF minBounds = bounds.min.multiply(RenderingConstants.WORLD_SCALE);
+		CoordinateIF maxBounds = bounds.max.multiply(RenderingConstants.WORLD_SCALE);
+		Vector3f localCenter = new Vector3f(
+				(float) ((minBounds.getX() + maxBounds.getX()) * 0.5),
+				(float) ((minBounds.getY() + maxBounds.getY()) * 0.5),
+				(float) ((minBounds.getZ() + maxBounds.getZ()) * 0.5));
+		return scene.transformRocketPoint(localCenter, new Vector3f());
+	}
+
+	@Override
+	public Vector3f computeRocketSize() {
+		if (rocket == null) {
+			return null;
+		}
+		BoundingBox bounds = getRocketBounds();
+		if (bounds == null || bounds.isEmpty()) {
+			return null;
+		}
+		CoordinateIF minBounds = bounds.min.multiply(RenderingConstants.WORLD_SCALE);
+		CoordinateIF maxBounds = bounds.max.multiply(RenderingConstants.WORLD_SCALE);
+		return new Vector3f(
+				(float) (maxBounds.getX() - minBounds.getX()),
+				(float) (maxBounds.getY() - minBounds.getY()),
+				(float) (maxBounds.getZ() - minBounds.getZ()));
+	}
+
+	private BoundingBox getRocketBounds() {
+		if (renderedConfigurationId == null) {
+			return rocket.getBoundingBox();
+		}
+		return rocket.getFlightConfiguration(renderedConfigurationId).getBoundingBoxAerodynamic();
 	}
 
 	@Override
@@ -254,10 +346,18 @@ public class CameraController implements CameraControls {
 	 */
 	@Override
 	public void handlePan(float dx, float dy, int viewportWidth, int viewportHeight) {
+		if (!panEnabled) {
+			return;
+		}
 		camera.pan(dx, dy, viewportWidth, viewportHeight);
 		// Keep the rocket rotation pivot aligned with the horizontally panned focus point.
 		scene.updateRocketPivotFromCamera();
 		notifyCameraChanged();
+	}
+
+	@Override
+	public void setPanEnabled(boolean enabled) {
+		panEnabled = enabled;
 	}
 
 	/**
@@ -316,6 +416,9 @@ public class CameraController implements CameraControls {
 	@Override
 	public void resize(float newAspectRatio) {
 		camera.setAspectRatio(newAspectRatio);
+		if (zoomFitting) {
+			applyFittedBounds();
+		}
 	}
 
 	/**

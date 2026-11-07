@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d.ui;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.StateChangeListener;
@@ -149,6 +150,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean graphicsResetDetected = false;
 
 	private final Rocket rocket;
+	private final FlightConfigurationId renderedConfigurationId;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 	private volatile Runnable renderActivityCallback;
@@ -159,6 +161,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final FrameExportQueue frameExportQueue = new FrameExportQueue();
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
+	private boolean flightReplayInteraction;
 	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
 	// Distinguishes a context that initialized and later failed from one that could
 	// never initialize. The host may retry the former with a fresh canvas when the
@@ -208,12 +211,17 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	public GLScenePanel(Rocket rocket, HUDPanel hudPanel) {
+		this(rocket, hudPanel, null);
+	}
+
+	public GLScenePanel(Rocket rocket, HUDPanel hudPanel, FlightConfigurationId renderedConfigurationId) {
 		super(createGLData());
 		// Keep the heavyweight peer's fallback fill aligned with the initial GL
 		// scene. RocketFigure3d updates this when a document-specific color is used.
 		setBackground(GUIUtil.getUITheme().getBackgroundColor());
 
 		this.rocket = rocket;
+		this.renderedConfigurationId = renderedConfigurationId;
 		this.hudOverlay = hudPanel != null ? new HudOverlay(hudPanel, this) : null;
 		this.keyboardHandler = new KeyboardHandler();
 		this.wheelInteractionEndTimer = createWheelInteractionEndTimer();
@@ -596,6 +604,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
+			requestFocusInWindow();
 			// The canvas keeps receiving AWT events during teardown/rebuild,
 			// after cleanup() has released the orchestrator.
 			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
@@ -681,8 +690,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			boolean isMiddleDrag = activeDragButton == MouseEvent.BUTTON2;
 			boolean isAltDown = (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0;
 			boolean isCtrlDown = (e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0;
-			inputState.isLightDragging = isRightDrag || isAltDown;
-			inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown || isMiddleDrag);
+			inputState.isLightDragging = !flightReplayInteraction && (isRightDrag || isAltDown);
+			inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown || isMiddleDrag
+					|| (flightReplayInteraction && (isRightDrag || e.isShiftDown())));
 		}
 
 		private boolean isTrackedDragButton(MouseEvent e) {
@@ -703,7 +713,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (orchestrator == null) {
 				return;
 			}
-			orchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
+			orchestrator.getInputHandler().getInputState().addScroll((float) -e.getPreciseWheelRotation(), e.getX(), e.getY());
 			beginWheelInteraction();
 			markHudForUpdate(); // Mark HUD for update on zoom
 			markRenderActivity();
@@ -894,7 +904,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private void createScene(int windowWidth, int windowHeight,
 			int framebufferWidth, int framebufferHeight) throws Exception {
 		scene3DOrchestrator = Scene3DOrchestrator.create(
-				rocket, windowWidth, windowHeight, framebufferWidth, framebufferHeight);
+				rocket, windowWidth, windowHeight, framebufferWidth, framebufferHeight, renderedConfigurationId);
 		scene3DOrchestrator.setGlTaskQueuedCallback(this::markRenderActivity);
 
 		// Create the scene mesh through the orchestrator so context-owned textures
@@ -1256,6 +1266,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setCursor(enabled
 				? Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR)
 				: Cursor.getDefaultCursor());
+	}
+
+	/** Uses replay gestures: right-drag or Shift-drag pans the camera. */
+	public void setFlightReplayInteraction(boolean enabled) {
+		flightReplayInteraction = enabled;
 	}
 
 	public void addSceneSelectionListener(SelectionListener listener) {

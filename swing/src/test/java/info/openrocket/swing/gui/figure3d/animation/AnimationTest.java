@@ -74,9 +74,10 @@ class AnimationTest {
 		branch.setValue(FlightDataType.TYPE_ALTITUDE, 3.0);
 
 		Vector3f position = FlightPoseProvider.fromFlightDataBranch(branch).getPosition(0.0);
-		assertEquals(0.0f, position.x, EPSILON);
+		// SimulationStatus stores azimuth clockwise from north; 90 degrees points east.
+		assertEquals(40.0f, position.x, EPSILON);
 		assertEquals(60.0f, position.y, EPSILON);
-		assertEquals(-40.0f, position.z, EPSILON);
+		assertEquals(0.0f, position.z, EPSILON);
 	}
 
 	@Test

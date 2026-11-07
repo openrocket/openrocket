@@ -653,13 +653,18 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, getRocketVelocity().length());
 		
-		CoordinateIF c = getRocketOrientationQuaternion().rotateZ();
+		Quaternion orientation = getRocketOrientationQuaternion();
+		CoordinateIF c = orientation.rotateZ();
 		double theta = Math.atan2(c.getZ(), MathUtil.hypot(c.getX(), c.getY()));
 		//(x, y) instead of (y, x) because 0 is north
 		double phi = (Math.atan2(c.getX(), c.getY())+ (2.0 * Math.PI)) % (2.0 * Math.PI);
+		// The twist about the rocket's axis left once the axis is tilted straight from vertical to
+		// where it points; together with theta and phi it gives the full orientation.
+		double roll = MathUtil.reducePi(2.0 * Math.atan2(orientation.getZ(), orientation.getW()));
 
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
+		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_ROLL, roll);
 		flightDataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
 				(System.nanoTime() - getSimulationStartWallTime()) / 1000000000.0);
 	}		

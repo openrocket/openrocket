@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,6 +55,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final AtomicReference<CameraUpdateBehavior> pendingCameraUpdateBehavior =
 			new AtomicReference<>(CameraUpdateBehavior.NONE);
 	private volatile FlightConfigurationId lastSelectedConfigurationId;
+	private volatile List<RocketSceneSnapshot.ParticleEmitterPlan> motorEmitterPlans = List.of();
 
 	private record PendingAppearanceUpdate(
 			RocketComponent component,
@@ -378,6 +380,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private void commitPreparedSnapshot(RocketSceneSnapshot snapshot, CameraUpdateBehavior cameraUpdateBehavior,
 			RocketMeshBuilder.PreparedSnapshot prepared) {
 		lastSelectedConfigurationId = snapshot.getFlightConfigurationId();
+		motorEmitterPlans = snapshot.getMotorInstances().stream()
+				.map(RocketSceneSnapshot.MotorInstance::particleEmitterPlan)
+				.filter(Objects::nonNull)
+				.toList();
 		boolean hadSelection = !scene.getSelectedObjects().isEmpty();
 		Set<RocketComponent> selectedRocketComponents = captureSelectedRocketComponents();
 		List<SceneObject> persistentSelection = capturePersistentSelection();
@@ -416,6 +422,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			// Recompute framing without changing the camera angles or persisted rocket rotation.
 			scene3DOrchestrator.refitOnRocketBoundsChange();
 		}
+	}
+
+	List<RocketSceneSnapshot.ParticleEmitterPlan> getMotorEmitterPlans() {
+		return motorEmitterPlans;
 	}
 
 	private void reclaimStaleDecalTextures() {

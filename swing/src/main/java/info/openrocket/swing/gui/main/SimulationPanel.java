@@ -93,6 +93,7 @@ import info.openrocket.swing.gui.adaptors.ColumnTableModel;
 import info.openrocket.swing.gui.adaptors.ColumnTableRowSorter;
 import info.openrocket.swing.gui.adaptors.ValueColumn;
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.figure3d.flight.Flight3DFrame;
 import info.openrocket.swing.gui.simulation.SimulationRunDialog;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.IconButton;
@@ -118,6 +119,7 @@ public class SimulationPanel extends JPanel {
 	private final JButton landingDispersionButton;
 	private final JButton deleteButton;
 	private final JButton plotButton;
+	private final JButton flight3DButton;
 	private final JButton simTableExportButton;
 	private final JPopupMenu pm;
 	private final ColumnVisibilityController columnVisibilityController;
@@ -130,6 +132,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction runSimulationAction;
 	private final SimulationAction landingDispersionAction;
 	private final SimulationAction plotSimulationAction;
+	private final SimulationAction flight3DAction;
 	private final SimulationAction duplicateSimulationAction;
 	private final SimulationAction deleteSimulationAction;
 	private final SimulationAction simTableExportAction;
@@ -189,7 +192,7 @@ public class SimulationPanel extends JPanel {
 	}
 
 	public SimulationPanel(Window parent, OpenRocketDocument doc) {
-		super(new MigLayout("fill", "[grow][][][][][][][grow]"));
+		super(new MigLayout("fill", "[grow][][][][][][][][grow]"));
 
 		this.document = doc;
 
@@ -203,6 +206,7 @@ public class SimulationPanel extends JPanel {
 		runSimulationAction = new RunSimulationAction();
 		landingDispersionAction = new LandingDispersionAction();
 		plotSimulationAction = new PlotSimulationAction();
+		flight3DAction = new Flight3DAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
 		deleteSimulationAction = new DeleteSimulationAction();
 		simTableExportAction = new ExportSimulationTableAsCSVAction();
@@ -244,7 +248,13 @@ public class SimulationPanel extends JPanel {
 		//// Plot / export button
 		plotButton = new IconButton();
 		RocketActions.tieActionToButton(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
-		this.add(plotButton, "wrap para");
+		this.add(plotButton, "gapright para");
+
+		//// 3D flight replay button
+		flight3DButton = new IconButton();
+		RocketActions.tieActionToButton(flight3DButton, flight3DAction, trans.get("simpanel.but.flight3d"));
+		flight3DButton.setToolTipText(trans.get("simpanel.pop.flight3d.ttip"));
+		this.add(flight3DButton, "wrap para");
 
 		//// Run then Dump simulations
 		simTableExportButton = new IconButton();
@@ -287,6 +297,7 @@ public class SimulationPanel extends JPanel {
 		pm.add(runSimulationAction);
 		pm.add(landingDispersionAction);
 		pm.add(plotSimulationAction);
+		pm.add(flight3DAction);
 		pm.add(selectedSimsExportAction);
 
 		ApplicationPreferences appPreferences = (ApplicationPreferences) Application.getPreferences();
@@ -528,6 +539,14 @@ public class SimulationPanel extends JPanel {
 		openDialog(true, sim);
 	}
 
+	private void openFlightReplay() {
+		Simulation sim = getSingleSelectedSimulation();
+		if (sim == null || !sim.hasSimulationData() || !Simulation.isStatusUpToDate(sim.getStatus())) {
+			return;
+		}
+		Flight3DFrame.openForSimulation(document, sim, SwingUtilities.getWindowAncestor(this));
+	}
+
 	private void deleteSimulations(Simulation[] sims) {
 		if (sims == null || sims.length == 0) {
 			return;
@@ -703,6 +722,15 @@ public class SimulationPanel extends JPanel {
 		return sims;
 	}
 
+	private Simulation getSingleSelectedSimulation() {
+		int[] selection = simulationTable.getSelectedRows();
+		if (selection.length != 1) {
+			return null;
+		}
+		int modelRow = simulationTable.convertRowIndexToModel(selection[0]);
+		return document.getSimulation(modelRow);
+	}
+
 	/**
 	 * Full simulation copying
 	 */
@@ -862,6 +890,7 @@ public class SimulationPanel extends JPanel {
 		runSimulationAction.updateEnabledState();
 		landingDispersionAction.updateEnabledState();
 		plotSimulationAction.updateEnabledState();
+		flight3DAction.updateEnabledState();
 		simTableExportAction.updateEnabledState();
 		selectedSimsExportAction.updateEnabledState();
 	}
@@ -1237,6 +1266,27 @@ public class SimulationPanel extends JPanel {
 		@Override
 		public void updateEnabledState() {
 			this.setEnabled(simulationTable.getSelectedRowCount() == 1 && hasValidConfig);
+		}
+	}
+
+	class Flight3DAction extends SimulationAction {
+		public Flight3DAction() {
+			this.putValue(NAME, trans.get("simpanel.pop.flight3d"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("simpanel.pop.flight3d.ttip"));
+			this.putValue(SMALL_ICON, Icons.FLIGHT_REPLAY);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			openFlightReplay();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			Simulation sim = getSingleSelectedSimulation();
+			this.setEnabled(sim != null
+					&& sim.hasSimulationData()
+					&& Simulation.isStatusUpToDate(sim.getStatus()));
 		}
 	}
 
