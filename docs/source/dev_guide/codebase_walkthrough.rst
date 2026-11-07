@@ -56,6 +56,8 @@ The following is an overview of the packages in the ``info.openrocket.core`` mod
    │   ├── attachments         # Attachments to OpenRocket documents
    │   └── events              # OpenRocket events (i.e. document changed, simulation changed)
    ├── file                    # File handling
+   │   ├── cad                 # CAD file handling
+   │   │  └── export           # Export fins and centering rings to DXF, STEP, STL and 3MF
    │   ├── iterator            # Iterate files in e.g. a directory or a zip file
    │   ├── motor               # Motor files handling
    │   ├── openrocket          # OpenRocket file handling

@@ -59,6 +59,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.file.wavefrontobj;
 	exports info.openrocket.core.file.wavefrontobj.export;
 	exports info.openrocket.core.file.svg.export;
+	exports info.openrocket.core.file.cad.export;
 	exports info.openrocket.core.formatting;
 	exports info.openrocket.core.gui.util;
 	exports info.openrocket.core.l10n;

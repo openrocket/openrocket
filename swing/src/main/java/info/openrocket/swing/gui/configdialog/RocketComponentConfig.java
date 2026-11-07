@@ -6,6 +6,10 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -27,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
@@ -35,6 +41,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -223,40 +230,66 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 	 * Add the header action menu (kebab menu) to the configuration dialog.
 	 */
 	private void addHeaderActionMenu() {
-		KebabMenu menu = createHeaderActionMenu();
-		if (menu == null) {
+		RocketActions actions = getRocketActions();
+		if (actions == null) {
 			return;
 		}
 
-		this.add(menu, "gapleft unrel, gapright 0");
+		JButton export = createExportButton(actions);
+		this.add(export, "gapleft unrel");
+		order.add(export);
+
+		KebabMenu menu = new KebabMenu();
+		menu.add(new JMenuItem(actions.getScaleAction()));
+		this.add(menu, "gapleft rel, gapright 0");
 		order.add(menu);
 	}
 
-	private KebabMenu createHeaderActionMenu() {
+	/**
+	 * Creates a button that shows the export formats in a drop-down menu.
+	 */
+	private static JButton createExportButton(RocketActions actions) {
+		JPopupMenu popup = new JPopupMenu();
+		for (Action action : actions.getExportActions()) {
+			if (action == null) {
+				popup.addSeparator();
+			} else {
+				popup.add(action);
+			}
+		}
+
+		// A drop-down arrow is painted on the right, as not all fonts contain an arrow character
+		final int arrowSize = 7;
+		JButton button = new JButton(trans.get("RocketCompCfg.but.Export"), Icons.FILE_EXPORT) {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g2.setColor(isEnabled() ? getForeground() : UIManager.getColor("Button.disabledText"));
+				// The arrow sits in the extra right margin, just after the text
+				int x = getWidth() - getInsets().right + 5;
+				int y = (getHeight() - arrowSize / 2) / 2;
+				g2.fillPolygon(new int[]{x, x + arrowSize, x + arrowSize / 2}, new int[]{y, y, y + arrowSize / 2 + 1}, 3);
+				g2.dispose();
+			}
+		};
+		Insets margin = button.getMargin();
+		button.setMargin(new Insets(margin.top, margin.left, margin.bottom, margin.right + arrowSize + 6));
+		button.setToolTipText(trans.get("RocketCompCfg.but.Export.ttip"));
+		button.addActionListener(e -> popup.show(button, 0, button.getHeight()));
+		return button;
+	}
+
+	private RocketActions getRocketActions() {
 		if (parent == null) {
 			return null;
 		}
-
-		// Get the owner window
 		Window owner = parent.getOwner();
 		if (!(owner instanceof BasicFrame)) {
 			return null;
 		}
-
-		// Get the rocket actions
-		RocketActions actions = ((BasicFrame) owner).getRocketActions();
-		if (actions == null) {
-			return null;
-		}
-
-		// Populate the menu
-		KebabMenu menu = new KebabMenu();
-		menu.add(new JMenuItem(actions.getScaleAction()));
-		menu.addSeparator();
-		menu.add(new JMenuItem(actions.getExportOBJAction()));
-		menu.add(new JMenuItem(actions.getExportSVGAction()));
-
-		return menu;
+		return ((BasicFrame) owner).getRocketActions();
 	}
 
 	private static void initColors() {
