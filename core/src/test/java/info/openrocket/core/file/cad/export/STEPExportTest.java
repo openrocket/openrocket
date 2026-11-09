@@ -108,6 +108,19 @@ class STEPExportTest extends BaseTestCase {
 	}
 
 	@Test
+	void numbersHaveNineDecimalsAndNoNegativeZero() {
+		assertEquals("12.345678912", STEPPartsWriter.number(12.3456789123));
+		assertEquals("0.000000000", STEPPartsWriter.number(-1e-12));
+		assertEquals("-0.000000001", STEPPartsWriter.number(-1e-9));
+	}
+
+	@Test
+	void nonFiniteNumbersAreRejected() {
+		assertThrows(IllegalArgumentException.class, () -> STEPPartsWriter.number(Double.NaN));
+		assertThrows(IllegalArgumentException.class, () -> STEPPartsWriter.number(Double.POSITIVE_INFINITY));
+	}
+
+	@Test
 	void stringsAreEscaped() {
 		assertEquals("'Bob''s fin \\X2\\00E9\\X0\\'", STEPPartsWriter.string("Bob's fin é"));
 	}

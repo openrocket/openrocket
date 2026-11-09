@@ -383,12 +383,18 @@ final class STEPPartsWriter {
 		return value ? ".T." : ".F.";
 	}
 
-	private static String number(double value) {
+	/**
+	 * Formats a length in mm with 9 decimals, finer than the declared uncertainty of 1E-7 mm, so that a rounded vertex
+	 * still lies on its circle within that uncertainty. A value that rounds to zero is written without a minus sign.
+	 *
+	 * @throws IllegalArgumentException if the value is NaN or infinite, which STEP cannot represent
+	 */
+	static String number(double value) {
 		if (!Double.isFinite(value)) {
 			throw new IllegalArgumentException("Non-finite coordinate: " + value);
 		}
-		String s = String.format(Locale.ROOT, "%.6f", value);
-		return "-0.000000".equals(s) ? "0.000000" : s;
+		String s = String.format(Locale.ROOT, "%.9f", value);
+		return "-0.000000000".equals(s) ? "0.000000000" : s;
 	}
 
 	private static String unit(double value) {
