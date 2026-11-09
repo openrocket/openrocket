@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Exports fins and centering rings to a DXF, STEP, STL or 3MF file and shows the dimension check of the written
@@ -67,8 +68,11 @@ public final class PartExportHelper {
 		if (chooser.showSaveDialog(parent) != NativeFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		File target = FileHelper.forceExtension(chooser.getSelectedFile(), format.getExtension());
-		if (!FileHelper.confirmWrite(target, chooser.getSelectedFile(), parent)) {
+		File selected = chooser.getSelectedFile();
+		// .stp is the other common extension of STEP files
+		File target = format == Format.STEP && selected.getName().toLowerCase(Locale.ROOT).endsWith(".stp") ?
+				selected : FileHelper.forceExtension(selected, format.getExtension());
+		if (!FileHelper.confirmWrite(target, selected, parent)) {
 			return;
 		}
 		prefs.setDefaultDirectory(chooser.getCurrentDirectory());

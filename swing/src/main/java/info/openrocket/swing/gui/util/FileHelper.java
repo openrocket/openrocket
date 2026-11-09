@@ -81,9 +81,9 @@ public final class FileHelper {
 	public static final FileFilter DXF_FILTER =
 			createFilter(trans.get("FileHelper.DXF_FILTER"), "dxf");
 
-	/** File filter for STEP files (*.step) */
+	/** File filter for STEP files (*.step, *.stp) */
 	public static final FileFilter STEP_FILTER =
-			createFilter(trans.get("FileHelper.STEP_FILTER"), "step");
+			createFilter(trans.get("FileHelper.STEP_FILTER"), "step", "stp");
 
 	/** File filter for STL files (*.stl) */
 	public static final FileFilter STL_FILTER =

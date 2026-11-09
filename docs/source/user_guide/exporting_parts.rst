@@ -85,7 +85,8 @@ STEP
 
 Exact 3D solids for CAD programs such as Fusion, Onshape, SolidWorks and FreeCAD. Every part is a separate named product
 in the file, extruded along the Z axis from 0 to the thickness of the part. Straight edges and circles are exact, not
-approximated by small triangles, so you can edit the parts in your CAD program.
+approximated by small triangles, so you can edit the parts in your CAD program. The file gets the extension ``.step``;
+if you type a name ending in ``.stp``, that extension is kept.
 
 STL
 ---
