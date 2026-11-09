@@ -125,7 +125,7 @@ public class CADDimensionVerifier {
 	 * @param format the format of the file
 	 * @param in     the contents of the file
 	 * @param parts  the parts that were written to the file, as returned by
-	 *               {@link CADPartsExporter#write(Format, String, java.io.OutputStream)}
+	 *               {@link CADPartsExporter#write(Format, String, String, java.io.OutputStream)}
 	 * @return the comparison, which also tells whether everything matches
 	 * @throws IOException if the file cannot be read or is not a valid file of this format
 	 */

@@ -7,6 +7,7 @@ import info.openrocket.core.file.cad.export.FlatPart.Circle;
 import info.openrocket.core.file.cad.export.FlatPart.Loop;
 import info.openrocket.core.file.cad.export.FlatPart.Polygon;
 import info.openrocket.core.file.cad.export.FlatPart.Region;
+import info.openrocket.core.util.BuildProperties;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -28,6 +29,15 @@ import java.util.Locale;
  * Straight edges become planar side faces and circles become cylindrical faces, so the geometry is exact.
  */
 final class STEPPartsWriter {
+	/** The program and version, written as the preprocessor and originating system of the file */
+	static final String APPLICATION = "OpenRocket " + BuildProperties.getVersion();
+
+	// AP214 is read by practically all CAD programs. Moving to AP242 changes these entities, not only the names.
+	private static final String SCHEMA = "AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }";
+	private static final String PROTOCOL = "automotive_design";
+	private static final int PROTOCOL_YEAR = 2000;
+	private static final String APPLICATION_CONTEXT = "core data for automotive mechanical design processes";
+
 	private final StringBuilder data = new StringBuilder();
 	private int nextId = 1;
 
@@ -38,18 +48,13 @@ final class STEPPartsWriter {
 	private STEPPartsWriter() {
 	}
 
-	static void write(List<ExportedPart> parts, String title, OutputStream out) throws IOException {
+	static void write(List<ExportedPart> parts, String title, String author, OutputStream out) throws IOException {
 		STEPPartsWriter writer = new STEPPartsWriter();
 		writer.writeParts(parts);
 
 		Writer w = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.US_ASCII));
 		w.write("ISO-10303-21;\n");
-		w.write("HEADER;\n");
-		w.write("FILE_DESCRIPTION(('OpenRocket parts'),'2;1');\n");
-		w.write("FILE_NAME(" + string(title == null ? "" : title) + ",'" +
-				LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS) + "',(''),(''),'OpenRocket','OpenRocket','');\n");
-		w.write("FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));\n");
-		w.write("ENDSEC;\n");
+		w.write(header(title, author, LocalDateTime.now()));
 		w.write("DATA;\n");
 		w.write(writer.data.toString());
 		w.write("ENDSEC;\n");
@@ -57,9 +62,23 @@ final class STEPPartsWriter {
 		w.flush();
 	}
 
+	/**
+	 * Returns the HEADER section (ISO 10303-21, clause 8). FILE_NAME holds the name, time stamp, author, organization,
+	 * preprocessor version, originating system and authorization; the organization and authorization are left empty.
+	 */
+	static String header(String title, String author, LocalDateTime time) {
+		return "HEADER;\n" +
+				"FILE_DESCRIPTION(('OpenRocket parts'),'2;1');\n" +
+				"FILE_NAME(" + string(title == null ? "" : title) + ",'" + time.truncatedTo(ChronoUnit.SECONDS) +
+				"',(" + string(author == null ? "" : author) + "),('')," + string(APPLICATION) + "," +
+				string(APPLICATION) + ",'');\n" +
+				"FILE_SCHEMA(('" + SCHEMA + "'));\n" +
+				"ENDSEC;\n";
+	}
+
 	private void writeParts(List<ExportedPart> parts) {
-		int applicationContext = add("APPLICATION_CONTEXT('core data for automotive mechanical design processes')");
-		add("APPLICATION_PROTOCOL_DEFINITION('international standard','automotive_design',2000,#" +
+		int applicationContext = add("APPLICATION_CONTEXT('" + APPLICATION_CONTEXT + "')");
+		add("APPLICATION_PROTOCOL_DEFINITION('international standard','" + PROTOCOL + "'," + PROTOCOL_YEAR + ",#" +
 				applicationContext + ")");
 		int productContext = add("PRODUCT_CONTEXT('',#" + applicationContext + ",'mechanical')");
 		int definitionContext = add("PRODUCT_DEFINITION_CONTEXT('part definition',#" + applicationContext +

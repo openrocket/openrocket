@@ -92,7 +92,7 @@ class PartExportHelperTest {
 
 		for (Format format : Format.values()) {
 			File file = tempDir.resolve(example + "." + format.getExtension()).toFile();
-			CADDimensionVerifier.Result result = PartExportHelper.exportToFile(parts, format, file, example);
+			CADDimensionVerifier.Result result = PartExportHelper.exportToFile(parts, format, file, example, null);
 			assertTrue(file.length() > 0);
 			assertTrue(result.isAllMatching(), example + " " + format + ": " + describe(result));
 		}
@@ -108,7 +108,7 @@ class PartExportHelperTest {
 
 		for (Format format : new Format[]{Format.DXF, Format.STEP}) {
 			File file = tempDir.resolve("cluster." + format.getExtension()).toFile();
-			CADDimensionVerifier.Result result = PartExportHelper.exportToFile(parts, format, file, "cluster");
+			CADDimensionVerifier.Result result = PartExportHelper.exportToFile(parts, format, file, "cluster", null);
 			long holes = result.checks().stream()
 					.filter(c -> c.dimension().dimension() == Dimension.HOLE_DIAMETER)
 					.peek(c -> assertEquals(Status.MATCH, c.status(), describe(result)))
@@ -153,7 +153,7 @@ class PartExportHelperTest {
 		Files.writeString(file, "old contents");
 
 		assertThrows(IllegalStateException.class,
-				() -> PartExportHelper.exportToFile(List.of(ring), Format.STEP, file.toFile(), "test"));
+				() -> PartExportHelper.exportToFile(List.of(ring), Format.STEP, file.toFile(), "test", null));
 		assertEquals("old contents", Files.readString(file));
 	}
 

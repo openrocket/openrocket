@@ -6,6 +6,7 @@ import info.openrocket.core.file.cad.export.ExportTestSupport.Written;
 import info.openrocket.core.file.cad.export.FlatPart.Dimension;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.BuildProperties;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -58,6 +59,20 @@ class ThreeMFExportTest extends BaseTestCase {
 		}
 		assertEquals(List.of("Fins", "Ring", "Disc"), objects);
 		assertEquals(3, count(model, "<item objectid="));
+	}
+
+	@Test
+	void metadataNamesTheDesignerAndTheProgramVersion() throws IOException {
+		CADPartsExporter exporter = new CADPartsExporter();
+		exporter.addFinSet(createFinSet());
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		exporter.write(Format.THREE_MF, "Rocket", "Jane & Joe", out);
+		String model = unzip(out.toByteArray()).get("3D/3dmodel.model");
+
+		assertTrue(model.contains("<metadata name=\"Title\">Rocket</metadata>"), model);
+		assertTrue(model.contains("<metadata name=\"Designer\">Jane &amp; Joe</metadata>"), model);
+		assertTrue(model.contains("<metadata name=\"Application\">OpenRocket " + BuildProperties.getVersion() +
+				"</metadata>"), model);
 	}
 
 	@Test

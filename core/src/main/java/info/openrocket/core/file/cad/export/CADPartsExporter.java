@@ -89,10 +89,13 @@ public class CADPartsExporter {
 	/**
 	 * Lays out all added parts and writes them in the given format.
 	 *
+	 * @param title  the name of the file contents, e.g. the rocket name
+	 * @param author the designer of the rocket, written to the file header where the format has one, or null
 	 * @return the written parts with their location in the file
 	 * @throws IllegalStateException if a 3D format is requested for a part without thickness
 	 */
-	public List<ExportedPart> write(Format format, String title, OutputStream out) throws IOException {
+	public List<ExportedPart> write(Format format, String title, String author, OutputStream out)
+			throws IOException {
 		if (format != Format.DXF) {
 			for (FlatPart part : parts) {
 				if (!(part.getThicknessMm() > 0)) {
@@ -105,9 +108,9 @@ public class CADPartsExporter {
 		List<ExportedPart> placed = layout();
 		switch (format) {
 			case DXF -> DXFPartsWriter.write(placed, out);
-			case STEP -> STEPPartsWriter.write(placed, title, out);
+			case STEP -> STEPPartsWriter.write(placed, title, author, out);
 			case STL -> STLPartsWriter.write(placed, title, out);
-			case THREE_MF -> ThreeMFPartsWriter.write(placed, title, out);
+			case THREE_MF -> ThreeMFPartsWriter.write(placed, title, author, out);
 		}
 		return placed;
 	}

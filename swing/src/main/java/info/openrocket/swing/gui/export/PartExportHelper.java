@@ -75,7 +75,8 @@ public final class PartExportHelper {
 
 		CADDimensionVerifier.Result result;
 		try {
-			result = exportToFile(parts, format, target, document.getRocket().getName());
+			result = exportToFile(parts, format, target, document.getRocket().getName(),
+					document.getRocket().getDesigner());
 			log.info(Markers.USER_MARKER, "Exported {} parts to {}", format, target.getAbsolutePath());
 		} catch (IOException | RuntimeException ex) {
 			log.warn("Failed to export " + format, ex);
@@ -102,10 +103,12 @@ public final class PartExportHelper {
 	/**
 	 * Writes the parts to a file, then reads the file back and checks its dimensions against the design.
 	 *
-	 * @param parts fins and centering rings, see {@link #collectParts}
+	 * @param parts  fins and centering rings, see {@link #collectParts}
+	 * @param title  the rocket name
+	 * @param author the designer of the rocket, or null
 	 */
 	public static CADDimensionVerifier.Result exportToFile(List<RocketComponent> parts, Format format, File target,
-														   String title) throws IOException {
+														   String title, String author) throws IOException {
 		CADPartsExporter exporter = new CADPartsExporter();
 		for (RocketComponent part : parts) {
 			if (part instanceof FinSet finSet) {
@@ -118,7 +121,7 @@ public final class PartExportHelper {
 
 		// Written to memory first, so an existing file is kept if the parts cannot be exported
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		List<ExportedPart> exported = exporter.write(format, title, out);
+		List<ExportedPart> exported = exporter.write(format, title, author, out);
 		Files.write(target.toPath(), out.toByteArray());
 		try (InputStream in = new FileInputStream(target)) {
 			return CADDimensionVerifier.verify(format, in, exported);

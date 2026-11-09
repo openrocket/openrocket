@@ -24,7 +24,7 @@ final class ThreeMFPartsWriter {
 	private ThreeMFPartsWriter() {
 	}
 
-	static void write(List<ExportedPart> parts, String title, OutputStream out) throws IOException {
+	static void write(List<ExportedPart> parts, String title, String author, OutputStream out) throws IOException {
 		ZipOutputStream zip = new ZipOutputStream(out);
 		Writer writer = new OutputStreamWriter(zip, StandardCharsets.UTF_8);
 
@@ -53,7 +53,8 @@ final class ThreeMFPartsWriter {
 				"<model unit=\"millimeter\" xml:lang=\"en-US\" " +
 				"xmlns=\"http://schemas.microsoft.com/3dmanufacturing/core/2015/02\">\n");
 		writer.write(" <metadata name=\"Title\">" + escape(title == null ? "" : title) + "</metadata>\n");
-		writer.write(" <metadata name=\"Application\">OpenRocket</metadata>\n");
+		writer.write(" <metadata name=\"Designer\">" + escape(author == null ? "" : author) + "</metadata>\n");
+		writer.write(" <metadata name=\"Application\">" + escape(STEPPartsWriter.APPLICATION) + "</metadata>\n");
 		writer.write(" <resources>\n");
 		for (int i = 0; i < parts.size(); i++) {
 			writeObject(writer, i + 1, parts.get(i));

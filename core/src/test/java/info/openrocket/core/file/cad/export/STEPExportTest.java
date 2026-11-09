@@ -7,11 +7,13 @@ import info.openrocket.core.file.cad.export.FlatPart.Dimension;
 import info.openrocket.core.file.svg.export.RingSvgExporter;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.BuildProperties;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,6 +110,20 @@ class STEPExportTest extends BaseTestCase {
 	@Test
 	void stringsAreEscaped() {
 		assertEquals("'Bob''s fin \\X2\\00E9\\X0\\'", STEPPartsWriter.string("Bob's fin é"));
+	}
+
+	/**
+	 * FILE_NAME holds, in this order (ISO 10303-21, 8.2.2): name, time stamp, author, organization, preprocessor
+	 * version, originating system and authorization.
+	 */
+	@Test
+	void headerNamesTheAuthorAndTheProgramVersion() {
+		String program = "'OpenRocket " + BuildProperties.getVersion() + "'";
+		String header = STEPPartsWriter.header("Rocket", "Jane O'Neil", LocalDateTime.of(2026, 11, 8, 12, 30, 15, 500));
+
+		assertTrue(header.contains("FILE_NAME('Rocket','2026-11-08T12:30:15',('Jane O''Neil'),(''),"
+				+ program + "," + program + ",'');"), header);
+		assertTrue(header.contains("FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));"), header);
 	}
 
 	@Test

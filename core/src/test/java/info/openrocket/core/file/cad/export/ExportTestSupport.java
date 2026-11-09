@@ -50,7 +50,7 @@ final class ExportTestSupport {
 
 	static Written write(CADPartsExporter exporter, Format format) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		List<ExportedPart> parts = exporter.write(format, "test", out);
+		List<ExportedPart> parts = exporter.write(format, "test", null, out);
 		return new Written(out.toByteArray(), parts);
 	}
 
