@@ -30,6 +30,7 @@ import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.GeneralRocketSaver;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 
 /**
  * Validates that the generated preview bytes wind up in the saved ORK archive.
@@ -171,6 +172,82 @@ class PreviewPersistenceTest extends BaseTestCase {
 				System.setProperty("openrocket.unittest", previousFlag);
 			}
 		}
+	}
+
+	@Test
+	void previewShowsTheSideViewAlsoWhenTheRocketWasRotatedIn3D() throws Exception {
+		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
+				"Rendering needs a window with an OpenGL canvas; skip in headless environments");
+		Assumptions.assumeTrue(RocketFigure3d.is3dEnabled(), "3D rendering is disabled");
+
+		String previousFlag = System.getProperty("openrocket.unittest");
+		System.setProperty("openrocket.unittest", "true");
+		AtomicReference<JFrame> frameRef = new AtomicReference<>();
+		try {
+			OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(
+					TestRockets.makeEstesAlphaIII());
+			AtomicReference<RocketPanel> panelRef = new AtomicReference<>();
+			SwingUtilities.invokeAndWait(() -> {
+				RocketPanel panel = new RocketPanel(document);
+				JFrame frame = new JFrame();
+				frame.add(panel);
+				frame.setSize(800, 600);
+				frame.setVisible(true);
+				panelRef.set(panel);
+				frameRef.set(frame);
+			});
+			RocketPanel panel = panelRef.get();
+
+			BufferedImage unrotated = renderPreview(panel);
+			// Rotate the rocket as dragging it in the 3D view does. The task runs before the next render.
+			Scene3DOrchestrator orchestrator = panel.getFigure3d().getSceneController();
+			assertNotNull(orchestrator, "The offscreen render should have created the 3D scene");
+			orchestrator.enqueueGlTask(() -> orchestrator.getScene().orbitRocket(250, 60, 0.005f));
+			BufferedImage rotated = renderPreview(panel);
+
+			int unrotatedWidth = rocketWidth(unrotated);
+			assertTrue(unrotatedWidth > unrotated.getWidth() * 0.7, "The rocket should fill the preview width");
+			assertEquals(unrotatedWidth, rocketWidth(rotated), unrotated.getWidth() * 0.02,
+					"Rotating the rocket in the 3D view should not change the preview");
+		} finally {
+			JFrame frame = frameRef.get();
+			if (frame != null) {
+				SwingUtilities.invokeAndWait(frame::dispose);
+			}
+			if (previousFlag == null) {
+				System.clearProperty("openrocket.unittest");
+			} else {
+				System.setProperty("openrocket.unittest", previousFlag);
+			}
+		}
+	}
+
+	private static BufferedImage renderPreview(RocketPanel panel) throws Exception {
+		AtomicReference<Supplier<byte[]>> previewRef = new AtomicReference<>();
+		SwingUtilities.invokeAndWait(() -> previewRef.set(panel.prepareFilePreview(640, 480)));
+		assertNotNull(previewRef.get(), "Preview should be prepared");
+		byte[] preview = previewRef.get().get();
+		assertNotNull(preview, "Preview should be rendered");
+		return ImageIO.read(new ByteArrayInputStream(preview));
+	}
+
+	/** Horizontal extent of the rocket, in the middle band of the preview that the information text leaves free. */
+	private static int rocketWidth(BufferedImage preview) {
+		int background = preview.getRGB(preview.getWidth() / 2, preview.getHeight() / 5);
+		int minX = Integer.MAX_VALUE, maxX = -1;
+		for (int y = preview.getHeight() / 4; y < preview.getHeight() * 3 / 4; y++) {
+			for (int x = 0; x < preview.getWidth(); x++) {
+				int rgb = preview.getRGB(x, y);
+				int difference = Math.abs(((rgb >> 16) & 0xFF) - ((background >> 16) & 0xFF))
+						+ Math.abs(((rgb >> 8) & 0xFF) - ((background >> 8) & 0xFF))
+						+ Math.abs((rgb & 0xFF) - (background & 0xFF));
+				if (difference > 30) {
+					minX = Math.min(minX, x);
+					maxX = Math.max(maxX, x);
+				}
+			}
+		}
+		return maxX < 0 ? 0 : maxX - minX + 1;
 	}
 
 	private static long colorCount(BufferedImage image) {

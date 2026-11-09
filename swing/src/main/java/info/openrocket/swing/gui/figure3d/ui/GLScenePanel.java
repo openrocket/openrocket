@@ -1079,29 +1079,37 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Apply the rocket changes that were queued while the view was not rendering.
 			scene3DOrchestrator.update();
 
+			// Show the rocket from the side as in the design view, also if it was rotated by dragging in the 3D view.
 			Scene scene = scene3DOrchestrator.getScene();
-			RenderingConfiguration config = scene3DOrchestrator.getRenderingConfiguration();
-			Camera viewCamera = scene.getCamera();
-			DisplaySettings.RenderMode viewMode = config.getDisplay().getMode();
-			boolean viewCarets = config.getVisualEffects().areCaretsVisible();
-			RealisticRenderer renderer = new RealisticRenderer(config, rocket, width, height);
-			try {
-				scene.setCamera(createSideViewCamera(scene, bounds, width / (float) height));
-				config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
-				config.getVisualEffects().setCaretsVisible(showCarets);
-				renderer.render(scene, renderBackground);
-				int renderWidth = renderer.getRenderWidth();
-				int renderHeight = renderer.getRenderHeight();
-				ByteBuffer buffer = captureResolvedFramebuffer(renderer, renderWidth, renderHeight);
-				return buffer == null ? null : bufferToImage(buffer, renderWidth, renderHeight);
-			} finally {
-				scene.setCamera(viewCamera);
-				config.getDisplay().setMode(viewMode);
-				config.getVisualEffects().setCaretsVisible(viewCarets);
-				renderer.cleanup();
-			}
+			return scene.withoutRocketRotation(
+					() -> renderSideView(scene, bounds, width, height, showCarets, renderBackground));
 		} finally {
 			afterRender();
+		}
+	}
+
+	/** Renders the scene from the side; see {@link #renderOffscreen}. */
+	private BufferedImage renderSideView(Scene scene, BoundingBox bounds, int width, int height, boolean showCarets,
+			boolean renderBackground) {
+		RenderingConfiguration config = scene3DOrchestrator.getRenderingConfiguration();
+		Camera viewCamera = scene.getCamera();
+		DisplaySettings.RenderMode viewMode = config.getDisplay().getMode();
+		boolean viewCarets = config.getVisualEffects().areCaretsVisible();
+		RealisticRenderer renderer = new RealisticRenderer(config, rocket, width, height);
+		try {
+			scene.setCamera(createSideViewCamera(scene, bounds, width / (float) height));
+			config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
+			config.getVisualEffects().setCaretsVisible(showCarets);
+			renderer.render(scene, renderBackground);
+			int renderWidth = renderer.getRenderWidth();
+			int renderHeight = renderer.getRenderHeight();
+			ByteBuffer buffer = captureResolvedFramebuffer(renderer, renderWidth, renderHeight);
+			return buffer == null ? null : bufferToImage(buffer, renderWidth, renderHeight);
+		} finally {
+			scene.setCamera(viewCamera);
+			config.getDisplay().setMode(viewMode);
+			config.getVisualEffects().setCaretsVisible(viewCarets);
+			renderer.cleanup();
 		}
 	}
 
