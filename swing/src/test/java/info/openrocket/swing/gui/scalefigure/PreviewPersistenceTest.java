@@ -107,7 +107,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 	}
 
 	@Test
-	void previewAndThumbnailRenderedWithThe3DViewArePersisted() throws Exception {
+	void previewRenderedWithThe3DViewIsPersisted() throws Exception {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"Rendering needs a window with an OpenGL canvas; skip in headless environments");
 		Assumptions.assumeTrue(RocketFigure3d.is3dEnabled(), "3D rendering is disabled");
@@ -117,7 +117,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 		AtomicReference<JFrame> frameRef = new AtomicReference<>();
 
 		try {
-			// The images are 3D renders of the rocket, so the rocket needs components to draw.
+			// The preview is a 3D render of the rocket, so the rocket needs components to draw.
 			OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(
 					TestRockets.makeEstesAlphaIII());
 
@@ -135,45 +135,29 @@ class PreviewPersistenceTest extends BaseTestCase {
 			assertFalse(panelRef.get().getCurrentViewType().is3d, "Test should save from the 2D view");
 
 			AtomicReference<Supplier<byte[]>> previewRef = new AtomicReference<>();
-			AtomicReference<Supplier<byte[]>> thumbnailRef = new AtomicReference<>();
-			SwingUtilities.invokeAndWait(() -> {
-				previewRef.set(panelRef.get().prepareFilePreview(640, 480));
-				thumbnailRef.set(panelRef.get().prepareFileThumbnail(256));
-			});
+			SwingUtilities.invokeAndWait(() -> previewRef.set(panelRef.get().prepareFilePreview(640, 480)));
 			assertNotNull(previewRef.get(), "Preview should be prepared");
-			assertNotNull(thumbnailRef.get(), "Thumbnail should be prepared");
 
 			// Render off the EDT, as the save worker does.
 			byte[] preview = previewRef.get().get();
-			byte[] thumbnail = thumbnailRef.get().get();
 			assertNotNull(preview, "Preview should be rendered");
-			assertNotNull(thumbnail, "Thumbnail should be rendered");
 
 			BufferedImage previewImage = ImageIO.read(new ByteArrayInputStream(preview));
 			assertEquals(640, previewImage.getWidth());
 			assertEquals(480, previewImage.getHeight());
 			assertTrue(colorCount(previewImage) > 10, "Preview should show the rocket, not a blank image");
-			BufferedImage thumbnailImage = ImageIO.read(new ByteArrayInputStream(thumbnail));
-			assertEquals(256, thumbnailImage.getWidth());
-			assertEquals(256, thumbnailImage.getHeight());
-			assertTrue(colorCount(thumbnailImage) > 10, "Thumbnail should show the rocket, not a blank image");
 
 			StorageOptions options = document.getDefaultStorageOptions();
 			options.setPreviewImage(preview);
-			options.setThumbnailImage(thumbnail);
 			File tempFile = Files.createTempFile("preview-auto", ".ork").toFile();
 			tempFile.deleteOnExit();
 			new GeneralRocketSaver().save(tempFile, document);
 
 			try (ZipFile zip = new ZipFile(tempFile)) {
 				ZipEntry previewEntry = zip.getEntry("preview.png");
-				ZipEntry thumbnailEntry = zip.getEntry("thumbnail.png");
 				assertNotNull(previewEntry, "Saved ORK must contain preview.png");
-				assertNotNull(thumbnailEntry, "Saved ORK must contain thumbnail.png");
-				try (InputStream previewStream = zip.getInputStream(previewEntry);
-					 InputStream thumbnailStream = zip.getInputStream(thumbnailEntry)) {
+				try (InputStream previewStream = zip.getInputStream(previewEntry)) {
 					assertArrayEquals(preview, previewStream.readAllBytes());
-					assertArrayEquals(thumbnail, thumbnailStream.readAllBytes());
 				}
 			}
 		} finally {

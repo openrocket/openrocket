@@ -125,7 +125,7 @@ import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.figure3d.photo.PhotoFrame;
-import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnailRenderer;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
@@ -2261,18 +2261,25 @@ private static final Translator trans = Application.getTranslator();
 			return false;
 		}
 
-		// Prepare the file preview and thumbnail on the EDT, then render them with the 3D view's renderer while the save
+		// Prepare the file preview and thumbnail on the EDT (they read the rocket model), then render them while the save
 		// worker runs, so the UI stays responsive. A design that cannot be rendered is still saved, just without the
 		// images.
 		Supplier<byte[]> previewRenderer = null;
+		try {
+			previewRenderer = rocketpanel == null ? null
+					: rocketpanel.prepareFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+		} catch (RuntimeException e) {
+			log.warn("Could not prepare the file preview", e);
+		}
 		Supplier<byte[]> thumbnailRenderer = null;
-		if (rocketpanel != null) {
-			try {
-				previewRenderer = rocketpanel.prepareFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT);
-				thumbnailRenderer = rocketpanel.prepareFileThumbnail(RocketThumbnail.DEFAULT_SIZE);
-			} catch (RuntimeException e) {
-				log.warn("Could not prepare the file preview and thumbnail", e);
+		try {
+			RocketThumbnailRenderer.RenderTask thumbnailTask =
+					RocketThumbnailRenderer.prepareThumbnail(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
+			if (thumbnailTask != null) {
+				thumbnailRenderer = thumbnailTask::renderPng;
 			}
+		} catch (RuntimeException e) {
+			log.warn("Could not prepare the file thumbnail", e);
 		}
 		document.getDefaultStorageOptions().clearPreviewImage();
 		document.getDefaultStorageOptions().clearThumbnailImage();
