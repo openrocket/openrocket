@@ -344,15 +344,18 @@ public final class FlatPart {
 	}
 
 	/**
-	 * Checks that the part can be built as a solid: all holes must be inside the outer outline.
+	 * Checks that the part can be built as a manifold solid: all holes must be inside the outer outline, and separate
+	 * holes must not touch each other, which would make two side faces meet along a single line.
 	 *
-	 * @throws IllegalStateException if a hole reaches the outer edge of a ring
+	 * @throws IllegalStateException if a hole reaches the outer edge of a ring or two holes touch
 	 */
 	public void validateSolid() {
 		for (Region region : regions) {
 			if (!(region.outer() instanceof Circle outer)) {
 				continue;
 			}
+			// The circles of each hole loop
+			List<List<Circle>> holes = new ArrayList<>();
 			for (Loop hole : region.holes()) {
 				List<Circle> circles = new ArrayList<>();
 				if (hole instanceof Circle c) {
@@ -365,6 +368,20 @@ public final class FlatPart {
 				for (Circle c : circles) {
 					if (Math.hypot(c.cx() - outer.cx(), c.cy() - outer.cy()) + c.r() >= outer.r() - POINT_TOLERANCE_MM) {
 						throw new IllegalStateException(String.format(trans.get("PartExport.error.holeAtEdge"), name));
+					}
+				}
+				holes.add(circles);
+			}
+			for (int i = 0; i < holes.size(); i++) {
+				for (int j = i + 1; j < holes.size(); j++) {
+					for (Circle a : holes.get(i)) {
+						for (Circle b : holes.get(j)) {
+							double gap = Math.hypot(a.cx() - b.cx(), a.cy() - b.cy()) - a.r() - b.r();
+							if (Math.abs(gap) <= HoleUnion.TOLERANCE_MM) {
+								throw new IllegalStateException(String.format(trans.get("PartExport.error.holesTouch"),
+										name));
+							}
+						}
 					}
 				}
 			}

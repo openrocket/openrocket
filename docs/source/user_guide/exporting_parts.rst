@@ -154,6 +154,10 @@ Troubleshooting
    A hole, such as the hole for a motor mount, is larger than the ring or sticks out of it. A 3D solid cannot be made of
    this ring. Change the dimensions of the ring or of the motor mount. A DXF file can still be exported.
 
+**"Two holes in 'Centering ring' touch each other at a single point."**
+   Two holes, for example of a motor cluster, just touch. A 3D solid cannot be made of this ring. Move the motor
+   mounts slightly apart or let them overlap. A DXF file can still be exported.
+
 **"Part 'Fins' has no thickness."**
    The thickness of the fin set or the ring is zero. Enter the thickness of your material in the configuration dialog.
 

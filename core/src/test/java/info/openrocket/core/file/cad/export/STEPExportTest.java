@@ -29,6 +29,7 @@ import static info.openrocket.core.file.cad.export.ExportTestSupport.assertMeasu
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.count;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.assertHasPoint3D;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -159,6 +160,19 @@ class STEPExportTest extends BaseTestCase {
 		CADPartsExporter exporter = new CADPartsExporter();
 		exporter.addFinSet(fins);
 		assertThrows(IllegalStateException.class, () -> write(exporter, Format.STEP));
+	}
+
+	/**
+	 * Two holes of radius 5 mm with centers 10 mm apart touch at one point, which is not a manifold solid.
+	 */
+	@Test
+	void touchingHolesAreRejected() {
+		CADPartsExporter exporter = new CADPartsExporter();
+		exporter.addCenteringRing(createRing(0.030, 0), List.of(
+				new RingSvgExporter.Hole(-0.005, 0, 0.005),
+				new RingSvgExporter.Hole(0.005, 0, 0.005)));
+		assertThrows(IllegalStateException.class, () -> write(exporter, Format.STEP));
+		assertDoesNotThrow(() -> write(exporter, Format.DXF));
 	}
 
 	@Test
