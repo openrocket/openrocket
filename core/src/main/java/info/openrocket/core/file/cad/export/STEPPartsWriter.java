@@ -27,6 +27,34 @@ import java.util.Locale;
  * solid per region, extruded from z = 0 to the part thickness. Units are millimeters.
  * <p>
  * Straight edges become planar side faces and circles become cylindrical faces, so the geometry is exact.
+ * <p>
+ * <b>Orientation rules.</b> The topology follows ISO 10303-42 (topology and geometry resources) as constrained by
+ * ISO 10303-514 (advanced boundary representation); the entity definitions are public, e.g. in the STEP Tools AP214
+ * reference at https://www.steptools.com/stds/stp_aim/html/, and the CAx-IF recommended practices
+ * (https://www.mbx-if.org/cax/cax_recommPractice.php) describe how CAD programs read them. Three rules are used:
+ * <ul>
+ *     <li>An EDGE_CURVE runs from its first to its second vertex; its <code>same_sense</code> is .T. when that is the
+ *     direction in which its curve is parametrized. LINEs are created in the edge direction (.T.); CIRCLEs are always
+ *     counter-clockwise about +Z, so a clockwise edge on a circle has .F.</li>
+ *     <li>An ADVANCED_FACE has the normal of its surface when its <code>same_sense</code> is .T., and the opposite
+ *     normal when it is .F. Every face must end up with its normal pointing out of the material.</li>
+ *     <li>The ORIENTED_EDGEs of a face bound run counter-clockwise seen from outside the solid (against the face
+ *     normal), so the face lies on their left. In a closed shell every edge is then used exactly twice, once in
+ *     each direction, which is what makes the shell closed and manifold.</li>
+ * </ul>
+ * Each loop of a region is extruded into a wall. For loop points P0, P1, ... (material on the left) the writer
+ * creates a bottom vertex Bi at z = 0 and a top vertex Ti at z = thickness, a bottom edge bi from Bi to Bi+1, a top
+ * edge ti from Ti to Ti+1 and a vertical edge vi from Bi to Ti. One side face, seen from outside:
+ * <pre>
+ *   Ti &lt;----ti---- Ti+1
+ *   |               ^
+ *   vi (reversed)   vi+1
+ *   v               |
+ *   Bi -----bi----&gt; Bi+1
+ * </pre>
+ * The side face uses bi forward, vi+1 forward, ti reversed and vi reversed. The top face uses every ti forward, the
+ * bottom face every bi reversed, and the neighboring side face uses vi forward, so each edge appears once in each
+ * direction.
  */
 final class STEPPartsWriter {
 	/** The program and version, written as the preprocessor and originating system of the file */
@@ -129,6 +157,10 @@ final class STEPPartsWriter {
 		final List<Integer> sides = new ArrayList<>();
 	}
 
+	/**
+	 * Creates one MANIFOLD_SOLID_BREP of a region: a CLOSED_SHELL of the top face, the bottom face and the side faces of
+	 * every loop.
+	 */
 	private int solid(String name, Region region, double thickness) {
 		List<Integer> faces = new ArrayList<>();
 
@@ -152,6 +184,11 @@ final class STEPPartsWriter {
 		return add("MANIFOLD_SOLID_BREP(" + string(name) + ",#" + shell + ")");
 	}
 
+	/**
+	 * Creates the top or bottom face. The first loop is the outer bound and the others are holes. The plane normal is
+	 * already +Z for the top face and -Z for the bottom face, so the face has <code>same_sense</code> .T.; the bottom
+	 * edges are reversed to run counter-clockwise seen from -Z.
+	 */
 	private int planarFace(int plane, List<LoopTopology> loops, boolean top) {
 		List<Integer> bounds = new ArrayList<>();
 		for (int i = 0; i < loops.size(); i++) {
@@ -182,6 +219,12 @@ final class STEPPartsWriter {
 		return polygonLoop(polygon, thickness);
 	}
 
+	/**
+	 * Creates the wall of a polygon as shown in the class description: one vertex pair, three LINE edges and one
+	 * PLANE side face per corner. The polygon runs with the material on its left (counter-clockwise for the outline
+	 * of a fin, clockwise for a hole), so the outward normal of each side face is its edge direction turned 90 degrees
+	 * clockwise about +Z, and the PLANE is placed with that normal (face <code>same_sense</code> .T.).
+	 */
 	private LoopTopology polygonLoop(Polygon polygon, double thickness) {
 		int n = polygon.size();
 		double[] xs = polygon.xs();
@@ -226,7 +269,7 @@ final class STEPPartsWriter {
 			double dx = xs[j] - xs[i];
 			double dy = ys[j] - ys[i];
 			double length = Math.hypot(dx, dy);
-			// Outward normal is to the right of the loop direction
+			// The material is on the left of the edge, so the normal pointing out of the material is on its right
 			int normal = direction(dy / length, -dx / length, 0);
 			int plane = add("PLANE('',#" + placement(bottomPoints[i], normal, edgeDirections[i]) + ")");
 			List<Integer> edges = List.of(
@@ -242,8 +285,14 @@ final class STEPPartsWriter {
 	}
 
 	/**
-	 * Creates the walls of a hole made of clockwise arcs. Each arc becomes a cylindrical face whose normal points
-	 * into the hole.
+	 * Creates the wall of a hole made of clockwise arcs (merged overlapping holes), with the same edge and face
+	 * pattern as {@link #polygonLoop}: one vertex pair per arc start, a bottom and a top edge on a CIRCLE and a
+	 * vertical LINE edge, and one CYLINDRICAL_SURFACE side face per arc.
+	 * <p>
+	 * The CIRCLEs run counter-clockwise about +Z but the arc edges clockwise, so the arc edges have
+	 * <code>same_sense</code> .F. The material is outside every circle, so the surface normal, which points away
+	 * from the cylinder axis, points into the material; the faces therefore have <code>same_sense</code> .F. and
+	 * their normal points into the hole, out of the material.
 	 */
 	private LoopTopology arcLoop(ArcLoop loop, double thickness) {
 		List<Arc> arcs = loop.arcs();
@@ -301,6 +350,17 @@ final class STEPPartsWriter {
 		return topology;
 	}
 
+	/**
+	 * Creates the wall of a full circle: a single vertex pair on a seam at (cx + r, cy), one closed bottom and one
+	 * closed top edge (CIRCLE, counter-clockwise, <code>same_sense</code> .T.), a vertical seam LINE and one
+	 * CYLINDRICAL_SURFACE face. The seam is used twice in the face bound, once in each direction, the usual way to
+	 * bound a closed periodic face.
+	 * <p>
+	 * For the outer circle of a ring the material is inside the cylinder: the top edge is used forward
+	 * (counter-clockwise from +Z), and the surface normal already points out of the material (face .T.). For a hole the
+	 * material is outside: the top edge is used reversed (clockwise from +Z), and the face has .F. so its normal points
+	 * into the hole. The side face loop is counter-clockwise seen from outside the material in both cases.
+	 */
 	private LoopTopology circleLoop(Circle circle, boolean outer, double thickness) {
 		double cx = circle.cx();
 		double cy = circle.cy();
