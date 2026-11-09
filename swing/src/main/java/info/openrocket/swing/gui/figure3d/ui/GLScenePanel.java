@@ -1043,7 +1043,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 * @return the rendered image, or null if the canvas cannot render or there is no rocket to draw
 	 */
 	public BufferedImage renderOffscreen(int width, int height, boolean showCarets, boolean renderBackground) {
-		if (glInitFailed || cleanupStarted.get() || !isDisplayable()) {
+		// See RocketFigure3d.createCanvasForOffscreenRendering: never create the context while the canvas has no size.
+		if (glInitFailed || cleanupStarted.get() || !isDisplayable() || getWidth() <= 0 || getHeight() <= 0) {
 			return null;
 		}
 		BoundingBox bounds = rocket.getBoundingBox();

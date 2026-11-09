@@ -888,7 +888,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	 * Create the canvas if the view never rendered, so that an offscreen render has an OpenGL context to use. The
 	 * canvas is created on the EDT.
 	 *
-	 * @return whether the canvas exists
+	 * @return whether the canvas exists and can render
 	 */
 	public boolean createCanvasForOffscreenRendering() {
 		try {
@@ -908,7 +908,16 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 
 	private boolean createCanvasForOffscreenRenderingOnEdt() {
 		ensureCanvasCreatedOnEdt();
-		return glScenePanel != null;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return false;
+		}
+		// The canvas is laid out later after it is added, but its OpenGL context must not be created while it has no
+		// size: on macOS, a context attached to a zero-sized view aborts the application when the view is drawn.
+		if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			validate();
+		}
+		return panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0;
 	}
 
 	public BufferedImage captureImage() {
