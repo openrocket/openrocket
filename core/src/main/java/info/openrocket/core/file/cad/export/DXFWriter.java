@@ -150,6 +150,10 @@ public class DXFWriter {
 
 	/**
 	 * Writes the complete DXF file to the output stream. The stream is not closed.
+	 * <p>
+	 * The header declares millimeters with $INSUNITS and $MEASUREMENT. These variables were added to DXF after R12
+	 * (AC1009), so they are an extension here: older readers ignore them and assume their own unit, while current CAD
+	 * and laser cutting programs use them to read the drawing at the right scale.
 	 */
 	public void write(OutputStream out) throws IOException {
 		Writer writer = new BufferedWriter(new OutputStreamWriter(out, CHARSET));

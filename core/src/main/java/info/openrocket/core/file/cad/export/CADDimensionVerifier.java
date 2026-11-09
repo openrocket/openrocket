@@ -293,7 +293,8 @@ public class CADDimensionVerifier {
 	}
 
 	/**
-	 * Reads the header units and the polylines and circles on the cut layer.
+	 * Reads the header units and the polylines and circles on the cut layer. The units come from $INSUNITS, which
+	 * {@link DXFWriter} writes although it is not an R12 header variable, because current programs use it.
 	 */
 	private static Geometry readDXF(InputStream in) throws IOException {
 		Geometry geometry = new Geometry();
