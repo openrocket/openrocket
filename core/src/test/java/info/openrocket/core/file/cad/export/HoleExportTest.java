@@ -17,6 +17,7 @@ import static info.openrocket.core.file.cad.export.ExportTestSupport.find;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.dxfEntities;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -38,6 +39,27 @@ class HoleExportTest extends BaseTestCase {
 		for (Format format : Format.values()) {
 			CADDimensionVerifier.Result result = write(exporter, format).verify(format);
 			assertTrue(result.isAllMatching(), format + ": " + describe(result));
+		}
+	}
+
+	/**
+	 * A 36 mm motor tube through a ring with a manual inner diameter of 24 mm: the files contain the 36 mm hole, so the
+	 * inner diameter does not match where the file has circles (DXF and STEP) and the part carries a warning.
+	 */
+	@Test
+	void boreSmallerThanAMotorTubeIsAMismatch() throws IOException {
+		CADPartsExporter exporter = new CADPartsExporter();
+		exporter.addCenteringRing(createRing(0.025, 0.012), List.of(new RingSvgExporter.Hole(0, 0, 0.018)));
+
+		for (Format format : List.of(Format.DXF, Format.STEP)) {
+			CADDimensionVerifier.Result result = write(exporter, format).verify(format);
+			CADDimensionVerifier.Check check = find(result, "Ring", Dimension.INNER_DIAMETER);
+			assertEquals(CADDimensionVerifier.Status.MISMATCH, check.status(), format + ": " + describe(result));
+			assertEquals(0.036, check.measured(), 1e-6);
+			assertFalse(result.isAllMatching());
+		}
+		for (Format format : Format.values()) {
+			assertEquals(1, write(exporter, format).parts().get(0).part().getWarnings().size());
 		}
 	}
 

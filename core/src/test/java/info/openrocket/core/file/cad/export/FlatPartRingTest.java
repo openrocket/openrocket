@@ -6,6 +6,9 @@ import info.openrocket.core.file.cad.export.FlatPart.Circle;
 import info.openrocket.core.file.cad.export.FlatPart.Dimension;
 import info.openrocket.core.file.cad.export.FlatPart.Region;
 import info.openrocket.core.file.svg.export.RingSvgExporter;
+import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.CenteringRing;
+import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 
@@ -117,6 +120,81 @@ class FlatPartRingTest extends BaseTestCase {
 		assertEquals(1, part.getRegions().get(0).holes().size());
 		assertFalse(hasDimension(part, Dimension.HOLE_DIAMETER));
 		assertEquals(0.0788, dimension(part, Dimension.INNER_DIAMETER), 1e-9);
+	}
+
+	/**
+	 * A manual inner diameter of 24 mm with a 36 mm motor tube through the ring: the 36 mm hole is cut, but the
+	 * inner diameter of the ring is still reported, and the user is warned.
+	 */
+	@Test
+	void manualBoreSmallerThanAMotorTubeIsReportedAndWarned() {
+		FlatPart part = FlatPart.fromCenteringRing(createRing(0.025, 0.012),
+				List.of(new RingSvgExporter.Hole(0, 0, 0.018)));
+
+		List<FlatPart.Loop> holes = part.getRegions().get(0).holes();
+		assertEquals(1, holes.size());
+		assertEquals(18, assertInstanceOf(Circle.class, holes.get(0)).r(), 1e-9);
+		assertEquals(0.024, dimension(part, Dimension.INNER_DIAMETER), 1e-9);
+		assertEquals(0.036, dimension(part, Dimension.HOLE_DIAMETER, 1), 1e-9);
+		assertEquals(Math.PI * (25 * 25 - 18 * 18) * 5 * 1e-9, dimension(part, Dimension.VOLUME), 1e-15);
+		assertEquals(1, part.getWarnings().size());
+		assertTrue(part.getWarnings().get(0).contains("'Ring'"), part.getWarnings().get(0));
+	}
+
+	/**
+	 * A ring with automatic diameters in a body tube with an inner diameter of 48 mm, around a motor tube with an
+	 * outer diameter of 24 mm. The bore follows the motor tube, also after the motor tube is changed to 30 mm.
+	 */
+	@Test
+	void automaticBoreFollowsTheMotorTube() {
+		BodyTube body = new BodyTube();
+		body.setOuterRadius(0.025);
+		body.setThickness(0.001);
+		body.setLength(0.3);
+		InnerTube motorTube = new InnerTube();
+		motorTube.setOuterRadius(0.012);
+		motorTube.setLength(0.1);
+		body.addChild(motorTube);
+		CenteringRing ring = new CenteringRing();
+		ring.setLength(0.005);
+		ring.setName("Ring");
+		body.addChild(ring);
+		ring.setOuterRadiusAutomatic(true);
+		ring.setInnerRadiusAutomatic(true);
+
+		FlatPart part = FlatPart.fromCenteringRing(ring, RingSvgExporter.holesFromMotorMounts(List.of(motorTube)));
+		assertEquals(0.048, dimension(part, Dimension.OUTER_DIAMETER), 1e-9);
+		assertEquals(0.024, dimension(part, Dimension.INNER_DIAMETER), 1e-9);
+		assertEquals(12, assertInstanceOf(Circle.class, part.getRegions().get(0).holes().get(0)).r(), 1e-9);
+		assertTrue(part.getWarnings().isEmpty());
+
+		motorTube.setOuterRadius(0.015);
+		part = FlatPart.fromCenteringRing(ring, RingSvgExporter.holesFromMotorMounts(List.of(motorTube)));
+		assertEquals(0.030, dimension(part, Dimension.INNER_DIAMETER), 1e-9);
+		assertEquals(1, part.getRegions().get(0).holes().size());
+		assertEquals(15, assertInstanceOf(Circle.class, part.getRegions().get(0).holes().get(0)).r(), 1e-9);
+		assertEquals(Math.PI * (24 * 24 - 15 * 15) * 5 * 1e-9, dimension(part, Dimension.VOLUME), 1e-15);
+		assertTrue(part.getWarnings().isEmpty());
+	}
+
+	/**
+	 * Changing the outer diameter to 40 mm, the thickness to 4 mm and the inner diameter to 20 mm changes the part.
+	 */
+	@Test
+	void changedRingDimensionsAreExported() {
+		CenteringRing ring = createRing(0.025, 0.009);
+		ring.setOuterRadius(0.020);
+		ring.setLength(0.004);
+		ring.setInnerRadius(0.010);
+
+		FlatPart part = FlatPart.fromCenteringRing(ring, List.of());
+		assertEquals(4, part.getThicknessMm(), 1e-9);
+		assertEquals(20, assertInstanceOf(Circle.class, part.getRegions().get(0).outer()).r(), 1e-9);
+		assertEquals(10, assertInstanceOf(Circle.class, part.getRegions().get(0).holes().get(0)).r(), 1e-9);
+		assertEquals(0.040, dimension(part, Dimension.OUTER_DIAMETER), 1e-9);
+		assertEquals(0.020, dimension(part, Dimension.INNER_DIAMETER), 1e-9);
+		assertEquals(0.004, dimension(part, Dimension.MATERIAL_THICKNESS), 1e-9);
+		assertEquals(Math.PI * (20 * 20 - 10 * 10) * 4 * 1e-9, dimension(part, Dimension.VOLUME), 1e-15);
 	}
 
 	@Test

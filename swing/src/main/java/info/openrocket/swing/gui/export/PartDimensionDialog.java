@@ -21,7 +21,9 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Shows the dimensions of the parts in an exported CAD file, as measured from the file, next to the design values.
@@ -60,7 +62,9 @@ public class PartDimensionDialog extends JDialog {
 				return false;
 			}
 		};
+		Set<String> warnings = new LinkedHashSet<>();
 		for (Check check : result.checks()) {
+			warnings.addAll(check.part().part().getWarnings());
 			DimensionValue dim = check.dimension();
 			model.addRow(new Object[]{
 					check.part().name(),
@@ -80,6 +84,9 @@ public class PartDimensionDialog extends JDialog {
 
 		JPanel top = new JPanel(new BorderLayout(0, 5));
 		top.add(wrappedLabel(summary), BorderLayout.NORTH);
+		if (!warnings.isEmpty()) {
+			top.add(wrappedLabel(String.join("<br>", warnings)), BorderLayout.CENTER);
+		}
 		top.add(wrappedLabel(hint), BorderLayout.SOUTH);
 
 		JButton close = new JButton(trans.get("dlg.but.close"));

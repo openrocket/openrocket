@@ -1,9 +1,12 @@
 package info.openrocket.core.file.cad.export;
 
 import info.openrocket.core.file.svg.export.RingSvgExporter;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.CoordinateIF;
 
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.Objects;
  * on the left of the loop direction.
  */
 public final class FlatPart {
+	private static final Translator trans = Application.getTranslator();
 	private static final double M_TO_MM = 1000;
 	/** Points closer than this (mm) are merged. */
 	private static final double POINT_TOLERANCE_MM = 1e-6;
@@ -166,13 +170,15 @@ public final class FlatPart {
 	private final List<Region> regions;
 	private final double thicknessMm;
 	private final List<DimensionValue> dimensions;
+	private final List<String> warnings;
 
 	private FlatPart(String name, List<Region> regions, double thicknessMm,
-					 List<DimensionValue> dimensions) {
+					 List<DimensionValue> dimensions, List<String> warnings) {
 		this.name = name == null ? "" : name;
 		this.regions = List.copyOf(regions);
 		this.thicknessMm = thicknessMm;
 		this.dimensions = List.copyOf(dimensions);
+		this.warnings = List.copyOf(warnings);
 	}
 
 	/**
@@ -205,6 +211,13 @@ public final class FlatPart {
 	}
 
 	/**
+	 * @return messages for the user about differences between the design and the exported part, or an empty list
+	 */
+	public List<String> getWarnings() {
+		return warnings;
+	}
+
+	/**
 	 * @return the bounds of the part in mm: minX, minY, maxX, maxY
 	 */
 	public double[] getBounds() {
@@ -230,7 +243,7 @@ public final class FlatPart {
 			}
 			moved.add(new Region(translate(region.outer(), dx, dy), holes));
 		}
-		return new FlatPart(name, moved, thicknessMm, dimensions);
+		return new FlatPart(name, moved, thicknessMm, dimensions, warnings);
 	}
 
 	/**
@@ -251,7 +264,7 @@ public final class FlatPart {
 		}
 		double thicknessMm = finSet.getThickness() * M_TO_MM;
 
-		FlatPart part = new FlatPart(finSet.getName(), regions, thicknessMm, List.of());
+		FlatPart part = new FlatPart(finSet.getName(), regions, thicknessMm, List.of(), List.of());
 		double[] b = part.getBounds();
 		List<DimensionValue> dims = new ArrayList<>();
 		dims.add(new DimensionValue(Dimension.OUTLINE_LENGTH, 0, (b[2] - b[0]) / M_TO_MM));
@@ -270,7 +283,7 @@ public final class FlatPart {
 		}
 		dims.add(new DimensionValue(Dimension.MATERIAL_THICKNESS, 0, finSet.getThickness()));
 		dims.add(new DimensionValue(Dimension.VOLUME, 0, area * thicknessMm * 1e-9));
-		return new FlatPart(part.name, regions, thicknessMm, dims);
+		return new FlatPart(part.name, regions, thicknessMm, dims, List.of());
 	}
 
 	/**
@@ -303,14 +316,21 @@ public final class FlatPart {
 		List<Integer> visible = HoleUnion.visible(circles);
 		List<Circle> cut = new ArrayList<>();
 		List<DimensionValue> dims = new ArrayList<>();
+		List<String> warnings = new ArrayList<>();
 		dims.add(new DimensionValue(Dimension.OUTER_DIAMETER, 0, 2 * outerRadius));
+		// The inner diameter is the one of the ring, even if a larger motor tube hole replaces the bore
+		if (innerRadius > 0) {
+			dims.add(new DimensionValue(Dimension.INNER_DIAMETER, 0, 2 * innerRadius));
+			if (!visible.contains(0)) {
+				warnings.add(String.format(trans.get("PartExport.warning.boreInsideHole"), name,
+						UnitGroup.UNITS_LENGTH.toStringUnit(2 * innerRadius)));
+			}
+		}
 		int index = 1;
 		for (int i : visible) {
 			Circle c = circles.get(i);
 			cut.add(c);
-			if (i < firstHole) {
-				dims.add(new DimensionValue(Dimension.INNER_DIAMETER, 0, 2 * c.r() / M_TO_MM));
-			} else {
+			if (i >= firstHole) {
 				dims.add(new DimensionValue(Dimension.HOLE_DIAMETER, index, 2 * c.r() / M_TO_MM));
 				dims.add(new DimensionValue(Dimension.HOLE_OFFSET, index, Math.hypot(c.cx(), c.cy()) / M_TO_MM));
 				index++;
@@ -320,7 +340,7 @@ public final class FlatPart {
 
 		Region region = new Region(new Circle(0, 0, outerMm), HoleUnion.union(cut));
 		dims.add(new DimensionValue(Dimension.VOLUME, 0, area(region) * thickness * M_TO_MM * 1e-9));
-		return new FlatPart(name, List.of(region), thickness * M_TO_MM, dims);
+		return new FlatPart(name, List.of(region), thickness * M_TO_MM, dims, warnings);
 	}
 
 	/**

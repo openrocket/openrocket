@@ -56,7 +56,9 @@ What is exported
   set. The cross section (rounded, airfoil), the root fillets and the fin cant are not part of the export.
 * **Centering rings**: the ring with its inner diameter. If a motor mount (inner tube) passes through the ring, a hole is
   cut for it, one for every motor of a cluster. Holes that lie inside another hole are left out, and overlapping holes are
-  merged into one outline. The thickness of the part is the *Thickness* of the ring.
+  merged into one outline. The thickness of the part is the *Thickness* of the ring. If you enter an inner diameter
+  that is smaller than a motor mount through the ring, the larger hole for the motor mount is cut, and the dimension
+  check warns you and shows the inner diameter as a mismatch in DXF and STEP files.
 
 When you export several parts, they are laid out next to each other, in rows, with 10 mm between them.
 
