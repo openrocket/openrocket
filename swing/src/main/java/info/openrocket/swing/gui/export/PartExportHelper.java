@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.JOptionPane;
 import java.awt.Window;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,10 +116,10 @@ public final class PartExportHelper {
 			}
 		}
 
-		List<ExportedPart> exported;
-		try (OutputStream out = new FileOutputStream(target)) {
-			exported = exporter.write(format, title, out);
-		}
+		// Written to memory first, so an existing file is kept if the parts cannot be exported
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		List<ExportedPart> exported = exporter.write(format, title, out);
+		Files.write(target.toPath(), out.toByteArray());
 		try (InputStream in = new FileInputStream(target)) {
 			return CADDimensionVerifier.verify(format, in, exported);
 		}

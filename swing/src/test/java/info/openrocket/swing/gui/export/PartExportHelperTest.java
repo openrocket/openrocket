@@ -32,6 +32,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PartExportHelperTest {
@@ -136,6 +138,23 @@ class PartExportHelperTest {
 
 		assertTrue(PartExportHelper.collectParts(tubes).isEmpty());
 		assertEquals(partsOnly, PartExportHelper.collectParts(allComponents(document)));
+	}
+
+	/**
+	 * A part that cannot be exported as a solid must leave an existing file as it was.
+	 */
+	@Test
+	void failedExportKeepsTheExistingFile() throws Exception {
+		BodyTube body = new BodyTube();
+		CenteringRing ring = new CenteringRing();
+		body.addChild(ring);
+		ring.setLength(0);
+		Path file = tempDir.resolve("ring.step");
+		Files.writeString(file, "old contents");
+
+		assertThrows(IllegalStateException.class,
+				() -> PartExportHelper.exportToFile(List.of(ring), Format.STEP, file.toFile(), "test"));
+		assertEquals("old contents", Files.readString(file));
 	}
 
 	/**
