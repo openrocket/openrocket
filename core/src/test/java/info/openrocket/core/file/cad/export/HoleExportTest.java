@@ -13,6 +13,7 @@ import java.util.List;
 
 import static info.openrocket.core.file.cad.export.PartFixtures.createRing;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.write;
+import static info.openrocket.core.file.cad.export.ExportTestSupport.assertMeasured;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.findCheck;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.findDimension;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
@@ -61,6 +62,31 @@ class HoleExportTest extends BaseTestCase {
 		}
 		for (Format format : Format.values()) {
 			assertEquals(1, write(exporter, format).parts().get(0).part().getWarnings().size());
+		}
+	}
+
+	/**
+	 * A ring changed to an outer diameter of 40 mm, a thickness of 4 mm and an inner diameter of 20 mm: the circles and
+	 * the thickness measured from the written DXF and STEP files have the new values, and every format matches.
+	 */
+	@Test
+	void changedRingDimensionsAreWrittenToTheFile() throws IOException {
+		CenteringRing ring = createRing(0.025, 0.009);
+		ring.setOuterRadius(0.020);
+		ring.setLength(0.004);
+		ring.setInnerRadius(0.010);
+		CADPartsExporter exporter = new CADPartsExporter();
+		exporter.addCenteringRing(ring, List.of());
+
+		for (Format format : List.of(Format.DXF, Format.STEP)) {
+			CADDimensionVerifier.Result result = write(exporter, format).verify(format);
+			assertMeasured(result, "Ring", Dimension.OUTER_DIAMETER, 0.040);
+			assertMeasured(result, "Ring", Dimension.INNER_DIAMETER, 0.020);
+		}
+		assertMeasured(write(exporter, Format.STEP).verify(Format.STEP), "Ring", Dimension.MATERIAL_THICKNESS, 0.004);
+		for (Format format : Format.values()) {
+			CADDimensionVerifier.Result result = write(exporter, format).verify(format);
+			assertTrue(result.isAllMatching(), format + ": " + describe(result));
 		}
 	}
 
