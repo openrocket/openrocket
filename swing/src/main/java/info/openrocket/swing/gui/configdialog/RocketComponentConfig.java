@@ -258,8 +258,11 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			}
 		}
 
-		// A drop-down arrow is painted on the right, as not all fonts contain an arrow character
+		// A drop-down arrow is painted on the right, as not all fonts contain an arrow character and neither FlatLaf
+		// nor OpenRocket has a drop-down button. Sizes in pixels: arrow width, gap after the text, margin after it.
 		final int arrowSize = 7;
+		final int arrowGap = 5;
+		final int arrowMargin = 6;
 		JButton button = new JButton(trans.get("RocketCompCfg.but.Export"), Icons.FILE_EXPORT) {
 			@Override
 			protected void paintComponent(Graphics g) {
@@ -268,14 +271,14 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g2.setColor(isEnabled() ? getForeground() : UIManager.getColor("Button.disabledText"));
 				// The arrow sits in the extra right margin, just after the text
-				int x = getWidth() - getInsets().right + 5;
+				int x = getWidth() - getInsets().right + arrowGap;
 				int y = (getHeight() - arrowSize / 2) / 2;
 				g2.fillPolygon(new int[]{x, x + arrowSize, x + arrowSize / 2}, new int[]{y, y, y + arrowSize / 2 + 1}, 3);
 				g2.dispose();
 			}
 		};
 		Insets margin = button.getMargin();
-		button.setMargin(new Insets(margin.top, margin.left, margin.bottom, margin.right + arrowSize + 6));
+		button.setMargin(new Insets(margin.top, margin.left, margin.bottom, margin.right + arrowSize + arrowMargin));
 		button.setToolTipText(trans.get("RocketCompCfg.but.Export.ttip"));
 		button.addActionListener(e -> popup.show(button, 0, button.getHeight()));
 		return button;
