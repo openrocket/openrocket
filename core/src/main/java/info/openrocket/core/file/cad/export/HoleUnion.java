@@ -4,6 +4,8 @@ import info.openrocket.core.file.cad.export.FlatPart.Arc;
 import info.openrocket.core.file.cad.export.FlatPart.ArcLoop;
 import info.openrocket.core.file.cad.export.FlatPart.Circle;
 import info.openrocket.core.file.cad.export.FlatPart.Loop;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,6 +16,7 @@ import java.util.List;
  * and overlapping holes are merged into one loop of circular arcs.
  */
 final class HoleUnion {
+	private static final Translator trans = Application.getTranslator();
 	/** Distances below this (mm) are treated as equal. */
 	static final double TOLERANCE_MM = 1e-6;
 
@@ -117,7 +120,7 @@ final class HoleUnion {
 			}
 			Arc first = loop.get(0);
 			if (Math.hypot(first.x0() - current.x1(), first.y0() - current.y1()) >= TOLERANCE_MM) {
-				throw new IllegalStateException("Could not merge overlapping holes");
+				throw new IllegalStateException(trans.get("PartExport.error.mergeHoles"));
 			}
 			loops.add(new ArcLoop(loop));
 		}

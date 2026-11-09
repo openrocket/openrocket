@@ -364,7 +364,7 @@ public final class FlatPart {
 				}
 				for (Circle c : circles) {
 					if (Math.hypot(c.cx() - outer.cx(), c.cy() - outer.cy()) + c.r() >= outer.r() - POINT_TOLERANCE_MM) {
-						throw new IllegalStateException("A hole in '" + name + "' reaches the outer edge of the part");
+						throw new IllegalStateException(String.format(trans.get("PartExport.error.holeAtEdge"), name));
 					}
 				}
 			}

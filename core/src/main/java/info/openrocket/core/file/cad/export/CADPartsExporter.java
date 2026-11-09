@@ -1,8 +1,10 @@
 package info.openrocket.core.file.cad.export;
 
 import info.openrocket.core.file.svg.export.RingSvgExporter;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.startup.Application;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,6 +20,7 @@ import java.util.List;
  * file can be checked with {@link CADDimensionVerifier}.
  */
 public class CADPartsExporter {
+	private static final Translator trans = Application.getTranslator();
 	private static final double PART_SPACING_MM = 10;
 	private static final double MIN_ROW_WIDTH_MM = 350;
 	/** Space below each part that is reserved for its label in 2D formats. */
@@ -93,7 +96,7 @@ public class CADPartsExporter {
 		if (format != Format.DXF) {
 			for (FlatPart part : parts) {
 				if (!(part.getThicknessMm() > 0)) {
-					throw new IllegalStateException("Part '" + part.getName() + "' has no thickness");
+					throw new IllegalStateException(String.format(trans.get("PartExport.error.noThickness"), part.getName()));
 				}
 				part.validateSolid();
 			}
