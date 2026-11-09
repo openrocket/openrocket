@@ -4,24 +4,32 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
 import info.openrocket.swing.gui.figure3d.rendering.GLContextDiagnostics;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
+import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBRobustness;
@@ -840,6 +848,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void initGL() {
+		// An offscreen render can initialize the context before the view is first shown.
+		if (glInitialized) {
+			return;
+		}
 		try {
 			configureGlState();
 			log.debug("OpenGL context {}", GLContextDiagnostics.record(data, effective));
@@ -1016,6 +1028,99 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				swapCallCount.incrementAndGet();
 			}
 		}
+	}
+
+	/**
+	 * Renders the rocket offscreen in the finished display mode, from the side with a camera fitted to the rocket, and
+	 * reads the image back. This works whether or not the view is shown: the OpenGL context and the scene are created
+	 * on first use. The view's own camera, display mode and caret visibility are not changed. Must be called on the
+	 * render thread.
+	 *
+	 * @param width            image width, in pixels
+	 * @param height           image height, in pixels
+	 * @param showCarets       whether to draw the CG and CP markers
+	 * @param renderBackground whether to draw the view's background; otherwise the background is transparent
+	 * @return the rendered image, or null if the canvas cannot render or there is no rocket to draw
+	 */
+	public BufferedImage renderOffscreen(int width, int height, boolean showCarets, boolean renderBackground) {
+		if (glInitFailed || cleanupStarted.get() || !isDisplayable()) {
+			return null;
+		}
+		BoundingBox bounds = rocket.getBoundingBox();
+		if (bounds == null || bounds.isEmpty()) {
+			return null;
+		}
+		boolean contextCurrent = false;
+		try {
+			beforeRender();
+			contextCurrent = true;
+			if (!glInitialized) {
+				initGL();
+			}
+		} catch (RuntimeException e) {
+			if (contextCurrent) {
+				afterRender();
+			}
+			// Same handling as a failed first frame in render(): the view then shows why 3D is unavailable.
+			glInitFailed = true;
+			frameExportQueue.closeAndFailPendingCaptures();
+			log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", e.getMessage(), e);
+			Runnable failureCallback = glInitFailureCallback;
+			if (failureCallback != null) {
+				failureCallback.run();
+			}
+			return null;
+		}
+		try {
+			if (hasGraphicsContextBeenReset()) {
+				return null;
+			}
+			// Apply the rocket changes that were queued while the view was not rendering.
+			scene3DOrchestrator.update();
+
+			Scene scene = scene3DOrchestrator.getScene();
+			RenderingConfiguration config = scene3DOrchestrator.getRenderingConfiguration();
+			Camera viewCamera = scene.getCamera();
+			DisplaySettings.RenderMode viewMode = config.getDisplay().getMode();
+			boolean viewCarets = config.getVisualEffects().areCaretsVisible();
+			RealisticRenderer renderer = new RealisticRenderer(config, rocket, width, height);
+			try {
+				scene.setCamera(createSideViewCamera(scene, bounds, width / (float) height));
+				config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
+				config.getVisualEffects().setCaretsVisible(showCarets);
+				renderer.render(scene, renderBackground);
+				int renderWidth = renderer.getRenderWidth();
+				int renderHeight = renderer.getRenderHeight();
+				ByteBuffer buffer = captureResolvedFramebuffer(renderer, renderWidth, renderHeight);
+				return buffer == null ? null : bufferToImage(buffer, renderWidth, renderHeight);
+			} finally {
+				scene.setCamera(viewCamera);
+				config.getDisplay().setMode(viewMode);
+				config.getVisualEffects().setCaretsVisible(viewCarets);
+				renderer.cleanup();
+			}
+		} finally {
+			afterRender();
+		}
+	}
+
+	/** A side-view camera like the design view's, centered on the rocket and fitted to it. */
+	private static Camera createSideViewCamera(Scene scene, BoundingBox bounds, float aspectRatio) {
+		Camera camera = Camera.builder()
+				.withFieldOfView(Math.toRadians(10))
+				.withAspectRatio(aspectRatio)
+				.withClippingPlanes(0.1f, 100f)
+				.withFixedCenterOfInterest(false)
+				.build();
+		camera.setSideView();
+		CoordinateIF min = bounds.min.multiply(RenderingConstants.WORLD_SCALE);
+		CoordinateIF max = bounds.max.multiply(RenderingConstants.WORLD_SCALE);
+		Vector3f center = new Vector3f((float) ((min.getX() + max.getX()) * 0.5),
+				(float) ((min.getY() + max.getY()) * 0.5), (float) ((min.getZ() + max.getZ()) * 0.5));
+		camera.setCenterOfInterest(scene.transformRocketPoint(center, new Vector3f()));
+		camera.fitBounds(new Vector3f((float) (max.getX() - min.getX()), (float) (max.getY() - min.getY()),
+				(float) (max.getZ() - min.getZ())));
+		return camera;
 	}
 
 	private void handlePendingExports(Scene sceneView, GLRenderer renderer) {

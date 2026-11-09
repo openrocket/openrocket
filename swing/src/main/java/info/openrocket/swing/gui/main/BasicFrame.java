@@ -125,7 +125,7 @@ import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.figure3d.photo.PhotoFrame;
-import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnailRenderer;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
@@ -150,8 +150,7 @@ private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 
 private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 private static final int PREVIEW_WIDTH = 1000;
-private static final int PREVIEW_MIN_HEIGHT = 600;
-private static final int PREVIEW_MAX_HEIGHT = 800;
+private static final int PREVIEW_HEIGHT = 600;
 
 private static final Translator trans = Application.getTranslator();
 	private static final ApplicationPreferences prefs = Application.getPreferences();
@@ -2262,26 +2261,20 @@ private static final Translator trans = Application.getTranslator();
 			return false;
 		}
 
-		// Prepare the file preview and thumbnail on the EDT (they read the rocket model), then render them on the save
-		// worker thread so the UI stays responsive. A design that cannot be rendered is still saved, just without the
-		// image.
+		// Prepare the file preview and thumbnail on the EDT, then render them with the 3D view's renderer while the save
+		// worker runs, so the UI stays responsive. A design that cannot be rendered is still saved, just without the
+		// images.
 		Supplier<byte[]> previewRenderer = null;
-		RocketPanel.PreparedPreview preparedPreview = preparePreviewImage();
-		if (preparedPreview != null) {
-			previewRenderer = preparedPreview::renderPng;
+		Supplier<byte[]> thumbnailRenderer = null;
+		if (rocketpanel != null) {
+			try {
+				previewRenderer = rocketpanel.prepareFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+				thumbnailRenderer = rocketpanel.prepareFileThumbnail(RocketThumbnail.DEFAULT_SIZE);
+			} catch (RuntimeException e) {
+				log.warn("Could not prepare the file preview and thumbnail", e);
+			}
 		}
 		document.getDefaultStorageOptions().clearPreviewImage();
-
-		Supplier<byte[]> thumbnailRenderer = null;
-		try {
-			RocketThumbnailRenderer.RenderTask thumbnailTask =
-					RocketThumbnailRenderer.prepareThumbnail(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
-			if (thumbnailTask != null) {
-				thumbnailRenderer = thumbnailTask::renderPng;
-			}
-		} catch (RuntimeException e) {
-			log.warn("Could not prepare the file thumbnail", e);
-		}
 		document.getDefaultStorageOptions().clearThumbnailImage();
 
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
@@ -2332,27 +2325,6 @@ private static final Translator trans = Application.getTranslator();
 
 		return false;
 	}
-
-	/**
-	 * Prepare a file preview image for saving in the design file. Reads the rocket model, so it must be called on the
-	 * EDT; the returned value is rendered on the save worker thread.
-	 * @return the prepared preview, or null if no preview could be generated
-	 */
-	private RocketPanel.PreparedPreview preparePreviewImage() {
-		if (rocketpanel == null) {
-			return null;
-		}
-
-		String viewPreference = prefs.getString(ApplicationPreferences.FILE_PREVIEW_VIEW_TYPE,
-				RocketPanel.VIEW_TYPE.SideView.name());
-		RocketPanel.VIEW_TYPE previewView = RocketPanel.VIEW_TYPE.fromName(viewPreference);
-		if (previewView == null) {
-			previewView = RocketPanel.VIEW_TYPE.SideView;
-		}
-
-		return rocketpanel.preparePreview(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
-	}
-
 
 	private boolean closeAction() {
 		if (!document.isSaved()) {

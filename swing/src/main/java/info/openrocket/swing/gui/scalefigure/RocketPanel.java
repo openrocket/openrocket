@@ -40,7 +40,7 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.dialogs.DisplaySettingsDialog;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
-import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnailRenderer;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
 import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.figureelements.Caret;
@@ -145,6 +145,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -1910,97 +1911,81 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		return scaleForPreview(source, targetWidth, minHeight, maxHeight);
 	}
 
-	public byte[] createPreviewPng(VIEW_TYPE requestedView, int targetWidth, int minHeight, int maxHeight) {
-		PreparedPreview prepared = preparePreview(requestedView, targetWidth, minHeight, maxHeight);
-		return prepared == null ? null : prepared.renderPng();
-	}
-
 	/**
-	 * Prepare a file preview: capture the 2D (or 3D) preview image and, for 2D views, prepare the 3D side view to be
-	 * rendered below it. Reads the rocket model and paints the figure, so it must be called on the EDT; the returned
-	 * value can be rendered on any thread.
+	 * Prepare the file preview: the 3D finished view of the rocket from the side, with the information text shown in
+	 * the 3D view. Must be called on the EDT, which paints the text; the returned supplier renders the 3D view and
+	 * encodes the PNG, and should be called off the EDT.
 	 *
-	 * @return the prepared preview, or null if no preview can be generated
+	 * @param width  width of the preview, in pixels
+	 * @param height height of the preview, in pixels
+	 * @return the preview renderer, or null if 3D rendering is unavailable; the renderer returns null if the rocket
+	 * 		cannot be rendered
 	 */
-	public PreparedPreview preparePreview(VIEW_TYPE requestedView, int targetWidth, int minHeight, int maxHeight) {
-		BufferedImage image = capturePreviewImage(requestedView, targetWidth, minHeight, maxHeight);
-		if (image == null) {
+	public Supplier<byte[]> prepareFilePreview(int width, int height) {
+		if (!figure3d.createCanvasForOffscreenRendering()) {
 			return null;
 		}
-		RocketThumbnailRenderer.RenderTask sideView = requestedView.is3d ? null : prepareSideView(image);
-		return new PreparedPreview(image, sideView);
+		BufferedImage text = paint3DText(width, height);
+		return () -> {
+			BufferedImage image = figure3d.renderOffscreenImage(width, height, true, true);
+			if (image == null) {
+				return null;
+			}
+			Graphics2D g2 = image.createGraphics();
+			try {
+				g2.drawImage(text, 0, 0, null);
+			} finally {
+				g2.dispose();
+			}
+			return encodePng(image);
+		};
 	}
 
 	/**
-	 * Prepare the 3D side view to be rendered below a 2D preview image, or null if it cannot be rendered. Must be
-	 * called on the EDT.
+	 * Prepare the file thumbnail: the 3D finished view of the rocket at 45 degrees on a white square, see
+	 * {@link RocketThumbnail}. Must be called on the EDT; the returned supplier renders the 3D view and encodes the
+	 * PNG, and should be called off the EDT.
+	 *
+	 * @param size width and height of the thumbnail, in pixels
+	 * @return the thumbnail renderer, or null if 3D rendering is unavailable; the renderer returns null if the rocket
+	 * 		cannot be rendered
 	 */
-	private RocketThumbnailRenderer.RenderTask prepareSideView(BufferedImage preview) {
-		Color background = getCustom2DBackgroundColor();
-		if (background == null) {
-			background = UITheme.getColor(UITheme.Keys.BACKGROUND);
-		}
-		try {
-			return RocketThumbnailRenderer.prepareSideView(document.getRocket(), preview.getWidth(),
-					preview.getHeight(), background);
-		} catch (RuntimeException e) {
-			log.warn("Could not prepare the 3D side view for the file preview", e);
+	public Supplier<byte[]> prepareFileThumbnail(int size) {
+		if (!figure3d.createCanvasForOffscreenRendering()) {
 			return null;
 		}
+		return () -> {
+			BufferedImage sideView = figure3d.renderOffscreenImage(
+					RocketThumbnail.sideViewWidth(size), RocketThumbnail.sideViewHeight(size), false, false);
+			BufferedImage thumbnail = sideView == null ? null : RocketThumbnail.fromSideView(sideView, size);
+			return thumbnail == null ? null : encodePng(thumbnail);
+		};
 	}
 
-	/** Combine a 2D preview with its rendered 3D side view below it. */
-	private static BufferedImage combineSideView(BufferedImage preview, BufferedImage sideView) {
-		BufferedImage combined = new BufferedImage(preview.getWidth(), preview.getHeight() + sideView.getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = combined.createGraphics();
+	/** Paint the information text of the 3D view on a transparent image. */
+	private BufferedImage paint3DText(int width, int height) {
+		BufferedImage text = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = text.createGraphics();
+		boolean was3D = extraText.is3DView();
 		try {
-			g2.drawImage(preview, 0, 0, null);
-			g2.drawImage(sideView, 0, preview.getHeight(), null);
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			extraText.set3DView(true);
+			extraText.paint(g2, 1.0, new Rectangle(0, 0, width, height));
 		} finally {
+			extraText.set3DView(was3D);
 			g2.dispose();
 		}
-		return combined;
+		return text;
 	}
 
-	/**
-	 * A file preview prepared on the EDT: the captured preview image and, for 2D views, the 3D side view to render
-	 * below it. Rendering the PNG is pure CPU work that is safe to run on any thread.
-	 */
-	public record PreparedPreview(BufferedImage image, RocketThumbnailRenderer.RenderTask sideView) {
-		public byte[] renderPng() {
-			BufferedImage result = image;
-			if (sideView != null) {
-				result = combineSideView(image, sideView.render());
-			}
-			try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-				ImageIO.write(result, "png", output);
-				return output.toByteArray();
-			} catch (IOException e) {
-				throw new UncheckedIOException("Failed to encode preview image", e);
-			}
+	private static byte[] encodePng(BufferedImage image) {
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			ImageIO.write(image, "png", output);
+			return output.toByteArray();
+		} catch (IOException e) {
+			throw new UncheckedIOException("Failed to encode image", e);
 		}
-	}
-
-	/**
-	 * Background color of the 2D view set in the document or the preferences, or null to use the theme default.
-	 */
-	private Color getCustom2DBackgroundColor() {
-		DocumentPreferences docPrefs = document.getDocumentPreferences();
-		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
-		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
-		return docColor2D != null ? docColor2D : swingPrefs.getDefault2DBackgroundColor();
-	}
-
-	public boolean attachPreviewToDocument(OpenRocketDocument doc, VIEW_TYPE requestedView, int targetWidth,
-										   int minHeight, int maxHeight) {
-		byte[] png = createPreviewPng(requestedView, targetWidth, minHeight, maxHeight);
-		if (png == null || png.length == 0) {
-			doc.getDefaultStorageOptions().clearPreviewImage();
-			return false;
-		}
-		doc.getDefaultStorageOptions().setPreviewImage(png);
-		return true;
 	}
 
 	/**
@@ -2288,7 +2273,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		previewFigure.setDrawCarets(true);
 
 		// Apply custom background color to preview figure
-		previewFigure.setCustomBackgroundColor(getCustom2DBackgroundColor()); // null means use theme default
+		DocumentPreferences docPrefs = document.getDocumentPreferences();
+		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
+		Color defaultColor2D = swingPrefs.getDefault2DBackgroundColor();
+		Color color2D = docColor2D != null ? docColor2D :
+			(defaultColor2D != null ? defaultColor2D : null);
+		previewFigure.setCustomBackgroundColor(color2D); // null means use theme default
 
 		// Ensure text colors are correct for 2D view
 		if (extraText != null) {

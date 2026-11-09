@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -102,6 +103,17 @@ public final class SharedCanvasRenderScheduler {
 					log.error("Immediate render failed for {}", client.getRenderDebugName(), t);
 				}
 			});
+		}
+	}
+
+	/**
+	 * Runs a task on the client's render thread, serialized with all other rendering, without starting the client's
+	 * frame ticks. Used for one-off work in the client's OpenGL context, such as rendering an image offscreen while
+	 * the view is not shown.
+	 */
+	public <T> Future<T> submit(Client client, Callable<T> task) {
+		synchronized (threads) {
+			return threads.computeIfAbsent(client, RenderThread::new).submit(task);
 		}
 	}
 
@@ -248,6 +260,17 @@ public final class SharedCanvasRenderScheduler {
 
 		private Future<?> submit(Runnable task) {
 			return executor.submit(() -> runSerialized(task));
+		}
+
+		private <T> Future<T> submit(Callable<T> task) {
+			return executor.submit(() -> {
+				frameLock.lock();
+				try {
+					return task.call();
+				} finally {
+					frameLock.unlock();
+				}
+			});
 		}
 
 		private Future<?> submitBarrier() {
