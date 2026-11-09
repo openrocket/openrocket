@@ -131,6 +131,11 @@ Each row has one of these results:
 
 OpenRocket also checks that the file says that it is in millimeters. If it is not, the window warns you.
 
+The design values of the diameters, the holes, the thickness and the fin dimensions come straight from the components.
+The overall length and height of a fin and the volume of a part are calculated from the outline that OpenRocket
+exports, so for these the check shows that the file contains that outline, not that the outline is right. Check the
+reference values, such as the chords of a fin, in your CAD program.
+
 Measured dimensions
 -------------------
 
