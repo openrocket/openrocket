@@ -35,8 +35,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -138,6 +140,47 @@ class PartExportHelperTest {
 
 		assertTrue(PartExportHelper.collectParts(tubes).isEmpty());
 		assertEquals(partsOnly, PartExportHelper.collectParts(allComponents(document)));
+	}
+
+	/**
+	 * A ring with a manual inner diameter of 24 mm around a 36 mm motor tube, exported through the same code as the
+	 * Export button. The dimension dialog must show the warning, and its headline must not say that all dimensions
+	 * match: in STEP the inner diameter is a mismatch, in STL it cannot be measured, so the warning headline is used.
+	 */
+	@Test
+	void boreSmallerThanAMotorTubeIsWarnedInTheDimensionDialog() throws Exception {
+		BodyTube body = new BodyTube();
+		body.setOuterRadius(0.030);
+		body.setLength(0.3);
+		InnerTube motorTube = new InnerTube();
+		motorTube.setOuterRadius(0.018);
+		motorTube.setLength(0.1);
+		body.addChild(motorTube);
+		CenteringRing ring = new CenteringRing();
+		body.addChild(ring);
+		ring.setOuterRadiusAutomatic(false);
+		ring.setInnerRadiusAutomatic(false);
+		ring.setOuterRadius(0.025);
+		ring.setInnerRadius(0.012);
+		ring.setLength(0.005);
+
+		File step = tempDir.resolve("ring.step").toFile();
+		CADDimensionVerifier.Result result = PartExportHelper.exportToFile(List.of(ring), Format.STEP, step, "t", null);
+		Set<String> warnings = PartDimensionDialog.warnings(result);
+		assertEquals(1, warnings.size());
+		assertTrue(PartDimensionDialog.summary(step, result, warnings).contains("PartExport.dimensions.mismatch"));
+
+		File stl = tempDir.resolve("ring.stl").toFile();
+		result = PartExportHelper.exportToFile(List.of(ring), Format.STL, stl, "t", null);
+		assertTrue(result.isAllMatching(), describe(result));
+		assertTrue(PartDimensionDialog.summary(stl, result, PartDimensionDialog.warnings(result))
+				.contains("PartExport.dimensions.warning"));
+	}
+
+	@Test
+	void warningsAreEscapedForTheHtmlLabel() {
+		assertEquals("Ring &lt;A&gt; &amp; &#39;B&#39;<br>second",
+				PartDimensionDialog.warningText(new LinkedHashSet<>(List.of("Ring <A> & 'B'", "second"))));
 	}
 
 	/**

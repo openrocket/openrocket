@@ -7,6 +7,7 @@ import info.openrocket.core.file.cad.export.FlatPart.DimensionValue;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.util.GUIUtil;
 
 import javax.swing.BorderFactory;
@@ -21,6 +22,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -41,14 +44,8 @@ public class PartDimensionDialog extends JDialog {
 	public PartDimensionDialog(Window owner, File file, CADDimensionVerifier.Result result) {
 		super(owner, trans.get("PartExport.dimensions.title"), ModalityType.APPLICATION_MODAL);
 
-		String summary;
-		if (result.units() == CADDimensionVerifier.Units.OTHER) {
-			summary = String.format(trans.get("PartExport.dimensions.notMillimeters"), file.getName());
-		} else if (result.isAllMatching()) {
-			summary = String.format(trans.get("PartExport.dimensions.allMatch"), file.getName());
-		} else {
-			summary = String.format(trans.get("PartExport.dimensions.mismatch"), file.getName());
-		}
+		Set<String> warnings = warnings(result);
+		String summary = summary(file, result, warnings);
 		String hint = trans.get("PartExport.dimensions.hint." + result.format().name());
 
 		DefaultTableModel model = new DefaultTableModel(new Object[]{
@@ -62,9 +59,7 @@ public class PartDimensionDialog extends JDialog {
 				return false;
 			}
 		};
-		Set<String> warnings = new LinkedHashSet<>();
 		for (Check check : result.checks()) {
-			warnings.addAll(check.part().part().getWarnings());
 			DimensionValue dim = check.dimension();
 			model.addRow(new Object[]{
 					check.part().name(),
@@ -85,7 +80,7 @@ public class PartDimensionDialog extends JDialog {
 		JPanel top = new JPanel(new BorderLayout(0, 5));
 		top.add(wrappedLabel(summary), BorderLayout.NORTH);
 		if (!warnings.isEmpty()) {
-			top.add(wrappedLabel(String.join("<br>", warnings)), BorderLayout.CENTER);
+			top.add(wrappedLabel(warningText(warnings)), BorderLayout.CENTER);
 		}
 		top.add(wrappedLabel(hint), BorderLayout.SOUTH);
 
@@ -101,6 +96,43 @@ public class PartDimensionDialog extends JDialog {
 		panel.add(buttons, BorderLayout.SOUTH);
 		setContentPane(panel);
 		GUIUtil.setDisposableDialogOptions(this, close);
+	}
+
+	/**
+	 * @return the warnings of all parts in the file, without duplicates
+	 */
+	static Set<String> warnings(CADDimensionVerifier.Result result) {
+		Set<String> warnings = new LinkedHashSet<>();
+		for (Check check : result.checks()) {
+			warnings.addAll(check.part().part().getWarnings());
+		}
+		return warnings;
+	}
+
+	/**
+	 * @return the headline of the dialog as HTML; it does not say that everything matches if a part has a warning
+	 */
+	static String summary(File file, CADDimensionVerifier.Result result, Set<String> warnings) {
+		String name = StringUtils.escapeHtml(file.getName());
+		if (result.units() == CADDimensionVerifier.Units.OTHER) {
+			return String.format(trans.get("PartExport.dimensions.notMillimeters"), name);
+		} else if (!result.isAllMatching()) {
+			return String.format(trans.get("PartExport.dimensions.mismatch"), name);
+		} else if (!warnings.isEmpty()) {
+			return String.format(trans.get("PartExport.dimensions.warning"), name);
+		}
+		return String.format(trans.get("PartExport.dimensions.allMatch"), name);
+	}
+
+	/**
+	 * @return the warnings as HTML, one per line
+	 */
+	static String warningText(Set<String> warnings) {
+		List<String> lines = new ArrayList<>();
+		for (String warning : warnings) {
+			lines.add(StringUtils.escapeHtml(warning));
+		}
+		return String.join("<br>", lines);
 	}
 
 	private static String format(Dimension dimension, double value) {
