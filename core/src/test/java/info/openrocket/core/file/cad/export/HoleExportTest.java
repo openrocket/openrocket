@@ -13,7 +13,8 @@ import java.util.List;
 
 import static info.openrocket.core.file.cad.export.PartFixtures.createRing;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.write;
-import static info.openrocket.core.file.cad.export.ExportTestSupport.find;
+import static info.openrocket.core.file.cad.export.ExportTestSupport.findCheck;
+import static info.openrocket.core.file.cad.export.ExportTestSupport.findDimension;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.dxfEntities;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,7 +54,7 @@ class HoleExportTest extends BaseTestCase {
 
 		for (Format format : List.of(Format.DXF, Format.STEP)) {
 			CADDimensionVerifier.Result result = write(exporter, format).verify(format);
-			CADDimensionVerifier.Check check = find(result, "Ring", Dimension.INNER_DIAMETER);
+			CADDimensionVerifier.Check check = findCheck(result, "Ring", Dimension.INNER_DIAMETER);
 			assertEquals(CADDimensionVerifier.Status.MISMATCH, check.status(), format + ": " + describe(result));
 			assertEquals(0.036, check.measured(), 1e-6);
 			assertFalse(result.isAllMatching());
@@ -91,7 +92,7 @@ class HoleExportTest extends BaseTestCase {
 		List<RingSvgExporter.Hole> holes = List.of(
 				new RingSvgExporter.Hole(-0.005, 0, 0.010),
 				new RingSvgExporter.Hole(0.005, 0, 0.010));
-		assertEquals(area * 5e-9, find(FlatPart.fromCenteringRing(ring, holes), Dimension.VOLUME), 1e-15);
+		assertEquals(area * 5e-9, findDimension(FlatPart.fromCenteringRing(ring, holes), Dimension.VOLUME), 1e-15);
 
 		CADPartsExporter exporter = new CADPartsExporter();
 		exporter.addCenteringRing(ring, holes);

@@ -56,12 +56,12 @@ final class ExportTestSupport {
 
 	static void assertMeasured(CADDimensionVerifier.Result result, String part, Dimension dimension,
 									   double expected) {
-		Check check = find(result, part, dimension);
+		Check check = findCheck(result, part, dimension);
 		assertEquals(Status.MATCH, check.status(), describe(result));
 		assertEquals(expected, check.measured(), 1e-6);
 	}
 
-	static double find(FlatPart part, Dimension dimension) {
+	static double findDimension(FlatPart part, Dimension dimension) {
 		return part.getDimensions().stream().filter(d -> d.dimension() == dimension).findFirst().orElseThrow().value();
 	}
 
@@ -135,7 +135,7 @@ final class ExportTestSupport {
 		return result;
 	}
 
-	static Check find(CADDimensionVerifier.Result result, String part, Dimension dimension) {
+	static Check findCheck(CADDimensionVerifier.Result result, String part, Dimension dimension) {
 		for (Check check : result.checks()) {
 			if (check.part().name().equals(part) && check.dimension().dimension() == dimension) {
 				return check;

@@ -26,7 +26,7 @@ import static info.openrocket.core.file.cad.export.PartFixtures.createRing;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.createAllParts;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.write;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.assertMeasured;
-import static info.openrocket.core.file.cad.export.ExportTestSupport.find;
+import static info.openrocket.core.file.cad.export.ExportTestSupport.findCheck;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -75,12 +75,12 @@ class STLExportTest extends BaseTestCase {
 
 		assertMeasured(result, "Fins", Dimension.OUTLINE_LENGTH, 0.100);
 		assertMeasured(result, "Fins", Dimension.MATERIAL_THICKNESS, 0.003);
-		assertEquals(FIN_VOLUME_MM3 * 1e-9, find(result, "Fins", Dimension.VOLUME).measured(), 1e-12);
+		assertEquals(FIN_VOLUME_MM3 * 1e-9, findCheck(result, "Fins", Dimension.VOLUME).measured(), 1e-12);
 		assertMeasured(result, "Ring", Dimension.OUTER_DIAMETER, 0.050);
 		assertMeasured(result, "Ring", Dimension.MATERIAL_THICKNESS, 0.005);
 		assertMeasured(result, "Disc", Dimension.OUTER_DIAMETER, 0.075);
 		// Holes are not measured from a mesh
-		assertEquals(Status.REFERENCE, find(result, "Ring", Dimension.HOLE_DIAMETER).status());
+		assertEquals(Status.REFERENCE, findCheck(result, "Ring", Dimension.HOLE_DIAMETER).status());
 	}
 
 	@Test

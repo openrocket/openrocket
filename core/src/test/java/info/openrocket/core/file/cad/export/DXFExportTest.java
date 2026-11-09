@@ -21,7 +21,7 @@ import static info.openrocket.core.file.cad.export.PartFixtures.createRing;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.createAllParts;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.write;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.assertMeasured;
-import static info.openrocket.core.file.cad.export.ExportTestSupport.find;
+import static info.openrocket.core.file.cad.export.ExportTestSupport.findCheck;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.assertHasPoint;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.assertHasCircle;
@@ -102,7 +102,7 @@ class DXFExportTest extends BaseTestCase {
 		assertMeasured(result, "Ring", Dimension.HOLE_OFFSET, 0.013);
 		assertMeasured(result, "Disc", Dimension.OUTER_DIAMETER, 0.075);
 		// A 2D drawing has no thickness
-		assertEquals(Status.REFERENCE, find(result, "Fins", Dimension.MATERIAL_THICKNESS).status());
+		assertEquals(Status.REFERENCE, findCheck(result, "Fins", Dimension.MATERIAL_THICKNESS).status());
 	}
 
 	@Test
@@ -117,7 +117,7 @@ class DXFExportTest extends BaseTestCase {
 				new ByteArrayInputStream(tampered.getBytes(StandardCharsets.ISO_8859_1)), written.parts());
 
 		assertFalse(result.isAllMatching());
-		Check od = find(result, "Ring", Dimension.OUTER_DIAMETER);
+		Check od = findCheck(result, "Ring", Dimension.OUTER_DIAMETER);
 		assertEquals(Status.MISMATCH, od.status());
 		assertEquals(0.0501, od.measured(), 1e-9);
 	}

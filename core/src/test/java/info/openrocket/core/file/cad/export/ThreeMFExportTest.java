@@ -28,7 +28,7 @@ import static info.openrocket.core.file.cad.export.PartFixtures.createFinSet;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.createAllParts;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.write;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.assertMeasured;
-import static info.openrocket.core.file.cad.export.ExportTestSupport.find;
+import static info.openrocket.core.file.cad.export.ExportTestSupport.findCheck;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.describe;
 import static info.openrocket.core.file.cad.export.ExportTestSupport.count;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,7 +84,7 @@ class ThreeMFExportTest extends BaseTestCase {
 		CADDimensionVerifier.Result result = written.verify(Format.THREE_MF);
 		assertTrue(result.isAllMatching(), describe(result));
 		assertEquals(CADDimensionVerifier.Units.MILLIMETERS, result.units());
-		assertEquals(FIN_VOLUME_MM3 * 1e-9, find(result, "Fins", Dimension.VOLUME).measured(), 1e-12);
+		assertEquals(FIN_VOLUME_MM3 * 1e-9, findCheck(result, "Fins", Dimension.VOLUME).measured(), 1e-12);
 		// The part is placed at the origin, so slicers put it on the plate
 		ExportedPart part = written.parts().get(0);
 		assertEquals(0, part.minXmm(), 1e-9);
