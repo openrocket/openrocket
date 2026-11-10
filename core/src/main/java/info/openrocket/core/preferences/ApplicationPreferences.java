@@ -12,6 +12,7 @@ import java.util.Set;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.Databases;
+import info.openrocket.core.document.FilePreviewMode;
 import info.openrocket.core.document.SaveSimulationDataMode;
 import info.openrocket.core.file.wavefrontobj.Axis;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
@@ -76,7 +77,6 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
 	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
-	public static final String FILE_PREVIEW_VIEW_TYPE = "FilePreviewViewType";
 
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
     public static final String PLOT_SHOW_EVENTS = "ShowPlotEvents";
@@ -129,6 +129,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String SHOW_RASAERO_FORMAT_WARNING = "ShowRASAeroFormatWarning";
 	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRockSimFormatWarning";
 	private static final String SAVE_SIMULATION_DATA_MODE = "SaveSimulationDataMode";
+	private static final String FILE_PREVIEW_MODE = "FilePreviewMode";
+	private static final String SAVE_FILE_THUMBNAIL = "SaveFileThumbnail";
 	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
 	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 
@@ -503,6 +505,28 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public final void setSaveSimulationDataMode(SaveSimulationDataMode mode) {
 		this.putEnum(SAVE_SIMULATION_DATA_MODE, mode);
+	}
+
+	/**
+	 * Returns which view of the rocket to store as the preview image in design files, if any.
+	 */
+	public final FilePreviewMode getFilePreviewMode() {
+		return this.getEnum(FILE_PREVIEW_MODE, FilePreviewMode.VIEW_3D);
+	}
+
+	public final void setFilePreviewMode(FilePreviewMode mode) {
+		this.putEnum(FILE_PREVIEW_MODE, mode);
+	}
+
+	/**
+	 * Returns whether to store a thumbnail image for file icons in design files.
+	 */
+	public final boolean getSaveFileThumbnail() {
+		return this.getBoolean(SAVE_FILE_THUMBNAIL, true);
+	}
+
+	public final void setSaveFileThumbnail(boolean save) {
+		this.putBoolean(SAVE_FILE_THUMBNAIL, save);
 	}
 
 	public final boolean getExportUserDirectories() {

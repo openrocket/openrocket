@@ -1920,7 +1920,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * @return the preview renderer, or null if 3D rendering is unavailable; the renderer returns null if the rocket
 	 * 		cannot be rendered
 	 */
-	public Supplier<byte[]> prepareFilePreview(int width, int height) {
+	public Supplier<byte[]> prepare3DFilePreview(int width, int height) {
 		if (!figure3d.createCanvasForOffscreenRendering()) {
 			return null;
 		}
@@ -1938,6 +1938,20 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 			return encodePng(image);
 		};
+	}
+
+	/**
+	 * Prepare the file preview as the 2D side view of the rocket, with the information text and the CG/CP markers.
+	 * The view is captured right away, so this must be called on the EDT; the returned supplier encodes the PNG.
+	 *
+	 * @param width     width of the preview, in pixels
+	 * @param minHeight minimum height of the preview, in pixels
+	 * @param maxHeight maximum height of the preview, in pixels
+	 * @return the preview renderer, or null if the view cannot be captured
+	 */
+	public Supplier<byte[]> prepare2DFilePreview(int width, int minHeight, int maxHeight) {
+		BufferedImage image = capturePreviewImage(VIEW_TYPE.SideView, width, minHeight, maxHeight);
+		return image == null ? null : () -> encodePng(image);
 	}
 
 	/** Paint the information text of the 3D view on a transparent image. */

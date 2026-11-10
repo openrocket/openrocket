@@ -151,6 +151,8 @@ private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 private static final int PREVIEW_WIDTH = 1000;
 private static final int PREVIEW_HEIGHT = 600;
+/** The 2D preview can be higher than {@link #PREVIEW_HEIGHT} for wide rockets. */
+private static final int PREVIEW_MAX_HEIGHT = 800;
 
 private static final Translator trans = Application.getTranslator();
 	private static final ApplicationPreferences prefs = Application.getPreferences();
@@ -2266,20 +2268,21 @@ private static final Translator trans = Application.getTranslator();
 		// images.
 		Supplier<byte[]> previewRenderer = null;
 		try {
-			previewRenderer = rocketpanel == null ? null
-					: rocketpanel.prepareFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+			previewRenderer = prepareFilePreview();
 		} catch (RuntimeException e) {
 			log.warn("Could not prepare the file preview", e);
 		}
 		Supplier<byte[]> thumbnailRenderer = null;
-		try {
-			RocketThumbnailRenderer.RenderTask thumbnailTask =
-					RocketThumbnailRenderer.prepareThumbnail(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
-			if (thumbnailTask != null) {
-				thumbnailRenderer = thumbnailTask::renderPng;
+		if (prefs.getSaveFileThumbnail()) {
+			try {
+				RocketThumbnailRenderer.RenderTask thumbnailTask =
+						RocketThumbnailRenderer.prepareThumbnail(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
+				if (thumbnailTask != null) {
+					thumbnailRenderer = thumbnailTask::renderPng;
+				}
+			} catch (RuntimeException e) {
+				log.warn("Could not prepare the file thumbnail", e);
 			}
-		} catch (RuntimeException e) {
-			log.warn("Could not prepare the file thumbnail", e);
 		}
 		document.getDefaultStorageOptions().clearPreviewImage();
 		document.getDefaultStorageOptions().clearThumbnailImage();
@@ -2331,6 +2334,21 @@ private static final Translator trans = Application.getTranslator();
 		}
 
 		return false;
+	}
+
+	/**
+	 * Prepare the file preview in the view chosen in the preferences.
+	 * @return the preview renderer, or null if no preview is stored
+	 */
+	private Supplier<byte[]> prepareFilePreview() {
+		if (rocketpanel == null) {
+			return null;
+		}
+		return switch (prefs.getFilePreviewMode()) {
+			case VIEW_3D -> rocketpanel.prepare3DFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+			case VIEW_2D -> rocketpanel.prepare2DFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT, PREVIEW_MAX_HEIGHT);
+			case NONE -> null;
+		};
 	}
 
 	private boolean closeAction() {

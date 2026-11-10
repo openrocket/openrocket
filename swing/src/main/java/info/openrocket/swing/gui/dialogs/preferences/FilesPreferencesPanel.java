@@ -18,6 +18,7 @@ import javax.swing.event.DocumentListener;
 import com.formdev.flatlaf.util.SystemFileChooser.FileFilter;
 import com.formdev.flatlaf.util.SystemFileChooser.FileNameExtensionFilter;
 
+import info.openrocket.core.document.FilePreviewMode;
 import info.openrocket.core.document.SaveSimulationDataMode;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
@@ -178,6 +179,22 @@ public class FilesPreferencesPanel extends PreferencesPanel {
 		saveSimulationDataCombo.addActionListener(e -> preferences.setSaveSimulationDataMode(
 				(SaveSimulationDataMode) saveSimulationDataCombo.getSelectedItem()));
 		this.add(saveSimulationDataCombo, "wrap");
+
+		//// File preview image
+		this.add(new JLabel(trans.get("pref.dlg.lbl.FilePreview")), "spanx, split 2, gapright rel");
+		final JComboBox<FilePreviewMode> filePreviewCombo = new JComboBox<>(FilePreviewMode.values());
+		filePreviewCombo.setToolTipText(trans.get("pref.dlg.lbl.FilePreview.ttip"));
+		filePreviewCombo.setSelectedItem(preferences.getFilePreviewMode());
+		filePreviewCombo.addActionListener(e -> preferences.setFilePreviewMode(
+				(FilePreviewMode) filePreviewCombo.getSelectedItem()));
+		this.add(filePreviewCombo, "wrap");
+
+		//// File thumbnail image
+		final JCheckBox fileThumbnailBox = new JCheckBox(trans.get("pref.dlg.checkbox.FileThumbnail"));
+		fileThumbnailBox.setToolTipText(trans.get("pref.dlg.checkbox.FileThumbnail.ttip"));
+		fileThumbnailBox.setSelected(preferences.getSaveFileThumbnail());
+		fileThumbnailBox.addActionListener(e -> preferences.setSaveFileThumbnail(fileThumbnailBox.isSelected()));
+		this.add(fileThumbnailBox, "spanx, wrap");
 
 		//// Save RASAero Format warning dialog
 		final JCheckBox rasaeroWarningDialogBox = new JCheckBox(trans.get("pref.dlg.lbl.RASAeroWarning"));

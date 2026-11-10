@@ -136,7 +136,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 			assertFalse(panelRef.get().getCurrentViewType().is3d, "Test should save from the 2D view");
 
 			AtomicReference<Supplier<byte[]>> previewRef = new AtomicReference<>();
-			SwingUtilities.invokeAndWait(() -> previewRef.set(panelRef.get().prepareFilePreview(640, 480)));
+			SwingUtilities.invokeAndWait(() -> previewRef.set(panelRef.get().prepare3DFilePreview(640, 480)));
 			assertNotNull(previewRef.get(), "Preview should be prepared");
 
 			// Render off the EDT, as the save worker does.
@@ -166,6 +166,34 @@ class PreviewPersistenceTest extends BaseTestCase {
 			if (frame != null) {
 				SwingUtilities.invokeAndWait(frame::dispose);
 			}
+			if (previousFlag == null) {
+				System.clearProperty("openrocket.unittest");
+			} else {
+				System.setProperty("openrocket.unittest", previousFlag);
+			}
+		}
+	}
+
+	@Test
+	void twoDimensionalPreviewIsCapturedFromTheDesignView() throws Exception {
+		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
+				"RocketPanel relies on Swing painting; skip in headless environments");
+
+		String previousFlag = System.getProperty("openrocket.unittest");
+		System.setProperty("openrocket.unittest", "true");
+		try {
+			OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(
+					TestRockets.makeEstesAlphaIII());
+			AtomicReference<Supplier<byte[]>> previewRef = new AtomicReference<>();
+			SwingUtilities.invokeAndWait(() -> previewRef.set(new RocketPanel(document).prepare2DFilePreview(640, 480, 720)));
+			assertNotNull(previewRef.get(), "Preview should be prepared");
+
+			BufferedImage preview = ImageIO.read(new ByteArrayInputStream(previewRef.get().get()));
+			assertEquals(640, preview.getWidth());
+			assertTrue(preview.getHeight() >= 480 && preview.getHeight() <= 720,
+					"Preview height should be within the requested range, not " + preview.getHeight());
+			assertTrue(rocketWidth(preview) > preview.getWidth() * 0.7, "The rocket should fill the preview width");
+		} finally {
 			if (previousFlag == null) {
 				System.clearProperty("openrocket.unittest");
 			} else {
@@ -224,7 +252,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 
 	private static BufferedImage renderPreview(RocketPanel panel) throws Exception {
 		AtomicReference<Supplier<byte[]>> previewRef = new AtomicReference<>();
-		SwingUtilities.invokeAndWait(() -> previewRef.set(panel.prepareFilePreview(640, 480)));
+		SwingUtilities.invokeAndWait(() -> previewRef.set(panel.prepare3DFilePreview(640, 480)));
 		assertNotNull(previewRef.get(), "Preview should be prepared");
 		byte[] preview = previewRef.get().get();
 		assertNotNull(preview, "Preview should be rendered");
