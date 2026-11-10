@@ -157,6 +157,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean graphicsResetDetected = false;
 
 	private final Rocket rocket;
+	/** Renderer for {@link #renderOffscreen}, kept between renders; only used on the render thread. */
+	private RealisticRenderer offscreenRenderer;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 	private volatile Runnable renderActivityCallback;
@@ -1095,7 +1097,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		Camera viewCamera = scene.getCamera();
 		DisplaySettings.RenderMode viewMode = config.getDisplay().getMode();
 		boolean viewCarets = config.getVisualEffects().areCaretsVisible();
-		RealisticRenderer renderer = new RealisticRenderer(config, rocket, width, height);
+		// Creating a renderer compiles its shaders and allocates its framebuffers, which takes much longer than the
+		// render itself, so one is kept for all offscreen renders.
+		if (offscreenRenderer == null) {
+			offscreenRenderer = new RealisticRenderer(config, rocket, width, height);
+		} else if (offscreenRenderer.getRenderWidth() != width || offscreenRenderer.getRenderHeight() != height) {
+			offscreenRenderer.resize(width, height);
+		}
+		RealisticRenderer renderer = offscreenRenderer;
 		try {
 			scene.setCamera(createSideViewCamera(scene, bounds, width / (float) height));
 			config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
@@ -1109,7 +1118,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			scene.setCamera(viewCamera);
 			config.getDisplay().setMode(viewMode);
 			config.getVisualEffects().setCaretsVisible(viewCarets);
-			renderer.cleanup();
 		}
 	}
 
@@ -1483,6 +1491,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					}
 					if (renderer != null) {
 						renderer.cleanup();
+					}
+					if (offscreenRenderer != null) {
+						offscreenRenderer.cleanup();
+						offscreenRenderer = null;
 					}
 					scene3DOrchestrator.getDecalTextureCache().cleanup();
 				} catch (Exception e) {

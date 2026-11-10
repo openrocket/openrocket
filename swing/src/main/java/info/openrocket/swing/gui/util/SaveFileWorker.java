@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.util;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 
 import javax.swing.SwingWorker;
@@ -39,22 +41,25 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		StorageOptions options = document.getDefaultStorageOptions();
 
-		// Render the file preview and thumbnail off the EDT. A design that cannot be rendered is still saved, just
-		// without the image.
-		if (previewRenderer != null) {
-			try {
-				options.setPreviewImage(previewRenderer.get());
-			} catch (RuntimeException e) {
-				log.warn("Could not render the file preview", e);
-				options.clearPreviewImage();
-			}
-		}
+		// Render the file preview and thumbnail off the EDT, at the same time: a 3D preview is rendered on the 3D
+		// view's render thread, while the thumbnail is rendered here. A design that cannot be rendered is still saved,
+		// just without the image.
+		CompletableFuture<byte[]> preview = previewRenderer == null ? null
+				: CompletableFuture.supplyAsync(previewRenderer);
 		if (thumbnailRenderer != null) {
 			try {
 				options.setThumbnailImage(thumbnailRenderer.get());
 			} catch (RuntimeException e) {
 				log.warn("Could not render the file thumbnail", e);
 				options.clearThumbnailImage();
+			}
+		}
+		if (preview != null) {
+			try {
+				options.setPreviewImage(preview.join());
+			} catch (CompletionException e) {
+				log.warn("Could not render the file preview", e.getCause());
+				options.clearPreviewImage();
 			}
 		}
 
