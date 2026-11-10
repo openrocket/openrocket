@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.function.Consumer;
+
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -77,6 +79,7 @@ public class RealisticRenderer implements GLRenderer {
 	private int screenWidth;
 	private int screenHeight;
 	private final RenderingConfiguration config;
+	private final Consumer<RenderingConfiguration> configListener = this::onScenePropertiesChanged;
 
 	private final FullscreenQuad fullscreenQuad;
 
@@ -155,7 +158,7 @@ public class RealisticRenderer implements GLRenderer {
 		GLErrors.check("renderer initialization");
 
 		// Add a configuration listener
-		config.addListener(this::onScenePropertiesChanged);
+		config.addListener(configListener);
 	}
 
 	private ShadowPass createShadowPass(int width, int height) {
@@ -469,6 +472,8 @@ public class RealisticRenderer implements GLRenderer {
 
 	@Override
 	public void cleanup() {
+		// The configuration outlives this renderer, so it must not keep notifying it.
+		config.removeListener(configListener);
 		particleRenderer.cleanup();
 		flameRenderer.cleanup();
 		volumetricSmokeRenderer.cleanup();
