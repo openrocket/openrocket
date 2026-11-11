@@ -2,6 +2,8 @@ package info.openrocket.swing.gui.figure3d.photo;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
@@ -23,6 +25,8 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -144,7 +148,14 @@ public class PhotoFrame extends JFrame {
 
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title"), Dialog.ModalityType.MODELESS);
 		settingsConfig = new PhotoSettingsConfig(photoSettings, document);
-		settings.setContentPane(settingsConfig);
+		JPanel settingsContent = new JPanel(new BorderLayout());
+		settingsContent.add(settingsConfig, BorderLayout.CENTER);
+		JButton resetButton = new JButton(trans.get("PhotoSettingsConfig.btn.resetToDefaults"));
+		resetButton.addActionListener(e -> settingsConfig.resetToDefaults());
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		buttonPanel.add(resetButton);
+		settingsContent.add(buttonPanel, BorderLayout.SOUTH);
+		settings.setContentPane(settingsContent);
 		settings.setPreferredSize(new Dimension(600, 500));
 		settings.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		settings.setAlwaysOnTop(false);
