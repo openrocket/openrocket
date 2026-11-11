@@ -128,8 +128,8 @@ public class PhotoFrame extends JFrame {
 		photoPanel = new PhotoPanel(document, photoSettings);
 		turntableTimer = new Timer(TURNTABLE_TICK_MS, e -> updateTurntable());
 		turntableTimer.setCoalesce(true);
-		turntableButton = new JButton("Auto-Rotate");
-		turntableButton.setToolTipText("Preview a 360-degree orbit around the rocket");
+		turntableButton = new JButton(trans.get("PhotoFrame.btn.autoRotate"));
+		turntableButton.setToolTipText(trans.get("PhotoFrame.btn.autoRotate.ttip"));
 		turntableButton.addActionListener(e -> {
 			if (turntableRunning) {
 				stopTurntable();
@@ -397,7 +397,7 @@ public class PhotoFrame extends JFrame {
 		turntableStartingAzimuth = photoSettings.getViewAz();
 		turntableStartNanos = System.nanoTime();
 		turntableRunning = true;
-		turntableButton.setText("Stop Rotation");
+		turntableButton.setText(trans.get("PhotoFrame.btn.stopRotation"));
 		turntableTimer.start();
 	}
 
@@ -418,7 +418,7 @@ public class PhotoFrame extends JFrame {
 		}
 		turntableTimer.stop();
 		turntableRunning = false;
-		turntableButton.setText("Auto-Rotate");
+		turntableButton.setText(trans.get("PhotoFrame.btn.autoRotate"));
 		// Return to the original position and persist it only once.
 		photoSettings.setViewAz(turntableStartingAzimuth);
 	}
