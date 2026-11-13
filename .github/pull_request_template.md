@@ -28,3 +28,9 @@ If the exact model is unavailable, say "Unknown (via <tool>)"; do not guess. -->
 **Model(s):** <!-- List each model used. -->
 
 <!-- In one short sentence, explain what AI helped with and how its output was verified. -->
+
+# Code ownership
+
+- [ ] I understand the changes in this PR and can explain how they work.
+- [ ] I have reviewed all AI-generated code and can take responsibility for maintaining it.
+- [ ] I have checked that the changes do not introduce unnecessary complexity or unrelated modifications.
