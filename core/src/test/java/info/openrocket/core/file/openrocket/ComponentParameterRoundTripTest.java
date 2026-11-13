@@ -503,14 +503,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 
 	/**
 	 * Checks that the shock cord parameters stay the same after saving and loading,
-	 * with a manual cord length.
+	 * with a manual and with an automatic cord length.
+	 *
+	 * @param automaticCordLength whether the cord length is calculated automatically
 	 *
 	 * @throws IOException if the test file cannot be saved or read
 	 * @throws RocketLoadException if the saved rocket cannot be loaded
 	 * @throws DecalNotFoundException if a decal cannot be found while loading
 	 */
-	@Test
-	public void testShockCordParametersSurviveRoundTrip()
+	@ParameterizedTest(name = "ShockCord automatic cord length: {0}")
+	@ValueSource(booleans = { false, true })
+	public void testShockCordParametersSurviveRoundTrip(boolean automaticCordLength)
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		ShockCord original = new ShockCord();
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
@@ -521,14 +524,18 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		original.setRadius(MASS_OBJECT_RADIUS);
 		original.setRadialPosition(0.002);
 		original.setRadialDirection(-2.0);
-		// The automatic cord length is already covered by ShockCordTest
-		original.setCordLength(1.5);
+		if (automaticCordLength) {
+			original.setCordLengthAutomatic(true);
+		} else {
+			original.setCordLength(1.5);
+		}
 
-		OpenRocketDocument loadedDocument = roundTrip(document, "shock-cord.ork");
+		OpenRocketDocument loadedDocument = roundTrip(document, "shock-cord-" + automaticCordLength + ".ork");
 		ShockCord loaded = assertInstanceOf(ShockCord.class, componentAt(loadedDocument, 0, 0, 0));
 
 		assertMassObjectParametersEqual(original, loaded);
-		assertFalse(loaded.isCordLengthAutomatic());
+		assertEquals(automaticCordLength, loaded.isCordLengthAutomatic());
+		// An automatic cord length is calculated from the rocket length on both sides
 		assertEquals(original.getCordLength(), loaded.getCordLength(), EPSILON);
 	}
 
