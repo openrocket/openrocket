@@ -70,6 +70,9 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	// Tolerance used when comparing double values.
 	private static final double EPSILON = MathUtil.EPSILON;
 
+	// Name given to the component under test.
+	private static final String COMPONENT_NAME = "Round-trip component";
+
 	// Radius used by the components in the basic round-trip tests.
 	private static final double COMPONENT_RADIUS = 0.05;
 
@@ -129,7 +132,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	public void testBodyTubeParametersSurviveRoundTrip(double thickness)
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		BodyTube original = new BodyTube();
-		original.setName("Round-trip body tube");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.42);
 		original.setOuterRadius(COMPONENT_RADIUS);
 		original.setThickness(thickness);
@@ -159,7 +162,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	public void testTransitionParametersSurviveRoundTrip(double thickness)
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		Transition original = new Transition();
-		original.setName("Round-trip transition");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.19);
 		original.setForeRadius(0.045);
 		original.setAftRadius(COMPONENT_RADIUS);
@@ -214,7 +217,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	public void testNoseConeParametersSurviveRoundTrip(double thickness)
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		NoseCone original = new NoseCone();
-		original.setName("Round-trip nose cone");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.21);
 		original.setBaseRadius(COMPONENT_RADIUS);
 		original.setThickness(thickness);
@@ -254,7 +257,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	public void testInnerTubeParametersSurviveRoundTrip()
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		InnerTube original = new InnerTube();
-		original.setName("Round-trip inner tube");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.11);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.05);
@@ -299,7 +302,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		// The thickness is clamped to the outer radius, which in automatic mode comes from the
 		// parent body tube, so the parameters are set once the block is inside it.
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip engine block");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.02);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.1);
@@ -336,7 +339,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		TubeCoupler original = new TubeCoupler();
 		// Same reason as for the engine block: set the parameters once it is inside the body tube.
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip tube coupler");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.08);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.15);
@@ -374,7 +377,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		Bulkhead original = new Bulkhead();
 		// The automatic outer radius comes from the parent body tube
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip bulkhead");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.006);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.03);
@@ -421,7 +424,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		motorTube.setAxialOffset(0);
 		motorTube.setOuterRadius(MOTOR_TUBE_OUTER_RADIUS);
 
-		original.setName("Round-trip centering ring");
+		original.setName(COMPONENT_NAME);
 		original.setLength(0.003);
 		original.setAxialMethod(AxialMethod.MIDDLE);
 		original.setAxialOffset(0.16);
@@ -460,7 +463,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		MassComponent original = new MassComponent();
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip mass component");
+		original.setName(COMPONENT_NAME);
 		original.setAxialMethod(AxialMethod.MIDDLE);
 		original.setAxialOffset(-0.05);
 		original.setLength(0.06);
@@ -493,7 +496,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		ShockCord original = new ShockCord();
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip shock cord");
+		original.setName(COMPONENT_NAME);
 		original.setAxialMethod(AxialMethod.BOTTOM);
 		original.setAxialOffset(-0.02);
 		original.setLength(0.03);
@@ -528,7 +531,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		FlightConfigurationId overrideId = new FlightConfigurationId();
 		document.getRocket().createFlightConfiguration(overrideId);
 
-		original.setName("Round-trip parachute");
+		original.setName(COMPONENT_NAME);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.03);
 		original.setLength(0.05);
@@ -584,7 +587,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		Streamer original = new Streamer();
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip streamer");
+		original.setName(COMPONENT_NAME);
 		original.setAxialMethod(AxialMethod.BOTTOM);
 		original.setAxialOffset(-0.01);
 		original.setLength(0.04);
@@ -631,7 +634,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		OpenRocketDocument document = documentWith(new BodyTube(BODY_TUBE_LENGTH, COMPONENT_RADIUS,
 				BODY_TUBE_THICKNESS));
 		Rocket original = document.getRocket();
-		original.setName("Round-trip rocket");
+		original.setName(COMPONENT_NAME);
 		// Characters that must be escaped in XML
 		original.setDesigner("Designer & <team>");
 		original.setRevision("Second revision");
@@ -687,7 +690,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		FlightConfigurationId overrideId = new FlightConfigurationId();
 		rocket.createFlightConfiguration(overrideId);
 
-		original.setName("Round-trip booster stage");
+		original.setName(COMPONENT_NAME);
 		// Separation settings are only saved for stages after the first one
 		StageSeparationConfiguration defaultSeparation = original.getSeparationConfigurations().getDefault();
 		defaultSeparation.setSeparationEvent(SeparationEvent.BURNOUT);
@@ -721,7 +724,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		ParallelStage original = new ParallelStage();
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip parallel stage");
+		original.setName(COMPONENT_NAME);
 		original.setInstanceCount(3);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.05);
@@ -761,7 +764,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 			throws IOException, RocketLoadException, DecalNotFoundException {
 		PodSet original = new PodSet();
 		OpenRocketDocument document = documentWithBodyTubeChild(original);
-		original.setName("Round-trip pod set");
+		original.setName(COMPONENT_NAME);
 		original.setInstanceCount(3);
 		original.setAxialMethod(AxialMethod.TOP);
 		original.setAxialOffset(0.1);
