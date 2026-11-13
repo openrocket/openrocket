@@ -47,6 +47,7 @@ import info.openrocket.core.rocketcomponent.ShockCord;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import info.openrocket.core.rocketcomponent.Streamer;
+import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
@@ -173,11 +174,11 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		original.setForeShoulderRadius(0.04);
 		original.setForeShoulderLength(0.012);
 		original.setForeShoulderThickness(0.003);
-		original.setForeShoulderCapped(false);
+		original.setForeShoulderCapped(true);
 		original.setAftShoulderRadius(0.048);
 		original.setAftShoulderLength(0.014);
 		original.setAftShoulderThickness(0.004);
-		original.setAftShoulderCapped(false);
+		original.setAftShoulderCapped(true);
 
 		OpenRocketDocument loadedDocument = roundTrip(documentWith(original), "transition-" + thickness + ".ork");
 		Transition loaded = assertInstanceOf(Transition.class, firstComponent(loadedDocument));
@@ -226,7 +227,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		original.setShoulderRadius(0.047);
 		original.setShoulderLength(0.016);
 		original.setShoulderThickness(0.0035);
-		original.setShoulderCapped(false);
+		original.setShoulderCapped(true);
 
 		OpenRocketDocument loadedDocument = roundTrip(documentWith(original), "nose-cone-" + thickness + ".ork");
 		NoseCone loaded = assertInstanceOf(NoseCone.class, firstComponent(loadedDocument));
@@ -243,6 +244,23 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		assertEquals(original.isShoulderCapped(), loaded.isShoulderCapped());
 		assertFalse(loaded.isBaseRadiusAutomatic());
 		assertFalse(loaded.isFilled());
+	}
+
+	/**
+	 * Checks that a body tube, a transition and a nose cone are still filled after saving
+	 * and loading. A filled component is saved without a wall thickness, so this case is
+	 * kept apart from the thickness values used in the tests above.
+	 *
+	 * @throws IOException if a test file cannot be saved or read
+	 * @throws RocketLoadException if a saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
+	@Test
+	public void testFilledComponentsSurviveRoundTrip()
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		assertFilledSurvivesRoundTrip(new BodyTube(), "filled-body-tube.ork");
+		assertFilledSurvivesRoundTrip(new Transition(), "filled-transition.ork");
+		assertFilledSurvivesRoundTrip(new NoseCone(), "filled-nose-cone.ork");
 	}
 
 	/**
@@ -850,6 +868,26 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 				.filter(configuration -> configuration.getXMLName().equals(xmlName))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Unknown cluster configuration: " + xmlName));
+	}
+
+	/**
+	 * Sets a component to filled, saves and loads it, and checks that it is still filled.
+	 *
+	 * @param original the component to test
+	 * @param fileName the name of the temporary file
+	 *
+	 * @throws IOException if the test file cannot be saved or read
+	 * @throws RocketLoadException if the saved rocket cannot be loaded
+	 * @throws DecalNotFoundException if a decal cannot be found while loading
+	 */
+	private void assertFilledSurvivesRoundTrip(SymmetricComponent original, String fileName)
+			throws IOException, RocketLoadException, DecalNotFoundException {
+		original.setFilled(true);
+
+		OpenRocketDocument loadedDocument = roundTrip(documentWith(original), fileName);
+		SymmetricComponent loaded = assertInstanceOf(original.getClass(), firstComponent(loadedDocument));
+
+		assertTrue(loaded.isFilled());
 	}
 
 	/**
