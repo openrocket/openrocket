@@ -59,6 +59,9 @@ import info.openrocket.core.util.MathUtil;
 
 /**
  * Tests that component parameters stay the same after saving and loading an OpenRocket file.
+ * Each test sets values on a component, saves and reloads the document, and compares the loaded
+ * component with the original. The tests cover the save and load code; whether a setter stores
+ * the right value is outside their scope.
  *
  * @author Yibing Liu
  * @author Baizhen Huang
@@ -270,7 +273,8 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		InnerTube loaded = assertInstanceOf(InnerTube.class, componentAt(loadedDocument, 0, 0, 0));
 
 		assertThicknessRingParametersEqual(original, loaded, RING_OUTER_RADIUS);
-		assertEquals("3-ring", loaded.getClusterConfiguration().getXMLName());
+		assertEquals(original.getClusterConfiguration().getXMLName(),
+				loaded.getClusterConfiguration().getXMLName());
 		assertEquals(original.getClusterScale(), loaded.getClusterScale(), EPSILON);
 		assertEquals(original.getClusterRotation(), loaded.getClusterRotation(), EPSILON);
 		assertTrue(loaded.isMotorMount());
@@ -472,8 +476,8 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		MassComponent loaded = assertInstanceOf(MassComponent.class, componentAt(loadedDocument, 0, 0, 0));
 
 		assertMassObjectParametersEqual(original, loaded);
-		assertEquals(0.15, loaded.getComponentMass(), EPSILON);
-		assertEquals(MassComponent.MassComponentType.ALTIMETER, loaded.getMassComponentType());
+		assertEquals(original.getComponentMass(), loaded.getComponentMass(), EPSILON);
+		assertEquals(original.getMassComponentType(), loaded.getMassComponentType());
 	}
 
 	/**
@@ -504,7 +508,7 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 
 		assertMassObjectParametersEqual(original, loaded);
 		assertFalse(loaded.isCordLengthAutomatic());
-		assertEquals(1.5, loaded.getCordLength(), EPSILON);
+		assertEquals(original.getCordLength(), loaded.getCordLength(), EPSILON);
 	}
 
 	/**
@@ -554,16 +558,14 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 
 		assertMassObjectParametersEqual(original, loaded);
 		assertFalse(loaded.isCDAutomatic());
-		assertEquals(1.2, loaded.getCD(), EPSILON);
+		assertEquals(original.getCD(), loaded.getCD(), EPSILON);
 		assertTrue(loaded.isDrogue());
-		assertDeploymentEquals(DeployEvent.ALTITUDE, 150, 1.5,
-				loaded.getDeploymentConfigurations().getDefault());
-		assertDeploymentEquals(DeployEvent.APOGEE, 150, 2.5,
-				loaded.getDeploymentConfigurations().get(overrideId));
-		assertEquals(0.45, loaded.getDiameter(), EPSILON);
-		assertEquals(8, loaded.getLineCount());
+		assertDeploymentEquals(defaultDeployment, loaded.getDeploymentConfigurations().getDefault());
+		assertDeploymentEquals(overrideDeployment, loaded.getDeploymentConfigurations().get(overrideId));
+		assertEquals(original.getDiameter(), loaded.getDiameter(), EPSILON);
+		assertEquals(original.getLineCount(), loaded.getLineCount());
 		assertFalse(loaded.isLineLengthAutomatic());
-		assertEquals(0.5, loaded.getLineLength(), EPSILON);
+		assertEquals(original.getLineLength(), loaded.getLineLength(), EPSILON);
 	}
 
 	/**
@@ -606,13 +608,12 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		Streamer loaded = assertInstanceOf(Streamer.class, componentAt(loadedDocument, 0, 0, 0));
 
 		assertMassObjectParametersEqual(original, loaded);
-		assertEquals(1.2, loaded.getStripLength(), EPSILON);
-		assertEquals(0.08, loaded.getStripWidth(), EPSILON);
+		assertEquals(original.getStripLength(), loaded.getStripLength(), EPSILON);
+		assertEquals(original.getStripWidth(), loaded.getStripWidth(), EPSILON);
 		assertEquals(automaticCd, loaded.isCDAutomatic());
-		// The automatic streamer CD is calculated from the strip size and material
-		assertEquals(automaticCd ? original.getCD() : 0.9, loaded.getCD(), EPSILON);
-		assertDeploymentEquals(DeployEvent.LOWER_STAGE_SEPARATION, 80, 0.5,
-				loaded.getDeploymentConfigurations().getDefault());
+		// An automatic streamer CD is calculated from the strip size and material on both sides
+		assertEquals(original.getCD(), loaded.getCD(), EPSILON);
+		assertDeploymentEquals(deployment, loaded.getDeploymentConfigurations().getDefault());
 	}
 
 	/**
@@ -648,16 +649,17 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		OpenRocketDocument loadedDocument = roundTrip(document, "rocket.ork");
 		Rocket loaded = loadedDocument.getRocket();
 
-		assertEquals("Round-trip rocket", loaded.getName());
-		assertEquals("Designer & <team>", loaded.getDesigner());
-		assertEquals("Second revision", loaded.getRevision());
-		assertEquals(DesignType.COMMERCIAL_KIT, loaded.getDesignType());
-		assertEquals("Round-trip kit", loaded.getKitName());
-		assertEquals(ReferenceType.CUSTOM, loaded.getReferenceType());
-		assertEquals(0.08, loaded.getCustomReferenceLength(), EPSILON);
+		assertEquals(original.getName(), loaded.getName());
+		assertEquals(original.getDesigner(), loaded.getDesigner());
+		assertEquals(original.getRevision(), loaded.getRevision());
+		assertEquals(original.getDesignType(), loaded.getDesignType());
+		assertEquals(original.getKitName(), loaded.getKitName());
+		assertEquals(original.getReferenceType(), loaded.getReferenceType());
+		assertEquals(original.getCustomReferenceLength(), loaded.getCustomReferenceLength(), EPSILON);
 		assertTrue(loaded.containsFlightConfigurationID(firstId));
 		assertTrue(loaded.containsFlightConfigurationID(selectedId));
-		assertEquals("Round-trip flight", loaded.getFlightConfiguration(selectedId).getNameRaw());
+		assertEquals(original.getFlightConfiguration(selectedId).getNameRaw(),
+				loaded.getFlightConfiguration(selectedId).getNameRaw());
 		assertEquals(selectedId, loaded.getSelectedConfiguration().getFlightConfigurationID());
 	}
 
@@ -700,12 +702,10 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		OpenRocketDocument loadedDocument = roundTrip(document, "axial-stage.ork");
 		AxialStage loaded = assertInstanceOf(AxialStage.class, componentAt(loadedDocument, 1));
 
-		assertEquals(1, loaded.getStageNumber());
-		assertEquals("Round-trip booster stage", loaded.getName());
-		assertSeparationEquals(SeparationEvent.BURNOUT, 300, 1.0,
-				loaded.getSeparationConfigurations().getDefault());
-		assertSeparationEquals(SeparationEvent.ALTITUDE_ASCENDING, 300, 2.0,
-				loaded.getSeparationConfigurations().get(overrideId));
+		assertEquals(original.getStageNumber(), loaded.getStageNumber());
+		assertEquals(original.getName(), loaded.getName());
+		assertSeparationEquals(defaultSeparation, loaded.getSeparationConfigurations().getDefault());
+		assertSeparationEquals(overrideSeparation, loaded.getSeparationConfigurations().get(overrideId));
 	}
 
 	/**
@@ -737,16 +737,15 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		OpenRocketDocument loadedDocument = roundTrip(document, "parallel-stage.ork");
 		ParallelStage loaded = assertInstanceOf(ParallelStage.class, componentAt(loadedDocument, 0, 0, 0));
 
-		assertEquals("Round-trip parallel stage", loaded.getName());
-		assertEquals(3, loaded.getInstanceCount());
-		assertEquals(AxialMethod.TOP, loaded.getAxialMethod());
-		assertEquals(0.05, loaded.getAxialOffset(), EPSILON);
-		assertEquals(RadiusMethod.FREE, loaded.getRadiusMethod());
-		assertEquals(0.08, loaded.getRadiusOffset(), EPSILON);
-		assertEquals(AngleMethod.FIXED, loaded.getAngleMethod());
-		assertEquals(0.6, loaded.getAngleOffset(), EPSILON);
-		assertSeparationEquals(SeparationEvent.LAUNCH, 100, 0.5,
-				loaded.getSeparationConfigurations().getDefault());
+		assertEquals(original.getName(), loaded.getName());
+		assertEquals(original.getInstanceCount(), loaded.getInstanceCount());
+		assertEquals(original.getAxialMethod(), loaded.getAxialMethod());
+		assertEquals(original.getAxialOffset(), loaded.getAxialOffset(), EPSILON);
+		assertEquals(original.getRadiusMethod(), loaded.getRadiusMethod());
+		assertEquals(original.getRadiusOffset(), loaded.getRadiusOffset(), EPSILON);
+		assertEquals(original.getAngleMethod(), loaded.getAngleMethod());
+		assertEquals(original.getAngleOffset(), loaded.getAngleOffset(), EPSILON);
+		assertSeparationEquals(separation, loaded.getSeparationConfigurations().getDefault());
 	}
 
 	/**
@@ -773,13 +772,13 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 		OpenRocketDocument loadedDocument = roundTrip(document, "pod-set.ork");
 		PodSet loaded = assertInstanceOf(PodSet.class, componentAt(loadedDocument, 0, 0, 0));
 
-		assertEquals("Round-trip pod set", loaded.getName());
-		assertEquals(3, loaded.getInstanceCount());
-		assertEquals(AxialMethod.TOP, loaded.getAxialMethod());
-		assertEquals(0.1, loaded.getAxialOffset(), EPSILON);
-		assertEquals(RadiusMethod.FREE, loaded.getRadiusMethod());
-		assertEquals(0.07, loaded.getRadiusOffset(), EPSILON);
-		assertEquals(0.4, loaded.getAngleOffset(), EPSILON);
+		assertEquals(original.getName(), loaded.getName());
+		assertEquals(original.getInstanceCount(), loaded.getInstanceCount());
+		assertEquals(original.getAxialMethod(), loaded.getAxialMethod());
+		assertEquals(original.getAxialOffset(), loaded.getAxialOffset(), EPSILON);
+		assertEquals(original.getRadiusMethod(), loaded.getRadiusMethod());
+		assertEquals(original.getRadiusOffset(), loaded.getRadiusOffset(), EPSILON);
+		assertEquals(original.getAngleOffset(), loaded.getAngleOffset(), EPSILON);
 	}
 
 	/**
@@ -917,33 +916,30 @@ public class ComponentParameterRoundTripTest extends BaseTestCase {
 	}
 
 	/**
-	 * Checks the event, altitude and delay of a loaded deployment configuration.
+	 * Compares the event, altitude and delay of a deployment configuration before saving
+	 * and after loading.
 	 *
-	 * @param expectedEvent the expected deployment event
-	 * @param expectedAltitude the expected deployment altitude in metres
-	 * @param expectedDelay the expected deployment delay in seconds
+	 * @param original the deployment configuration before saving
 	 * @param loaded the deployment configuration after loading
 	 */
-	private void assertDeploymentEquals(DeployEvent expectedEvent, double expectedAltitude,
-			double expectedDelay, DeploymentConfiguration loaded) {
-		assertEquals(expectedEvent, loaded.getDeployEvent());
-		assertEquals(expectedAltitude, loaded.getDeployAltitude(), EPSILON);
-		assertEquals(expectedDelay, loaded.getDeployDelay(), EPSILON);
+	private void assertDeploymentEquals(DeploymentConfiguration original, DeploymentConfiguration loaded) {
+		assertEquals(original.getDeployEvent(), loaded.getDeployEvent());
+		assertEquals(original.getDeployAltitude(), loaded.getDeployAltitude(), EPSILON);
+		assertEquals(original.getDeployDelay(), loaded.getDeployDelay(), EPSILON);
 	}
 
 	/**
-	 * Checks the event, altitude and delay of a loaded stage separation configuration.
+	 * Compares the event, altitude and delay of a stage separation configuration before
+	 * saving and after loading.
 	 *
-	 * @param expectedEvent the expected separation event
-	 * @param expectedAltitude the expected separation altitude in metres
-	 * @param expectedDelay the expected separation delay in seconds
+	 * @param original the separation configuration before saving
 	 * @param loaded the separation configuration after loading
 	 */
-	private void assertSeparationEquals(SeparationEvent expectedEvent, double expectedAltitude,
-			double expectedDelay, StageSeparationConfiguration loaded) {
-		assertEquals(expectedEvent, loaded.getSeparationEvent());
-		assertEquals(expectedAltitude, loaded.getSeparationAltitude(), EPSILON);
-		assertEquals(expectedDelay, loaded.getSeparationDelay(), EPSILON);
+	private void assertSeparationEquals(StageSeparationConfiguration original,
+			StageSeparationConfiguration loaded) {
+		assertEquals(original.getSeparationEvent(), loaded.getSeparationEvent());
+		assertEquals(original.getSeparationAltitude(), loaded.getSeparationAltitude(), EPSILON);
+		assertEquals(original.getSeparationDelay(), loaded.getSeparationDelay(), EPSILON);
 	}
 
 	/**
