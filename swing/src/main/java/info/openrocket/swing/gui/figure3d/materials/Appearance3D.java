@@ -25,7 +25,7 @@ public class Appearance3D {
 	}
 
 	public enum TextureMode {
-		STRETCH, REPEAT
+		STRETCH, REPEAT, MIRROR, STICKER
 	}
 
 	private Vector3f color;			// Base color of the object (stores LINEAR color)

@@ -228,11 +228,12 @@ public abstract class AppearanceFactory {
 		}
 
 		if (engineTexture != null) {
-			if (orDecal.getEdgeMode() == Decal.EdgeMode.REPEAT) {
-				engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT);
-			} else {
-				engineAppearance.setTextureMode(Appearance3D.TextureMode.STRETCH);
-			}
+			engineAppearance.setTextureMode(switch (orDecal.getEdgeMode()) {
+				case REPEAT -> Appearance3D.TextureMode.REPEAT;
+				case MIRROR -> Appearance3D.TextureMode.MIRROR;
+				case STICKER -> Appearance3D.TextureMode.STICKER;
+				case CLAMP -> Appearance3D.TextureMode.STRETCH;
+			});
 
 			engineAppearance.setRenderStyle(Appearance3D.RenderStyle.TEXTURED);
 

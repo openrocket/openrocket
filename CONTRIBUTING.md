@@ -13,6 +13,7 @@ Before I move on: time is money, so to save you time, get used to how OpenRocket
 [Development](#development)
 * [Git workflow](#git-workflow)
 * [Commit etiquette](#commit-etiquette)
+* [Code quality and ownership](#code-quality-and-ownership)
 * [Verified commits](#verified-commits)
 * [Pull requests](#pull-requests)
 
@@ -113,6 +114,21 @@ Also give **useful names** to your commits. A good naming convention of a commit
 
 Take the example of fixing the red button from issue #123: '[#123] Display red button as blue'. Mentioning '#123' will also automatically link your pull request to the corresponding issue. The commit subject should be short and precise. It is also very useful to include a git commit message body besides just the commit subject to explain why and how you made that commit.
 
+### Code quality and ownership
+
+All contributions must meet the project's standards for correctness, readability and maintainability. Contributors are responsible for the code they submit, regardless of how it was written.
+
+When contributing code:
+- Understand the implementation and be able to explain the design decisions and relevant parts of the code.
+- Follow the existing architecture, coding conventions and established design patterns.
+- Avoid unnecessary abstractions, dependencies, complexity and unrelated refactoring.
+- Consider edge cases, potential regressions and performance implications.
+- Include appropriate tests for new functionality and bug fixes.
+
+Contributors should be prepared to discuss and defend their implementation during code review. Submitting code that cannot be adequately explained, validated or maintained is not acceptable.
+
+A pull request is not considered ready for review simply because it compiles or passes automated tests. Reviewers must be able to understand the proposed changes and their justification.
+
 ### Verified commits
 GitHub can mark your commits as **Verified** if you sign them with a GPG (or SSH) key. This is not required to contribute, but it helps reviewers trust that the commits came from your account.
 
@@ -134,9 +150,17 @@ Open your PR from a **feature branch** against `openrocket/openrocket:unstable`.
 
 Use the [PR template](.github/pull_request_template.md): a specific title, a `# Description` heading with a short summary of what changed and why, then `# Testing` with the checks you actually ran and their results. After the summary, add `Closes #123` if the PR fully resolves that open issue, or `Related to #123` if it does not. Omit the issue line when there is no relevant issue. Aim for under 200 words for routine changes; add detail when reviewers need it to assess correctness or risk. If you could not test the change, say why.
 
+Keep changes as small and focused as reasonably possible. Do not combine unrelated improvements, opportunistic refactoring or stylistic changes with the issue being addressed. Avoid introducing new dependencies or abstractions unless there is a clear justification. If you identify additional improvements, consider proposing them separately.
+
 Use normal paragraphs and let the editor wrap lines naturally. Avoid forced line breaks, stacks of subheadings, boilerplate checklists, and file-by-file summaries of the diff. Include screenshots for visible UI changes where useful.
 
-If you use AI tools, follow the [LLM contribution guidelines](AGENTS.md). You must understand and review every change, verify the output, and be able to respond to review yourself. Include `# AI assistance` whenever AI was used, including for the PR description: name the actual model(s), for example "GPT 6 astra", and briefly explain their role and how the output was verified. The AI drafting the PR must fill this in; if the exact model is unavailable, state that instead of guessing. Remove this section if no AI was used. Maintainers may close PRs that are unfocused, contain unverified claims, or that the author cannot explain. Please address the stated concerns before resubmitting.
+AI-assisted contributions are welcome, but the contributor remains fully responsible for all submitted changes. AI tools must not be used as a substitute for understanding the codebase or making informed engineering decisions.
+
+If you use AI tools, follow the [LLM contribution guidelines](AGENTS.md). You must personally review and understand every change, verify generated code and tests, and be able to explain and defend your implementation during code review.
+
+Include # AI assistance in your PR whenever AI was used, including for code, tests, documentation or the PR description. Name the actual model(s) used and briefly explain their role and how their output was reviewed and verified. The AI drafting the PR must fill this in. If the exact model is unavailable, state that rather than guessing.
+
+AI-generated code that is unverified, unnecessarily complex, inconsistent with the project's architecture or that the contributor cannot adequately explain may be rejected. Maintainers may close such PRs and ask for a revised submission.
 
 ## Translation
 Both the OpenRocket software and the end-user documentation site are multilingual. The job of a translator is to maintain the existing languages, or to make a new translation of an unlisted language. During the development sometimes new translation keys get added in the English language that are not simultaneously translated to other languages. The translator must therefore check which translation keys are still missing in his/her/their language.

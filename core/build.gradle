@@ -4,7 +4,7 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'com.adarshr.test-logger' version '4.0.0'
-    id 'org.gradlex.extra-java-module-info' version '1.13.1'
+    id 'org.gradlex.extra-java-module-info' version '1.14.2'
     id 'maven-publish'
     id 'signing'
 }
@@ -44,7 +44,6 @@ configurations {
     testArtifactsClasspath {
         canBeConsumed = false
         canBeResolved = true
-        visible = false  // Add this line
     }
 }
 
@@ -314,7 +313,14 @@ jacocoTestCoverageVerification {
 // Get the short git commit hash to append to snapshot versions embedded in build.properties.
 def gitCommitHash = 'unknown'
 try {
-    gitCommitHash = 'git rev-parse --short HEAD'.execute([], rootDir).text.trim()
+    def hash = providers.exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        workingDir rootDir
+        ignoreExitValue = true
+    }.standardOutput.asText.get().trim()
+    if (hash) {
+        gitCommitHash = hash
+    }
 } catch (ignored) {}
 
 processResources {

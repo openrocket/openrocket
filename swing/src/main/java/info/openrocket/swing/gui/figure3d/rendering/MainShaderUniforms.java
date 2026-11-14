@@ -35,6 +35,7 @@ public final class MainShaderUniforms {
 	public final int textureTransformMatrix;
 	public final int textureSampler;
 	public final int hasTexture;
+	public final int textureSticker;
 	public final int forceWhite;
 	public final int enableRoughnessBump;
 	public final int hideInnerSurfaces;
@@ -71,6 +72,7 @@ public final class MainShaderUniforms {
 		this.textureTransformMatrix = shader.requireUniformLocation("textureTransformMatrix");
 		this.textureSampler = shader.requireUniformLocation("textureSampler");
 		this.hasTexture = shader.requireUniformLocation("hasTexture");
+		this.textureSticker = shader.requireUniformLocation("textureSticker");
 		this.forceWhite = shader.requireUniformLocation("forceWhite");
 		this.enableRoughnessBump = shader.requireUniformLocation("enableRoughnessBump");
 		this.hideInnerSurfaces = shader.requireUniformLocation("hideInnerSurfaces");
