@@ -1,5 +1,7 @@
 package info.openrocket.core.preset;
 
+import info.openrocket.core.util.BaseTestCase;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.motor.Manufacturer;
@@ -16,7 +18,7 @@ import org.junit.jupiter.api.Test;
  * Ensure any computed values are correctly computed.
  * 
  */
-public class BulkHeadPresetTests {
+public class BulkHeadPresetTests extends BaseTestCase {
 
 	@Test
 	public void testManufacturerRequired() {

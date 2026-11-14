@@ -64,20 +64,20 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 		// Keep long localized data type names from hiding the controls at the end of the row.
 		this.add(typeSelector, "width " + DATA_TYPE_SELECTOR_WIDTH + ", gapright unrel, top");
 
-		this.add(new JLabel("Unit:"), "top");
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")), "top");
 		unitSelector = new UnitSelector(type.getUnitGroup());
 		if (unit != null) {
 			unitSelector.setSelectedUnit(unit);
 		}
 		this.add(unitSelector, "width 40lp, gapright unrel, top");
 
-		this.add(new JLabel("Axis:"), "top");
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Axis")), "top");
 		axisSelector = new JComboBox<>(POSITIONS);
 		axisSelector.setSelectedIndex(position + 1);
 		this.add(axisSelector, "top");
 
 		removeButton = new JButton(Icons.EDIT_DELETE);
-		removeButton.setToolTipText("Remove this plot");
+		removeButton.setToolTipText(trans.get("simplotpanel.but.ttip.Deletethisplot"));
 		removeButton.setBorderPainted(false);
 		if (addRemoveButton) {
 			addRemoveButton();

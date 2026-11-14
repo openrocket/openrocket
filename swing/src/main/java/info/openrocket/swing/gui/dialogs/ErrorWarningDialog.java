@@ -6,6 +6,8 @@ import info.openrocket.swing.gui.util.BetterListCellRenderer;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.logging.Error;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.Warning;
@@ -28,6 +30,7 @@ import java.awt.event.MouseEvent;
  */
 @SuppressWarnings("serial")
 public abstract class ErrorWarningDialog {
+    private static final Translator trans = Application.getTranslator();
     private static Color darkErrorColor;
     private static Color textSelectionForegroundColor;
 
@@ -48,7 +51,7 @@ public abstract class ErrorWarningDialog {
     public static void showErrorsAndWarnings(Component parent, Object message, String title, ErrorSet errors, WarningSet warnings) {
         JPanel content = new JPanel(new MigLayout("ins 0, fillx"));
 
-        StyledLabel label = new StyledLabel("Errors");
+        StyledLabel label = new StyledLabel(trans.get("ErrorWarningDialog.lbl.errors"));
         label.setFontColor(darkErrorColor);
         content.add(label, "wrap, gaptop 15lp");
 
@@ -72,7 +75,7 @@ public abstract class ErrorWarningDialog {
 
         content.add(new JSeparator(JSeparator.HORIZONTAL), "wrap");
 
-        content.add(new JLabel("Warnings:"), "wrap");
+        content.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.TitledBorder.warnings")), "wrap");
 
         Warning[] w = warnings.toArray(new Warning[0]);
         final JList<Warning> warningList = new JList<>(w);

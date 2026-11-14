@@ -27,7 +27,7 @@ public class JavaCode extends AbstractSimulationExtension {
 			if (!StringUtils.isEmpty(className)) {
 				Class<?> clazz = Class.forName(className);
 				if (!SimulationListener.class.isAssignableFrom(clazz)) {
-					throw new SimulationException("Class " + className + " does not implement SimulationListener");
+					throw new SimulationException(String.format(trans.get("SimulationExtension.javacode.notListener"), className));
 				}
 				try {
 					SimulationListener listener = (SimulationListener) injector.getInstance(clazz);

@@ -3,6 +3,8 @@ package info.openrocket.core.preset;
 import static info.openrocket.core.preset.ComponentPreset.*;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.material.Material;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.Transition;
@@ -10,20 +12,24 @@ import info.openrocket.core.rocketcomponent.Transition;
 public abstract class ComponentPresetFactory {
 
 	public static ComponentPreset create(TypedPropertyMap props) throws InvalidComponentPresetException {
+		Translator trans = Application.getTranslator();
 
 		InvalidComponentPresetException exceptions = new InvalidComponentPresetException(
-				"Invalid preset specification.");
+				trans.get("ComponentPresetFactory.error.invalidPreset"));
 
 		ComponentPreset preset = new ComponentPreset();
 		// First do validation.
 		if (!props.containsKey(MANUFACTURER)) {
-			exceptions.addInvalidParameter(MANUFACTURER, "No Manufacturer specified");
+			exceptions.addInvalidParameter(MANUFACTURER,
+					String.format(trans.get("ComponentPresetFactory.error.missingField"), MANUFACTURER.getName()));
 		}
 		if (!props.containsKey(PARTNO)) {
-			exceptions.addInvalidParameter(PARTNO, "No PartNo specified");
+			exceptions.addInvalidParameter(PARTNO,
+					String.format(trans.get("ComponentPresetFactory.error.missingField"), PARTNO.getName()));
 		}
 		if (!props.containsKey(TYPE)) {
-			exceptions.addInvalidParameter(TYPE, "No Type specified");
+			exceptions.addInvalidParameter(TYPE,
+					String.format(trans.get("ComponentPresetFactory.error.missingField"), TYPE.getName()));
 			// We can't do anything else without TYPE so throw immediately.
 			throw exceptions;
 		}
@@ -253,15 +259,18 @@ public abstract class ComponentPresetFactory {
 
 	private static void checkRequiredFields(InvalidComponentPresetException exceptions, ComponentPreset preset,
 			TypedKey<?>... keys) {
+		Translator trans = Application.getTranslator();
 		for (TypedKey<?> key : keys) {
 			if (!preset.has(key)) {
-				exceptions.addInvalidParameter(key, "No " + key.getName() + " specified");
+				exceptions.addInvalidParameter(key,
+						String.format(trans.get("ComponentPresetFactory.error.missingField"), key.getName()));
 			}
 		}
 	}
 
 	private static void checkDiametersAndThickness(InvalidComponentPresetException exceptions, ComponentPreset preset)
 			throws InvalidComponentPresetException {
+		Translator trans = Application.getTranslator();
 		// Need to verify contains 2 of OD, thickness, ID. Compute the third.
 		boolean hasOd = preset.has(OUTER_DIAMETER);
 		boolean hasId = preset.has(INNER_DIAMETER);
@@ -280,12 +289,12 @@ public abstract class ComponentPresetFactory {
 				thickness = preset.get(THICKNESS);
 				innerRadius = outerRadius - thickness;
 			} else {
-				exceptions.addMessage("Preset dimensions underspecified");
+				exceptions.addMessage(trans.get("ComponentPresetFactory.error.dimensionsUnderspecified"));
 				throw exceptions;
 			}
 		} else {
 			if (!hasId || !hasThickness) {
-				exceptions.addMessage("Preset dimensions underspecified");
+				exceptions.addMessage(trans.get("ComponentPresetFactory.error.dimensionsUnderspecified"));
 				throw exceptions;
 			}
 			innerRadius = preset.get(INNER_DIAMETER) / 2.0;

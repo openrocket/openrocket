@@ -39,6 +39,7 @@ import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import info.openrocket.swing.gui.widgets.NativeFileChooser;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("serial")
 public class ComponentPresetEditor extends JPanel implements PresetResultListener {
+	private final Translator trans = Application.getTranslator();
 	
 	/**
 	 * The logger.
@@ -83,7 +85,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		setLayout(new MigLayout("", "[82.00px, grow][168.00px, grow][84px, grow][117.00px, grow][][222px]",
 				"[346.00px, grow][29px]"));
 		
-		model = new DataTableModel(new String[] { "Manufacturer", "Type", "Part No", "Description", "" });
+		model = new DataTableModel(new String[] { trans.get("table.column.Manufacturer"), trans.get("table.column.Type"),
+				trans.get("table.column.PartNo"), trans.get("table.column.Description"), "" });
 		
 		table = new JTable(model);
 		table.getTableHeader().setFont(new JLabel().getFont());
@@ -114,8 +117,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 					int selectedRow = table.getRowSorter().convertRowIndexToModel(targetSelectedRow);
 					if (selectedColumn == 4) {
 						if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetEditor.this,
-								"Do you want to delete this preset?",
-								"Confirm Delete", JOptionPane.YES_OPTION,
+								trans.get("ComponentPresetEditor.confirm.delete"),
+								trans.get("ComponentPresetEditor.confirm.deleteTitle"), JOptionPane.YES_OPTION,
 								JOptionPane.QUESTION_MESSAGE)) {
 							model.removeRow(selectedRow);
 						}
@@ -135,10 +138,10 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 		
-		JMenu mnFile = new JMenu("File");
+		JMenu mnFile = new JMenu(trans.get("main.menu.file"));
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmOpen = new JMenuItem("Open...");
+		JMenuItem mntmOpen = new JMenuItem(trans.get("main.menu.file.open"));
 		mnFile.add(mntmOpen);
 		mntmOpen.addActionListener(new ActionListener() {
 			@Override
@@ -149,13 +152,13 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 					 *  presets, b) save them before reading in another component file, or c) merge the read component file
 					 *  with the current contents of the table model.
 					 */
-					Object[] options = { "Save",
-							"Merge",
-							"Discard",
-							"Cancel" };
+					Object[] options = { trans.get("main.menu.file.save"),
+							trans.get("ComponentPresetEditor.but.merge"),
+							trans.get("ComponentPresetEditor.but.discard"),
+							trans.get("dlg.but.cancel") };
 					int n = JOptionPane.showOptionDialog(frame,
-							"The editor contains existing component presets.  What would you like to do with them?",
-							"Existing Component Presets",
+							trans.get("ComponentPresetEditor.confirm.existingPresets"),
+							trans.get("ComponentPresetEditor.confirm.existingPresetsTitle"),
 							JOptionPane.YES_NO_CANCEL_OPTION,
 							JOptionPane.QUESTION_MESSAGE,
 							null,
@@ -184,7 +187,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		JSeparator separator = new JSeparator();
 		mnFile.add(separator);
 		
-		JMenuItem mntmSave = new JMenuItem("Save As...");
+		JMenuItem mntmSave = new JMenuItem(trans.get("main.menu.file.saveAs"));
 		mnFile.add(mntmSave);
 		mntmSave.addActionListener(new ActionListener() {
 			@Override
@@ -196,7 +199,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		JSeparator separator_1 = new JSeparator();
 		mnFile.add(separator_1);
 		
-		JMenuItem mntmExit = new JMenuItem("Close");
+		JMenuItem mntmExit = new JMenuItem(trans.get("dlg.but.close"));
 		mnFile.add(mntmExit);
 		mntmExit.addActionListener(new ActionListener() {
 			@Override
@@ -207,7 +210,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		});
 		
 		
-		JButton addBtn = new JButton("Add");
+		JButton addBtn = new JButton(trans.get("pref.dlg.but.add"));
 		addBtn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -233,14 +236,14 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			String description = preset.has(ComponentPreset.DESCRIPTION) ? preset.get(ComponentPreset.DESCRIPTION) :
 					preset.getPartNo();
 			if (!editContext.isEditingSelected() || table.getSelectedRow() == -1) {
-				myModel.addRow(new Object[] { preset.getManufacturer().getDisplayName(), preset.getType().name(),
+				myModel.addRow(new Object[] { preset.getManufacturer().getDisplayName(), getTypeName(preset.getType()),
 						preset.getPartNo(), description, Icons.EDIT_DELETE }, preset);
 			}
 			else {
 				//This is a modified preset; update all of the columns and the stored associated instance.
 				int row = table.getSelectedRow();
 				myModel.setValueAt(preset.getManufacturer().getDisplayName(), row, 0);
-				myModel.setValueAt(preset.getType().name(), row, 1);
+				myModel.setValueAt(getTypeName(preset.getType()), row, 1);
 				myModel.setValueAt(preset.getPartNo(), row, 2);
 				myModel.setValueAt(description, row, 3);
 				myModel.associated.set(row, preset);
@@ -249,6 +252,22 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		editContext.setEditingSelected(false);
 	}
 	
+	private String getTypeName(ComponentPreset.Type type) {
+		return trans.get(switch (type) {
+			case BODY_TUBE -> "BodyTube.BodyTube";
+			case NOSE_CONE -> "NoseCone.NoseCone";
+			case TRANSITION -> "Transition.Transition";
+			case TUBE_COUPLER -> "TubeCoupler.TubeCoupler";
+			case BULK_HEAD -> "Bulkhead.Bulkhead";
+			case CENTERING_RING -> "ComponentIcons.Centeringring";
+			case ENGINE_BLOCK -> "ComponentIcons.Engineblock";
+			case LAUNCH_LUG -> "ComponentIcons.Launchlug";
+			case RAIL_BUTTON -> "ComponentIcons.RailButton";
+			case STREAMER -> "ComponentIcons.Streamer";
+			case PARACHUTE -> "ComponentIcons.Parachute";
+		});
+	}
+
 	/**
 	 * Launch the test main.
 	 */
@@ -376,9 +395,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 				editContext.setOpenedFile(file);
 			}
 		} catch (Exception e) {
-			String fileName = (file == null) ? "(file is null, can't get name)" : file.getName();
-			JOptionPane.showMessageDialog(ComponentPresetEditor.this, "Unable to open OpenRocket component file: " +
-					fileName + " Invalid format. " + e.getMessage());
+			String fileName = (file == null) ? trans.get("ComponentPresetEditor.error.unknownFile") : file.getName();
+			JOptionPane.showMessageDialog(ComponentPresetEditor.this, String.format(trans.get("ComponentPresetEditor.error.openFile"),
+					fileName, e.getMessage()));
 			editContext.setOpenedFile(null);
 			editContext.setEditingSelected(false);
 			return false;
@@ -391,7 +410,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			return saveAsORC();
 		} catch (Exception e1) {
 			JOptionPane.showMessageDialog(ComponentPresetEditor.this, e1.getLocalizedMessage(),
-					"Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
+					trans.get("ComponentPresetEditor.error.saveFileTitle"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}

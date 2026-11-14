@@ -174,7 +174,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 					public void run() {
 						disposeDialog();
 
-						document.startUndo("Split assembly");
+						document.startUndo(trans.get("ComponentAssemblyConfig.undo.split"));
 						for (RocketComponent listener : listeners) {
 							component.addConfigListener(listener);
 						}

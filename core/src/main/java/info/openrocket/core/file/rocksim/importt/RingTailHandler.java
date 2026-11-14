@@ -7,9 +7,11 @@ import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.simplesax.ElementHandler;
 import info.openrocket.core.file.simplesax.PlainTextHandler;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
 
 import org.xml.sax.SAXException;
 
@@ -19,6 +21,7 @@ import org.xml.sax.SAXException;
  */
 class RingTailHandler extends PositionDependentHandler<MassComponent> {
 
+	private static final Translator trans = Application.getTranslator();
 	private final MassComponent ringTail = new MassComponent();
 	private final RocketComponent parent;
 
@@ -57,7 +60,7 @@ class RingTailHandler extends PositionDependentHandler<MassComponent> {
 				calcCG = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
 		} catch (NumberFormatException nfe) {
-			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
+			warnings.add(String.format(trans.get("RockSimImport.warning.invalidNumber"), element, content));
 		}
 	}
 
@@ -74,8 +77,7 @@ class RingTailHandler extends PositionDependentHandler<MassComponent> {
 		}
 		parent.addChild(ringTail);
 		super.endHandler(element, attributes, content, warnings);
-		warnings.add("Ring tail '" + ringTail.getName() + "' was imported as a mass component; its aerodynamics "
-				+ "are not simulated.");
+		warnings.add(String.format(trans.get("RockSimImport.warning.ringTailAsMassComponent"), ringTail.getName()));
 	}
 
 	@Override
