@@ -123,7 +123,8 @@ public class FlameRenderer implements ParticleSystemRenderer {
 		shader.use();
 		shader.setUniformMatrix4f(projectionMatrixLocation, camera.getProjectionMatrix());
 		shader.setUniformMatrix4f(viewMatrixLocation, camera.getViewMatrix());
-		glUniform1f(timeLocation, animationTimeSeconds(animationStartNanos, System.nanoTime()));
+		glUniform1f(timeLocation, animationTimeSeconds(scene.getAnimationTimeSeconds(),
+				animationStartNanos, System.nanoTime()));
 
 		glActiveTexture(GL_TEXTURE0);
 		flameTexture.bind();
@@ -179,7 +180,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
 				vertexCount += createParticleBillboard(
 						particle.getPosition(),
 						size,
-						plumeAlpha(ageRatio),
+						plumeAlpha(ageRatio) * particle.getOpacity(),
 						particle.getColor(),
 						ageRatio,
 						cameraPos
@@ -234,6 +235,10 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
 	static float animationTimeSeconds(long startNanos, long nowNanos) {
 		return (nowNanos - startNanos) / NANOSECONDS_PER_SECOND;
+	}
+
+	static float animationTimeSeconds(double replayTime, long startNanos, long nowNanos) {
+		return Double.isFinite(replayTime) ? (float) replayTime : animationTimeSeconds(startNanos, nowNanos);
 	}
 
 	private int createParticleBillboard(Vector3f position, float size, float alpha,

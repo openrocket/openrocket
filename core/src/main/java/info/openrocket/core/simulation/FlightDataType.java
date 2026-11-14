@@ -177,6 +177,11 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			trans.get("FlightDataType.TYPE_ORIENTATION_PHI"),
 			"\u03a6", UnitGroup.UNITS_ANGLE,
 			FlightDataTypeGroup.ORIENTATION, 5);
+	//// Roll angle
+	public static final FlightDataType TYPE_ORIENTATION_ROLL = newType("orientation_roll",
+			trans.get("FlightDataType.TYPE_ORIENTATION_ROLL"),
+			"\u03a6r", UnitGroup.UNITS_ANGLE,
+			FlightDataTypeGroup.ORIENTATION, 6);
 	// Mass and inertia
 	//// Mass
 	public static final FlightDataType TYPE_MASS = newType("mass", trans.get("FlightDataType.TYPE_MASS"), "m",
@@ -468,6 +473,7 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			TYPE_REFERENCE_AREA,
 			TYPE_ORIENTATION_THETA,
 			TYPE_ORIENTATION_PHI,
+			TYPE_ORIENTATION_ROLL,
 			TYPE_WIND_VELOCITY,
 			TYPE_WIND_DIRECTION,
 			TYPE_AIR_TEMPERATURE,
