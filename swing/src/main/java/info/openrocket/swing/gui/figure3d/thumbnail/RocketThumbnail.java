@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.thumbnail;
 
 import java.awt.image.BufferedImage;
+import java.util.stream.IntStream;
 
 /**
  * Builds the thumbnail image that is stored in design files for file icons (Windows Explorer, macOS Finder) from an
@@ -75,8 +76,9 @@ public final class RocketThumbnail {
 		// Depth change that a smooth surface can have over the outline width
 		float tolerance = 3f * outlineWidth;
 
+		// Each row only writes its own pixels, so the rows are processed in parallel.
 		boolean[] outline = new boolean[n * n];
-		for (int y = 0; y < n; y++) {
+		IntStream.range(0, n).parallel().forEach(y -> {
 			for (int x = 0; x < n; x++) {
 				int o = y * n + x;
 				if (!isRocket(ids[o])) {
@@ -108,7 +110,7 @@ public final class RocketThumbnail {
 					}
 				}
 			}
-		}
+		});
 		for (int o = 0; o < outline.length; o++) {
 			if (outline[o]) {
 				int c = colors[o];
@@ -125,7 +127,7 @@ public final class RocketThumbnail {
 		int size = n / SUPERSAMPLING;
 		int samples = SUPERSAMPLING * SUPERSAMPLING;
 		int[] pixels = new int[size * size];
-		for (int y = 0; y < size; y++) {
+		IntStream.range(0, size).parallel().forEach(y -> {
 			for (int x = 0; x < size; x++) {
 				int r = 0, g = 0, b = 0;
 				for (int sy = 0; sy < SUPERSAMPLING; sy++) {
@@ -140,7 +142,7 @@ public final class RocketThumbnail {
 				}
 				pixels[y * size + x] = ((r / samples) << 16) | ((g / samples) << 8) | (b / samples);
 			}
-		}
+		});
 		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
 		image.setRGB(0, 0, size, size, pixels, 0, size);
 		return image;

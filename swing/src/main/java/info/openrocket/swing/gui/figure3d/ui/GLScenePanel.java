@@ -77,6 +77,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.function.LongSupplier;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
@@ -1227,11 +1228,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
 
 		float[] depth = new float[width * height];
-		for (int y = 0; y < height; y++) {
+		IntStream.range(0, height).parallel().forEach(y -> {
 			for (int x = 0; x < width; x++) {
 				depth[(height - 1 - y) * width + x] = buffer.get(y * width + x) * scale;
 			}
-		}
+		});
 		return depth;
 	}
 
@@ -1411,7 +1412,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-		for (int y = 0; y < height; y++) {
+		// Each row only writes its own pixels, so the rows are converted in parallel.
+		IntStream.range(0, height).parallel().forEach(y -> {
 			for (int x = 0; x < width; x++) {
 				int i = (x + (width * y)) * 4;
 				int r = buffer.get(i) & 0xFF;
@@ -1433,7 +1435,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 				pixels[(height - 1 - y) * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
 			}
-		}
+		});
 		return image;
 	}
 
