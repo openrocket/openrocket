@@ -1,13 +1,12 @@
 package info.openrocket.core.rocketcomponent;
 
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Geo2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,9 +170,10 @@ public class FreeformFinSet extends FinSet {
 	 * The point is placed at the midpoint of the current segment.
 	 *
 	 * @param index   the fin point before which to add the new point.
-	 * @param location the target location to create the new point at
+	 * @param x       the x coordinate to create the new point at
+	 * @param y       the y coordinate to create the new point at
 	 */
-	public void addPoint(int index, Point2D.Double location) throws IllegalFinPointException {
+	public void addPoint(int index, double x, double y) throws IllegalFinPointException {
 		if (index < 1 || index > points.size() - 1) {
 			throw new IllegalFinPointException("Cannot add new point before the first or after the last point");
 		}
@@ -182,7 +182,7 @@ public class FreeformFinSet extends FinSet {
 			if (listener instanceof FreeformFinSet) {
 				try {
 					int listenerIdx = getConfigListenerPointIdx((FreeformFinSet) listener, index);
-					((FreeformFinSet) listener).addPoint(listenerIdx, location);
+					((FreeformFinSet) listener).addPoint(listenerIdx, x, y);
 				} catch (IllegalFinPointException ignored) {
 					// ignore
 				}
@@ -190,7 +190,7 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		// new method: add new point at closest point
-		points.add(index, new Coordinate(location.getX(), location.getY()));
+		points.add(index, new Coordinate(x, y));
 		
 		// adding a point within the segment affects neither mass nor aerodynamics
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
@@ -579,29 +579,31 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		// (pre-check the indices above.)
-		final Point2D.Double pt1 = new Point2D.Double(points.get(targetIndex).getX(), points.get(targetIndex).getY());
-		final Point2D.Double pt2 = new Point2D.Double(points.get(targetIndex + 1).getX(), points.get(targetIndex + 1).getY());
-		final Line2D.Double targetLine = new Line2D.Double(pt1, pt2);
-		
+		final double t1x = points.get(targetIndex).getX();
+		final double t1y = points.get(targetIndex).getY();
+		final double t2x = points.get(targetIndex + 1).getX();
+		final double t2y = points.get(targetIndex + 1).getY();
+
 		for (int comparisonIndex = targetIndex+1; comparisonIndex < (points.size() - 1); ++comparisonIndex) {
 			if (2 > Math.abs(targetIndex - comparisonIndex)) {
 				// a line segment will trivially not intersect with itself
 				// nor can adjacent line segments intersect with each other, because they share a common endpoint.
 				continue;
 			}
-			final Point2D.Double pc1 = new Point2D.Double(points.get(comparisonIndex).getX(), points.get(comparisonIndex).getY()); // p1 
-			final Point2D.Double pc2 = new Point2D.Double(points.get(comparisonIndex + 1).getX(), points.get(comparisonIndex + 1).getY()); // p2
-		
+			final double c1x = points.get(comparisonIndex).getX(); // p1
+			final double c1y = points.get(comparisonIndex).getY();
+			final double c2x = points.get(comparisonIndex + 1).getX(); // p2
+			final double c2y = points.get(comparisonIndex + 1).getY();
+
 			// special case for when the first and last points are co-located.
-			if((0==targetIndex)&&(points.size()==comparisonIndex+2)&&(IGNORE_SMALLER_THAN > Math.abs(pt1.distance(pc2)))){
+			if((0==targetIndex)&&(points.size()==comparisonIndex+2)&&(IGNORE_SMALLER_THAN > Math.abs(Geo2D.distance(t1x, t1y, c2x, c2y)))){
 				continue;
 			}
-			
-			final Line2D.Double comparisonLine = new Line2D.Double(pc1, pc2);
-			if (targetLine.intersectsLine(comparisonLine)) {
+
+			if (Geo2D.segmentsIntersect(t1x, t1y, t2x, t2y, c1x, c1y, c2x, c2y)) {
 				log.warn(String.format("Found intersection at %d-%d and %d-%d", targetIndex, targetIndex+1, comparisonIndex, comparisonIndex+1));
-				log.warn(String.format("                   between (%g, %g) => (%g, %g)", pt1.getX(), pt1.getY(), pt2.getX(), pt2.getY()));
-				log.warn(String.format("                       and (%g, %g) => (%g, %g)", pc1.getX(), pc1.getY(), pc2.getX(), pc2.getY()));
+				log.warn(String.format("                   between (%g, %g) => (%g, %g)", t1x, t1y, t2x, t2y));
+				log.warn(String.format("                       and (%g, %g) => (%g, %g)", c1x, c1y, c2x, c2y));
 				return true;
 			}
 		}

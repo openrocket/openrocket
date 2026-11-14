@@ -7,7 +7,7 @@ import info.openrocket.core.util.BaseTestCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.awt.Color;
+import info.openrocket.core.util.ORColor;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -68,7 +68,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		tube.setLength(0.2);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(tube, builder, 0.0, 0.0, options);
 
@@ -95,7 +95,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		noseCone.setShapeType(NoseCone.Shape.CONICAL);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(noseCone, builder, 0.0, 0.0, options);
 
@@ -121,7 +121,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		transition.setForeShoulderRadius(0.03);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(transition, builder, 0.0, 0.0, options);
 
@@ -148,7 +148,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		transition.setAftShoulderRadius(0.05);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(transition, builder, 0.0, 0.0, options);
 
@@ -177,7 +177,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		transition.setAftShoulderRadius(0.05);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(transition, builder, 0.0, 0.0, options);
 
@@ -200,7 +200,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		// No shoulders set
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(transition, builder, 0.0, 0.0, options);
 
@@ -220,7 +220,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		tube.setLength(0.2);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		// Draw at offset origin
 		ProfileSvgExporter.drawClosedProfile(tube, builder, 0.1, 0.05, options);
@@ -244,7 +244,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		tube.setLength(0.2);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.RED, 0.2);
+		SVGExportOptions options = new SVGExportOptions(new ORColor(255, 0, 0), 0.2);
 
 		ProfileSvgExporter.drawClosedProfile(tube, builder, 0.0, 0.0, options);
 
@@ -264,7 +264,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		tube.setLength(0.2);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.5);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.5);
 
 		ProfileSvgExporter.drawClosedProfile(tube, builder, 0.0, 0.0, options);
 
@@ -284,7 +284,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		tube.setLength(0.2); // 200mm
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(tube, builder, 0.0, 0.0, options);
 
@@ -320,7 +320,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		transition.setAftShoulderRadius(0.05); // 50mm
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(transition, builder, 0.0, 0.0, options);
 
@@ -350,7 +350,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		noseCone.setShapeType(NoseCone.Shape.CONICAL);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(noseCone, builder, 0.0, 0.0, options);
 
@@ -378,7 +378,7 @@ class ProfileSvgExporterTest extends BaseTestCase {
 		tube.setLength(0.02); // 20mm
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		ProfileSvgExporter.drawClosedProfile(tube, builder, 0.0, 0.0, options);
 
