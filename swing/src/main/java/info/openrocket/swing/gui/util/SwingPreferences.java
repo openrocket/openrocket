@@ -90,6 +90,7 @@ public class SwingPreferences extends ApplicationPreferences {
 			list.add(new Locale(lang));
 		}
 		list.add(new Locale("zh", "CN"));
+		list.add(new Locale("zh", "TW"));
 		list.add(new Locale("uk", "UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
