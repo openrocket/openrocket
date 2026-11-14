@@ -1,7 +1,9 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
+import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
@@ -22,13 +24,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import com.formdev.flatlaf.util.SystemFileChooser.FileFilter;
 
 import info.openrocket.core.arch.SystemInfo;
@@ -64,6 +69,8 @@ import com.google.inject.Module;
 public class PhotoFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(PhotoFrame.class);
 	private static final Map<Window, PhotoFrame> activeFramesByOwner = new IdentityHashMap<>();
+	private static final int TURNTABLE_TICK_MS = 40;
+	private static final double TURNTABLE_SECONDS_PER_ROTATION = 12.0;
 	private final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 	private final Translator trans = Application.getTranslator();
 
@@ -72,6 +79,11 @@ public class PhotoFrame extends JFrame {
 	private final StateChangeListener photoSettingsListener;
 	private final JDialog settings;
 	private final PhotoSettingsConfig settingsConfig;
+	private final Timer turntableTimer;
+	private final JButton turntableButton;
+	private boolean turntableRunning;
+	private double turntableStartingAzimuth;
+	private long turntableStartNanos;
 	private final AtomicBoolean resourcesReleased = new AtomicBoolean(false);
 	private final Window ownerWindow;
 	private final WindowAdapter ownerWindowListener;
@@ -99,6 +111,10 @@ public class PhotoFrame extends JFrame {
 
 		// Send the new PhotoSetting to the core module
 		this.photoSettingsListener = event -> {
+			// A preview animation must not continuously overwrite saved camera settings.
+			if (turntableRunning) {
+				return;
+			}
 			Map<String, String> parameters = PhotoStudioSetter.getPhotoSettings(photoSettings);
 			OpenRocketDocument doc = currentDocument;
 			if (doc != null) {
@@ -110,8 +126,24 @@ public class PhotoFrame extends JFrame {
 		this.setMinimumSize(new Dimension(160, 150));
 		this.setSize(1024, 768);
 		photoPanel = new PhotoPanel(document, photoSettings);
+		turntableTimer = new Timer(TURNTABLE_TICK_MS, e -> updateTurntable());
+		turntableTimer.setCoalesce(true);
+		turntableButton = new JButton(trans.get("PhotoFrame.btn.autoRotate"));
+		turntableButton.setToolTipText(trans.get("PhotoFrame.btn.autoRotate.ttip"));
+		turntableButton.addActionListener(e -> {
+			if (turntableRunning) {
+				stopTurntable();
+			} else {
+				startTurntable();
+			}
+		});
+		JPanel content = new JPanel(new BorderLayout());
+		content.add(photoPanel, BorderLayout.CENTER);
+		JPanel controls = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+		controls.add(turntableButton);
+		content.add(controls, BorderLayout.SOUTH);
 		setJMenuBar(getMenu(app));
-		setContentPane(photoPanel);
+		setContentPane(content);
 
 		if (!app)
 			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -358,10 +390,45 @@ public class PhotoFrame extends JFrame {
 
 	}
 
+	private void startTurntable() {
+		if (resourcesReleased.get() || turntableRunning) {
+			return;
+		}
+		turntableStartingAzimuth = photoSettings.getViewAz();
+		turntableStartNanos = System.nanoTime();
+		turntableRunning = true;
+		turntableButton.setText(trans.get("PhotoFrame.btn.stopRotation"));
+		turntableTimer.start();
+	}
+
+	private void updateTurntable() {
+		if (!isShowing() || resourcesReleased.get()) {
+			stopTurntable();
+			return;
+		}
+		double elapsedSeconds = (System.nanoTime() - turntableStartNanos) / 1_000_000_000.0;
+		double angle = turntableStartingAzimuth +
+				elapsedSeconds * (2 * Math.PI / TURNTABLE_SECONDS_PER_ROTATION);
+		photoSettings.setViewAz(angle);
+	}
+
+	private void stopTurntable() {
+		if (!turntableRunning) {
+			return;
+		}
+		turntableTimer.stop();
+		turntableRunning = false;
+		turntableButton.setText(trans.get("PhotoFrame.btn.autoRotate"));
+		// Return to the original position and persist it only once.
+		photoSettings.setViewAz(turntableStartingAzimuth);
+	}
+
 	private void releaseResources() {
 		if (!resourcesReleased.compareAndSet(false, true)) {
 			return;
 		}
+		stopTurntable();
+		turntableTimer.stop();
 		if (ownerWindow != null) {
 			ownerWindow.removeWindowListener(ownerWindowListener);
 			if (activeFramesByOwner.get(ownerWindow) == this) {
