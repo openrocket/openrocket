@@ -80,6 +80,8 @@ public class RealisticRenderer implements GLRenderer {
 	private int screenHeight;
 	private final RenderingConfiguration config;
 	private final Consumer<RenderingConfiguration> configListener = this::onScenePropertiesChanged;
+	private boolean clearTransparent;
+	private boolean antialiasingEnabled = true;
 
 	private final FullscreenQuad fullscreenQuad;
 
@@ -273,9 +275,28 @@ public class RealisticRenderer implements GLRenderer {
 		renderTarget.unbindResolved();
 	}
 
+	/**
+	 * Sets whether a frame rendered without its background is cleared to full transparency. By default it is cleared
+	 * to the color of a solid background, which is opaque unless the background color is transparent.
+	 */
+	public void setClearTransparent(boolean clearTransparent) {
+		this.clearTransparent = clearTransparent;
+	}
+
+	/**
+	 * Sets whether the scene is antialiased (multisampling or FXAA, as configured). A frame that is supersampled, or
+	 * whose pixels are read as data, is rendered without.
+	 */
+	public void setAntialiasingEnabled(boolean antialiasingEnabled) {
+		if (this.antialiasingEnabled != antialiasingEnabled) {
+			this.antialiasingEnabled = antialiasingEnabled;
+			onScenePropertiesChanged(config);
+		}
+	}
+
 	private void clearRenderTarget(SceneView scene, boolean renderBackground) {
 		if (!renderBackground) {
-			if (scene.getBackground() instanceof SolidColorBackground solidBackground) {
+			if (!clearTransparent && scene.getBackground() instanceof SolidColorBackground solidBackground) {
 				Vector4f color = solidBackground.getColor();
 				// The off-screen pipeline uses premultiplied linear RGB while blending and
 				// resolving MSAA. An unassociated clear color would otherwise survive under
@@ -514,7 +535,7 @@ public class RealisticRenderer implements GLRenderer {
 		postProcessingPasses.add(outlinePass);
 		// FXAA is only a fallback for when the scene is not multisampled. On top of MSAA
 		// it blurs already-resolved edges and texture detail a second time.
-		if (config.getQuality().isFXAAEnabled() && renderTarget.getSamples() == 0) {
+		if (antialiasingEnabled && config.getQuality().isFXAAEnabled() && renderTarget.getSamples() == 0) {
 			postProcessingPasses.add(fxaaPass);
 		}
 	}
@@ -541,6 +562,9 @@ public class RealisticRenderer implements GLRenderer {
 	}
 
 	private int getRequestedSceneSampleCount() {
+		if (!antialiasingEnabled) {
+			return 0;
+		}
 		// An explicit override is a diagnostic knob and deliberately outranks the user
 		// preference, quality level and memory profile, so a constrained device can
 		// still be asked for 8x.

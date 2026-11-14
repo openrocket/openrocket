@@ -18,6 +18,7 @@ public final class MainShaderUniforms {
 	public final int fogEnabled;
 	public final int fogDensity;
 	public final int isUnlit;
+	public final int unlitViewShading;
 	public final int ambientLightFactor;
 	public final int objectColor;
 	public final int materialSpecular;
@@ -53,6 +54,7 @@ public final class MainShaderUniforms {
 		this.fogColor = shader.requireUniformLocation("fogColor");
 		this.fogDensity = shader.requireUniformLocation("fogDensity");
 		this.isUnlit = shader.requireUniformLocation("isUnlit");
+		this.unlitViewShading = shader.requireUniformLocation("unlitViewShading");
 		this.ambientLightFactor = shader.requireUniformLocation("ambientLightFactor");
 		this.objectColor = shader.requireUniformLocation("objectColor");
 		this.materialSpecular = shader.requireUniformLocation("materialSpecular");

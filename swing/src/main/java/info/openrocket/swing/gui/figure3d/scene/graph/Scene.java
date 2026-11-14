@@ -205,6 +205,21 @@ public class Scene implements SceneView {
 	}
 
 	/**
+	 * Runs a task with no objects selected, so that a render does not show the selection outline, and restores the
+	 * selection afterwards.
+	 */
+	public <T> T withoutSelection(Supplier<T> task) {
+		List<SceneObject> selection = new ArrayList<>(selectedObjects);
+		selectedObjects.clear();
+		try {
+			return task.get();
+		} finally {
+			selectedObjects.clear();
+			selectedObjects.addAll(selection);
+		}
+	}
+
+	/**
 	 * Reapplies the persisted rocket drag rotation to freshly rebuilt rocket objects.
 	 */
 	public void applyRocketRotationToRocketObjects() {

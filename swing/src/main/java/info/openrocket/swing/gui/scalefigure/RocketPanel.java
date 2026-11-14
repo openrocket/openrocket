@@ -40,6 +40,8 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.dialogs.DisplaySettingsDialog;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
+import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.figureelements.Caret;
@@ -1937,6 +1939,28 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				g2.dispose();
 			}
 			return encodePng(image);
+		};
+	}
+
+	/**
+	 * Prepare the file thumbnail: the rocket without lighting, outlined and at 45 degrees on a white square, see
+	 * {@link RocketThumbnail}. Must be called on the EDT; the returned supplier renders the 3D view and encodes the
+	 * PNG, and should be called off the EDT.
+	 *
+	 * @param size width and height of the thumbnail, in pixels
+	 * @return the thumbnail renderer, or null if 3D rendering is unavailable; the renderer returns null if the rocket
+	 * 		cannot be rendered
+	 */
+	public Supplier<byte[]> prepareFileThumbnail(int size) {
+		if (!figure3d.createCanvasForOffscreenRendering()) {
+			return null;
+		}
+		return () -> {
+			GLScenePanel.FlatRenderLayers layers = figure3d.renderOffscreenFlatLayers(
+					size * RocketThumbnail.SUPERSAMPLING, RocketThumbnail.ROLL, RocketThumbnail.MARGIN);
+			BufferedImage thumbnail = layers == null ? null
+					: RocketThumbnail.compose(layers.color(), layers.objectIds(), layers.depth());
+			return thumbnail == null ? null : encodePng(thumbnail);
 		};
 	}
 

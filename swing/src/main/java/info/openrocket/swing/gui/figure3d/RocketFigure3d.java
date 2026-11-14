@@ -885,6 +885,33 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	}
 
 	/**
+	 * Render the rocket offscreen without lighting, for the file thumbnail; see
+	 * {@link GLScenePanel#renderFlatLayers(int, float, float)}. Like {@link #renderOffscreenImage}, this needs the
+	 * canvas to exist and blocks until the render thread has finished.
+	 *
+	 * @return the images, or null if 3D rendering is disabled, unavailable or failed
+	 */
+	public GLScenePanel.FlatRenderLayers renderOffscreenFlatLayers(int size, float roll, float margin) {
+		if (!enable3d || glUnavailable || disposed) {
+			return null;
+		}
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return null;
+		}
+		try {
+			return RENDER_SCHEDULER.submit(this, () -> panel.renderFlatLayers(size, roll, margin))
+					.get(OFFSCREEN_RENDER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		} catch (ExecutionException | TimeoutException e) {
+			log.warn("Could not render the 3D view offscreen", e);
+			return null;
+		}
+	}
+
+	/**
 	 * Create the canvas if the view never rendered, so that an offscreen render has an OpenGL context to use. The
 	 * canvas is created on the EDT.
 	 *

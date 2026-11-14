@@ -15,7 +15,18 @@ public class DisplaySettings {
 		XRAY
 	}
 
+	/** How surfaces are shaded. Only the file thumbnail uses the styles other than {@link #LIT}. */
+	public enum SurfaceShading {
+		/** Lit by the scene's lights */
+		LIT,
+		/** Without lighting: paint and decals, only lightly darkened where the surface turns away from the viewer */
+		FLAT,
+		/** Each object opaque and in a flat colour of its own, to find the outlines of the parts */
+		OBJECT_IDS
+	}
+
 	private RenderMode mode = DEFAULT_RENDER_MODE;
+	private SurfaceShading surfaceShading = SurfaceShading.LIT;
 	// Whether surfaces tagged as "inside" should be rendered (used for hollow geometry).
 	private boolean renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
 
@@ -25,6 +36,14 @@ public class DisplaySettings {
 
 	public void setMode(RenderMode mode) {
 		this.mode = mode;
+	}
+
+	public SurfaceShading getSurfaceShading() {
+		return surfaceShading;
+	}
+
+	public void setSurfaceShading(SurfaceShading surfaceShading) {
+		this.surfaceShading = surfaceShading;
 	}
 
 	public boolean isRenderInternalSurfaces() {
@@ -38,6 +57,7 @@ public class DisplaySettings {
 	/** Restores the built-in defaults. */
 	public void resetToDefaults() {
 		mode = DEFAULT_RENDER_MODE;
+		surfaceShading = SurfaceShading.LIT;
 		renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
 	}
 }

@@ -125,7 +125,7 @@ import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.figure3d.photo.PhotoFrame;
-import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnailRenderer;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
@@ -2263,8 +2263,8 @@ private static final Translator trans = Application.getTranslator();
 			return false;
 		}
 
-		// Prepare the file preview and thumbnail on the EDT (they read the rocket model), then render them while the save
-		// worker runs, so the UI stays responsive. A design that cannot be rendered is still saved, just without the
+		// Prepare the file preview and thumbnail on the EDT, then render them while the save worker runs, so the UI
+		// stays responsive. A design that cannot be rendered is still saved, just without the
 		// images.
 		Supplier<byte[]> previewRenderer = null;
 		try {
@@ -2273,13 +2273,9 @@ private static final Translator trans = Application.getTranslator();
 			log.warn("Could not prepare the file preview", e);
 		}
 		Supplier<byte[]> thumbnailRenderer = null;
-		if (prefs.getSaveFileThumbnail()) {
+		if (prefs.getSaveFileThumbnail() && rocketpanel != null) {
 			try {
-				RocketThumbnailRenderer.RenderTask thumbnailTask =
-						RocketThumbnailRenderer.prepareThumbnail(rocket, RocketThumbnailRenderer.DEFAULT_SIZE);
-				if (thumbnailTask != null) {
-					thumbnailRenderer = thumbnailTask::renderPng;
-				}
+				thumbnailRenderer = rocketpanel.prepareFileThumbnail(RocketThumbnail.DEFAULT_SIZE);
 			} catch (RuntimeException e) {
 				log.warn("Could not prepare the file thumbnail", e);
 			}

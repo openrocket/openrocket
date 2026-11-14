@@ -41,9 +41,9 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		StorageOptions options = document.getDefaultStorageOptions();
 
-		// Render the file preview and thumbnail off the EDT, at the same time: a 3D preview is rendered on the 3D
-		// view's render thread, while the thumbnail is rendered here. A design that cannot be rendered is still saved,
-		// just without the image.
+		// Render the file preview and thumbnail off the EDT, at the same time: their 3D renders take turns on the 3D
+		// view's render thread, but processing and encoding the images overlaps. A design that cannot be rendered is
+		// still saved, just without the image.
 		CompletableFuture<byte[]> preview = previewRenderer == null ? null
 				: CompletableFuture.supplyAsync(previewRenderer);
 		if (thumbnailRenderer != null) {

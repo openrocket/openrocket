@@ -175,6 +175,66 @@ class PreviewPersistenceTest extends BaseTestCase {
 	}
 
 	@Test
+	void thumbnailRenderedWithThe3DViewShowsTheRocketDiagonallyOnWhite() throws Exception {
+		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
+				"Rendering needs a window with an OpenGL canvas; skip in headless environments");
+		Assumptions.assumeTrue(RocketFigure3d.is3dEnabled(), "3D rendering is disabled");
+
+		String previousFlag = System.getProperty("openrocket.unittest");
+		System.setProperty("openrocket.unittest", "true");
+		AtomicReference<JFrame> frameRef = new AtomicReference<>();
+		try {
+			OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(
+					TestRockets.makeEstesAlphaIII());
+			AtomicReference<Supplier<byte[]>> thumbnailRef = new AtomicReference<>();
+			SwingUtilities.invokeAndWait(() -> {
+				RocketPanel panel = new RocketPanel(document);
+				JFrame frame = new JFrame();
+				frame.add(panel);
+				frame.setSize(800, 600);
+				frame.setVisible(true);
+				frameRef.set(frame);
+				thumbnailRef.set(panel.prepareFileThumbnail(256));
+			});
+			assertNotNull(thumbnailRef.get(), "Thumbnail should be prepared");
+			byte[] png = thumbnailRef.get().get();
+			assertNotNull(png, "Thumbnail should be rendered");
+
+			BufferedImage thumbnail = ImageIO.read(new ByteArrayInputStream(png));
+			assertEquals(256, thumbnail.getWidth());
+			assertEquals(256, thumbnail.getHeight());
+			// The rocket runs from the top-left to the bottom-right corner, so the other corners are empty.
+			assertEquals(0xFFFFFF, thumbnail.getRGB(250, 5) & 0xFFFFFF, "top-right corner should be background");
+			assertEquals(0xFFFFFF, thumbnail.getRGB(5, 250) & 0xFFFFFF, "bottom-left corner should be background");
+			assertTrue(nonWhiteCount(thumbnail, 0, 0, 80) > 0, "the nose should be near the top-left corner");
+			assertTrue(nonWhiteCount(thumbnail, 176, 176, 80) > 0, "the fins should be near the bottom-right corner");
+			assertTrue(colorCount(thumbnail) > 10, "Thumbnail should show the rocket's colours");
+		} finally {
+			JFrame frame = frameRef.get();
+			if (frame != null) {
+				SwingUtilities.invokeAndWait(frame::dispose);
+			}
+			if (previousFlag == null) {
+				System.clearProperty("openrocket.unittest");
+			} else {
+				System.setProperty("openrocket.unittest", previousFlag);
+			}
+		}
+	}
+
+	private static int nonWhiteCount(BufferedImage image, int fromX, int fromY, int size) {
+		int count = 0;
+		for (int y = fromY; y < fromY + size; y++) {
+			for (int x = fromX; x < fromX + size; x++) {
+				if ((image.getRGB(x, y) & 0xFFFFFF) != 0xFFFFFF) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+
+	@Test
 	void twoDimensionalPreviewIsCapturedFromTheDesignView() throws Exception {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"RocketPanel relies on Swing painting; skip in headless environments");
