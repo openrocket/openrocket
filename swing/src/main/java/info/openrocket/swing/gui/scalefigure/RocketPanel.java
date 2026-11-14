@@ -90,9 +90,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -2440,11 +2437,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JPanel panel = new JPanel(new MigLayout("ins 0, fill", "[][]para[]", "[][]"));
 		panel.setOpaque(false);
 
-		final Color caliperColor = GUIUtil.getUITheme().getCaliperColor();
-		final Color valueBg = GUIUtil.getUITheme().getCaliperValueBackgroundColor();
-		final Color valueFg = GUIUtil.getUITheme().getCaliperValueForegroundColor();
-		final Color diamondLabelColor = GUIUtil.getUITheme().getCaliperDiamondLabelColor();
-		final Color caliperHoverColor = ColorConversion.brightenColor(caliperColor, 50);
+		final Color controlColor = UIManager.getColor("Label.foreground");
+		final Color diamondLabelColor = UIManager.getColor("Panel.background");
+		final Color controlHoverColor = ColorConversion.brightenColor(controlColor, 50);
 
 		// Mode radio buttons (vertical / horizontal)
 		// The icon is kept in a separate JLabel because FlatLaf replaces the radio circle with a
@@ -2452,8 +2447,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ButtonGroup modeGroup = new ButtonGroup();
 		JRadioButton verticalRadio = new JRadioButton();
 		JRadioButton horizontalRadio = new JRadioButton();
-		JLabel verticalModeIcon = new JLabel(createCaliperDoubleDiamondIcon(true, caliperColor));
-		JLabel horizontalModeIcon = new JLabel(createCaliperDoubleDiamondIcon(false, caliperColor));
+		JLabel verticalModeIcon = new JLabel(createCaliperDoubleDiamondIcon(true, controlColor));
+		JLabel horizontalModeIcon = new JLabel(createCaliperDoubleDiamondIcon(false, controlColor));
 		verticalRadio.setToolTipText(trans.get("RocketPanel.radio.CaliperVertical.ttip"));
 		horizontalRadio.setToolTipText(trans.get("RocketPanel.radio.CaliperHorizontal.ttip"));
 		verticalModeIcon.setToolTipText(trans.get("RocketPanel.radio.CaliperVertical.ttip"));
@@ -2495,16 +2490,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JTextField distanceField = new JTextField("–", 6);
 		distanceField.setEditable(false);
 		distanceField.setOpaque(true);
-		distanceField.setBackground(ColorConversion.compositeColor(valueBg, UIManager.getColor("Panel.background")));
-		distanceField.setForeground(valueFg);
-		distanceField.setBorder(new CompoundBorder(
-				new LineBorder(caliperColor, 1, true),
-				new EmptyBorder(1, 4, 1, 4)));
 		distanceField.setFont(distanceField.getFont().deriveFont(Font.BOLD));
 		distanceField.setHorizontalAlignment(JTextField.CENTER);
 
-		JButton diamond1Btn = new JButton(createCaliperDiamondIcon("1", caliperColor, diamondLabelColor));
-		diamond1Btn.setRolloverIcon(createCaliperDiamondIcon("1", caliperHoverColor, diamondLabelColor));
+		JButton diamond1Btn = new JButton(createCaliperDiamondIcon("1", controlColor, diamondLabelColor));
+		diamond1Btn.setRolloverIcon(createCaliperDiamondIcon("1", controlHoverColor, diamondLabelColor));
 		diamond1Btn.setRolloverEnabled(true);
 		diamond1Btn.setBorderPainted(false);
 		diamond1Btn.setContentAreaFilled(false);
@@ -2514,8 +2504,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		diamond1Btn.setToolTipText(trans.get("RocketPanel.popup.CaliperDiamond1.ttip"));
 		diamond1Btn.addActionListener(e -> showCaliperPositionPopup(1, diamond1Btn));
 
-		JButton diamond2Btn = new JButton(createCaliperDiamondIcon("2", caliperColor, diamondLabelColor));
-		diamond2Btn.setRolloverIcon(createCaliperDiamondIcon("2", caliperHoverColor, diamondLabelColor));
+		JButton diamond2Btn = new JButton(createCaliperDiamondIcon("2", controlColor, diamondLabelColor));
+		diamond2Btn.setRolloverIcon(createCaliperDiamondIcon("2", controlHoverColor, diamondLabelColor));
 		diamond2Btn.setRolloverEnabled(true);
 		diamond2Btn.setBorderPainted(false);
 		diamond2Btn.setContentAreaFilled(false);
@@ -2525,8 +2515,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		diamond2Btn.setToolTipText(trans.get("RocketPanel.popup.CaliperDiamond2.ttip"));
 		diamond2Btn.addActionListener(e -> showCaliperPositionPopup(2, diamond2Btn));
 
-		JLabel leftArrow = new JLabel(createCaliperSingleArrowIcon(true, caliperColor));
-		JLabel rightArrow = new JLabel(createCaliperSingleArrowIcon(false, caliperColor));
+		JLabel leftArrow = new JLabel(createCaliperSingleArrowIcon(true, controlColor));
+		JLabel rightArrow = new JLabel(createCaliperSingleArrowIcon(false, controlColor));
 		distancePanel.add(diamond1Btn);
 		distancePanel.add(leftArrow);
 		distancePanel.add(distanceField);
@@ -2575,30 +2565,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		});
 
-		// Update colors when the UI theme changes
+		// Keep the neutral ribbon icons in sync with the UI theme
 		caliperThemeChangeListener = () -> {
-			Color newCaliperColor = GUIUtil.getUITheme().getCaliperColor();
-			Color newValueBg = GUIUtil.getUITheme().getCaliperValueBackgroundColor();
-			Color newValueFg = GUIUtil.getUITheme().getCaliperValueForegroundColor();
-			Color newDiamondLabelColor = GUIUtil.getUITheme().getCaliperDiamondLabelColor();
+			Color newControlColor = UIManager.getColor("Label.foreground");
+			Color newDiamondLabelColor = UIManager.getColor("Panel.background");
 
-			verticalModeIcon.setIcon(createCaliperDoubleDiamondIcon(true, newCaliperColor));
-			horizontalModeIcon.setIcon(createCaliperDoubleDiamondIcon(false, newCaliperColor));
+			verticalModeIcon.setIcon(createCaliperDoubleDiamondIcon(true, newControlColor));
+			horizontalModeIcon.setIcon(createCaliperDoubleDiamondIcon(false, newControlColor));
 
-			leftArrow.setIcon(createCaliperSingleArrowIcon(true, newCaliperColor));
-			rightArrow.setIcon(createCaliperSingleArrowIcon(false, newCaliperColor));
+			leftArrow.setIcon(createCaliperSingleArrowIcon(true, newControlColor));
+			rightArrow.setIcon(createCaliperSingleArrowIcon(false, newControlColor));
 
-			distanceField.setBackground(ColorConversion.compositeColor(
-					newValueBg, UIManager.getColor("Panel.background")));
-			distanceField.setForeground(newValueFg);
-			distanceField.setBorder(new CompoundBorder(
-					new LineBorder(newCaliperColor, 1, true),
-					new EmptyBorder(1, 4, 1, 4)));
-
-			Color newHoverColor = ColorConversion.brightenColor(newCaliperColor, 50);
-			diamond1Btn.setIcon(createCaliperDiamondIcon("1", newCaliperColor, newDiamondLabelColor));
+			Color newHoverColor = ColorConversion.brightenColor(newControlColor, 50);
+			diamond1Btn.setIcon(createCaliperDiamondIcon("1", newControlColor, newDiamondLabelColor));
 			diamond1Btn.setRolloverIcon(createCaliperDiamondIcon("1", newHoverColor, newDiamondLabelColor));
-			diamond2Btn.setIcon(createCaliperDiamondIcon("2", newCaliperColor, newDiamondLabelColor));
+			diamond2Btn.setIcon(createCaliperDiamondIcon("2", newControlColor, newDiamondLabelColor));
 			diamond2Btn.setRolloverIcon(createCaliperDiamondIcon("2", newHoverColor, newDiamondLabelColor));
 
 			panel.repaint();
