@@ -77,6 +77,29 @@ When writing tests for OpenRocket, follow these guidelines:
 5. Test edge cases and error conditions
 6. Keep tests independent of each other
 
+Tests That Need OpenGL
+----------------------
+
+Tests that render with the 3D view (through an ``AWTGLCanvas``, for example the 3D view of the design
+window, Photo Studio, or the preview and thumbnail stored in design files) need a live OpenGL 3.1+
+context. Annotate such a test method or class with ``@Tag("requires-live-opengl")``.
+
+The standard GitHub Actions runners for Windows have no hardware OpenGL context, and the macOS runners are
+not reliable when native canvases are created and destroyed repeatedly. :file:`build.gradle` therefore
+excludes tests with this tag on GitHub Actions for Windows and macOS; they still run on the Linux job. A
+test without the tag that needs OpenGL fails on those runners, typically because the render returns
+nothing.
+
+To run the tests the way those CI jobs do, or to force the tagged tests on a capable runner, use:
+
+.. code-block:: bash
+
+   ./gradlew :swing:test -Dopenrocket.test.excludeLiveOpenGl=true   # skip tagged tests
+   ./gradlew :swing:test -Dopenrocket.test.runLiveOpenGl=true       # run them on GitHub Actions too
+
+Tagged tests should still skip themselves when there is no display (``GraphicsEnvironment.isHeadless()``)
+or 3D is disabled (``RocketFigure3d.is3dEnabled()``).
+
 3D Golden-Image Tests
 ---------------------
 
