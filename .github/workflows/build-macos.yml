@@ -8,7 +8,7 @@ on:
           Commit of openrocket/macOS-QuickLook-extension to build the Quick Look extension from.
           Use a full commit SHA: this code is built with the signing certificate available.
         required: true
-        default: 'b80cfff98e91b90adff7a7697812378e32f5fe6e'
+        default: '76e568247d4a79bcb5763f2a35d9caa7e084fa49'
 
 permissions:
   contents: read
