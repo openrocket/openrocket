@@ -333,6 +333,57 @@ return console.askOkCancel(message, true);
                   </property>
                 </serializedBean>
               </action>
+              <action id="264" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">import com.install4j.api.windows.*;
+
+// install4j's "Create file association" action only reuses the existing "OpenRocket" ProgID if its icon path, command
+// and description are unchanged. The icon is installed under a content-dependent file name, so once the icon changes,
+// an upgrade registers a new "OpenRocket 1" ProgID next to the old one. Windows does not apply the default of an
+// extension that has several ProgIDs and no user choice, so .ork files then show a blank icon and open the "How do you
+// want to open this file?" dialog. Move the registration back to "OpenRocket" and remove the numbered ProgIDs, so that
+// .ork keeps a single ProgID across upgrades.
+String progId = "OpenRocket";
+String classes = "SOFTWARE\\Classes\\";
+String[] subKeys = {"", "\\DefaultIcon", "\\shell\\open\\command"};
+RegistryRoot[] roots = {RegistryRoot.HKEY_LOCAL_MACHINE, RegistryRoot.HKEY_CURRENT_USER};
+for (RegistryRoot root : roots) {
+    Object current = WinRegistry.getValue(root, classes + ".ork", "");
+    if (current instanceof String &amp;&amp; ((String) current).matches("OpenRocket \\d+")) {
+        for (String subKey : subKeys) {
+            Object value = WinRegistry.getValue(root, classes + current + subKey, "");
+            if (value != null) {
+                WinRegistry.createKey(root, classes + progId + subKey);
+                WinRegistry.setValue(root, classes + progId + subKey, "", value);
+            }
+        }
+        WinRegistry.setValue(root, classes + ".ork", "", progId);
+        WinRegistry.deleteValue(root, classes + ".ork", "AlternativeHandler");
+        Util.logInfo(null, "Moved the .ork file association from " + current + " to " + progId);
+    }
+    if (progId.equals(WinRegistry.getValue(root, classes + ".ork", ""))) {
+        String[] names = WinRegistry.getSubKeyNames(root, "SOFTWARE\\Classes");
+        for (String name : names == null ? new String[0] : names) {
+            if (name.matches("OpenRocket \\d+")) {
+                WinRegistry.deleteKey(root, classes + name, false);
+                Util.logInfo(null, "Removed the duplicate ProgID " + name);
+            }
+        }
+    }
+}
+String fileExts = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.ork";
+Object userProgId = WinRegistry.getValue(RegistryRoot.HKEY_CURRENT_USER, fileExts, "Progid");
+if (userProgId instanceof String &amp;&amp; ((String) userProgId).matches("OpenRocket \\d+")) {
+    WinRegistry.setValue(RegistryRoot.HKEY_CURRENT_USER, fileExts, "Progid", progId);
+}
+return true;</property>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isWindows()</condition>
+              </action>
               <action id="19" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
                 <serializedBean>
                   <property name="itemName" type="string">${compiler:sys.fullName} ${compiler:sys.version}</property>
@@ -436,6 +487,41 @@ return console.askYesNo(message, true);
                 </serializedBean>
               </action>
               <action id="29" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" />
+              <action id="265" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">import com.install4j.api.windows.*;
+
+// Remove the .ork file association of this installation. install4j only removes the ProgID that its "Create file
+// association" action registered, but the installer may have moved that registration to "OpenRocket".
+String executable = (context.getInstallationDirectory().getAbsolutePath() + "\\OpenRocket.exe").toLowerCase();
+String classes = "SOFTWARE\\Classes\\";
+RegistryRoot[] roots = {RegistryRoot.HKEY_LOCAL_MACHINE, RegistryRoot.HKEY_CURRENT_USER};
+for (RegistryRoot root : roots) {
+    String[] names = WinRegistry.getSubKeyNames(root, "SOFTWARE\\Classes");
+    for (String name : names == null ? new String[0] : names) {
+        if (name.matches("OpenRocket( \\d+)?")) {
+            Object command = WinRegistry.getValue(root, classes + name + "\\shell\\open\\command", "");
+            if (command instanceof String &amp;&amp; ((String) command).toLowerCase().contains(executable)) {
+                WinRegistry.deleteKey(root, classes + name, false);
+                Util.logInfo(null, "Removed the ProgID " + name);
+            }
+        }
+    }
+    Object current = WinRegistry.getValue(root, classes + ".ork", "");
+    if (current instanceof String &amp;&amp; ((String) current).matches("OpenRocket( \\d+)?")
+            &amp;&amp; !WinRegistry.keyExists(root, classes + current)) {
+        WinRegistry.deleteValue(root, classes + ".ork", "");
+        Util.logInfo(null, "Removed the .ork file association to " + current);
+    }
+}
+return true;</property>
+                    </object>
+                  </property>
+                </serializedBean>
+                <condition>Util.isWindows()</condition>
+              </action>
             </actions>
             <formComponents>
               <formComponent id="28" beanClass="com.install4j.runtime.beans.formcomponents.ProgressComponent">
