@@ -41,9 +41,12 @@ import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.EventObject;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,6 +65,8 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
 	private static final long RENDER_SHUTDOWN_TIMEOUT_MS = 2_000;
 	private static final int IMAGE_CAPTURE_TIMEOUT_MS = 2_000;
+	/** Also covers creating the OpenGL context and the scene when the view was never shown. */
+	private static final int OFFSCREEN_RENDER_TIMEOUT_MS = 10_000;
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -844,6 +849,102 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 		}
 		GLScenePanel panel = glScenePanel;
 		return panel != null ? panel.getDebugStateSummary() : "panel=null";
+	}
+
+	/**
+	 * Render the rocket offscreen in the finished display mode, from the side with a camera fitted to the rocket. This
+	 * works whether or not the 3D view is shown, and does not change the view. The canvas must have been created with
+	 * {@link #createCanvasForOffscreenRendering()} first. Blocks until the render thread has finished, so it should be
+	 * called off the EDT; it does not wait for the EDT, which may be busy while a file is saved.
+	 *
+	 * @param width            image width, in pixels
+	 * @param height           image height, in pixels
+	 * @param showCarets       whether to draw the CG and CP markers
+	 * @param renderBackground whether to draw the view's background; otherwise the background is transparent
+	 * @return the image, or null if 3D rendering is disabled, unavailable or failed
+	 */
+	public BufferedImage renderOffscreenImage(int width, int height, boolean showCarets, boolean renderBackground) {
+		if (!enable3d || glUnavailable || disposed) {
+			return null;
+		}
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return null;
+		}
+		try {
+			return RENDER_SCHEDULER.submit(this,
+							() -> panel.renderOffscreen(width, height, showCarets, renderBackground))
+					.get(OFFSCREEN_RENDER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		} catch (ExecutionException | TimeoutException e) {
+			log.warn("Could not render the 3D view offscreen", e);
+			return null;
+		}
+	}
+
+	/**
+	 * Render the rocket offscreen without lighting, for the file thumbnail; see
+	 * {@link GLScenePanel#renderFlatLayers(int, float, float)}. Like {@link #renderOffscreenImage}, this needs the
+	 * canvas to exist and blocks until the render thread has finished.
+	 *
+	 * @return the images, or null if 3D rendering is disabled, unavailable or failed
+	 */
+	public GLScenePanel.FlatRenderLayers renderOffscreenFlatLayers(int size, float roll, float margin) {
+		if (!enable3d || glUnavailable || disposed) {
+			return null;
+		}
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return null;
+		}
+		try {
+			return RENDER_SCHEDULER.submit(this, () -> panel.renderFlatLayers(size, roll, margin))
+					.get(OFFSCREEN_RENDER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		} catch (ExecutionException | TimeoutException e) {
+			log.warn("Could not render the 3D view offscreen", e);
+			return null;
+		}
+	}
+
+	/**
+	 * Create the canvas if the view never rendered, so that an offscreen render has an OpenGL context to use. The
+	 * canvas is created on the EDT.
+	 *
+	 * @return whether the canvas exists and can render
+	 */
+	public boolean createCanvasForOffscreenRendering() {
+		try {
+			if (SwingUtilities.isEventDispatchThread()) {
+				return createCanvasForOffscreenRenderingOnEdt();
+			}
+			AtomicBoolean created = new AtomicBoolean();
+			SwingUtilities.invokeAndWait(() -> created.set(createCanvasForOffscreenRenderingOnEdt()));
+			return created.get();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		} catch (InvocationTargetException e) {
+			log.warn("Could not create the 3D canvas for an offscreen render", e.getCause());
+		}
+		return false;
+	}
+
+	private boolean createCanvasForOffscreenRenderingOnEdt() {
+		ensureCanvasCreatedOnEdt();
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return false;
+		}
+		// The canvas is laid out later after it is added, but its OpenGL context must not be created while it has no
+		// size: on macOS, a context attached to a zero-sized view aborts the application when the view is drawn.
+		if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			validate();
+		}
+		return panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0;
 	}
 
 	public BufferedImage captureImage() {

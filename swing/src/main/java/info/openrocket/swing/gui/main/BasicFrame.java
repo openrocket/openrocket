@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -124,6 +125,7 @@ import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.figure3d.photo.PhotoFrame;
+import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
@@ -148,7 +150,8 @@ private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 
 private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 private static final int PREVIEW_WIDTH = 1000;
-private static final int PREVIEW_MIN_HEIGHT = 600;
+private static final int PREVIEW_HEIGHT = 600;
+/** The 2D preview can be higher than {@link #PREVIEW_HEIGHT} for wide rockets. */
 private static final int PREVIEW_MAX_HEIGHT = 800;
 
 private static final Translator trans = Application.getTranslator();
@@ -2260,16 +2263,28 @@ private static final Translator trans = Application.getTranslator();
 			return false;
 		}
 
-		// Generate file preview image
-		byte[] previewImage = generatePreviewImage();
-		if (previewImage != null) {
-			document.getDefaultStorageOptions().setPreviewImage(previewImage);
-		} else {
-			document.getDefaultStorageOptions().clearPreviewImage();
+		// Prepare the file preview and thumbnail on the EDT, then render them while the save worker runs, so the UI
+		// stays responsive. A design that cannot be rendered is still saved, just without the
+		// images.
+		Supplier<byte[]> previewRenderer = null;
+		try {
+			previewRenderer = prepareFilePreview();
+		} catch (RuntimeException e) {
+			log.warn("Could not prepare the file preview", e);
 		}
+		Supplier<byte[]> thumbnailRenderer = null;
+		if (prefs.getSaveFileThumbnail() && rocketpanel != null) {
+			try {
+				thumbnailRenderer = rocketpanel.prepareFileThumbnail(RocketThumbnail.DEFAULT_SIZE);
+			} catch (RuntimeException e) {
+				log.warn("Could not prepare the file thumbnail", e);
+			}
+		}
+		document.getDefaultStorageOptions().clearPreviewImage();
+		document.getDefaultStorageOptions().clearThumbnailImage();
 
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
-		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
+		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER, previewRenderer, thumbnailRenderer);
 
 		if (!SwingWorkerDialog.runWorker(BasicFrame.this, "Saving file",
 				"Writing " + file.getName() + "...", worker)) {
@@ -2318,28 +2333,19 @@ private static final Translator trans = Application.getTranslator();
 	}
 
 	/**
-	 * Generate a file preview image for saving in the design file.
-	 * @return the PNG image data, or null if no preview could be generated
+	 * Prepare the file preview in the view chosen in the preferences.
+	 * @return the preview renderer, or null if no preview is stored
 	 */
-	private byte[] generatePreviewImage() {
+	private Supplier<byte[]> prepareFilePreview() {
 		if (rocketpanel == null) {
 			return null;
 		}
-
-		String viewPreference = prefs.getString(ApplicationPreferences.FILE_PREVIEW_VIEW_TYPE,
-				RocketPanel.VIEW_TYPE.SideView.name());
-		RocketPanel.VIEW_TYPE previewView = RocketPanel.VIEW_TYPE.fromName(viewPreference);
-		if (previewView == null) {
-			previewView = RocketPanel.VIEW_TYPE.SideView;
-		}
-
-		byte[] previewBytes = rocketpanel.createPreviewPng(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
-		if (previewBytes == null || previewBytes.length == 0) {
-			return null;
-		}
-		return previewBytes;
+		return switch (prefs.getFilePreviewMode()) {
+			case VIEW_3D -> rocketpanel.prepare3DFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT);
+			case VIEW_2D -> rocketpanel.prepare2DFilePreview(PREVIEW_WIDTH, PREVIEW_HEIGHT, PREVIEW_MAX_HEIGHT);
+			case NONE -> null;
+		};
 	}
-
 
 	private boolean closeAction() {
 		if (!document.isSaved()) {

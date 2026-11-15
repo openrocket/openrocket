@@ -35,6 +35,8 @@ uniform float roughnessStrength;
 uniform mediump vec3 viewPos;
 uniform mediump vec3 materialSpecular;
 uniform bool isUnlit;
+// How much unlit surfaces darken where they turn away from the viewer (0 = not at all).
+uniform float unlitViewShading;
 uniform float ambientLightFactor;
 uniform float opacity;  // 0.0 = fully transparent, 1.0 = fully opaque
 uniform bool textureOpacityAffectsAlpha;
@@ -389,6 +391,11 @@ void main()
     vec3 finalColor;
     if (isUnlit) {
         finalColor = surfaceColor.rgb;
+        if (unlitViewShading > 0.0) {
+            float facing = abs(dot(normalize(v_normal), normalize(viewPos - v_fragPos)));
+            // The darkening is defined on display (sRGB) values; colours here are linear.
+            finalColor *= pow(1.0 - unlitViewShading * (1.0 - facing), 2.2);
+        }
     } else {
         vec3 norm = normalize(v_normal);
         if (enableRoughnessBump) {

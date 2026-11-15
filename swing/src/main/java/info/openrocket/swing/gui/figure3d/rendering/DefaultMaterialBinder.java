@@ -16,6 +16,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
@@ -39,11 +40,14 @@ import static org.lwjgl.opengl.GL33.glUniform3f;
 public final class DefaultMaterialBinder implements GpuResource {
 	private static final Map<Class<? extends RocketComponent>, ORColor> FIGURE_DEFAULT_COLOR_CACHE = new HashMap<>();
 	private static final Vector3f DEFAULT_SPECULAR_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
+	/** How much flat-shaded surfaces darken where they turn away from the viewer. */
+	private static final float FLAT_VIEW_SHADING = 0.28f;
 	// Unfinished appearances own GL textures, so they must stay scoped to a single renderer/context.
 	private final Map<Class<? extends RocketComponent>, Appearance3D> unfinishedAppearanceCache = new HashMap<>();
 	private final AppearanceFactory.DecalTextureCache decalTextureCache = AppearanceFactory.createDecalTextureCache();
 	private final Matrix4f textureTransformMatrix = new Matrix4f();
 	private final Matrix3f normalMatrix = new Matrix3f();
+	private final Map<SceneObject, Integer> objectIds = new IdentityHashMap<>();
 
 	public void bind(SceneObject obj,
 					 GLShader shader,
@@ -68,12 +72,15 @@ public final class DefaultMaterialBinder implements GpuResource {
 		Matrix4f modelMatrix = obj.getModelMatrix();
 		shader.setUniformMatrix4f(uniforms.model, modelMatrix);
 		shader.setUniformMatrix3f(uniforms.normalMatrix, modelMatrix.normal(normalMatrix));
-		glUniform1i(uniforms.isUnlit, appearance.isUnlit() ? 1 : 0);
+		DisplaySettings.SurfaceShading shading = config.getDisplay().getSurfaceShading();
+		boolean objectIdMode = shading == DisplaySettings.SurfaceShading.OBJECT_IDS;
+		glUniform1i(uniforms.isUnlit, appearance.isUnlit() || shading != DisplaySettings.SurfaceShading.LIT ? 1 : 0);
+		glUniform1f(uniforms.unlitViewShading, shading == DisplaySettings.SurfaceShading.FLAT ? FLAT_VIEW_SHADING : 0f);
 		glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);
 
 		// Colors and material properties
-		Vector3f linearColor = unfinishedMode
-				? getAppearanceColor(unfinishedAppearance, appearance.getColor())
+		Vector3f linearColor = objectIdMode ? getObjectIdColor(obj)
+				: unfinishedMode ? getAppearanceColor(unfinishedAppearance, appearance.getColor())
 				: isFigureMode ? getFigureXrayBaseColor(figureSourceColor) : appearance.getColor();
 		glUniform3f(uniforms.objectColor, linearColor.x, linearColor.y, linearColor.z);
 
@@ -86,7 +93,7 @@ public final class DefaultMaterialBinder implements GpuResource {
 		glUniform3f(uniforms.materialSpecular, specularColor.x, specularColor.y, specularColor.z);
 		int renderStyle = unfinishedMode
 				? unfinishedAppearance.getStyle().getShaderValue()
-				: isFigureMode ? Appearance3D.RenderStyle.SOLID.getShaderValue()
+				: isFigureMode || objectIdMode ? Appearance3D.RenderStyle.SOLID.getShaderValue()
 						: appearance.getStyle().getShaderValue();
 		glUniform1i(uniforms.renderStyle, renderStyle);
 		float shine = unfinishedMode ? getAppearanceShine(unfinishedAppearance, appearance.getShine()) : appearance.getShine();
@@ -133,6 +140,20 @@ public final class DefaultMaterialBinder implements GpuResource {
 		} else {
 			glUniform1i(uniforms.hasTexture, 0);
 		}
+	}
+
+	/**
+	 * A colour of its own for each object, for {@link DisplaySettings.SurfaceShading#OBJECT_IDS}. The channels are 16
+	 * levels apart so that the colours stay distinct after the framebuffer's sRGB conversion.
+	 */
+	private Vector3f getObjectIdColor(SceneObject obj) {
+		int id = objectIds.computeIfAbsent(obj, ignored -> objectIds.size() + 1);
+		return new Vector3f(srgbToLinear((id & 0xF) * 16 + 8), srgbToLinear(((id >> 4) & 0xF) * 16 + 8),
+				srgbToLinear(((id >> 8) & 0xF) * 16 + 8));
+	}
+
+	private static float srgbToLinear(int value) {
+		return (float) Math.pow(value / 255.0, 2.2);
 	}
 
 	private static ORColor getFigureSourceColor(RocketComponent component) {

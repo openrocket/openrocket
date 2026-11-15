@@ -4,24 +4,33 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
 import info.openrocket.swing.gui.figure3d.rendering.GLContextDiagnostics;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
 import info.openrocket.swing.gui.figure3d.rendering.GLRenderer;
+import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
+import info.openrocket.swing.gui.figure3d.scene.graph.Camera;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
+import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBRobustness;
@@ -56,6 +65,7 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,12 +76,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.function.LongSupplier;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_READ_BUFFER;
@@ -149,6 +163,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean graphicsResetDetected = false;
 
 	private final Rocket rocket;
+	/** Renderer for {@link #renderOffscreen}, kept between renders; only used on the render thread. */
+	private RealisticRenderer offscreenRenderer;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 	private volatile Runnable renderActivityCallback;
@@ -840,6 +856,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void initGL() {
+		// An offscreen render can initialize the context before the view is first shown.
+		if (glInitialized) {
+			return;
+		}
 		try {
 			configureGlState();
 			log.debug("OpenGL context {}", GLContextDiagnostics.record(data, effective));
@@ -1018,6 +1038,269 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
+	/**
+	 * The images of an offscreen render that are combined into the file thumbnail.
+	 *
+	 * @param color     the rocket without lighting, on a transparent background
+	 * @param objectIds the same view with each object opaque and in a flat colour of its own
+	 * @param depth     distance from the camera of each pixel of {@code objectIds}, top row first, in pixels
+	 */
+	public record FlatRenderLayers(BufferedImage color, BufferedImage objectIds, float[] depth) {
+	}
+
+	/**
+	 * Renders the rocket offscreen in the finished display mode, from the side with a camera fitted to the rocket, and
+	 * reads the image back. This works whether or not the view is shown: the OpenGL context and the scene are created
+	 * on first use. The view's own camera, display mode and caret visibility are not changed. Must be called on the
+	 * render thread.
+	 *
+	 * @param width            image width, in pixels
+	 * @param height           image height, in pixels
+	 * @param showCarets       whether to draw the CG and CP markers
+	 * @param renderBackground whether to draw the view's background; otherwise the background is transparent
+	 * @return the rendered image, or null if the canvas cannot render or there is no rocket to draw
+	 */
+	public BufferedImage renderOffscreen(int width, int height, boolean showCarets, boolean renderBackground) {
+		BoundingBox bounds = rocket.getBoundingBox();
+		if (bounds == null || bounds.isEmpty()) {
+			return null;
+		}
+		return runOffscreen(scene -> renderSideView(scene, bounds, width, height, showCarets, renderBackground));
+	}
+
+	/**
+	 * Renders the rocket offscreen without lighting and antialiasing, from the side with an orthographic camera
+	 * fitted to the rocket, for the file thumbnail. Like {@link #renderOffscreen}, this works whether or not the view
+	 * is shown and does not change it. Must be called on the render thread.
+	 *
+	 * @param size   width and height of the images, in pixels
+	 * @param roll   rotation of the rocket in the image, in radians (counter-clockwise)
+	 * @param margin fraction of the image left empty on each side
+	 * @return the rendered images, or null if the canvas cannot render or there is no rocket to draw
+	 */
+	public FlatRenderLayers renderFlatLayers(int size, float roll, float margin) {
+		return runOffscreen(scene -> renderFlatLayers(scene, size, roll, margin));
+	}
+
+	/**
+	 * Runs an offscreen render in this canvas's OpenGL context, creating the context and the scene on first use. The
+	 * rocket is shown as in the design view: unrotated, also if it was rotated by dragging in the 3D view, and
+	 * without the selection outline.
+	 */
+	private <T> T runOffscreen(Function<Scene, T> render) {
+		// See RocketFigure3d.createCanvasForOffscreenRendering: never create the context while the canvas has no size.
+		if (glInitFailed || cleanupStarted.get() || !isDisplayable() || getWidth() <= 0 || getHeight() <= 0) {
+			return null;
+		}
+		boolean contextCurrent = false;
+		try {
+			beforeRender();
+			contextCurrent = true;
+			if (!glInitialized) {
+				initGL();
+			}
+		} catch (RuntimeException e) {
+			if (contextCurrent) {
+				afterRender();
+			}
+			// Same handling as a failed first frame in render(): the view then shows why 3D is unavailable.
+			glInitFailed = true;
+			frameExportQueue.closeAndFailPendingCaptures();
+			log.error("3D view disabled: OpenGL context could not be initialized. Cause: {}", e.getMessage(), e);
+			Runnable failureCallback = glInitFailureCallback;
+			if (failureCallback != null) {
+				failureCallback.run();
+			}
+			return null;
+		}
+		try {
+			if (hasGraphicsContextBeenReset()) {
+				return null;
+			}
+			// Apply the rocket changes that were queued while the view was not rendering.
+			scene3DOrchestrator.update();
+
+			Scene scene = scene3DOrchestrator.getScene();
+			return scene.withoutRocketRotation(() -> scene.withoutSelection(() -> render.apply(scene)));
+		} finally {
+			afterRender();
+		}
+	}
+
+	/**
+	 * The renderer for offscreen renders. Creating a renderer compiles its shaders and allocates its framebuffers,
+	 * which takes much longer than a render, so one is kept for all offscreen renders.
+	 */
+	private RealisticRenderer getOffscreenRenderer(int width, int height, boolean antialiasing,
+			boolean clearTransparent) {
+		if (offscreenRenderer == null) {
+			offscreenRenderer = new RealisticRenderer(scene3DOrchestrator.getRenderingConfiguration(), rocket,
+					width, height);
+		}
+		offscreenRenderer.setAntialiasingEnabled(antialiasing);
+		offscreenRenderer.setClearTransparent(clearTransparent);
+		if (offscreenRenderer.getRenderWidth() != width || offscreenRenderer.getRenderHeight() != height) {
+			offscreenRenderer.resize(width, height);
+		}
+		return offscreenRenderer;
+	}
+
+	/** Renders the scene from the side; see {@link #renderOffscreen}. */
+	private BufferedImage renderSideView(Scene scene, BoundingBox bounds, int width, int height, boolean showCarets,
+			boolean renderBackground) {
+		RenderingConfiguration config = scene3DOrchestrator.getRenderingConfiguration();
+		Camera viewCamera = scene.getCamera();
+		DisplaySettings.RenderMode viewMode = config.getDisplay().getMode();
+		boolean viewCarets = config.getVisualEffects().areCaretsVisible();
+		RealisticRenderer renderer = getOffscreenRenderer(width, height, true, false);
+		try {
+			scene.setCamera(createSideViewCamera(scene, bounds, width / (float) height));
+			config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
+			config.getVisualEffects().setCaretsVisible(showCarets);
+			renderer.render(scene, renderBackground);
+			ByteBuffer buffer = captureResolvedFramebuffer(renderer, width, height);
+			return buffer == null ? null : bufferToImage(buffer, width, height);
+		} finally {
+			scene.setCamera(viewCamera);
+			config.getDisplay().setMode(viewMode);
+			config.getVisualEffects().setCaretsVisible(viewCarets);
+		}
+	}
+
+	/** Renders the flat-shaded scene and its object image; see {@link #renderFlatLayers(int, float, float)}. */
+	private FlatRenderLayers renderFlatLayers(Scene scene, int size, float roll, float margin) {
+		Camera camera = createOrthographicSideViewCamera(scene, roll, margin);
+		if (camera == null) {
+			return null;
+		}
+		RenderingConfiguration config = scene3DOrchestrator.getRenderingConfiguration();
+		Camera viewCamera = scene.getCamera();
+		DisplaySettings.RenderMode viewMode = config.getDisplay().getMode();
+		boolean viewCarets = config.getVisualEffects().areCaretsVisible();
+		boolean viewMotionBlur = config.getVisualEffects().isMotionBlurEnabled();
+		boolean viewShadows = config.getQuality().isShadowsEnabled();
+		boolean viewAmbientOcclusion = config.getQuality().isAmbientOcclusionEnabled();
+		boolean viewFog = scene.isFogEnabled();
+		// The images are supersampled and read as data, so they are rendered without antialiasing.
+		RealisticRenderer renderer = getOffscreenRenderer(size, size, false, true);
+		try {
+			scene.setCamera(camera);
+			config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
+			config.getVisualEffects().setCaretsVisible(false);
+			config.getVisualEffects().setMotionBlurEnabled(false);
+			config.getQuality().setShadowsEnabled(false);
+			config.getQuality().setAmbientOcclusionEnabled(false);
+			scene.setFogEnabled(false);
+
+			config.getDisplay().setSurfaceShading(DisplaySettings.SurfaceShading.FLAT);
+			renderer.render(scene, false);
+			ByteBuffer colorBuffer = captureResolvedFramebuffer(renderer, size, size);
+
+			config.getDisplay().setSurfaceShading(DisplaySettings.SurfaceShading.OBJECT_IDS);
+			renderer.render(scene, false);
+			ByteBuffer idBuffer = captureResolvedFramebuffer(renderer, size, size);
+			if (colorBuffer == null || idBuffer == null) {
+				return null;
+			}
+			// The depth buffer is linear with an orthographic projection.
+			float pixelsPerDepth = (camera.getFarPlane() - camera.getNearPlane()) * size / camera.getOrthographicViewHeight();
+			float[] depth = captureResolvedDepth(renderer, size, size, pixelsPerDepth);
+			return new FlatRenderLayers(bufferToImage(colorBuffer, size, size), bufferToImage(idBuffer, size, size),
+					depth);
+		} finally {
+			scene.setCamera(viewCamera);
+			config.getDisplay().setMode(viewMode);
+			config.getDisplay().setSurfaceShading(DisplaySettings.SurfaceShading.LIT);
+			config.getVisualEffects().setCaretsVisible(viewCarets);
+			config.getVisualEffects().setMotionBlurEnabled(viewMotionBlur);
+			config.getQuality().setShadowsEnabled(viewShadows);
+			config.getQuality().setAmbientOcclusionEnabled(viewAmbientOcclusion);
+			scene.setFogEnabled(viewFog);
+		}
+	}
+
+	/** Reads the depth of the last frame, top row first, multiplied by {@code scale}. */
+	private static float[] captureResolvedDepth(GLRenderer renderer, int width, int height, float scale) {
+		int previousFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderer.getResolvedFramebufferId());
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(width * height);
+		glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
+
+		float[] depth = new float[width * height];
+		IntStream.range(0, height).parallel().forEach(y -> {
+			for (int x = 0; x < width; x++) {
+				depth[(height - 1 - y) * width + x] = buffer.get(y * width + x) * scale;
+			}
+		});
+		return depth;
+	}
+
+	/** A side-view camera like the design view's, centered on the rocket and fitted to it. */
+	private static Camera createSideViewCamera(Scene scene, BoundingBox bounds, float aspectRatio) {
+		Camera camera = Camera.builder()
+				.withFieldOfView(Math.toRadians(10))
+				.withAspectRatio(aspectRatio)
+				.withClippingPlanes(0.1f, 100f)
+				.withFixedCenterOfInterest(false)
+				.build();
+		camera.setSideView();
+		CoordinateIF min = bounds.min.multiply(RenderingConstants.WORLD_SCALE);
+		CoordinateIF max = bounds.max.multiply(RenderingConstants.WORLD_SCALE);
+		Vector3f center = new Vector3f((float) ((min.getX() + max.getX()) * 0.5),
+				(float) ((min.getY() + max.getY()) * 0.5), (float) ((min.getZ() + max.getZ()) * 0.5));
+		camera.setCenterOfInterest(scene.transformRocketPoint(center, new Vector3f()));
+		camera.fitBounds(new Vector3f((float) (max.getX() - min.getX()), (float) (max.getY() - min.getY()),
+				(float) (max.getZ() - min.getZ())));
+		return camera;
+	}
+
+	/**
+	 * An orthographic side-view camera for a square image, in which the rocket is turned by {@code roll} and fills the
+	 * image up to the margin. The bounds come from the scene objects, so that they are those of what is drawn.
+	 *
+	 * @return the camera, or null if the scene has no rocket objects
+	 */
+	private static Camera createOrthographicSideViewCamera(Scene scene, float roll, float margin) {
+		float cos = (float) Math.cos(roll), sin = (float) Math.sin(roll);
+		Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
+		Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY);
+		Vector3f meshMin = new Vector3f(), meshMax = new Vector3f(), corner = new Vector3f();
+		for (SceneObject object : scene.getObjects()) {
+			if (object.getRocketComponent() == null || object.isOriginAxis() || object.getMesh() == null) {
+				continue;
+			}
+			object.getMesh().getBoundsMin(meshMin);
+			object.getMesh().getBoundsMax(meshMax);
+			for (int i = 0; i < 8; i++) {
+				corner.set((i & 1) == 0 ? meshMin.x : meshMax.x, (i & 2) == 0 ? meshMin.y : meshMax.y,
+						(i & 4) == 0 ? meshMin.z : meshMax.z);
+				object.getModelMatrix().transformPosition(corner);
+				// Bounds in the image: x to the right and y up, turned by the roll.
+				corner.set(cos * corner.x - sin * corner.y, sin * corner.x + cos * corner.y, corner.z);
+				min.min(corner);
+				max.max(corner);
+			}
+		}
+		if (min.x > max.x) {
+			return null;
+		}
+
+		Camera camera = Camera.builder()
+				.withAspectRatio(1f)
+				.withClippingPlanes(0.1f, 100f)
+				.withFixedCenterOfInterest(false)
+				.build();
+		camera.setSideView();
+		float centerX = (min.x + max.x) / 2, centerY = (min.y + max.y) / 2;
+		camera.setCenterOfInterest(new Vector3f(cos * centerX + sin * centerY, -sin * centerX + cos * centerY,
+				(min.z + max.z) / 2));
+		Vector3f dimensions = new Vector3f(max).sub(min);
+		camera.fitBounds(dimensions);
+		camera.setOrthographic(Math.max(dimensions.x, dimensions.y) / (1 - 2 * margin), roll);
+		return camera;
+	}
+
 	private void handlePendingExports(Scene sceneView, GLRenderer renderer) {
 		FrameExportQueue.Request request;
 		while ((request = frameExportQueue.poll()) != null) {
@@ -1129,7 +1412,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-		for (int y = 0; y < height; y++) {
+		// Each row only writes its own pixels, so the rows are converted in parallel.
+		IntStream.range(0, height).parallel().forEach(y -> {
 			for (int x = 0; x < width; x++) {
 				int i = (x + (width * y)) * 4;
 				int r = buffer.get(i) & 0xFF;
@@ -1151,7 +1435,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 				pixels[(height - 1 - y) * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
 			}
-		}
+		});
 		return image;
 	}
 
@@ -1369,6 +1653,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					}
 					if (renderer != null) {
 						renderer.cleanup();
+					}
+					if (offscreenRenderer != null) {
+						offscreenRenderer.cleanup();
+						offscreenRenderer = null;
 					}
 					scene3DOrchestrator.getDecalTextureCache().cleanup();
 				} catch (Exception e) {

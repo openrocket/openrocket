@@ -16,6 +16,7 @@ responding to review. AI assistance does not replace that responsibility.
 ## Verification
 
 - Run checks appropriate to the change. For bug fixes, add a regression test where practical that exercises the reported failure. Test behavior, not merely the implementation's own assumptions.
+- Tag tests that need a live OpenGL context (anything rendering with the 3D view) with `@Tag("requires-live-opengl")`; GitHub Actions cannot run them on Windows and macOS. See the "Tests That Need OpenGL" section of `docs/source/dev_guide/testing_and_debugging.rst`.
 - For UI changes, exercise the affected interaction when possible. For simulation or numerical changes, validate against independent expected results and explain their basis.
 - Report only checks actually run and their outcomes. State failures, skipped checks, and environment limitations plainly. Never claim a fix is verified just because the code looks plausible or an LLM says it is correct.
 - If AI was used for the PR, including code, tests, or the description, include the template's AI assistance section. An agent drafting or updating the PR must fill it in, naming itself and any other models used. Give the actual model names (for example, "GPT 6 astra"), not just the tool or provider. Use the model identity supplied by the runtime or contributor; if unavailable, write "Unknown (via <tool>)" instead of guessing. Briefly explain what AI helped with and how its output was verified. Do not paste prompts or chat transcripts.

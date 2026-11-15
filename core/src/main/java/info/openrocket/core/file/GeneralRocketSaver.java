@@ -246,6 +246,15 @@ public class GeneralRocketSaver {
 				zos.closeEntry();
 			}
 
+			// Save the file thumbnail image, if any.
+			byte[] thumbnailImage = options.getThumbnailImage();
+			if (thumbnailImage != null && thumbnailImage.length > 0) {
+				ZipEntry thumbnailEntry = new ZipEntry("thumbnail.png");
+				zos.putNextEntry(thumbnailEntry);
+				zos.write(thumbnailImage);
+				zos.closeEntry();
+			}
+
 			// Now we write out all the decal images files.
 			for (DecalImage image : decals) {
 				if (image.isIgnored()) {
@@ -281,6 +290,7 @@ public class GeneralRocketSaver {
 
 			zos.flush();
 			options.clearPreviewImage();
+			options.clearThumbnailImage();
 		}
 
 	}

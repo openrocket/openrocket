@@ -58,6 +58,9 @@ public final class TransparencyPolicy {
 
 	public static float getEffectiveOpacity(RocketComponent component, Appearance3D appearance,
 											 RenderingConfiguration config) {
+		if (config.getDisplay().getSurfaceShading() == DisplaySettings.SurfaceShading.OBJECT_IDS) {
+			return 1.0f;
+		}
 		DisplaySettings.RenderMode mode = config.getDisplay().getMode();
 		if (mode == DisplaySettings.RenderMode.XRAY) {
 			return isFigureTransparentComponent(component) ? config.getQuality().getXrayOpacity() : 1.0f;

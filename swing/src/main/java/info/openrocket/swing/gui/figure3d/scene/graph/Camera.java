@@ -37,6 +37,9 @@ public class Camera {
 
 	// Store original projection values
 	private float fov;
+	// Height of the orthographic view volume, or 0 for a perspective projection.
+	private float orthographicViewHeight;
+	private float roll;
 	private float aspectRatio;
 	private final float zNear;
 	private final float zFar;
@@ -129,9 +132,44 @@ public class Camera {
 		updateProjectionMatrix();
 	}
 
+	/**
+	 * Switches to an orthographic projection.
+	 *
+	 * @param viewHeight height of the scene that fits in the view, in world units
+	 * @param roll       rotation of the view about the viewing direction, in radians (counter-clockwise)
+	 */
+	public void setOrthographic(float viewHeight, float roll) {
+		this.orthographicViewHeight = viewHeight;
+		this.roll = roll;
+		updateProjectionMatrix();
+	}
+
+	/** Height of the orthographic view volume in world units, or 0 with a perspective projection. */
+	public float getOrthographicViewHeight() {
+		return orthographicViewHeight;
+	}
+
+	/** Near clipping plane distance of the current projection. */
+	public float getNearPlane() {
+		return getEffectiveNearPlane();
+	}
+
+	/** Far clipping plane distance of the current projection. */
+	public float getFarPlane() {
+		return getEffectiveFarPlane();
+	}
+
 	private void updateProjectionMatrix() {
 		float nearPlane = getEffectiveNearPlane();
 		float farPlane = getEffectiveFarPlane();
+		if (orthographicViewHeight > 0) {
+			float halfHeight = orthographicViewHeight / 2;
+			projectionMatrix.identity()
+					.ortho(-halfHeight * aspectRatio, halfHeight * aspectRatio, -halfHeight, halfHeight,
+							nearPlane, farPlane)
+					.rotateZ(roll);
+			return;
+		}
 		projectionMatrix.identity().perspective(fov, aspectRatio, nearPlane, farPlane);
 	}
 

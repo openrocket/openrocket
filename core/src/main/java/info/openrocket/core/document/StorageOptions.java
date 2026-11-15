@@ -17,6 +17,7 @@ public class StorageOptions implements Cloneable {
 
 	private boolean explicitlySet = false;
 	private byte[] previewImage;		// File preview image data
+	private byte[] thumbnailImage;		// Small file thumbnail image data
 
 	public FileType getFileType() {
 		return fileType;
@@ -65,12 +66,39 @@ public class StorageOptions implements Cloneable {
 		this.previewImage = null;
 	}
 
+	/**
+	 * Get the file thumbnail image data. The thumbnail is a small, simplified rendering of the rocket used for file
+	 * icons, while the preview image is used for the full file preview.
+	 * @return byte array containing image data, or null if no thumbnail image is set.
+	 */
+	public byte[] getThumbnailImage() {
+		return thumbnailImage;
+	}
+
+	/**
+	 * Set the file thumbnail image data.
+	 * @param thumbnailImage byte array containing image data.
+	 */
+	public void setThumbnailImage(byte[] thumbnailImage) {
+		this.thumbnailImage = thumbnailImage;
+	}
+
+	/**
+	 * Clear the file thumbnail image data.
+	 */
+	public void clearThumbnailImage() {
+		this.thumbnailImage = null;
+	}
+
 	@Override
 	public StorageOptions clone() {
 		try {
 			StorageOptions clone = (StorageOptions) super.clone();
 			if (this.previewImage != null) {
 				clone.previewImage = this.previewImage.clone();
+			}
+			if (this.thumbnailImage != null) {
+				clone.thumbnailImage = this.thumbnailImage.clone();
 			}
 			return clone;
 		} catch (CloneNotSupportedException e) {

@@ -16,8 +16,11 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Mutable scene containing rocket objects, camera, lights, particles, and selection state.
@@ -166,6 +169,54 @@ public class Scene implements SceneView {
 		rocketDragYaw = 0.0f;
 		rocketDragRoll = 0.0f;
 		applyRocketRotation();
+	}
+
+	/**
+	 * Runs a task with the rocket drag rotation cleared, so that the rocket is in its unrotated position, and restores
+	 * the rotation and the rocket objects' exact transforms afterwards.
+	 *
+	 * @param task the task to run
+	 * @return the task's result
+	 */
+	public <T> T withoutRocketRotation(Supplier<T> task) {
+		if (Math.abs(rocketDragYaw) <= 1e-6f && Math.abs(rocketDragRoll) <= 1e-6f) {
+			return task.get();
+		}
+		float yaw = rocketDragYaw;
+		float roll = rocketDragRoll;
+		Matrix4f rotation = new Matrix4f(rocketRotationMatrix);
+		Map<SceneObject, Matrix4f> modelMatrices = new IdentityHashMap<>();
+		for (SceneObject object : objects) {
+			if (object.getRocketComponent() != null) {
+				modelMatrices.put(object, new Matrix4f(object.getModelMatrix()));
+			}
+		}
+		rocketDragYaw = 0.0f;
+		rocketDragRoll = 0.0f;
+		applyRocketRotation();
+		try {
+			return task.get();
+		} finally {
+			rocketDragYaw = yaw;
+			rocketDragRoll = roll;
+			rocketRotationMatrix.set(rotation);
+			modelMatrices.forEach((object, matrix) -> object.getModelMatrix().set(matrix));
+		}
+	}
+
+	/**
+	 * Runs a task with no objects selected, so that a render does not show the selection outline, and restores the
+	 * selection afterwards.
+	 */
+	public <T> T withoutSelection(Supplier<T> task) {
+		List<SceneObject> selection = new ArrayList<>(selectedObjects);
+		selectedObjects.clear();
+		try {
+			return task.get();
+		} finally {
+			selectedObjects.clear();
+			selectedObjects.addAll(selection);
+		}
 	}
 
 	/**
