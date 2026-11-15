@@ -21,7 +21,7 @@ jobs:
     env:
       # Commit of openrocket/Windows-ork-Preview to build the Explorer thumbnail handler from. It is pinned here, not taken
       # as a workflow input, so that the SignPath approver sees exactly which code is signed in the verified commit.
-      WINDOWS_ORK_PREVIEW_REF: '1ce1926ea9f8edc1e73ba109fb1442143a83edc6'
+      WINDOWS_ORK_PREVIEW_REF: '9c91bba3be08c81f8a5ee6e57c39cc03dd33dd94'
       SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
       SIGNPATH_PROJECT_SLUG: ${{ vars.SIGNPATH_PROJECT_SLUG }}
       SIGNPATH_SIGNING_POLICY_SLUG: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
