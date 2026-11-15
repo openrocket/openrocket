@@ -78,4 +78,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: openrocket_build_${{ github.run_number }}
-          path: ${{github.workspace}}/build/libs/OpenRocket*.jar
+          # Upload only the universal JAR; the platform-specific JARs are built by the installer workflows.
+          path: |
+            ${{github.workspace}}/build/libs/OpenRocket*.jar
+            !${{github.workspace}}/build/libs/OpenRocket*-linux-*.jar
+            !${{github.workspace}}/build/libs/OpenRocket*-macos-*.jar
+            !${{github.workspace}}/build/libs/OpenRocket*-windows-*.jar
