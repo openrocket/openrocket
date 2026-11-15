@@ -22,6 +22,7 @@ import javax.swing.SwingUtilities;
 
 import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -108,6 +109,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 	}
 
 	@Test
+	@Tag("requires-live-opengl")
 	void previewRenderedWithThe3DViewIsPersisted() throws Exception {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"Rendering needs a window with an OpenGL canvas; skip in headless environments");
@@ -175,6 +177,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 	}
 
 	@Test
+	@Tag("requires-live-opengl")
 	void thumbnailRenderedWithThe3DViewShowsTheRocketDiagonallyOnWhite() throws Exception {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"Rendering needs a window with an OpenGL canvas; skip in headless environments");
@@ -263,6 +266,7 @@ class PreviewPersistenceTest extends BaseTestCase {
 	}
 
 	@Test
+	@Tag("requires-live-opengl")
 	void previewShowsTheSideViewAlsoWhenTheRocketWasRotatedIn3D() throws Exception {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"Rendering needs a window with an OpenGL canvas; skip in headless environments");
