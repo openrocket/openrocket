@@ -14,14 +14,14 @@ concurrency:
 
 jobs:
   build-and-sign:
-    name: Build and sign Windows installers
+    name: Build Windows installers
     runs-on: windows-latest
     timeout-minutes: 60
 
     env:
       # Commit of openrocket/Windows-ork-Preview to build the Explorer thumbnail handler from. It is pinned here, not taken
       # as a workflow input, so that the SignPath approver sees exactly which code is signed in the verified commit.
-      WINDOWS_ORK_PREVIEW_REF: '9c91bba3be08c81f8a5ee6e57c39cc03dd33dd94'
+      WINDOWS_ORK_PREVIEW_REF: '490ff8abfe5611dab7e897261e54d07201bced97'
       SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
       SIGNPATH_PROJECT_SLUG: ${{ vars.SIGNPATH_PROJECT_SLUG }}
       SIGNPATH_SIGNING_POLICY_SLUG: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
