@@ -591,7 +591,7 @@ In :menuselection:`GitHub repository --> Settings --> Secrets and variables --> 
    *  - Variable ``SIGNPATH_PROJECT_SLUG``
       - OpenRocket project slug.
    *  - Variable ``SIGNPATH_SIGNING_POLICY_SLUG``
-      - Release signing policy slug.
+      - Release signing policy slug. `test-signing` for dry runs, `release-signing` for actual signing.
    *  - Variable ``SIGNPATH_ARTIFACT_CONFIGURATION_SLUG``
       - Windows installer artifact configuration slug.
    *  - Variable ``SIGNPATH_SHELL_EXTENSION_ARTIFACT_CONFIGURATION_SLUG``
