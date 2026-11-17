@@ -1670,7 +1670,11 @@ private static final Translator trans = Application.getTranslator();
 			((BasicFrame) parent).closeIfReplaceable();
 		}
 		if (openRocketConfigDialog) {
-			SwingUtilities.invokeLater(() -> ComponentConfigDialog.showDialog(frame, doc, doc.getRocket()));
+			SwingUtilities.invokeLater(() -> {
+				ComponentConfigDialog.showDialog(frame, doc, doc.getRocket());
+				// This dialog is mostly read and dismissed, so let Enter close it right away.
+				ComponentConfigDialog.focusOkButton();
+			});
 		}
 
 		return frame;

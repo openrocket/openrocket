@@ -318,6 +318,15 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		infoBtn.setSelected(true);
 	}
 	
+	/**
+	 * Make OK the dialog's default button and give it the initial focus, so that the
+	 * dialog can be accepted with Enter as soon as it appears.
+	 */
+	public void focusOkButton() {
+		parent.getRootPane().setDefaultButton(okButton);
+		okButton.requestFocusInWindow();
+	}
+
 	protected void addButtons(JButton... buttons) {
 		if (componentInfo != null) {
 			this.remove(componentInfo);

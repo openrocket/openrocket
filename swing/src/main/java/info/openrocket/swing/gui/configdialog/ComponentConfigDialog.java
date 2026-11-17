@@ -144,6 +144,15 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	}
 
 	/**
+	 * Make OK the default, focused button of the open dialog.
+	 */
+	public static void focusOkButton() {
+		if (dialog != null && dialog.configurator != null) {
+			dialog.configurator.focusOkButton();
+		}
+	}
+
+	/**
 	/**
 	 * Return the configurator panel of the current component.
 	 */
