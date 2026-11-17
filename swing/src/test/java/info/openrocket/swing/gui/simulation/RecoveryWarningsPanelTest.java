@@ -28,21 +28,67 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.basic.BasicHTML;
 import javax.swing.text.View;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+
+import java.util.Locale;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.l10n.ResourceBundleTranslator;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.simulation.SimulationOptions;
+import info.openrocket.core.startup.Application;
+import info.openrocket.swing.ServicesForTesting;
 import info.openrocket.swing.gui.components.CollapsiblePanel;
 import info.openrocket.swing.util.BaseTestCase;
 
 /** Tests placement and binding of recovery deployment warning controls. */
 public class RecoveryWarningsPanelTest extends BaseTestCase {
+
+	private static Injector previousInjector;
+
+	/**
+	 * Use the strings the application actually ships.
+	 *
+	 * <p>The default test translator echoes the lookup key back, so a tab comes out titled
+	 * "[SimulationConfigDialog.SimulationConfigDialog.tab.Launchcond]" - roughly three times the
+	 * width of "Launch conditions". Six of those force the dialog's tab strip onto six rows and
+	 * leave the selected tab no height to draw in, which is a measurement of the test harness
+	 * rather than of anything a user can reach.
+	 */
+	@BeforeAll
+	public static void useShippedStrings() {
+		previousInjector = Application.getInjector();
+		Module realStrings = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(Translator.class).toInstance(
+						new ResourceBundleTranslator("l10n.messages", Locale.ROOT));
+			}
+		};
+		Application.setInjector(Guice.createInjector(
+				Modules.override(new ServicesForTesting()).with(realStrings), new PluginModule()));
+	}
+
+	@AfterAll
+	public static void restoreTranslator() {
+		if (previousInjector != null) {
+			Application.setInjector(previousInjector);
+		}
+	}
 
 	@Test
 	public void testThresholdEditorsUpdateSimulationOptions() throws Exception {
