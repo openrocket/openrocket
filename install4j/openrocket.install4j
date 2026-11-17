@@ -247,6 +247,7 @@ return console.askOkCancel(message, true);
                   <property name="initiallySelected" type="boolean" value="true" />
                   <property name="variableName" type="string">installThumbnailHandler</property>
                 </serializedBean>
+                <visibilityScript>Util.isWindows()</visibilityScript>
               </formComponent>
             </formComponents>
           </screen>
@@ -408,7 +409,7 @@ return true;</property>
                     </object>
                   </property>
                 </serializedBean>
-                <condition>return ((Boolean)context.getVariable("installThumbnailHandler")).booleanValue();</condition>
+                <condition>return Util.isWindows() &amp;&amp; ((Boolean)context.getVariable("installThumbnailHandler")).booleanValue();</condition>
               </action>
             </actions>
             <formComponents>
@@ -485,6 +486,7 @@ return console.askYesNo(message, true);
                     </object>
                   </property>
                 </serializedBean>
+                <condition>Util.isWindows()</condition>
               </action>
               <action id="29" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" actionElevationType="elevated" rollbackBarrierExitCode="0" />
               <action id="265" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" actionElevationType="elevated" rollbackBarrierExitCode="0">
