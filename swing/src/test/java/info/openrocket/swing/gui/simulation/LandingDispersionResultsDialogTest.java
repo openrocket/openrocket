@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -21,8 +22,11 @@ import org.junit.jupiter.api.Test;
 import info.openrocket.core.simulation.montecarlo.DispersionStatistics;
 import info.openrocket.core.simulation.montecarlo.LandingBody;
 import info.openrocket.core.simulation.montecarlo.LandingPoint;
+import info.openrocket.core.simulation.montecarlo.MonteCarloBranchResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloDistribution;
+import info.openrocket.core.simulation.montecarlo.MonteCarloMetric;
 import info.openrocket.core.simulation.montecarlo.MonteCarloParameter;
+import info.openrocket.core.simulation.montecarlo.MonteCarloRunResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
 import info.openrocket.core.unit.UnitGroup;
 
@@ -44,6 +48,33 @@ public class LandingDispersionResultsDialogTest {
 		// A tiny or unrealised panel must not produce a degenerate scale.
 		assertEquals(6, LandingDispersionResultsDialog.exportScale(0));
 		assertEquals(6, LandingDispersionResultsDialog.exportScale(100));
+	}
+
+	/**
+	 * The run-level altitude and flight time describe the first (sustainer) branch. With a
+	 * separated booster selected, the run table must show the booster's own values instead
+	 * of pairing its landing point with the sustainer's flight.
+	 */
+	@Test
+	public void testRunTableMetricsFollowTheSelectedBody() {
+		MonteCarloBranchResult sustainer = new MonteCarloBranchResult("sustainer", 0, "Sustainer",
+				Map.of(MonteCarloMetric.APOGEE_ALTITUDE, 1500.0, MonteCarloMetric.FLIGHT_TIME, 90.0), null);
+		MonteCarloBranchResult booster = new MonteCarloBranchResult("booster", 1, "Booster",
+				Map.of(MonteCarloMetric.APOGEE_ALTITUDE, 400.0, MonteCarloMetric.FLIGHT_TIME, 30.0), null);
+		MonteCarloRunResult run = new MonteCarloRunResult(null, List.of(), List.of(),
+				List.of(sustainer, booster), 1500.0, 90.0, null);
+		LandingBody boosterBody = new LandingBody("booster", 1, "Booster");
+
+		assertEquals(400.0, LandingDispersionResultsDialog.bodyMetric(run, boosterBody,
+				MonteCarloMetric.APOGEE_ALTITUDE, run.maximumAltitude()));
+		assertEquals(30.0, LandingDispersionResultsDialog.bodyMetric(run, boosterBody,
+				MonteCarloMetric.FLIGHT_TIME, run.flightTime()));
+		// A body missing from this run has no value rather than another branch's value.
+		assertTrue(Double.isNaN(LandingDispersionResultsDialog.bodyMetric(run,
+				new LandingBody("other", 2, "Other"), MonteCarloMetric.APOGEE_ALTITUDE, run.maximumAltitude())));
+		// Without a selected body the run-level value is kept.
+		assertEquals(1500.0, LandingDispersionResultsDialog.bodyMetric(run, null,
+				MonteCarloMetric.APOGEE_ALTITUDE, run.maximumAltitude()));
 	}
 
 	/** With no body there is nothing to describe, so the subtitle stays empty. */

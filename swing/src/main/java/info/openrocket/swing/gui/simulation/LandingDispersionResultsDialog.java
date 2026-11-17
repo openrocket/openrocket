@@ -51,6 +51,8 @@ import info.openrocket.core.simulation.montecarlo.DispersionStatistics;
 import info.openrocket.core.simulation.montecarlo.DispersionStatistics.DispersionEllipse;
 import info.openrocket.core.simulation.montecarlo.LandingBody;
 import info.openrocket.core.simulation.montecarlo.LandingPoint;
+import info.openrocket.core.simulation.montecarlo.MonteCarloBranchResult;
+import info.openrocket.core.simulation.montecarlo.MonteCarloMetric;
 import info.openrocket.core.simulation.montecarlo.MonteCarloResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloRunResult;
 import info.openrocket.core.simulation.montecarlo.MonteCarloSettings;
@@ -924,6 +926,20 @@ public final class LandingDispersionResultsDialog extends JDialog {
 		return name.replaceAll("[^a-zA-Z0-9._-]+", "-");
 	}
 
+	/**
+	 * Return a metric for the selected body's own flight branch. The run-level values
+	 * describe the first branch only, so they are used only when no body is selected
+	 * or the run has no per-branch results.
+	 */
+	static double bodyMetric(MonteCarloRunResult run, LandingBody body, MonteCarloMetric metric,
+			double runValue) {
+		if (body == null || run.branchResults().isEmpty()) {
+			return runValue;
+		}
+		MonteCarloBranchResult branch = run.getBranchResult(body.bodyId());
+		return branch == null ? Double.NaN : branch.getMetric(metric);
+	}
+
 	private static final class RunTableModel extends AbstractTableModel {
 		private static final String[] COLUMN_KEYS = {
 				"run", "status", "east", "north", "range", "maxAltitude", "flightTime"
@@ -988,9 +1004,14 @@ public final class LandingDispersionResultsDialog extends JDialog {
 				case 2 -> point == null ? "" : format(distanceUnit.toUnit(point.east()));
 				case 3 -> point == null ? "" : format(distanceUnit.toUnit(point.north()));
 				case 4 -> point == null ? "" : format(distanceUnit.toUnit(point.rangeFromPad()));
-				case 5 -> Double.isFinite(run.maximumAltitude())
-						? format(distanceUnit.toUnit(run.maximumAltitude())) : "";
-				case 6 -> Double.isFinite(run.flightTime()) ? format(run.flightTime()) : "";
+				case 5 -> {
+					double altitude = bodyMetric(run, body, MonteCarloMetric.APOGEE_ALTITUDE, run.maximumAltitude());
+					yield Double.isFinite(altitude) ? format(distanceUnit.toUnit(altitude)) : "";
+				}
+				case 6 -> {
+					double flightTime = bodyMetric(run, body, MonteCarloMetric.FLIGHT_TIME, run.flightTime());
+					yield Double.isFinite(flightTime) ? format(flightTime) : "";
+				}
 				default -> throw new IndexOutOfBoundsException("Invalid table column " + columnIndex);
 			};
 		}
