@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.JList;
@@ -26,10 +27,24 @@ public class CheckListEditorTest {
 		list.doLayout();
 	}
 
+	/**
+	 * Send an event to the check list's editor only. Dispatching through the list would also run
+	 * the list UI's own mouse handler, which needs a display and fails on headless CI.
+	 */
 	private void mouse(int id, int x, int y, int clickCount) {
-		list.dispatchEvent(new MouseEvent(list, id, System.currentTimeMillis(),
+		MouseEvent event = new MouseEvent(list, id, System.currentTimeMillis(),
 				id == MouseEvent.MOUSE_PRESSED ? InputEvent.BUTTON1_DOWN_MASK : 0, x, y, clickCount, false,
-				MouseEvent.BUTTON1));
+				MouseEvent.BUTTON1);
+		for (MouseListener listener : list.getMouseListeners()) {
+			if (listener instanceof CheckListEditor) {
+				switch (id) {
+					case MouseEvent.MOUSE_PRESSED -> listener.mousePressed(event);
+					case MouseEvent.MOUSE_RELEASED -> listener.mouseReleased(event);
+					case MouseEvent.MOUSE_CLICKED -> listener.mouseClicked(event);
+					default -> throw new IllegalArgumentException("Unexpected mouse event " + id);
+				}
+			}
+		}
 	}
 
 	private void click(int index, int pressDx, int releaseDx, int clickCount) {
