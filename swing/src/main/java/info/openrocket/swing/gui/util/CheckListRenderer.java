@@ -47,7 +47,6 @@ import javax.swing.border.EmptyBorder;
 public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Serializable {
 		
 	private static final Border NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
-	private static final Border SAFE_NO_FOCUS_BORDER = NO_FOCUS_BORDER; // may change in the future
 	
 	/**
 	 * Constructs a default renderer object for an item in a list.
@@ -59,13 +58,10 @@ public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Se
 	}
 	
 	private static Border getNoFocusBorder() {
-		// TODO: System.getSecurityManager() is deprecated
-		/*if (System.getSecurityManager() != null) {
-			return SAFE_NO_FOCUS_BORDER;
-		} else {
-			return NO_FOCUS_BORDER;
-		}*/
-		return NO_FOCUS_BORDER;
+		// Use the look and feel's cell border, like DefaultListCellRenderer, so unfocused rows have
+		// the same insets as the focused row and the content does not shift when a row gets focus
+		Border border = UIManager.getBorder("List.cellNoFocusBorder");
+		return border != null ? border : NO_FOCUS_BORDER;
 	}
 	
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
