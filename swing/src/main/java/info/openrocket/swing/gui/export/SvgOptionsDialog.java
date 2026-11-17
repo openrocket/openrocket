@@ -29,6 +29,8 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Color;
+
+import info.openrocket.swing.gui.util.ColorConversion;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -170,13 +172,13 @@ public class SvgOptionsDialog extends JDialog {
 		double partSpacing = optionsPanel.getPartSpacing();
 		
 		return new SVGExportOptions(
-			getStrokeColor(),
+			ColorConversion.fromAwtColor(getStrokeColor()),
 			getStrokeWidth(),
 			isDrawCrosshair(),
-			getCrosshairColor(),
+			ColorConversion.fromAwtColor(getCrosshairColor()),
 			getCrosshairSize(),
 			isShowLabels(),
-			getLabelColor(),
+			ColorConversion.fromAwtColor(getLabelColor()),
 			partSpacing
 		);
 	}
@@ -198,12 +200,12 @@ public class SvgOptionsDialog extends JDialog {
 	}
 
 	public void setFromPreferences(ApplicationPreferences prefs) {
-		optionsPanel.setStrokeColor(prefs.getSVGStrokeColor());
+		optionsPanel.setStrokeColor(ColorConversion.toAwtColor(prefs.getSVGStrokeColor()));
 		optionsPanel.setStrokeWidth(prefs.getSVGStrokeWidth());
 		optionsPanel.setDrawCrosshair(prefs.isSVGDrawCrosshair());
-		optionsPanel.setCrosshairColor(prefs.getSVGCrosshairColor());
+		optionsPanel.setCrosshairColor(ColorConversion.toAwtColor(prefs.getSVGCrosshairColor()));
 		optionsPanel.setShowLabels(prefs.isSVGShowLabels());
-		optionsPanel.setLabelColor(prefs.getSVGLabelColor());
+		optionsPanel.setLabelColor(ColorConversion.toAwtColor(prefs.getSVGLabelColor()));
 		// Crosshair size is loaded in SVGOptionPanel constructor
 	}
 

@@ -6,11 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.lang.Exception;
 import java.util.Iterator;
 
-import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightDataType;
@@ -283,10 +283,12 @@ public class CSVSave extends AbstractSimulationExtension {
 				
 			} catch (Exception e) {
 				log.error("ERROR OPENING FILE: " + e);
-				JOptionPane.showMessageDialog(null,
-											  "Error Opening File:\n" + e.getMessage(),
-											  "Error Opening File: " + file,
-											  JOptionPane.ERROR_MESSAGE);
+				// Carry on without CSV logging rather than failing the simulation
+				if (output != null) {
+					output.close();
+					output = null;
+				}
+				status.addWarning(Warning.fromString("Error opening CSV file " + file + ": " + e.getMessage()));
 			}
 			
 		}

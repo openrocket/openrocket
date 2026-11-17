@@ -1,6 +1,5 @@
 package info.openrocket.core.preferences;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
@@ -1624,8 +1623,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 *
 	 * @return the stroke color for the SVG
 	 */
-	public Color getSVGStrokeColor() {
-		return getORColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+	public ORColor getSVGStrokeColor() {
+		return getORColor(SVG_STROKE_COLOR, new ORColor(0, 0, 0));
 	}
 
 	/**
@@ -1633,8 +1632,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 *
 	 * @param c the stroke color to set
 	 */
-	public void setSVGStrokeColor(Color c) {
-		putColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(c));
+	public void setSVGStrokeColor(ORColor c) {
+		putColor(SVG_STROKE_COLOR, c);
 	}
 
 	/**
@@ -1678,8 +1677,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 *
 	 * @return the crosshair color
 	 */
-	public Color getSVGCrosshairColor() {
-		return getORColor(SVG_CROSSHAIR_COLOR, ORColor.fromAWTColor(Color.GRAY)).toAWTColor();
+	public ORColor getSVGCrosshairColor() {
+		return getORColor(SVG_CROSSHAIR_COLOR, new ORColor(128, 128, 128));
 	}
 
 	/**
@@ -1687,8 +1686,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 *
 	 * @param color the color to use for crosshairs
 	 */
-	public void setSVGCrosshairColor(Color color) {
-		putColor(SVG_CROSSHAIR_COLOR, ORColor.fromAWTColor(color));
+	public void setSVGCrosshairColor(ORColor color) {
+		putColor(SVG_CROSSHAIR_COLOR, color);
 	}
 
 	/**
@@ -1734,8 +1733,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 *
 	 * @return the label color
 	 */
-	public Color getSVGLabelColor() {
-		return getORColor(SVG_LABEL_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+	public ORColor getSVGLabelColor() {
+		return getORColor(SVG_LABEL_COLOR, new ORColor(0, 0, 0));
 	}
 
 	/**
@@ -1743,8 +1742,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 *
 	 * @param color the color to use for labels
 	 */
-	public void setSVGLabelColor(Color color) {
-		putColor(SVG_LABEL_COLOR, ORColor.fromAWTColor(color));
+	public void setSVGLabelColor(ORColor color) {
+		putColor(SVG_LABEL_COLOR, color);
 	}
 
 	/**
@@ -1825,12 +1824,12 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		putBoolean(TEXTURE_GENERATION_RESET_TRANSFORMS, reset);
 	}
 
-	public Color getTextureGenerationOutlineColor() {
-		return getORColor(TEXTURE_GENERATION_OUTLINE_COLOR, new ORColor(0, 0, 0)).toAWTColor();
+	public ORColor getTextureGenerationOutlineColor() {
+		return getORColor(TEXTURE_GENERATION_OUTLINE_COLOR, new ORColor(0, 0, 0));
 	}
 
-	public void setTextureGenerationOutlineColor(Color color) {
-		putColor(TEXTURE_GENERATION_OUTLINE_COLOR, ORColor.fromAWTColor(color));
+	public void setTextureGenerationOutlineColor(ORColor color) {
+		putColor(TEXTURE_GENERATION_OUTLINE_COLOR, color);
 	}
 
 	/**
@@ -2083,13 +2082,13 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, DEFAULT_COLORS);
 		if (color == null)
-			return ORColor.fromAWTColor(Color.BLACK);
+			return new ORColor(0, 0, 0);
 
 		ORColor clr = parseColor(color);
 		if (clr != null) {
 			return clr;
 		} else {
-			return ORColor.fromAWTColor(Color.BLACK);
+			return new ORColor(0, 0, 0);
 		}
 	}
 	

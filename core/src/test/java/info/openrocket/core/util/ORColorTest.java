@@ -2,10 +2,6 @@ package info.openrocket.core.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-
-import java.awt.Color;
-
 import org.junit.jupiter.api.Test;
 
 public class ORColorTest {
@@ -22,21 +18,6 @@ public class ORColorTest {
 		assertEquals(50, color.getGreen());
 		assertEquals(60, color.getBlue());
 		assertEquals(70, color.getAlpha());
-	}
-
-	@Test
-	public void conversionToAndFromAwtColorPreservesChannels() {
-		ORColor color = new ORColor(1, 2, 3, 4);
-		Color awt = color.toAWTColor();
-
-		assertEquals(1, awt.getRed());
-		assertEquals(2, awt.getGreen());
-		assertEquals(3, awt.getBlue());
-		assertEquals(4, awt.getAlpha());
-
-		ORColor converted = ORColor.fromAWTColor(awt);
-		assertNotSame(color, converted);
-		assertEquals(color, converted);
 	}
 
 	@Test

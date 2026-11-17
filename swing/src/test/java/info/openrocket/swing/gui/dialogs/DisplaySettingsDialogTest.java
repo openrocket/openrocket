@@ -8,8 +8,9 @@ import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
+import info.openrocket.core.util.ORColor;
+
 import javax.swing.SwingUtilities;
-import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowEvent;
 
@@ -30,7 +31,7 @@ class DisplaySettingsDialogTest extends BaseTestCase {
 			DisplaySettingsDialog dialog = new DisplaySettingsDialog(null, rocketPanel);
 			try {
 				DocumentPreferences preferences = document.getDocumentPreferences();
-				preferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, Color.BLUE);
+				preferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, new ORColor(0, 0, 255));
 				assertFalse(document.isSaved());
 
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));

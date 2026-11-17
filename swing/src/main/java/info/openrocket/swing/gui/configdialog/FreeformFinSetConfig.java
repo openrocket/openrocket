@@ -601,7 +601,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		Point2D.Double toAdd = new Point2D.Double((currentPoint.getX() + nextPoint.getX()) / 2, (currentPoint.getY() + nextPoint.getY()) / 2);
 		beginFinPointEdit();
 		try {
-			finSet.addPoint(currentPointIdx + 1, toAdd);
+			finSet.addPoint(currentPointIdx + 1, toAdd.getX(), toAdd.getY());
 		} finally {
 			commitFinPointEdit();
 		}
@@ -680,7 +680,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				beginFinPointEdit();
 				Point2D.Double point = getCoordinates(event);
 				try {
-					finset.addPoint(segmentIndex, point);
+					finset.addPoint(segmentIndex, point.getX(), point.getY());
 				} catch (IllegalFinPointException e) {
 					throw new RuntimeException(e);
 				}
