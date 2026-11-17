@@ -1,4 +1,4 @@
-name: Build and sign Windows installers
+name: Build Windows installers
 
 on:
   workflow_dispatch:
