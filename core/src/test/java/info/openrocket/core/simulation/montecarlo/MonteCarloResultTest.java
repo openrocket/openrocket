@@ -30,6 +30,31 @@ public class MonteCarloResultTest {
 				"the nominal branch supplies the stable display order");
 	}
 
+	/** Stages that share a name must stay distinguishable in selectors, reports and exports. */
+	@Test
+	public void testRepeatedBranchNamesAreNumbered() {
+		MonteCarloSettings settings = MonteCarloSettings.builder().runCount(2).seed(17).build();
+		MonteCarloRunResult run = new MonteCarloRunResult(MonteCarloSample.nominal(17),
+				List.of(new LandingPoint("sustainer", 0, "Sustainer", 1, 2),
+						new LandingPoint("lower", 2, "Booster stage", 5, 6)),
+				List.of(),
+				List.of(branch("sustainer", 0, "Sustainer"), branch("upper", 1, "Booster stage"),
+						branch("lower", 2, "Booster stage")),
+				100, 10, null);
+		MonteCarloResult result = new MonteCarloResult(settings, run, List.of(run, run), 1);
+
+		assertEquals(List.of("Sustainer", "Booster stage (1)", "Booster stage (2)"),
+				result.getFlightBranches().stream().map(MonteCarloFlightBranch::branchName).toList());
+		// The landing body uses the same number as its flight branch, even though the upper
+		// booster did not land.
+		assertEquals(List.of("Sustainer", "Booster stage (2)"),
+				result.getLandingBodies().stream().map(LandingBody::branchName).toList());
+	}
+
+	private static MonteCarloBranchResult branch(String id, int index, String name) {
+		return new MonteCarloBranchResult(id, index, name, Map.of(), null);
+	}
+
 	private static MonteCarloRunResult metricRun(int runNumber, String branchId, int branchIndex,
 			double apogee, String branchFailure, String trajectoryFailure) {
 		MonteCarloSample sample = runNumber == 0 ? MonteCarloSample.nominal(17)
