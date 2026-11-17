@@ -421,6 +421,33 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 				return true;
 			}
 		}
+
+		if (isZeroSizeVolatileBufferBug(t)) {
+			log.warn("Ignoring Swing repaint into a zero-size back buffer: " + t);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Detect Swing trying to allocate a 0x0 volatile back buffer while repainting. This happens
+	 * on Linux when the display goes to sleep or is reconfigured while a window is open; Swing
+	 * skips that paint and repaints normally once the display is back.
+	 */
+	static boolean isZeroSizeVolatileBufferBug(Throwable t) {
+		if (!(t instanceof IllegalArgumentException)) {
+			return false;
+		}
+		StackTraceElement[] trace = t.getStackTrace();
+		if (trace.length == 0 || !trace[0].getClassName().equals("sun.awt.image.SunVolatileImage")) {
+			return false;
+		}
+		for (StackTraceElement element : trace) {
+			if (element.getClassName().equals("javax.swing.RepaintManager") &&
+					element.getMethodName().equals("getVolatileOffscreenBuffer")) {
+				return true;
+			}
+		}
 		return false;
 	}
 
