@@ -127,11 +127,11 @@ public class ExampleFilesTest extends BaseTestCase {
 
 		EXPECTATIONS.put("Airstart timing.ork", ExpectedWarnings.builder()
 				.openWarnings(0, 0, 0)
-				.simulationWarnings("Simulation 1", 0, 1, 0)
-				.simulationWarnings("Simulation 2", 0, 1, 0)
-				.simulationWarnings("Simulation 3", 0, 1, 0)
-				.simulationWarnings("Simulation 4", 0, 1, 0)
-				.simulationWarnings("Simulation 5", 0, 1, 0)
+				.simulationWarnings("Simulation 1", 0, 0, 0)
+				.simulationWarnings("Simulation 2", 0, 0, 0)
+				.simulationWarnings("Simulation 3", 0, 0, 0)
+				.simulationWarnings("Simulation 4", 0, 0, 0)
+				.simulationWarnings("Simulation 5", 0, 0, 0)
 				.build());
 
 		EXPECTATIONS.put("Base drag hack (short-wide).ork", ExpectedWarnings.builder()
@@ -149,12 +149,12 @@ public class ExampleFilesTest extends BaseTestCase {
 
 		EXPECTATIONS.put("Dual parachute deployment.ork", ExpectedWarnings.builder()
 				.openWarnings(0, 0, 0)
-				.simulationWarnings("Simulation 1", 0, 1, 0)
-				.simulationWarnings("Simulation 2", 0, 1, 0)
-				.simulationWarnings("Simulation 3", 0, 2, 0)
-				.simulationWarnings("Simulation 4", 0, 1, 0)
-				.simulationWarnings("Simulation 5", 0, 1, 0)
-				.simulationWarnings("Simulation 6", 0, 1, 0)
+				.simulationWarnings("Simulation 1", 0, 0, 0)
+				.simulationWarnings("Simulation 2", 0, 0, 0)
+				.simulationWarnings("Simulation 3", 0, 1, 0)
+				.simulationWarnings("Simulation 4", 0, 0, 0)
+				.simulationWarnings("Simulation 5", 0, 0, 0)
+				.simulationWarnings("Simulation 6", 0, 0, 0)
 				.build());
 
 		EXPECTATIONS.put("Clustered motors.ork", ExpectedWarnings.builder()
