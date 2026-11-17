@@ -95,18 +95,25 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		// Don't use the radius of a component who already has its auto diameter enabled
 		if (c != null && !c.usesNextCompAutomatic()) {
 			r = c.getFrontAutoRadius();
-			refComp = c;
+			if (r >= 0) {
+				refComp = c;
+			}
 		}
 		if (r < 0) {
 			c = this.getNextSymmetricComponent();
 			// Don't use the radius of a component who already has its auto diameter enabled
 			if (c != null && !c.usesPreviousCompAutomatic()) {
 				r = c.getRearAutoRadius();
-				refComp = c;
+				if (r >= 0) {
+					refComp = c;
+				}
 			}
 		}
-		if (r < 0)
+		if (r < 0) {
+			// Only reference a component that actually supplied the radius
+			refComp = null;
 			r = DEFAULT_RADIUS;
+		}
 		return r;
 	}
 	

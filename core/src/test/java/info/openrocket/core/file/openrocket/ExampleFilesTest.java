@@ -493,7 +493,7 @@ public class ExampleFilesTest extends BaseTestCase {
 				.build());
 
 		EXPECTED_METRICS.put("Dual parachute deployment.ork", ExpectedMetrics.builder()
-				.design(1.360777109, 0.884771266, -0.000056928, 0.000000000, 1.477010000,
+				.design(1.360777109, 0.878446481, -0.000056024, 0.000000000, 1.477010000,
 						0.000000000, -0.053283363, -0.091108391, 1.477010000, 0.104521000,
 						0.089927291)
 				.aerodynamics(0.3, 1.233658682, 0.817700132)

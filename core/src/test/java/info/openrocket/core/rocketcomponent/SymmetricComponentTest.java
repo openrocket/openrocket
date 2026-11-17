@@ -12,6 +12,39 @@ import org.junit.jupiter.api.Test;
 
 public class SymmetricComponentTest extends BaseTestCase {
 
+	/**
+	 * A body tube whose automatic radius falls back to the default must not keep a reference
+	 * to its neighbour. The loader queries radii while the rocket is still being built, so a
+	 * stale reference made the previous tube skip this one and fall back to the default too,
+	 * even after the fixed-radius tube was added behind them.
+	 */
+	@Test
+	public void testAutomaticRadiusIgnoresFallbackFromPartiallyBuiltRocket() {
+		Rocket rocket = new Rocket();
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+		NoseCone noseCone = new NoseCone();
+		noseCone.setAftRadiusAutomatic(true);
+		BodyTube first = new BodyTube();
+		first.setOuterRadiusAutomatic(true);
+		BodyTube second = new BodyTube();
+		second.setOuterRadiusAutomatic(true);
+		stage.addChild(noseCone);
+		stage.addChild(first);
+		stage.addChild(second);
+
+		// Nothing fixes the radius yet, so the second tube falls back to the default
+		assertEquals(BodyTube.DEFAULT_RADIUS, second.getOuterRadius(), 1e-9);
+
+		BodyTube fixed = new BodyTube();
+		fixed.setOuterRadius(0.028321);
+		stage.addChild(fixed);
+
+		assertEquals(0.028321, noseCone.getAftRadius(), 1e-9);
+		assertEquals(0.028321, first.getOuterRadius(), 1e-9);
+		assertEquals(0.028321, second.getOuterRadius(), 1e-9);
+	}
+
 	@Test
 	public void testPreviousSymmetricComponent() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
