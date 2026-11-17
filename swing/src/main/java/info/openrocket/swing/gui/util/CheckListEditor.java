@@ -40,47 +40,60 @@ import javax.swing.SwingUtilities;
 
 
 /**
- * Determines mouse click and 
- * 1. Toggles the check on selected item if clicked once
- * 2. Clears checks and checks selected item if clicked more then once
- * 
+ * Toggles the check of the item under the mouse.
+ * <p>
+ * The toggle happens when the button is released over the same item it was pressed on. Using
+ * mouseClicked instead would drop the toggle whenever the mouse moves even one pixel between
+ * press and release, and would treat a quick second click as a double click.
+ *
  * Created on Feb 4, 2011
  * @author Eugene Ryzhikov
  *
  */
 final class CheckListEditor extends MouseAdapter {
+	// One editor is shared by all check lists, so remember which list the press was on
+	private Object pressedList = null;
+	private int pressedIndex = -1;
+
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		
-		if (!SwingUtilities.isLeftMouseButton(e))
-			return;
-		
-		JList list = (JList) e.getSource();
-		if (!list.isEnabled() || (!(list.getModel() instanceof DefaultCheckListModel<?>)))
-			return;
-		
-		int index = list.locationToIndex(e.getPoint());
-		if (index < 0)
-			return;
-		
-		Rectangle bounds = list.getCellBounds(index, index);
-		
-		if (bounds.contains(e.getPoint())) {
-			
-			@SuppressWarnings("unchecked")
-			DefaultCheckListModel<Object> model = (DefaultCheckListModel<Object>) list.getModel();
-			
-			if (e.getClickCount() > 1) {
-				// clear all and check selected for more then 1 clicks
-				// Original implementation had this implementation.  I didn't like that behavior.
-//				model.setCheckedItems(Arrays.asList(model.getElementAt(index)));
-			} else {
-				// simple toggle for 1 click
-				model.setCheckedIndex(index, !model.isCheckedIndex(index));
-			}
-			e.consume();
-		}
-		
+	public void mousePressed(MouseEvent e) {
+		pressedList = e.getSource();
+		pressedIndex = indexAt(e);
 	}
-	
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		int index = indexAt(e);
+		boolean sameItem = index >= 0 && index == pressedIndex && e.getSource() == pressedList;
+		pressedList = null;
+		pressedIndex = -1;
+		if (!sameItem) {
+			return;
+		}
+
+		JList<?> list = (JList<?>) e.getSource();
+		@SuppressWarnings("unchecked")
+		DefaultCheckListModel<Object> model = (DefaultCheckListModel<Object>) list.getModel();
+		model.setCheckedIndex(index, !model.isCheckedIndex(index));
+		e.consume();
+	}
+
+	/**
+	 * Return the index of the item under a left-button event, or -1 if the event is not on an
+	 * item of an enabled check list.
+	 */
+	private static int indexAt(MouseEvent e) {
+		if (!SwingUtilities.isLeftMouseButton(e) || !(e.getSource() instanceof JList<?> list)) {
+			return -1;
+		}
+		if (!list.isEnabled() || !(list.getModel() instanceof DefaultCheckListModel<?>)) {
+			return -1;
+		}
+		int index = list.locationToIndex(e.getPoint());
+		if (index < 0) {
+			return -1;
+		}
+		Rectangle bounds = list.getCellBounds(index, index);
+		return bounds != null && bounds.contains(e.getPoint()) ? index : -1;
+	}
 }
