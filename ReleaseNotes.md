@@ -22,7 +22,7 @@ This is the first beta of the 26.11 release and covers all changes since 24.12. 
 
 ### RELEASE HIGHLIGHTS
 * **Brand-new 3D engine**: The 3D view and Photo Studio were rewritten from scratch using LWJGL. Expect better fin rendering, improved lighting, shadows and ambient occlusion, roughness rendering, better smoke, flame and motion blur effects, and a render quality setting. Object picking in the 3D view finally works on macOS.
-* **Monte Carlo landing-dispersion analysis**: Run a simulation many times with varying weather, launcher, vehicle, propulsion and recovery inputs, and see the resulting landing cloud with containment statistics for every recovered body.
+* **Monte Carlo analysis**: Run a simulation many times with varying weather, launcher, vehicle, propulsion and recovery inputs, and see the spread in key simulation metrics (e.g. apogee, maximum velocity, etc.) and a landing cloud with containment statistics for every recovered body.
 * **Motor database updates between releases**: OpenRocket can now download newer motor databases on startup, so you no longer have to wait for a new OpenRocket release to get the latest motors from ThrustCurve.org.
 * **Thrust curves embedded in design files**: The thrust curves of the motors used in a design are stored inside the .ork file, so designs with custom or missing motors open correctly on other computers.
 * **Aerodynamic and simulation accuracy improvements**: Fin-body interference according to NACA Report 1307, base drag correction during powered flight, thrust correction for air pressure at altitude, jet damping, relative humidity, and a new Runge-Kutta 6th order simulation method.
