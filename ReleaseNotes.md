@@ -15,7 +15,7 @@ Release Notes
 
 <div id="26.11.beta.01">
 
-OpenRocket 26.11.beta.01 (2026-11-03)
+OpenRocket 26.11.beta.01 (2026-11-18)
 -------------------------------------
 
 This is the first beta of the 26.11 release and covers all changes since 24.12. References in parentheses are pull request numbers. Notable features and fixes shown in **bold**.
