@@ -47,7 +47,7 @@ body:
   attributes:
     label: OpenRocket version
     description: In what version(s) of OpenRocket does this bug happen?
-    placeholder: 22.02, unstable...
+    placeholder: 26.11, unstable...
   validations:
     required: true
 - type: dropdown
