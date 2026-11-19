@@ -198,7 +198,7 @@ This is the first beta of the 26.11 release and covers all changes since 24.12. 
 * Documentation and contribution guide improvements (#3074, #3253, #3310, #3367, #3371)
 
 ### Contributors
-Many thanks to everyone who contributed to this release: @SiboVG, @JoePfeiffer, @neilweinstock, @thzero, @Kruzk02, @MDNich, @gdilbaz, @sebastianvelace, @tejas-ae, @wcravens, @BaknineNouhaila03, @Alisonsun7, @AzazelSensei, @DanGrabski, @DigikixUSA, @Gustave-M, @OPaivaHeitor, @Ozziboi65, @SparrowTheNerd, @UncleRus, @abwdn, @entity-0-0-2, @hazard3045, @joonseolee, @jorsoni, @midasavocado, @mvanhorn, @roostr365, @rundvd, @senft-research, @shawnmcmanus, and @taotieren. Thanks as well to all translators on Crowdin and to everyone who reported bugs and tested development builds.
+Many thanks to everyone who contributed to this release: @SiboVG, @JoePfeiffer, @neilweinstock, @thzero, @kjhambrick, @Kruzk02, @MDNich, @gdilbaz, @sebastianvelace, @tejas-ae, @wcravens, @BaknineNouhaila03, @Alisonsun7, @AzazelSensei, @DanGrabski, @DigikixUSA, @Gustave-M, @OPaivaHeitor, @Ozziboi65, @SparrowTheNerd, @UncleRus, @abwdn, @entity-0-0-2, @hazard3045, @joonseolee, @jorsoni, @midasavocado, @mvanhorn, @roostr365, @rundvd, @senft-research, @shawnmcmanus, and @taotieren. Thanks as well to all translators on Crowdin and to everyone who reported bugs and tested development builds.
 
 _...and countless additional fixes and tweaks._
 
