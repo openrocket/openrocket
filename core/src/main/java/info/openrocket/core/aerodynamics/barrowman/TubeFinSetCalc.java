@@ -177,8 +177,11 @@ public class TubeFinSetCalc extends TubeCalc {
 
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 
-		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
-		forces.setCP(new Coordinate(x, 0, 0, cna));
+		double aoa = conditions.getAOA();
+		forces.setCN(cna * MathUtil.min(aoa, STALL_ANGLE));
+		// Weight the CP by the effective CN/alpha, as the body components do, so that past the stall angle,
+		// where the normal force is capped, the combined CP stays where the summed normal force acts.
+		forces.setCP(new Coordinate(x, 0, 0, aoa > STALL_ANGLE ? cna * STALL_ANGLE / aoa : cna));
 		forces.setCm(forces.getCN() * x / conditions.getRefLength());
 
 		/*

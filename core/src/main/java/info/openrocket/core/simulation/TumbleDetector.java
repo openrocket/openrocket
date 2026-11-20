@@ -22,10 +22,12 @@ import info.openrocket.core.util.MathUtil;
  * rocket returns to alignment within about a pitch period; a tumbling rocket
  * does not. This detector therefore low-pass filters the angle of attack with a
  * time constant taken from the rocket's own pitch natural frequency, and
- * declares tumbling only once the filtered value is sustained. No aerodynamic
- * coefficient enters the decision, and no flight-phase gating is needed in
- * either direction: the launch guide departure transient does not survive the
- * filter, and descent tumbling does.
+ * declares tumbling only once the filtered value is sustained. That frequency is
+ * the airframe's small-angle one, evaluated near zero angle of attack where the
+ * aerodynamic model is valid, so no post-stall aerodynamic coefficient enters
+ * the decision. No flight-phase gating is needed in either direction: the launch
+ * guide departure transient does not survive the filter, and descent tumbling
+ * does.
  * <p>
  * The angle is measured against the air-relative velocity rather than the
  * ground-relative trajectory. A stable rocket aligns itself with the air, not
@@ -83,9 +85,9 @@ public class TumbleDetector {
 	 * @param aoa              angle of attack, radians
 	 * @param airSpeed         speed relative to the air, m/s
 	 * @param airDensity       ambient air density, kg/m^3
-	 * @param naturalFrequency pitch natural frequency in rad/s, or NaN when the
-	 *                         rocket is statically unstable and so has no restoring
-	 *                         dynamics to wait out
+	 * @param naturalFrequency small-angle pitch natural frequency in rad/s, or NaN
+	 *                         when the airframe is statically unstable and so has no
+	 *                         restoring dynamics to wait out
 	 * @return true if the rocket is tumbling
 	 */
 	public boolean update(double time, boolean guideCleared, double aoa, double airSpeed,
