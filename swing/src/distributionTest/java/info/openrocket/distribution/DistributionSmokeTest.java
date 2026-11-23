@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.sql.DriverManager;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.script.Invocable;
@@ -15,6 +16,7 @@ import com.formdev.flatlaf.ui.FlatNativeWindowsLibrary;
 import com.formdev.flatlaf.util.SystemInfo;
 import com.sun.jna.Native;
 import info.openrocket.core.scripting.GraalJSScriptEngineFactory;
+import org.lwjgl.Version;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.stb.STBImage;
 
@@ -74,7 +76,20 @@ public final class DistributionSmokeTest {
 		require(flatlafLoaded, "FlatLaf native library failed to initialize");
 		require(GL.getFunctionProvider() != null, "LWJGL OpenGL native library failed to initialize");
 		STBImage.stbi_failure_reason();
+		verifyLwjglMatchesLwjgl3Awt();
 		System.out.println("Distribution smoke test passed: " + jar);
+	}
+
+	private static void verifyLwjglMatchesLwjgl3Awt() throws Exception {
+		try (InputStream input = DistributionSmokeTest.class.getResourceAsStream("/META-INF/lwjgl3-awt.properties")) {
+			require(input != null, "META-INF/lwjgl3-awt.properties is missing from the distribution JAR");
+			Properties properties = new Properties();
+			properties.load(input);
+			String expectedLwjgl = properties.getProperty("lwjgl.version");
+			String runtimeLwjgl = Version.VERSION_MAJOR + "." + Version.VERSION_MINOR + "." + Version.VERSION_REVISION;
+			require(expectedLwjgl != null && expectedLwjgl.equals(runtimeLwjgl),
+					"Packaged LWJGL version " + runtimeLwjgl + " does not match lwjgl3-awt expected version " + expectedLwjgl);
+		}
 	}
 
 	private static void require(boolean condition, String message) {
