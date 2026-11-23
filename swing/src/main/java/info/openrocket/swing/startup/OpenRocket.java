@@ -30,6 +30,13 @@ public class OpenRocket {
 	private static final String STARTUP_CLASS = "info.openrocket.swing.startup.SwingStartup";
 
 	public static void main(String[] args) {
+		// Prevent Windows AWT peers from erasing heavyweight OpenGL canvases to their
+		// background colour on expose/resize. WToolkit reads this during toolkit startup,
+		// so setting it later when GLScenePanel loads is too late.
+		if (System.getProperty("sun.awt.noerasebackground") == null) {
+			System.setProperty("sun.awt.noerasebackground", "true");
+		}
+
 		// Set OSX-specific properties
 		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
 			OSXSetup.setupOSXProperties();
