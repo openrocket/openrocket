@@ -41,6 +41,14 @@ application {
     ]*/
 }
 
+// Single source of truth for LWJGL and lwjgl3-awt versions across all subprojects and
+// cross-platform distribution packaging.
+ext {
+    lwjglVersion = "3.4.2"
+    lwjgl3AwtGroup = "org.lwjglx"
+    lwjgl3AwtVersion = "0.2.5"
+}
+
 // Fetch the build version from the build.properties file
 def buildProperties = new Properties()
 file('core/src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
@@ -245,16 +253,42 @@ subprojects {
     }
 }
 
-tasks.named('check') {
-    dependsOn(subprojects.collect { it.tasks.named('check') })
+tasks.register('verifyLwjglVersions') {
+    group = 'verification'
+    description = 'Verifies that all resolved LWJGL Java and native modules share one version matching lwjgl3-awt.'
+    dependsOn(':swing:verifyLwjglVersions')
+
+    def expectedVersion = rootProject.ext.lwjglVersion
+    def rootRuntimeClasspath = configurations.runtimeClasspath
+    def rootAllPlatformNatives = configurations.allPlatformNatives
+    inputs.files(rootRuntimeClasspath, rootAllPlatformNatives)
+    inputs.property('expectedVersion', expectedVersion)
+
+    doLast {
+        List<String> mismatches = []
+        [
+                ':runtimeClasspath'   : rootRuntimeClasspath,
+                ':allPlatformNatives' : rootAllPlatformNatives,
+        ].each { configName, configuration ->
+            configuration.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+                def id = artifact.moduleVersion.id
+                if (id.group == 'org.lwjgl' && id.version != expectedVersion) {
+                    String classifier = artifact.classifier ? ":${artifact.classifier}" : ''
+                    mismatches << "${configName} resolved ${id.group}:${id.name}:${id.version}${classifier} (expected ${expectedVersion})"
+                }
+            }
+        }
+
+        if (!mismatches.isEmpty()) {
+            throw new GradleException("Mismatched LWJGL versions detected:\n  - " + mismatches.join('\n  - '))
+        }
+    }
 }
 
-//tasks.register('serializeEngines') {
-//    dependsOn ':core:serializeEngines'
-//}
-
-// LWJGL version — must match swing/build.gradle
-def lwjglVersion = "3.4.2"
+tasks.named('check') {
+    dependsOn(subprojects.collect { it.tasks.named('check') })
+    dependsOn('verifyLwjglVersions')
+}
 
 configurations {
     // All-platform LWJGL natives: resolved separately and merged into the shadow JAR

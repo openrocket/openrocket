@@ -74,7 +74,7 @@ tasks.register('distributionJars') {
 tasks.register('verifyDistributionJars') {
     group = 'verification'
     description = 'Checks native selection and preservation of the merged JAR contents.'
-    dependsOn('distributionJars')
+    dependsOn('distributionJars', 'verifyLwjglVersions')
     inputs.file(universalJar.flatMap { it.archiveFile })
     inputs.files(platformJars.values().collect { it.flatMap { jar -> jar.archiveFile } })
 

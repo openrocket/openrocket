@@ -39,9 +39,9 @@ configurations {
 }
 
 def flatlafVersionValue = "3.8"
-def lwjglVersionValue = "3.4.3"
-def lwjgl3AwtGroupValue = "org.lwjglx"
-def lwjgl3AwtVersionValue = "0.2.5"
+def lwjglVersionValue = rootProject.ext.lwjglVersion
+def lwjgl3AwtGroupValue = rootProject.ext.lwjgl3AwtGroup
+def lwjgl3AwtVersionValue = rootProject.ext.lwjgl3AwtVersion
 def jomlVersionValue = "1.10.9"
 
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
@@ -129,6 +129,68 @@ tasks.withType(Test).configureEach {
     ['openrocket.test.', 'openrocket.figure3d.', 'sun.java2d.'].each { prefix ->
         systemProperties(providers.systemPropertiesPrefixedBy(prefix).get())
     }
+}
+
+tasks.register('verifyLwjglVersions') {
+    group = 'verification'
+    description = 'Verifies that Swing LWJGL Java/native artifacts share one version matching lwjgl3-awt.'
+
+    def expectedVersion = lwjglVersionValue
+    def expectedAwtGroup = lwjgl3AwtGroupValue
+    def swingRuntimeClasspath = configurations.runtimeClasspath
+    def swingLwjglNatives = configurations.lwjglNativeArtifacts
+    inputs.files(swingRuntimeClasspath, swingLwjglNatives)
+    inputs.property('expectedVersion', expectedVersion)
+    inputs.property('expectedAwtGroup', expectedAwtGroup)
+
+    doLast {
+        List<String> mismatches = []
+        File lwjgl3AwtJar = null
+        String lwjgl3AwtResolvedVersion = null
+
+        [
+                ':swing:runtimeClasspath'    : swingRuntimeClasspath,
+                ':swing:lwjglNativeArtifacts': swingLwjglNatives,
+        ].each { configName, configuration ->
+            configuration.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+                def id = artifact.moduleVersion.id
+                if (id.group == 'org.lwjgl' && id.version != expectedVersion) {
+                    String classifier = artifact.classifier ? ":${artifact.classifier}" : ''
+                    mismatches << "${configName} resolved ${id.group}:${id.name}:${id.version}${classifier} (expected ${expectedVersion})"
+                }
+                if (lwjgl3AwtJar == null && id.group == expectedAwtGroup && id.name == 'lwjgl3-awt') {
+                    lwjgl3AwtJar = artifact.file
+                    lwjgl3AwtResolvedVersion = id.version
+                }
+            }
+        }
+
+        if (!mismatches.isEmpty()) {
+            throw new GradleException("Mismatched LWJGL versions detected:\n  - " + mismatches.join('\n  - '))
+        }
+        if (lwjgl3AwtJar == null) {
+            throw new GradleException("Could not locate resolved lwjgl3-awt artifact to verify its expected LWJGL version.")
+        }
+
+        new java.util.jar.JarFile(lwjgl3AwtJar).withCloseable { jar ->
+            def entry = jar.getEntry('META-INF/lwjgl3-awt.properties')
+            if (entry != null) {
+                def props = new Properties()
+                jar.getInputStream(entry).withCloseable { props.load(it) }
+                String awtExpectedLwjgl = props.getProperty('lwjgl.version')
+                if (awtExpectedLwjgl && awtExpectedLwjgl != expectedVersion) {
+                    throw new GradleException(
+                            "lwjgl3-awt ${lwjgl3AwtResolvedVersion} was compiled against LWJGL ${awtExpectedLwjgl}, " +
+                            "but OpenRocket is configured for LWJGL ${expectedVersion}. " +
+                            "Align ext.lwjglVersion and ext.lwjgl3AwtVersion in build.gradle.")
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn('verifyLwjglVersions')
 }
 
 tasks.register('stressTest', Test) {
