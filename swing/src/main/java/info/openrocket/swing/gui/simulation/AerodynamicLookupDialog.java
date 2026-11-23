@@ -154,7 +154,7 @@ class AerodynamicLookupDialog extends JDialog {
 		// Summary label (on its own row to allow wrapping)
 		JLabel summary = new JLabel("<html>" + trans.get("AerodynamicLookupDialog.summary.none") + "</html>");
 		summary.setForeground(infoTextColor);
-		panel.add(summary, "spanx, growx, wrap");
+		panel.add(summary, "spanx, growx, wmin 0, wrap");
 
 		// Field separator
 		JLabel separatorLabel = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
@@ -176,6 +176,7 @@ class AerodynamicLookupDialog extends JDialog {
 		example.setForeground(Color.GRAY);
 		example.setFocusable(true); // Make selectable but not editable
 		example.setRows(3);
+		example.setColumns(30);
 		JScrollPane exampleScroll = new JScrollPane(example);
 		javax.swing.border.TitledBorder exampleBorder = BorderFactory.createTitledBorder(trans.get("AerodynamicLookupDialog.lbl.formatHint"));
 		exampleScroll.setBorder(exampleBorder);
