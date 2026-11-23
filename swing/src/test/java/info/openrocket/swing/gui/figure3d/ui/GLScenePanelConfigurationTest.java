@@ -1,8 +1,12 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 import org.lwjgl.opengl.awt.GLData;
 
+import javax.swing.SwingUtilities;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GLScenePanelConfigurationTest {
+class GLScenePanelConfigurationTest extends BaseTestCase {
 
 	@Test
 	void requestsTheHighestDesktopContextAtOrAboveOpenGL31() {
@@ -85,6 +89,31 @@ class GLScenePanelConfigurationTest {
 		assertEquals(2, attempts.get());
 		assertEquals(1, thrown.getSuppressed().length);
 		assertSame(robustFailure, thrown.getSuppressed()[0]);
+	}
+
+	@Test
+	void awtPaintAndUpdateEventsRequestRenderUntilCleanup() throws Exception {
+		SwingUtilities.invokeAndWait(() -> {
+			OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+			GLScenePanel panel = new GLScenePanel(document.getRocket(), null);
+			try {
+				assertFalse(panel.getIgnoreRepaint(),
+						"Canvas must receive AWT paint/expose events so lwjgl3-awt can trigger redraws");
+
+				AtomicInteger renderRequests = new AtomicInteger();
+				panel.setRenderRequestCallback(renderRequests::incrementAndGet);
+
+				panel.paint(null);
+				panel.update(null);
+				assertEquals(2, renderRequests.get());
+
+				panel.cleanup();
+				panel.paint(null);
+				assertEquals(2, renderRequests.get(), "Paint events after cleanup must not schedule renders");
+			} finally {
+				panel.cleanup();
+			}
+		});
 	}
 
 	private static GLData robustContextData() {

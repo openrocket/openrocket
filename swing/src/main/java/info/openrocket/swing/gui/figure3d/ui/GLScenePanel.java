@@ -204,13 +204,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	};
 
 	static {
-		// AWT normally erases a heavyweight Canvas before repainting it after a
-		// native resize. The OpenGL swap happens asynchronously, so that erase is
-		// visible as a full-canvas flash before the next frame arrives. This JDK
-		// property is read when the Canvas peer is created, which is still ahead of
-		// us here. This also covers macOS now that lwjgl3-awt presents through its
-		// native layer again.
-		System.setProperty("sun.awt.noerasebackground", "true");
+		// OpenRocket.main and the packaged launchers set sun.awt.noerasebackground=true
+		// before AWT initializes so Windows WToolkit picks it up; keep this fallback for
+		// standalone callers and tests that construct GLScenePanel directly.
+		if (System.getProperty("sun.awt.noerasebackground") == null) {
+			System.setProperty("sun.awt.noerasebackground", "true");
+		}
 
 		// Ensure Swing popups render above the heavyweight AWTGLCanvas (notably on macOS).
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
@@ -237,7 +236,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
-		setIgnoreRepaint(true);
 
 		installHierarchyListener();
 		installAncestorBoundsRenderListener();
@@ -935,6 +933,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
+	/**
+	 * Converts AWT paint/expose events (such as uncovering the canvas after closing a
+	 * dialog or switching a CardLayout back to 3D) into a demand-driven render request.
+	 */
+	@Override
+	protected void requestRender() {
+		if (glInitFailed || cleanupStarted.get() || graphicsResetDetected) {
+			return;
+		}
+		requestRenderNow();
+	}
+
 	@Override
 	public void render() {
 		if (glInitFailed) {
@@ -951,7 +961,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			super.render();
 			int paintAfter = paintCallCount.get();
 			int swapAfter = swapCallCount.get();
-			if (paintAfter == paintBefore && swapAfter == swapBefore) {
+			if (!glInitFailed && !cleanupStarted.get() && !graphicsResetDetected
+					&& paintAfter == paintBefore && swapAfter == swapBefore) {
 				SwingUtilities.invokeLater(() -> {
 					revalidate();
 					repaint();
