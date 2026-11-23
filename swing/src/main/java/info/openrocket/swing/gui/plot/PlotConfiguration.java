@@ -429,7 +429,7 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		 */
 
 		// A little for the first type being on the first axis
-		if (plotDataAxes.get(0) == 0)
+		if (!plotDataAxes.isEmpty() && plotDataAxes.get(0) == 0)
 			goodness += BONUS_FIRST_TYPE_ON_FIRST_AXIS;
 
 		// A little bonus if the first axis contains zero

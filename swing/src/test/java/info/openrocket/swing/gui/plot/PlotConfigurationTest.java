@@ -41,6 +41,26 @@ public class PlotConfigurationTest extends BaseTestCase {
 	}
 
 	/**
+	 * Removing every Y-axis series leaves an empty configuration; auto-axis scoring must not crash on index 0.
+	 */
+	@Test
+	public void testFillAutoAxesHandlesEmptyConfiguration() {
+		FlightDataBranch branch = new FlightDataBranch("test", FlightDataType.TYPE_TIME, FlightDataType.TYPE_ALTITUDE);
+		branch.addPoint();
+		branch.setValue(FlightDataType.TYPE_TIME, 0.0);
+		branch.setValue(FlightDataType.TYPE_ALTITUDE, 10.0);
+
+		SimulationPlotConfiguration configuration = new SimulationPlotConfiguration("Empty test");
+
+		SimulationPlotConfiguration filled = assertDoesNotThrow(
+				() -> configuration.fillAutoAxes(branch),
+				"Auto-axis selection should handle an empty configuration"
+		);
+
+		assertNotNull(filled);
+	}
+
+	/**
 	 * Test helper that simulates a custom expression producing only non-finite
 	 * auto-axis goodness scores.
 	 */

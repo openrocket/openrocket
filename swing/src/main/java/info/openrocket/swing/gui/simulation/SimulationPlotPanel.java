@@ -340,27 +340,6 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			syncButtonStates(selector, idx);
 		});
 
-		selector.addAxisSelectionListener(e -> {
-			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) {
-				return;
-			}
-			defaultPlotColors = computeDefaultPlotColors();
-			refreshDefaultPlotColors();
-		});
-
-		selector.addTypeSelectionListener(e -> {
-			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) {
-				return;
-			}
-			FlightDataType selectedType = selector.getSelectedType();
-			modifying++;
-			defaultPlotColors = computeDefaultPlotColors();
-			applyTypeAppearance(idx, selectedType, selector);
-			refreshDefaultPlotColors();
-			modifying--;
-			syncButtonStates(selector, idx);
-		});
-
 		selector.addSetAsDefaultListener(e -> {
 			if (modifying > 0) {
 				return;
@@ -386,13 +365,35 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			configuration.setPlotDataLineStyle(idx, LineStyle.SOLID);
 			// Update the UI to reflect the reset without triggering change listeners.
 			modifying++;
-			selector.setSelectedColor(defaultPlotColors.getOrDefault(idx, Util.getPlotColor(idx)));
-			selector.setSelectedLineStyle(LineStyle.SOLID);
-			modifying--;
+			try {
+				selector.setSelectedColor(defaultPlotColors.getOrDefault(idx, Util.getPlotColor(idx)));
+				selector.setSelectedLineStyle(LineStyle.SOLID);
+			} finally {
+				modifying--;
+			}
 			syncButtonStates(selector, idx);
 		});
 
 		// Set initial button states now that all configuration for this selector is in place.
+		syncButtonStates(selector, idx);
+	}
+
+	@Override
+	protected void onPlotAxisChanged(int idx, SimulationPlotTypeSelector selector) {
+		defaultPlotColors = computeDefaultPlotColors();
+		refreshDefaultPlotColors();
+	}
+
+	@Override
+	protected void onPlotTypeChanged(int idx, SimulationPlotTypeSelector selector, FlightDataType selectedType) {
+		modifying++;
+		try {
+			defaultPlotColors = computeDefaultPlotColors();
+			applyTypeAppearance(idx, selectedType, selector);
+			refreshDefaultPlotColors();
+		} finally {
+			modifying--;
+		}
 		syncButtonStates(selector, idx);
 	}
 
@@ -505,7 +506,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	}
 
 	private Map<Integer, java.awt.Color> computeDefaultPlotColors() {
-		if (simulation == null || simulation.getSimulatedData() == null) {
+		if (simulation == null || simulation.getSimulatedData() == null || configuration.getDataCount() == 0) {
 			return Collections.emptyMap();
 		}
 
