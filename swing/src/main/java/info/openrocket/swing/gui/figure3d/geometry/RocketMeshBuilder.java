@@ -237,7 +237,9 @@ public final class RocketMeshBuilder {
 		for (Vertex vertex : source) {
 			Vector2f textureCoordinates = new Vector2f(vertex.texCoords);
 			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_RIGHT) {
-				textureCoordinates.x = 1.0f - textureCoordinates.x;
+				// Match OpenRocket 24.12's FinRenderer, which scaled right-side U by -1/spanX
+				// around minX (mapping [0, 1] to [-1, 0]) rather than shifting to 1 - u.
+				textureCoordinates.x = -textureCoordinates.x;
 			}
 			mirrored.add(new Vertex(new Vector3f(vertex.position), new Vector3f(vertex.normal),
 					textureCoordinates, vertex.surfaceID));
