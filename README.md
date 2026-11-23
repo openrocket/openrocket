@@ -165,7 +165,7 @@ Crowdin translators:
           <br />
           <sub><b>(sibo.vangool)</b></sub></a>
         <br />
-        <sub><b>184067 words</b></sub>
+        <sub><b>184607 words</b></sub>
         <br /><sub><b><code title="Arabic">ar</code></b>, <b><code title="Chinese Simplified">zh-CN</code></b>, <b><code title="Czech">cs</code></b>, <b><code title="Dutch">nl</code></b>, <b><code title="French">fr</code></b>, <b><code title="Italian">it</code></b>, <b><code title="Japanese">ja</code></b>, <b><code title="Polish">pl</code></b>, <b><code title="Portuguese">pt-PT</code></b>, <b><code title="Russian">ru</code></b>, <b><code title="Spanish">es-ES</code></b>, <b><code title="Turkish">tr</code></b>, <b><code title="Ukrainian">uk</code></b></sub>
       </td>
       <td align="center" valign="top">
@@ -202,6 +202,28 @@ Crowdin translators:
         <sub><b>908 words</b></sub>
         <br /><sub><b><code title="Turkish">tr</code></b></sub>
       </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/bektasYagiz"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/18005247/medium/f7c4cc9c267876be3168013e2fb33311.png" />
+          <br />
+          <sub><b>Yağız Bektaş</b></sub>
+          <br />
+          <sub><b>(bektasYagiz)</b></sub></a>
+        <br />
+        <sub><b>660 words</b></sub>
+        <br /><sub><b><code title="Turkish">tr</code></b></sub>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://crowdin.com/profile/UncleRus"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17954335/medium/a3012ef8dd6dc67ba339055d78166fec.jpeg" />
+          <br />
+          <sub><b>Ruslan V. Uss</b></sub>
+          <br />
+          <sub><b>(UncleRus)</b></sub></a>
+        <br />
+        <sub><b>159 words</b></sub>
+        <br /><sub><b><code title="Russian">ru</code></b></sub>
+      </td>
+    </tr>
+    <tr>
       <td align="center" valign="top">
         <a href="https://crowdin.com/profile/hakucin"><img alt="logo" style="width: 64px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17681278/medium/86142d38b4b112b5280a97ac36d31726.png" />
           <br />
