@@ -4,6 +4,7 @@ import info.openrocket.core.rocketcomponent.EllipticalFinSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
@@ -98,13 +99,24 @@ public class FinSetGenerator {
 			return new Mesh(new ArrayList<>(), new IntList());
 		}
 
-		float minX = Float.MAX_VALUE, maxX = Float.MIN_VALUE;
-		float minY = Float.MAX_VALUE, maxY = Float.MIN_VALUE;
-		for (CoordinateIF c : combinedShape) {
-			if (c.getX() < minX) minX = (float) c.getX();
-			if (c.getX() > maxX) maxX = (float) c.getX();
-			if (c.getY() < minY) minY = (float) c.getY();
-			if (c.getY() > maxY) maxY = (float) c.getY();
+		// Match OpenRocket 24.12's FinRenderer, which normalized fin texture coordinates
+		// against getInstanceBoundingBox() (the fin outline without any through-the-wall tab).
+		BoundingBox bounds = finSet.getInstanceBoundingBox();
+		float minX = (float) bounds.min.getX();
+		float maxX = (float) bounds.max.getX();
+		float minY = (float) bounds.min.getY();
+		float maxY = (float) bounds.max.getY();
+		if (!Float.isFinite(minX) || !Float.isFinite(maxX) || !Float.isFinite(minY) || !Float.isFinite(maxY)) {
+			minX = Float.MAX_VALUE;
+			maxX = Float.MIN_VALUE;
+			minY = Float.MAX_VALUE;
+			maxY = Float.MIN_VALUE;
+			for (CoordinateIF c : combinedShape) {
+				if (c.getX() < minX) minX = (float) c.getX();
+				if (c.getX() > maxX) maxX = (float) c.getX();
+				if (c.getY() < minY) minY = (float) c.getY();
+				if (c.getY() > maxY) maxY = (float) c.getY();
+			}
 		}
 		float spanX = maxX - minX;
 		float spanY = maxY - minY;
@@ -212,19 +224,19 @@ public class FinSetGenerator {
 				float uv_u = (ringX  - globalMinX) / globalSpanX;
 				float uv_v = (y_ring - globalMinY) / globalSpanY;
 
-				// Right vertex
+				// +Z vertex (left/primary fin side in the engine's Z-flipped frame)
 				Vector3f pos_r = new Vector3f(ringX, y_ring, z_r);
 				Vector3f nrm_r = new Vector3f(0, y_center - y_ring, z_center_r - z_r).normalize();
 				grid[i][j] = vertices.size();
 				vertices.add(new Vertex(pos_r, nrm_r, new Vector2f(uv_u, uv_v),
-						RenderingConstants.SURFACE_ID_RIGHT));
+						RenderingConstants.SURFACE_ID_OUTSIDE));
 
-				// Left vertex
+				// -Z vertex (right/secondary fin side in the engine's Z-flipped frame)
 				Vector3f pos_l = new Vector3f(ringX, y_ring, z_l);
 				Vector3f nrm_l = new Vector3f(0, y_center - y_ring, z_center_l - z_l).normalize();
 				grid[i][j + filletSegments + 1] = vertices.size();
 				vertices.add(new Vertex(pos_l, nrm_l, new Vector2f(uv_u, uv_v),
-						RenderingConstants.SURFACE_ID_OUTSIDE));
+						RenderingConstants.SURFACE_ID_RIGHT));
 			}
 		}
 
@@ -507,20 +519,21 @@ public class FinSetGenerator {
 		FinMeshData meshData = new FinMeshData();
 		int backFaceOffset = shapePoints.length;
 
-		// Create vertices for the FRONT and BACK faces first
+		// Create vertices for the FRONT (+Z, left/primary side after OpenRocket's Z flip)
+		// and BACK (-Z, right/secondary side) faces first.
 		for (CoordinateIF c : shapePoints) {
 			float u = ((float) c.getX() - globalMinX) / globalSpanX;
 			float v = ((float) c.getY() - globalMinY) / globalSpanY;
 			meshData.vertices.add(new Vertex(
 					new Vector3f((float) c.getX(), (float) c.getY(), (float) finSet.getThickness() / 2),
-					new Vector3f(0, 0, 1), new Vector2f(u, v), RenderingConstants.SURFACE_ID_RIGHT));
+					new Vector3f(0, 0, 1), new Vector2f(u, v), RenderingConstants.SURFACE_ID_OUTSIDE));
 		}
 		for (CoordinateIF c : shapePoints) {
 			float u = ((float) c.getX() - globalMinX) / globalSpanX;
 			float v = ((float) c.getY() - globalMinY) / globalSpanY;
 			meshData.vertices.add(new Vertex(
 					new Vector3f((float) c.getX(), (float) c.getY(), (float) -finSet.getThickness() / 2),
-					new Vector3f(0, 0, -1), new Vector2f(u, v), RenderingConstants.SURFACE_ID_OUTSIDE));
+					new Vector3f(0, 0, -1), new Vector2f(u, v), RenderingConstants.SURFACE_ID_RIGHT));
 		}
 
 		// Triangulate the main front and back faces
@@ -766,13 +779,13 @@ public class FinSetGenerator {
 				float u1 = (p1FacePos.x - globalMinX) / globalSpanX;
 				float v1 = (p1FacePos.y - globalMinY) / globalSpanY;
 				meshData.vertices.add(new Vertex(p1FacePos, normal, new Vector2f(u1, v1),
-						RenderingConstants.SURFACE_ID_RIGHT));
+						RenderingConstants.SURFACE_ID_OUTSIDE));
 
 				int p2New = meshData.vertices.size();
 				float u2 = (p2FacePos.x - globalMinX) / globalSpanX;
 				float v2 = (p2FacePos.y - globalMinY) / globalSpanY;
 				meshData.vertices.add(new Vertex(p2FacePos, normal, new Vector2f(u2, v2),
-						RenderingConstants.SURFACE_ID_RIGHT));
+						RenderingConstants.SURFACE_ID_OUTSIDE));
 
 
 				List<Integer> curvedEdgeNew = new ArrayList<>();
@@ -782,7 +795,7 @@ public class FinSetGenerator {
 					float u = (pos.x - globalMinX) / globalSpanX;
 					float v = (pos.y - globalMinY) / globalSpanY;
 					meshData.vertices.add(new Vertex(pos, normal, new Vector2f(u, v),
-							RenderingConstants.SURFACE_ID_RIGHT));
+							RenderingConstants.SURFACE_ID_OUTSIDE));
 				}
 
 				if (reverseEdgeWinding) { // CW
@@ -821,13 +834,13 @@ public class FinSetGenerator {
 				float u1 = (p1FacePos.x - globalMinX) / globalSpanX;
 				float v1 = (p1FacePos.y - globalMinY) / globalSpanY;
 				meshData.vertices.add(new Vertex(p1FacePos, normal, new Vector2f(u1, v1),
-						RenderingConstants.SURFACE_ID_OUTSIDE));
+						RenderingConstants.SURFACE_ID_RIGHT));
 
 				int p2New = meshData.vertices.size();
 				float u2 = (p2FacePos.x - globalMinX) / globalSpanX;
 				float v2 = (p2FacePos.y - globalMinY) / globalSpanY;
 				meshData.vertices.add(new Vertex(p2FacePos, normal, new Vector2f(u2, v2),
-						RenderingConstants.SURFACE_ID_OUTSIDE));
+						RenderingConstants.SURFACE_ID_RIGHT));
 
 				List<Integer> curvedEdgeNew = new ArrayList<>();
 				for (Integer idx : curvedEdge) {
@@ -836,7 +849,7 @@ public class FinSetGenerator {
 					float u = (pos.x - globalMinX) / globalSpanX;
 					float v = (pos.y - globalMinY) / globalSpanY;
 					meshData.vertices.add(new Vertex(pos, normal, new Vector2f(u, v),
-							RenderingConstants.SURFACE_ID_OUTSIDE));
+							RenderingConstants.SURFACE_ID_RIGHT));
 				}
 
 				if (reverseEdgeWinding) { // CCW

@@ -15,12 +15,14 @@ import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Transformation;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory.ComponentAppearanceRole;
+import info.openrocket.swing.gui.figure3d.materials.TextureTransform;
 import info.openrocket.swing.gui.figure3d.scene.graph.Scene;
 import info.openrocket.swing.gui.figure3d.scene.graph.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.util.BaseTestCase;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -139,6 +141,101 @@ class RocketMeshBuilderTest extends BaseTestCase {
 				referencedSurfaceIds(secondary.mesh()));
 	}
 
+	/**
+	 * Regression test for #3489: separate-side fin appearances must land on the same physical
+	 * faces as 24.12 (port/top vs starboard/bottom) and mirror right-side U as -u so saved
+	 * sticker decals stay inside [0, 1] instead of being pushed off the fin.
+	 */
+	@Test
+	void separateFinSidesAndRightStickerTransformsMatchLegacyOrientation() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube bodyTube = rocket.getAllChildren().stream()
+				.filter(BodyTube.class::isInstance)
+				.map(BodyTube.class::cast)
+				.findFirst()
+				.orElseThrow();
+		bodyTube.getChildren().stream()
+				.filter(FinSet.class::isInstance)
+				.toList()
+				.forEach(bodyTube::removeChild);
+
+		TrapezoidFinSet verticalTail = new TrapezoidFinSet();
+		verticalTail.setFinCount(1);
+		verticalTail.setBaseRotation(0.0);
+		verticalTail.setRootChord(0.15);
+		verticalTail.setTipChord(0.08);
+		verticalTail.setHeight(0.12);
+		verticalTail.setThickness(0.004);
+		verticalTail.setAppearance(PRIMARY_APPEARANCE);
+		verticalTail.getInsideColorComponentHandler().setInsideAppearance(SECONDARY_APPEARANCE);
+		verticalTail.getInsideColorComponentHandler().setSeparateInsideOutside(true);
+		bodyTube.addChild(verticalTail);
+
+		TrapezoidFinSet starboardWing = new TrapezoidFinSet();
+		starboardWing.setFinCount(1);
+		starboardWing.setBaseRotation(Math.toRadians(90.0));
+		starboardWing.setRootChord(0.28);
+		starboardWing.setTipChord(0.10);
+		starboardWing.setHeight(0.22);
+		starboardWing.setThickness(0.004);
+		starboardWing.setAppearance(PRIMARY_APPEARANCE);
+		starboardWing.getInsideColorComponentHandler().setInsideAppearance(SECONDARY_APPEARANCE);
+		starboardWing.getInsideColorComponentHandler().setSeparateInsideOutside(true);
+		bodyTube.addChild(starboardWing);
+
+		TrapezoidFinSet portWing = new TrapezoidFinSet();
+		portWing.setFinCount(1);
+		portWing.setBaseRotation(Math.toRadians(-90.0));
+		portWing.setRootChord(0.28);
+		portWing.setTipChord(0.10);
+		portWing.setHeight(0.22);
+		portWing.setThickness(0.004);
+		portWing.setAppearance(PRIMARY_APPEARANCE);
+		portWing.getInsideColorComponentHandler().setInsideAppearance(SECONDARY_APPEARANCE);
+		portWing.getInsideColorComponentHandler().setSeparateInsideOutside(true);
+		bodyTube.addChild(portWing);
+
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket, new RenderingConfiguration());
+
+		// Vertical stabilizer (rot=0): primary (left/port) faces +Z_world, secondary (right/starboard) faces -Z_world.
+		RocketSceneSnapshot.ComponentInstance tailPrimary = findPart(snapshot, verticalTail, ComponentAppearanceRole.PRIMARY);
+		RocketSceneSnapshot.ComponentInstance tailSecondary = findPart(snapshot, verticalTail, ComponentAppearanceRole.SECONDARY);
+		assertTrue(firstSurfaceNormalWorld(tailPrimary, RenderingConstants.SURFACE_ID_OUTSIDE).z > 0.99f,
+				"Vertical fin primary appearance should face port (+Z_world)");
+		assertTrue(firstSurfaceNormalWorld(tailSecondary, RenderingConstants.SURFACE_ID_RIGHT).z < -0.99f,
+				"Vertical fin secondary appearance should face starboard (-Z_world)");
+
+		// Starboard wing (rot=+90 deg): primary is top (+Y_world), secondary is bottom (-Y_world).
+		RocketSceneSnapshot.ComponentInstance stbdPrimary = findPart(snapshot, starboardWing, ComponentAppearanceRole.PRIMARY);
+		RocketSceneSnapshot.ComponentInstance stbdSecondary = findPart(snapshot, starboardWing, ComponentAppearanceRole.SECONDARY);
+		assertTrue(firstSurfaceNormalWorld(stbdPrimary, RenderingConstants.SURFACE_ID_OUTSIDE).y > 0.99f,
+				"Starboard wing primary appearance should face top (+Y_world)");
+		assertTrue(firstSurfaceNormalWorld(stbdSecondary, RenderingConstants.SURFACE_ID_RIGHT).y < -0.99f,
+				"Starboard wing secondary appearance should face bottom (-Y_world)");
+
+		// Port wing (rot=-90 deg): primary is bottom (-Y_world), secondary is top (+Y_world).
+		RocketSceneSnapshot.ComponentInstance portPrimary = findPart(snapshot, portWing, ComponentAppearanceRole.PRIMARY);
+		RocketSceneSnapshot.ComponentInstance portSecondary = findPart(snapshot, portWing, ComponentAppearanceRole.SECONDARY);
+		assertTrue(firstSurfaceNormalWorld(portPrimary, RenderingConstants.SURFACE_ID_OUTSIDE).y < -0.99f,
+				"Port wing primary appearance should face bottom (-Y_world)");
+		assertTrue(firstSurfaceNormalWorld(portSecondary, RenderingConstants.SURFACE_ID_RIGHT).y > 0.99f,
+				"Port wing secondary appearance should face top (+Y_world)");
+
+		// A right-side sticker saved in 24.12 (positive offset.x because right-side raw U spans [-1, 0])
+		// must transform a mid-fin point into the visible [0, 1] sticker square.
+		TextureTransform tailRightTransform = new TextureTransform();
+		tailRightTransform.setScaleFromTop(false);
+		tailRightTransform.rotation = (float) Math.PI;
+		tailRightTransform.offset.set(0.40f, -0.80f);
+		tailRightTransform.scale.set(2.7777778f, 1.3333334f);
+		Matrix4f tailRightMatrix = tailRightTransform.getTransformMatrix(new Matrix4f());
+
+		// At s = 0.58 (midpoint of [0.40, 0.76]), right-side raw u = -0.58; at t = 0.425 (midpoint of [0.05, 0.80]), v = 0.425.
+		Vector4f tailSample = tailRightMatrix.transform(new Vector4f(-0.58f, 0.425f, 0.0f, 1.0f));
+		assertEquals(0.5f, tailSample.x, 1.0e-3f, "Right-side sticker center should land at u=0.5");
+		assertEquals(0.5f, tailSample.y, 1.0e-3f, "Right-side sticker center should land at v=0.5");
+	}
+
 	@Test
 	void cantedFinModelMatricesMatchTheFinSetGeometry() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -238,14 +335,27 @@ class RocketMeshBuilderTest extends BaseTestCase {
 	}
 
 	private static void assertRightSideTextureCoordinatesAreMirrored(Mesh primary, Mesh secondary) {
+		boolean sawNonZeroU = false;
 		for (int i = 0; i < primary.getVertices().size(); i++) {
 			Vertex primaryVertex = primary.getVertices().get(i);
 			if (primaryVertex.surfaceID == RenderingConstants.SURFACE_ID_RIGHT) {
-				assertEquals(1.0f - primaryVertex.texCoords.x, secondary.getVertices().get(i).texCoords.x, 1.0e-6f,
-						"The independently styled right fin face should preserve readable decal orientation");
-				return;
+				assertEquals(-primaryVertex.texCoords.x, secondary.getVertices().get(i).texCoords.x, 1.0e-6f,
+						"The independently styled right fin face should negate U to match 24.12 decal offsets");
+				if (primaryVertex.texCoords.x > 0.01f) {
+					sawNonZeroU = true;
+				}
 			}
 		}
-		throw new AssertionError("Fin mesh has no right-side vertex");
+		assertTrue(sawNonZeroU, "Fin mesh has no right-side vertex with non-zero U");
+	}
+
+	private static Vector3f firstSurfaceNormalWorld(RocketSceneSnapshot.ComponentInstance instance, int surfaceId) {
+		for (int index : instance.mesh().getIndices()) {
+			Vertex vertex = instance.mesh().getVertices().get(index);
+			if (vertex.surfaceID == surfaceId) {
+				return instance.modelMatrix().transformDirection(new Vector3f(vertex.normal)).normalize();
+			}
+		}
+		throw new AssertionError("No vertex with surface ID " + surfaceId + " referenced by mesh");
 	}
 }

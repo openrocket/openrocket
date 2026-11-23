@@ -52,19 +52,57 @@ class FinSetGeneratorTest extends BaseTestCase {
 		for (Vertex vertex : mesh.getVertices()) {
 			if (vertex.surfaceID == RenderingConstants.SURFACE_ID_EDGE) {
 				edgeVertexCount++;
-			} else if (vertex.normal.z < -0.99f) {
-				assertEquals(RenderingConstants.SURFACE_ID_OUTSIDE, vertex.surfaceID,
-						"Fin left faces should use the primary surface ID");
-				leftFaceVertexCount++;
 			} else if (vertex.normal.z > 0.99f) {
+				assertEquals(RenderingConstants.SURFACE_ID_OUTSIDE, vertex.surfaceID,
+						"Fin +Z faces (left/primary side after Z flip) should use the primary surface ID");
+				leftFaceVertexCount++;
+			} else if (vertex.normal.z < -0.99f) {
 				assertEquals(RenderingConstants.SURFACE_ID_RIGHT, vertex.surfaceID,
-						"Fin right faces should use the secondary surface ID");
+						"Fin -Z faces (right/secondary side after Z flip) should use the secondary surface ID");
 				rightFaceVertexCount++;
 			}
 		}
 		assertTrue(edgeVertexCount > 0, "Fin mesh should mark its edge band with the edge surface ID");
 		assertTrue(leftFaceVertexCount > 0, "Fin mesh should contain left-face vertices");
 		assertTrue(rightFaceVertexCount > 0, "Fin mesh should contain right-face vertices");
+	}
+
+	/** Fin UV bounds must come from the fin outline, not its through-the-wall tab (24.12 parity). */
+	@Test
+	void finFaceUvBoundsIgnoreFinTab() {
+		BodyTube parent = new BodyTube();
+		parent.setOuterRadius(0.05);
+		parent.setLength(0.5);
+
+		TrapezoidFinSet finSet = new TrapezoidFinSet();
+		finSet.setRootChord(0.20);
+		finSet.setTipChord(0.10);
+		finSet.setSweep(0.04);
+		finSet.setHeight(0.12);
+		finSet.setThickness(0.004);
+		finSet.setTabLength(0.08);
+		finSet.setTabHeight(0.03);
+		parent.addChild(finSet);
+
+		Mesh mesh = FinSetGenerator.create(finSet, parent, new RenderingConfiguration());
+		boolean sawRoot = false;
+		boolean sawTip = false;
+		for (Vertex vertex : mesh.getVertices()) {
+			if (vertex.surfaceID != RenderingConstants.SURFACE_ID_OUTSIDE) {
+				continue;
+			}
+			if (Math.abs(vertex.position.y) < EPSILON) {
+				assertEquals(0.0f, vertex.texCoords.y, EPSILON,
+						"Fin root should remain at v=0 even when a fin tab extends below y=0");
+				sawRoot = true;
+			}
+			if (Math.abs(vertex.position.y - 0.12f) < EPSILON) {
+				assertEquals(1.0f, vertex.texCoords.y, EPSILON,
+						"Fin tip should remain at v=1 even when a fin tab is present");
+				sawTip = true;
+			}
+		}
+		assertTrue(sawRoot && sawTip, "Expected both root and tip vertices on the primary fin face");
 	}
 
 	@Test
