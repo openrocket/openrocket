@@ -9,6 +9,7 @@ import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -45,6 +46,27 @@ class STLExportTest extends BaseTestCase {
 		assertClosedMesh(triangles);
 		double expected = FIN_VOLUME_MM3 + RING_VOLUME_MM3 - Math.PI * 3 * 3 * 5 + Math.PI * 37.5 * 37.5 * 6;
 		assertEquals(expected, meshVolume(triangles), expected * 1e-3);
+	}
+
+	/**
+	 * The header holds the title, except that it must not start with "solid", which marks an ASCII STL file.
+	 */
+	@Test
+	void headerHoldsTitleButNeverStartsWithSolid() throws IOException {
+		assertEquals("Rocket", stlHeader("Rocket"));
+		assertEquals("OpenRocket", stlHeader(null));
+		assertEquals("OpenRocket", stlHeader(" "));
+		assertEquals("OpenRocket: Solid booster", stlHeader("Solid booster"));
+		assertEquals("OpenRocket:   solid", stlHeader("  solid"));
+		assertEquals("x".repeat(80), stlHeader("x".repeat(100)));
+	}
+
+	private static String stlHeader(String title) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		STLPartsWriter.write(List.of(), title, out);
+		byte[] bytes = out.toByteArray();
+		assertEquals(84, bytes.length);
+		return new String(bytes, 0, 80, StandardCharsets.US_ASCII).replace("\0", "");
 	}
 
 	@Test
