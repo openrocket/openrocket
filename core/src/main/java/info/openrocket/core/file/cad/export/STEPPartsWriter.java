@@ -164,17 +164,17 @@ final class STEPPartsWriter {
 		List<Integer> faces = new ArrayList<>();
 
 		List<LoopTopology> loops = new ArrayList<>();
-		loops.add(loop(region.outer(), true, thickness));
-		for (Loop hole : region.holes()) {
-			loops.add(loop(hole, false, thickness));
+		loops.add(loop(region.outer(), "outline", true, thickness));
+		for (int i = 0; i < region.holes().size(); i++) {
+			loops.add(loop(region.holes().get(i), "hole " + (i + 1), false, thickness));
 		}
 
 		// Top face, normal +Z
-		int topPlane = add("PLANE('',#" + placement(point(0, 0, thickness), zAxis, xAxis) + ")");
-		faces.add(planarFace(topPlane, loops, true));
+		int topPlane = add("PLANE('top',#" + placement(point(0, 0, thickness), zAxis, xAxis) + ")");
+		faces.add(planarFace("top", topPlane, loops, true));
 		// Bottom face, normal -Z
-		int bottomPlane = add("PLANE('',#" + placement(point(0, 0, 0), minusZAxis, xAxis) + ")");
-		faces.add(planarFace(bottomPlane, loops, false));
+		int bottomPlane = add("PLANE('bottom',#" + placement(point(0, 0, 0), minusZAxis, xAxis) + ")");
+		faces.add(planarFace("bottom", bottomPlane, loops, false));
 		for (LoopTopology loop : loops) {
 			faces.addAll(loop.sides);
 		}
@@ -188,34 +188,52 @@ final class STEPPartsWriter {
 	 * already +Z for the top face and -Z for the bottom face, so the face has <code>same_sense</code> .T.; the bottom
 	 * edges are reversed to run counter-clockwise seen from -Z.
 	 */
-	private int planarFace(int plane, List<LoopTopology> loops, boolean top) {
+	private int planarFace(String name, int plane, List<LoopTopology> loops, boolean top) {
+		String label = string(name);
 		List<Integer> bounds = new ArrayList<>();
 		for (int i = 0; i < loops.size(); i++) {
 			List<Integer> edges = top ? loops.get(i).top : loops.get(i).bottom;
-			int edgeLoop = add("EDGE_LOOP(''," + refs(edges) + ")");
-			bounds.add(add((i == 0 ? "FACE_OUTER_BOUND" : "FACE_BOUND") + "('',#" + edgeLoop + ",.T.)"));
+			int edgeLoop = add("EDGE_LOOP(" + label + "," + refs(edges) + ")");
+			bounds.add(add((i == 0 ? "FACE_OUTER_BOUND" : "FACE_BOUND") + "(" + label + ",#" + edgeLoop + ",.T.)"));
 		}
-		return add("ADVANCED_FACE(''," + refs(bounds) + ",#" + plane + ",.T.)");
+		return add("ADVANCED_FACE(" + label + "," + refs(bounds) + ",#" + plane + ",.T.)");
+	}
+
+	/**
+	 * Creates a side face bounded by one loop of oriented edges. The name, e.g. 'hole 1 side 2', is written on the
+	 * face, its bound and its edge loop, so that a face is easy to find in the file.
+	 *
+	 * @param name       the name of the face
+	 * @param edges      the oriented edges, counter-clockwise seen from outside the material
+	 * @param surface    the PLANE or CYLINDRICAL_SURFACE of the face
+	 * @param sameSense  true when the surface normal points out of the material
+	 */
+	private int sideFace(String name, List<Integer> edges, int surface, boolean sameSense) {
+		String label = string(name);
+		int edgeLoop = add("EDGE_LOOP(" + label + "," + refs(edges) + ")");
+		int bound = add("FACE_OUTER_BOUND(" + label + ",#" + edgeLoop + ",.T.)");
+		return add("ADVANCED_FACE(" + label + ",(#" + bound + "),#" + surface + "," + bool(sameSense) + ")");
 	}
 
 	/**
 	 * Creates the edges and side faces of a loop. The material is on the left of the loop direction, which is
-	 * counter-clockwise (seen from +Z) for the outer loop and clockwise for holes.
+	 * counter-clockwise (seen from +Z) for the outer loop and clockwise for holes. The side faces are named after the
+	 * loop, e.g. 'outline side 3' or 'hole 1'.
 	 */
-	private LoopTopology loop(Loop loop, boolean outer, double thickness) {
+	private LoopTopology loop(Loop loop, String name, boolean outer, double thickness) {
 		if (loop instanceof Circle circle) {
-			return circleLoop(circle, outer, thickness);
+			return circleLoop(circle, name, outer, thickness);
 		} else if (loop instanceof ArcLoop arcs) {
 			if (outer) {
 				throw new IllegalArgumentException("Arc loops are only used for holes");
 			}
-			return arcLoop(arcs, thickness);
+			return arcLoop(arcs, name, thickness);
 		}
 		Polygon polygon = (Polygon) loop;
 		if ((polygon.signedArea() > 0) != outer) {
 			polygon = polygon.reversed();
 		}
-		return polygonLoop(polygon, thickness);
+		return polygonLoop(polygon, name, thickness);
 	}
 
 	/**
@@ -224,7 +242,7 @@ final class STEPPartsWriter {
 	 * of a fin, clockwise for a hole), so the outward normal of each side face is its edge direction turned 90 degrees
 	 * clockwise about +Z, and the PLANE is placed with that normal (face <code>same_sense</code> .T.).
 	 */
-	private LoopTopology polygonLoop(Polygon polygon, double thickness) {
+	private LoopTopology polygonLoop(Polygon polygon, String name, double thickness) {
 		int n = polygon.size();
 		double[] xs = polygon.xs();
 		double[] ys = polygon.ys();
@@ -270,15 +288,15 @@ final class STEPPartsWriter {
 			double length = Math.hypot(dx, dy);
 			// The material is on the left of the edge, so the normal pointing out of the material is on its right
 			int normal = direction(dy / length, -dx / length, 0);
-			int plane = add("PLANE('',#" + placement(bottomPoints[i], normal, edgeDirections[i]) + ")");
+			String side = name + " side " + (i + 1);
+			int plane = add("PLANE(" + string(side) + ",#" + placement(bottomPoints[i], normal, edgeDirections[i]) +
+					")");
 			List<Integer> edges = List.of(
 					oriented(bottomEdges[i], true),
 					oriented(verticalEdges[j], true),
 					oriented(topEdges[i], false),
 					oriented(verticalEdges[i], false));
-			int edgeLoop = add("EDGE_LOOP(''," + refs(edges) + ")");
-			int bound = add("FACE_OUTER_BOUND('',#" + edgeLoop + ",.T.)");
-			topology.sides.add(add("ADVANCED_FACE('',(#" + bound + "),#" + plane + ",.T.)"));
+			topology.sides.add(sideFace(side, edges, plane, true));
 		}
 		return topology;
 	}
@@ -293,7 +311,7 @@ final class STEPPartsWriter {
 	 * from the cylinder axis, points into the material; the faces therefore have <code>same_sense</code> .F. and
 	 * their normal points into the hole, out of the material.
 	 */
-	private LoopTopology arcLoop(ArcLoop loop, double thickness) {
+	private LoopTopology arcLoop(ArcLoop loop, String name, double thickness) {
 		List<Arc> arcs = loop.arcs();
 		int n = arcs.size();
 
@@ -324,8 +342,8 @@ final class STEPPartsWriter {
 			topEdges[i] = add("EDGE_CURVE('',#" + topVertices[i] + ",#" + topVertices[j] + ",#" + topCircle +
 					",.F.)");
 			verticalEdges[i] = lineEdge(bottomVertices[i], topVertices[i], bottomPoints[i], zAxis, thickness);
-			surfaces[i] = add("CYLINDRICAL_SURFACE('',#" + placement(point(arc.cx(), arc.cy(), 0), zAxis, xAxis) +
-					"," + number(arc.r()) + ")");
+			surfaces[i] = add("CYLINDRICAL_SURFACE(" + string(name + " side " + (i + 1)) + ",#" +
+					placement(point(arc.cx(), arc.cy(), 0), zAxis, xAxis) + "," + number(arc.r()) + ")");
 		}
 
 		LoopTopology topology = new LoopTopology();
@@ -342,9 +360,7 @@ final class STEPPartsWriter {
 					oriented(verticalEdges[j], true),
 					oriented(topEdges[i], false),
 					oriented(verticalEdges[i], false));
-			int edgeLoop = add("EDGE_LOOP(''," + refs(edges) + ")");
-			int bound = add("FACE_OUTER_BOUND('',#" + edgeLoop + ",.T.)");
-			topology.sides.add(add("ADVANCED_FACE('',(#" + bound + "),#" + surfaces[i] + ",.F.)"));
+			topology.sides.add(sideFace(name + " side " + (i + 1), edges, surfaces[i], false));
 		}
 		return topology;
 	}
@@ -360,7 +376,7 @@ final class STEPPartsWriter {
 	 * material is outside: the top edge is used reversed (clockwise from +Z), and the face has .F. so its normal points
 	 * into the hole. The side face loop is counter-clockwise seen from outside the material in both cases.
 	 */
-	private LoopTopology circleLoop(Circle circle, boolean outer, double thickness) {
+	private LoopTopology circleLoop(Circle circle, String name, boolean outer, double thickness) {
 		double cx = circle.cx();
 		double cy = circle.cy();
 		double r = circle.r();
@@ -383,8 +399,8 @@ final class STEPPartsWriter {
 		topology.bottom.add(oriented(bottomEdge, !outer));
 
 		// The cylinder normal points away from its axis: outwards for the outer loop, inwards for a hole
-		int surface = add("CYLINDRICAL_SURFACE('',#" + placement(point(cx, cy, 0), zAxis, xAxis) + "," +
-				number(r) + ")");
+		int surface = add("CYLINDRICAL_SURFACE(" + string(name) + ",#" + placement(point(cx, cy, 0), zAxis, xAxis) +
+				"," + number(r) + ")");
 		List<Integer> edges;
 		if (outer) {
 			edges = List.of(oriented(bottomEdge, true), oriented(seam, true),
@@ -393,9 +409,7 @@ final class STEPPartsWriter {
 			edges = List.of(oriented(seam, true), oriented(topEdge, true),
 					oriented(seam, false), oriented(bottomEdge, false));
 		}
-		int edgeLoop = add("EDGE_LOOP(''," + refs(edges) + ")");
-		int bound = add("FACE_OUTER_BOUND('',#" + edgeLoop + ",.T.)");
-		topology.sides.add(add("ADVANCED_FACE('',(#" + bound + "),#" + surface + "," + bool(outer) + ")"));
+		topology.sides.add(sideFace(name, edges, surface, outer));
 		return topology;
 	}
 

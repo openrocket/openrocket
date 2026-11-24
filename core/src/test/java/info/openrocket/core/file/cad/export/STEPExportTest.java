@@ -152,6 +152,29 @@ class STEPExportTest extends BaseTestCase {
 		assertMeasured(result, "Ring", Dimension.HOLE_OFFSET, 0.005);
 	}
 
+	/**
+	 * Every face is named after its place on the part, so that it can be found in the file when debugging.
+	 */
+	@Test
+	void facesAreNamed() throws IOException {
+		String step = write(createAllParts(), Format.STEP).text();
+		assertEquals(0, count(step, "=ADVANCED_FACE('',"));
+		assertTrue(step.contains("=ADVANCED_FACE('top',"));
+		assertTrue(step.contains("=ADVANCED_FACE('bottom',"));
+		assertTrue(step.contains("=ADVANCED_FACE('outline side 1',"));
+		assertTrue(step.contains("=PLANE('outline side 1',"));
+		assertTrue(step.contains("=ADVANCED_FACE('hole 1',"));
+		assertTrue(step.contains("=CYLINDRICAL_SURFACE('hole 1',"));
+
+		CADPartsExporter exporter = new CADPartsExporter();
+		exporter.addCenteringRing(createRing(0.030, 0), List.of(
+				new RingSvgExporter.Hole(-0.005, 0, 0.010),
+				new RingSvgExporter.Hole(0.005, 0, 0.010)));
+		step = write(exporter, Format.STEP).text();
+		assertTrue(step.contains("=ADVANCED_FACE('hole 1 side 2',"));
+		assertTrue(step.contains("=FACE_OUTER_BOUND('hole 1 side 2',"));
+	}
+
 	@Test
 	void partWithoutThicknessIsRejected() {
 		TrapezoidFinSet fins = createFinSet();
