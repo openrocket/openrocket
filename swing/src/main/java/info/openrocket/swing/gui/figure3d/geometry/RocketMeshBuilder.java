@@ -16,6 +16,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -464,10 +465,16 @@ public final class RocketMeshBuilder {
 			rotationMatrix.rotateY(-(float) finSet.getCantAngle());
 		}
 
-		return new Matrix4f()
+		Matrix4f modelMatrix = new Matrix4f()
 				.translate(positionInEngineCS)
 				.mul(rotationMatrix)
 				.scale(worldScale);
+		if (component instanceof TubeFinSet tubeFinSet) {
+			// TubeFinSet instance origins sit on the parent body's outer surface; shift each tube
+			// outward along its rotated local +Y axis so it sits tangent to the body tube.
+			modelMatrix.translate(0.0f, (float) tubeFinSet.getOuterRadius(), 0.0f);
+		}
+		return modelMatrix;
 	}
 
 	private static Mesh createComponentMesh(RocketComponent component, RenderingConfiguration config) {
