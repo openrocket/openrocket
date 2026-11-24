@@ -20,7 +20,13 @@ import java.util.List;
  * <p>
  * Circles are approximated by polygons whose vertices lie on the circle, with a maximum deviation of
  * {@link #MAX_CHORD_DEVIATION_MM}. The number of segments is a multiple of four, so the extents of a circle
- * are exact. Neighboring triangles use the exact same vertex coordinates, so the mesh is watertight.
+ * are exact.
+ * <p>
+ * The mesh follows the vertex-to-vertex rule: two triangles that touch share a whole edge and both of its vertices,
+ * with the exact same coordinates. The caps and the side walls are built from the same loop points, and the JTS
+ * {@link ConstrainedDelaunayTriangulator} only uses the input vertices (it adds no points), so every cap edge on a
+ * loop is also the edge of a side wall. Each triangle is listed counter-clockwise seen from outside the part, so each
+ * edge is traversed once in each direction by its two triangles.
  */
 final class PartMesher {
 	static final double MAX_CHORD_DEVIATION_MM = 0.005;
@@ -41,6 +47,14 @@ final class PartMesher {
 		return triangles;
 	}
 
+	/**
+	 * Adds the triangles of one region: the top cap at z = thickness, the bottom cap at z = 0, and one wall of two
+	 * triangles for each segment of the outer loop and of every hole.
+	 *
+	 * @param triangles  the list to add the triangles to
+	 * @param region     the outer loop and the holes
+	 * @param thickness  the part thickness, in mm
+	 */
 	private static void addRegion(List<double[]> triangles, Region region, double thickness) {
 		// Outer loop counter-clockwise, holes clockwise: the material is on the left of each loop
 		List<double[][]> loops = new ArrayList<>();
@@ -71,7 +85,8 @@ final class PartMesher {
 			triangles.add(new double[]{a.x, a.y, 0, c.x, c.y, 0, b.x, b.y, 0});
 		}
 
-		// Side walls, facing to the right of the loop direction
+		// Side walls, facing to the right of the loop direction, which is away from the material.
+		// Segment (x0,y0)-(x1,y1) gives the quad bottom0, bottom1, top1, top0, split along bottom0-top1.
 		for (double[][] loop : loops) {
 			int n = loop[0].length;
 			for (int i = 0; i < n; i++) {
@@ -85,7 +100,12 @@ final class PartMesher {
 	}
 
 	/**
-	 * @return the loop points as {xs, ys}, counter-clockwise if ccw is true, otherwise clockwise
+	 * Returns the points of a loop in the given direction. Circles and arcs are replaced by points on them, spaced
+	 * by {@link #circleSegments(double)}.
+	 *
+	 * @param loop  the loop
+	 * @param ccw   true for counter-clockwise (outer loops), false for clockwise (holes)
+	 * @return the loop points as {xs, ys}, without repeating the first point at the end
 	 */
 	private static double[][] points(Loop loop, boolean ccw) {
 		if (loop instanceof Circle c) {
@@ -139,12 +159,25 @@ final class PartMesher {
 		return new double[][]{p.xs(), p.ys()};
 	}
 
+	/**
+	 * Returns the number of segments of a circle, so that the chord deviation r (1 - cos(pi / n)) is at most
+	 * {@link #MAX_CHORD_DEVIATION_MM}, rounded up to a multiple of four and kept between 32 and 1440.
+	 *
+	 * @param radius  the circle radius, in mm
+	 * @return the number of segments of the full circle
+	 */
 	static int circleSegments(double radius) {
 		double n = Math.PI / Math.acos(Math.max(-1, 1 - MAX_CHORD_DEVIATION_MM / radius));
 		int segments = (int) Math.ceil(n / 4) * 4;
 		return Math.max(MIN_CIRCLE_SEGMENTS, Math.min(MAX_CIRCLE_SEGMENTS, segments));
 	}
 
+	/**
+	 * Converts loop points to a closed JTS ring, which repeats the first coordinate at the end.
+	 *
+	 * @param loop  the loop points as {xs, ys}
+	 * @return the coordinates of the ring
+	 */
 	private static Coordinate[] coordinates(double[][] loop) {
 		int n = loop[0].length;
 		Coordinate[] coords = new Coordinate[n + 1];
