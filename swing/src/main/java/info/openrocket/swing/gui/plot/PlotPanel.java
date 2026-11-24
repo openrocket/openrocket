@@ -98,9 +98,12 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 				if (conf == null || conf == customConfiguration)
 					return;
 				modifying++;
-				setConfiguration(conf.clone().resetUnits());
-				updatePlots();
-				modifying--;
+				try {
+					setConfiguration(conf.clone().resetUnits());
+					updatePlots();
+				} finally {
+					modifying--;
+				}
 			}
 		});
 		//// Preset plot configurations:
@@ -294,9 +297,12 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 
 	protected void setToCustom() {
 		modifying++;
-		configuration.setName(CUSTOM);
-		configurationSelector.setSelectedItem(customConfiguration);
-		modifying--;
+		try {
+			configuration.setName(CUSTOM);
+			configurationSelector.setSelectedItem(customConfiguration);
+		} finally {
+			modifying--;
+		}
 	}
 
 	public JDialog doPlot(Window parent) {
@@ -337,10 +343,14 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 		selector.addTypeSelectionListener(e -> {
 			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) return;
 			T selectedType = selector.getSelectedType();
+			if (selectedType == null) {
+				return;
+			}
 			configuration.setPlotDataType(idx, selectedType);
 			selector.setUnitGroup(selectedType.getUnitGroup());
 			configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
 			setToCustom();
+			onPlotTypeChanged(idx, selector, selectedType);
 		});
 
 		// Unit
@@ -353,6 +363,7 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 		selector.addAxisSelectionListener(e -> {
 			if (modifying > 0 || e.getStateChange() != ItemEvent.SELECTED) return;
 			configuration.setPlotDataAxis(idx, selector.getSelectedAxis());
+			onPlotAxisChanged(idx, selector);
 		});
 
 		// Remove button
@@ -361,6 +372,20 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 			setToCustom();
 			updatePlots();
 		});
+	}
+
+	/**
+	 * Invoked after a Y-axis data type change has been applied to {@link #configuration}.
+	 */
+	protected void onPlotTypeChanged(int idx, S selector, T selectedType) {
+		// Subclasses can override to synchronize additional per-series UI state.
+	}
+
+	/**
+	 * Invoked after a Y-axis assignment change has been applied to {@link #configuration}.
+	 */
+	protected void onPlotAxisChanged(int idx, S selector) {
+		// Subclasses can override to synchronize additional per-series UI state.
 	}
 
 	public void addPlotConfigurationListener(PlotConfigurationListener<C> listener) {

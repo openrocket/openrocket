@@ -134,8 +134,11 @@ public class SimulationChartTest extends BaseTestCase {
 
 		List<SimulationPlotTypeSelector> selectors = findComponents(panel, SimulationPlotTypeSelector.class);
 		selectors.sort(Comparator.comparingInt(SimulationPlotTypeSelector::getIndex));
-		selectors.get(1).typeSelector.setSelectedItem(FlightDataType.TYPE_POSITION_X);
 		Color colorBeforeThirdChange = selectors.get(1).getSelectedColor();
+		SimulationPlot plotBeforeThirdChange = SimulationPlot.create(simulation, panel.getConfiguration(), false);
+		assertEquals(findRenderedColor(plotBeforeThirdChange.getJFreeChart().getXYPlot(), 1), colorBeforeThirdChange,
+				"Initial automatic color must match the rendered plot");
+
 		selectors.get(2).typeSelector.setSelectedItem(FlightDataType.TYPE_POSITION_Y);
 
 		Color displayedColor = selectors.get(1).getSelectedColor();
