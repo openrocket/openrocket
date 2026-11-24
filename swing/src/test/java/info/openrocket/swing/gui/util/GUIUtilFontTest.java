@@ -22,6 +22,8 @@ import javax.swing.JTextPane;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -75,7 +77,12 @@ public class GUIUtilFontTest extends BaseTestCase {
 		assertEquals(4, distinct.size(), "Each UI font weight must be distinct to avoid FontDesignMetrics collisions");
 	}
 
+	/**
+	 * Issue #3477 is a macOS Retina problem, fixed by resolving native CoreText fonts there. On Windows and Linux the
+	 * bundled Inter is a FreeType font whose hinted 1x integer advances legitimately differ from 2x fractional ones.
+	 */
 	@ParameterizedTest
+	@EnabledOnOs(OS.MAC)
 	@ValueSource(strings = {
 			GUIUtil.UI_FONT_STYLE_LIGHT,
 			GUIUtil.UI_FONT_STYLE_REGULAR,
