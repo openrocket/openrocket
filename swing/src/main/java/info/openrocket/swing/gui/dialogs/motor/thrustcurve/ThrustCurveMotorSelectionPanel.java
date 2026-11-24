@@ -621,6 +621,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			// No motor selected
 			curveSelectionModel.removeAllElements();
 			curveSelectionBox.setEnabled(false);
+			curveSelectionBox.setToolTipText(null);
 			curveSelectionLabel.setEnabled(false);
 			ejectionChargeDelayLabel.setEnabled(false);
 			delayBox.setEnabled(false);
@@ -648,6 +649,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionModel.addElement(new MotorHolder(motors.get(i), i));
 		}
 		curveSelectionBox.setSelectedIndex(index);
+		curveSelectionBox.setToolTipText(MotorInformationPanel.formatSourceToolTip(selectedMotor));
 
 		if (motors.size() > 1) {
 			curveSelectionBox.setEnabled(true);
@@ -894,6 +896,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					label.setBackground(list.getBackground());
 					label.setForeground(color);
 				}
+				label.setToolTipText(MotorInformationPanel.formatSourceToolTip(value.getMotor()));
+			} else {
+				label.setToolTipText(null);
 			}
 
 			return label;

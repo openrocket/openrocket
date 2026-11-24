@@ -1,9 +1,12 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
+import java.text.MessageFormat;
+
 import info.openrocket.core.motor.ThrustCurveMotor;
+import info.openrocket.core.startup.Application;
 
 class MotorHolder {
-	
+
 	private final ThrustCurveMotor motor;
 	private final int index;
 	
@@ -22,7 +25,11 @@ class MotorHolder {
 	
 	@Override
 	public String toString() {
-		return motor.getMotorName();
+		String name = motor.getMotorName();
+		if (motor.isUserDefined()) {
+			return MessageFormat.format(Application.getTranslator().get("TCMotorSelPan.curve.user"), name);
+		}
+		return name;
 	}
 	
 	@Override

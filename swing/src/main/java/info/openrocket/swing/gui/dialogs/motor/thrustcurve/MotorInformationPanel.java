@@ -6,6 +6,7 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -188,7 +189,7 @@ class MotorInformationPanel extends JPanel {
 			//// Source:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Source")));
 			sourceLabel = new JLabel();
-			this.add(sourceLabel, "wrap");
+			this.add(sourceLabel, "w 0:0:, growx, pushx, wrap");
 
 
 			comment = new JTextArea(5, 5);
@@ -312,6 +313,7 @@ class MotorInformationPanel extends JPanel {
 		}
 		lastUpdatedOnLabel.setText("");
 		sourceLabel.setText("");
+		sourceLabel.setToolTipText(null);
 		setComment("");
 		chart.getXYPlot().setDataset(new XYSeriesCollection());
 	}
@@ -358,7 +360,8 @@ class MotorInformationPanel extends JPanel {
 		}
 
 		lastUpdatedOnLabel.setText(formatUpdatedOn(selectedMotor.getUpdatedOn()));
-		sourceLabel.setText(formatSource(selectedMotor.getDataSource()));
+		sourceLabel.setText(formatSource(selectedMotor));
+		sourceLabel.setToolTipText(formatSourceToolTip(selectedMotor));
 
 		setComment(selectedMotor.getDescription());
 
@@ -405,6 +408,43 @@ class MotorInformationPanel extends JPanel {
 		} catch (DateTimeParseException ignored) {
 		}
 		return v;
+	}
+
+	static String formatSource(ThrustCurveMotor motor) {
+		if (motor == null) {
+			return "";
+		}
+		if (motor.isUserDefined()) {
+			Translator translator = Application.getTranslator();
+			String fileName = extractFileName(motor.getSourceFile());
+			if (!fileName.isEmpty()) {
+				return MessageFormat.format(translator.get("TCMotorSelPan.source.userWithFile"), fileName);
+			}
+			return translator.get("TCMotorSelPan.source.user");
+		}
+		return formatSource(motor.getDataSource());
+	}
+
+	static String formatSourceToolTip(ThrustCurveMotor motor) {
+		if (motor != null && motor.isUserDefined()) {
+			String sourceFile = motor.getSourceFile().trim();
+			if (!sourceFile.isEmpty()) {
+				return sourceFile;
+			}
+		}
+		return null;
+	}
+
+	private static String extractFileName(String sourceFile) {
+		if (sourceFile == null) {
+			return "";
+		}
+		String trimmed = sourceFile.trim();
+		if (trimmed.isEmpty()) {
+			return "";
+		}
+		int lastSep = Math.max(trimmed.lastIndexOf('/'), trimmed.lastIndexOf('\\'));
+		return lastSep >= 0 ? trimmed.substring(lastSep + 1) : trimmed;
 	}
 
 	private static String formatSource(String source) {

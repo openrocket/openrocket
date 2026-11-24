@@ -70,6 +70,10 @@ public final class ThrustCurveMotorSQLiteDatabase {
 	}
 
 	public static List<ThrustCurveMotor> readDatabase(File dbFile) throws SQLException {
+		return readDatabase(dbFile, false, null);
+	}
+
+	public static List<ThrustCurveMotor> readDatabase(File dbFile, boolean userDefined, String sourceFile) throws SQLException {
 		if (dbFile == null || !dbFile.isFile()) {
 			throw new SQLException("SQLite motor database not found: " + dbFile);
 		}
@@ -80,7 +84,7 @@ public final class ThrustCurveMotorSQLiteDatabase {
 			// Only include optional columns in queries if they actually exist.
 			boolean hasMotorDescriptionSource =
 					columnExists(connection, "motors", "description") && columnExists(connection, "motors", "source");
-			return readMotors(connection, hasMotorDescriptionSource);
+			return readMotors(connection, hasMotorDescriptionSource, userDefined, sourceFile);
 		}
 	}
 
@@ -451,7 +455,8 @@ public final class ThrustCurveMotorSQLiteDatabase {
 		}
 	}
 
-	private static List<ThrustCurveMotor> readMotors(Connection connection, boolean hasMotorDescriptionSource) throws SQLException {
+	private static List<ThrustCurveMotor> readMotors(Connection connection, boolean hasMotorDescriptionSource,
+			boolean userDefined, String sourceFile) throws SQLException {
 		// First, log some stats about the database
 		try (Statement stmt = connection.createStatement()) {
 			ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM motors");
@@ -605,6 +610,8 @@ public final class ThrustCurveMotorSQLiteDatabase {
 							.setUpdatedOn(updatedOn == null ? "" : updatedOn)
 							.setDataSource(dataSource == null ? "" : dataSource)
 							.setSparky(sparky)
+							.setUserDefined(userDefined)
+							.setSourceFile(sourceFile)
 							.setMotorType(motorType)
 							.setDiameter(diameter)
 							.setLength(length)

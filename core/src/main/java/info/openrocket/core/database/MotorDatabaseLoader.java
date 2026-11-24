@@ -71,10 +71,14 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 * the directories are defined in the preferences
 	 */
 	private void loadUserDefinedMotors() {
+		loadUserDefinedMotors(Application.getPreferences().getUserThrustCurveFiles());
+	}
+
+	void loadUserDefinedMotors(List<File> files) {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 		SimpleFileFilter fileFilter = new SimpleFileFilter("", buildUserMotorExtensions(loader));
 		log.info("Starting reading user-defined motors");
-		for (File file : (Application.getPreferences()).getUserThrustCurveFiles()) {
+		for (File file : files) {
 			if (file.isFile()) {
 				if (!fileFilter.accept(file)) {
 					log.warn("User-defined motor file " + file + " does not have a supported extension");
@@ -126,7 +130,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		if (iterator != null) {
 			while (iterator.hasNext()) {
 				Pair<File, InputStream> f = iterator.next();
-				loadSqlite(f);
+				loadSqlite(f, false);
 			}
 			log.info("Ending reading SQLite motor database, motorCount=" + motorCount);
 			return;
@@ -162,12 +166,14 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		}
 	}
 
-	private void loadSqlite(Pair<File, InputStream> f) {
+	private void loadSqlite(Pair<File, InputStream> f, boolean userDefined) {
 		SqliteFile sqliteFile = null;
 		try {
 			sqliteFile = materializeSqliteFile(f);
 			log.debug("Reading motors from SQLite database " + sqliteFile.file.getPath());
-			List<ThrustCurveMotor> motors = ThrustCurveMotorSQLiteDatabase.readDatabase(sqliteFile.file);
+			String sourceFile = userDefined && f.getU() != null ? f.getU().getAbsolutePath() : "";
+			List<ThrustCurveMotor> motors = ThrustCurveMotorSQLiteDatabase.readDatabase(
+					sqliteFile.file, userDefined, sourceFile);
 			addMotors(motors);
 		} catch (Exception ex) {
 			throw new BugException(ex);
@@ -240,12 +246,16 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	private void loadFile(GeneralMotorLoader loader, Pair<File, InputStream> f) {
 		try {
 			if (isSqliteFile(f.getU())) {
-				loadSqlite(f);
+				loadSqlite(f, true);
 				return;
 			}
 
 			try {
 				List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU().getName());
+				String sourceFile = f.getU() != null ? f.getU().getAbsolutePath() : "";
+				for (ThrustCurveMotor.Builder builder : motors) {
+					builder.setUserDefined(true).setSourceFile(sourceFile);
+				}
 				addMotorsFromBuilders(motors);
 			} catch (IllegalArgumentException | IOException e) {
 				Translator trans = Application.getTranslator();
