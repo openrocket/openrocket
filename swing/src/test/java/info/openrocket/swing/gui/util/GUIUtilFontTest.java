@@ -10,6 +10,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -22,6 +23,8 @@ import javax.swing.JTextPane;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -75,7 +78,12 @@ public class GUIUtilFontTest extends BaseTestCase {
 		assertEquals(4, distinct.size(), "Each UI font weight must be distinct to avoid FontDesignMetrics collisions");
 	}
 
+	/**
+	 * Issue #3477 is a macOS Retina problem, fixed by resolving native CoreText fonts there. On Windows and Linux the
+	 * bundled Inter is a FreeType font whose hinted 1x integer advances legitimately differ from 2x fractional ones.
+	 */
 	@ParameterizedTest
+	@EnabledOnOs(OS.MAC)
 	@ValueSource(strings = {
 			GUIUtil.UI_FONT_STYLE_LIGHT,
 			GUIUtil.UI_FONT_STYLE_REGULAR,
@@ -119,8 +127,10 @@ public class GUIUtilFontTest extends BaseTestCase {
 		FontRenderContext frc = new FontRenderContext(null, true, false);
 
 		assertNotEquals(base, tracked);
-		assertTrue(tracked.getStringBounds("OpenRocket", frc).getWidth()
-				> base.getStringBounds("OpenRocket", frc).getWidth());
+		// Measure via TextLayout, as Swing's FontMetrics does for fonts with layout attributes; Font.getStringBounds()
+		// ignores TRACKING for native macOS fonts.
+		assertTrue(new TextLayout("OpenRocket", tracked, frc).getAdvance()
+				> new TextLayout("OpenRocket", base, frc).getAdvance());
 	}
 
 	@Test
