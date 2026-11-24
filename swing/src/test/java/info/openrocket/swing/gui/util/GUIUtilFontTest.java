@@ -10,6 +10,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -126,8 +127,10 @@ public class GUIUtilFontTest extends BaseTestCase {
 		FontRenderContext frc = new FontRenderContext(null, true, false);
 
 		assertNotEquals(base, tracked);
-		assertTrue(tracked.getStringBounds("OpenRocket", frc).getWidth()
-				> base.getStringBounds("OpenRocket", frc).getWidth());
+		// Measure via TextLayout, as Swing's FontMetrics does for fonts with layout attributes; Font.getStringBounds()
+		// ignores TRACKING for native macOS fonts.
+		assertTrue(new TextLayout("OpenRocket", tracked, frc).getAdvance()
+				> new TextLayout("OpenRocket", base, frc).getAdvance());
 	}
 
 	@Test
