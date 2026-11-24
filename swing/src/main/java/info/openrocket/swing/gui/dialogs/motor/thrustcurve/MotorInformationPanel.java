@@ -32,6 +32,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 
@@ -79,7 +80,7 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel digestLabel;
 	private final JLabel lastUpdatedOnLabel;
 	private final JLabel sourceLabel;
-	private final JLabel sourceFileLabel;
+	private final StyledLabel sourceFileLabel;
 
 	private final JTextArea comment;
 	private final Font noCommentFont;
@@ -191,9 +192,8 @@ class MotorInformationPanel extends JPanel {
 			sourceLabel = new JLabel();
 			this.add(sourceLabel, "wrap");
 
-			sourceFileLabel = new JLabel();
-			sourceFileLabel.setForeground(dimTextColor);
-			GUIUtil.changeFontSize(sourceFileLabel, -1);
+			sourceFileLabel = new StyledLabel(-1.0f);
+			sourceFileLabel.setFontColor(dimTextColor);
 			sourceFileLabel.setVisible(false);
 			this.add(sourceFileLabel, "w 0:0:, spanx, growx, gapleft para, gaptop 0, hidemode 3, wrap");
 
