@@ -8,6 +8,7 @@ import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.TestRockets;
@@ -272,6 +273,65 @@ class RocketMeshBuilderTest extends BaseTestCase {
 				assertEquals(expected.getY() * scale, actual.y, 1.0e-5f);
 				assertEquals(-expected.getZ() * scale, actual.z, 1.0e-5f);
 			}
+		}
+	}
+
+	@Test
+	void tubeFinInstancesSitTangentOutsideParentBodyTube() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		BodyTube bodyTube = rocket.getAllChildren().stream()
+				.filter(BodyTube.class::isInstance)
+				.map(BodyTube.class::cast)
+				.findFirst()
+				.orElseThrow();
+		double bodyRadius = 0.033401;
+		bodyTube.setOuterRadius(bodyRadius);
+
+		TubeFinSet tubeFinSet = new TubeFinSet();
+		tubeFinSet.setFinCount(6);
+		tubeFinSet.setOuterRadiusAutomatic(false);
+		tubeFinSet.setOuterRadius(bodyRadius);
+		tubeFinSet.setThickness(0.000889);
+		tubeFinSet.setLength(0.1397);
+		tubeFinSet.setBaseRotation(Math.toRadians(20));
+		bodyTube.addChild(tubeFinSet);
+
+		RocketSceneSnapshot snapshot = RocketMeshBuilder.buildSnapshot(rocket, new RenderingConfiguration());
+		List<RocketSceneSnapshot.ComponentInstance> tubeFinInstances = snapshot.getComponentInstances().stream()
+				.filter(instance -> instance.component() == tubeFinSet)
+				.toList();
+		List<InstanceContext> contexts = rocket.getSelectedConfiguration().getActiveInstances().get(tubeFinSet);
+		assertEquals(6, contexts.size());
+		assertEquals(contexts.size(), tubeFinInstances.size());
+
+		float scale = RenderingConstants.WORLD_SCALE;
+		double expectedCenterRadial = (bodyRadius + tubeFinSet.getOuterRadius()) * scale;
+		double expectedMinRadial = bodyRadius * scale;
+		double expectedMaxRadial = (bodyRadius + 2.0 * tubeFinSet.getOuterRadius()) * scale;
+
+		for (int i = 0; i < contexts.size(); i++) {
+			RocketSceneSnapshot.ComponentInstance instance = tubeFinInstances.get(i);
+			Matrix4f modelMatrix = instance.modelMatrix();
+
+			CoordinateIF expectedCenter = contexts.get(i).transform
+					.transform(new Coordinate(tubeFinSet.getLength() / 2.0, tubeFinSet.getOuterRadius(), 0));
+			Vector3f actualCenter = modelMatrix.transformPosition(new Vector3f(0, 0, 0));
+			assertEquals(expectedCenter.getX() * scale, actualCenter.x, 1.0e-5f);
+			assertEquals(expectedCenter.getY() * scale, actualCenter.y, 1.0e-5f);
+			assertEquals(-expectedCenter.getZ() * scale, actualCenter.z, 1.0e-5f);
+			assertEquals(expectedCenterRadial, Math.hypot(actualCenter.y, actualCenter.z), 1.0e-5);
+
+			double minRadial = Double.POSITIVE_INFINITY;
+			double maxRadial = Double.NEGATIVE_INFINITY;
+			for (Vertex vertex : instance.mesh().getVertices()) {
+				Vector3f worldPos = modelMatrix.transformPosition(new Vector3f(vertex.position));
+				double radial = Math.hypot(worldPos.y, worldPos.z);
+				minRadial = Math.min(minRadial, radial);
+				maxRadial = Math.max(maxRadial, radial);
+			}
+			assertEquals(expectedMinRadial, minRadial, 1.0e-3,
+					"Tube fin must sit tangent to the outside of the parent body tube, not inside it");
+			assertEquals(expectedMaxRadial, maxRadial, 1.0e-3);
 		}
 	}
 
