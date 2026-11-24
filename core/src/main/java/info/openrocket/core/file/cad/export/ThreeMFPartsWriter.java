@@ -1,7 +1,5 @@
 package info.openrocket.core.file.cad.export;
 
-import info.openrocket.core.file.cad.export.CADPartsExporter.ExportedPart;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;

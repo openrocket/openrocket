@@ -2,7 +2,6 @@ package info.openrocket.core.file.cad.export;
 
 import info.openrocket.core.file.cad.export.CADDimensionVerifier.Check;
 import info.openrocket.core.file.cad.export.CADDimensionVerifier.Status;
-import info.openrocket.core.file.cad.export.CADPartsExporter.ExportedPart;
 import info.openrocket.core.file.cad.export.CADPartsExporter.Format;
 import info.openrocket.core.file.cad.export.FlatPart.Dimension;
 import info.openrocket.core.file.svg.export.RingSvgExporter;

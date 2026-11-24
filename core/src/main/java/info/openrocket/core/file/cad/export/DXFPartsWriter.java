@@ -1,6 +1,5 @@
 package info.openrocket.core.file.cad.export;
 
-import info.openrocket.core.file.cad.export.CADPartsExporter.ExportedPart;
 import info.openrocket.core.file.cad.export.FlatPart.Arc;
 import info.openrocket.core.file.cad.export.FlatPart.ArcLoop;
 import info.openrocket.core.file.cad.export.FlatPart.Circle;

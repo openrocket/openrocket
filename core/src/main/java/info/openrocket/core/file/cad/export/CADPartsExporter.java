@@ -54,20 +54,6 @@ public class CADPartsExporter {
 		}
 	}
 
-	/**
-	 * A part as written to the file.
-	 *
-	 * @param part the part, moved to its location in the file
-	 */
-	public record ExportedPart(FlatPart part, double minXmm, double minYmm, double maxXmm, double maxYmm) {
-		/**
-		 * @return the name of the part
-		 */
-		public String name() {
-			return part.getName();
-		}
-	}
-
 	private final List<FlatPart> parts = new ArrayList<>();
 
 	/**
