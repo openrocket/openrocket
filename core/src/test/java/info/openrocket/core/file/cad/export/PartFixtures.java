@@ -5,7 +5,20 @@ import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 
 /**
- * Fins and centering rings with dimensions that are easy to calculate by hand, for the tests.
+ * Fins and centering rings with dimensions that are easy to calculate by hand, for the tests. The values the tests
+ * expect, worked out by hand:
+ * <ul>
+ * <li>Fin of {@link #createFinSet()}: area (100 + 50) / 2 * 60 = 4500 mm^2, volume 4500 * 3 = 13500 mm^3, extents
+ * 100 x 60 x 3 mm.</li>
+ * <li>Ring of {@code ExportTestSupport.createAllParts()}: OD 50 mm, ID 18 mm, 5 mm thick, with a 6 mm hole centered at
+ * (12, 5) mm, so sqrt(12^2 + 5^2) = 13 mm from the axis. Volume pi * (25^2 - 9^2 - 3^2) * 5 = 2675 pi = 8403.76 mm^3.
+ * </li>
+ * <li>Disc of {@link #createDisc()}: pi * 37.5^2 * 6 = 8437.5 pi = 26507.19 mm^3.</li>
+ * <li>All three parts together: 13500 + 11112.5 pi = 48410.95 mm^3.</li>
+ * <li>Two 20 mm holes with centers 10 mm apart in a 60 mm disc, 5 mm thick: the holes overlap in a lens of
+ * 2 * 10^2 * acos(1/2) - 5 * sqrt(300) = 122.84 mm^2, so they remove 2 * 100 pi - 122.84 = 505.48 mm^2. The disc keeps
+ * 900 pi - 505.48 = 2321.95 mm^2, a volume of 11609.76 mm^3.</li>
+ * </ul>
  */
 final class PartFixtures {
 	/** Trapezoid area (100 + 50) / 2 * 60 = 4500 mm^2, 3 mm thick */
