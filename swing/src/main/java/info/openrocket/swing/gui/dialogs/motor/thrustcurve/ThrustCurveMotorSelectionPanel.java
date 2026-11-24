@@ -130,6 +130,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 	private double nozzleExitDiameter;
+	private MotorRowFilter.SourceFilter lastSourceFilter = MotorRowFilter.SourceFilter.ALL;
 
 	private static Color dimTextColor;
 
@@ -173,6 +174,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 						sorter.sort();
 					} catch (IllegalArgumentException e) {
 						log.warn("Motor table sort failed", e);
+					}
+					MotorRowFilter.SourceFilter currentSourceFilter = rowFilter.getSourceFilter();
+					if (currentSourceFilter != lastSourceFilter) {
+						lastSourceFilter = currentSourceFilter;
+						updateSelectionForSourceFilter();
 					}
 					scrollSelectionVisible();
 				}
@@ -664,7 +670,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 	List<ThrustCurveMotor> getFilteredCurves() {
-		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
+		List<ThrustCurveMotor> motors = getMatchingSourceCurves(selectedMotorSet);
+		if (motors.isEmpty()) {
+			motors = selectedMotorSet.getMotors();
+		} else if (selectedMotor != null && !motors.contains(selectedMotor)) {
+			motors.add(selectedMotor);
+		}
 		if (hideSimilarBox.isSelected()  && selectedMotor != null) {
 			List<ThrustCurveMotor> filtered = new ArrayList<>(motors.size());
 			for (ThrustCurveMotor m : motors) {
@@ -684,6 +695,40 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		motors.sort(MOTOR_COMPARATOR);
 
 		return motors;
+	}
+
+	private List<ThrustCurveMotor> getMatchingSourceCurves(ThrustCurveMotorSet set) {
+		MotorRowFilter.SourceFilter sourceFilter = rowFilter.getSourceFilter();
+		if (sourceFilter == MotorRowFilter.SourceFilter.ALL) {
+			return set.getMotors();
+		}
+		List<ThrustCurveMotor> matching = new ArrayList<>();
+		for (ThrustCurveMotor motor : set.getMotors()) {
+			if (sourceFilter.matches(motor)) {
+				matching.add(motor);
+			}
+		}
+		return matching;
+	}
+
+	private void updateSelectionForSourceFilter() {
+		if (selectedMotorSet == null || selectedMotor == null) {
+			return;
+		}
+		MotorRowFilter.SourceFilter sourceFilter = rowFilter.getSourceFilter();
+		if (sourceFilter.matches(selectedMotor)) {
+			updateData();
+			return;
+		}
+		List<ThrustCurveMotor> matchingCurves = getMatchingSourceCurves(selectedMotorSet);
+		if (!matchingCurves.isEmpty()) {
+			selectedMotor = selectMotorFromList(matchingCurves, selectedMotorSet);
+			updateData();
+		} else {
+			selectedMotor = null;
+			selectedMotorSet = null;
+			updateData();
+		}
 	}
 
 	private void updateNrOfMotors() {
@@ -776,16 +821,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * @return		the default motor in this set
 	 */
 	private ThrustCurveMotor selectMotor(ThrustCurveMotorSet set) {
-		if (set.getMotorCount() == 0) {
+		List<ThrustCurveMotor> list = getMatchingSourceCurves(set);
+		if (list.isEmpty()) {
+			list = set.getMotors();
+		}
+		return selectMotorFromList(list, set);
+	}
+
+	private ThrustCurveMotor selectMotorFromList(List<ThrustCurveMotor> list, ThrustCurveMotorSet set) {
+		if (list.isEmpty()) {
 			throw new BugException("Attempting to select motor from empty ThrustCurveMotorSet: " + set);
 		}
-		if (set.getMotorCount() == 1) {
-			return set.getMotors().get(0);
+		if (list.size() == 1) {
+			return list.get(0);
 		}
 
-
 		// Find which motor has been used the most recently
-		List<ThrustCurveMotor> list = set.getMotors();
 		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : list) {
 			String digest = m.getDigest();

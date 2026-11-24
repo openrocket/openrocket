@@ -221,5 +221,135 @@ public class MotorRowFilterTest {
 		
 		testMotor(emptyMotor, new ArrayList(), ImpulseClass.A, ImpulseClass.A, ImpulseClass.B);
 	}
+
+	@Test
+	public void testSourceFilter() {
+		ThrustCurveMotor dbOnlyMotor = new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("H123")
+				.setDiameter(0.038)
+				.setLength(0.152)
+				.setTimePoints(new double[] { 0.0, 1.0, 2.0 })
+				.setThrustPoints(new double[] { 0.0, 120.0, 0.0 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.076, 0, 0, 0.25),
+						new Coordinate(0.076, 0, 0, 0.20),
+						new Coordinate(0.076, 0, 0, 0.15)
+				})
+				.setDigest("db-only")
+				.setUserDefined(false)
+				.build();
+
+		ThrustCurveMotor userOnlyMotor = new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("M1550R")
+				.setDiameter(0.075)
+				.setLength(0.560)
+				.setTimePoints(new double[] { 0.0, 1.0, 2.0 })
+				.setThrustPoints(new double[] { 0.0, 1550.0, 0.0 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.28, 0, 0, 4.5),
+						new Coordinate(0.28, 0, 0, 3.2),
+						new Coordinate(0.28, 0, 0, 2.0)
+				})
+				.setDigest("user-only")
+				.setUserDefined(true)
+				.build();
+
+		ThrustCurveMotor mixedDbMotor = new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("K550W")
+				.setDiameter(0.054)
+				.setLength(0.326)
+				.setTimePoints(new double[] { 0.0, 1.0, 2.0 })
+				.setThrustPoints(new double[] { 0.0, 550.0, 0.0 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.163, 0, 0, 1.45),
+						new Coordinate(0.163, 0, 0, 1.10),
+						new Coordinate(0.163, 0, 0, 0.73)
+				})
+				.setDigest("mixed-db")
+				.setUserDefined(false)
+				.build();
+
+		ThrustCurveMotor mixedUserMotor = new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
+				.setDesignation("K550W")
+				.setDiameter(0.054)
+				.setLength(0.326)
+				.setTimePoints(new double[] { 0.0, 0.5, 2.0 })
+				.setThrustPoints(new double[] { 0.0, 620.0, 0.0 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.163, 0, 0, 1.45),
+						new Coordinate(0.163, 0, 0, 1.10),
+						new Coordinate(0.163, 0, 0, 0.73)
+				})
+				.setDigest("mixed-user")
+				.setUserDefined(true)
+				.build();
+
+		ThrustCurveMotorSet dbSet = new ThrustCurveMotorSet();
+		dbSet.addMotor(dbOnlyMotor);
+
+		ThrustCurveMotorSet userSet = new ThrustCurveMotorSet();
+		userSet.addMotor(userOnlyMotor);
+
+		ThrustCurveMotorSet mixedSet = new ThrustCurveMotorSet();
+		mixedSet.addMotor(mixedDbMotor);
+		mixedSet.addMotor(mixedUserMotor);
+
+		ThrustCurveMotorDatabaseModel model = new ThrustCurveMotorDatabaseModel(List.of(dbSet, userSet, mixedSet));
+		MotorRowFilter filter = new MotorRowFilter(model);
+
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> dbEntry = entryForRow(model, 0);
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> userEntry = entryForRow(model, 1);
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> mixedEntry = entryForRow(model, 2);
+
+		assertEquals(MotorRowFilter.SourceFilter.ALL, filter.getSourceFilter());
+		assertTrue(filter.include(dbEntry));
+		assertTrue(filter.include(userEntry));
+		assertTrue(filter.include(mixedEntry));
+
+		filter.setSourceFilter(MotorRowFilter.SourceFilter.DATABASE_ONLY);
+		assertTrue(filter.include(dbEntry));
+		assertFalse(filter.include(userEntry));
+		assertTrue(filter.include(mixedEntry));
+
+		filter.setSourceFilter(MotorRowFilter.SourceFilter.USER_ONLY);
+		assertFalse(filter.include(dbEntry));
+		assertTrue(filter.include(userEntry));
+		assertTrue(filter.include(mixedEntry));
+
+		filter.setSourceFilter(null);
+		assertEquals(MotorRowFilter.SourceFilter.ALL, filter.getSourceFilter());
+		assertTrue(filter.include(dbEntry));
+		assertTrue(filter.include(userEntry));
+		assertTrue(filter.include(mixedEntry));
+	}
+
+	private MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> entryForRow(
+			ThrustCurveMotorDatabaseModel model, int row) {
+		return new MotorRowFilter.Entry<>() {
+			@Override
+			public Integer getIdentifier() {
+				return row;
+			}
+
+			@Override
+			public ThrustCurveMotorDatabaseModel getModel() {
+				return model;
+			}
+
+			@Override
+			public ThrustCurveMotorSet getValue(int index) {
+				return model.getMotorSet(row);
+			}
+
+			@Override
+			public int getValueCount() {
+				return 1;
+			}
+		};
+	}
 }
 

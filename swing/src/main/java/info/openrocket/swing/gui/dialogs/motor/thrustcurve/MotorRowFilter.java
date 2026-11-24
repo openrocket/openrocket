@@ -15,6 +15,7 @@ import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.StateChangeListener;
@@ -25,6 +26,34 @@ import info.openrocket.core.util.StateChangeListener;
  * Abstract adapter class.
  */
 public class MotorRowFilter extends RowFilter<TableModel, Integer> implements ChangeSource {
+
+	public enum SourceFilter {
+		ALL("TCMotorSelPan.sourceFilter.all"),
+		DATABASE_ONLY("TCMotorSelPan.sourceFilter.databaseOnly"),
+		USER_ONLY("TCMotorSelPan.sourceFilter.userOnly");
+
+		private final String translationKey;
+
+		SourceFilter(String translationKey) {
+			this.translationKey = translationKey;
+		}
+
+		public boolean matches(ThrustCurveMotor motor) {
+			if (motor == null) {
+				return false;
+			}
+			return switch (this) {
+				case ALL -> true;
+				case DATABASE_ONLY -> !motor.isUserDefined();
+				case USER_ONLY -> motor.isUserDefined();
+			};
+		}
+
+		@Override
+		public String toString() {
+			return Application.getTranslator().get(translationKey);
+		}
+	}
 
 	// configuration data used in the filter process
 	private final ThrustCurveMotorDatabaseModel model;
@@ -58,6 +87,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 	
 	// Show only available motors
 	private boolean hideUnavailable = false;
+
+	// Filter by motor source (all, database only, or user-defined only)
+	private SourceFilter sourceFilter = SourceFilter.ALL;
 
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
@@ -162,11 +194,24 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		this.hideUnavailable = hideUnavailable;
 	}
 
+	public SourceFilter getSourceFilter() {
+		return sourceFilter;
+	}
+
+	public void setSourceFilter(SourceFilter sourceFilter) {
+		SourceFilter effective = sourceFilter != null ? sourceFilter : SourceFilter.ALL;
+		if (this.sourceFilter != effective) {
+			this.sourceFilter = effective;
+			fireChangeEvent(change);
+		}
+	}
+
 	@Override
 	public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 		int index = entry.getIdentifier();
 		ThrustCurveMotorSet m = model.getMotorSet(index);
-		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m) && filterByImpulseClass(m) && filterUnavailable(m);
+		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m)
+				&& filterByImpulseClass(m) && filterUnavailable(m) && filterSource(m);
 	}
 
 	private boolean filterManufacturers(ThrustCurveMotorSet m) {
@@ -258,6 +303,18 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 			return true;
 		}
 		return m.isAvailable();
+	}
+
+	private boolean filterSource(ThrustCurveMotorSet m) {
+		if (sourceFilter == SourceFilter.ALL) {
+			return true;
+		}
+		for (ThrustCurveMotor motor : m.getMotors()) {
+			if (sourceFilter.matches(motor)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 

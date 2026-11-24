@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -114,7 +115,7 @@ public abstract class MotorFilterPanel extends JPanel {
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
 		super(new BorderLayout());
 		this.filter = filter;
-		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][grow][][][]"));
+		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][][grow][][]"));
 
 		scaleDiameterLabels();
 
@@ -136,6 +137,27 @@ public abstract class MotorFilterPanel extends JPanel {
 				}
 			});
 			contentPanel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
+		}
+
+		//// Motor source filter
+		{
+			JLabel sourceLabel = new JLabel(trans.get("TCMotorSelPan.lbl.motorSource"));
+			GUIUtil.changeFontSize(sourceLabel, -1);
+			final JComboBox<MotorRowFilter.SourceFilter> sourceCombo =
+					new JComboBox<>(MotorRowFilter.SourceFilter.values());
+			GUIUtil.changeFontSize(sourceCombo, -1);
+			sourceCombo.setSelectedItem(filter.getSourceFilter());
+			sourceCombo.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					MotorRowFilter.SourceFilter selected =
+							(MotorRowFilter.SourceFilter) sourceCombo.getSelectedItem();
+					MotorFilterPanel.this.filter.setSourceFilter(selected);
+					onSelectionChanged();
+				}
+			});
+			contentPanel.add(sourceLabel, "gapleft para, split 2");
+			contentPanel.add(sourceCombo, "growx, wrap");
 		}
 
 		// Manufacturer selection
