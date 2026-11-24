@@ -79,6 +79,8 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import com.formdev.flatlaf.util.FontUtils;
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.Resettable;
 
@@ -101,6 +103,8 @@ public class GUIUtil {
 	public static final String UI_FONT_STYLE_BOLD = "inter-bold";
 	private static final String UI_REGULAR_FONT_PATH = "/fonts/Inter/Inter-Regular.ttf";
 	private static final String UI_ITALIC_FONT_PATH = "/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf";
+	private static final char[] FALLBACK_PROBE_CHARS = { '\u4e2d', '\u3042', '\ud55c' };
+	private static final float ZERO_TRACKING_EPSILON = 1e-6f;
 	private static final Map<String, String> UI_FONT_PATHS = new HashMap<>();
 	private static final Map<String, Font> UI_FONT_CACHE = new HashMap<>();
 	private static boolean customFontsLoaded;
@@ -155,25 +159,39 @@ public class GUIUtil {
 	/**
 	 * Loads the bundled UI fonts once so the theme can resolve the Inter family before
 	 * component defaults are created.
+	 * <p>
+	 * On macOS, registering bundled TTFs via {@link GraphicsEnvironment#registerFont(Font)}
+	 * creates FreeType physical fonts that lack CoreText CJK/Unicode fallback and exhibit
+	 * Retina 1x/2x font-metrics mismatches, so macOS resolves native CoreText fonts instead.
 	 */
 	public static synchronized void loadCustomFonts() {
 		if (customFontsLoaded) {
 			return;
 		}
+		customFontsLoaded = true;
+
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			return;
+		}
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		registerFont(ge, UI_FONT_STYLE_LIGHT);
 		registerFont(ge, UI_FONT_STYLE_REGULAR);
+		registerFont(ge, UI_FONT_STYLE_MEDIUM);
+		registerFont(ge, UI_FONT_STYLE_BOLD);
 		registerFont(ge, UI_ITALIC_FONT_PATH);
-		customFontsLoaded = true;
 	}
 
 	/**
 	 * Creates an OpenRocket UI font from the stored style identifier.
-	 * Each preference value maps to a specific bundled Inter face so light, regular,
-	 * medium, and bold remain visually distinct on every platform.
+	 * Uses composite fonts so non-Latin scripts (such as CJK) fall back to platform fonts
+	 * while light, regular, medium, and bold weights remain visually distinct.
 	 */
 	public static Font createUIFont(String fontStyle, float fontSize, float letterSpacing) {
 		Font baseFont = getBaseUIFont(fontStyle);
+		if (Math.abs(letterSpacing) < ZERO_TRACKING_EPSILON) {
+			return baseFont.deriveFont(fontSize);
+		}
 		Map<TextAttribute, Object> attributes = new HashMap<>();
 		attributes.put(TextAttribute.SIZE, fontSize);
 		attributes.put(TextAttribute.TRACKING, letterSpacing);
@@ -187,12 +205,100 @@ public class GUIUtil {
 			return cachedFont;
 		}
 
-		Font loadedFont = loadBundledFont(UI_FONT_PATHS.get(normalizedStyle));
-		if (loadedFont == null) {
-			loadedFont = new Font(UI_FONT_FAMILY, Font.PLAIN, 1);
+		loadCustomFonts();
+		Font resolvedFont = resolveCompositeUIFont(normalizedStyle);
+		UI_FONT_CACHE.put(normalizedStyle, resolvedFont);
+		return resolvedFont;
+	}
+
+	private static Font resolveCompositeUIFont(String normalizedStyle) {
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			Font nativeInter = resolveMacNativeInterFont(normalizedStyle);
+			if (nativeInter != null) {
+				return nativeInter;
+			}
+			Font helveticaNeue = resolveMacHelveticaNeueFont(normalizedStyle);
+			if (helveticaNeue != null) {
+				return helveticaNeue;
+			}
+		} else {
+			Font bundledInter = resolveRegisteredInterFont(normalizedStyle);
+			if (bundledInter != null) {
+				return bundledInter;
+			}
 		}
-		UI_FONT_CACHE.put(normalizedStyle, loadedFont);
-		return loadedFont;
+
+		int fallbackStyle = UI_FONT_STYLE_BOLD.equals(normalizedStyle) ? Font.BOLD : Font.PLAIN;
+		return FontUtils.getCompositeFont(Font.SANS_SERIF, fallbackStyle, 12);
+	}
+
+	private static Font resolveMacNativeInterFont(String normalizedStyle) {
+		return switch (normalizedStyle) {
+			case UI_FONT_STYLE_LIGHT -> firstMatchingCompositeFont(UI_FONT_FAMILY, Font.PLAIN,
+					"Inter-Regular_Light", "Inter-Light", "Inter Light");
+			case UI_FONT_STYLE_MEDIUM -> firstMatchingCompositeFont(UI_FONT_FAMILY, Font.PLAIN,
+					"Inter-Regular_Medium", "Inter-Medium", "Inter Medium");
+			case UI_FONT_STYLE_BOLD -> {
+				Font namedBold = firstMatchingCompositeFont(UI_FONT_FAMILY, Font.PLAIN,
+						"Inter-Regular_Bold", "Inter-Bold", "Inter Bold");
+				yield namedBold != null ? namedBold : tryCompositeFont(UI_FONT_FAMILY, Font.BOLD, UI_FONT_FAMILY);
+			}
+			default -> firstMatchingCompositeFont(UI_FONT_FAMILY, Font.PLAIN, "Inter-Regular", UI_FONT_FAMILY);
+		};
+	}
+
+	private static Font resolveMacHelveticaNeueFont(String normalizedStyle) {
+		String faceName = switch (normalizedStyle) {
+			case UI_FONT_STYLE_LIGHT -> "HelveticaNeue-Light";
+			case UI_FONT_STYLE_MEDIUM -> "HelveticaNeue-Medium";
+			case UI_FONT_STYLE_BOLD -> "HelveticaNeue-Bold";
+			default -> "HelveticaNeue";
+		};
+		return tryCompositeFont(faceName, Font.PLAIN, "Helvetica Neue");
+	}
+
+	private static Font resolveRegisteredInterFont(String normalizedStyle) {
+		return switch (normalizedStyle) {
+			case UI_FONT_STYLE_LIGHT -> tryCompositeFont("Inter Light", Font.PLAIN, "Inter Light");
+			case UI_FONT_STYLE_MEDIUM -> tryCompositeFont("Inter Medium", Font.PLAIN, "Inter Medium");
+			case UI_FONT_STYLE_BOLD -> tryCompositeFont(UI_FONT_FAMILY, Font.BOLD, UI_FONT_FAMILY);
+			default -> tryCompositeFont(UI_FONT_FAMILY, Font.PLAIN, UI_FONT_FAMILY);
+		};
+	}
+
+	private static Font firstMatchingCompositeFont(String expectedFamily, int style, String... fontNames) {
+		for (String fontName : fontNames) {
+			Font candidate = tryCompositeFont(fontName, style, expectedFamily);
+			if (candidate != null) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	private static Font tryCompositeFont(String fontName, int style, String expectedFamily) {
+		Font candidate = FontUtils.getCompositeFont(fontName, style, 12);
+		if (!expectedFamily.equalsIgnoreCase(candidate.getFamily())) {
+			return null;
+		}
+		if (!hasPlatformFallbackCoverage(candidate)) {
+			return null;
+		}
+		return candidate;
+	}
+
+	/**
+	 * Verifies that {@code candidate} supports the same non-Latin fallback scripts as the
+	 * platform's logical {@link Font#DIALOG} font, avoiding physical fonts that render tofu boxes.
+	 */
+	private static boolean hasPlatformFallbackCoverage(Font candidate) {
+		Font dialogFont = new Font(Font.DIALOG, Font.PLAIN, 12);
+		for (char probe : FALLBACK_PROBE_CHARS) {
+			if (dialogFont.canDisplay(probe) && !candidate.canDisplay(probe)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static String normalizeUIFontStyle(String fontStyle) {
