@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,31 +66,49 @@ public class MotorInformationPanelTest {
 				"/Users/example/OpenRocket/ThrustCurves/user_motors.db");
 
 		MotorInformationPanel panel = new MotorInformationPanel();
-		JLabel sourceLabel = getSourceLabel(panel);
+		JLabel sourceLabel = getField(panel, "sourceLabel", JLabel.class);
+		JLabel sourceFileLabel = getField(panel, "sourceFileLabel", JLabel.class);
 
 		panel.updateData(List.of(dbMotor), dbMotor);
 		assertEquals("ThrustCurve.org", sourceLabel.getText());
 		assertNull(sourceLabel.getToolTipText());
+		assertFalse(sourceFileLabel.isVisible());
+		assertEquals("", sourceFileLabel.getText());
+		assertNull(sourceFileLabel.getToolTipText());
 
 		panel.updateData(List.of(userMotor), userMotor);
-		assertEquals("User thrust curve (AeroTech_M1550R.eng)", sourceLabel.getText());
+		assertEquals("User thrust curve", sourceLabel.getText());
 		assertEquals("/Users/example/OpenRocket/ThrustCurves/AeroTech_M1550R.eng", sourceLabel.getToolTipText());
+		assertTrue(sourceFileLabel.isVisible());
+		assertEquals("AeroTech_M1550R.eng", sourceFileLabel.getText());
+		assertEquals("/Users/example/OpenRocket/ThrustCurves/AeroTech_M1550R.eng", sourceFileLabel.getToolTipText());
 
 		panel.updateData(List.of(userMotorWindowsPath), userMotorWindowsPath);
-		assertEquals("User thrust curve (custom_motor.rse)", sourceLabel.getText());
+		assertEquals("User thrust curve", sourceLabel.getText());
 		assertEquals("C:\\Users\\example\\ThrustCurves\\custom_motor.rse", sourceLabel.getToolTipText());
+		assertTrue(sourceFileLabel.isVisible());
+		assertEquals("custom_motor.rse", sourceFileLabel.getText());
+		assertEquals("C:\\Users\\example\\ThrustCurves\\custom_motor.rse", sourceFileLabel.getToolTipText());
 
 		panel.updateData(List.of(userMotorNoPath), userMotorNoPath);
 		assertEquals("User thrust curve", sourceLabel.getText());
 		assertNull(sourceLabel.getToolTipText());
+		assertFalse(sourceFileLabel.isVisible());
+		assertEquals("", sourceFileLabel.getText());
 
 		panel.updateData(List.of(userDbMotor), userDbMotor);
-		assertEquals("User thrust curve (user_motors.db)", sourceLabel.getText());
+		assertEquals("User thrust curve", sourceLabel.getText());
 		assertEquals("/Users/example/OpenRocket/ThrustCurves/user_motors.db", sourceLabel.getToolTipText());
+		assertTrue(sourceFileLabel.isVisible());
+		assertEquals("user_motors.db", sourceFileLabel.getText());
+		assertEquals("/Users/example/OpenRocket/ThrustCurves/user_motors.db", sourceFileLabel.getToolTipText());
 
 		panel.clearData();
 		assertEquals("", sourceLabel.getText());
 		assertNull(sourceLabel.getToolTipText());
+		assertFalse(sourceFileLabel.isVisible());
+		assertEquals("", sourceFileLabel.getText());
+		assertNull(sourceFileLabel.getToolTipText());
 	}
 
 	@Test
@@ -210,10 +229,6 @@ public class MotorInformationPanelTest {
 				.setInitialMass(4.5)
 				.setDigest(digest)
 				.build();
-	}
-
-	private static JLabel getSourceLabel(MotorInformationPanel panel) throws Exception {
-		return getField(panel, "sourceLabel", JLabel.class);
 	}
 
 	private static <T> T getField(Object target, String name, Class<T> type) throws Exception {

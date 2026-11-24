@@ -6,7 +6,6 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -80,6 +79,7 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel digestLabel;
 	private final JLabel lastUpdatedOnLabel;
 	private final JLabel sourceLabel;
+	private final JLabel sourceFileLabel;
 
 	private final JTextArea comment;
 	private final Font noCommentFont;
@@ -189,7 +189,13 @@ class MotorInformationPanel extends JPanel {
 			//// Source:
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Source")));
 			sourceLabel = new JLabel();
-			this.add(sourceLabel, "w 0:0:, growx, pushx, wrap");
+			this.add(sourceLabel, "wrap");
+
+			sourceFileLabel = new JLabel();
+			sourceFileLabel.setForeground(dimTextColor);
+			GUIUtil.changeFontSize(sourceFileLabel, -1);
+			sourceFileLabel.setVisible(false);
+			this.add(sourceFileLabel, "w 0:0:, spanx, growx, gapleft para, gaptop 0, hidemode 3, wrap");
 
 
 			comment = new JTextArea(5, 5);
@@ -314,8 +320,13 @@ class MotorInformationPanel extends JPanel {
 		lastUpdatedOnLabel.setText("");
 		sourceLabel.setText("");
 		sourceLabel.setToolTipText(null);
+		sourceFileLabel.setText("");
+		sourceFileLabel.setToolTipText(null);
+		sourceFileLabel.setVisible(false);
 		setComment("");
 		chart.getXYPlot().setDataset(new XYSeriesCollection());
+		revalidate();
+		repaint();
 	}
 	
 	public void updateData( List<ThrustCurveMotor> motors, ThrustCurveMotor selectedMotor ) {
@@ -361,7 +372,13 @@ class MotorInformationPanel extends JPanel {
 
 		lastUpdatedOnLabel.setText(formatUpdatedOn(selectedMotor.getUpdatedOn()));
 		sourceLabel.setText(formatSource(selectedMotor));
-		sourceLabel.setToolTipText(formatSourceToolTip(selectedMotor));
+		String sourceToolTip = formatSourceToolTip(selectedMotor);
+		sourceLabel.setToolTipText(sourceToolTip);
+
+		String sourceFileName = formatSourceFileName(selectedMotor);
+		sourceFileLabel.setText(sourceFileName);
+		sourceFileLabel.setToolTipText(sourceToolTip);
+		sourceFileLabel.setVisible(!sourceFileName.isEmpty());
 
 		setComment(selectedMotor.getDescription());
 
@@ -391,7 +408,8 @@ class MotorInformationPanel extends JPanel {
 
 		plot.setDataset(dataset);
 
-		invalidate();
+		revalidate();
+		repaint();
 	}
 
 	private static String formatUpdatedOn(String updatedOn) {
@@ -415,14 +433,16 @@ class MotorInformationPanel extends JPanel {
 			return "";
 		}
 		if (motor.isUserDefined()) {
-			Translator translator = Application.getTranslator();
-			String fileName = extractFileName(motor.getSourceFile());
-			if (!fileName.isEmpty()) {
-				return MessageFormat.format(translator.get("TCMotorSelPan.source.userWithFile"), fileName);
-			}
-			return translator.get("TCMotorSelPan.source.user");
+			return Application.getTranslator().get("TCMotorSelPan.source.user");
 		}
 		return formatSource(motor.getDataSource());
+	}
+
+	static String formatSourceFileName(ThrustCurveMotor motor) {
+		if (motor != null && motor.isUserDefined()) {
+			return extractFileName(motor.getSourceFile());
+		}
+		return "";
 	}
 
 	static String formatSourceToolTip(ThrustCurveMotor motor) {
