@@ -75,7 +75,7 @@ class PartExportHelperTest {
 	}
 
 	/**
-	 * Every fin, centering ring and bulkhead of the bundled examples must export with dimensions that match the design.
+	 * Every fin set and centering ring of the bundled examples must export with dimensions that match the design.
 	 */
 	@ParameterizedTest
 	@ValueSource(strings = {
