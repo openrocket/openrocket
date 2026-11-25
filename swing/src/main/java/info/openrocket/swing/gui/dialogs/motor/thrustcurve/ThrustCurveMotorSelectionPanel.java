@@ -130,7 +130,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 	private double nozzleExitDiameter;
-	private MotorRowFilter.SourceFilter lastSourceFilter = MotorRowFilter.SourceFilter.ALL;
+	private Set<MotorSource> lastExcludedSources = Collections.emptySet();
 
 	private static Color dimTextColor;
 
@@ -159,13 +159,17 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		//// MotorFilter
 		{
-			// Find all the manufacturers:
+			// Find all manufacturers and motor sources:
 			Set<Manufacturer> allManufacturers = new HashSet<>();
+			Set<MotorSource> allSources = new HashSet<>();
 			for (ThrustCurveMotorSet s : database) {
 				allManufacturers.add(s.getManufacturer());
+				for (ThrustCurveMotor m : s.getMotors()) {
+					allSources.add(MotorSource.of(m));
+				}
 			}
 
-			motorFilterPanel = new MotorFilterPanel(allManufacturers, rowFilter) {
+			motorFilterPanel = new MotorFilterPanel(allManufacturers, allSources, rowFilter) {
 				private static final long serialVersionUID = 8441555209804602238L;
 
 				@Override
@@ -175,9 +179,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					} catch (IllegalArgumentException e) {
 						log.warn("Motor table sort failed", e);
 					}
-					MotorRowFilter.SourceFilter currentSourceFilter = rowFilter.getSourceFilter();
-					if (currentSourceFilter != lastSourceFilter) {
-						lastSourceFilter = currentSourceFilter;
+					Set<MotorSource> currentExcludedSources = rowFilter.getExcludedSources();
+					if (!currentExcludedSources.equals(lastExcludedSources)) {
+						lastExcludedSources = new HashSet<>(currentExcludedSources);
 						updateSelectionForSourceFilter();
 					}
 					scrollSelectionVisible();
@@ -698,13 +702,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 	private List<ThrustCurveMotor> getMatchingSourceCurves(ThrustCurveMotorSet set) {
-		MotorRowFilter.SourceFilter sourceFilter = rowFilter.getSourceFilter();
-		if (sourceFilter == MotorRowFilter.SourceFilter.ALL) {
+		if (rowFilter.getExcludedSources().isEmpty()) {
 			return set.getMotors();
 		}
 		List<ThrustCurveMotor> matching = new ArrayList<>();
 		for (ThrustCurveMotor motor : set.getMotors()) {
-			if (sourceFilter.matches(motor)) {
+			if (rowFilter.matchesSource(motor)) {
 				matching.add(motor);
 			}
 		}
@@ -715,8 +718,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		if (selectedMotorSet == null || selectedMotor == null) {
 			return;
 		}
-		MotorRowFilter.SourceFilter sourceFilter = rowFilter.getSourceFilter();
-		if (sourceFilter.matches(selectedMotor)) {
+		if (rowFilter.matchesSource(selectedMotor)) {
 			updateData();
 			return;
 		}

@@ -3,9 +3,11 @@ package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.swing.RowFilter;
 import javax.swing.table.TableModel;
@@ -15,7 +17,6 @@ import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.rocketcomponent.MotorMount;
-import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.StateChangeListener;
@@ -26,34 +27,6 @@ import info.openrocket.core.util.StateChangeListener;
  * Abstract adapter class.
  */
 public class MotorRowFilter extends RowFilter<TableModel, Integer> implements ChangeSource {
-
-	public enum SourceFilter {
-		ALL("TCMotorSelPan.sourceFilter.all"),
-		DATABASE_ONLY("TCMotorSelPan.sourceFilter.databaseOnly"),
-		USER_ONLY("TCMotorSelPan.sourceFilter.userOnly");
-
-		private final String translationKey;
-
-		SourceFilter(String translationKey) {
-			this.translationKey = translationKey;
-		}
-
-		public boolean matches(ThrustCurveMotor motor) {
-			if (motor == null) {
-				return false;
-			}
-			return switch (this) {
-				case ALL -> true;
-				case DATABASE_ONLY -> !motor.isUserDefined();
-				case USER_ONLY -> motor.isUserDefined();
-			};
-		}
-
-		@Override
-		public String toString() {
-			return Application.getTranslator().get(translationKey);
-		}
-	}
 
 	// configuration data used in the filter process
 	private final ThrustCurveMotorDatabaseModel model;
@@ -88,8 +61,8 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 	// Show only available motors
 	private boolean hideUnavailable = false;
 
-	// Filter by motor source (all, database only, or user-defined only)
-	private SourceFilter sourceFilter = SourceFilter.ALL;
+	// Set of motor sources to exclude.
+	private final Set<MotorSource> excludedSources = new HashSet<>();
 
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
@@ -194,16 +167,29 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		this.hideUnavailable = hideUnavailable;
 	}
 
-	public SourceFilter getSourceFilter() {
-		return sourceFilter;
+	public Set<MotorSource> getExcludedSources() {
+		return Collections.unmodifiableSet(excludedSources);
 	}
 
-	public void setSourceFilter(SourceFilter sourceFilter) {
-		SourceFilter effective = sourceFilter != null ? sourceFilter : SourceFilter.ALL;
-		if (this.sourceFilter != effective) {
-			this.sourceFilter = effective;
+	public void setExcludedSources(Collection<MotorSource> excludedSources) {
+		Set<MotorSource> updated = excludedSources == null
+				? Collections.emptySet()
+				: new HashSet<>(excludedSources);
+		if (!this.excludedSources.equals(updated)) {
+			this.excludedSources.clear();
+			this.excludedSources.addAll(updated);
 			fireChangeEvent(change);
 		}
+	}
+
+	public boolean matchesSource(ThrustCurveMotor motor) {
+		if (motor == null) {
+			return false;
+		}
+		if (excludedSources.isEmpty()) {
+			return true;
+		}
+		return !excludedSources.contains(MotorSource.of(motor));
 	}
 
 	@Override
@@ -306,11 +292,11 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 	}
 
 	private boolean filterSource(ThrustCurveMotorSet m) {
-		if (sourceFilter == SourceFilter.ALL) {
+		if (excludedSources.isEmpty()) {
 			return true;
 		}
 		for (ThrustCurveMotor motor : m.getMotors()) {
-			if (sourceFilter.matches(motor)) {
+			if (matchesSource(motor)) {
 				return true;
 			}
 		}

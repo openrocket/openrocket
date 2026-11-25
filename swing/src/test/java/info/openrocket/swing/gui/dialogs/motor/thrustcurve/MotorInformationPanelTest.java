@@ -6,12 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.Component;
-import java.awt.Container;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 
@@ -33,6 +30,8 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.ServicesForTesting;
+import info.openrocket.swing.gui.components.CollapsiblePanel;
+import info.openrocket.swing.gui.util.CheckList;
 
 public class MotorInformationPanelTest {
 
@@ -140,12 +139,22 @@ public class MotorInformationPanelTest {
 	}
 
 	@Test
-	public void testSourceFilterLabelsAndSelectionPanelFiltering() throws Exception {
-		assertEquals("All motors", MotorRowFilter.SourceFilter.ALL.toString());
-		assertEquals("Database only", MotorRowFilter.SourceFilter.DATABASE_ONLY.toString());
-		assertEquals("User-defined only", MotorRowFilter.SourceFilter.USER_ONLY.toString());
+	@SuppressWarnings("unchecked")
+	public void testCollapsibleMotorSourceChecklistFiltering() throws Exception {
+		MotorSource tcSource = MotorSource.forDatabaseSource("thrustcurve.org");
+		MotorSource rasaeroSource = MotorSource.forDatabaseSource("RASAero");
+		MotorSource manualSource = MotorSource.forDatabaseSource("manual");
 
-		ThrustCurveMotor dbOnly = createMotor("H123", "thrustcurve.org", false, "");
+		assertEquals("ThrustCurve.org", tcSource.getDisplayName());
+		assertEquals("RASAero", rasaeroSource.getDisplayName());
+		assertEquals("OpenRocket (manual)", manualSource.getDisplayName());
+		assertEquals("User thrust curve", MotorSource.USER_DEFINED.getDisplayName());
+		assertEquals("Unknown", MotorSource.UNKNOWN.getDisplayName());
+		assertEquals(tcSource, MotorSource.forDatabaseSource("ThrustCurve.org"));
+
+		ThrustCurveMotor tcOnly = createMotor("H123", "thrustcurve.org", false, "");
+		ThrustCurveMotor rasaeroOnly = createMotor("Dart", "RASAero", false, "");
+		ThrustCurveMotor manualOnly = createMotor("A6", "manual", false, "");
 		ThrustCurveMotor userOnly = createMotor("M1550R", "", true,
 				"/Users/example/ThrustCurves/AeroTech_M1550R.eng");
 		ThrustCurveMotor mixedDb = createMotor("K550W", "thrustcurve.org", false, "",
@@ -155,48 +164,62 @@ public class MotorInformationPanelTest {
 				new double[] { 0.0, 1.5, 2.0 }, new double[] { 0.0, 900.0, 0.0 }, "mixed-user");
 
 		testDatabase = new ThrustCurveMotorSetDatabase();
-		testDatabase.addMotor(dbOnly);
+		testDatabase.addMotor(tcOnly);
+		testDatabase.addMotor(rasaeroOnly);
+		testDatabase.addMotor(manualOnly);
 		testDatabase.addMotor(userOnly);
 		testDatabase.addMotor(mixedDb);
 		testDatabase.addMotor(mixedUser);
 
 		ThrustCurveMotorSelectionPanel selectionPanel = new ThrustCurveMotorSelectionPanel();
 		JTable table = getField(selectionPanel, "table", JTable.class);
-		JComboBox<?> sourceCombo = findSourceFilterCombo(selectionPanel);
-		assertNotNull(sourceCombo, "Expected motor source filter combo box in MotorFilterPanel");
+		MotorFilterPanel filterPanel = getField(selectionPanel, "motorFilterPanel", MotorFilterPanel.class);
+		CollapsiblePanel sourceCollapsible = getField(filterPanel, "sourceCollapsiblePanel", CollapsiblePanel.class);
+		CheckList<MotorSource> sourceCheckList = getField(filterPanel, "sourceCheckList", CheckList.class);
 
-		assertEquals(3, table.getRowCount());
+		assertNotNull(sourceCollapsible);
+		assertFalse(sourceCollapsible.isExpanded(), "Motor source section should be collapsed by default");
+		assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
+		assertEquals(5, table.getRowCount());
 
-		// Filter to user-defined only: userOnly and mixedSet remain visible.
-		sourceCombo.setSelectedItem(MotorRowFilter.SourceFilter.USER_ONLY);
+		// Uncheck RASAero only: Dart disappears while ThrustCurve.org, manual, user, and mixed stay.
+		sourceCheckList.setUncheckedItems(List.of(rasaeroSource));
+		assertEquals(4, table.getRowCount());
+		assertEquals("Motor Source (3/4)", sourceCollapsible.getHeaderButton().getText());
+		assertEquals(-1, findTableRowByDesignation(table, "Dart"));
+
+		// Show only user-defined curves: userOnly and mixedSet remain visible.
+		sourceCheckList.setCheckedItems(List.of(MotorSource.USER_DEFINED));
 		assertEquals(2, table.getRowCount());
+		assertEquals("Motor Source (1/4)", sourceCollapsible.getHeaderButton().getText());
 
-		// Select the mixed K550W row while USER_ONLY is active: must select the user curve.
+		// Select the mixed K550W row while only user-defined is checked: must select the user curve.
 		int mixedRow = findTableRowByDesignation(table, "K550W");
-		assertTrue(mixedRow >= 0, "Expected K550W row to be visible under USER_ONLY");
+		assertTrue(mixedRow >= 0, "Expected K550W row to be visible when user-defined is checked");
 		table.setRowSelectionInterval(mixedRow, mixedRow);
 		assertEquals(mixedUser, selectionPanel.getSelectedMotor());
 		assertEquals(List.of(mixedUser), selectionPanel.getFilteredCurves());
 
-		// Switching to DATABASE_ONLY while mixedUser is selected must switch to mixedDb.
-		sourceCombo.setSelectedItem(MotorRowFilter.SourceFilter.DATABASE_ONLY);
+		// Switching to ThrustCurve.org only while mixedUser is selected must switch to mixedDb.
+		sourceCheckList.setCheckedItems(List.of(tcSource));
 		assertEquals(2, table.getRowCount());
 		assertEquals(mixedDb, selectionPanel.getSelectedMotor());
 		assertEquals(List.of(mixedDb), selectionPanel.getFilteredCurves());
 
-		// Switching back to USER_ONLY and selecting userOnly, then switching to DATABASE_ONLY clears selection.
-		sourceCombo.setSelectedItem(MotorRowFilter.SourceFilter.USER_ONLY);
+		// Selecting userOnly, then excluding user-defined clears selection.
+		sourceCheckList.setCheckedItems(List.of(MotorSource.USER_DEFINED));
 		int userOnlyRow = findTableRowByDesignation(table, "M1550R");
-		assertTrue(userOnlyRow >= 0, "Expected M1550R row to be visible under USER_ONLY");
+		assertTrue(userOnlyRow >= 0, "Expected M1550R row to be visible when user-defined is checked");
 		table.setRowSelectionInterval(userOnlyRow, userOnlyRow);
 		assertEquals(userOnly, selectionPanel.getSelectedMotor());
 
-		sourceCombo.setSelectedItem(MotorRowFilter.SourceFilter.DATABASE_ONLY);
+		sourceCheckList.setCheckedItems(List.of(tcSource));
 		assertNull(selectionPanel.getSelectedMotor());
 
-		// Switching back to ALL restores all 3 rows.
-		sourceCombo.setSelectedItem(MotorRowFilter.SourceFilter.ALL);
-		assertEquals(3, table.getRowCount());
+		// Checking all restores all 5 rows and resets the header title.
+		sourceCheckList.checkAll();
+		assertEquals(5, table.getRowCount());
+		assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
 	}
 
 	private static ThrustCurveMotor createMotor(String designation, String dataSource, boolean userDefined,
@@ -232,25 +255,17 @@ public class MotorInformationPanelTest {
 	}
 
 	private static <T> T getField(Object target, String name, Class<T> type) throws Exception {
-		Field field = target.getClass().getDeclaredField(name);
-		field.setAccessible(true);
-		return type.cast(field.get(target));
-	}
-
-	private static JComboBox<?> findSourceFilterCombo(Container root) {
-		for (Component comp : root.getComponents()) {
-			if (comp instanceof JComboBox<?> combo && combo.getItemCount() > 0
-					&& combo.getItemAt(0) instanceof MotorRowFilter.SourceFilter) {
-				return combo;
-			}
-			if (comp instanceof Container child) {
-				JComboBox<?> found = findSourceFilterCombo(child);
-				if (found != null) {
-					return found;
-				}
+		Class<?> cls = target.getClass();
+		while (cls != null) {
+			try {
+				Field field = cls.getDeclaredField(name);
+				field.setAccessible(true);
+				return type.cast(field.get(target));
+			} catch (NoSuchFieldException ignored) {
+				cls = cls.getSuperclass();
 			}
 		}
-		return null;
+		throw new NoSuchFieldException(name);
 	}
 
 	private static int findTableRowByDesignation(JTable table, String designation) {

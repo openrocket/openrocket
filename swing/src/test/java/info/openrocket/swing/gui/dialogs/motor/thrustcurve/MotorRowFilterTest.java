@@ -224,9 +224,10 @@ public class MotorRowFilterTest {
 
 	@Test
 	public void testSourceFilter() {
-		ThrustCurveMotor dbOnlyMotor = new ThrustCurveMotor.Builder()
+		ThrustCurveMotor tcMotor = new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("H123")
+				.setDataSource("thrustcurve.org")
 				.setDiameter(0.038)
 				.setLength(0.152)
 				.setTimePoints(new double[] { 0.0, 1.0, 2.0 })
@@ -236,7 +237,23 @@ public class MotorRowFilterTest {
 						new Coordinate(0.076, 0, 0, 0.20),
 						new Coordinate(0.076, 0, 0, 0.15)
 				})
-				.setDigest("db-only")
+				.setDigest("tc-only")
+				.setUserDefined(false)
+				.build();
+
+		ThrustCurveMotor rasaeroMotor = new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("NoThrust"))
+				.setDesignation("Dart")
+				.setDataSource("RASAero")
+				.setDiameter(0.001)
+				.setLength(0.01)
+				.setTimePoints(new double[] { 0.0, 1.0 })
+				.setThrustPoints(new double[] { 0.0, 0.001 })
+				.setCGPoints(new CoordinateIF[] {
+						new Coordinate(0.005, 0, 0, 0.01),
+						new Coordinate(0.005, 0, 0, 0.01)
+				})
+				.setDigest("rasaero-only")
 				.setUserDefined(false)
 				.build();
 
@@ -259,6 +276,7 @@ public class MotorRowFilterTest {
 		ThrustCurveMotor mixedDbMotor = new ThrustCurveMotor.Builder()
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("K550W")
+				.setDataSource("thrustcurve.org")
 				.setDiameter(0.054)
 				.setLength(0.326)
 				.setTimePoints(new double[] { 0.0, 1.0, 2.0 })
@@ -288,8 +306,11 @@ public class MotorRowFilterTest {
 				.setUserDefined(true)
 				.build();
 
-		ThrustCurveMotorSet dbSet = new ThrustCurveMotorSet();
-		dbSet.addMotor(dbOnlyMotor);
+		ThrustCurveMotorSet tcSet = new ThrustCurveMotorSet();
+		tcSet.addMotor(tcMotor);
+
+		ThrustCurveMotorSet rasaeroSet = new ThrustCurveMotorSet();
+		rasaeroSet.addMotor(rasaeroMotor);
 
 		ThrustCurveMotorSet userSet = new ThrustCurveMotorSet();
 		userSet.addMotor(userOnlyMotor);
@@ -298,31 +319,50 @@ public class MotorRowFilterTest {
 		mixedSet.addMotor(mixedDbMotor);
 		mixedSet.addMotor(mixedUserMotor);
 
-		ThrustCurveMotorDatabaseModel model = new ThrustCurveMotorDatabaseModel(List.of(dbSet, userSet, mixedSet));
+		ThrustCurveMotorDatabaseModel model = new ThrustCurveMotorDatabaseModel(
+				List.of(tcSet, rasaeroSet, userSet, mixedSet));
 		MotorRowFilter filter = new MotorRowFilter(model);
 
-		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> dbEntry = entryForRow(model, 0);
-		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> userEntry = entryForRow(model, 1);
-		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> mixedEntry = entryForRow(model, 2);
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> tcEntry = entryForRow(model, 0);
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> rasaeroEntry = entryForRow(model, 1);
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> userEntry = entryForRow(model, 2);
+		MotorRowFilter.Entry<ThrustCurveMotorDatabaseModel, Integer> mixedEntry = entryForRow(model, 3);
 
-		assertEquals(MotorRowFilter.SourceFilter.ALL, filter.getSourceFilter());
-		assertTrue(filter.include(dbEntry));
+		MotorSource tcSource = MotorSource.forDatabaseSource("thrustcurve.org");
+		MotorSource rasaeroSource = MotorSource.forDatabaseSource("RASAero");
+
+		assertTrue(filter.getExcludedSources().isEmpty());
+		assertTrue(filter.include(tcEntry));
+		assertTrue(filter.include(rasaeroEntry));
 		assertTrue(filter.include(userEntry));
 		assertTrue(filter.include(mixedEntry));
 
-		filter.setSourceFilter(MotorRowFilter.SourceFilter.DATABASE_ONLY);
-		assertTrue(filter.include(dbEntry));
+		// Exclude only RASAero: ThrustCurve.org, user, and mixed remain included.
+		filter.setExcludedSources(List.of(rasaeroSource));
+		assertTrue(filter.include(tcEntry));
+		assertFalse(filter.include(rasaeroEntry));
+		assertTrue(filter.include(userEntry));
+		assertTrue(filter.include(mixedEntry));
+
+		// Exclude user-defined only: mixed still included because of its ThrustCurve.org curve.
+		filter.setExcludedSources(List.of(MotorSource.USER_DEFINED));
+		assertTrue(filter.include(tcEntry));
+		assertTrue(filter.include(rasaeroEntry));
 		assertFalse(filter.include(userEntry));
 		assertTrue(filter.include(mixedEntry));
 
-		filter.setSourceFilter(MotorRowFilter.SourceFilter.USER_ONLY);
-		assertFalse(filter.include(dbEntry));
+		// Exclude all database sources: only user and mixed remain.
+		filter.setExcludedSources(List.of(tcSource, rasaeroSource));
+		assertFalse(filter.include(tcEntry));
+		assertFalse(filter.include(rasaeroEntry));
 		assertTrue(filter.include(userEntry));
 		assertTrue(filter.include(mixedEntry));
 
-		filter.setSourceFilter(null);
-		assertEquals(MotorRowFilter.SourceFilter.ALL, filter.getSourceFilter());
-		assertTrue(filter.include(dbEntry));
+		// Reset with null clears exclusions.
+		filter.setExcludedSources(null);
+		assertTrue(filter.getExcludedSources().isEmpty());
+		assertTrue(filter.include(tcEntry));
+		assertTrue(filter.include(rasaeroEntry));
 		assertTrue(filter.include(userEntry));
 		assertTrue(filter.include(mixedEntry));
 	}

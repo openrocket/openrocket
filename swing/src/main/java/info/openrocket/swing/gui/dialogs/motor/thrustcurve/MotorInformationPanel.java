@@ -475,10 +475,7 @@ class MotorInformationPanel extends JPanel {
 		if (v.isEmpty()) {
 			return "";
 		}
-		if ("thrustcurve.org".equalsIgnoreCase(v)) {
-			return "ThrustCurve.org";
-		}
-		return v;
+		return MotorSource.forDatabaseSource(v).getDisplayName();
 	}
 	
 	private void setComment(String s) {

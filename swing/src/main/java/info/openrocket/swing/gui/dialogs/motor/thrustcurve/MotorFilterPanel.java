@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
@@ -13,7 +15,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -30,6 +31,7 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
+import info.openrocket.swing.gui.components.CollapsiblePanel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.CheckList;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -83,6 +85,8 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 	}
 
+	private final CheckList<MotorSource> sourceCheckList;
+	private final CollapsiblePanel sourceCollapsiblePanel;
 	private final CheckList<Manufacturer> manufacturerCheckList;
 
 	private final MotorRowFilter filter;
@@ -112,7 +116,12 @@ public abstract class MotorFilterPanel extends JPanel {
 	private JPanel contentPanel;
 
 
-	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
+	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter) {
+		this(allManufacturers, Collections.emptyList(), filter);
+	}
+
+	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, Collection<MotorSource> allSources,
+			MotorRowFilter filter) {
 		super(new BorderLayout());
 		this.filter = filter;
 		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][][grow][][]"));
@@ -139,25 +148,47 @@ public abstract class MotorFilterPanel extends JPanel {
 			contentPanel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
 		}
 
-		//// Motor source filter
+		//// Motor source filter (collapsible, collapsed by default)
 		{
-			JLabel sourceLabel = new JLabel(trans.get("TCMotorSelPan.lbl.motorSource"));
-			GUIUtil.changeFontSize(sourceLabel, -1);
-			final JComboBox<MotorRowFilter.SourceFilter> sourceCombo =
-					new JComboBox<>(MotorRowFilter.SourceFilter.values());
-			GUIUtil.changeFontSize(sourceCombo, -1);
-			sourceCombo.setSelectedItem(filter.getSourceFilter());
-			sourceCombo.addActionListener(new ActionListener() {
+			List<MotorSource> sources = new ArrayList<>(allSources);
+			Collections.sort(sources);
+
+			sourceCheckList = new CheckList.Builder().build();
+			sourceCheckList.setData(sources);
+			sourceCheckList.getList().setVisibleRowCount(Math.min(Math.max(sources.size(), 2), 5));
+
+			JPanel sourcePanel = new JPanel(new MigLayout("fill, ins 0"));
+			JScrollPane sourceScrollPane = new JScrollPane(sourceCheckList.getList());
+			sourceScrollPane.setMinimumSize(new Dimension(0, 0));
+			sourcePanel.add(sourceScrollPane, "grow, wrap");
+
+			JButton clearSources = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
+			clearSources.addActionListener(e -> sourceCheckList.clearAll());
+			sourcePanel.add(clearSources, "split 2");
+
+			JButton selectSources = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
+			selectSources.addActionListener(e -> sourceCheckList.checkAll());
+			sourcePanel.add(selectSources, "wrap");
+
+			sourceCollapsiblePanel = new CollapsiblePanel(trans.get("TCMotorSelPan.MotorSource"), sourcePanel, false);
+			sourceCheckList.getModel().addListDataListener(new ListDataListener() {
 				@Override
-				public void actionPerformed(ActionEvent e) {
-					MotorRowFilter.SourceFilter selected =
-							(MotorRowFilter.SourceFilter) sourceCombo.getSelectedItem();
-					MotorFilterPanel.this.filter.setSourceFilter(selected);
+				public void intervalAdded(ListDataEvent e) {
+				}
+
+				@Override
+				public void intervalRemoved(ListDataEvent e) {
+				}
+
+				@Override
+				public void contentsChanged(ListDataEvent e) {
+					Collection<MotorSource> uncheckedSources = sourceCheckList.getUncheckedItems();
+					MotorFilterPanel.this.filter.setExcludedSources(uncheckedSources);
+					updateSourceSectionTitle(sources.size(), sources.size() - uncheckedSources.size());
 					onSelectionChanged();
 				}
 			});
-			contentPanel.add(sourceLabel, "gapleft para, split 2");
-			contentPanel.add(sourceCombo, "growx, wrap");
+			contentPanel.add(sourceCollapsiblePanel, "growx, wrap");
 		}
 
 		// Manufacturer selection
@@ -491,6 +522,15 @@ public abstract class MotorFilterPanel extends JPanel {
 				i--;
 			}
 			diameterSlider.setValueAt(1, i-1);
+		}
+	}
+
+	private void updateSourceSectionTitle(int totalCount, int checkedCount) {
+		if (totalCount == 0 || checkedCount == totalCount) {
+			sourceCollapsiblePanel.getHeaderButton().setText(trans.get("TCMotorSelPan.MotorSource"));
+		} else {
+			sourceCollapsiblePanel.getHeaderButton().setText(
+					MessageFormat.format(trans.get("TCMotorSelPan.MotorSource.filtered"), checkedCount, totalCount));
 		}
 	}
 
