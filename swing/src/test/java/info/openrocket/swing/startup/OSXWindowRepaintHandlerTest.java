@@ -79,7 +79,7 @@ public class OSXWindowRepaintHandlerTest {
 				c -> repaintManager,
 				40);
 		try {
-			handler.getSystemSleepListener().systemAwoke(new SystemSleepEvent());
+			handler.getSystemSleepListener().systemAwoke(mock(SystemSleepEvent.class));
 
 			assertEquals(true, followUpDone.await(2, TimeUnit.SECONDS),
 					"Expected both immediate and delayed wake repaints to run");
@@ -116,10 +116,9 @@ public class OSXWindowRepaintHandlerTest {
 				120);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
-				handler.getSystemSleepListener().systemAwoke(new SystemSleepEvent());
-				handler.getScreenSleepListener().screenAwoke(new ScreenSleepEvent());
-				handler.getUserSessionListener().userSessionActivated(
-						new UserSessionEvent(UserSessionEvent.Reason.LOCK));
+				handler.getSystemSleepListener().systemAwoke(mock(SystemSleepEvent.class));
+				handler.getScreenSleepListener().screenAwoke(mock(ScreenSleepEvent.class));
+				handler.getUserSessionListener().userSessionActivated(mock(UserSessionEvent.class));
 			});
 
 			// 3 immediate calls + 1 coalesced follow-up timer firing = 4 total calls
@@ -145,7 +144,7 @@ public class OSXWindowRepaintHandlerTest {
 				c -> repaintManager,
 				50);
 		try {
-			handler.getAppForegroundListener().appRaisedToForeground(new AppForegroundEvent());
+			handler.getAppForegroundListener().appRaisedToForeground(mock(AppForegroundEvent.class));
 			SwingUtilities.invokeAndWait(() -> { });
 
 			verify(repaintManager, never()).setDoubleBufferMaximumSize(null);
