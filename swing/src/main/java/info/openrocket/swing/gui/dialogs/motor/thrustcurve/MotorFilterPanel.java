@@ -155,6 +155,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 			sourceCheckList = new CheckList.Builder().build();
 			sourceCheckList.setData(sources);
+			sourceCheckList.checkAll();
 			sourceCheckList.getList().setVisibleRowCount(Math.min(Math.max(sources.size(), 2), 5));
 
 			JPanel sourcePanel = new JPanel(new MigLayout("fill, ins 0"));

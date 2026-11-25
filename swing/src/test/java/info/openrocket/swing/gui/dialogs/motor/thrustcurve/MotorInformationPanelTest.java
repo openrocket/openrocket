@@ -147,7 +147,7 @@ public class MotorInformationPanelTest {
 
 		assertEquals("ThrustCurve.org", tcSource.getDisplayName());
 		assertEquals("RASAero", rasaeroSource.getDisplayName());
-		assertEquals("OpenRocket (manual)", manualSource.getDisplayName());
+		assertEquals("OpenRocket", manualSource.getDisplayName());
 		assertEquals("User thrust curve", MotorSource.USER_DEFINED.getDisplayName());
 		assertEquals("Unknown", MotorSource.UNKNOWN.getDisplayName());
 		assertEquals(tcSource, MotorSource.forDatabaseSource("ThrustCurve.org"));
@@ -180,6 +180,10 @@ public class MotorInformationPanelTest {
 		assertNotNull(sourceCollapsible);
 		assertFalse(sourceCollapsible.isExpanded(), "Motor source section should be collapsed by default");
 		assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
+		assertEquals(4, sourceCheckList.getCheckedItems().size(),
+				"All motor sources should be checked initially");
+		assertTrue(sourceCheckList.getUncheckedItems().isEmpty(),
+				"No motor sources should be unchecked initially");
 		assertEquals(5, table.getRowCount());
 
 		// Uncheck RASAero only: Dart disappears while ThrustCurve.org, manual, user, and mixed stay.
