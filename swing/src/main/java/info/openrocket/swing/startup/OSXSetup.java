@@ -106,6 +106,7 @@ final class OSXSetup {
 			osxDesktop.setPreferencesHandler(PREFERENCES_HANDLER);
 			osxDesktop.setQuitHandler(QUIT_HANDLER);
 			osxDesktop.addAppEventListener(APP_REOPENED_HANDLER);
+			OSXWindowRepaintHandler.install(osxDesktop);
 
 			// The packaged app bundle provides its own dock icon, so only set one
 			// when running outside the install4j launcher (e.g. from an IDE or jar)
