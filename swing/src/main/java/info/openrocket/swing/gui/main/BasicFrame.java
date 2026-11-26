@@ -129,6 +129,7 @@ import info.openrocket.swing.gui.figure3d.thumbnail.RocketThumbnail;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
+import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.DummyFrameMenuOSX;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -2142,13 +2143,13 @@ private static final Translator trans = Application.getTranslator();
 			swingPrefs.setDefaultDirectory(chooser.getCurrentDirectory());
 
 			// Save SVG preferences
-			prefs.setSVGStrokeColor(optionsDialog.getStrokeColor());
+			prefs.setSVGStrokeColor(ColorConversion.fromAwtColor(optionsDialog.getStrokeColor()));
 			prefs.setSVGStrokeWidth(optionsDialog.getStrokeWidth());
 			prefs.setSVGDrawCrosshair(optionsDialog.isDrawCrosshair());
-			prefs.setSVGCrosshairColor(optionsDialog.getCrosshairColor());
+			prefs.setSVGCrosshairColor(ColorConversion.fromAwtColor(optionsDialog.getCrosshairColor()));
 			prefs.setSVGCrosshairSize(optionsDialog.getCrosshairSize());
 			prefs.setSVGShowLabels(optionsDialog.isShowLabels());
-			prefs.setSVGLabelColor(optionsDialog.getLabelColor());
+			prefs.setSVGLabelColor(ColorConversion.fromAwtColor(optionsDialog.getLabelColor()));
 
 			try {
 				if (selectedTab == SvgOptionsDialog.COMPONENTS_TAB) {

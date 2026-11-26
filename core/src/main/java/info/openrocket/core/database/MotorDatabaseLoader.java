@@ -1,6 +1,5 @@
 package info.openrocket.core.database;
 
-import java.awt.Dialog;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,11 +27,8 @@ import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.core.util.Pair;
-
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 /**
  * An asynchronous database loader that loads the internal thrust curves
@@ -250,19 +246,12 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 			} catch (IllegalArgumentException | IOException e) {
 				Translator trans = Application.getTranslator();
 				String fullPath = f.getU().getPath();
-				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
-						"</i>.<br><br>" + MessageFormat.format(trans.get("MotorDbLoaderDlg.message1"), fullPath) +
-						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-						JDialog dialog = pane.createDialog(null, trans.get("MotorDbLoaderDlg.title"));
-						dialog.setModalityType(Dialog.ModalityType.MODELESS);
-						dialog.setAlwaysOnTop(true);
-						dialog.setVisible(true);
-					}
-				});
+				log.warn("Error loading user-defined motor file " + fullPath + ": " + e.getMessage(), e);
+				String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+				String message = "<i>" + StringUtils.escapeHtml(detail) + "</i>.<br><br>" +
+						MessageFormat.format(trans.get("MotorDbLoaderDlg.message1"), StringUtils.escapeHtml(fullPath)) + "<br>" +
+						trans.get("MotorDbLoaderDlg.message2");
+				reportLoadingError(trans.get("MotorDbLoaderDlg.title"), message);
 			}
 			f.getV().close();
 		} catch (Exception e) {

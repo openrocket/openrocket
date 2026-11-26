@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.awt.Color;
+import info.openrocket.core.util.ORColor;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -66,7 +66,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -84,7 +84,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.0, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -102,7 +102,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.0, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -122,7 +122,7 @@ class RailButtonSvgExporterTest {
 		railButton.setTotalHeight(railButton.getBaseHeight() + railButton.getFlangeHeight());
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -140,7 +140,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -163,7 +163,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -184,7 +184,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -205,7 +205,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		// Draw at offset origin
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.1, 0.05, options);
@@ -228,7 +228,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLUE, 0.2);
+		SVGExportOptions options = new SVGExportOptions(new ORColor(0, 0, 255), 0.2);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -246,7 +246,7 @@ class RailButtonSvgExporterTest {
 		RailButton railButton = createRailButton(0.02, 0.01, 0.005, 0.002, 0.0);
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.3);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.3);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -265,7 +265,7 @@ class RailButtonSvgExporterTest {
 		// Total height = 9mm
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -300,7 +300,7 @@ class RailButtonSvgExporterTest {
 		// Total height = 9mm
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 
@@ -382,7 +382,7 @@ class RailButtonSvgExporterTest {
 		railButton.setTotalHeight(0.009); // 9mm total
 
 		SVGBuilder builder = new SVGBuilder();
-		SVGExportOptions options = new SVGExportOptions(Color.BLACK, 0.1);
+		SVGExportOptions options = new SVGExportOptions(ORColor.BLACK, 0.1);
 
 		RailButtonSvgExporter.drawRailButtonProfile(railButton, builder, 0.0, 0.0, options);
 

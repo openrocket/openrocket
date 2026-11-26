@@ -438,14 +438,14 @@ public class FinPointFigure extends AbstractScaleFigure {
 	protected void updateSubjectDimensions(){
 		// update subject (i.e. Fin) bounds
 		finBounds_m = new BoundingBox().update(finset.getFinPoints());
-		subjectBounds_m = finBounds_m.toRectangle();
+		subjectBounds_m = toRectangle(finBounds_m);
 
 		// The fin set can be detached from the rocket while this figure still exists (e.g. a closed fin editor
 		// whose fin set was later deleted gets revalidated by a look-and-feel update). Bound only the fin then.
 		if (!(this.finset.getParent() instanceof SymmetricComponent parent)) {
 			mountBoundsMax_m = new BoundingBox().update(new Coordinate(0, 0, 0));
 			mountBoundsMin_m = new BoundingBox().update(new Coordinate(0, 0, 0));
-			contentBounds_m = finBounds_m.toRectangle();
+			contentBounds_m = toRectangle(finBounds_m);
 			return;
 		}
 
@@ -465,7 +465,15 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final BoundingBox combinedBounds = new BoundingBox().update(finBounds_m).update(mountBoundsMax_m);
 
-		contentBounds_m = combinedBounds.toRectangle();
+		contentBounds_m = toRectangle(combinedBounds);
+	}
+
+	/**
+	 * Convert a (headless) {@link BoundingBox} into the AWT {@link Rectangle2D} used for drawing.
+	 * The core no longer depends on {@code java.awt.geom}, so this projection lives here in the GUI.
+	 */
+	private static Rectangle2D toRectangle(BoundingBox bb) {
+		return new Rectangle2D.Double(bb.min.getX(), bb.min.getY(), bb.getWidth(), bb.getHeight());
 	}
 
 	@Override

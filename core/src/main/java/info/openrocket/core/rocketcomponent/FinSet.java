@@ -1,6 +1,5 @@
 package info.openrocket.core.rocketcomponent;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,6 +9,7 @@ import java.util.List;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.Geo2D;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
@@ -633,7 +633,7 @@ public abstract class FinSet extends ExternalComponent
 			
 //			final double xCentroid = xAvg;
 //			final double yCentroid = segmentCrossSection.getY(); ///< heuristic, not exact
-			final double segmentLength = Point2D.Double.distance(prev.getX(), prev.getY(), cur.getX(), cur.getY());
+			final double segmentLength = Geo2D.distance(prev.getX(), prev.getY(), cur.getX(), cur.getY());
 			final double segmentVolume = segmentLength * segmentCrossSection.getWeight();
 
 			final CoordinateIF segmentCentroid = segmentCrossSection.setWeight(segmentVolume);
