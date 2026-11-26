@@ -178,6 +178,25 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.light"), Style.BOLD), "split, span, gapright para");
 				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
+				// Lighting presets are actions, not persistent modes. Manual controls remain editable.
+				JLabel presetLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.lightingPreset"));
+				JComboBox<String> presetCombo = new JComboBox<>();
+				presetCombo.addItem(trans.get("PhotoSettingsConfig.lightingPreset.choose"));
+				PhotoSettings.LightingPreset[] presets = PhotoSettings.LightingPreset.values();
+				for (PhotoSettings.LightingPreset preset : presets) {
+					presetCombo.addItem(trans.get("PhotoSettingsConfig.lightingPreset." + preset.name()));
+				}
+				presetLabel.setLabelFor(presetCombo);
+				add(presetLabel);
+				add(presetCombo, "spanx, growx, wrap");
+				presetCombo.addActionListener(e -> {
+					int index = presetCombo.getSelectedIndex();
+					if (index > 0) {
+						p.applyLightingPreset(presets[index - 1]);
+						presetCombo.setSelectedIndex(0);
+					}
+				});
+
 				/// Sun light
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sun")));
 				add(sunLightColorButton, "wrap");

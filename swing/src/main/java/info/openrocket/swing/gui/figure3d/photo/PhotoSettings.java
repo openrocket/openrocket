@@ -11,6 +11,10 @@ public class PhotoSettings extends AbstractChangeSource {
 		SOLID_COLOR, GRADIENT, TEXTURE
 	}
 
+	public enum LightingPreset {
+		STUDIO, DAYLIGHT, SUNSET, NIGHT
+	}
+
 	private double roll = 3.14;
 	private double yaw = 0;
 	private double pitch = 2.05;
@@ -165,6 +169,27 @@ public class PhotoSettings extends AbstractChangeSource {
 
 	public void setLightStrength(double lightStrength) {
 		this.lightStrength = MathUtil.clamp(lightStrength, 0, 2);
+		fireChangeEvent();
+	}
+
+	/** Apply only the lighting settings, leaving the camera, background and effects unchanged. */
+	public void applyLightingPreset(LightingPreset preset) {
+		switch (preset) {
+			case STUDIO -> applyLighting(new ORColor(255, 255, 255), 0.9, 0.45, 35, -45);
+			case DAYLIGHT -> applyLighting(new ORColor(255, 248, 230), 1.25, 0.35, 55, -45);
+			case SUNSET -> applyLighting(new ORColor(255, 155, 75), 1.1, 0.18, 12, -60);
+			case NIGHT -> applyLighting(new ORColor(130, 110, 255), 1.15, 0.07, 20, 60);
+		}
+	}
+
+	private void applyLighting(ORColor color, double strength, double ambient,
+			double altitudeDegrees, double azimuthDegrees) {
+		// Update the complete preset before notifying the UI and renderer.
+		sunlight = color;
+		lightStrength = strength;
+		ambiance = ambient;
+		lightAlt = Math.toRadians(altitudeDegrees);
+		lightAz = Math.toRadians(azimuthDegrees);
 		fireChangeEvent();
 	}
 
