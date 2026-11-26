@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.MathUtil;
@@ -48,6 +49,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -132,6 +134,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private double lastYaw;
 	private double lastRoll;
 	private double lastAdvance;
+	private double lastExplosionAmount;
 	private volatile boolean renderLoopRunning = false;
 	// Photo Studio effects are static snapshots. Render only when settings, input,
 	// canvas state, or an export request makes the current frame stale.
@@ -573,7 +576,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			// Photo Studio always orbits the camera on drag; rocket drag rotation is for design views only.
 			config.getVisualEffects().setRotateRocketOnDrag(false);
 
-			boolean rebuild = applyEffects(config);
+			double explosionAmount = settings.getExplosionAmount();
+			boolean rebuild = applyEffects(config, explosionAmount);
 			if (rebuild) {
 				orchestrator.rebuildRocketScene();
 				baseTransforms.clear();
@@ -597,9 +601,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 					restoreCamera(orchestrator, camera, currentCameraState);
 				}
 			}
-			if (rebuild || isRocketTransformRequired(scene)) {
-				if (applyRocketTransform(scene, config)) {
-					rememberRocketTransformSettings();
+			if (rebuild || isRocketTransformRequired(scene, explosionAmount)) {
+				if (applyRocketTransform(scene, config, explosionAmount)) {
+					rememberRocketTransformSettings(explosionAmount);
 				}
 			}
 		} finally {
@@ -800,7 +804,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		light.setDirection(-x, -y, z);
 	}
 
-	private boolean applyRocketTransform(Scene scene, RenderingConfiguration config) {
+	private boolean applyRocketTransform(Scene scene, RenderingConfiguration config, double explosionAmount) {
 		if (document == null) {
 			debug("applyRocketTransform: no document");
 			return false;
@@ -837,24 +841,74 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 
 		for (SceneObject obj : scene.getObjects()) {
+			if (obj.getRocketComponent() != null) {
+				baseTransforms.computeIfAbsent(obj,
+						key -> sceneRotationInverse.mul(key.getModelMatrix(), new Matrix4f()));
+			}
+		}
+		float amount = (float) explosionAmount;
+		Map<ExplosionGroup, Float> offsets = amount > 0 ? explosionOffsets(scene) : Map.of();
+		Matrix4f separatedTransform = new Matrix4f();
+		for (SceneObject obj : scene.getObjects()) {
 			if (obj.getRocketComponent() == null) {
 				continue;
 			}
-			Matrix4f base = baseTransforms.computeIfAbsent(obj,
-					key -> sceneRotationInverse.mul(key.getModelMatrix(), new Matrix4f()));
-			globalTransform.mul(base, obj.getModelMatrix());
+			Matrix4f base = baseTransforms.get(obj);
+			if (amount == 0) {
+				globalTransform.mul(base, obj.getModelMatrix());
+			} else {
+				float offset = offsets.getOrDefault(explosionGroup(obj), 0.0f) * amount;
+				separatedTransform.set(globalTransform).translate(offset, 0, 0).mul(base, obj.getModelMatrix());
+			}
 		}
 
 		applyParticleTransform(scene, config, globalTransform);
 		return true;
 	}
 
-	private boolean isRocketTransformRequired(Scene scene) {
+	// Motor meshes share their mount's selection component but are separate physical parts.
+	private record ExplosionGroup(RocketComponent component, boolean motor) { }
+
+	private static ExplosionGroup explosionGroup(SceneObject object) {
+		return new ExplosionGroup(object.getRocketComponent(), object.getAppearanceSourceComponent() == null);
+	}
+
+	private Map<ExplosionGroup, Float> explosionOffsets(Scene scene) {
+		Map<ExplosionGroup, AxialExplosion.Span> groups = new LinkedHashMap<>();
+		Vector3f min = new Vector3f(), max = new Vector3f(), corner = new Vector3f();
+		for (SceneObject object : scene.getObjects()) {
+			if (object.getRocketComponent() == null || object.getMesh() == null) {
+				continue;
+			}
+			Matrix4f base = baseTransforms.get(object);
+			object.getMesh().getBoundsMin(min);
+			object.getMesh().getBoundsMax(max);
+			float low = Float.POSITIVE_INFINITY, high = Float.NEGATIVE_INFINITY;
+			for (int i = 0; i < 8; i++) {
+				corner.set((i & 1) == 0 ? min.x : max.x, (i & 2) == 0 ? min.y : max.y,
+						(i & 4) == 0 ? min.z : max.z);
+				base.transformPosition(corner);
+				low = Math.min(low, corner.x);
+				high = Math.max(high, corner.x);
+			}
+			groups.merge(explosionGroup(object), new AxialExplosion.Span(low, high), AxialExplosion.Span::union);
+		}
+		float[] offsets = AxialExplosion.offsets(new ArrayList<>(groups.values()));
+		Map<ExplosionGroup, Float> result = new LinkedHashMap<>();
+		int index = 0;
+		for (ExplosionGroup group : groups.keySet()) {
+			result.put(group, offsets[index++]);
+		}
+		return result;
+	}
+
+	private boolean isRocketTransformRequired(Scene scene, double explosionAmount) {
 		if (!rocketTransformSettingsTracked
 				|| !MathUtil.equals(settings.getPitch(), lastPitch, CAMERA_SETTINGS_EPSILON)
 				|| !MathUtil.equals(settings.getYaw(), lastYaw, CAMERA_SETTINGS_EPSILON)
 				|| !MathUtil.equals(settings.getRoll(), lastRoll, CAMERA_SETTINGS_EPSILON)
-				|| !MathUtil.equals(settings.getAdvance(), lastAdvance, CAMERA_SETTINGS_EPSILON)) {
+				|| !MathUtil.equals(settings.getAdvance(), lastAdvance, CAMERA_SETTINGS_EPSILON)
+				|| explosionAmount != lastExplosionAmount) {
 			return true;
 		}
 		for (SceneObject object : scene.getObjects()) {
@@ -870,11 +924,12 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		return false;
 	}
 
-	private void rememberRocketTransformSettings() {
+	private void rememberRocketTransformSettings(double explosionAmount) {
 		lastPitch = settings.getPitch();
 		lastYaw = settings.getYaw();
 		lastRoll = settings.getRoll();
 		lastAdvance = settings.getAdvance();
+		lastExplosionAmount = explosionAmount;
 		rocketTransformSettingsTracked = true;
 	}
 
@@ -919,11 +974,12 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		log.debug("[{}] {}", Thread.currentThread().getName(), message);
 	}
 
-	private boolean applyEffects(RenderingConfiguration config) {
+	private boolean applyEffects(RenderingConfiguration config, double explosionAmount) {
 		VisualEffectsSettings effects = config.getVisualEffects();
-		effects.setMotionBlurEnabled(settings.isMotionBlurred());
+		boolean assembled = explosionAmount == 0;
+		effects.setMotionBlurEnabled(assembled && settings.isMotionBlurred());
 		effects.setMotionBlurFactor((float) settings.getMotionBlurAmount());
-		boolean motorsAvailable = document != null
+		boolean motorsAvailable = assembled && document != null
 				&& document.getSelectedConfiguration() != null
 				&& document.getSelectedConfiguration().hasMotors();
 		boolean flameEnabled = motorsAvailable && settings.isFlame();

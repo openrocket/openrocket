@@ -136,6 +136,20 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new UnitSelector(advanceModel), "growx");
 				add(photoSlider(advanceModel.getSliderModel(-document.getRocket().getLength(), document.getRocket().getLength())), "wrap");
 
+				// Exploded view
+				JLabel explosionLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.explosionAmount"));
+				String explosionTooltip = trans.get("PhotoSettingsConfig.tooltip.explosionAmount");
+				DoubleModel explosionModel = track(new DoubleModel(p, "ExplosionAmount", UnitGroup.UNITS_RELATIVE, 0, 1));
+				EditableSpinner explosionSpinner = new EditableSpinner(explosionModel.getSpinnerModel());
+				BasicSlider explosionSlider = photoSlider(explosionModel.getSliderModel(0, 1));
+				explosionLabel.setLabelFor(explosionSpinner);
+				explosionLabel.setToolTipText(explosionTooltip);
+				explosionSlider.setToolTipText(explosionTooltip);
+				add(explosionLabel);
+				add(explosionSpinner, "growx");
+				add(new UnitSelector(explosionModel), "growx");
+				add(explosionSlider, "wrap");
+
 				// Camera
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.camera"), Style.BOLD), "split, gapright para, span");
 				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
