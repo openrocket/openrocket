@@ -1,5 +1,8 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
+import java.io.File;
+import java.io.IOException;
+
 import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
 import info.openrocket.core.util.AbstractChangeSource;
@@ -8,7 +11,7 @@ import info.openrocket.core.util.MathUtil;
 
 public class PhotoSettings extends AbstractChangeSource {
 	public enum BackgroundType {
-		SOLID_COLOR, GRADIENT, TEXTURE
+		SOLID_COLOR, GRADIENT, TEXTURE, CUSTOM_IMAGE
 	}
 
 	private double roll = 3.14;
@@ -28,6 +31,7 @@ public class PhotoSettings extends AbstractChangeSource {
 	private double ambiance = 0.1;
 
 	private BackgroundType backgroundType = BackgroundType.TEXTURE;
+	private File customBackground;
 	private ORColor skyColor = new ORColor(55, 95, 155);
 	private double skyColorOpacity = 1.0;
 	private ORColor gradientTopColor = new ORColor(81, 126, 193);
@@ -248,6 +252,26 @@ public class PhotoSettings extends AbstractChangeSource {
 
 	public void setBackgroundType(BackgroundType backgroundType) {
 		this.backgroundType = backgroundType;
+		fireChangeEvent();
+	}
+
+	/** The selected image is session-only; it is not part of the saved design. */
+	public File getCustomBackground() {
+		return customBackground;
+	}
+
+	public void importCustomBackground(File file) throws IOException {
+		File validated = CustomPhotoBackground.validate(file);
+		customBackground = validated;
+		backgroundType = BackgroundType.CUSTOM_IMAGE;
+		fireChangeEvent();
+	}
+
+	public void removeCustomBackground() {
+		customBackground = null;
+		if (backgroundType == BackgroundType.CUSTOM_IMAGE) {
+			backgroundType = BackgroundType.TEXTURE;
+		}
 		fireChangeEvent();
 	}
 

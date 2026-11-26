@@ -46,6 +46,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -117,6 +118,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private float lastSparkConcentration = Float.NaN;
 	private float lastSparkWeight = Float.NaN;
 	private Sky lastSky;
+	private File lastCustomBackground;
 	private ORColor lastSkyColor;
 	private float lastSkyOpacity = Float.NaN;
 	private PhotoSettings.BackgroundType lastBackgroundType;
@@ -287,6 +289,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		lastSparkConcentration = Float.NaN;
 		lastSparkWeight = Float.NaN;
 		lastSky = null;
+		lastCustomBackground = null;
 		lastSkyColor = null;
 		lastSkyOpacity = Float.NaN;
 		cameraSettingsTracked = false;
@@ -629,6 +632,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		lastSkyColor = null;
 		lastSkyOpacity = Float.NaN;
 		lastBackgroundType = null;
+		lastCustomBackground = null;
 		lastGradientTopColor = null;
 		lastGradientBottomColor = null;
 	}
@@ -693,11 +697,13 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		}
 		float alpha = (float) settings.getSkyColorOpacity();
 		Sky selectedSky = settings.getSky();
+		File customBackground = settings.getCustomBackground();
 		ORColor gradTop = settings.getGradientTopColor();
 		ORColor gradBottom = settings.getGradientBottomColor();
 
 		if (bgType == lastBackgroundType
 				&& selectedSky == lastSky
+				&& customBackground == lastCustomBackground
 				&& Objects.equals(sky, lastSkyColor)
 				&& MathUtil.equals(alpha, lastSkyOpacity, CAMERA_SETTINGS_EPSILON)
 				&& Objects.equals(gradTop, lastGradientTopColor)
@@ -705,7 +711,8 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 
-		scene.setBackground(createBackground(bgType, selectedSky, sky, alpha, gradTop, gradBottom));
+		scene.setBackground(createBackground(bgType, selectedSky, customBackground, sky, alpha, gradTop, gradBottom));
+		lastCustomBackground = customBackground;
 		lastBackgroundType = bgType;
 		lastSky = selectedSky;
 		lastSkyColor = copyColor(sky);
@@ -714,7 +721,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		lastGradientBottomColor = gradBottom != null ? copyColor(gradBottom) : null;
 	}
 
-	private Background createBackground(PhotoSettings.BackgroundType bgType, Sky selectedSky,
+	private Background createBackground(PhotoSettings.BackgroundType bgType, Sky selectedSky, File customBackground,
 			ORColor skyColor, float alpha, ORColor gradTop, ORColor gradBottom) {
 		switch (bgType) {
 			case GRADIENT -> {
@@ -725,6 +732,16 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 						? new Vector3f(gradBottom.getRed() / 255.0f, gradBottom.getGreen() / 255.0f, gradBottom.getBlue() / 255.0f)
 						: new Vector3f(0.04f, 0.08f, 0.16f);
 				return new GradientBackground(top, bottom);
+			}
+			case CUSTOM_IMAGE -> {
+				if (customBackground != null) {
+					try {
+						return new ImageBackground(new Texture(customBackground.getAbsolutePath()));
+					} catch (RuntimeException e) {
+						log.warn("Could not load custom Photo Studio background: {}", customBackground, e);
+					}
+				}
+				return createTextureBackground(selectedSky, skyColor, alpha);
 			}
 			case TEXTURE -> {
 				return createTextureBackground(selectedSky, skyColor, alpha);

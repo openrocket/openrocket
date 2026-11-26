@@ -36,7 +36,12 @@ public class PhotoStudioSetter {
         photoSettings.put("ambiance", String.valueOf(p.getAmbiance()));
 
         photoSettings.put("skyColor", getColor(p.getSkyColor()));
-        photoSettings.put("backgroundType", p.getBackgroundType().name());
+        // Custom image files are session-only. Save the existing built-in texture as the fallback.
+        PhotoSettings.BackgroundType backgroundType = p.getBackgroundType();
+        if (backgroundType == PhotoSettings.BackgroundType.CUSTOM_IMAGE) {
+            backgroundType = PhotoSettings.BackgroundType.TEXTURE;
+        }
+        photoSettings.put("backgroundType", backgroundType.name());
         photoSettings.put("gradientTopColor", getColor(p.getGradientTopColor()));
         photoSettings.put("gradientBottomColor", getColor(p.getGradientBottomColor()));
 

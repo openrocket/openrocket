@@ -3,6 +3,8 @@ package info.openrocket.swing.gui.figure3d.photo;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -13,10 +15,12 @@ import java.util.function.Supplier;
 import javax.swing.BorderFactory;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -45,6 +49,8 @@ import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.ColorConversion;
+import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.widgets.NativeFileChooser;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
@@ -222,7 +228,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				String[] bgTypeLabels = {
 						trans.get("PhotoSettingsConfig.backgroundType.solidColor"),
 						trans.get("PhotoSettingsConfig.backgroundType.gradient"),
-						trans.get("PhotoSettingsConfig.backgroundType.texture")
+						trans.get("PhotoSettingsConfig.backgroundType.texture"),
+						trans.get("PhotoSettingsConfig.backgroundType.customImage")
 				};
 				JComboBox<String> bgTypeCombo = new JComboBox<>(bgTypeLabels);
 				add(bgTypeCombo, "spanx, wrap");
@@ -289,9 +296,57 @@ public class PhotoSettingsConfig extends JTabbedPane {
 					credit.setText(((Credit) p.getSky()).getCredit());
 				}
 
+				// -- Custom image card --
+				JPanel customCard = new JPanel(new MigLayout("fill, insets 0", "[grow,fill][]"));
+				JLabel imageName = new JLabel();
+				imageName.putClientProperty("html.disable", Boolean.TRUE);
+				JButton importImage = new JButton(trans.get("PhotoSettingsConfig.customImage.import"));
+				JButton removeImage = new JButton(trans.get("PhotoSettingsConfig.customImage.remove"));
+				customCard.add(imageName, "spanx, wrap, wmin 0");
+				customCard.add(importImage);
+				customCard.add(removeImage, "wrap");
+				Runnable refreshImage = () -> {
+					File selected = p.getCustomBackground();
+					imageName.setText(selected == null ? trans.get("PhotoSettingsConfig.customImage.none") : selected.getName());
+					imageName.setToolTipText(selected == null ? null : selected.getAbsolutePath());
+					removeImage.setEnabled(selected != null);
+				};
+				refreshImage.run();
+				importImage.addActionListener(e -> {
+					NativeFileChooser chooser = new NativeFileChooser();
+					var filter = FileHelper.createFilter(
+							trans.get("PhotoSettingsConfig.customImage.filter"), "png", "jpg", "jpeg");
+					chooser.addChoosableFileFilter(filter);
+					chooser.setFileFilter(filter);
+					chooser.setFileSelectionMode(NativeFileChooser.FILES_ONLY);
+					chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
+					if (chooser.showOpenDialog(PhotoSettingsConfig.this) != NativeFileChooser.APPROVE_OPTION) {
+						return;
+					}
+					File file = chooser.getSelectedFile();
+					if (file == null) {
+						return;
+					}
+					try {
+						p.importCustomBackground(file);
+						Application.getPreferences().setDefaultDirectory(chooser.getCurrentDirectory());
+						refreshImage.run();
+					} catch (IOException | RuntimeException ex) {
+						JOptionPane.showMessageDialog(PhotoSettingsConfig.this,
+								trans.get("PhotoSettingsConfig.customImage.error"),
+								trans.get("PhotoSettingsConfig.backgroundType.customImage"), JOptionPane.ERROR_MESSAGE);
+					}
+				});
+				removeImage.addActionListener(e -> {
+					p.removeCustomBackground();
+					refreshImage.run();
+					bgTypeCombo.setSelectedIndex(p.getBackgroundType().ordinal());
+				});
+
 				cards.add(solidCard, PhotoSettings.BackgroundType.SOLID_COLOR.name());
 				cards.add(gradientCard, PhotoSettings.BackgroundType.GRADIENT.name());
 				cards.add(textureCard, PhotoSettings.BackgroundType.TEXTURE.name());
+				cards.add(customCard, PhotoSettings.BackgroundType.CUSTOM_IMAGE.name());
 				add(cards, "spanx, wrap");
 
 				// Initialize combobox selection from current setting
