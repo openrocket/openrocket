@@ -62,6 +62,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 	private final StateChangeListener colorChangeListener;
 	private StateChangeListener motorEffectsSettingsListener;
 	private StateChangeListener rocketChangeListener;
+	private Runnable refreshBackgroundControls;
 
 	public PhotoSettingsConfig(PhotoSettings p, OpenRocketDocument document) {
 		super();
@@ -304,6 +305,17 @@ public class PhotoSettingsConfig extends JTabbedPane {
 					cardLayout.show(cards, type.name());
 				});
 
+				// Combo boxes are not bound through DoubleModel/BooleanModel, so restore
+				// their selections when resetting the backing settings object.
+				refreshBackgroundControls = () -> {
+					bgTypeCombo.setSelectedIndex(p.getBackgroundType().ordinal());
+					cardLayout.show(cards, p.getBackgroundType().name());
+					skyCombo.setSelectedItem(p.getSky());
+					Sky selectedSky = p.getSky();
+					credit.setText(selectedSky instanceof Sky.Credit
+							? ((Credit) selectedSky).getCredit() : "");
+				};
+
 			}
 		});
 
@@ -463,6 +475,14 @@ public class PhotoSettingsConfig extends JTabbedPane {
 			}
 		}));
 
+	}
+
+	/** Restores all Photo Studio settings without replacing the model bound to the controls. */
+	public void resetToDefaults() {
+		settings.resetToDefaults();
+		if (refreshBackgroundControls != null) {
+			refreshBackgroundControls.run();
+		}
 	}
 
 	private <T extends Invalidatable> T track(T model) {

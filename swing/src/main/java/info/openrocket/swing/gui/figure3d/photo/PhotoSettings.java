@@ -49,6 +49,42 @@ public class PhotoSettings extends AbstractChangeSource {
 	
 	private Sky sky = Mountains.instance;
 	
+	/** Restores the built-in Photo Studio values while keeping UI listeners attached. */
+	public void resetToDefaults() {
+		PhotoSettings defaults = new PhotoSettings();
+		this.roll = defaults.roll;
+		this.yaw = defaults.yaw;
+		this.pitch = defaults.pitch;
+		this.advance = defaults.advance;
+		this.viewAlt = defaults.viewAlt;
+		this.viewAz = defaults.viewAz;
+		this.viewDistance = defaults.viewDistance;
+		this.fov = defaults.fov;
+		this.lightAlt = defaults.lightAlt;
+		this.lightAz = defaults.lightAz;
+		this.lightStrength = defaults.lightStrength;
+		this.sunlight = defaults.sunlight;
+		this.ambiance = defaults.ambiance;
+		this.backgroundType = defaults.backgroundType;
+		this.skyColor = defaults.skyColor;
+		this.skyColorOpacity = defaults.skyColorOpacity;
+		this.gradientTopColor = defaults.gradientTopColor;
+		this.gradientBottomColor = defaults.gradientBottomColor;
+		this.motionBlurred = defaults.motionBlurred;
+		this.motionBlurAmount = defaults.motionBlurAmount;
+		this.flame = defaults.flame;
+		this.flameColor = defaults.flameColor;
+		this.smoke = defaults.smoke;
+		this.smokeColor = defaults.smokeColor;
+		this.sparks = defaults.sparks;
+		this.exhaustScale = defaults.exhaustScale;
+		this.flameAspectRatio = defaults.flameAspectRatio;
+		this.sparkConcentration = defaults.sparkConcentration;
+		this.sparkWeight = defaults.sparkWeight;
+		this.sky = defaults.sky;
+		fireChangeEvent();
+	}
+
 	public double getRoll() {
 		return roll;
 	}
