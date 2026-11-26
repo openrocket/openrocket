@@ -153,9 +153,15 @@ public abstract class MotorFilterPanel extends JPanel {
 			List<MotorSource> sources = new ArrayList<>(allSources);
 			Collections.sort(sources);
 
+			List<MotorSource> excludedSourcesFromPreferences = new ArrayList<>();
+			for (String key : Application.getPreferences().getExcludedMotorSources()) {
+				excludedSourcesFromPreferences.add(MotorSource.fromPreferenceKey(key));
+			}
+			filter.setExcludedSources(excludedSourcesFromPreferences);
+
 			sourceCheckList = new CheckList.Builder().build();
 			sourceCheckList.setData(sources);
-			sourceCheckList.checkAll();
+			sourceCheckList.setUncheckedItems(excludedSourcesFromPreferences);
 			sourceCheckList.getList().setVisibleRowCount(Math.min(Math.max(sources.size(), 2), 5));
 
 			JPanel sourcePanel = new JPanel(new MigLayout("fill, ins 0"));
@@ -172,6 +178,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			sourcePanel.add(selectSources, "wrap");
 
 			sourceCollapsiblePanel = new CollapsiblePanel(trans.get("TCMotorSelPan.MotorSource"), sourcePanel, false);
+			updateSourceSectionTitle(sources.size(), sourceCheckList.getCheckedItems().size());
 			sourceCheckList.getModel().addListDataListener(new ListDataListener() {
 				@Override
 				public void intervalAdded(ListDataEvent e) {
@@ -185,6 +192,11 @@ public abstract class MotorFilterPanel extends JPanel {
 				public void contentsChanged(ListDataEvent e) {
 					Collection<MotorSource> uncheckedSources = sourceCheckList.getUncheckedItems();
 					MotorFilterPanel.this.filter.setExcludedSources(uncheckedSources);
+					List<String> excludedKeys = new ArrayList<>(uncheckedSources.size());
+					for (MotorSource source : uncheckedSources) {
+						excludedKeys.add(source.getPreferenceKey());
+					}
+					Application.getPreferences().setExcludedMotorSources(excludedKeys);
 					updateSourceSectionTitle(sources.size(), sources.size() - uncheckedSources.size());
 					onSelectionChanged();
 				}

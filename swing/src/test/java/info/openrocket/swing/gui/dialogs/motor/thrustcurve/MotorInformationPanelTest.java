@@ -141,6 +141,7 @@ public class MotorInformationPanelTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testCollapsibleMotorSourceChecklistFiltering() throws Exception {
+		Application.getPreferences().setExcludedMotorSources(List.of());
 		MotorSource tcSource = MotorSource.forDatabaseSource("thrustcurve.org");
 		MotorSource rasaeroSource = MotorSource.forDatabaseSource("RASAero");
 		MotorSource manualSource = MotorSource.forDatabaseSource("manual");
@@ -171,59 +172,76 @@ public class MotorInformationPanelTest {
 		testDatabase.addMotor(mixedDb);
 		testDatabase.addMotor(mixedUser);
 
-		ThrustCurveMotorSelectionPanel selectionPanel = new ThrustCurveMotorSelectionPanel();
-		JTable table = getField(selectionPanel, "table", JTable.class);
-		MotorFilterPanel filterPanel = getField(selectionPanel, "motorFilterPanel", MotorFilterPanel.class);
-		CollapsiblePanel sourceCollapsible = getField(filterPanel, "sourceCollapsiblePanel", CollapsiblePanel.class);
-		CheckList<MotorSource> sourceCheckList = getField(filterPanel, "sourceCheckList", CheckList.class);
+		try {
+			ThrustCurveMotorSelectionPanel selectionPanel = new ThrustCurveMotorSelectionPanel();
+			JTable table = getField(selectionPanel, "table", JTable.class);
+			MotorFilterPanel filterPanel = getField(selectionPanel, "motorFilterPanel", MotorFilterPanel.class);
+			CollapsiblePanel sourceCollapsible = getField(filterPanel, "sourceCollapsiblePanel", CollapsiblePanel.class);
+			CheckList<MotorSource> sourceCheckList = getField(filterPanel, "sourceCheckList", CheckList.class);
 
-		assertNotNull(sourceCollapsible);
-		assertFalse(sourceCollapsible.isExpanded(), "Motor source section should be collapsed by default");
-		assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
-		assertEquals(4, sourceCheckList.getCheckedItems().size(),
-				"All motor sources should be checked initially");
-		assertTrue(sourceCheckList.getUncheckedItems().isEmpty(),
-				"No motor sources should be unchecked initially");
-		assertEquals(5, table.getRowCount());
+			assertNotNull(sourceCollapsible);
+			assertFalse(sourceCollapsible.isExpanded(), "Motor source section should be collapsed by default");
+			assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
+			assertEquals(4, sourceCheckList.getCheckedItems().size(),
+					"All motor sources should be checked initially");
+			assertTrue(sourceCheckList.getUncheckedItems().isEmpty(),
+					"No motor sources should be unchecked initially");
+			assertEquals(5, table.getRowCount());
 
-		// Uncheck RASAero only: Dart disappears while ThrustCurve.org, manual, user, and mixed stay.
-		sourceCheckList.setUncheckedItems(List.of(rasaeroSource));
-		assertEquals(4, table.getRowCount());
-		assertEquals("Motor Source (3/4)", sourceCollapsible.getHeaderButton().getText());
-		assertEquals(-1, findTableRowByDesignation(table, "Dart"));
+			// Uncheck RASAero only: Dart disappears and preference is persisted.
+			sourceCheckList.setUncheckedItems(List.of(rasaeroSource));
+			assertEquals(4, table.getRowCount());
+			assertEquals("Motor Source (3/4)", sourceCollapsible.getHeaderButton().getText());
+			assertEquals(-1, findTableRowByDesignation(table, "Dart"));
+			assertEquals(List.of(rasaeroSource.getPreferenceKey()),
+					Application.getPreferences().getExcludedMotorSources());
 
-		// Show only user-defined curves: userOnly and mixedSet remain visible.
-		sourceCheckList.setCheckedItems(List.of(MotorSource.USER_DEFINED));
-		assertEquals(2, table.getRowCount());
-		assertEquals("Motor Source (1/4)", sourceCollapsible.getHeaderButton().getText());
+			// A newly created selection panel restores the persisted exclusion and filtered header title.
+			ThrustCurveMotorSelectionPanel restoredPanel = new ThrustCurveMotorSelectionPanel();
+			JTable restoredTable = getField(restoredPanel, "table", JTable.class);
+			MotorFilterPanel restoredFilterPanel = getField(restoredPanel, "motorFilterPanel", MotorFilterPanel.class);
+			CollapsiblePanel restoredCollapsible =
+					getField(restoredFilterPanel, "sourceCollapsiblePanel", CollapsiblePanel.class);
+			assertEquals(4, restoredTable.getRowCount());
+			assertEquals(-1, findTableRowByDesignation(restoredTable, "Dart"));
+			assertEquals("Motor Source (3/4)", restoredCollapsible.getHeaderButton().getText());
 
-		// Select the mixed K550W row while only user-defined is checked: must select the user curve.
-		int mixedRow = findTableRowByDesignation(table, "K550W");
-		assertTrue(mixedRow >= 0, "Expected K550W row to be visible when user-defined is checked");
-		table.setRowSelectionInterval(mixedRow, mixedRow);
-		assertEquals(mixedUser, selectionPanel.getSelectedMotor());
-		assertEquals(List.of(mixedUser), selectionPanel.getFilteredCurves());
+			// Show only user-defined curves: userOnly and mixedSet remain visible.
+			sourceCheckList.setCheckedItems(List.of(MotorSource.USER_DEFINED));
+			assertEquals(2, table.getRowCount());
+			assertEquals("Motor Source (1/4)", sourceCollapsible.getHeaderButton().getText());
 
-		// Switching to ThrustCurve.org only while mixedUser is selected must switch to mixedDb.
-		sourceCheckList.setCheckedItems(List.of(tcSource));
-		assertEquals(2, table.getRowCount());
-		assertEquals(mixedDb, selectionPanel.getSelectedMotor());
-		assertEquals(List.of(mixedDb), selectionPanel.getFilteredCurves());
+			// Select the mixed K550W row while only user-defined is checked: must select the user curve.
+			int mixedRow = findTableRowByDesignation(table, "K550W");
+			assertTrue(mixedRow >= 0, "Expected K550W row to be visible when user-defined is checked");
+			table.setRowSelectionInterval(mixedRow, mixedRow);
+			assertEquals(mixedUser, selectionPanel.getSelectedMotor());
+			assertEquals(List.of(mixedUser), selectionPanel.getFilteredCurves());
 
-		// Selecting userOnly, then excluding user-defined clears selection.
-		sourceCheckList.setCheckedItems(List.of(MotorSource.USER_DEFINED));
-		int userOnlyRow = findTableRowByDesignation(table, "M1550R");
-		assertTrue(userOnlyRow >= 0, "Expected M1550R row to be visible when user-defined is checked");
-		table.setRowSelectionInterval(userOnlyRow, userOnlyRow);
-		assertEquals(userOnly, selectionPanel.getSelectedMotor());
+			// Switching to ThrustCurve.org only while mixedUser is selected must switch to mixedDb.
+			sourceCheckList.setCheckedItems(List.of(tcSource));
+			assertEquals(2, table.getRowCount());
+			assertEquals(mixedDb, selectionPanel.getSelectedMotor());
+			assertEquals(List.of(mixedDb), selectionPanel.getFilteredCurves());
 
-		sourceCheckList.setCheckedItems(List.of(tcSource));
-		assertNull(selectionPanel.getSelectedMotor());
+			// Selecting userOnly, then excluding user-defined clears selection.
+			sourceCheckList.setCheckedItems(List.of(MotorSource.USER_DEFINED));
+			int userOnlyRow = findTableRowByDesignation(table, "M1550R");
+			assertTrue(userOnlyRow >= 0, "Expected M1550R row to be visible when user-defined is checked");
+			table.setRowSelectionInterval(userOnlyRow, userOnlyRow);
+			assertEquals(userOnly, selectionPanel.getSelectedMotor());
 
-		// Checking all restores all 5 rows and resets the header title.
-		sourceCheckList.checkAll();
-		assertEquals(5, table.getRowCount());
-		assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
+			sourceCheckList.setCheckedItems(List.of(tcSource));
+			assertNull(selectionPanel.getSelectedMotor());
+
+			// Checking all restores all 5 rows, clears preferences, and resets the header title.
+			sourceCheckList.checkAll();
+			assertEquals(5, table.getRowCount());
+			assertEquals("Motor Source", sourceCollapsible.getHeaderButton().getText());
+			assertTrue(Application.getPreferences().getExcludedMotorSources().isEmpty());
+		} finally {
+			Application.getPreferences().setExcludedMotorSources(List.of());
+		}
 	}
 
 	private static ThrustCurveMotor createMotor(String designation, String dataSource, boolean userDefined,

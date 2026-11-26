@@ -17,6 +17,8 @@ public final class MotorSource implements Comparable<MotorSource> {
 
 	private static final String THRUSTCURVE_KEY = "thrustcurve.org";
 	private static final String MANUAL_KEY = "manual";
+	private static final String USER_PREF_KEY = "__user__";
+	private static final String UNKNOWN_PREF_KEY = "__unknown__";
 
 	private final boolean userDefined;
 	private final String normalizedKey;
@@ -57,6 +59,36 @@ public final class MotorSource implements Comparable<MotorSource> {
 
 	public boolean isUserDefined() {
 		return userDefined;
+	}
+
+	/**
+	 * Returns a stable key for persisting this source in application preferences.
+	 */
+	public String getPreferenceKey() {
+		if (userDefined) {
+			return USER_PREF_KEY;
+		}
+		if (normalizedKey.isEmpty()) {
+			return UNKNOWN_PREF_KEY;
+		}
+		return normalizedKey;
+	}
+
+	/**
+	 * Reconstructs a {@link MotorSource} from a persisted preference key.
+	 */
+	public static MotorSource fromPreferenceKey(String key) {
+		if (key == null) {
+			return UNKNOWN;
+		}
+		String trimmed = key.trim();
+		if (USER_PREF_KEY.equalsIgnoreCase(trimmed)) {
+			return USER_DEFINED;
+		}
+		if (trimmed.isEmpty() || UNKNOWN_PREF_KEY.equalsIgnoreCase(trimmed)) {
+			return UNKNOWN;
+		}
+		return forDatabaseSource(trimmed);
 	}
 
 	public String getDisplayName() {
