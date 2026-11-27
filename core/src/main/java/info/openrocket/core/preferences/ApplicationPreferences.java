@@ -3,12 +3,14 @@ package info.openrocket.core.preferences;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.Databases;
@@ -95,6 +97,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
 	public static final String MOTOR_HIDE_UNAVAILABLE = "MotorHideUnavailable";
+	public static final String EXCLUDED_MOTOR_SOURCES_KEY = "ExcludedMotorSources";
 
 	public static final String MOTOR_NAME_COLUMN = "MotorNameColumn";
 
@@ -1100,6 +1103,42 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 */
 	public void setMotorNameColumn(boolean value) {
 		putBoolean(ApplicationPreferences.MOTOR_NAME_COLUMN, value);
+	}
+
+	/**
+	 * Returns the preference keys of motor sources excluded in the motor selection filter.
+	 * Empty by default so all motor sources are checked.
+	 */
+	public List<String> getExcludedMotorSources() {
+		String value = getString(EXCLUDED_MOTOR_SOURCES_KEY, "");
+		if (value == null || value.isEmpty()) {
+			return new ArrayList<>();
+		}
+		List<String> result = new ArrayList<>();
+		for (String part : value.split(Pattern.quote(SPLIT_CHARACTER))) {
+			String trimmed = part.trim();
+			if (!trimmed.isEmpty()) {
+				result.add(trimmed);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Persists the preference keys of motor sources excluded in the motor selection filter.
+	 */
+	public void setExcludedMotorSources(Collection<String> excludedSources) {
+		if (excludedSources == null || excludedSources.isEmpty()) {
+			putString(EXCLUDED_MOTOR_SOURCES_KEY, "");
+			return;
+		}
+		List<String> cleaned = new ArrayList<>();
+		for (String key : excludedSources) {
+			if (key != null && !key.isBlank()) {
+				cleaned.add(key.trim());
+			}
+		}
+		putString(EXCLUDED_MOTOR_SOURCES_KEY, String.join(SPLIT_CHARACTER, cleaned));
 	}
 	
 	/**

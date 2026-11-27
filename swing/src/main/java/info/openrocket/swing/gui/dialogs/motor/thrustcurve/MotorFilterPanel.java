@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
@@ -29,6 +31,7 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
+import info.openrocket.swing.gui.components.CollapsiblePanel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.CheckList;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -82,6 +85,8 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 	}
 
+	private final CheckList<MotorSource> sourceCheckList;
+	private final CollapsiblePanel sourceCollapsiblePanel;
 	private final CheckList<Manufacturer> manufacturerCheckList;
 
 	private final MotorRowFilter filter;
@@ -111,10 +116,15 @@ public abstract class MotorFilterPanel extends JPanel {
 	private JPanel contentPanel;
 
 
-	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
+	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter) {
+		this(allManufacturers, Collections.emptyList(), filter);
+	}
+
+	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, Collection<MotorSource> allSources,
+			MotorRowFilter filter) {
 		super(new BorderLayout());
 		this.filter = filter;
-		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][grow][][][]"));
+		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][][grow][][]"));
 
 		scaleDiameterLabels();
 
@@ -136,6 +146,62 @@ public abstract class MotorFilterPanel extends JPanel {
 				}
 			});
 			contentPanel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
+		}
+
+		//// Motor source filter (collapsible, collapsed by default)
+		{
+			List<MotorSource> sources = new ArrayList<>(allSources);
+			Collections.sort(sources);
+
+			List<MotorSource> excludedSourcesFromPreferences = new ArrayList<>();
+			for (String key : Application.getPreferences().getExcludedMotorSources()) {
+				excludedSourcesFromPreferences.add(MotorSource.fromPreferenceKey(key));
+			}
+			filter.setExcludedSources(excludedSourcesFromPreferences);
+
+			sourceCheckList = new CheckList.Builder().build();
+			sourceCheckList.setData(sources);
+			sourceCheckList.setUncheckedItems(excludedSourcesFromPreferences);
+			sourceCheckList.getList().setVisibleRowCount(Math.min(Math.max(sources.size(), 2), 5));
+
+			JPanel sourcePanel = new JPanel(new MigLayout("fill, ins 0"));
+			JScrollPane sourceScrollPane = new JScrollPane(sourceCheckList.getList());
+			sourceScrollPane.setMinimumSize(new Dimension(0, 0));
+			sourcePanel.add(sourceScrollPane, "grow, wrap");
+
+			JButton clearSources = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
+			clearSources.addActionListener(e -> sourceCheckList.clearAll());
+			sourcePanel.add(clearSources, "split 2");
+
+			JButton selectSources = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
+			selectSources.addActionListener(e -> sourceCheckList.checkAll());
+			sourcePanel.add(selectSources, "wrap");
+
+			sourceCollapsiblePanel = new CollapsiblePanel(trans.get("TCMotorSelPan.MotorSource"), sourcePanel, false);
+			updateSourceSectionTitle(sources.size(), sourceCheckList.getCheckedItems().size());
+			sourceCheckList.getModel().addListDataListener(new ListDataListener() {
+				@Override
+				public void intervalAdded(ListDataEvent e) {
+				}
+
+				@Override
+				public void intervalRemoved(ListDataEvent e) {
+				}
+
+				@Override
+				public void contentsChanged(ListDataEvent e) {
+					Collection<MotorSource> uncheckedSources = sourceCheckList.getUncheckedItems();
+					MotorFilterPanel.this.filter.setExcludedSources(uncheckedSources);
+					List<String> excludedKeys = new ArrayList<>(uncheckedSources.size());
+					for (MotorSource source : uncheckedSources) {
+						excludedKeys.add(source.getPreferenceKey());
+					}
+					Application.getPreferences().setExcludedMotorSources(excludedKeys);
+					updateSourceSectionTitle(sources.size(), sources.size() - uncheckedSources.size());
+					onSelectionChanged();
+				}
+			});
+			contentPanel.add(sourceCollapsiblePanel, "growx, wrap");
 		}
 
 		// Manufacturer selection
@@ -469,6 +535,15 @@ public abstract class MotorFilterPanel extends JPanel {
 				i--;
 			}
 			diameterSlider.setValueAt(1, i-1);
+		}
+	}
+
+	private void updateSourceSectionTitle(int totalCount, int checkedCount) {
+		if (totalCount == 0 || checkedCount == totalCount) {
+			sourceCollapsiblePanel.getHeaderButton().setText(trans.get("TCMotorSelPan.MotorSource"));
+		} else {
+			sourceCollapsiblePanel.getHeaderButton().setText(
+					MessageFormat.format(trans.get("TCMotorSelPan.MotorSource.filtered"), checkedCount, totalCount));
 		}
 	}
 

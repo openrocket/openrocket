@@ -3,9 +3,11 @@ package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.swing.RowFilter;
 import javax.swing.table.TableModel;
@@ -58,6 +60,9 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 	
 	// Show only available motors
 	private boolean hideUnavailable = false;
+
+	// Set of motor sources to exclude.
+	private final Set<MotorSource> excludedSources = new HashSet<>();
 
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
@@ -162,11 +167,37 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 		this.hideUnavailable = hideUnavailable;
 	}
 
+	public Set<MotorSource> getExcludedSources() {
+		return Collections.unmodifiableSet(excludedSources);
+	}
+
+	public void setExcludedSources(Collection<MotorSource> excludedSources) {
+		Set<MotorSource> updated = excludedSources == null
+				? Collections.emptySet()
+				: new HashSet<>(excludedSources);
+		if (!this.excludedSources.equals(updated)) {
+			this.excludedSources.clear();
+			this.excludedSources.addAll(updated);
+			fireChangeEvent(change);
+		}
+	}
+
+	public boolean matchesSource(ThrustCurveMotor motor) {
+		if (motor == null) {
+			return false;
+		}
+		if (excludedSources.isEmpty()) {
+			return true;
+		}
+		return !excludedSources.contains(MotorSource.of(motor));
+	}
+
 	@Override
 	public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 		int index = entry.getIdentifier();
 		ThrustCurveMotorSet m = model.getMotorSet(index);
-		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m) && filterByImpulseClass(m) && filterUnavailable(m);
+		return filterManufacturers(m) && filterUsed(m) && filterBySize(m) && filterByString(m)
+				&& filterByImpulseClass(m) && filterUnavailable(m) && filterSource(m);
 	}
 
 	private boolean filterManufacturers(ThrustCurveMotorSet m) {
@@ -258,6 +289,18 @@ public class MotorRowFilter extends RowFilter<TableModel, Integer> implements Ch
 			return true;
 		}
 		return m.isAvailable();
+	}
+
+	private boolean filterSource(ThrustCurveMotorSet m) {
+		if (excludedSources.isEmpty()) {
+			return true;
+		}
+		for (ThrustCurveMotor motor : m.getMotors()) {
+			if (matchesSource(motor)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 

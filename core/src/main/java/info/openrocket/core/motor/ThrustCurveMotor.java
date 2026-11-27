@@ -58,6 +58,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private String updatedOn = "";
 	private String dataSource = "";
 	private boolean sparky = false;
+	private boolean userDefined = false;
+	private String sourceFile = "";
 
 	private double initialMass;
 	private double maxThrust;
@@ -165,6 +167,16 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 
 		public Builder setSparky(boolean v) {
 			motor.sparky = v;
+			return this;
+		}
+
+		public Builder setUserDefined(boolean v) {
+			motor.userDefined = v;
+			return this;
+		}
+
+		public Builder setSourceFile(String v) {
+			motor.sourceFile = v == null ? "" : v;
 			return this;
 		}
 
@@ -691,6 +703,24 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 
 	public boolean isSparky() {
 		return sparky;
+	}
+
+	/**
+	 * Returns whether this motor was loaded from a user-defined thrust curve file.
+	 *
+	 * @return {@code true} if loaded from a user thrust curve file, {@code false} otherwise
+	 */
+	public boolean isUserDefined() {
+		return userDefined;
+	}
+
+	/**
+	 * Returns the source file path for a user-defined thrust curve motor, or an empty string if none.
+	 *
+	 * @return the source file path, never {@code null}
+	 */
+	public String getSourceFile() {
+		return sourceFile == null ? "" : sourceFile;
 	}
 
 	public double getCutOffTime() {

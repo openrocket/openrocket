@@ -32,6 +32,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 
@@ -79,6 +80,7 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel digestLabel;
 	private final JLabel lastUpdatedOnLabel;
 	private final JLabel sourceLabel;
+	private final StyledLabel sourceFileLabel;
 
 	private final JTextArea comment;
 	private final Font noCommentFont;
@@ -189,6 +191,11 @@ class MotorInformationPanel extends JPanel {
 			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Source")));
 			sourceLabel = new JLabel();
 			this.add(sourceLabel, "wrap");
+
+			sourceFileLabel = new StyledLabel(-1.0f);
+			sourceFileLabel.setFontColor(dimTextColor);
+			sourceFileLabel.setVisible(false);
+			this.add(sourceFileLabel, "w 0:0:, spanx, growx, gapleft para, gaptop 0, hidemode 3, wrap");
 
 
 			comment = new JTextArea(5, 5);
@@ -312,8 +319,14 @@ class MotorInformationPanel extends JPanel {
 		}
 		lastUpdatedOnLabel.setText("");
 		sourceLabel.setText("");
+		sourceLabel.setToolTipText(null);
+		sourceFileLabel.setText("");
+		sourceFileLabel.setToolTipText(null);
+		sourceFileLabel.setVisible(false);
 		setComment("");
 		chart.getXYPlot().setDataset(new XYSeriesCollection());
+		revalidate();
+		repaint();
 	}
 	
 	public void updateData( List<ThrustCurveMotor> motors, ThrustCurveMotor selectedMotor ) {
@@ -358,7 +371,14 @@ class MotorInformationPanel extends JPanel {
 		}
 
 		lastUpdatedOnLabel.setText(formatUpdatedOn(selectedMotor.getUpdatedOn()));
-		sourceLabel.setText(formatSource(selectedMotor.getDataSource()));
+		sourceLabel.setText(formatSource(selectedMotor));
+		String sourceToolTip = formatSourceToolTip(selectedMotor);
+		sourceLabel.setToolTipText(sourceToolTip);
+
+		String sourceFileName = formatSourceFileName(selectedMotor);
+		sourceFileLabel.setText(sourceFileName);
+		sourceFileLabel.setToolTipText(sourceToolTip);
+		sourceFileLabel.setVisible(!sourceFileName.isEmpty());
 
 		setComment(selectedMotor.getDescription());
 
@@ -388,7 +408,8 @@ class MotorInformationPanel extends JPanel {
 
 		plot.setDataset(dataset);
 
-		invalidate();
+		revalidate();
+		repaint();
 	}
 
 	private static String formatUpdatedOn(String updatedOn) {
@@ -407,6 +428,45 @@ class MotorInformationPanel extends JPanel {
 		return v;
 	}
 
+	static String formatSource(ThrustCurveMotor motor) {
+		if (motor == null) {
+			return "";
+		}
+		if (motor.isUserDefined()) {
+			return Application.getTranslator().get("TCMotorSelPan.source.user");
+		}
+		return formatSource(motor.getDataSource());
+	}
+
+	static String formatSourceFileName(ThrustCurveMotor motor) {
+		if (motor != null && motor.isUserDefined()) {
+			return extractFileName(motor.getSourceFile());
+		}
+		return "";
+	}
+
+	static String formatSourceToolTip(ThrustCurveMotor motor) {
+		if (motor != null && motor.isUserDefined()) {
+			String sourceFile = motor.getSourceFile().trim();
+			if (!sourceFile.isEmpty()) {
+				return sourceFile;
+			}
+		}
+		return null;
+	}
+
+	private static String extractFileName(String sourceFile) {
+		if (sourceFile == null) {
+			return "";
+		}
+		String trimmed = sourceFile.trim();
+		if (trimmed.isEmpty()) {
+			return "";
+		}
+		int lastSep = Math.max(trimmed.lastIndexOf('/'), trimmed.lastIndexOf('\\'));
+		return lastSep >= 0 ? trimmed.substring(lastSep + 1) : trimmed;
+	}
+
 	private static String formatSource(String source) {
 		if (source == null) {
 			return "";
@@ -415,10 +475,7 @@ class MotorInformationPanel extends JPanel {
 		if (v.isEmpty()) {
 			return "";
 		}
-		if ("thrustcurve.org".equalsIgnoreCase(v)) {
-			return "ThrustCurve.org";
-		}
-		return v;
+		return MotorSource.forDatabaseSource(v).getDisplayName();
 	}
 	
 	private void setComment(String s) {
