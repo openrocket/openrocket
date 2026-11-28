@@ -1879,6 +1879,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private void updateCaliperUiState() {
 		if (showCalipersButton != null) {
+			showCalipersButton.setVisible(!is3d);
 			showCalipersButton.setEnabled(!is3d);
 			showCalipersButton.setSelected(!is3d && caliperManager != null && caliperManager.isEnabled());
 		}
