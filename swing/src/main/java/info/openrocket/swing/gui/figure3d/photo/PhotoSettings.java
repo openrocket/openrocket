@@ -15,6 +15,7 @@ public class PhotoSettings extends AbstractChangeSource {
 	private double yaw = 0;
 	private double pitch = 2.05;
 	private double advance = 0;
+	private volatile double explosionAmount = 0;
 
 	private double viewAlt = -0.23;
 	private double viewAz = 2.08;
@@ -85,6 +86,19 @@ public class PhotoSettings extends AbstractChangeSource {
 		fireChangeEvent();
 	}
 	
+	/** Session-only separation of rendered components, from assembled (0) to exploded (1). */
+	public double getExplosionAmount() {
+		return explosionAmount;
+	}
+
+	public void setExplosionAmount(double amount) {
+		if (!Double.isFinite(amount)) {
+			throw new IllegalArgumentException("Explosion amount must be finite");
+		}
+		this.explosionAmount = MathUtil.clamp(amount, 0, 1);
+		fireChangeEvent();
+	}
+
 	public double getViewAlt() {
 		return viewAlt;
 	}
