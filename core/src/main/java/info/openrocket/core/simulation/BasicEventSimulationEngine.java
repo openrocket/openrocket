@@ -49,6 +49,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	// The thrust must be below this value for the transition to tumbling.
 	// TODO HIGH: this is an arbitrary value
 	private final static double UNDER_THRUST_CONDITION = 0.01;
+
+	// Angle of attack (rad) at which the tumble detector's small-angle natural frequency is evaluated
+	private static final double SMALL_ANGLE_OF_ATTACK = 1e-4;
 	
 	private SimulationStepper currentStepper;
 	
@@ -353,7 +356,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 							aoa,
 							airSpeed,
 							branch.getLast(FlightDataType.TYPE_AIR_DENSITY),
-							branch.getLast(FlightDataType.TYPE_NATURAL_FREQUENCY));
+							smallAngleNaturalFrequency(branch));
 
 					if (tumbling) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
@@ -388,6 +391,37 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * Each event that has occurred before or at the current simulation time is
 	 * processed.  Suitable events are also added to the flight data.
 	 */
+	/**
+	 * Pitch natural frequency of the airframe at a small angle of attack, used to scale the tumble
+	 * detector's filter.  It is evaluated near zero angle of attack, inside the aerodynamic model's validity
+	 * envelope, so that the detector waits in proportion to the airframe's own pitch dynamics rather than
+	 * to the post-stall aerodynamics at the current angle of attack.
+	 *
+	 * @param branch the current flight data branch, holding the values of the last step
+	 * @return the natural frequency in rad/s, or NaN if the airframe is statically unstable at small angles
+	 *         or the frequency cannot be computed
+	 */
+	private double smallAngleNaturalFrequency(FlightDataBranch branch) {
+		final double mach = branch.getLast(FlightDataType.TYPE_MACH_NUMBER);
+		final double inertia = branch.getLast(FlightDataType.TYPE_LONGITUDINAL_INERTIA);
+		if (Double.isNaN(mach) || mach <= 0 || !(inertia > 0)) {
+			return Double.NaN;
+		}
+
+		final FlightConfiguration configuration = currentStatus.getConfiguration();
+		final FlightConditions conditions = new FlightConditions(configuration);
+		conditions.setMach(mach);
+		conditions.setAOA(SMALL_ANGLE_OF_ATTACK);
+		final CoordinateIF cp = currentStatus.getSimulationConditions().getAerodynamicCalculator()
+				.getCP(configuration, conditions, new WarningSet());
+
+		final double airSpeed = mach * branch.getLast(FlightDataType.TYPE_SPEED_OF_SOUND);
+		final double dynamicPressure = 0.5 * branch.getLast(FlightDataType.TYPE_AIR_DENSITY) * airSpeed * airSpeed;
+		final double correctiveMoment = dynamicPressure * conditions.getRefArea() * cp.getWeight()
+				* (cp.getX() - branch.getLast(FlightDataType.TYPE_CG_LOCATION));
+		return correctiveMoment > 0 ? Math.sqrt(correctiveMoment / inertia) : Double.NaN;
+	}
+
 	private boolean handleEvents(SimulationConditions simulationConditions) throws SimulationException {
 		boolean ret = true;
 		FlightEvent event;

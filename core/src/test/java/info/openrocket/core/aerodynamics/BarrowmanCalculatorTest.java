@@ -15,6 +15,8 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -1148,5 +1150,24 @@ public class BarrowmanCalculatorTest {
 		assertEquals(0, forceMap.get(stage).getPressureCD(), EPSILON);
 		assertEquals(0, forceMap.get(stage).getBaseCD(), EPSILON);
 		assertEquals(0, forceMap.get(stage).getFrictionCD(), EPSILON);
+	}
+
+	/**
+	 * The reported CP must be where the summed normal force acts (Cm * Lref / CN), also past the fin stall
+	 * angle, where the fin normal force is capped.
+	 */
+	@ParameterizedTest(name = "AoA {0} deg")
+	@ValueSource(doubles = { 5, 15, 25, 40, 60, 80 })
+	public void testReportedCPMatchesSummedForces(double aoaDeg) {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setMach(0.3);
+		conditions.setAOA(Math.toRadians(aoaDeg));
+
+		AerodynamicForces forces = new BarrowmanCalculator().getAerodynamicForces(config, conditions, new WarningSet());
+
+		assertEquals(forces.getCm() * conditions.getRefLength() / forces.getCN(), forces.getCP().getX(), 1e-9,
+				"reported CP must equal Cm * Lref / CN at " + aoaDeg + " deg");
 	}
 }

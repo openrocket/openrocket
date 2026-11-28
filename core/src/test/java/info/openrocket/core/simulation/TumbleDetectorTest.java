@@ -7,15 +7,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -239,6 +245,60 @@ public class TumbleDetectorTest extends BaseTestCase {
 		}
 
 		assertTrue(detected, "a finless rocket must still be detected as tumbling");
+	}
+
+	/**
+	 * The detector's filter time must come from the airframe's small-angle dynamics, not from the CP the
+	 * aerodynamic model reports at the current angle of attack. Rescaling the reported CP weights changes no
+	 * force or moment, so the tumbling decision must not move. (Rewriting the CP from a listener perturbs the
+	 * trajectory at round-off level, which shifts the event by a few milliseconds; taking the time constant
+	 * from the reported CP shifted it by about 0.3 s in this scenario.)
+	 */
+	@ParameterizedTest(name = "{0}")
+	@EnumSource(SimulationStepperMethod.class)
+	public void testTumbleDecisionIgnoresReportedCPWeights(SimulationStepperMethod method) throws SimulationException {
+		final double reference = descentTumbleTime(method, 1.0);
+		assertFalse(Double.isNaN(reference), "the scenario must tumble, or the comparison says nothing");
+		assertEquals(reference, descentTumbleTime(method, 0.5), 0.02,
+				"rescaling the reported CP weights must not move the TUMBLE event");
+	}
+
+	/**
+	 * Estes Alpha III in a 2 m/s crosswind with recovery disabled, so that it falls through a large angle
+	 * of attack after apogee, with the reported CP weights multiplied by the given factor.
+	 */
+	private double descentTumbleTime(SimulationStepperMethod method, double cpWeightFactor) throws SimulationException {
+		final Rocket rocket = TestRockets.makeEstesAlphaIII();
+		for (RocketComponent component : rocket) {
+			if (component instanceof RecoveryDevice recoveryDevice) {
+				recoveryDevice.getDeploymentConfigurations().getDefault().setDeployEvent(DeployEvent.NEVER);
+				recoveryDevice.getDeploymentConfigurations().get(TestRockets.TEST_FCID_0).setDeployEvent(DeployEvent.NEVER);
+			}
+		}
+		final Simulation simulation = crosswindSimulation(rocket, 2.0, method);
+		// Both runs must see the same small random pitch and yaw perturbations
+		simulation.getOptions().setRandomSeed(0);
+		simulation.getOptions().setRandomSeedFixed(true);
+		simulation.simulate(DeterministicWind.steady(2.0), new ReportedCPWeightScaler(cpWeightFactor));
+
+		final FlightEvent tumble = simulation.getSimulatedData().getBranch(0).getFirstEvent(FlightEvent.Type.TUMBLE);
+		return tumble == null ? Double.NaN : tumble.getTime();
+	}
+
+	/** Rescales the weight of the reported CP, leaving the normal force and pitch moment untouched. */
+	private static class ReportedCPWeightScaler extends AbstractSimulationListener {
+		private final double factor;
+
+		ReportedCPWeightScaler(double factor) {
+			this.factor = factor;
+		}
+
+		@Override
+		public AerodynamicForces postAerodynamicCalculation(SimulationStatus status, AerodynamicForces forces) {
+			final CoordinateIF cp = forces.getCP();
+			forces.setCP(new Coordinate(cp.getX(), cp.getY(), cp.getZ(), cp.getWeight() * factor));
+			return forces;
+		}
 	}
 
 	private Simulation crosswindSimulation(Rocket rocket, double windSpeed, SimulationStepperMethod method) {
