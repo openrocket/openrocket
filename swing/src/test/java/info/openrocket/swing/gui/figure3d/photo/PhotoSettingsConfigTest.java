@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,6 +27,33 @@ import info.openrocket.core.util.TestRockets;
 import info.openrocket.swing.util.BaseTestCase;
 
 class PhotoSettingsConfigTest extends BaseTestCase {
+	@Test
+	void lightingPresetCanBeReappliedAfterManualAdjustment() throws Exception {
+		SwingUtilities.invokeAndWait(() -> {
+			PhotoSettings settings = new PhotoSettings();
+			settings.setLightStrength(0.5);
+			PhotoSettingsConfig config = new PhotoSettingsConfig(settings,
+					OpenRocketDocumentFactory.createNewRocket());
+			try {
+				JPanel environment = assertInstanceOf(JPanel.class, config.getComponentAt(1));
+				JLabel label = assertInstanceOf(JLabel.class, environment.getComponent(
+						labelIndex(environment, "PhotoSettingsConfig.lbl.lightingPreset")));
+				JComboBox<?> combo = assertInstanceOf(JComboBox.class, label.getLabelFor());
+				assertEquals(5, combo.getItemCount());
+				assertEquals(0.5, settings.getLightStrength(), 1e-12);
+				combo.setSelectedIndex(4);
+				assertEquals(1.15, settings.getLightStrength(), 1e-12);
+				assertEquals(0, combo.getSelectedIndex());
+				settings.setLightStrength(0.3);
+				combo.setSelectedIndex(4);
+				assertEquals(1.15, settings.getLightStrength(), 1e-12);
+				assertEquals(0, combo.getSelectedIndex());
+			} finally {
+				config.dispose();
+			}
+		});
+	}
+
 	@Test
 	void effectsTabGroupsSharedExhaustScaleAheadOfIndividualEffects() throws Exception {
 		SwingUtilities.invokeAndWait(() -> {
